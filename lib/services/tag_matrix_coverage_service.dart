@@ -18,8 +18,7 @@ class TagMatrixAxes {
 
   MatrixAxis operator [](int index) => axes[index];
 
-  factory TagMatrixAxes.fromJson(List<dynamic> list) =>
-      TagMatrixAxes([
+  factory TagMatrixAxes.fromJson(List<dynamic> list) => TagMatrixAxes([
         for (final a in list)
           MatrixAxis.fromJson(Map<String, dynamic>.from(a as Map))
       ]);
@@ -93,7 +92,9 @@ Future<Map<String, dynamic>> _coverageTask(Map args) async {
   final yVals = axes.length > 1 ? axes[1].values : <String>[];
   final cells = <String, Map<String, Map<String, dynamic>>>{};
   for (final x in xVals) {
-    cells[x] = {for (final y in yVals) y: {'count': 0, 'packs': <String>[]}};
+    cells[x] = {
+      for (final y in yVals) y: {'count': 0, 'packs': <String>[]}
+    };
   }
   final docs = await getApplicationDocumentsDirectory();
   final dir = Directory('${docs.path}/training_packs/library');

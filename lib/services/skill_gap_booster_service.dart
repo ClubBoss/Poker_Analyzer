@@ -42,8 +42,10 @@ class SkillGapBoosterService {
     scored.sort((a, b) {
       final cmp = b.coverage.compareTo(a.coverage);
       if (cmp != 0) return cmp;
-      final ac = a.pack.spots.isNotEmpty ? a.pack.spots.length : a.pack.spotCount;
-      final bc = b.pack.spots.isNotEmpty ? b.pack.spots.length : b.pack.spotCount;
+      final ac =
+          a.pack.spots.isNotEmpty ? a.pack.spots.length : a.pack.spotCount;
+      final bc =
+          b.pack.spots.isNotEmpty ? b.pack.spots.length : b.pack.spotCount;
       return ac.compareTo(bc);
     });
 

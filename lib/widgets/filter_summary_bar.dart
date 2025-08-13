@@ -5,7 +5,11 @@ class FilterSummaryBar extends StatelessWidget {
   final String summary;
   final VoidCallback onReset;
   final VoidCallback onChange;
-  const FilterSummaryBar({super.key, required this.summary, required this.onReset, required this.onChange});
+  const FilterSummaryBar(
+      {super.key,
+      required this.summary,
+      required this.onReset,
+      required this.onChange});
 
   @override
   Widget build(BuildContext context) {
@@ -21,13 +25,15 @@ class FilterSummaryBar extends StatelessWidget {
           TextButton.icon(
             onPressed: onReset,
             icon: const Icon(Icons.refresh, color: Colors.grey),
-            label: const Text('Сбросить всё', style: TextStyle(color: Colors.white)),
+            label: const Text('Сбросить всё',
+                style: TextStyle(color: Colors.white)),
           ),
           const SizedBox(width: 8),
           TextButton.icon(
             onPressed: onChange,
             icon: const Icon(Icons.tune, color: Colors.grey),
-            label: const Text('Изменить', style: TextStyle(color: Colors.white)),
+            label:
+                const Text('Изменить', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),

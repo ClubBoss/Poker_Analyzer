@@ -9,7 +9,8 @@ class DormantTagSuggestionService {
   const DormantTagSuggestionService();
 
   Future<TrainingPackTemplateV2?> suggestPack() async {
-    final dormant = await TrainingGapDetectorService.detectDormantTags(limit: 1);
+    final dormant =
+        await TrainingGapDetectorService.detectDormantTags(limit: 1);
     if (dormant.isEmpty) return null;
     final tag = dormant.first.tag;
 

@@ -26,11 +26,13 @@ Future<String?> showActionBottomSheet(BuildContext context) {
                 ),
               ),
               onPressed: () => Navigator.pop(ctx, entry.value.value),
-              icon: Text(entry.value.icon, style: const TextStyle(fontSize: 24)),
+              icon:
+                  Text(entry.value.icon, style: const TextStyle(fontSize: 24)),
               label:
                   Text(entry.value.label, style: const TextStyle(fontSize: 20)),
             ),
-            if (entry.key != pokerActions.length - 1) const SizedBox(height: 12),
+            if (entry.key != pokerActions.length - 1)
+              const SizedBox(height: 12),
           ],
         ],
       ),

@@ -7,7 +7,8 @@ class LessonStreakSummaryCard extends StatefulWidget {
   const LessonStreakSummaryCard({super.key});
 
   @override
-  State<LessonStreakSummaryCard> createState() => _LessonStreakSummaryCardState();
+  State<LessonStreakSummaryCard> createState() =>
+      _LessonStreakSummaryCardState();
 }
 
 class _LessonStreakSummaryCardState extends State<LessonStreakSummaryCard> {
@@ -84,4 +85,3 @@ class _LessonStreakSummaryCardState extends State<LessonStreakSummaryCard> {
     );
   }
 }
-

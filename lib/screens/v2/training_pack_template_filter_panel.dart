@@ -37,8 +37,7 @@ mixin TrainingPackTemplateFilterPanel on State<TrainingPackTemplateListScreen> {
               ChoiceChip(
                 label: const Text('🟡 В процессе'),
                 selected: _showInProgressOnly,
-                onSelected: (_) =>
-                    _setShowInProgressOnly(!_showInProgressOnly),
+                onSelected: (_) => _setShowInProgressOnly(!_showInProgressOnly),
               ),
               ChoiceChip(
                 label: const Text('ICM Only'),
@@ -71,7 +70,8 @@ mixin TrainingPackTemplateFilterPanel on State<TrainingPackTemplateListScreen> {
                 hint: const Text('Any Stack'),
                 onChanged: (v) => _setStackFilter(v == 'any' ? null : v),
                 items: [
-                  const DropdownMenuItem(value: 'any', child: Text('Any Stack')),
+                  const DropdownMenuItem(
+                      value: 'any', child: Text('Any Stack')),
                   for (final r in _stackRanges)
                     DropdownMenuItem(value: r, child: Text('${r}bb')),
                 ],
@@ -111,11 +111,12 @@ mixin TrainingPackTemplateFilterPanel on State<TrainingPackTemplateListScreen> {
     final items = <Widget>[];
     final pos = t.posRangeLabel();
     if (pos.isNotEmpty) {
-      items.add(
-          Text(pos, style: const TextStyle(fontSize: 12, color: Colors.white70)));
+      items.add(Text(pos,
+          style: const TextStyle(fontSize: 12, color: Colors.white70)));
       items.add(const SizedBox(height: 4));
     }
-    final progVal = total > 0 ? (_progress[t.id]?.clamp(0, total) ?? 0) / total : 0.0;
+    final progVal =
+        total > 0 ? (_progress[t.id]?.clamp(0, total) ?? 0) / total : 0.0;
     final progColor = t.goalAchieved ? Colors.green : Colors.orange;
     items.add(LinearProgressIndicator(
       value: progVal,
@@ -124,13 +125,13 @@ mixin TrainingPackTemplateFilterPanel on State<TrainingPackTemplateListScreen> {
     ));
     items.add(const SizedBox(height: 4));
     if (t.targetStreet != null && t.streetGoal > 0) {
-      final val = (_streetProgress[t.id]?.clamp(0, t.streetGoal) ?? 0) / t.streetGoal;
+      final val =
+          (_streetProgress[t.id]?.clamp(0, t.streetGoal) ?? 0) / t.streetGoal;
       items.add(Row(
         children: [
           Expanded(child: LinearProgressIndicator(value: val)),
           const SizedBox(width: 8),
-          Text('${(val * 100).round()}%',
-              style: const TextStyle(fontSize: 12)),
+          Text('${(val * 100).round()}%', style: const TextStyle(fontSize: 12)),
         ],
       ));
       items.add(const SizedBox(height: 4));
@@ -161,8 +162,9 @@ mixin TrainingPackTemplateFilterPanel on State<TrainingPackTemplateListScreen> {
         }
       }
     }
-    final ratio =
-        t.goalTarget > 0 ? (t.goalProgress / t.goalTarget).clamp(0.0, 1.0) : 0.0;
+    final ratio = t.goalTarget > 0
+        ? (t.goalProgress / t.goalTarget).clamp(0.0, 1.0)
+        : 0.0;
     if (t.goalTarget > 0) {
       items.add(Row(
         children: [

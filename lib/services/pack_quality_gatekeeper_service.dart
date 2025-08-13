@@ -8,7 +8,8 @@ import '../core/models/spot_seed/seed_issue.dart';
 class PackQualityGatekeeperService {
   const PackQualityGatekeeperService({
     PackQualityScoreCalculatorService? scoreCalculator,
-  }) : _scoreCalculator = scoreCalculator ?? const PackQualityScoreCalculatorService();
+  }) : _scoreCalculator =
+            scoreCalculator ?? const PackQualityScoreCalculatorService();
 
   final PackQualityScoreCalculatorService _scoreCalculator;
 
@@ -35,4 +36,3 @@ class PackQualityGatekeeperService {
     return true;
   }
 }
-

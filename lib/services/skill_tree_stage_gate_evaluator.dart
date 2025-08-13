@@ -22,8 +22,7 @@ class SkillTreeStageGateEvaluator {
     final sorted = levels.toList()..sort();
     for (final lvl in sorted) {
       if (lvl >= level) break;
-      if (!completionEvaluator.isStageCompleted(
-          tree, lvl, completedNodeIds)) {
+      if (!completionEvaluator.isStageCompleted(tree, lvl, completedNodeIds)) {
         return false;
       }
     }

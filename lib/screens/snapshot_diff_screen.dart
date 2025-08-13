@@ -11,7 +11,8 @@ import '../widgets/saved_hand_viewer_dialog.dart';
 class SnapshotDiffScreen extends StatefulWidget {
   final TrainingPack pack;
   final PackSnapshot snapshot;
-  const SnapshotDiffScreen({super.key, required this.pack, required this.snapshot});
+  const SnapshotDiffScreen(
+      {super.key, required this.pack, required this.snapshot});
 
   @override
   State<SnapshotDiffScreen> createState() => _SnapshotDiffScreenState();
@@ -53,8 +54,14 @@ class _SnapshotDiffScreenState extends State<SnapshotDiffScreen>
     final sMap = {
       for (final h in widget.snapshot.hands) h.savedAt.millisecondsSinceEpoch: h
     };
-    _added = [for (final e in sMap.entries) if (!pMap.containsKey(e.key)) e.value];
-    _removed = [for (final e in pMap.entries) if (!sMap.containsKey(e.key)) e.value];
+    _added = [
+      for (final e in sMap.entries)
+        if (!pMap.containsKey(e.key)) e.value
+    ];
+    _removed = [
+      for (final e in pMap.entries)
+        if (!sMap.containsKey(e.key)) e.value
+    ];
     _modified = [];
     for (final key in sMap.keys) {
       if (pMap.containsKey(key)) {
@@ -97,7 +104,8 @@ class _SnapshotDiffScreenState extends State<SnapshotDiffScreen>
     final undoRem = add;
     final undoMod = [for (final m in mod) m.oldHand];
     setState(() {
-      _pack = service.packs.firstWhere((e) => e.id == _pack.id, orElse: () => _pack);
+      _pack = service.packs
+          .firstWhere((e) => e.id == _pack.id, orElse: () => _pack);
       _selAdd.clear();
       _selRem.clear();
       _selMod.clear();
@@ -139,7 +147,8 @@ class _SnapshotDiffScreenState extends State<SnapshotDiffScreen>
         length: 3,
         child: Scaffold(
           appBar: AppBar(
-            title: Text('+${_added.length}  -${_removed.length}  ±${_modified.length}'),
+            title: Text(
+                '+${_added.length}  -${_removed.length}  ±${_modified.length}'),
             bottom: const TabBar(tabs: [
               Tab(text: 'Added'),
               Tab(text: 'Removed'),
@@ -202,7 +211,8 @@ class _SnapshotDiffScreenState extends State<SnapshotDiffScreen>
                         }
                       }),
                       onLongPress: () => _previewHand(m.newHand),
-                      title: Text(m.newHand.name.isEmpty ? 'Untitled' : m.newHand.name),
+                      title: Text(
+                          m.newHand.name.isEmpty ? 'Untitled' : m.newHand.name),
                       subtitle: Text(_sub(m)),
                     ),
                 ],

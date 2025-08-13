@@ -61,8 +61,8 @@ mixin TrainingPackPlayCore<T extends StatefulWidget> on State<T> {
 
   Future<void> save({bool ts = true}) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('tpl_seq_${template.id}',
-        [for (final s in spots) s.id]);
+    await prefs
+        .setStringList('tpl_seq_${template.id}', [for (final s in spots) s.id]);
     await prefs.setInt('tpl_prog_${template.id}', index);
     await prefs.setString('tpl_res_${template.id}', jsonEncode(results));
     if (template.targetStreet != null) {
@@ -72,11 +72,10 @@ mixin TrainingPackPlayCore<T extends StatefulWidget> on State<T> {
       await prefs.setString('tpl_hand_${template.id}', jsonEncode(handCounts));
     }
     if (ts) {
-      await prefs.setInt('tpl_ts_${template.id}',
-          DateTime.now().millisecondsSinceEpoch);
+      await prefs.setInt(
+          'tpl_ts_${template.id}', DateTime.now().millisecondsSinceEpoch);
     }
-    unawaited(
-        TrainingPackStatsService.setLastIndex(template.id, index));
+    unawaited(TrainingPackStatsService.setLastIndex(template.id, index));
     await PinnedLearningService.instance
         .setLastPosition('pack', template.id, index);
   }
@@ -95,4 +94,3 @@ mixin TrainingPackPlayCore<T extends StatefulWidget> on State<T> {
     }
   }
 }
-

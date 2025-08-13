@@ -17,7 +17,8 @@ class PackRecommendationEngine {
     final audienceSet = (preferredAudiences ?? profile.preferredAudiences)
         .map((e) => e.trim().toLowerCase())
         .toSet();
-    final difficultySet = preferredDifficulties ?? profile.preferredDifficulties;
+    final difficultySet =
+        preferredDifficulties ?? profile.preferredDifficulties;
 
     final entries = <MapEntry<TrainingPackTemplateV2, int>>[];
 
@@ -25,8 +26,7 @@ class PackRecommendationEngine {
       var score = 0;
 
       if (tagSet.isNotEmpty) {
-        final tplTags =
-            {for (final t in tpl.tags) t.trim().toLowerCase()};
+        final tplTags = {for (final t in tpl.tags) t.trim().toLowerCase()};
         for (final tag in tagSet) {
           if (tplTags.contains(tag)) score += 2;
         }

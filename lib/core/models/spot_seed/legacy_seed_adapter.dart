@@ -3,7 +3,8 @@ import 'unified_spot_seed_format.dart';
 
 /// Converts legacy seed maps into [SpotSeed] instances.
 class LegacySeedAdapter {
-  const LegacySeedAdapter({SpotSeedCodec? codec}) : _codec = codec ?? const SpotSeedCodec();
+  const LegacySeedAdapter({SpotSeedCodec? codec})
+      : _codec = codec ?? const SpotSeedCodec();
 
   final SpotSeedCodec _codec;
 
@@ -51,4 +52,3 @@ class LegacySeedAdapter {
     return set.toList();
   }
 }
-

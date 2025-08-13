@@ -37,8 +37,9 @@ class FakeRetentionTracker extends TagRetentionTracker {
   late final List<String> _tags;
 
   @override
-  Future<List<String>> getDecayedTags({double threshold = 0.75, DateTime? now})
-      async => _tags;
+  Future<List<String>> getDecayedTags(
+          {double threshold = 0.75, DateTime? now}) async =>
+      _tags;
 }
 
 class _FakeEngine extends SmartTheoryRecapEngine {
@@ -52,7 +53,9 @@ class _FakeSuppression extends TheoryRecapSuppressionEngine {
   final bool value;
   _FakeSuppression(this.value) : super();
   @override
-  Future<bool> shouldSuppress({required String lessonId, required String trigger}) async => value;
+  Future<bool> shouldSuppress(
+          {required String lessonId, required String trigger}) async =>
+      value;
 }
 
 class _FakeDismissal extends SmartTheoryRecapDismissalMemory {
@@ -70,12 +73,14 @@ void main() {
   });
 
   Future<void> pump(WidgetTester tester) async {
-    await tester.pumpWidget(MaterialApp(navigatorKey: navigatorKey, home: const SizedBox()));
+    await tester.pumpWidget(
+        MaterialApp(navigatorKey: navigatorKey, home: const SizedBox()));
   }
 
   testWidgets('injects recap when opportunity available', (tester) async {
     await pump(tester);
-    final lesson = const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
+    final lesson =
+        const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
     final service = SmartRecapAutoInjector(
       detector: _FakeDetector(true),
       engine: _FakeEngine(lesson),
@@ -89,7 +94,8 @@ void main() {
 
   testWidgets('respects cooldown between injections', (tester) async {
     await pump(tester);
-    final lesson = const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
+    final lesson =
+        const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
     final service = SmartRecapAutoInjector(
       detector: _FakeDetector(true),
       engine: _FakeEngine(lesson),

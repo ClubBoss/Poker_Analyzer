@@ -23,15 +23,16 @@ class TrainingPackTemplateStorageService extends ChangeNotifier {
       {for (final e in _goalProgress.entries) e.key: Map.unmodifiable(e.value)};
 
   final List<TrainingPackTemplateModel> _templates = [];
-  List<TrainingPackTemplateModel> get templates => List.unmodifiable(_templates);
+  List<TrainingPackTemplateModel> get templates =>
+      List.unmodifiable(_templates);
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getStringList(_key) ?? [];
     _templates
       ..clear()
-      ..addAll(raw.map((e) =>
-          TrainingPackTemplateModel.fromJson(jsonDecode(e) as Map<String, dynamic>)));
+      ..addAll(raw.map((e) => TrainingPackTemplateModel.fromJson(
+          jsonDecode(e) as Map<String, dynamic>)));
     if (_templates.isEmpty) {
       _templates.addAll(await TrainingPackTemplateRepository.getAll());
       await _persist();
@@ -124,7 +125,8 @@ class TrainingPackTemplateStorageService extends ChangeNotifier {
       await rootBundle.loadString('assets/training_packs/$id.json'),
     ) as Map<String, dynamic>;
     return v2.TrainingPackTemplate.fromJson(data);
-}
+  }
+
   Future<v2.TrainingPackTemplate?> loadById(String id) async {
     await TrainingPackLibraryV2.instance.loadFromFolder();
     final builtIn = TrainingPackLibraryV2.instance.getById(id);

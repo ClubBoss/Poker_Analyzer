@@ -47,8 +47,7 @@ class OfflineEvaluatorService {
         for (var i = 0; i < acts.length; i++) {
           final a = acts[i];
           if (a.playerIndex == hero && a.action == 'push') {
-            acts[i] =
-                a.copyWith(ev: (cached['ev'] as num).toDouble());
+            acts[i] = a.copyWith(ev: (cached['ev'] as num).toDouble());
             return;
           }
         }

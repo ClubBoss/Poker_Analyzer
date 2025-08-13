@@ -38,4 +38,3 @@ void main() {
     expect(find.text('Руки: 4 / ≥10'), findsOneWidget);
   });
 }
-

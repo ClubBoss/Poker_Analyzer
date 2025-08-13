@@ -7,7 +7,8 @@ import 'package:poker_analyzer/services/png_exporter.dart';
 
 Future<void> main(List<String> args) async {
   if (args.isEmpty) {
-    stderr.writeln('Usage: dart run tool/generate_previews.dart <inputDir> [outputDir]');
+    stderr.writeln(
+        'Usage: dart run tool/generate_previews.dart <inputDir> [outputDir]');
     exit(1);
   }
   final src = Directory(args[0]);
@@ -15,7 +16,8 @@ Future<void> main(List<String> args) async {
     stderr.writeln('Directory not found: ${args[0]}');
     exit(1);
   }
-  final out = Directory(args.length > 1 ? args[1] : './previews')..createSync(recursive: true);
+  final out = Directory(args.length > 1 ? args[1] : './previews')
+    ..createSync(recursive: true);
   final files = src.listSync(recursive: true).whereType<File>().where((f) {
     final l = f.path.toLowerCase();
     return l.endsWith('.json') || l.endsWith('.pka');
@@ -30,22 +32,27 @@ Future<void> main(List<String> args) async {
         try {
           TrainingPackTemplate tpl;
           if (file.path.toLowerCase().endsWith('.json')) {
-            final map = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
+            final map =
+                jsonDecode(await file.readAsString()) as Map<String, dynamic>;
             tpl = TrainingPackTemplate.fromJson(map);
           } else {
             final bytes = await file.readAsBytes();
             final archive = ZipDecoder().decodeBytes(bytes);
-            final tplFile = archive.files.firstWhere((e) => e.name == 'template.json');
-            final jsonMap = jsonDecode(utf8.decode(tplFile.content)) as Map<String, dynamic>;
+            final tplFile =
+                archive.files.firstWhere((e) => e.name == 'template.json');
+            final jsonMap = jsonDecode(utf8.decode(tplFile.content))
+                as Map<String, dynamic>;
             tpl = TrainingPackTemplate.fromJson(jsonMap);
           }
           final bytes = await PngExporter.exportTemplatePreview(tpl);
           if (bytes == null) throw 'failed';
           final path = p.join(out.path, '${tpl.id}.png');
           await File(path).writeAsBytes(bytes);
-          stdout.writeln('[${++done}/${files.length}] ${p.basename(path)}  –  OK');
+          stdout.writeln(
+              '[${++done}/${files.length}] ${p.basename(path)}  –  OK');
         } catch (_) {
-          stdout.writeln('[${++done}/${files.length}] ${p.basename(file.path)}  –  [ERROR]');
+          stdout.writeln(
+              '[${++done}/${files.length}] ${p.basename(file.path)}  –  [ERROR]');
         }
       }),
     );

@@ -18,8 +18,7 @@ void main() {
     ];
     final pack = TrainingPackModel(id: 'p1', title: 'Pack', spots: spots);
 
-    final issues =
-        PackQualityInspectorService.instance.analyzePack(pack);
+    final issues = PackQualityInspectorService.instance.analyzePack(pack);
     final ids = issues.map((e) => e.id).toSet();
 
     expect(ids.contains('overused_tag'), true);
@@ -29,4 +28,3 @@ void main() {
     expect(ids.contains('too_few_spots'), true);
   });
 }
-

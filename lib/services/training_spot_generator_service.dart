@@ -43,10 +43,9 @@ class TrainingSpotGeneratorService {
   TrainingSpotGeneratorService({
     Random? random,
     FullBoardGeneratorService? boardGenerator,
-  }) : _random = random ?? Random(),
-       _boardGenerator =
-           boardGenerator ??
-           FullBoardGeneratorService(random: random ?? Random());
+  })  : _random = random ?? Random(),
+        _boardGenerator = boardGenerator ??
+            FullBoardGeneratorService(random: random ?? Random());
 
   final Random _random;
   final FullBoardGeneratorService _boardGenerator;
@@ -155,8 +154,8 @@ class TrainingSpotGeneratorService {
     final stages = street == 'river'
         ? 5
         : street == 'turn'
-        ? 4
-        : 3;
+            ? 4
+            : 3;
     final board = _boardGenerator.generateBoard(
       FullBoardRequest(
         stages: stages,
@@ -170,9 +169,10 @@ class TrainingSpotGeneratorService {
   List<CardModel> generateRandomFlop({
     Map<String, dynamic>? boardFilter,
     List<CardModel> excludedCards = const [],
-  }) => generateRandomBoard(
-    street: 'flop',
-    boardFilter: boardFilter,
-    excludedCards: excludedCards,
-  );
+  }) =>
+      generateRandomBoard(
+        street: 'flop',
+        boardFilter: boardFilter,
+        excludedCards: excludedCards,
+      );
 }

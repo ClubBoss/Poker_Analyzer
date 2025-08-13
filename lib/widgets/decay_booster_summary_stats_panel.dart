@@ -15,10 +15,12 @@ class DecayBoosterSummaryStatsPanel extends StatefulWidget {
   });
 
   @override
-  State<DecayBoosterSummaryStatsPanel> createState() => _DecayBoosterSummaryStatsPanelState();
+  State<DecayBoosterSummaryStatsPanel> createState() =>
+      _DecayBoosterSummaryStatsPanelState();
 }
 
-class _DecayBoosterSummaryStatsPanelState extends State<DecayBoosterSummaryStatsPanel> {
+class _DecayBoosterSummaryStatsPanelState
+    extends State<DecayBoosterSummaryStatsPanel> {
   late Future<_SummaryData> _future;
   late bool _expanded;
 
@@ -52,7 +54,8 @@ class _DecayBoosterSummaryStatsPanelState extends State<DecayBoosterSummaryStats
         final deltaStr = data.delta >= 0
             ? '+${data.delta.toStringAsFixed(2)}'
             : data.delta.toStringAsFixed(2);
-        final summary = '🎯 ${data.tags} забытых навыков восстановлены · $deltaStr мастерства';
+        final summary =
+            '🎯 ${data.tags} забытых навыков восстановлены · $deltaStr мастерства';
         final accent = Theme.of(context).colorScheme.secondary;
         return Container(
           margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -75,7 +78,8 @@ class _DecayBoosterSummaryStatsPanelState extends State<DecayBoosterSummaryStats
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(e.tag, style: const TextStyle(color: Colors.white70)),
+                      Text(e.tag,
+                          style: const TextStyle(color: Colors.white70)),
                       Text(
                         e.delta >= 0
                             ? '+${e.delta.toStringAsFixed(2)}'
@@ -99,7 +103,8 @@ class _SummaryData {
   final int tags;
   final double delta;
   final List<DecayTagReinforcementEvent> events;
-  const _SummaryData({required this.tags, required this.delta, required this.events});
+  const _SummaryData(
+      {required this.tags, required this.delta, required this.events});
   const _SummaryData.empty()
       : tags = 0,
         delta = 0,

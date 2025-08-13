@@ -15,8 +15,7 @@ class TheorySuggestionEngagementEvent {
         'timestamp': timestamp.toIso8601String(),
       };
 
-  factory TheorySuggestionEngagementEvent.fromJson(
-      Map<String, dynamic> json) {
+  factory TheorySuggestionEngagementEvent.fromJson(Map<String, dynamic> json) {
     return TheorySuggestionEngagementEvent(
       lessonId: json['lessonId'] as String? ?? '',
       action: json['action'] as String? ?? '',

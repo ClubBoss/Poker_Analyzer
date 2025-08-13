@@ -47,8 +47,7 @@ class _TodayProgressBannerState extends State<TodayProgressBanner>
         weight: 50,
       ),
     ]).animate(_controller);
-    _recordSub =
-        context.read<StreakCounterService>().recordStream.listen((_) {
+    _recordSub = context.read<StreakCounterService>().recordStream.listen((_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -159,8 +158,8 @@ class _TodayProgressBannerState extends State<TodayProgressBanner>
           if (streak == 0 && streakService.lastSuccess != null)
             Builder(builder: (context) {
               final last = streakService.lastSuccess!;
-              final diff = today.difference(
-                      DateTime(last.year, last.month, last.day))
+              final diff = today
+                  .difference(DateTime(last.year, last.month, last.day))
                   .inDays;
               if (diff > 1) {
                 final date =

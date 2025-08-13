@@ -16,7 +16,10 @@ class RecentSpotHistoryService {
     try {
       final data = jsonDecode(raw);
       if (data is List) {
-        return [for (final id in data) if (id is String) id];
+        return [
+          for (final id in data)
+            if (id is String) id
+        ];
       }
     } catch (_) {}
     return <String>[];

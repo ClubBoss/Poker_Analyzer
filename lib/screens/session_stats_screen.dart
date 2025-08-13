@@ -549,7 +549,8 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     final hands = _filteredHands(manager);
     final service = ProgressExportService(stats: stats);
     final file = await service.exportEvIcmCsv(hands);
-    await Share.shareXFiles([XFile(file.path)], text: file.path.split('/').last);
+    await Share.shareXFiles([XFile(file.path)],
+        text: file.path.split('/').last);
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Файл сохранён: ${file.path.split('/').last}')),
@@ -563,7 +564,8 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     final hands = _filteredHands(manager);
     final service = ProgressExportService(stats: stats);
     final file = await service.exportEvIcmPdf(hands);
-    await Share.shareXFiles([XFile(file.path)], text: file.path.split('/').last);
+    await Share.shareXFiles([XFile(file.path)],
+        text: file.path.split('/').last);
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Файл сохранён: ${file.path.split('/').last}')),
@@ -767,8 +769,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
               accuracies: summary.sessionAccuracies),
           SessionVolumeAccuracyChart(sessions: sessionSeries),
           SizedBox(height: 16 * scale),
-          if (weekly.length > 1)
-            WeeklyWinrateChart(data: weekly, scale: scale),
+          if (weekly.length > 1) WeeklyWinrateChart(data: weekly, scale: scale),
           if (summary.mistakeTag != null) ...[
             SizedBox(height: 16 * scale),
             Container(
@@ -810,8 +811,8 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
                 scale: scale,
                 selected: _activeTag == e.key,
                 onTap: () {
-                  setState(() =>
-                      _activeTag = _activeTag == e.key ? null : e.key);
+                  setState(
+                      () => _activeTag = _activeTag == e.key ? null : e.key);
                   _saveActiveTag();
                 },
               ),

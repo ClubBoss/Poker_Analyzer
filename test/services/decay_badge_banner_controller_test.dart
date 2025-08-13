@@ -27,7 +27,9 @@ void main() {
     final controller = DecayBadgeBannerController(notifier: notifier);
     await tester.pumpWidget(
       MultiProvider(
-        providers: [Provider<DecayBadgeBannerController>.value(value: controller)],
+        providers: [
+          Provider<DecayBadgeBannerController>.value(value: controller)
+        ],
         child: MaterialApp(
           home: Builder(builder: (context) {
             return Scaffold(

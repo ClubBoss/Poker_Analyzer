@@ -184,8 +184,11 @@ class _TrainingPackCardState extends State<TrainingPackCard>
     final icm = _icmPct ?? 0;
     final acc = _accPct ?? 0;
     if (ev >= 100 && icm >= 100 && acc >= 100) return const SizedBox.shrink();
-    Color c(double v) =>
-        v >= 90 ? Colors.green : v >= 60 ? Colors.yellow : Colors.red;
+    Color c(double v) => v >= 90
+        ? Colors.green
+        : v >= 60
+            ? Colors.yellow
+            : Colors.red;
     return Text.rich(
       TextSpan(children: [
         const TextSpan(text: 'EV: '),
@@ -201,10 +204,8 @@ class _TrainingPackCardState extends State<TrainingPackCard>
 
   @override
   Widget build(BuildContext context) {
-    final updatedAt =
-        widget.template.updatedDate ?? widget.template.createdAt;
-    final isNew =
-        DateTime.now().difference(updatedAt).inDays <= 3;
+    final updatedAt = widget.template.updatedDate ?? widget.template.createdAt;
+    final isNew = DateTime.now().difference(updatedAt).inDays <= 3;
     final catSet = <String>{};
     for (final s in widget.template.spots) {
       for (final t in s.tags.where((t) => t.startsWith('cat:'))) {
@@ -248,13 +249,14 @@ class _TrainingPackCardState extends State<TrainingPackCard>
                         Padding(
                           padding: const EdgeInsets.only(bottom: 4),
                           child: Chip(
-                            label: Text(widget.template.meta['theme'].toString(),
+                            label: Text(
+                                widget.template.meta['theme'].toString(),
                                 style: const TextStyle(fontSize: 11)),
                             backgroundColor: Colors.blueGrey,
                             materialTapTargetSize:
                                 MaterialTapTargetSize.shrinkWrap,
-                            visualDensity:
-                                const VisualDensity(horizontal: -4, vertical: -4),
+                            visualDensity: const VisualDensity(
+                                horizontal: -4, vertical: -4),
                           ),
                         ),
                       Row(
@@ -344,8 +346,8 @@ class _TrainingPackCardState extends State<TrainingPackCard>
                       if (widget.template.coveragePercent != null)
                         Padding(
                           padding: const EdgeInsets.only(top: 4),
-                          child: CoverageMeter(
-                              widget.template.coveragePercent!),
+                          child:
+                              CoverageMeter(widget.template.coveragePercent!),
                         ),
                     ],
                   ),
@@ -491,7 +493,8 @@ class _TrainingPackCardState extends State<TrainingPackCard>
                     child: Container(
                       color: Colors.black54,
                       alignment: Alignment.center,
-                      child: const Icon(Icons.lock, color: Colors.white, size: 40),
+                      child:
+                          const Icon(Icons.lock, color: Colors.white, size: 40),
                     ),
                   ),
                 ),

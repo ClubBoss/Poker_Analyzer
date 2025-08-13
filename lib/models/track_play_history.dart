@@ -23,12 +23,15 @@ class TrackPlayHistory {
         if (completedAt != null) 'completedAt': completedAt!.toIso8601String(),
         if (accuracy != null) 'accuracy': accuracy,
         if (mistakeCount != null) 'mistakeCount': mistakeCount,
-        if (results.isNotEmpty) 'results': [for (final r in results) r.toJson()],
+        if (results.isNotEmpty)
+          'results': [for (final r in results) r.toJson()],
       };
 
-  factory TrackPlayHistory.fromJson(Map<String, dynamic> json) => TrackPlayHistory(
+  factory TrackPlayHistory.fromJson(Map<String, dynamic> json) =>
+      TrackPlayHistory(
         goalId: json['goalId'] as String? ?? '',
-        startedAt: DateTime.tryParse(json['startedAt'] as String? ?? '') ?? DateTime.now(),
+        startedAt: DateTime.tryParse(json['startedAt'] as String? ?? '') ??
+            DateTime.now(),
         completedAt: json['completedAt'] != null
             ? DateTime.tryParse(json['completedAt'] as String)
             : null,

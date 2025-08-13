@@ -44,8 +44,7 @@ class PackComparisonFilters extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              const Text('Сортировка',
-                  style: TextStyle(color: Colors.white)),
+              const Text('Сортировка', style: TextStyle(color: Colors.white)),
               const SizedBox(width: 8),
               DropdownButton<PackChartSort>(
                 value: chartSort,
@@ -72,8 +71,10 @@ class PackComparisonFilters extends StatelessWidget {
                 style: const TextStyle(color: Colors.white),
                 items: const [
                   DropdownMenuItem(value: null, child: Text('Все')),
-                  DropdownMenuItem(value: GameType.cash, child: Text('Cash Game')),
-                  DropdownMenuItem(value: GameType.tournament, child: Text('Tournament')),
+                  DropdownMenuItem(
+                      value: GameType.cash, child: Text('Cash Game')),
+                  DropdownMenuItem(
+                      value: GameType.tournament, child: Text('Tournament')),
                 ],
                 onChanged: onTypeChanged,
               ),
@@ -116,12 +117,15 @@ class PackComparisonFilters extends StatelessWidget {
                   const DropdownMenuItem(value: 'All', child: Text('All')),
                   const DropdownMenuItem(value: 'Red', child: Text('Red')),
                   const DropdownMenuItem(value: 'Blue', child: Text('Blue')),
-                  const DropdownMenuItem(value: 'Orange', child: Text('Orange')),
+                  const DropdownMenuItem(
+                      value: 'Orange', child: Text('Orange')),
                   const DropdownMenuItem(value: 'Green', child: Text('Green')),
-                  const DropdownMenuItem(value: 'Purple', child: Text('Purple')),
+                  const DropdownMenuItem(
+                      value: 'Purple', child: Text('Purple')),
                   const DropdownMenuItem(value: 'Grey', child: Text('Grey')),
                   const DropdownMenuItem(value: 'None', child: Text('None')),
-                  const DropdownMenuItem(value: 'Custom', child: Text('Custom...')),
+                  const DropdownMenuItem(
+                      value: 'Custom', child: Text('Custom...')),
                   if (colorFilter.startsWith('#'))
                     DropdownMenuItem(
                       value: colorFilter,
@@ -149,4 +153,3 @@ class PackComparisonFilters extends StatelessWidget {
     );
   }
 }
-

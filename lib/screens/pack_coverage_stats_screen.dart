@@ -13,7 +13,8 @@ class PackCoverageStatsScreen extends StatefulWidget {
   const PackCoverageStatsScreen({super.key});
 
   @override
-  State<PackCoverageStatsScreen> createState() => _PackCoverageStatsScreenState();
+  State<PackCoverageStatsScreen> createState() =>
+      _PackCoverageStatsScreenState();
 }
 
 class _PackCoverageStatsScreenState extends State<PackCoverageStatsScreen> {
@@ -83,12 +84,16 @@ class _PackCoverageStatsScreenState extends State<PackCoverageStatsScreen> {
             _load();
           },
           child: Text(label,
-              style:
-                  TextStyle(color: _filter == id ? Colors.amber : Colors.white)),
+              style: TextStyle(
+                  color: _filter == id ? Colors.amber : Colors.white)),
         );
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [btn('base', 'Base'), btn('archive', 'Archive'), btn('all', 'All')],
+      children: [
+        btn('base', 'Base'),
+        btn('archive', 'Archive'),
+        btn('all', 'All')
+      ],
     );
   }
 
@@ -98,7 +103,9 @@ class _PackCoverageStatsScreenState extends State<PackCoverageStatsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pack Coverage Stats'),
-        actions: [IconButton(onPressed: _load, icon: const Icon(Icons.refresh))],
+        actions: [
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh))
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
           child: _filterButtons(),

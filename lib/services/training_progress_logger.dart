@@ -93,4 +93,3 @@ class TrainingProgressLogger {
     await finishSession(packId, hands);
   }
 }
-

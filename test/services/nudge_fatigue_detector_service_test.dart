@@ -34,9 +34,7 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt(
         'pinned_open_last_b',
-        DateTime.now()
-            .subtract(const Duration(days: 8))
-            .millisecondsSinceEpoch,
+        DateTime.now().subtract(const Duration(days: 8)).millisecondsSinceEpoch,
       );
       for (var i = 0; i < 6; i++) {
         await logger.logDismissed(item);
@@ -79,9 +77,7 @@ void main() {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(
       'pinned_dismiss_last_e',
-      DateTime.now()
-          .subtract(const Duration(days: 8))
-          .millisecondsSinceEpoch,
+      DateTime.now().subtract(const Duration(days: 8)).millisecondsSinceEpoch,
     );
     expect(await detector.isFatigued(item), false);
   });

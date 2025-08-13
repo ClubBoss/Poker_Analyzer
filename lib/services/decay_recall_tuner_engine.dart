@@ -51,8 +51,9 @@ class DecayRecallTunerEngine {
       final stats = tagStats[tag];
       final completed = stats?.completedCount ?? 0;
       final successes = successMap[tag] ?? 0;
-      final successRate =
-          completed > 0 ? successes * 100 / completed : (successes > 0 ? 100 : 0);
+      final successRate = completed > 0
+          ? successes * 100 / completed
+          : (successes > 0 ? 100 : 0);
 
       final last = stats?.lastInteraction;
       final daysSince = last != null ? now.difference(last).inDays : 999;

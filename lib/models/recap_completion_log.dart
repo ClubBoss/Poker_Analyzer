@@ -18,10 +18,12 @@ class RecapCompletionLog {
         'durationMs': duration.inMilliseconds,
       };
 
-  factory RecapCompletionLog.fromJson(Map<String, dynamic> json) => RecapCompletionLog(
+  factory RecapCompletionLog.fromJson(Map<String, dynamic> json) =>
+      RecapCompletionLog(
         lessonId: json['lessonId'] as String? ?? '',
         tag: json['tag'] as String? ?? '',
-        timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ?? DateTime.now(),
+        timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ??
+            DateTime.now(),
         duration: Duration(milliseconds: (json['durationMs'] as int?) ?? 0),
       );
 }

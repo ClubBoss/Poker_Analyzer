@@ -47,4 +47,3 @@ class AutogenPipelineControlPanelWidget extends StatelessWidget {
     );
   }
 }
-

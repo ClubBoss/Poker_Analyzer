@@ -34,7 +34,8 @@ void main() {
   });
 
   test('returns pack with highest engagement', () async {
-    final old = DateTime.now().subtract(const Duration(days: 20)).toIso8601String();
+    final old =
+        DateTime.now().subtract(const Duration(days: 20)).toIso8601String();
     SharedPreferences.setMockInitialValues({
       'suggested_pack_history': jsonEncode([
         {'id': 'a', 'source': 't', 'ts': old},
@@ -52,7 +53,8 @@ void main() {
   });
 
   test('respects cooldown window', () async {
-    final recent = DateTime.now().subtract(const Duration(days: 5)).toIso8601String();
+    final recent =
+        DateTime.now().subtract(const Duration(days: 5)).toIso8601String();
     SharedPreferences.setMockInitialValues({
       'suggested_pack_history': jsonEncode([
         {'id': 'a', 'source': 't', 'ts': recent},

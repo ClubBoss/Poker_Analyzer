@@ -342,7 +342,8 @@ class PlayerZoneOverlayController {
       Future.delayed(Duration(milliseconds: 50 * i), () {
         if (!_state.mounted) return;
         final control = Offset(
-          (start.dx + end.dx) / 2 + (rnd.nextDouble() * 40 - 20) * _state.widget.scale,
+          (start.dx + end.dx) / 2 +
+              (rnd.nextDouble() * 40 - 20) * _state.widget.scale,
           (start.dy + end.dy) / 2 -
               (40 + ChipMovingWidget.activeCount * 8) * _state.widget.scale,
         );

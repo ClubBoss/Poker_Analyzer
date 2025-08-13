@@ -47,8 +47,9 @@ class TrackUnlockCondition {
   Map<String, dynamic> toYaml() => {
         if (minXp != null) 'minXp': minXp,
         if (requiredTags.isNotEmpty)
-          'requiredTags':
-              requiredTags.length == 1 ? requiredTags.first : requiredTags.toList(),
+          'requiredTags': requiredTags.length == 1
+              ? requiredTags.first
+              : requiredTags.toList(),
         if (completedLessonIds.isNotEmpty)
           'completedLessonIds': completedLessonIds.toList(),
         if (gameType != null) 'gameType': gameType!.name,

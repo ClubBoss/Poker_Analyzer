@@ -15,9 +15,11 @@ class TrainingHistoryEntry {
     this.evScore,
   });
 
-  factory TrainingHistoryEntry.fromJson(Map<String, dynamic> j) => TrainingHistoryEntry(
+  factory TrainingHistoryEntry.fromJson(Map<String, dynamic> j) =>
+      TrainingHistoryEntry(
         packId: j['packId'] as String? ?? '',
-        timestamp: DateTime.tryParse(j['timestamp'] as String? ?? '') ?? DateTime.now(),
+        timestamp: DateTime.tryParse(j['timestamp'] as String? ?? '') ??
+            DateTime.now(),
         tags: [for (final t in (j['tags'] as List? ?? [])) t.toString()],
         audience: j['audience'] as String?,
         rating: (j['rating'] as num?)?.toInt(),

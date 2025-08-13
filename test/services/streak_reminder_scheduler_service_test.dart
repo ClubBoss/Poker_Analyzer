@@ -12,7 +12,8 @@ void main() {
     await service.init();
     expect(await service.shouldNotifyToday(), isTrue);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('streak_reminder_last', DateTime.now().toIso8601String());
+    await prefs.setString(
+        'streak_reminder_last', DateTime.now().toIso8601String());
     expect(await service.shouldNotifyToday(), isFalse);
     service.dispose();
   });

@@ -144,8 +144,8 @@ void main() {
             completedAt: null,
             results: {},
           ),
-          template:
-              TrainingPackTemplate(id: 't', name: '', spots: [], createdAt: DateTime(0)),
+          template: TrainingPackTemplate(
+              id: 't', name: '', spots: [], createdAt: DateTime(0)),
           preEvPct: 0,
           preIcmPct: 0,
           xpEarned: 10,

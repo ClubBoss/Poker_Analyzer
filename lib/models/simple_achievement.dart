@@ -15,7 +15,8 @@ class SimpleAchievement {
     this.date,
   });
 
-  SimpleAchievement copyWith({bool? unlocked, DateTime? date}) => SimpleAchievement(
+  SimpleAchievement copyWith({bool? unlocked, DateTime? date}) =>
+      SimpleAchievement(
         id: id,
         title: title,
         icon: icon,

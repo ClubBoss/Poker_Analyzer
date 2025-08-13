@@ -10,7 +10,9 @@ class TrainingSessionLogRepository {
   List<SessionLog> getLogs({required String packId, String? variant}) {
     return logs.logs.where((log) {
       if (log.templateId != packId) return false;
-      if (variant != null && variant.isNotEmpty && !log.tags.contains(variant)) {
+      if (variant != null &&
+          variant.isNotEmpty &&
+          !log.tags.contains(variant)) {
         return false;
       }
       return true;

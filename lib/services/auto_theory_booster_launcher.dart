@@ -32,8 +32,7 @@ class AutoTheoryBoosterLauncher {
     _sub?.cancel();
   }
 
-  bool _underCooldown() =>
-      DateTime.now().difference(_lastLaunch) < cooldown;
+  bool _underCooldown() => DateTime.now().difference(_lastLaunch) < cooldown;
 
   Future<void> _handle(RecapCompletionLog log) async {
     if (_underCooldown()) return;

@@ -11,7 +11,8 @@ class PackRecommendationSection extends StatefulWidget {
   const PackRecommendationSection({super.key, required this.template});
 
   @override
-  State<PackRecommendationSection> createState() => _PackRecommendationSectionState();
+  State<PackRecommendationSection> createState() =>
+      _PackRecommendationSectionState();
 }
 
 class _PackRecommendationSectionState extends State<PackRecommendationSection> {

@@ -68,6 +68,9 @@ class UserGoal {
 
   static List<UserGoal> decode(String raw) {
     final data = jsonDecode(raw) as List;
-    return [for (final e in data) UserGoal.fromJson(Map<String, dynamic>.from(e as Map))];
+    return [
+      for (final e in data)
+        UserGoal.fromJson(Map<String, dynamic>.from(e as Map))
+    ];
   }
 }

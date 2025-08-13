@@ -24,4 +24,3 @@ class TheoryTrackResumeService {
     return prefs.getString(_trackKey);
   }
 }
-

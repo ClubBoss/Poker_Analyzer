@@ -20,9 +20,17 @@ class BoosterAnomalyReport {
 
   factory BoosterAnomalyReport.fromJson(Map<String, dynamic> j) =>
       BoosterAnomalyReport(
-        duplicatedHands: [for (final v in j['duplicatedHands'] as List? ?? []) v.toString()],
-        repeatedBoards: [for (final v in j['repeatedBoards'] as List? ?? []) v.toString()],
-        evOutliers: [for (final v in j['evOutliers'] as List? ?? []) v.toString()],
-        weakExplanations: [for (final v in j['weakExplanations'] as List? ?? []) v.toString()],
+        duplicatedHands: [
+          for (final v in j['duplicatedHands'] as List? ?? []) v.toString()
+        ],
+        repeatedBoards: [
+          for (final v in j['repeatedBoards'] as List? ?? []) v.toString()
+        ],
+        evOutliers: [
+          for (final v in j['evOutliers'] as List? ?? []) v.toString()
+        ],
+        weakExplanations: [
+          for (final v in j['weakExplanations'] as List? ?? []) v.toString()
+        ],
       );
 }

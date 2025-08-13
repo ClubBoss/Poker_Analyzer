@@ -54,7 +54,8 @@ class RewardGalleryGroupByTrackService {
       final title = _resolveTrackTitle(library, trackId);
       final group = groups.putIfAbsent(
         trackId,
-        () => TrackRewardGroup(trackId: trackId, trackTitle: title, rewards: []),
+        () =>
+            TrackRewardGroup(trackId: trackId, trackTitle: title, rewards: []),
       );
       group.rewards.add(RewardItem(id: id, stageIndex: stageIndex));
     }
@@ -72,8 +73,7 @@ class RewardGalleryGroupByTrackService {
     return result;
   }
 
-  String _resolveTrackTitle(
-      SkillTreeLibraryService library, String trackId) {
+  String _resolveTrackTitle(SkillTreeLibraryService library, String trackId) {
     final track = library.getTrack(trackId)?.tree;
     if (track == null) return trackId;
     if (track.roots.isNotEmpty) return track.roots.first.title;
@@ -81,4 +81,3 @@ class RewardGalleryGroupByTrackService {
     return trackId;
   }
 }
-

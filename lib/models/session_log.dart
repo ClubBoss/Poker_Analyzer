@@ -1,4 +1,3 @@
-
 class SessionLog {
   final String sessionId;
   final String templateId;
@@ -36,10 +35,10 @@ class SessionLog {
   factory SessionLog.fromJson(Map<String, dynamic> j) => SessionLog(
         sessionId: j['sessionId'] as String? ?? '',
         templateId: j['templateId'] as String? ?? '',
-        startedAt:
-            DateTime.tryParse(j['startedAt'] as String? ?? '') ?? DateTime.now(),
-        completedAt:
-            DateTime.tryParse(j['completedAt'] as String? ?? '') ?? DateTime.now(),
+        startedAt: DateTime.tryParse(j['startedAt'] as String? ?? '') ??
+            DateTime.now(),
+        completedAt: DateTime.tryParse(j['completedAt'] as String? ?? '') ??
+            DateTime.now(),
         correctCount: j['correct'] as int? ?? 0,
         mistakeCount: j['mistakes'] as int? ?? 0,
         evPercent: (j['evPercent'] as num?)?.toDouble(),
@@ -51,7 +50,7 @@ class SessionLog {
         categories: {
           for (final e in (j['categories'] as Map? ?? {}).entries)
             e.key as String: (e.value as num).toInt()
-          },
+        },
         tags: [for (final t in (j['tags'] as List? ?? [])) t.toString()],
       );
 
@@ -59,16 +58,15 @@ class SessionLog {
         'sessionId': sessionId,
         'templateId': templateId,
         'startedAt': startedAt.toIso8601String(),
-      'completedAt': completedAt.toIso8601String(),
-      'correct': correctCount,
-      'mistakes': mistakeCount,
+        'completedAt': completedAt.toIso8601String(),
+        'correct': correctCount,
+        'mistakes': mistakeCount,
         if (evPercent != null) 'evPercent': evPercent,
         if (accuracyBefore != null) 'accuracyBefore': accuracyBefore,
         if (accuracyAfter != null) 'accuracyAfter': accuracyAfter,
         if (handsBefore != null) 'handsBefore': handsBefore,
         if (handsAfter != null) 'handsAfter': handsAfter,
-        if (unlockGoalReached != null)
-          'unlockGoalReached': unlockGoalReached,
+        if (unlockGoalReached != null) 'unlockGoalReached': unlockGoalReached,
         if (categories.isNotEmpty) 'categories': categories,
         if (tags.isNotEmpty) 'tags': tags,
       };

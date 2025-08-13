@@ -53,11 +53,18 @@ class _ProgressSummaryCardState extends State<ProgressSummaryCard>
               style: const TextStyle(color: Colors.white70, fontSize: 12)),
           const SizedBox(height: 2),
           TweenAnimationBuilder<double>(
-            tween: Tween(begin: value == _stats.averageAccuracy ? _old.averageAccuracy : _old.averageEV, end: value),
+            tween: Tween(
+                begin: value == _stats.averageAccuracy
+                    ? _old.averageAccuracy
+                    : _old.averageEV,
+                end: value),
             duration: const Duration(milliseconds: 300),
             builder: (context, v, _) => Text(
-              percent ? '${(v * 100).toStringAsFixed(1)}%' : v.toStringAsFixed(1),
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              percent
+                  ? '${(v * 100).toStringAsFixed(1)}%'
+                  : v.toStringAsFixed(1),
+              style: const TextStyle(
+                  color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ),
         ],

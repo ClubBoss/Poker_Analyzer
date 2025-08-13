@@ -38,4 +38,3 @@ class _QueueItem {
   final Completer<EvalResult> completer;
   _QueueItem(this.request, this.completer);
 }
-

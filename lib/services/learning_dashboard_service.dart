@@ -20,7 +20,8 @@ class LearningDashboardData {
 class LearningDashboardService {
   final MasteryForecastEngine forecast;
 
-  const LearningDashboardService({this.forecast = const MasteryForecastEngine()});
+  const LearningDashboardService(
+      {this.forecast = const MasteryForecastEngine()});
 
   LearningDashboardData getDashboardData({
     required List<TrackPlayHistory> trackHistory,
@@ -28,11 +29,12 @@ class LearningDashboardService {
     required Map<String, double> previousMastery,
   }) {
     final completed = trackHistory.where((h) => h.completedAt != null);
-    final goalsCompleted = {
-      for (final h in completed) h.goalId
-    }.length;
+    final goalsCompleted = {for (final h in completed) h.goalId}.length;
 
-    final accValues = [for (final h in completed) if (h.accuracy != null) h.accuracy!];
+    final accValues = [
+      for (final h in completed)
+        if (h.accuracy != null) h.accuracy!
+    ];
     final averageAccuracy = accValues.isEmpty
         ? 0.0
         : accValues.reduce((a, b) => a + b) / accValues.length;
@@ -88,4 +90,3 @@ class LearningDashboardService {
     );
   }
 }
-

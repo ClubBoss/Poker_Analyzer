@@ -41,7 +41,8 @@ void main() {
       final wpnHand = wpn!.convertFrom(wpnSample);
       expect(partyHand, isNotNull);
       expect(wpnHand, isNotNull);
-      expect(converterRegistry.tryExport('partypoker_hand_history', partyHand!), isNull);
+      expect(converterRegistry.tryExport('partypoker_hand_history', partyHand!),
+          isNull);
       expect(converterRegistry.tryExport('wpn_hand_history', wpnHand!), isNull);
     });
   });

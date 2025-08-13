@@ -10,7 +10,9 @@ class _FakeEngine extends SmartTheorySuggestionEngine {
   final List<TheorySuggestion> list;
   _FakeEngine(this.list) : super(mastery: throw UnimplementedError());
   @override
-  Future<List<TheorySuggestion>> suggestMissingTheoryStages({double threshold = 0.3}) async => list;
+  Future<List<TheorySuggestion>> suggestMissingTheoryStages(
+          {double threshold = 0.3}) async =>
+      list;
 }
 
 void main() {
@@ -19,7 +21,10 @@ void main() {
   test('exportYamlFile writes file and injects stages', () async {
     final dir = await Directory.systemTemp.createTemp('auto_theory');
     final engine = _FakeEngine(const [
-      TheorySuggestion(tag: 'aggr', proposedTitle: 'Теория: aggr', proposedPackId: 'theory_aggr'),
+      TheorySuggestion(
+          tag: 'aggr',
+          proposedTitle: 'Теория: aggr',
+          proposedPackId: 'theory_aggr'),
     ]);
     final seeder = AutoTheoryStageSeeder(
       engine: engine,
@@ -39,7 +44,10 @@ void main() {
 
   test('generateYamlForMissingTheoryStages returns yaml', () async {
     final engine = _FakeEngine(const [
-      TheorySuggestion(tag: 'test', proposedTitle: 'Теория: test', proposedPackId: 'theory_test'),
+      TheorySuggestion(
+          tag: 'test',
+          proposedTitle: 'Теория: test',
+          proposedPackId: 'theory_test'),
     ]);
     final seeder = AutoTheoryStageSeeder(engine: engine);
     final yaml = await seeder.generateYamlForMissingTheoryStages();

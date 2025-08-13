@@ -41,8 +41,7 @@ class LearningPathProgressEngine {
       return;
     }
     if (_pathProgress.isNotEmpty &&
-        DateTime.now().difference(_lastComputed) <
-            const Duration(minutes: 5)) {
+        DateTime.now().difference(_lastComputed) < const Duration(minutes: 5)) {
       return;
     }
     final future = _compute();
@@ -97,10 +96,8 @@ class LearningPathProgressEngine {
     await tracks.reload();
     final track = tracks.getById(trackId);
     if (track == null || track.pathIds.isEmpty) return 0.0;
-    final values = track.pathIds
-        .map((id) => _pathProgress[id])
-        .whereNotNull()
-        .toList();
+    final values =
+        track.pathIds.map((id) => _pathProgress[id]).whereNotNull().toList();
     if (values.isEmpty) return 0.0;
     final sum = values.reduce((a, b) => a + b);
     return sum / values.length;

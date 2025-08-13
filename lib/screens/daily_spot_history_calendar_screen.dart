@@ -9,10 +9,12 @@ class DailySpotHistoryCalendarScreen extends StatefulWidget {
   const DailySpotHistoryCalendarScreen({super.key});
 
   @override
-  State<DailySpotHistoryCalendarScreen> createState() => _DailySpotHistoryCalendarScreenState();
+  State<DailySpotHistoryCalendarScreen> createState() =>
+      _DailySpotHistoryCalendarScreenState();
 }
 
-class _DailySpotHistoryCalendarScreenState extends State<DailySpotHistoryCalendarScreen> {
+class _DailySpotHistoryCalendarScreenState
+    extends State<DailySpotHistoryCalendarScreen> {
   late final DateTime _firstDay;
   late final DateTime _lastDay;
   final DateTime _focusedDay = DateTime.now();
@@ -44,7 +46,8 @@ class _DailySpotHistoryCalendarScreenState extends State<DailySpotHistoryCalenda
       appBar: AppBar(
         title: const Text('История спотов дня'),
         centerTitle: true,
-        actions: [SyncStatusIcon.of(context), 
+        actions: [
+          SyncStatusIcon.of(context),
           IconButton(
             icon: const Icon(Icons.close),
             onPressed: () => Navigator.pop(context),

@@ -19,7 +19,8 @@ class SmartGoalAggregatorService {
     final mistakeList = await mistake.recommendMistakeRecoveryGoals(max: max);
     final res = <GoalRecommendation>[];
     var i = 0;
-    while (res.length < max && (i < decayList.length || i < mistakeList.length)) {
+    while (
+        res.length < max && (i < decayList.length || i < mistakeList.length)) {
       if (i < decayList.length) res.add(decayList[i]);
       if (res.length >= max) break;
       if (i < mistakeList.length) res.add(mistakeList[i]);

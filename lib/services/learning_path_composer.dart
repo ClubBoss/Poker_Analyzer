@@ -71,7 +71,10 @@ class DifficultyScorer {
     final values = dist.values.toList();
     final total = values.fold(0.0, (a, b) => a + b);
     if (total <= 0) return 0.0;
-    final probs = [for (final v in values) if (v > 0) v / total];
+    final probs = [
+      for (final v in values)
+        if (v > 0) v / total
+    ];
     if (probs.isEmpty) return 0.0;
     var h = 0.0;
     for (final p in probs) {
@@ -144,9 +147,7 @@ class LearningPathComposer {
         scorer = scorer ?? const DifficultyScorer();
 
   CompositionResult compose(List<PackMeta> packs) {
-    final difficulties = {
-      for (final p in packs) p.id: scorer.score(p)
-    };
+    final difficulties = {for (final p in packs) p.id: scorer.score(p)};
     final remaining = List<PackMeta>.from(packs);
     final assignments = <int, List<PackMeta>>{};
     for (var level = 1; level <= 5; level++) {
@@ -185,8 +186,7 @@ class LearningPathComposer {
       var bestGain = -1;
       candidates.sort((a, b) => a.id.compareTo(b.id));
       for (final p in candidates) {
-        final gain =
-            p.categories.where((c) => !covered.contains(c)).length;
+        final gain = p.categories.where((c) => !covered.contains(c)).length;
         if (gain > bestGain) {
           best = p;
           bestGain = gain;
@@ -200,8 +200,7 @@ class LearningPathComposer {
     return selected;
   }
 
-  LearningPathTemplateV2 _buildPath(
-      Map<int, List<PackMeta>> assignments) {
+  LearningPathTemplateV2 _buildPath(Map<int, List<PackMeta>> assignments) {
     final stages = <LearningPathStageModel>[];
     var order = 0;
     String? prevId;
@@ -236,8 +235,7 @@ class LearningPathComposer {
 
   void _logTelemetry(Map<int, List<PackMeta>> assignments) {
     final totalLevels = assignments.length;
-    final totalPacks =
-        assignments.values.fold<int>(0, (a, b) => a + b.length);
+    final totalPacks = assignments.values.fold<int>(0, (a, b) => a + b.length);
     final file = File('autogen_report.log');
     final msg =
         '[${DateTime.now().toIso8601String()}] Path: $totalLevels/5 levels ready • $totalPacks packs\n';
@@ -246,8 +244,7 @@ class LearningPathComposer {
       'PathComposer',
       AutogenStatus(
         isRunning: false,
-        currentStage:
-            'Path: $totalLevels/5 levels ready • $totalPacks packs',
+        currentStage: 'Path: $totalLevels/5 levels ready • $totalPacks packs',
       ),
     );
   }

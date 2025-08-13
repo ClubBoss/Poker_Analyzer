@@ -87,7 +87,8 @@ class _FoldFlyingCardsState extends State<FoldFlyingCards>
     final screen = MediaQuery.of(context).size;
     final sign = start.dx > screen.width / 2 ? 1.0 : -1.0;
     final end = start + Offset(sign * 60 * widget.scale, -120 * widget.scale);
-    final control = start + Offset(sign * 30 * widget.scale, -60 * widget.scale);
+    final control =
+        start + Offset(sign * 30 * widget.scale, -60 * widget.scale);
 
     return AnimatedBuilder(
       animation: _controller,

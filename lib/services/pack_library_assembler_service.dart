@@ -56,7 +56,8 @@ class PackLibraryAssemblerService {
         final t = templates.first;
         list.add({
           'title': t.name,
-          if (t.audience != null && t.audience!.isNotEmpty) 'audience': t.audience,
+          if (t.audience != null && t.audience!.isNotEmpty)
+            'audience': t.audience,
           if (t.tags.isNotEmpty) 'tags': t.tags,
           'requests': requestsJson,
           if (t.meta.isNotEmpty) 'meta': t.meta,

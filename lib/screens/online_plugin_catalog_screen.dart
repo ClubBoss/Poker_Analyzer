@@ -33,7 +33,8 @@ class OnlinePlugin {
 class OnlinePluginCatalogScreen extends StatefulWidget {
   const OnlinePluginCatalogScreen({super.key});
   @override
-  State<OnlinePluginCatalogScreen> createState() => _OnlinePluginCatalogScreenState();
+  State<OnlinePluginCatalogScreen> createState() =>
+      _OnlinePluginCatalogScreenState();
 }
 
 class _OnlinePluginCatalogScreenState extends State<OnlinePluginCatalogScreen> {
@@ -54,7 +55,10 @@ class _OnlinePluginCatalogScreenState extends State<OnlinePluginCatalogScreen> {
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body);
         if (data is List) {
-          _plugins = [for (final e in data) OnlinePlugin.fromJson(e as Map<String, dynamic>)];
+          _plugins = [
+            for (final e in data)
+              OnlinePlugin.fromJson(e as Map<String, dynamic>)
+          ];
         }
       }
       _status = await PluginManager().loadStatus();
@@ -67,18 +71,21 @@ class _OnlinePluginCatalogScreenState extends State<OnlinePluginCatalogScreen> {
     final manager = PluginManager();
     await PluginLoader().loadAll(registry, manager, context: context);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Plugins reloaded')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Plugins reloaded')));
     }
     await _load();
   }
 
   Future<void> _install(OnlinePlugin p) async {
     try {
-      final downloaded = await PluginLoader().downloadFromUrl(p.url, checksum: p.checksum);
+      final downloaded =
+          await PluginLoader().downloadFromUrl(p.url, checksum: p.checksum);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(downloaded ? 'Plugin installed' : 'Plugin up to date'),
+            content:
+                Text(downloaded ? 'Plugin installed' : 'Plugin up to date'),
             action: SnackBarAction(label: 'Reload', onPressed: _reload),
           ),
         );
@@ -86,7 +93,8 @@ class _OnlinePluginCatalogScreenState extends State<OnlinePluginCatalogScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Install failed: $e')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Install failed: $e')));
       }
     }
   }
@@ -112,16 +120,28 @@ class _OnlinePluginCatalogScreenState extends State<OnlinePluginCatalogScreen> {
                     final file = p.basename(Uri.parse(plugin.url).path);
                     final localVersion = _status[file]?['version'] as String?;
                     final installed = localVersion != null;
-                    final needsUpdate = installed && localVersion != plugin.version;
+                    final needsUpdate =
+                        installed && localVersion != plugin.version;
                     final subtitle = <Widget>[Text('v${plugin.version}')];
-                    if (plugin.description != null) subtitle.add(Text(plugin.description!));
-                    if (needsUpdate) subtitle.add(Text('Installed v$localVersion', style: const TextStyle(color: Colors.red)));
+                    if (plugin.description != null)
+                      subtitle.add(Text(plugin.description!));
+                    if (needsUpdate)
+                      subtitle.add(Text('Installed v$localVersion',
+                          style: const TextStyle(color: Colors.red)));
                     return ListTile(
                       title: Text(plugin.name),
-                      subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: subtitle),
+                      subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: subtitle),
                       trailing: TextButton(
-                        onPressed: installed && !needsUpdate ? null : () => _install(plugin),
-                        child: Text(needsUpdate ? 'Update' : installed ? 'Installed' : 'Install'),
+                        onPressed: installed && !needsUpdate
+                            ? null
+                            : () => _install(plugin),
+                        child: Text(needsUpdate
+                            ? 'Update'
+                            : installed
+                                ? 'Installed'
+                                : 'Install'),
                       ),
                     );
                   },

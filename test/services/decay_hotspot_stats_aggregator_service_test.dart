@@ -53,4 +53,3 @@ void main() {
     expect(report.topSpotIds.first.decayStageDistribution['late'], 1);
   });
 }
-

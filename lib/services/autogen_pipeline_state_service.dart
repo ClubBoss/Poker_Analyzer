@@ -20,4 +20,3 @@ class AutogenPipelineStateService {
 
   // Additional methods for updating the state can be added here in future.
 }
-

@@ -30,9 +30,7 @@ void main() {
   const builder = SkillTreeBuilderService();
 
   SkillTreeNodeModel node(String id,
-          {List<String>? prereqs,
-          List<String>? unlocks,
-          int level = 0}) =>
+          {List<String>? prereqs, List<String>? unlocks, int level = 0}) =>
       SkillTreeNodeModel(
         id: id,
         title: id,

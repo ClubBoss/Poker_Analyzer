@@ -11,4 +11,3 @@ class TheoryLessonEngagementStats {
     required this.successRate,
   });
 }
-

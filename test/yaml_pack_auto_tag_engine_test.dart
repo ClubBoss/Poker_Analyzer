@@ -9,14 +9,19 @@ import 'package:poker_analyzer/models/game_type.dart';
 import 'package:poker_analyzer/core/training/engine/training_type_engine.dart';
 
 void main() {
-  TrainingPackSpot spot({required HeroPosition pos, required double stack, List<String> heroOpts = const ['push']}) {
+  TrainingPackSpot spot(
+      {required HeroPosition pos,
+      required double stack,
+      List<String> heroOpts = const ['push']}) {
     return TrainingPackSpot(
       id: 's${pos.name}-$stack',
       hand: HandData(
         position: pos,
         heroIndex: 0,
         stacks: {'0': stack},
-        actions: {0: [ActionEntry(0, 0, heroOpts.first)]},
+        actions: {
+          0: [ActionEntry(0, 0, heroOpts.first)]
+        },
       ),
       heroOptions: heroOpts,
     );

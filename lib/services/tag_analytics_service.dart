@@ -27,9 +27,8 @@ class TagAnalyticsService {
         final yaml = await f.readAsString();
         final map = reader.read(yaml);
         final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
-        final tags = <String>{
-          for (final t in tpl.tags) t.trim().toLowerCase()
-        }..removeWhere((e) => e.isEmpty);
+        final tags = <String>{for (final t in tpl.tags) t.trim().toLowerCase()}
+          ..removeWhere((e) => e.isEmpty);
         if (tags.isEmpty) continue;
         final key = (tags.toList()..sort()).join('|');
         tagSets[key] = (tagSets[key] ?? 0) + 1;
@@ -37,9 +36,8 @@ class TagAnalyticsService {
             (tpl.meta['evScore'] as num?)?.toDouble();
         final icm = (map['icmScore'] as num?)?.toDouble() ??
             (tpl.meta['icmScore'] as num?)?.toDouble();
-        final rank =
-            (map['meta']?['rankScore'] as num?)?.toDouble() ??
-                (tpl.meta['rankScore'] as num?)?.toDouble();
+        final rank = (map['meta']?['rankScore'] as num?)?.toDouble() ??
+            (tpl.meta['rankScore'] as num?)?.toDouble();
         packs.add(_PackInfo(tags, key));
         for (final t in tags) {
           final s = stats.putIfAbsent(t, () => _TagStat());

@@ -94,8 +94,8 @@ class TheoryPriorityGatekeeperService {
       if (stage == null) return false;
       if (stage.type == StageType.theory) return true;
       if (stage.theoryPackId != null) {
-        final completed = await TheoryStageProgressTracker.instance
-            .isCompleted(stage.id);
+        final completed =
+            await TheoryStageProgressTracker.instance.isCompleted(stage.id);
         return !completed;
       }
     }

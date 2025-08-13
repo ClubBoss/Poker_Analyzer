@@ -7,7 +7,8 @@ import '../models/theory_block_model.dart';
 /// Loads [TheoryBlockModel] definitions from YAML files.
 class TheoryBlockLibraryService {
   TheoryBlockLibraryService._();
-  static final TheoryBlockLibraryService instance = TheoryBlockLibraryService._();
+  static final TheoryBlockLibraryService instance =
+      TheoryBlockLibraryService._();
 
   static const String _dir = 'assets/theory_blocks/';
 

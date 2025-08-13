@@ -32,10 +32,12 @@ class XPProgressCard extends StatelessWidget {
               children: [
                 Text(
                   '${stage.label} Level $level',
-                  style: TextStyle(color: stage.color, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      color: stage.color, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
-                Text('$xp / $next XP', style: const TextStyle(color: Colors.white)),
+                Text('$xp / $next XP',
+                    style: const TextStyle(color: Colors.white)),
                 const SizedBox(height: 4),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),

@@ -44,7 +44,9 @@ class RemedialAnalyzer {
       textureCounts: textureMisses,
       streetBias: streetMisses.isEmpty
           ? 0
-          : streetMisses.entries.reduce((a, b) => a.value >= b.value ? a : b).key,
+          : streetMisses.entries
+              .reduce((a, b) => a.value >= b.value ? a : b)
+              .key,
       minAccuracyTarget: targetAccuracy > 0 ? targetAccuracy : accuracy,
     );
 

@@ -55,7 +55,9 @@ void main() {
       _Result(spotId: 's2', isCorrect: true, heroEv: 1.2),
     ];
     final mastery = {'cbet': 0.4};
-    final packs = [_pack('p', [_spot('s1', 'cbet', -0.5), _spot('s2', 'cbet', 0.2)])];
+    final packs = [
+      _pack('p', [_spot('s1', 'cbet', -0.5), _spot('s2', 'cbet', 0.2)])
+    ];
 
     final plan = engine.generate(
       history: history,
@@ -68,4 +70,3 @@ void main() {
     expect(plan.mistakeReplayPack, isNotNull);
   });
 }
-

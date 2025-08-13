@@ -1,4 +1,3 @@
-
 /// Aggregated learning progress stats used for recommendations.
 class LearningStats {
   final int completedPacks;

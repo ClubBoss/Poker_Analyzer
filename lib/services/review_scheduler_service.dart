@@ -20,8 +20,9 @@ class ReviewSchedulerService {
 
     final prefs = await SharedPreferences.getInstance();
     final reviewCount = prefs.getInt('$_reviewCountPrefix$lessonId') ?? 0;
-    final scheduleIndex =
-        reviewCount < _scheduleDays.length ? reviewCount : _scheduleDays.length - 1;
+    final scheduleIndex = reviewCount < _scheduleDays.length
+        ? reviewCount
+        : _scheduleDays.length - 1;
     final dueDate =
         completedAt.add(Duration(days: _scheduleDays[scheduleIndex]));
     return DateTime.now().isAfter(dueDate);
@@ -35,4 +36,3 @@ class ReviewSchedulerService {
     await TheoryLessonCompletionLogger.instance.markCompleted(lessonId);
   }
 }
-

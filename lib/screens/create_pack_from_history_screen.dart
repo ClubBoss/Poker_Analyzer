@@ -18,10 +18,12 @@ class CreatePackFromHistoryScreen extends StatefulWidget {
   const CreatePackFromHistoryScreen({super.key});
 
   @override
-  State<CreatePackFromHistoryScreen> createState() => _CreatePackFromHistoryScreenState();
+  State<CreatePackFromHistoryScreen> createState() =>
+      _CreatePackFromHistoryScreenState();
 }
 
-class _CreatePackFromHistoryScreenState extends State<CreatePackFromHistoryScreen> {
+class _CreatePackFromHistoryScreenState
+    extends State<CreatePackFromHistoryScreen> {
   final TextEditingController _name = TextEditingController(text: 'Новый пак');
   final TextEditingController _search = TextEditingController();
   final Set<SavedHand> _selected = {};
@@ -77,7 +79,8 @@ class _CreatePackFromHistoryScreenState extends State<CreatePackFromHistoryScree
   Future<void> _export() async {
     if (_selected.isEmpty) return;
     final tpl = await _buildPack();
-    final fileName = '${tpl.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_')}.json';
+    final fileName =
+        '${tpl.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_')}.json';
     final path = await FilePicker.platform.saveFile(
       dialogTitle: 'Save Pack',
       fileName: fileName,
@@ -95,12 +98,16 @@ class _CreatePackFromHistoryScreenState extends State<CreatePackFromHistoryScree
     final hands = context.watch<SavedHandManagerService>().hands;
     final filtered = _filter(hands);
     return Scaffold(
-      appBar: AppBar(title: const Text('Пак из истории'), actions: [SyncStatusIcon.of(context)]),
+      appBar: AppBar(
+          title: const Text('Пак из истории'),
+          actions: [SyncStatusIcon.of(context)]),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            TextField(controller: _name, decoration: const InputDecoration(labelText: 'Название')),
+            TextField(
+                controller: _name,
+                decoration: const InputDecoration(labelText: 'Название')),
             const SizedBox(height: 12),
             TextField(
               controller: _search,
@@ -130,9 +137,13 @@ class _CreatePackFromHistoryScreenState extends State<CreatePackFromHistoryScree
                 Text('Выбрано: ${_selected.length}'),
                 Row(
                   children: [
-                    ElevatedButton(onPressed: _selected.isEmpty ? null : _export, child: const Text('Экспорт')),
+                    ElevatedButton(
+                        onPressed: _selected.isEmpty ? null : _export,
+                        child: const Text('Экспорт')),
                     const SizedBox(width: 8),
-                    ElevatedButton(onPressed: _selected.isEmpty ? null : _create, child: const Text('Создать')),
+                    ElevatedButton(
+                        onPressed: _selected.isEmpty ? null : _create,
+                        child: const Text('Создать')),
                   ],
                 )
               ],

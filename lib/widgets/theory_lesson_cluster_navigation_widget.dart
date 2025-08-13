@@ -21,7 +21,8 @@ class TheoryLessonClusterNavigationWidget extends StatefulWidget {
 
 class _TheoryLessonClusterNavigationWidgetState
     extends State<TheoryLessonClusterNavigationWidget> {
-  final TheoryLessonNavigatorService _navigator = TheoryLessonNavigatorService();
+  final TheoryLessonNavigatorService _navigator =
+      TheoryLessonNavigatorService();
   final TheoryLessonClusterLinkerService _linker =
       TheoryLessonClusterLinkerService();
 

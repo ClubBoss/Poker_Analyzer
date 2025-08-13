@@ -180,8 +180,7 @@ class TrainingPackService {
       evMap[cat] = (evMap[cat] ?? 0) + (h.evLoss ?? 0);
     }
     if (evMap.isEmpty) return null;
-    final cat =
-        evMap.entries.reduce((a, b) => a.value >= b.value ? a : b).key;
+    final cat = evMap.entries.reduce((a, b) => a.value >= b.value ? a : b).key;
     final list = byCat[cat]!
       ..sort((a, b) => (b.evLoss ?? 0).compareTo(a.evLoss ?? 0));
     final rng = Random();
@@ -210,7 +209,8 @@ class TrainingPackService {
       for (final t in templates) {
         for (final s in t.spots) {
           final tag = 'cat:$cat';
-          if ((s.tags.contains(tag) || s.categories.contains(tag)) && seen.add(s.id)) {
+          if ((s.tags.contains(tag) || s.categories.contains(tag)) &&
+              seen.add(s.id)) {
             list.add(s);
           }
         }
@@ -222,7 +222,9 @@ class TrainingPackService {
       });
       final maxCount = min(list.length, 5);
       final count = maxCount < 3 ? maxCount : 3 + rng.nextInt(maxCount - 2);
-      spots.addAll([for (final s in list.take(count)) s.copyWith(id: const Uuid().v4())]);
+      spots.addAll([
+        for (final s in list.take(count)) s.copyWith(id: const Uuid().v4())
+      ]);
     }
     if (spots.isEmpty) return null;
     return TrainingPackTemplate(
@@ -231,6 +233,7 @@ class TrainingPackService {
       spots: spots,
     );
   }
+
   static Future<TrainingPackTemplate?> createDrillFromWorstCategory(
       BuildContext context) async {
     final hands = context.read<SavedHandManagerService>().hands;
@@ -273,7 +276,6 @@ class TrainingPackService {
     return createDrillFromTop3Categories(context);
   }
 
-
   static Future<TrainingPackTemplate?> createRepeatForCorrected(
       BuildContext context) async {
     final hands = context.read<SavedHandManagerService>().hands;
@@ -307,7 +309,10 @@ class TrainingPackService {
   static Future<TrainingPackTemplate?> createDrillFromCorrectedHands(
       BuildContext context) async {
     final hands = context.read<SavedHandManagerService>().hands;
-    final list = [for (final h in hands) if (h.corrected) h];
+    final list = [
+      for (final h in hands)
+        if (h.corrected) h
+    ];
     if (list.isEmpty) return null;
     list.sort((a, b) => (b.evLoss ?? 0).compareTo(a.evLoss ?? 0));
     final rng = Random();
@@ -419,7 +424,8 @@ class TrainingPackService {
     final cloud = context.read<CloudSyncService>();
     if (!cloud.isEnabled) return null;
     try {
-      final snap = await CloudRetryPolicy.execute(() => FirebaseFirestore.instance
+      final snap = await CloudRetryPolicy.execute(() => FirebaseFirestore
+          .instance
           .collection('community_mistakes')
           .orderBy('evLoss', descending: true)
           .limit(100)
@@ -551,9 +557,8 @@ class TrainingPackService {
   }) async {
     final storage = SavedHandStorageService(cloud: cloud);
     await storage.load();
-    final hands = storage.hands
-        .where((h) => (h.evLoss?.abs() ?? 0) >= 1.0)
-        .toList();
+    final hands =
+        storage.hands.where((h) => (h.evLoss?.abs() ?? 0) >= 1.0).toList();
     if (hands.isEmpty) return null;
     hands.sort((a, b) => (b.evLoss ?? 0).compareTo(a.evLoss ?? 0));
     final spots = [for (final h in hands.take(20)) _spotFromHand(h)];
@@ -604,12 +609,10 @@ class TrainingPackService {
     final spots = <TrainingPackSpot>[];
     bool bad(TrainingPackStat? s) {
       final acc = s?.accuracy ?? 1.0;
-      final ev = s == null
-          ? 100.0
-          : (s.postEvPct > 0 ? s.postEvPct : s.preEvPct);
-      final icm = s == null
-          ? 100.0
-          : (s.postIcmPct > 0 ? s.postIcmPct : s.preIcmPct);
+      final ev =
+          s == null ? 100.0 : (s.postEvPct > 0 ? s.postEvPct : s.preEvPct);
+      final icm =
+          s == null ? 100.0 : (s.postIcmPct > 0 ? s.postIcmPct : s.preIcmPct);
       return acc < .6 || ev < 60 || icm < 60;
     }
 
@@ -627,8 +630,8 @@ class TrainingPackService {
       if (spots.length >= 10) break;
     }
     if (spots.length < 10) {
-      final recent = await TrainingPackStatsService.recentlyPractisedTemplates(
-          templates);
+      final recent =
+          await TrainingPackStatsService.recentlyPractisedTemplates(templates);
       for (final t in recent) {
         final stat = await TrainingPackStatsService.getStats(t.id);
         if (!bad(stat)) continue;
@@ -653,7 +656,8 @@ class TrainingPackService {
         }
         list.shuffle();
         if (list.isEmpty) continue;
-        final count = min(list.length, 1 + rng.nextInt(list.length > 1 ? 2 : 1));
+        final count =
+            min(list.length, 1 + rng.nextInt(list.length > 1 ? 2 : 1));
         spots.addAll(
             list.take(count).map((s) => s.copyWith(id: const Uuid().v4())));
         if (spots.length >= 10) break;
@@ -661,7 +665,10 @@ class TrainingPackService {
     }
     if (spots.length < 10) {
       final hands = context.read<SavedHandManagerService>().hands;
-      final corrected = [for (final h in hands) if (h.corrected) h];
+      final corrected = [
+        for (final h in hands)
+          if (h.corrected) h
+      ];
       corrected.shuffle();
       final count = min(corrected.length, 2);
       spots.addAll([for (final h in corrected.take(count)) _spotFromHand(h)]);

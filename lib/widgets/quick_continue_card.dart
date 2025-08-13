@@ -16,8 +16,7 @@ class QuickContinueCard extends StatelessWidget {
         if (session == null || template == null || session.isCompleted) {
           return const SizedBox.shrink();
         }
-        final focus =
-            service.focusHandTypes.map((e) => e.label).join(', ');
+        final focus = service.focusHandTypes.map((e) => e.label).join(', ');
         final total = template.totalWeight;
         final progress = '${session.index}/$total';
         final evPct = total == 0 ? 0.0 : template.evCovered * 100 / total;
@@ -35,8 +34,8 @@ class QuickContinueCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(template.name,
-                  style:
-                      const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold)),
               if (focus.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 4),

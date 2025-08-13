@@ -12,15 +12,16 @@ class BoardClusterLibrary {
   /// `trap` for paired/monotone boards, `broadway-heavy` for broadway
   /// boards).
   static Set<String> getClusters(List<CardModel> board) {
-    final tags = BoardAnalyzerUtils.tags(board).map((t) => t.toLowerCase()).toSet();
+    final tags =
+        BoardAnalyzerUtils.tags(board).map((t) => t.toLowerCase()).toSet();
     final clusters = <String>{...tags};
 
     if (tags.contains('dry')) clusters.add('static');
     if (tags.contains('broadway')) clusters.add('broadway-heavy');
-    if (tags.contains('paired') || tags.contains('monotone')) clusters.add('trap');
+    if (tags.contains('paired') || tags.contains('monotone'))
+      clusters.add('trap');
     if (tags.contains('wet')) clusters.add('highinteraction');
 
     return clusters;
   }
 }
-

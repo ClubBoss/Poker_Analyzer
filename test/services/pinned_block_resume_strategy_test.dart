@@ -25,9 +25,12 @@ void main() {
     await tracker.logPin('c');
 
     final blocks = {
-      'a': const TheoryBlockModel(id: 'a', title: 'A', nodeIds: [], practicePackIds: []),
-      'b': const TheoryBlockModel(id: 'b', title: 'B', nodeIds: [], practicePackIds: []),
-      'c': const TheoryBlockModel(id: 'c', title: 'C', nodeIds: [], practicePackIds: []),
+      'a': const TheoryBlockModel(
+          id: 'a', title: 'A', nodeIds: [], practicePackIds: []),
+      'b': const TheoryBlockModel(
+          id: 'b', title: 'B', nodeIds: [], practicePackIds: []),
+      'c': const TheoryBlockModel(
+          id: 'c', title: 'C', nodeIds: [], practicePackIds: []),
     };
 
     final library = _FakeBlockLibrary(blocks);
@@ -66,8 +69,7 @@ class _FakeBlockLibrary implements TheoryBlockLibraryService {
 }
 
 class _FakeEvaluator extends TheoryPathCompletionEvaluatorService {
-  _FakeEvaluator(this._completed)
-      : super(userProgress: _FakeProgressService());
+  _FakeEvaluator(this._completed) : super(userProgress: _FakeProgressService());
   final Map<String, bool> _completed;
 
   @override

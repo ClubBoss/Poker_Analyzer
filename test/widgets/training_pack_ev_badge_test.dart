@@ -24,7 +24,9 @@ void main() {
       ),
     ));
     await tester.pump();
-    final badges = tester.widgetList<Container>(find.byKey(const ValueKey('evBadge'))).toList();
+    final badges = tester
+        .widgetList<Container>(find.byKey(const ValueKey('evBadge')))
+        .toList();
     expect((badges.first.decoration as BoxDecoration).color, Colors.green);
     expect((badges.last.decoration as BoxDecoration).color, Colors.red);
   });

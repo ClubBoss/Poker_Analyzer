@@ -18,7 +18,9 @@ void main() {
   testWidgets('endless drill stop shows summary', (tester) async {
     final spot = TrainingPackSpot(
       id: 's1',
-      hand: HandData(actions: {0: [ActionEntry(0, 0, 'fold')]}),
+      hand: HandData(actions: {
+        0: [ActionEntry(0, 0, 'fold')]
+      }),
     );
     final tpl = TrainingPackTemplate(
       id: 't1',

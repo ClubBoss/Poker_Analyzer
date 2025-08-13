@@ -36,6 +36,7 @@ class DemoPlaybackController {
           announceWinner({spot.heroIndex: pot});
         }
       }
+
       playbackManager.addListener(listener);
     });
   }
@@ -97,17 +98,14 @@ class DemoPlaybackController {
       {'street': 0, 'playerIndex': 3, 'action': 'raise', 'amount': 4},
       {'street': 0, 'playerIndex': 4, 'action': 'call', 'amount': 4},
       {'street': 0, 'playerIndex': 5, 'action': 'call', 'amount': 4},
-
       {'street': 1, 'playerIndex': 4, 'action': 'check'},
       {'street': 1, 'playerIndex': 5, 'action': 'check'},
       {'street': 1, 'playerIndex': 3, 'action': 'bet', 'amount': 6},
       {'street': 1, 'playerIndex': 4, 'action': 'call', 'amount': 6},
       {'street': 1, 'playerIndex': 5, 'action': 'fold'},
-
       {'street': 2, 'playerIndex': 4, 'action': 'check'},
       {'street': 2, 'playerIndex': 3, 'action': 'bet', 'amount': 12},
       {'street': 2, 'playerIndex': 4, 'action': 'call', 'amount': 12},
-
       {'street': 3, 'playerIndex': 4, 'action': 'check'},
       {'street': 3, 'playerIndex': 3, 'action': 'bet', 'amount': 24},
       {'street': 3, 'playerIndex': 4, 'action': 'call', 'amount': 24},

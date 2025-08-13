@@ -26,4 +26,3 @@ class LastViewedTheoryStore {
     await prefs.setStringList(key, list);
   }
 }
-

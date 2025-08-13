@@ -44,8 +44,7 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
             h.expectedAction!.trim().toLowerCase() !=
                 h.gtoAction!.trim().toLowerCase())
           h
-    ]
-      ..sort((a, b) {
+    ]..sort((a, b) {
         final av = a.evLoss;
         final bv = b.evLoss;
         if (av == null && bv == null) return 0;
@@ -90,8 +89,7 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
                   style: pw.TextStyle(font: boldFont, fontSize: 16)),
               pw.SizedBox(height: 4),
               for (final h in e.value)
-                pw.Bullet(text: h.name,
-                    style: pw.TextStyle(font: regularFont)),
+                pw.Bullet(text: h.name, style: pw.TextStyle(font: regularFont)),
               pw.SizedBox(height: 12),
             ]
           ];
@@ -100,8 +98,8 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
     );
 
     final bytes = await pdf.save();
-    final dir =
-        await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
+    final dir = await getDownloadsDirectory() ??
+        await getApplicationDocumentsDirectory();
     final fileName =
         'mistake_repeats_${DateTime.now().millisecondsSinceEpoch}.pdf';
     final file = File('${dir.path}/$fileName');
@@ -141,8 +139,8 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
       buffer.writeln();
     }
 
-    final dir =
-        await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
+    final dir = await getDownloadsDirectory() ??
+        await getApplicationDocumentsDirectory();
     final fileName =
         'mistake_repeats_${DateTime.now().millisecondsSinceEpoch}.md';
     final file = File('${dir.path}/$fileName');
@@ -190,7 +188,6 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     final hands = context.watch<SavedHandManagerService>().hands;
@@ -216,9 +213,7 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
     final grouped = _groupMistakes(filtered);
     final streak = context.watch<MistakeStreakService>().count;
 
-    final entries = grouped.entries
-        .where((e) => e.value.length > 1)
-        .toList()
+    final entries = grouped.entries.where((e) => e.value.length > 1).toList()
       ..sort((a, b) {
         final av = a.value.first.evLoss;
         final bv = b.value.first.evLoss;
@@ -262,8 +257,8 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Theme(
-                  data:
-                      Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                  data: Theme.of(context)
+                      .copyWith(dividerColor: Colors.transparent),
                   child: ExpansionTile(
                     tilePadding: const EdgeInsets.all(12),
                     iconColor: Colors.white,
@@ -389,7 +384,8 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
       appBar: AppBar(
         title: const Text('Повторы ошибок'),
         centerTitle: true,
-        actions: [SyncStatusIcon.of(context), 
+        actions: [
+          SyncStatusIcon.of(context),
           IconButton(
             icon: const Icon(Icons.save_alt),
             tooltip: 'Экспорт',

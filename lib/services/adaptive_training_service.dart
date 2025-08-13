@@ -70,13 +70,19 @@ class AdaptiveTrainingService extends ChangeNotifier {
     for (final h in hands.hands.reversed.take(50)) {
       final exp = h.expectedAction?.trim().toLowerCase();
       final gto = h.gtoAction?.trim().toLowerCase();
-      if (exp != null && gto != null && exp.isNotEmpty && gto.isNotEmpty && exp != gto) {
+      if (exp != null &&
+          gto != null &&
+          exp.isNotEmpty &&
+          gto.isNotEmpty &&
+          exp != gto) {
         final pos = parseHeroPosition(h.heroPosition);
         posCounts[pos] = (posCounts[pos] ?? 0) + 1;
-        final ev = h.evLoss ?? (h.heroEv != null && h.heroEv! < 0 ? -h.heroEv! : 0);
+        final ev =
+            h.evLoss ?? (h.heroEv != null && h.heroEv! < 0 ? -h.heroEv! : 0);
         if (ev > 0) posLoss[pos] = (posLoss[pos] ?? 0) + ev;
         final icm = h.heroIcmEv;
-        if (icm != null && icm < 0) posIcmLoss[pos] = (posIcmLoss[pos] ?? 0) + icm.abs();
+        if (icm != null && icm < 0)
+          posIcmLoss[pos] = (posIcmLoss[pos] ?? 0) + icm.abs();
       }
     }
     for (final r in history.records.take(50)) {
@@ -127,14 +133,20 @@ class AdaptiveTrainingService extends ChangeNotifier {
     for (final h in hands.hands.reversed.take(50)) {
       final exp = h.expectedAction?.trim().toLowerCase();
       final gto = h.gtoAction?.trim().toLowerCase();
-      if (exp != null && gto != null && exp.isNotEmpty && gto.isNotEmpty && exp != gto) {
+      if (exp != null &&
+          gto != null &&
+          exp.isNotEmpty &&
+          gto.isNotEmpty &&
+          exp != gto) {
         final pos = parseHeroPosition(h.heroPosition);
         posCounts[pos] = (posCounts[pos] ?? 0) + 1;
-        if (h.playerCards.length > h.heroIndex && h.playerCards[h.heroIndex].length >= 2) {
+        if (h.playerCards.length > h.heroIndex &&
+            h.playerCards[h.heroIndex].length >= 2) {
           final c1 = h.playerCards[h.heroIndex][0];
           final c2 = h.playerCards[h.heroIndex][1];
           final code = handCode('${c1.rank}${c1.suit} ${c2.rank}${c2.suit}');
-          final loss = h.evLoss ?? (h.heroEv != null && h.heroEv! < 0 ? -h.heroEv! : 0);
+          final loss =
+              h.evLoss ?? (h.heroEv != null && h.heroEv! < 0 ? -h.heroEv! : 0);
           if (code != null && loss > 0) {
             handLoss[code] = (handLoss[code] ?? 0) + loss;
           }

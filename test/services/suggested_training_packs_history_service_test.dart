@@ -43,7 +43,8 @@ void main() {
     );
 
     final list =
-        await SuggestedTrainingPacksHistoryService.getRecentSuggestions(limit: 2);
+        await SuggestedTrainingPacksHistoryService.getRecentSuggestions(
+            limit: 2);
     expect(list.length, 2);
     expect(list[0].packId, 'c');
     expect(list[1].packId, 'b');
@@ -58,11 +59,13 @@ void main() {
         {'id': 'new', 'source': 's', 'ts': recent.toIso8601String()},
       ])
     });
-    final oldRes = await SuggestedTrainingPacksHistoryService.wasRecentlySuggested(
+    final oldRes =
+        await SuggestedTrainingPacksHistoryService.wasRecentlySuggested(
       'old',
       within: const Duration(days: 30),
     );
-    final newRes = await SuggestedTrainingPacksHistoryService.wasRecentlySuggested(
+    final newRes =
+        await SuggestedTrainingPacksHistoryService.wasRecentlySuggested(
       'new',
       within: const Duration(days: 30),
     );

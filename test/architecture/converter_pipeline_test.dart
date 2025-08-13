@@ -46,7 +46,10 @@ SavedHand _dummyHand() {
     heroPosition: 'BTN',
     numberOfPlayers: 2,
     playerCards: <List<CardModel>>[
-      <CardModel>[CardModel(rank: 'A', suit: '♠'), CardModel(rank: 'K', suit: '♦')],
+      <CardModel>[
+        CardModel(rank: 'A', suit: '♠'),
+        CardModel(rank: 'K', suit: '♦')
+      ],
       <CardModel>[],
     ],
     boardCards: <CardModel>[],
@@ -54,7 +57,10 @@ SavedHand _dummyHand() {
     actions: <ActionEntry>[ActionEntry(0, 0, 'call')],
     stackSizes: <int, int>{0: 100, 1: 100},
     playerPositions: <int, String>{0: 'BTN', 1: 'BB'},
-    playerTypes: <int, PlayerType>{0: PlayerType.unknown, 1: PlayerType.unknown},
+    playerTypes: <int, PlayerType>{
+      0: PlayerType.unknown,
+      1: PlayerType.unknown
+    },
   );
 }
 
@@ -62,7 +68,8 @@ void main() {
   group('ConverterPipeline', () {
     test('delegates import to registry', () {
       final registry = ConverterRegistry();
-      final converter = _MockConverter('fmt', 'Format')..importResult = _dummyHand();
+      final converter = _MockConverter('fmt', 'Format')
+        ..importResult = _dummyHand();
       registry.register(converter);
 
       final pipeline = ConverterPipeline(registry);
@@ -80,7 +87,8 @@ void main() {
 
     test('delegates validation to registry', () {
       final registry = ConverterRegistry();
-      final converter = _MockConverter('fmt', 'Format')..validationResult = 'err';
+      final converter = _MockConverter('fmt', 'Format')
+        ..validationResult = 'err';
       registry.register(converter);
 
       final pipeline = ConverterPipeline(registry);
@@ -128,13 +136,13 @@ void main() {
 
       final pipeline = ConverterPipeline(registry);
 
-      final exportList =
-          pipeline.availableConverters(supportsExport: true, supportsImport: false);
+      final exportList = pipeline.availableConverters(
+          supportsExport: true, supportsImport: false);
       expect(exportList.map((c) => c.formatId), contains('exp'));
       expect(exportList.map((c) => c.formatId), isNot(contains('imp')));
 
-      final importList =
-          pipeline.availableConverters(supportsImport: true, supportsExport: false);
+      final importList = pipeline.availableConverters(
+          supportsImport: true, supportsExport: false);
       expect(importList.map((c) => c.formatId), contains('imp'));
       expect(importList.map((c) => c.formatId), isNot(contains('exp')));
     });

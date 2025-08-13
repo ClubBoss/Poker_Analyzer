@@ -114,7 +114,8 @@ void main(List<String> args) {
       final path = c['path'] as String;
       final before = c['before'];
       final after = c['after'];
-      stdout.writeln('${path.padRight(60)}${before.toString().padLeft(6)} ${after.toString().padLeft(5)}');
+      stdout.writeln(
+          '${path.padRight(60)}${before.toString().padLeft(6)} ${after.toString().padLeft(5)}');
     }
   }
 

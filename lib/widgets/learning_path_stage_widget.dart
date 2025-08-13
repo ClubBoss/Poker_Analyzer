@@ -71,8 +71,8 @@ class LearningPathStageWidget extends StatelessWidget {
                           padding: const EdgeInsets.only(top: 2),
                           child: Text(
                             stage.description,
-                            style:
-                                const TextStyle(color: Colors.white70, fontSize: 12),
+                            style: const TextStyle(
+                                color: Colors.white70, fontSize: 12),
                           ),
                         ),
                     ],
@@ -115,8 +115,7 @@ class LearningPathStageWidget extends StatelessWidget {
             Align(
               alignment: Alignment.centerRight,
               child: ElevatedButton(
-                onPressed:
-                    !unlocked || progress >= 1.0 ? null : onPressed,
+                onPressed: !unlocked || progress >= 1.0 ? null : onPressed,
                 child: Text(_ctaLabel()),
               ),
             ),

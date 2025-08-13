@@ -13,7 +13,8 @@ class PackLibrarySearchScreen extends StatefulWidget {
   const PackLibrarySearchScreen({super.key});
 
   @override
-  State<PackLibrarySearchScreen> createState() => _PackLibrarySearchScreenState();
+  State<PackLibrarySearchScreen> createState() =>
+      _PackLibrarySearchScreenState();
 }
 
 class _PackLibrarySearchScreenState extends State<PackLibrarySearchScreen> {

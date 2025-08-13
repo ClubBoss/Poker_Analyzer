@@ -32,7 +32,8 @@ class _FakeTuner extends InboxBoosterTunerService {
   final Map<String, double> scores;
   const _FakeTuner(this.scores);
   @override
-  Future<Map<String, double>> computeTagBoostScores({DateTime? now, int recencyDays = 3}) async {
+  Future<Map<String, double>> computeTagBoostScores(
+      {DateTime? now, int recencyDays = 3}) async {
     return scores;
   }
 }
@@ -47,9 +48,11 @@ void main() {
   test('prioritizes high decay with low success rate', () async {
     final scheduler = SmartRecallBoosterScheduler(
       retention: const _FakeRetention({'a': 70, 'b': 65, 'c': 30}),
-      logger: _FakeLogger({'a': [
-        RecallSuccessEntry(tag: 'a', timestamp: DateTime.now()),
-      ]}),
+      logger: _FakeLogger({
+        'a': [
+          RecallSuccessEntry(tag: 'a', timestamp: DateTime.now()),
+        ]
+      }),
       tuner: const _FakeTuner({'a': 1.0, 'b': 1.0, 'c': 1.0}),
     );
     final list = await scheduler.getNextBoosters();

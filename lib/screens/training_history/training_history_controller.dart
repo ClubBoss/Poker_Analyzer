@@ -30,4 +30,3 @@ class TrainingHistoryController {
     await prefs.remove('training_history');
   }
 }
-

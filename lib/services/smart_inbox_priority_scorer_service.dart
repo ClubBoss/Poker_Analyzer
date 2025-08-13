@@ -15,13 +15,13 @@ class SmartInboxPriorityScorerService {
     final scored = <_ScoredSuggestion>[];
     for (final s in input) {
       final base = _scoreForAction(s.action);
-      final lastMillis =
-          prefs.getInt(SharedPrefsKeys.boosterInboxLast(s.tag));
+      final lastMillis = prefs.getInt(SharedPrefsKeys.boosterInboxLast(s.tag));
       final last = lastMillis == null
           ? null
           : DateTime.fromMillisecondsSinceEpoch(lastMillis);
-      final ageMs =
-          last == null ? double.infinity : now.difference(last).inMilliseconds.toDouble();
+      final ageMs = last == null
+          ? double.infinity
+          : now.difference(last).inMilliseconds.toDouble();
       scored.add(_ScoredSuggestion(s, base, ageMs));
     }
 

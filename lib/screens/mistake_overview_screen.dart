@@ -45,13 +45,13 @@ class _MistakeOverviewScreenState extends State<MistakeOverviewScreen>
       appBar: AppBar(
         title: const Text('Ошибки'),
         centerTitle: true,
-        actions: [SyncStatusIcon.of(context), 
+        actions: [
+          SyncStatusIcon.of(context),
           if (context.watch<IgnoredMistakeService>().ignored.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.restore),
               tooltip: 'Сбросить игнор',
-              onPressed: () =>
-                  context.read<IgnoredMistakeService>().reset(),
+              onPressed: () => context.read<IgnoredMistakeService>().reset(),
             ),
         ],
         bottom: PreferredSize(
@@ -70,8 +70,7 @@ class _MistakeOverviewScreenState extends State<MistakeOverviewScreen>
                 unselectedLabelColor: Colors.white70,
                 indicator: BoxDecoration(
                   color: Theme.of(context).colorScheme.secondary,
-                  borderRadius:
-                      BorderRadius.circular(AppConstants.radius8),
+                  borderRadius: BorderRadius.circular(AppConstants.radius8),
                 ),
                 indicatorSize: TabBarIndicatorSize.tab,
                 indicatorPadding: EdgeInsets.zero,

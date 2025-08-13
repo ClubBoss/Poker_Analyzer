@@ -26,12 +26,12 @@ class StageRemedialMeta {
       remedialPackId: json['remedialPackId'] as String? ?? '',
       sourceAttempts: (json['sourceAttempts'] as num?)?.toInt() ?? 0,
       missTags: json['missTags'] is Map
-          ? Map<String, int>.from(
-              json['missTags'].map((k, v) => MapEntry(k.toString(), (v as num).toInt())))
+          ? Map<String, int>.from(json['missTags']
+              .map((k, v) => MapEntry(k.toString(), (v as num).toInt())))
           : const {},
       missTextures: json['missTextures'] is Map
-          ? Map<String, int>.from(
-              json['missTextures'].map((k, v) => MapEntry(k.toString(), (v as num).toInt())))
+          ? Map<String, int>.from(json['missTextures']
+              .map((k, v) => MapEntry(k.toString(), (v as num).toInt())))
           : const {},
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'].toString()) ?? DateTime.now()
@@ -71,4 +71,3 @@ class StageRemedialMeta {
     return copyWith(completed: true, accuracyAfter: accuracyAfter);
   }
 }
-

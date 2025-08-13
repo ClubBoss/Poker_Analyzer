@@ -8,7 +8,12 @@ import '../services/training_progress_service.dart';
 import '../services/training_pack_stats_service.dart';
 import '../services/tag_mastery_service.dart';
 
-enum LearningTipAction { continuePack, startStage, repeatStage, exploreNextStage }
+enum LearningTipAction {
+  continuePack,
+  startStage,
+  repeatStage,
+  exploreNextStage
+}
 
 class LearningTip {
   final String title;
@@ -38,18 +43,21 @@ class LearningSuggestionService {
   const LearningSuggestionService();
 
   /// Suggests the next best pack to train based on progress and weak spots.
-  Future<LearningPackSuggestion?> nextSuggestedPack(BuildContext context) async {
+  Future<LearningPackSuggestion?> nextSuggestedPack(
+      BuildContext context) async {
     final list = await getSuggestions(context);
     return list.isNotEmpty ? list.first : null;
   }
 
   /// Returns extended suggestions for the learning path.
   /// The list is ordered by priority.
-  Future<List<LearningPackSuggestion>> getSuggestions(BuildContext context) async {
+  Future<List<LearningPackSuggestion>> getSuggestions(
+      BuildContext context) async {
     final mastery = context.read<TagMasteryService>();
     final weakTags = await mastery.topWeakTags(5);
 
-    final stages = await LearningPathProgressService.instance.getCurrentStageState();
+    final stages =
+        await LearningPathProgressService.instance.getCurrentStageState();
     final result = <LearningPackSuggestion>[];
 
     for (final stage in stages) {
@@ -76,7 +84,8 @@ class LearningSuggestionService {
           reason = 'Слабая зона: $match';
         }
 
-        result.add(LearningPackSuggestion(templateId: id, suggestionReason: reason ?? 'Непройденный пак'));
+        result.add(LearningPackSuggestion(
+            templateId: id, suggestionReason: reason ?? 'Непройденный пак'));
       }
     }
 
@@ -84,11 +93,13 @@ class LearningSuggestionService {
   }
 
   Future<LearningTip?> getTip() async {
-    final stages = await LearningPathProgressService.instance.getCurrentStageState();
+    final stages =
+        await LearningPathProgressService.instance.getCurrentStageState();
 
     for (final stage in stages) {
       for (final item in stage.items) {
-        if (item.status == LearningItemStatus.inProgress && item.templateId != null) {
+        if (item.status == LearningItemStatus.inProgress &&
+            item.templateId != null) {
           return LearningTip(
             title: '🏃 Продолжите пак "${item.title}"',
             description: 'Вы остановились на паке из стадии "${stage.title}".',
@@ -101,7 +112,9 @@ class LearningSuggestionService {
 
     for (final stage in stages) {
       if (stage.isLocked) continue;
-      final remaining = stage.items.where((i) => i.status != LearningItemStatus.completed).toList();
+      final remaining = stage.items
+          .where((i) => i.status != LearningItemStatus.completed)
+          .toList();
       if (remaining.isEmpty) continue;
       final title = stage.title;
       final count = remaining.length;
@@ -118,7 +131,8 @@ class LearningSuggestionService {
       }
     }
 
-    final allDone = await LearningPathProgressService.instance.isAllStagesCompleted();
+    final allDone =
+        await LearningPathProgressService.instance.isAllStagesCompleted();
     if (allDone && stages.isNotEmpty) {
       final first = stages.first.items.first.templateId;
       return LearningTip(

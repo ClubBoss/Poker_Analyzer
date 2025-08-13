@@ -57,7 +57,8 @@ class _StreetActionListSimpleState extends State<StreetActionListSimple> {
                   onPressed: () {
                     Navigator.pop(ctx, {
                       'action': action,
-                      'amount': needAmount ? int.tryParse(controller.text) : null,
+                      'amount':
+                          needAmount ? int.tryParse(controller.text) : null,
                     });
                   },
                   child: const Text('Save'),
@@ -168,14 +169,16 @@ class _StreetActionListSimpleState extends State<StreetActionListSimple> {
           Row(
             children: [
               TextButton(
-                onPressed: () =>
-                    context.read<ActionSyncService>().undoLastAction(widget.street),
+                onPressed: () => context
+                    .read<ActionSyncService>()
+                    .undoLastAction(widget.street),
                 child: const Text('Undo Last Action'),
               ),
               const SizedBox(width: 8),
               TextButton(
-                onPressed: () =>
-                    context.read<ActionSyncService>().clearStreet(widget.street),
+                onPressed: () => context
+                    .read<ActionSyncService>()
+                    .clearStreet(widget.street),
                 child: const Text('Clear Street'),
               ),
             ],

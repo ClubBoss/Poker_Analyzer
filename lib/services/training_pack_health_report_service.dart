@@ -7,7 +7,8 @@ import '../models/training_health_report.dart';
 class TrainingPackHealthReportService {
   const TrainingPackHealthReportService();
 
-  Future<TrainingHealthReport> generateReport({String path = 'training_packs/library'}) async {
+  Future<TrainingHealthReport> generateReport(
+      {String path = 'training_packs/library'}) async {
     final docs = await getApplicationDocumentsDirectory();
     final dir = Directory('${docs.path}/$path');
     if (!dir.existsSync()) {
@@ -87,7 +88,8 @@ class TrainingPackHealthReportService {
           spotMap[s.id] = f.path;
         }
         final hero = s.hand.heroIndex;
-        final hasHero = s.hand.actions.values.any((l) => l.any((a) => a.playerIndex == hero));
+        final hasHero = s.hand.actions.values
+            .any((l) => l.any((a) => a.playerIndex == hero));
         if (!hasHero) {
           issues.add((f.path, 'no_hero_action'));
           warnings++;
@@ -105,7 +107,7 @@ class TrainingPackHealthReportService {
         }
       }
     }
-    return TrainingHealthReport(issues: issues, errors: errors, warnings: warnings);
+    return TrainingHealthReport(
+        issues: issues, errors: errors, warnings: warnings);
   }
 }
-

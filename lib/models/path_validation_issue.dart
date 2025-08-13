@@ -1,4 +1,9 @@
-enum PathIssueType { missingPack, invalidStageOrder, duplicateId, unlinkedStage }
+enum PathIssueType {
+  missingPack,
+  invalidStageOrder,
+  duplicateId,
+  unlinkedStage
+}
 
 class PathValidationIssue {
   final String pathId;
@@ -23,7 +28,8 @@ class PathValidationIssue {
         'message': message,
       };
 
-  factory PathValidationIssue.fromJson(Map<String, dynamic> json) => PathValidationIssue(
+  factory PathValidationIssue.fromJson(Map<String, dynamic> json) =>
+      PathValidationIssue(
         pathId: json['pathId']?.toString() ?? '',
         stageId: json['stageId'] as String?,
         subStageId: json['subStageId'] as String?,

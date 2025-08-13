@@ -8,10 +8,12 @@ class StreakReminderSettingsWidget extends StatefulWidget {
   const StreakReminderSettingsWidget({super.key});
 
   @override
-  State<StreakReminderSettingsWidget> createState() => _StreakReminderSettingsWidgetState();
+  State<StreakReminderSettingsWidget> createState() =>
+      _StreakReminderSettingsWidgetState();
 }
 
-class _StreakReminderSettingsWidgetState extends State<StreakReminderSettingsWidget> {
+class _StreakReminderSettingsWidgetState
+    extends State<StreakReminderSettingsWidget> {
   static const _hourKey = 'streak_reminder_hour';
   static const _muteKey = 'streak_reminder_muted';
 
@@ -53,7 +55,8 @@ class _StreakReminderSettingsWidgetState extends State<StreakReminderSettingsWid
       if (picked.hour < 6 || picked.hour > 22) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select an hour between 6 and 22.')),
+          const SnackBar(
+              content: Text('Please select an hour between 6 and 22.')),
         );
         return;
       }
@@ -77,8 +80,10 @@ class _StreakReminderSettingsWidgetState extends State<StreakReminderSettingsWid
           activeColor: Colors.orange,
         ),
         ListTile(
-          title: const Text('Reminder Hour', style: TextStyle(color: Colors.white)),
-          subtitle: Text(timeText, style: const TextStyle(color: Colors.white70)),
+          title: const Text('Reminder Hour',
+              style: TextStyle(color: Colors.white)),
+          subtitle:
+              Text(timeText, style: const TextStyle(color: Colors.white70)),
           enabled: _enabled,
           onTap: _enabled ? _pickHour : null,
         ),
@@ -86,4 +91,3 @@ class _StreakReminderSettingsWidgetState extends State<StreakReminderSettingsWid
     );
   }
 }
-

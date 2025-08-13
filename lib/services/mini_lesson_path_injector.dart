@@ -26,7 +26,8 @@ class MiniLessonPathInjector {
 
   /// Inserts [lessons] after nodes reachable from [branch] when their
   /// tags overlap. Duplicate lesson ids are ignored.
-  Future<void> inject(LearningBranchNode branch, List<TheoryMiniLessonNode> lessons) async {
+  Future<void> inject(
+      LearningBranchNode branch, List<TheoryMiniLessonNode> lessons) async {
     final mapEngine = engine.engine;
     if (mapEngine == null || lessons.isEmpty) return;
     final nodes = mapEngine.allNodes;
@@ -34,7 +35,10 @@ class MiniLessonPathInjector {
     if (!byId.containsKey(branch.id)) return;
 
     final existing = {for (final n in nodes) n.id};
-    final filtered = [for (final l in lessons) if (!existing.contains(l.id)) l];
+    final filtered = [
+      for (final l in lessons)
+        if (!existing.contains(l.id)) l
+    ];
     if (filtered.isEmpty) return;
 
     var updated = [for (final n in nodes) _clone(n)];
@@ -68,10 +72,8 @@ class MiniLessonPathInjector {
     return const [];
   }
 
-  List<LearningPathNode> _injectAfter(
-      List<LearningPathNode> nodes,
-      String targetId,
-      List<TheoryMiniLessonNode> lessons) {
+  List<LearningPathNode> _injectAfter(List<LearningPathNode> nodes,
+      String targetId, List<TheoryMiniLessonNode> lessons) {
     final index = nodes.indexWhere((n) => n.id == targetId);
     if (index < 0 || lessons.isEmpty) return nodes;
     final target = nodes[index];
@@ -143,4 +145,3 @@ class MiniLessonPathInjector {
     return _withNextIds(node, _getNextIds(node));
   }
 }
-

@@ -50,10 +50,7 @@ class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
         }
       },
       child: Container(
-        color: Theme.of(context)
-            .colorScheme
-            .surface
-            .withValues(alpha: 0.9),
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
         padding: EdgeInsets.symmetric(
             horizontal: mini ? 8 : 16, vertical: mini ? 4 : 8),
         child: SafeArea(
@@ -92,8 +89,9 @@ class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
                   },
                 ),
               IconButton(
-                icon: Icon(
-                    adaptive ? Icons.scatter_plot : Icons.scatter_plot_outlined),
+                icon: Icon(adaptive
+                    ? Icons.scatter_plot
+                    : Icons.scatter_plot_outlined),
                 color: adaptive
                     ? Theme.of(context).colorScheme.primary
                     : iconColor,
@@ -109,7 +107,8 @@ class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
                 onPressed: onSRToggle,
               ),
               IconButton(
-                icon: Icon(isIcm ? Icons.monetization_on : Icons.stacked_line_chart),
+                icon: Icon(
+                    isIcm ? Icons.monetization_on : Icons.stacked_line_chart),
                 color: iconColor,
                 tooltip: isIcm ? 'ICM' : 'EV',
                 onPressed: onModeToggle,

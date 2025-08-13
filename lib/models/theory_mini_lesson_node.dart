@@ -82,8 +82,12 @@ class TheoryMiniLessonNode implements LearningPathNode {
       }
     }
     final rawNext = yaml['nextIds'] ?? yaml['next'];
-    final nextIds = <String>[for (final v in (rawNext as List? ?? [])) v.toString()];
-    final linked = <String>[for (final v in (yaml['linkedPackIds'] as List? ?? [])) v.toString()];
+    final nextIds = <String>[
+      for (final v in (rawNext as List? ?? [])) v.toString()
+    ];
+    final linked = <String>[
+      for (final v in (yaml['linkedPackIds'] as List? ?? [])) v.toString()
+    ];
     return TheoryMiniLessonNode(
       id: yaml['id']?.toString() ?? '',
       refId: yaml['refId']?.toString(),
@@ -100,10 +104,16 @@ class TheoryMiniLessonNode implements LearningPathNode {
   }
 
   factory TheoryMiniLessonNode.fromJson(Map<String, dynamic> json) {
-    final tags = <String>[for (final t in (json['tags'] as List? ?? [])) t.toString()];
+    final tags = <String>[
+      for (final t in (json['tags'] as List? ?? [])) t.toString()
+    ];
     final rawNext = json['nextIds'] ?? json['next'];
-    final nextIds = <String>[for (final v in (rawNext as List? ?? [])) v.toString()];
-    final linked = <String>[for (final v in (json['linkedPackIds'] as List? ?? [])) v.toString()];
+    final nextIds = <String>[
+      for (final v in (rawNext as List? ?? [])) v.toString()
+    ];
+    final linked = <String>[
+      for (final v in (json['linkedPackIds'] as List? ?? [])) v.toString()
+    ];
     return TheoryMiniLessonNode(
       id: json['id']?.toString() ?? '',
       refId: json['refId']?.toString(),

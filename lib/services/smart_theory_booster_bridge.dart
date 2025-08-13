@@ -42,9 +42,8 @@ class SmartTheoryBoosterBridge {
     final results = <BoosterRecommendationResult>[];
 
     for (final lesson in lessons) {
-      final tags = {
-        for (final t in lesson.tags) t.trim().toLowerCase()
-      }..removeWhere((t) => t.isEmpty);
+      final tags = {for (final t in lesson.tags) t.trim().toLowerCase()}
+        ..removeWhere((t) => t.isEmpty);
       final cluster = lessonClusters[lesson.id];
       final clusterTags = cluster != null
           ? cluster.sharedTags.map((e) => e.trim().toLowerCase()).toSet()
@@ -72,8 +71,7 @@ class SmartTheoryBoosterBridge {
         if (score > bestScore) {
           best = booster;
           bestScore = score.toDouble();
-          bestTag =
-              overlap.isNotEmpty ? overlap.first : clusterOverlap.first;
+          bestTag = overlap.isNotEmpty ? overlap.first : clusterOverlap.first;
         }
       }
 

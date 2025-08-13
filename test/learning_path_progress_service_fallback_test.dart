@@ -23,4 +23,3 @@ void main() {
     expect(prefs.getString('learning.path.progress.p.bak'), '{bad json');
   });
 }
-

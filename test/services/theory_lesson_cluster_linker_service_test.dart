@@ -28,7 +28,8 @@ class _FakeLibrary implements MiniLessonLibraryService {
       [for (final t in tags) ...lessons.where((l) => l.tags.contains(t))];
 
   @override
-  List<TheoryMiniLessonNode> getByTags(Set<String> tags) => findByTags(tags.toList());
+  List<TheoryMiniLessonNode> getByTags(Set<String> tags) =>
+      findByTags(tags.toList());
 
   @override
   List<String> linkedPacksFor(String lessonId) =>
@@ -52,7 +53,8 @@ class _FakeTracker implements TheorySuggestionEngagementTrackerService {
   Future<Map<String, int>> countByAction(String action) async => const {};
 
   @override
-  Future<List<TheorySuggestionEngagementEvent>> eventsByAction(String action) async =>
+  Future<List<TheorySuggestionEngagementEvent>> eventsByAction(
+          String action) async =>
       events.where((e) => e.action == action).toList();
 }
 

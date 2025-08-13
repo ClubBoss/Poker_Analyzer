@@ -26,7 +26,8 @@ void main() {
   test('pickReengagementGoal returns stale goal', () async {
     final now = DateTime.now();
     final logs = [
-      SessionLog(tags: const [], 
+      SessionLog(
+        tags: const [],
         sessionId: '1',
         templateId: 'cbet_ip',
         startedAt: now.subtract(const Duration(days: 10)),
@@ -34,7 +35,8 @@ void main() {
         correctCount: 1,
         mistakeCount: 0,
       ),
-      SessionLog(tags: const [], 
+      SessionLog(
+        tags: const [],
         sessionId: '2',
         templateId: 'open_fold_lj_mtt',
         startedAt: now.subtract(const Duration(days: 1)),
@@ -45,7 +47,10 @@ void main() {
     ];
     final service = GoalReengagementService(logs: _FakeLogService(logs));
     await GoalEngagementTracker.instance.log(
-      GoalEngagement(tag: 'cbet', action: 'start', timestamp: now.subtract(const Duration(days: 10))),
+      GoalEngagement(
+          tag: 'cbet',
+          action: 'start',
+          timestamp: now.subtract(const Duration(days: 10))),
     );
     final goal = await service.pickReengagementGoal();
     expect(goal?.tag, 'cbet');
@@ -54,7 +59,8 @@ void main() {
   test('dismissed goal is skipped after 3 times', () async {
     final now = DateTime.now();
     final logs = [
-      SessionLog(tags: const [], 
+      SessionLog(
+        tags: const [],
         sessionId: '1',
         templateId: 'cbet_ip',
         startedAt: now.subtract(const Duration(days: 10)),
@@ -71,4 +77,3 @@ void main() {
     expect(goal, isNull);
   });
 }
-

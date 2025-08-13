@@ -10,8 +10,7 @@ class SkillMapBoosterRecommender {
     final list = [
       for (final e in map.entries)
         if (e.value < threshold) MapEntry(e.key, e.value)
-    ]
-      ..sort((a, b) => a.value.compareTo(b.value));
+    ]..sort((a, b) => a.value.compareTo(b.value));
     return [for (final e in list.take(maxTags)) e.key];
   }
 }

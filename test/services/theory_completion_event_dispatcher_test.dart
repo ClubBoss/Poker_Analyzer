@@ -11,7 +11,8 @@ void main() {
 
   test('dispatch triggers default listeners', () async {
     final dispatcher = TheoryCompletionEventDispatcher.instance;
-    dispatcher.dispatch(TheoryCompletionEvent(lessonId: 'l1', wasSuccessful: true));
+    dispatcher
+        .dispatch(TheoryCompletionEvent(lessonId: 'l1', wasSuccessful: true));
 
     await Future.delayed(const Duration(milliseconds: 10));
     final prefs = await SharedPreferences.getInstance();

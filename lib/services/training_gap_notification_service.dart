@@ -27,8 +27,8 @@ class TrainingGapNotificationService {
     final packs = [
       for (final t in library) TrainingPackTemplate.fromJson(t.toJson())
     ];
-    final stats =
-        await const TrainingTypeStatsService().calculateCompletionPercent(packs);
+    final stats = await const TrainingTypeStatsService()
+        .calculateCompletionPercent(packs);
     final weakType = const WeakTrainingTypeDetector().findWeakestType(stats);
     if (weakType != null) {
       final tpl = library.firstWhereOrNull(

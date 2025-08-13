@@ -13,10 +13,8 @@ class SkillTreeNodeProgressTracker {
   static const String _prefsKey = 'skill_node_progress';
   static const String _trackPrefsKey = 'completed_tracks';
 
-  final ValueNotifier<Set<String>> completedNodeIds =
-      ValueNotifier(<String>{});
-  final ValueNotifier<Set<String>> completedTracks =
-      ValueNotifier(<String>{});
+  final ValueNotifier<Set<String>> completedNodeIds = ValueNotifier(<String>{});
+  final ValueNotifier<Set<String>> completedTracks = ValueNotifier(<String>{});
 
   bool _loaded = false;
 
@@ -37,8 +35,7 @@ class SkillTreeNodeProgressTracker {
 
   Future<void> _saveTracks() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(
-        _trackPrefsKey, completedTracks.value.toList());
+    await prefs.setStringList(_trackPrefsKey, completedTracks.value.toList());
   }
 
   /// Whether [nodeId] has been marked as completed.

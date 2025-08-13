@@ -101,7 +101,8 @@ meta:
     }
   });
 
-  test('dynamicParams boardTextureTags highCard generates high card boards', () {
+  test('dynamicParams boardTextureTags highCard generates high card boards',
+      () {
     const yamlHigh = '''
 id: gen_pack
 name: Generator Pack

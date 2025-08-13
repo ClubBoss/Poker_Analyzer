@@ -29,7 +29,8 @@ class PluginManager {
         final map = jsonDecode(data) as Map<String, dynamic>;
         _info
           ..clear()
-          ..addAll(map.map((k, v) => MapEntry(k, Map<String, dynamic>.from(v))));
+          ..addAll(
+              map.map((k, v) => MapEntry(k, Map<String, dynamic>.from(v))));
       } catch (_) {}
     }
   }

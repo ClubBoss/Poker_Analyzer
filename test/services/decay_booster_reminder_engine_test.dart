@@ -9,7 +9,8 @@ class _FakeDecay extends TheoryTagDecayTracker {
   final Map<String, double> scores;
   _FakeDecay(this.scores);
   @override
-  Future<Map<String, double>> computeDecayScores({DateTime? now}) async => scores;
+  Future<Map<String, double>> computeDecayScores({DateTime? now}) async =>
+      scores;
 }
 
 void main() {

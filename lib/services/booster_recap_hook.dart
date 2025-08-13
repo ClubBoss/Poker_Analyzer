@@ -169,7 +169,7 @@ class BoosterRecapHook {
     } else {
       keys.addAll(tags.map((t) => 'tag:$t'));
     }
-  
+
     for (final k in keys) {
       if (await memory.shouldThrottle(k)) {
         await analytics.logEvent(

@@ -35,7 +35,10 @@ void main() {
     );
 
     final library = _FakeBlockLibrary({block1.id: block1, block2.id: block2});
-    final evaluator = _FakeEvaluator({'b1': ['t1'], 'b2': ['t2']});
+    final evaluator = _FakeEvaluator({
+      'b1': ['t1'],
+      'b2': ['t2']
+    });
 
     final provider = SmartPinnedBlockBoosterProvider(
       tracker: tracker,

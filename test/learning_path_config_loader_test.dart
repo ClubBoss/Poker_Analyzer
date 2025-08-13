@@ -9,7 +9,8 @@ class _FakeBundle extends CachingAssetBundle {
   final Map<String, String> data;
   _FakeBundle(this.data);
   @override
-  Future<String> loadString(String key, {bool cache = true}) async => data[key]!;
+  Future<String> loadString(String key, {bool cache = true}) async =>
+      data[key]!;
 }
 
 void main() {
@@ -17,12 +18,16 @@ void main() {
 
   test('loadPath registers stages from packs', () async {
     final bundle = _FakeBundle({
-      'assets/learning_paths/beginner_path.yaml': 'packs:\n  - assets/p1.yaml\n  - assets/p2.yaml',
-      'assets/p1.yaml': 'id: pack1\nname: Pack 1\ntrainingType: mtt\npositions:\n  - bb',
-      'assets/p2.yaml': 'id: pack2\nname: Pack 2\ntrainingType: mtt\npositions:\n  - bb',
+      'assets/learning_paths/beginner_path.yaml':
+          'packs:\n  - assets/p1.yaml\n  - assets/p2.yaml',
+      'assets/p1.yaml':
+          'id: pack1\nname: Pack 1\ntrainingType: mtt\npositions:\n  - bb',
+      'assets/p2.yaml':
+          'id: pack2\nname: Pack 2\ntrainingType: mtt\npositions:\n  - bb',
     });
     final binding = TestWidgetsFlutterBinding.ensureInitialized();
-    binding.defaultBinaryMessenger.setMockMessageHandler('flutter/assets', (message) async {
+    binding.defaultBinaryMessenger.setMockMessageHandler('flutter/assets',
+        (message) async {
       final key = utf8.decode(message.buffer.asUint8List());
       final data = bundle.data[key];
       if (data != null) {
@@ -33,7 +38,8 @@ void main() {
 
     LearningPathStageLibrary.instance.clear();
 
-    await LearningPathConfigLoader.instance.loadPath('assets/learning_paths/beginner_path.yaml');
+    await LearningPathConfigLoader.instance
+        .loadPath('assets/learning_paths/beginner_path.yaml');
 
     final stages = LearningPathStageLibrary.instance.stages;
     expect(stages, hasLength(2));

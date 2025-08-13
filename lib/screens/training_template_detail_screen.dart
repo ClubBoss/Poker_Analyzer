@@ -11,7 +11,8 @@ import 'training_session_screen.dart';
 class TrainingTemplateDetailScreen extends StatelessWidget {
   final TrainingPackTemplate template;
   final TrainingPackStat? stat;
-  const TrainingTemplateDetailScreen({super.key, required this.template, this.stat});
+  const TrainingTemplateDetailScreen(
+      {super.key, required this.template, this.stat});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +24,8 @@ class TrainingTemplateDetailScreen extends StatelessWidget {
     final rating = ((stat?.accuracy ?? 0) * 5).clamp(1, 5).round();
     final focus = template.handTypeSummary();
     final diff = template.difficultyLevel;
-    final hasMistakes = context.read<MistakeReviewPackService>().hasMistakes(template.id);
+    final hasMistakes =
+        context.read<MistakeReviewPackService>().hasMistakes(template.id);
     return Scaffold(
       appBar: AppBar(title: Text(template.name)),
       body: Padding(
@@ -32,9 +34,15 @@ class TrainingTemplateDetailScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (template.description.isNotEmpty)
-              Text(template.description, style: const TextStyle(color: Colors.white70)),
+              Text(template.description,
+                  style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
-            Row(children:[for(var i=0;i<rating;i++)const Icon(Icons.star,color:Colors.amber)],),
+            Row(
+              children: [
+                for (var i = 0; i < rating; i++)
+                  const Icon(Icons.star, color: Colors.amber)
+              ],
+            ),
             if (accuracy > 0)
               Padding(
                 padding: const EdgeInsets.only(top: 4),
@@ -42,7 +50,8 @@ class TrainingTemplateDetailScreen extends StatelessWidget {
                     style: const TextStyle(color: Colors.white70)),
               ),
             const SizedBox(height: 8),
-            Text('Difficulty: $diff', style: const TextStyle(color: Colors.white)),
+            Text('Difficulty: $diff',
+                style: const TextStyle(color: Colors.white)),
             Text('EV ${ev.toStringAsFixed(1)}%  ICM ${icm.toStringAsFixed(1)}%',
                 style: const TextStyle(color: Colors.white)),
             if (stat != null)
@@ -53,12 +62,14 @@ class TrainingTemplateDetailScreen extends StatelessWidget {
             if (focus.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
-                child: Text(focus, style: const TextStyle(color: Colors.white70)),
+                child:
+                    Text(focus, style: const TextStyle(color: Colors.white70)),
               ),
             if (hasMistakes)
               const Padding(
                 padding: EdgeInsets.only(top: 8),
-                child: Text('Есть ошибки', style: TextStyle(color: Colors.orange)),
+                child:
+                    Text('Есть ошибки', style: TextStyle(color: Colors.orange)),
               ),
             if (template.meta.containsKey('evCovered') &&
                 template.meta.containsKey('icmCovered') &&
@@ -98,7 +109,8 @@ class TrainingTemplateDetailScreen extends StatelessWidget {
                       Container(width: 12, height: 12, color: AppColors.evPre),
                       const SizedBox(width: 4),
                       const Text('EV',
-                          style: TextStyle(color: Colors.white70, fontSize: 12)),
+                          style:
+                              TextStyle(color: Colors.white70, fontSize: 12)),
                     ],
                   ),
                   const SizedBox(width: 16),
@@ -107,7 +119,8 @@ class TrainingTemplateDetailScreen extends StatelessWidget {
                       Container(width: 12, height: 12, color: AppColors.icmPre),
                       const SizedBox(width: 4),
                       const Text('ICM',
-                          style: TextStyle(color: Colors.white70, fontSize: 12)),
+                          style:
+                              TextStyle(color: Colors.white70, fontSize: 12)),
                     ],
                   ),
                 ],
@@ -119,11 +132,14 @@ class TrainingTemplateDetailScreen extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () async {
-                      await context.read<TrainingSessionService>().startSession(template);
+                      await context
+                          .read<TrainingSessionService>()
+                          .startSession(template);
                       if (context.mounted) {
                         await Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+                          MaterialPageRoute(
+                              builder: (_) => const TrainingSessionScreen()),
                         );
                       }
                     },
@@ -135,13 +151,19 @@ class TrainingTemplateDetailScreen extends StatelessWidget {
                   child: OutlinedButton(
                     onPressed: hasMistakes
                         ? () async {
-                            final review = await context.read<MistakeReviewPackService>().review(context, template.id);
+                            final review = await context
+                                .read<MistakeReviewPackService>()
+                                .review(context, template.id);
                             if (review != null && context.mounted) {
-                              await context.read<TrainingSessionService>().startSession(review);
+                              await context
+                                  .read<TrainingSessionService>()
+                                  .startSession(review);
                               if (context.mounted) {
                                 await Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+                                  MaterialPageRoute(
+                                      builder: (_) =>
+                                          const TrainingSessionScreen()),
                                 );
                               }
                             }

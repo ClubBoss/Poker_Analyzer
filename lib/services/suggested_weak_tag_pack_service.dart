@@ -10,7 +10,8 @@ import 'suggested_training_packs_history_service.dart';
 class SuggestedWeakTagPackResult {
   final TrainingPackTemplateV2? pack;
   final bool isFallback;
-  const SuggestedWeakTagPackResult({required this.pack, required this.isFallback});
+  const SuggestedWeakTagPackResult(
+      {required this.pack, required this.isFallback});
 }
 
 class SuggestedWeakTagPackService {
@@ -27,7 +28,8 @@ class SuggestedWeakTagPackService {
         ? await _detectWeakTags()
         : await WeakTagDetectorService.detectWeakTags();
     await PackLibraryLoaderService.instance.loadLibrary();
-    final library = _libraryOverride ?? PackLibraryLoaderService.instance.library;
+    final library =
+        _libraryOverride ?? PackLibraryLoaderService.instance.library;
 
     for (final t in weak) {
       final pack = library.firstWhereOrNull((p) => p.tags.contains(t.tag));
@@ -67,8 +69,7 @@ class SuggestedWeakTagPackService {
         return p;
       }
     }
-    final sorted = [...library]
-      ..sort((a, b) {
+    final sorted = [...library]..sort((a, b) {
         final pa = (a.meta['popularity'] as num?)?.toDouble() ?? 0;
         final pb = (b.meta['popularity'] as num?)?.toDouble() ?? 0;
         return pb.compareTo(pa);

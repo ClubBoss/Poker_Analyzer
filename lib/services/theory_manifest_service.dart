@@ -37,7 +37,8 @@ class ManifestEntry {
 }
 
 class TheoryManifestService {
-  TheoryManifestService({String? path}) : _path = path ?? 'theory_manifest.json';
+  TheoryManifestService({String? path})
+      : _path = path ?? 'theory_manifest.json';
 
   final String _path;
   int version = 1;
@@ -110,4 +111,3 @@ class TheoryManifestService {
     files[relPath] = entry;
   }
 }
-

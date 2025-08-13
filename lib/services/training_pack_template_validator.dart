@@ -34,7 +34,8 @@ class TrainingPackTemplateValidator {
       if (heroStack == null || heroStack <= 0) {
         err('bad_stacks:${s.id}');
       }
-      if (hand.position == HeroPosition.unknown) warn('unknown_position:${s.id}');
+      if (hand.position == HeroPosition.unknown)
+        warn('unknown_position:${s.id}');
       for (final list in hand.actions.values) {
         for (final a in list) {
           if (a.street < 0 || a.street > 3) {
@@ -47,7 +48,9 @@ class TrainingPackTemplateValidator {
       }
       final eval = s.evalResult;
       if (eval != null) {
-        if (eval.userEquity.isNaN || eval.userEquity < 0 || eval.userEquity > 1) {
+        if (eval.userEquity.isNaN ||
+            eval.userEquity < 0 ||
+            eval.userEquity > 1) {
           warn('bad_user_equity:${s.id}');
         }
         if (eval.expectedEquity.isNaN ||
@@ -55,7 +58,8 @@ class TrainingPackTemplateValidator {
             eval.expectedEquity > 1) {
           warn('bad_expected_equity:${s.id}');
         }
-        if (eval.ev != null && (eval.ev!.isNaN || eval.ev! < -100 || eval.ev! > 100)) {
+        if (eval.ev != null &&
+            (eval.ev!.isNaN || eval.ev! < -100 || eval.ev! > 100)) {
           warn('bad_ev:${s.id}');
         }
         if (eval.icmEv != null &&

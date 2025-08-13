@@ -22,7 +22,7 @@ class RecapEvent {
         lessonId: json['lessonId'] as String? ?? '',
         trigger: json['trigger'] as String? ?? '',
         eventType: json['eventType'] as String? ?? '',
-        timestamp:
-            DateTime.tryParse(json['timestamp'] as String? ?? '') ?? DateTime.now(),
+        timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ??
+            DateTime.now(),
       );
 }

@@ -43,7 +43,8 @@ class _PackLibraryQAScreenState extends State<PackLibraryQAScreen> {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                ElevatedButton(onPressed: _load, child: const Text('🔄 Обновить')),
+                ElevatedButton(
+                    onPressed: _load, child: const Text('🔄 Обновить')),
                 const SizedBox(height: 16),
                 for (final w in _items)
                   ListTile(

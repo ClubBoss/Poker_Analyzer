@@ -15,11 +15,20 @@ class HandAnalyzerService {
     int anteBb = 0,
   }) {
     if (cards.length < 2) return null;
-    final code = handCode('${cards[0].rank}${cards[0].suit} ${cards[1].rank}${cards[1].suit}');
+    final code = handCode(
+        '${cards[0].rank}${cards[0].suit} ${cards[1].rank}${cards[1].suit}');
     if (code == null) return null;
-    final ev = computePushEV(heroBbStack: stack, bbCount: playerCount - 1, heroHand: code, anteBb: anteBb);
+    final ev = computePushEV(
+        heroBbStack: stack,
+        bbCount: playerCount - 1,
+        heroHand: code,
+        anteBb: anteBb);
     final stacks = List<int>.filled(playerCount, stack);
-    final icm = computeIcmPushEV(chipStacksBb: stacks, heroIndex: heroIndex, heroHand: code, chipPushEv: ev);
+    final icm = computeIcmPushEV(
+        chipStacksBb: stacks,
+        heroIndex: heroIndex,
+        heroHand: code,
+        chipPushEv: ev);
     final threshold = -0.5 + level * 0.1;
     final action = ev >= threshold ? 'push' : 'fold';
     final hint =

@@ -12,7 +12,8 @@ class YamlPackPreviewerScreen extends StatefulWidget {
   const YamlPackPreviewerScreen({super.key});
 
   @override
-  State<YamlPackPreviewerScreen> createState() => _YamlPackPreviewerScreenState();
+  State<YamlPackPreviewerScreen> createState() =>
+      _YamlPackPreviewerScreenState();
 }
 
 class _YamlPackPreviewerScreenState extends State<YamlPackPreviewerScreen> {
@@ -42,7 +43,8 @@ class _YamlPackPreviewerScreenState extends State<YamlPackPreviewerScreen> {
     try {
       final yaml = await File(path).readAsString();
       final map = const YamlReader().read(yaml);
-      final pack = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+      final pack =
+          TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
       if (mounted) {
         setState(() {
           _pack = pack;
@@ -99,7 +101,9 @@ class _YamlPackPreviewerScreenState extends State<YamlPackPreviewerScreen> {
               padding: const EdgeInsets.all(16),
               child: ListView(
                 children: [
-                  Text(pack.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(pack.name,
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold)),
                   if (pack.audience != null && pack.audience!.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(top: 4),
@@ -119,10 +123,12 @@ class _YamlPackPreviewerScreenState extends State<YamlPackPreviewerScreen> {
                   Text('Spots: ${pack.spots.length}'),
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
-                    child: Text('Average priority: ${_avgPriority(pack.spots).toStringAsFixed(1)}'),
+                    child: Text(
+                        'Average priority: ${_avgPriority(pack.spots).toStringAsFixed(1)}'),
                   ),
                   const SizedBox(height: 12),
-                  const Text('Positions:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text('Positions:',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                   Wrap(
                     spacing: 8,
                     children: [
@@ -131,7 +137,8 @@ class _YamlPackPreviewerScreenState extends State<YamlPackPreviewerScreen> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  const Text('Hand types:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text('Hand types:',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                   Wrap(
                     spacing: 8,
                     children: [
@@ -141,10 +148,13 @@ class _YamlPackPreviewerScreenState extends State<YamlPackPreviewerScreen> {
                   ),
                   if (pack.tags.isNotEmpty) ...[
                     const SizedBox(height: 12),
-                    const Text('Tags:', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text('Tags:',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     Wrap(
                       spacing: 8,
-                      children: [for (final t in pack.tags) Chip(label: Text(t))],
+                      children: [
+                        for (final t in pack.tags) Chip(label: Text(t))
+                      ],
                     ),
                   ],
                 ],

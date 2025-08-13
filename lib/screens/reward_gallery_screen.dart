@@ -19,8 +19,7 @@ class _RewardGalleryScreenState extends State<RewardGalleryScreen> {
   @override
   void initState() {
     super.initState();
-    _future =
-        RewardGalleryGroupByTrackService.instance.getGroupedRewards();
+    _future = RewardGalleryGroupByTrackService.instance.getGroupedRewards();
     _rendererFuture = RewardCardRendererService.create();
   }
 
@@ -78,17 +77,16 @@ class _RewardGalleryScreenState extends State<RewardGalleryScreen> {
                         nav.pop();
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                              content: Text('Не удалось сгенерировать карточку')),
+                              content:
+                                  Text('Не удалось сгенерировать карточку')),
                         );
                       }
                     },
                   ),
                 ),
-                for (final r in g.rewards
-                    .where((e) => e.stageIndex != null))
+                for (final r in g.rewards.where((e) => e.stageIndex != null))
                   Padding(
-                    padding:
-                        const EdgeInsets.only(left: 72, top: 4, bottom: 8),
+                    padding: const EdgeInsets.only(left: 72, top: 4, bottom: 8),
                     child: Text('Этап ${r.stageIndex}'),
                   ),
               ]
@@ -99,4 +97,3 @@ class _RewardGalleryScreenState extends State<RewardGalleryScreen> {
     );
   }
 }
-

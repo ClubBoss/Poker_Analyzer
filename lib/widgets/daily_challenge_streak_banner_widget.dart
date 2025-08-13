@@ -7,10 +7,12 @@ class DailyChallengeStreakBannerWidget extends StatefulWidget {
   const DailyChallengeStreakBannerWidget({super.key});
 
   @override
-  State<DailyChallengeStreakBannerWidget> createState() => _DailyChallengeStreakBannerWidgetState();
+  State<DailyChallengeStreakBannerWidget> createState() =>
+      _DailyChallengeStreakBannerWidgetState();
 }
 
-class _DailyChallengeStreakBannerWidgetState extends State<DailyChallengeStreakBannerWidget>
+class _DailyChallengeStreakBannerWidgetState
+    extends State<DailyChallengeStreakBannerWidget>
     with SingleTickerProviderStateMixin {
   int _streak = 0;
   bool _loading = true;
@@ -27,8 +29,7 @@ class _DailyChallengeStreakBannerWidgetState extends State<DailyChallengeStreakB
   }
 
   Future<void> _load() async {
-    final value =
-        await DailyChallengeStreakService.instance.getCurrentStreak();
+    final value = await DailyChallengeStreakService.instance.getCurrentStreak();
     if (!mounted) return;
     setState(() {
       _streak = value;

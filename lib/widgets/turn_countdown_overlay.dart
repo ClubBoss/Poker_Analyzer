@@ -95,7 +95,8 @@ class _RingPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final radius = math.min(size.width, size.height) / 2 - thickness / 2;
-    final rect = Rect.fromCircle(center: size.center(Offset.zero), radius: radius);
+    final rect =
+        Rect.fromCircle(center: size.center(Offset.zero), radius: radius);
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke

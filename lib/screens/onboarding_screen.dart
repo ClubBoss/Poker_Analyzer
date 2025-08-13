@@ -40,15 +40,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _importHands() async {
-    final manager = Provider.of<SavedHandManagerService>(context, listen: false);
+    final manager =
+        Provider.of<SavedHandManagerService>(context, listen: false);
     final service = await HandHistoryFileService.create(manager);
     await service.importFromFiles(context);
   }
 
   void _startStarterPack() {
-    final tpl = _selected ??
-        TrainingPackTemplateService.starterPushfold10bb(context);
-    final hands = [for (final s in tpl.spots) handFromPackSpot(s, anteBb: tpl.anteBb)];
+    final tpl =
+        _selected ?? TrainingPackTemplateService.starterPushfold10bb(context);
+    final hands = [
+      for (final s in tpl.spots) handFromPackSpot(s, anteBb: tpl.anteBb)
+    ];
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -98,7 +101,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       _page('Шаг 4', 'Следите за ежедневными целями и достижениями'),
       _page('Шаг 5', 'Отслеживайте результаты в дашбордах прогресса'),
       _page('Шаг 6', 'Получайте персональные рекомендации для тренировок'),
-      _page('Шаг 7', 'Подключите облачную синхронизацию для сохранения прогресса'),
+      _page('Шаг 7',
+          'Подключите облачную синхронизацию для сохранения прогресса'),
       Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -111,8 +115,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               for (final t in _templates)
                 DropdownMenuItem(
                   value: t,
-                  child: Text(t.name,
-                      style: const TextStyle(color: Colors.white)),
+                  child:
+                      Text(t.name, style: const TextStyle(color: Colors.white)),
                 )
             ],
             onChanged: (v) => setState(() => _selected = v),

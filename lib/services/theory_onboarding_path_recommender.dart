@@ -20,8 +20,7 @@ class TheoryOnboardingPathRecommender {
       filtered = clusters.where((c) => c.entryPointIds.isNotEmpty).toList();
     }
     if (filtered.isEmpty) return null;
-    filtered.sort(
-        (a, b) => _score(b, profile).compareTo(_score(a, profile)));
+    filtered.sort((a, b) => _score(b, profile).compareTo(_score(a, profile)));
     return filtered.first;
   }
 
@@ -35,7 +34,9 @@ class TheoryOnboardingPathRecommender {
     for (final id in cluster.entryPointIds) {
       if (!profile.completedLessonIds.contains(id)) return id;
     }
-    return cluster.entryPointIds.isNotEmpty ? cluster.entryPointIds.first : null;
+    return cluster.entryPointIds.isNotEmpty
+        ? cluster.entryPointIds.first
+        : null;
   }
 
   double _score(TheoryClusterSummary c, PlayerProfile profile) {

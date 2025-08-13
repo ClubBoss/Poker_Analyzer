@@ -48,10 +48,12 @@ class TrainingPackIndexWriter {
       ..writeln('|---|---|---|---|---|');
     for (final item in list) {
       final title = (item['title'] ?? '').toString().replaceAll('|', '\\|');
-      final audience = (item['audience'] ?? '').toString().replaceAll('|', '\\|');
+      final audience =
+          (item['audience'] ?? '').toString().replaceAll('|', '\\|');
       final mainTag = (item['mainTag'] ?? '').toString().replaceAll('|', '\\|');
       final goal = (item['goal'] ?? '').toString().replaceAll('|', '\\|');
-      final tags = (item['tags'] as List?)?.join(', ').replaceAll('|', '\\|') ?? '';
+      final tags =
+          (item['tags'] as List?)?.join(', ').replaceAll('|', '\\|') ?? '';
       buffer.writeln('|$title|$audience|$mainTag|$goal|$tags|');
     }
     await mdFile.writeAsString(buffer.toString(), flush: true);

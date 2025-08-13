@@ -12,7 +12,8 @@ class _FakeBundle extends CachingAssetBundle {
   final Map<String, String> data;
   _FakeBundle(this.data);
   @override
-  Future<String> loadString(String key, {bool cache = true}) async => data[key]!;
+  Future<String> loadString(String key, {bool cache = true}) async =>
+      data[key]!;
 }
 
 void main() {
@@ -24,7 +25,9 @@ void main() {
       createdAt: DateTime.now(),
     );
     final bundle = _FakeBundle({
-      'AssetManifest.json': jsonEncode({'assets/packs/test.json': ['assets/packs/test.json']}),
+      'AssetManifest.json': jsonEncode({
+        'assets/packs/test.json': ['assets/packs/test.json']
+      }),
       'assets/packs/test.json': jsonEncode(tpl.toJson()),
     });
     await tester.pumpWidget(DefaultAssetBundle(

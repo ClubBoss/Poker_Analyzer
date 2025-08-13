@@ -13,8 +13,7 @@ class SmartInboxFeedbackLoggerService {
 
   static const _prefix = 'inbox_feedback_';
 
-  static String _key(String itemId, String event) =>
-      '$_prefix${itemId}_$event';
+  static String _key(String itemId, String event) => '$_prefix${itemId}_$event';
 
   /// Records [eventType] for [itemId] with current timestamp.
   ///

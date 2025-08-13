@@ -49,7 +49,8 @@ class EvaluationProcessingService {
   VoidCallback? debugPanelCallback;
 
   bool get snapshotRetentionEnabled => queueService.snapshotRetentionEnabled;
-  set snapshotRetentionEnabled(bool v) => queueService.snapshotRetentionEnabled = v;
+  set snapshotRetentionEnabled(bool v) =>
+      queueService.snapshotRetentionEnabled = v;
 
   void _onPrefsChanged() {
     snapshotRetentionEnabled = debugPrefs.snapshotRetentionEnabled;
@@ -69,16 +70,20 @@ class EvaluationProcessingService {
   Future<void> processQueue() async {
     await _initFuture;
     if (processing ||
-        await queueService.queueLock.synchronized(() => queueService.pending.isEmpty)) {
+        await queueService.queueLock
+            .synchronized(() => queueService.pending.isEmpty)) {
       return;
     }
     processing = true;
-    while (await queueService.queueLock.synchronized(() => queueService.pending.isNotEmpty)) {
+    while (await queueService.queueLock
+        .synchronized(() => queueService.pending.isNotEmpty)) {
       if (pauseRequested || cancelRequested) break;
-      final req = await queueService.queueLock.synchronized(() => queueService.pending.first);
+      final req = await queueService.queueLock
+          .synchronized(() => queueService.pending.first);
       await Future.delayed(Duration(milliseconds: processingDelay));
       if (cancelRequested) break;
-      if (await queueService.queueLock.synchronized(() => queueService.pending.isEmpty)) break;
+      if (await queueService.queueLock
+          .synchronized(() => queueService.pending.isEmpty)) break;
       final success = await _processSingleEvaluation(req);
       await queueService.queueLock.synchronized(() {
         if (queueService.pending.isNotEmpty) {

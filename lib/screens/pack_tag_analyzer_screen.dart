@@ -93,7 +93,8 @@ class _PackTagAnalyzerScreenState extends State<PackTagAnalyzerScreen> {
   }
 
   DataRow _row(_TagInfo info) {
-    final highlight = info.count == 1 || info.dups.isNotEmpty || info.similar.isNotEmpty;
+    final highlight =
+        info.count == 1 || info.dups.isNotEmpty || info.similar.isNotEmpty;
     return DataRow(
       color: highlight ? WidgetStateProperty.all(AppColors.errorBg) : null,
       onSelectChanged: (_) => _showPacks(info),

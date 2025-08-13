@@ -64,14 +64,18 @@ void main() {
         name: 'P1',
         description: '',
         category: 'A',
-        filters: {'tags': ['cbet']},
+        filters: {
+          'tags': ['cbet']
+        },
       ),
       const TrainingPackTemplateModel(
         id: 'p2',
         name: 'P2',
         description: '',
         category: 'B',
-        filters: {'tags': ['call']},
+        filters: {
+          'tags': ['call']
+        },
       ),
     ],
     {

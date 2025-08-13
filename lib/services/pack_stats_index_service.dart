@@ -54,7 +54,8 @@ class PackStatsIndexService {
           if (map['icmScore'] != null || tpl.meta['icmScore'] != null)
             'icm': (map['icmScore'] as num?)?.toDouble() ??
                 (tpl.meta['icmScore'] as num?)?.toDouble(),
-          if (map['meta']?['rankScore'] != null || tpl.meta['rankScore'] != null)
+          if (map['meta']?['rankScore'] != null ||
+              tpl.meta['rankScore'] != null)
             'difficulty': (map['meta']?['rankScore'] as num?)?.toDouble() ??
                 (tpl.meta['rankScore'] as num?)?.toDouble(),
           if (tags.isNotEmpty) 'rarity': uniq / tags.length,

@@ -110,4 +110,3 @@ void showRefundAmountOverlay({
   );
   overlay.insert(entry);
 }
-

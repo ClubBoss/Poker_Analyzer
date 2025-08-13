@@ -19,7 +19,10 @@ void main() {
       locale: const Locale('ru'),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      home: Builder(builder: (c) { ctx = c; return const SizedBox(); }),
+      home: Builder(builder: (c) {
+        ctx = c;
+        return const SizedBox();
+      }),
     ));
     final packs = TrainingPackTemplateService.getAllTemplates(ctx);
     expect(packs.first.name, AppLocalizations.of(ctx)!.packPushFold10);

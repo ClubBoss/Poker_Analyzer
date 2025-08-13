@@ -20,8 +20,7 @@ class PackLibrarySmartValidator {
     final before = const PackValidationEngine().validate(tpl);
     if (before.errors.isNotEmpty) {
       final fixed = const PackLibraryAutoFixEngine().autoFix(tpl);
-      final changed =
-          jsonEncode(fixed.toJson()) != jsonEncode(tpl.toJson());
+      final changed = jsonEncode(fixed.toJson()) != jsonEncode(tpl.toJson());
       if (changed) {
         await const YamlWriter().write(fixed.toJson(), path);
         tpl = fixed;
@@ -29,8 +28,10 @@ class PackLibrarySmartValidator {
     }
     final after = const PackValidationEngine().validate(tpl);
     final fixed = <String>[
-      for (final e in before.errors) if (!after.errors.contains(e)) e,
-      for (final w in before.warnings) if (!after.warnings.contains(w)) w,
+      for (final e in before.errors)
+        if (!after.errors.contains(e)) e,
+      for (final w in before.warnings)
+        if (!after.warnings.contains(w)) w,
     ];
     return SmartValidationResult(before: before, after: after, fixed: fixed);
   }

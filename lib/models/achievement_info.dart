@@ -37,8 +37,7 @@ class AchievementInfo {
 
   LevelStage get maxLevel => LevelStage.values[thresholds.length - 1];
 
-  int get _prevTarget =>
-      levelIndex == 0 ? 0 : thresholds[levelIndex - 1];
+  int get _prevTarget => levelIndex == 0 ? 0 : thresholds[levelIndex - 1];
 
   int get target =>
       levelIndex < thresholds.length ? thresholds[levelIndex] : thresholds.last;

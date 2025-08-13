@@ -59,8 +59,9 @@ class TrainingPackLibraryMetadataFilterBar extends StatelessWidget {
               format == TrainingPackFormat.tournament,
             ],
             onPressed: (index) {
-              final selected =
-                  index == 0 ? TrainingPackFormat.cash : TrainingPackFormat.tournament;
+              final selected = index == 0
+                  ? TrainingPackFormat.cash
+                  : TrainingPackFormat.tournament;
               final newValue = format == selected ? null : selected;
               onFormatChanged(newValue);
             },

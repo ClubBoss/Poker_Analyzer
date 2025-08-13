@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
 
-
 import '../widgets/tag_insight_timeline.dart';
 
 import '../services/progress_forecast_service.dart';
@@ -43,7 +42,9 @@ class _TagInsightScreenState extends State<TagInsightScreen> {
     final tag = widget.tag.toLowerCase();
     final forecast = context.read<ProgressForecastService>();
     final series = forecast.tagSeries(tag);
-    final history = {tag: [for (final e in series) e.accuracy]};
+    final history = {
+      tag: [for (final e in series) e.accuracy]
+    };
     final losses = const SkillLossDetector().detect(history);
     final trend = losses.isNotEmpty ? losses.first.trend : null;
 
@@ -73,10 +74,10 @@ class _TagInsightScreenState extends State<TagInsightScreen> {
       for (final h in taggedHands)
         if (h.expectedAction != null &&
             h.gtoAction != null &&
-            h.expectedAction!.trim().toLowerCase() != h.gtoAction!.trim().toLowerCase())
+            h.expectedAction!.trim().toLowerCase() !=
+                h.gtoAction!.trim().toLowerCase())
           h.name
-    ]
-      ..sort((a, b) => b.compareTo(a));
+    ]..sort((a, b) => b.compareTo(a));
 
     setState(() {
       _series = series;
@@ -98,12 +99,12 @@ class _TagInsightScreenState extends State<TagInsightScreen> {
     await const TrainingSessionLauncher().launch(tpl);
   }
 
-
   Widget _mistakeList() {
     if (_mistakes.isEmpty) {
       return const Padding(
         padding: EdgeInsets.all(16),
-        child: Text('Ошибок не найдено', style: TextStyle(color: Colors.white70)),
+        child:
+            Text('Ошибок не найдено', style: TextStyle(color: Colors.white70)),
       );
     }
     return Padding(
@@ -111,7 +112,8 @@ class _TagInsightScreenState extends State<TagInsightScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Последние ошибки', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text('Последние ошибки',
+              style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           for (final m in _mistakes)
             Text(m, style: const TextStyle(color: Colors.white)),

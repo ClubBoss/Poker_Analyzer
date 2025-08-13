@@ -30,7 +30,8 @@ class SkillTreeTrackListScreen extends StatefulWidget {
         badgeService = badgeService ?? const SkillTreeCompletionBadgeService();
 
   @override
-  State<SkillTreeTrackListScreen> createState() => _SkillTreeTrackListScreenState();
+  State<SkillTreeTrackListScreen> createState() =>
+      _SkillTreeTrackListScreenState();
 }
 
 class _SkillTreeTrackListScreenState extends State<SkillTreeTrackListScreen> {

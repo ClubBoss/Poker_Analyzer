@@ -28,7 +28,8 @@ class Achievement {
     return idx;
   }
 
-  LevelStage get level => LevelStage.values[levelIndex.clamp(0, thresholds.length - 1)];
+  LevelStage get level =>
+      LevelStage.values[levelIndex.clamp(0, thresholds.length - 1)];
 
   bool get completed => levelIndex >= thresholds.length;
 

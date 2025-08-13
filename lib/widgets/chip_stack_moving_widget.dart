@@ -122,12 +122,14 @@ class _ChipStackMovingWidgetState extends State<ChipStackMovingWidget>
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        final control = widget.control ?? Offset(
-          (widget.start.dx + widget.end.dx) / 2,
-          (widget.start.dy + widget.end.dy) / 2 -
-              (40 + ChipStackMovingWidget.activeCount * 8) * widget.scale,
-        );
-        final pos = _bezier(widget.start, control, widget.end, _controller.value);
+        final control = widget.control ??
+            Offset(
+              (widget.start.dx + widget.end.dx) / 2,
+              (widget.start.dy + widget.end.dy) / 2 -
+                  (40 + ChipStackMovingWidget.activeCount * 8) * widget.scale,
+            );
+        final pos =
+            _bezier(widget.start, control, widget.end, _controller.value);
         final sizeFactor = _scaleAnim.value * widget.scale;
         return Positioned(
           left: pos.dx - 12 * sizeFactor,
@@ -165,7 +167,9 @@ class _ChipStackMovingWidgetState extends State<ChipStackMovingWidget>
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                     fontSize: 14 * widget.scale,
-                    shadows: const [Shadow(color: Colors.black54, blurRadius: 2)],
+                    shadows: const [
+                      Shadow(color: Colors.black54, blurRadius: 2)
+                    ],
                   ),
             ),
           ),

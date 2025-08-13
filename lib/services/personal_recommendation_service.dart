@@ -14,7 +14,8 @@ class RecommendationTask {
   final String title;
   final IconData icon;
   final int remaining;
-  const RecommendationTask({required this.title, required this.icon, required this.remaining});
+  const RecommendationTask(
+      {required this.title, required this.icon, required this.remaining});
 }
 
 class PersonalRecommendationService extends ChangeNotifier {
@@ -57,7 +58,8 @@ class PersonalRecommendationService extends ChangeNotifier {
       ..clear()
       ..addAll(achievements.achievements.map((a) {
         final remain = a.nextTarget - a.progress;
-        return RecommendationTask(title: a.title, icon: a.icon, remaining: remain);
+        return RecommendationTask(
+            title: a.title, icon: a.icon, remaining: remain);
       }).where((t) => t.remaining > 0));
     switch (forecast.forecast) {
       case PlayerStyle.aggressive:

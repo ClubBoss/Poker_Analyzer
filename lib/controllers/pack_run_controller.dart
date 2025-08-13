@@ -42,8 +42,7 @@ class PackRunController {
         for (final tag in tags) {
           final last = _state.tagLastShown[tag];
           if (last != null && _state.handCounter - last < _tagCooldown) {
-            final remaining =
-                _tagCooldown - (_state.handCounter - last);
+            final remaining = _tagCooldown - (_state.handCounter - last);
             _telemetry.log('inline_theory_skipped_cooldown', {
               'packId': packId,
               'sessionId': sessionId,
@@ -90,4 +89,3 @@ class PackRunController {
 
   // Telemetry handled via [LearningPathTelemetry].
 }
-

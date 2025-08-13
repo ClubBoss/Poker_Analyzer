@@ -12,7 +12,7 @@ class RecallSuccessLoggerService {
   final DecayRecallEvaluatorService evaluator;
 
   RecallSuccessLoggerService._({DecayRecallEvaluatorService? evaluator})
-    : evaluator = evaluator ?? const DecayRecallEvaluatorService();
+      : evaluator = evaluator ?? const DecayRecallEvaluatorService();
 
   static final RecallSuccessLoggerService instance =
       RecallSuccessLoggerService._();
@@ -30,8 +30,9 @@ class RecallSuccessLoggerService {
         if (data is List) {
           _logs.addAll(
             data.whereType<Map>().map(
-              (e) => RecallSuccessEntry.fromJson(Map<String, dynamic>.from(e)),
-            ),
+                  (e) =>
+                      RecallSuccessEntry.fromJson(Map<String, dynamic>.from(e)),
+                ),
           );
           _logs.sort((a, b) => b.timestamp.compareTo(a.timestamp));
         }

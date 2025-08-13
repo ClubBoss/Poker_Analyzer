@@ -15,7 +15,8 @@ class SpotOfTheDayRetryScreen extends StatefulWidget {
   const SpotOfTheDayRetryScreen({super.key});
 
   @override
-  State<SpotOfTheDayRetryScreen> createState() => _SpotOfTheDayRetryScreenState();
+  State<SpotOfTheDayRetryScreen> createState() =>
+      _SpotOfTheDayRetryScreenState();
 }
 
 class _SpotOfTheDayRetryScreenState extends State<SpotOfTheDayRetryScreen> {
@@ -109,7 +110,8 @@ class _SpotOfTheDayRetryScreenState extends State<SpotOfTheDayRetryScreen> {
           backgroundColor: const Color(0xFF121212),
           body: LayoutBuilder(
             builder: (context, constraints) {
-              final scale = TableGeometryHelper.tableScale(spot.numberOfPlayers);
+              final scale =
+                  TableGeometryHelper.tableScale(spot.numberOfPlayers);
               final tableWidth = constraints.maxWidth * 0.9 * scale;
               final tableHeight = tableWidth * 0.55;
               final centerX = constraints.maxWidth / 2;
@@ -143,8 +145,9 @@ class _SpotOfTheDayRetryScreenState extends State<SpotOfTheDayRetryScreen> {
                     i, spot.numberOfPlayers, tableWidth, tableHeight);
                 final offsetX = centerX + pos.dx - 55 * scale;
                 final offsetY = centerY + pos.dy - 55 * scale;
-                final cards =
-                    spot.playerCards.length > i ? spot.playerCards[i] : <CardModel>[];
+                final cards = spot.playerCards.length > i
+                    ? spot.playerCards[i]
+                    : <CardModel>[];
                 children.add(Positioned(
                   left: offsetX,
                   top: offsetY,
@@ -190,7 +193,8 @@ class _SpotOfTheDayRetryScreenState extends State<SpotOfTheDayRetryScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (entry.userAction != null || entry.recommendedAction != null)
+                  if (entry.userAction != null ||
+                      entry.recommendedAction != null)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8.0),
                       child: Text(
@@ -211,7 +215,9 @@ class _SpotOfTheDayRetryScreenState extends State<SpotOfTheDayRetryScreen> {
                     ),
                   ElevatedButton(
                     onPressed: () => _chooseAction(service, entry),
-                    child: Text(entry.userAction == null ? 'Ваше решение' : 'Изменить ответ'),
+                    child: Text(entry.userAction == null
+                        ? 'Ваше решение'
+                        : 'Изменить ответ'),
                   ),
                   const SizedBox(height: 8),
                   ElevatedButton(

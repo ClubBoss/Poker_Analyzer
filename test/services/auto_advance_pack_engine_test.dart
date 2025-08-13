@@ -10,8 +10,7 @@ void main() {
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
-    LearningPathProgressService.instance
-      .mock = true;
+    LearningPathProgressService.instance.mock = true;
     await LearningPathProgressService.instance.resetProgress();
     AutoAdvancePackEngine.instance
       ..mock = true
@@ -34,7 +33,8 @@ void main() {
   });
 
   test('returns next pack after completion', () async {
-    await LearningPathProgressService.instance.markCompleted('starter_pushfold_10bb');
+    await LearningPathProgressService.instance
+        .markCompleted('starter_pushfold_10bb');
     final tpl = await AutoAdvancePackEngine.instance.getNextRecommendedPack();
     expect(tpl?.id, 'starter_pushfold_15bb');
   });

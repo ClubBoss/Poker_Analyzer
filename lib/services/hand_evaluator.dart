@@ -103,4 +103,3 @@ class HandEvaluator {
     return result;
   }
 }
-

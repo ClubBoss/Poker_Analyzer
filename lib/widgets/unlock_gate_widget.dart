@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 /// Widget that displays a lock overlay when [unlocked] is false.

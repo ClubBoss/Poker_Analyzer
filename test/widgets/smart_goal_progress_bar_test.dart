@@ -18,7 +18,8 @@ void main() {
     await service.markCompleted('a', now.subtract(const Duration(days: 1)));
     await service.markCompleted('b', now.subtract(const Duration(days: 2)));
 
-    await tester.pumpWidget(const MaterialApp(home: SmartGoalProgressBar(weeklyTarget: 100)));
+    await tester.pumpWidget(
+        const MaterialApp(home: SmartGoalProgressBar(weeklyTarget: 100)));
     await tester.pump();
 
     expect(find.text('50/100 XP this week'), findsOneWidget);
@@ -33,7 +34,8 @@ void main() {
     await service.markCompleted('c', now);
     await service.markCompleted('d', now);
 
-    await tester.pumpWidget(const MaterialApp(home: SmartGoalProgressBar(weeklyTarget: 100)));
+    await tester.pumpWidget(
+        const MaterialApp(home: SmartGoalProgressBar(weeklyTarget: 100)));
     await tester.pump();
 
     expect(find.text('100/100 XP this week'), findsOneWidget);

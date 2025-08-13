@@ -36,7 +36,10 @@ class _PackLibraryStatsScreenState extends State<PackLibraryStatsScreen> {
         ..addAll((res['audience'] as Map).cast<String, int>());
       _tags
         ..clear()
-        ..addAll([for (final e in res['tags'] as List) (e[0] as String, (e[1] as num).toInt())]);
+        ..addAll([
+          for (final e in res['tags'] as List)
+            (e[0] as String, (e[1] as num).toInt())
+        ]);
       _ev = (res['ev'] as num?)?.toDouble();
     });
   }
@@ -52,7 +55,8 @@ class _PackLibraryStatsScreenState extends State<PackLibraryStatsScreen> {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                ElevatedButton(onPressed: _load, child: const Text('🔄 Обновить')),
+                ElevatedButton(
+                    onPressed: _load, child: const Text('🔄 Обновить')),
                 const SizedBox(height: 16),
                 Text('Всего паков: $_total'),
                 const SizedBox(height: 12),
@@ -116,7 +120,8 @@ Future<Map<String, dynamic>> _statsTask(String _) async {
         for (final t in tpl.tags) {
           tags[t] = (tags[t] ?? 0) + 1;
         }
-        final ev = (map['evScore'] as num?)?.toDouble() ?? (tpl.meta['evScore'] as num?)?.toDouble();
+        final ev = (map['evScore'] as num?)?.toDouble() ??
+            (tpl.meta['evScore'] as num?)?.toDouble();
         if (ev != null) {
           evSum += ev;
           evCount++;
@@ -126,7 +131,9 @@ Future<Map<String, dynamic>> _statsTask(String _) async {
   }
   final tagList = tags.entries.toList()
     ..sort((a, b) => b.value.compareTo(a.value));
-  final topTags = [for (final e in tagList.take(10)) [e.key, e.value]];
+  final topTags = [
+    for (final e in tagList.take(10)) [e.key, e.value]
+  ];
   return {
     'total': total,
     'audience': aud,

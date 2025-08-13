@@ -25,4 +25,3 @@ class LearningPathStageGatekeeperService {
     return stats.accuracy >= prev.requiredAccuracy;
   }
 }
-

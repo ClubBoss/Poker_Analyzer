@@ -73,8 +73,7 @@ class _TrainingRecapScreenState extends State<TrainingRecapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final acc =
-        widget.total == 0 ? 0.0 : widget.correct * 100 / widget.total;
+    final acc = widget.total == 0 ? 0.0 : widget.correct * 100 / widget.total;
     return Scaffold(
       appBar: AppBar(title: const Text('Session Recap')),
       backgroundColor: AppColors.background,

@@ -37,6 +37,7 @@ class _FakeProgress extends TrainingPathProgressServiceV2 {
   Future<void> markStageCompleted(String stageId, double accuracy) async {
     completed.add(stageId);
   }
+
   @override
   List<String> unlockedStageIds() => [];
 }
@@ -48,7 +49,8 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     final start = TrainingStageNode(id: 'start', nextIds: ['end']);
     final end = TrainingStageNode(id: 'end');
-    final review = TheoryLessonNode(id: 't1', title: 'T', content: '', nextIds: []);
+    final review =
+        TheoryLessonNode(id: 't1', title: 'T', content: '', nextIds: []);
 
     final orch = _FakeOrchestrator([start, end, review]);
     final progress = _FakeProgress({'start'});

@@ -37,7 +37,8 @@ class SkillTreeStageHeaderBadgeWidget extends StatelessWidget {
         icon = const Icon(Icons.lock, color: Colors.grey, size: 18);
         break;
       case 'in_progress':
-        icon = const Icon(Icons.hourglass_bottom, color: Colors.amber, size: 18);
+        icon =
+            const Icon(Icons.hourglass_bottom, color: Colors.amber, size: 18);
         break;
       case 'perfect':
         icon = const Icon(Icons.check_circle, color: Colors.green, size: 18);

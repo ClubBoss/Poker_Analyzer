@@ -71,16 +71,15 @@ Future<void> showWeaknessBoosterOverlay(
   await showDialog(
     context: context,
     barrierDismissible: false,
-    builder:
-        (_) => WeaknessBoosterOverlay(
-          tags: tags,
-          onStart: () {
-            Navigator.pop(context);
-            onStart();
-          },
-          onDismiss: () {
-            Navigator.pop(context);
-          },
-        ),
+    builder: (_) => WeaknessBoosterOverlay(
+      tags: tags,
+      onStart: () {
+        Navigator.pop(context);
+        onStart();
+      },
+      onDismiss: () {
+        Navigator.pop(context);
+      },
+    ),
   );
 }

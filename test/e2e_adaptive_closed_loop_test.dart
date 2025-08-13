@@ -20,7 +20,12 @@ InjectedPathModule _module(String id, List<String> tags) => InjectedPathModule(
 
 Map<String, dynamic> _skillJson(double mastery) {
   final now = DateTime.now().toIso8601String();
-  return {'mastery': mastery, 'confidence': 0.0, 'lastSeen': now, 'seenCount': 0};
+  return {
+    'mastery': mastery,
+    'confidence': 0.0,
+    'lastSeen': now,
+    'seenCount': 0
+  };
 }
 
 void main() {
@@ -30,10 +35,12 @@ void main() {
 
   test('planner prioritizes tags with positive outcomes', () async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('skillModel.user', jsonEncode({
-      'a': _skillJson(0.2),
-      'b': _skillJson(0.2),
-    }));
+    await prefs.setString(
+        'skillModel.user',
+        jsonEncode({
+          'a': _skillJson(0.2),
+          'b': _skillJson(0.2),
+        }));
     await prefs.setInt('planner.maxTagsPerPlan', 1);
     await prefs.setInt('planner.budgetPaddingMins', 0);
     await prefs.setDouble('bandit.alpha.user.b', 5.0);
@@ -49,10 +56,12 @@ void main() {
     await store.updateModuleStatus('user', 'm1', 'in_progress');
     await store.updateModuleStatus('user', 'm1', 'completed', passRate: 0.8);
 
-    await prefs.setString('skillModel.user', jsonEncode({
-      'a': _skillJson(0.2),
-      'b': _skillJson(0.2),
-    }));
+    await prefs.setString(
+        'skillModel.user',
+        jsonEncode({
+          'a': _skillJson(0.2),
+          'b': _skillJson(0.2),
+        }));
 
     final plan1 = await planner.plan(userId: 'user', durationMinutes: 20);
     expect(plan1.clusters.first.tags.contains('a'), true);

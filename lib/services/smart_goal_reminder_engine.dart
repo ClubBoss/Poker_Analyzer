@@ -46,4 +46,3 @@ class SmartGoalReminderEngine {
     return [for (final e in staleEntries) e.key];
   }
 }
-

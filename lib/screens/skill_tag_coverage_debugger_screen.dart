@@ -1,4 +1,3 @@
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -37,11 +36,10 @@ class _SkillTagCoverageDebuggerScreenState
 
   Future<void> _downloadYaml() async {
     final counts = SkillTagCoverageTrackerService.instance.getTagStats();
-    final unused =
-        SkillTagCoverageTrackerService.instance.allSkillTags
-            .difference(counts.keys.toSet())
-            .toList()
-          ..sort();
+    final unused = SkillTagCoverageTrackerService.instance.allSkillTags
+        .difference(counts.keys.toSet())
+        .toList()
+      ..sort();
     final dir = await getApplicationDocumentsDirectory();
     final path = '${dir.path}/skill_tag_coverage.yaml';
     await SkillTagCoverageTracker().exportReportAsYaml(

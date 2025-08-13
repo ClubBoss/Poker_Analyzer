@@ -108,7 +108,9 @@ class _LossFadeWidgetState extends State<LossFadeWidget>
                 scale: widget.scale * 0.9,
               ),
             ),
-            for (int i = 0; i < widget.cardPositions.length && i < widget.cards.length; i++)
+            for (int i = 0;
+                i < widget.cardPositions.length && i < widget.cards.length;
+                i++)
               Positioned(
                 left: widget.cardPositions[i].dx - 18 * widget.scale,
                 top: widget.cardPositions[i].dy - 26 * widget.scale,

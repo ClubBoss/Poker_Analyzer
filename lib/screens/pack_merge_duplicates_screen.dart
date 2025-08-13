@@ -13,7 +13,8 @@ import '../ui/tools/training_pack_yaml_previewer.dart';
 class PackMergeDuplicatesScreen extends StatefulWidget {
   const PackMergeDuplicatesScreen({super.key});
   @override
-  State<PackMergeDuplicatesScreen> createState() => _PackMergeDuplicatesScreenState();
+  State<PackMergeDuplicatesScreen> createState() =>
+      _PackMergeDuplicatesScreenState();
 }
 
 class _PackMergeDuplicatesScreenState extends State<PackMergeDuplicatesScreen> {
@@ -77,12 +78,14 @@ class _PackMergeDuplicatesScreenState extends State<PackMergeDuplicatesScreen> {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                ElevatedButton(onPressed: _load, child: const Text('🔄 Обновить')),
+                ElevatedButton(
+                    onPressed: _load, child: const Text('🔄 Обновить')),
                 const SizedBox(height: 16),
                 for (final c in _items)
                   ListTile(
                     title: Text('${c.packA.name} ↔ ${c.packB.name}'),
-                    subtitle: Text('${c.type} ${(c.similarityScore * 100).toStringAsFixed(0)}%'),
+                    subtitle: Text(
+                        '${c.type} ${(c.similarityScore * 100).toStringAsFixed(0)}%'),
                     onTap: () => _merge(c),
                   ),
               ],

@@ -78,7 +78,10 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
   Future<void> _start() async {
     var spots = _packSpots;
     if (_mistakesOnly) {
-      spots = [for (final s in spots) if (s.tags.contains('Mistake')) s];
+      spots = [
+        for (final s in spots)
+          if (s.tags.contains('Mistake')) s
+      ];
       if (spots.isEmpty) {
         await showDialog(
           context: context,
@@ -95,15 +98,17 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         return;
       }
     }
-    final firstUnsolved = _packSpots.indexWhere(
-        (p) => p.heroEv == null || p.heroIcmEv == null);
+    final firstUnsolved =
+        _packSpots.indexWhere((p) => p.heroEv == null || p.heroIcmEv == null);
     if (firstUnsolved == -1) {
       final review = await showDialog<bool>(
         context: context,
         builder: (_) => AlertDialog(
-          content: const Text('Everything is solved.\nReview mistakes instead?'),
+          content:
+              const Text('Everything is solved.\nReview mistakes instead?'),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context, false),
+            TextButton(
+                onPressed: () => Navigator.pop(context, false),
                 child: const Text('Cancel')),
             TextButton(
                 onPressed: () => Navigator.pop(context, true),
@@ -229,13 +234,15 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         SwitchListTile(
-                          title: Text(AppLocalizations.of(context)!.reviewMistakesOnly),
+                          title: Text(
+                              AppLocalizations.of(context)!.reviewMistakesOnly),
                           value: _mistakesOnly,
                           onChanged: (v) => setState(() => _mistakesOnly = v),
                           activeColor: Colors.orange,
                         ),
                         const SizedBox(height: 8),
-                        ElevatedButton(onPressed: _start, child: const Text('Start')),
+                        ElevatedButton(
+                            onPressed: _start, child: const Text('Start')),
                       ],
                     )
                   : const CircularProgressIndicator(),

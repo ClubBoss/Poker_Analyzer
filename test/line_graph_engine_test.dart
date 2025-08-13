@@ -59,7 +59,6 @@ void main() {
     expect(seeds[2].targetStreet, 'river');
     expect(seeds[2].board.length, 5);
     expect(seeds[2].previousActions, ['raise-call', 'cbet', 'check']);
-    expect(
-        seeds[2].tags, containsAll(['flopCbet', 'turnCheck', 'riverShove']));
+    expect(seeds[2].tags, containsAll(['flopCbet', 'turnCheck', 'riverShove']));
   });
 }

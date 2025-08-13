@@ -16,7 +16,8 @@ class MarkdownPreviewDialog extends StatelessWidget {
       content: SizedBox(
         width: double.maxFinite,
         child: SingleChildScrollView(
-          child: SelectableText(md, style: const TextStyle(color: Colors.white)),
+          child:
+              SelectableText(md, style: const TextStyle(color: Colors.white)),
         ),
       ),
       actions: [

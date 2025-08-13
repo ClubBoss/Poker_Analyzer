@@ -9,9 +9,14 @@ class ProgressSummaryBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final packs = context.watch<TrainingPackStorageService>().packs;
-    final list = [for (final p in packs) if (!p.isBuiltIn && p.history.isNotEmpty) p];
+    final list = [
+      for (final p in packs)
+        if (!p.isBuiltIn && p.history.isNotEmpty) p
+    ];
     final count = list.length;
-    final avg = count == 0 ? 0.0 : list.map((p) => p.pctComplete).reduce((a, b) => a + b) / count;
+    final avg = count == 0
+        ? 0.0
+        : list.map((p) => p.pctComplete).reduce((a, b) => a + b) / count;
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       padding: const EdgeInsets.all(12),

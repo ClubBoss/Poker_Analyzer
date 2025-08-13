@@ -46,7 +46,8 @@ class _SpotSolveScreenState extends State<SpotSolveScreen> {
   Widget _buildTable() {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final scale = TableGeometryHelper.tableScale(widget.spot.numberOfPlayers);
+        final scale =
+            TableGeometryHelper.tableScale(widget.spot.numberOfPlayers);
         final tableWidth = constraints.maxWidth * 0.9 * scale;
         final tableHeight = tableWidth * 0.55;
         final centerX = constraints.maxWidth / 2;
@@ -93,9 +94,8 @@ class _SpotSolveScreenState extends State<SpotSolveScreen> {
                 position: widget.spot.positions.length > i
                     ? widget.spot.positions[i]
                     : '',
-                stack: widget.spot.stacks.length > i
-                    ? widget.spot.stacks[i]
-                    : 0,
+                stack:
+                    widget.spot.stacks.length > i ? widget.spot.stacks[i] : 0,
                 tag: '',
                 cards: cards,
                 lastAction: null,
@@ -119,9 +119,8 @@ class _SpotSolveScreenState extends State<SpotSolveScreen> {
                 onCardTap: null,
                 streetInvestment: 0,
                 currentBet: 0,
-                remainingStack: widget.spot.stacks.length > i
-                    ? widget.spot.stacks[i]
-                    : 0,
+                remainingStack:
+                    widget.spot.stacks.length > i ? widget.spot.stacks[i] : 0,
                 timersDisabled: true,
                 isBust: false,
               ),
@@ -173,8 +172,9 @@ class _SpotSolveScreenState extends State<SpotSolveScreen> {
                     Text(
                       '${_evDiff! >= 0 ? '+' : ''}${_evDiff!.toStringAsFixed(1)} BB EV',
                       style: TextStyle(
-                        color:
-                            _evDiff! >= 0 ? Colors.greenAccent : Colors.redAccent,
+                        color: _evDiff! >= 0
+                            ? Colors.greenAccent
+                            : Colors.redAccent,
                       ),
                     ),
                   if (_hint != null && _hint!.isNotEmpty)

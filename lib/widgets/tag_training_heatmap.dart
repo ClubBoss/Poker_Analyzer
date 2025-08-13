@@ -60,7 +60,8 @@ class TagTrainingHeatmap extends StatelessWidget {
                   final date = first.add(Duration(days: idx));
                   final val = cells[idx];
                   final color = _color(context, val, maxVal);
-                  final tooltip = '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')} - $val XP';
+                  final tooltip =
+                      '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')} - $val XP';
                   return Padding(
                     padding: const EdgeInsets.all(1),
                     child: Tooltip(

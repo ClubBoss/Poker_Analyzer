@@ -11,7 +11,8 @@ class SpotOfTheDayHistoryScreen extends StatefulWidget {
   const SpotOfTheDayHistoryScreen({super.key});
 
   @override
-  State<SpotOfTheDayHistoryScreen> createState() => _SpotOfTheDayHistoryScreenState();
+  State<SpotOfTheDayHistoryScreen> createState() =>
+      _SpotOfTheDayHistoryScreenState();
 }
 
 class _SpotOfTheDayHistoryScreenState extends State<SpotOfTheDayHistoryScreen> {
@@ -55,7 +56,9 @@ class _SpotOfTheDayHistoryScreenState extends State<SpotOfTheDayHistoryScreen> {
             separatorBuilder: (_, __) => const Divider(),
             itemBuilder: (context, index) {
               final entry = history[index];
-              final spot = entry.spotIndex < spots.length ? spots[entry.spotIndex] : null;
+              final spot = entry.spotIndex < spots.length
+                  ? spots[entry.spotIndex]
+                  : null;
               final pos = spot != null && spot.heroIndex < spot.positions.length
                   ? spot.positions[spot.heroIndex]
                   : '-';
@@ -71,14 +74,17 @@ class _SpotOfTheDayHistoryScreenState extends State<SpotOfTheDayHistoryScreen> {
                       : Colors.grey;
               return ListTile(
                 leading: Icon(icon, color: color),
-                title: Text(_formatDate(entry.date), style: const TextStyle(color: Colors.white)),
-                subtitle: Text(pos, style: const TextStyle(color: Colors.white70)),
+                title: Text(_formatDate(entry.date),
+                    style: const TextStyle(color: Colors.white)),
+                subtitle:
+                    Text(pos, style: const TextStyle(color: Colors.white70)),
                 onTap: spot == null
                     ? null
                     : () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => TrainingScreen(spot: spot)),
+                          MaterialPageRoute(
+                              builder: (_) => TrainingScreen(spot: spot)),
                         );
                       },
               );

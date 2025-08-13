@@ -34,10 +34,10 @@ class BoosterSlotAllocator {
     BoosterPathHistoryService? history,
     InboxBoosterTunerService? tuner,
     RecapEffectivenessAnalyzer? recap,
-  }) : tracker = tracker ?? InboxBoosterTrackerService.instance,
-       history = history ?? BoosterPathHistoryService.instance,
-       tuner = tuner ?? InboxBoosterTunerService.instance,
-       recap = recap ?? RecapEffectivenessAnalyzer.instance;
+  })  : tracker = tracker ?? InboxBoosterTrackerService.instance,
+        history = history ?? BoosterPathHistoryService.instance,
+        tuner = tuner ?? InboxBoosterTunerService.instance,
+        recap = recap ?? RecapEffectivenessAnalyzer.instance;
 
   static final BoosterSlotAllocator instance = BoosterSlotAllocator();
 
@@ -55,9 +55,8 @@ class BoosterSlotAllocator {
     final result = <BoosterSlotDecision>[];
     for (final lesson in lessons) {
       if (await tracker.wasRecentlyShown(lesson.id)) continue;
-      final tag = lesson.tags.isEmpty
-          ? ''
-          : lesson.tags.first.trim().toLowerCase();
+      final tag =
+          lesson.tags.isEmpty ? '' : lesson.tags.first.trim().toLowerCase();
       if (tag.isEmpty) continue;
 
       final hist = histMap[tag];
@@ -72,14 +71,13 @@ class BoosterSlotAllocator {
       final urgency = stats == null
           ? 0.0
           : 1 / (stats.count + 1) +
-                1 / (stats.averageDuration.inSeconds + 1) +
-                (1 - stats.repeatRate);
+              1 / (stats.averageDuration.inSeconds + 1) +
+              (1 - stats.repeatRate);
 
       String slot;
       if (stats != null && urgency > 1.8) {
         slot = 'recap';
-      } else if ((hist == null ||
-              hist.shownCount + hist.completedCount < 2) &&
+      } else if ((hist == null || hist.shownCount + hist.completedCount < 2) &&
           score > 1.5) {
         slot = 'goal';
       } else {
@@ -103,12 +101,10 @@ class BoosterSlotAllocator {
       return BoosterSlot.none;
     }
 
-    final lessonTags = {
-      for (final t in lesson.tags) t.trim().toLowerCase()
-    }..removeWhere((e) => e.isEmpty);
-    final spotTags = {
-      for (final t in spot.tags) t.trim().toLowerCase()
-    }..removeWhere((e) => e.isEmpty);
+    final lessonTags = {for (final t in lesson.tags) t.trim().toLowerCase()}
+      ..removeWhere((e) => e.isEmpty);
+    final spotTags = {for (final t in spot.tags) t.trim().toLowerCase()}
+      ..removeWhere((e) => e.isEmpty);
     if (lessonTags.intersection(spotTags).isEmpty) {
       return BoosterSlot.none;
     }

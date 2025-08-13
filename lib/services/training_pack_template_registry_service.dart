@@ -15,8 +15,7 @@ class TrainingPackTemplateRegistryService {
   Future<TrainingPackTemplateSet> loadTemplateById(String templateId) async {
     await _library.loadAll();
     try {
-      return _library.all
-          .firstWhere((s) => s.baseSpot.id == templateId);
+      return _library.all.firstWhere((s) => s.baseSpot.id == templateId);
     } catch (_) {
       throw StateError('Template not found: $templateId');
     }

@@ -25,10 +25,12 @@ class TrainingPackSpotEditorScreen extends StatefulWidget {
   });
 
   @override
-  State<TrainingPackSpotEditorScreen> createState() => _TrainingPackSpotEditorScreenState();
+  State<TrainingPackSpotEditorScreen> createState() =>
+      _TrainingPackSpotEditorScreenState();
 }
 
-class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScreen> {
+class _TrainingPackSpotEditorScreenState
+    extends State<TrainingPackSpotEditorScreen> {
   late final TextEditingController _titleCtr;
   late final TextEditingController _noteCtr;
   late final TextEditingController _heroStackCtr;
@@ -40,7 +42,13 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
   bool _loading = false;
   int _street = 1;
   String _villainAction = 'none';
-  final List<String> _availableHeroActs = ['check', 'bet', 'raise', 'call', 'fold'];
+  final List<String> _availableHeroActs = [
+    'check',
+    'bet',
+    'raise',
+    'call',
+    'fold'
+  ];
   Set<String> _heroOptions = <String>{};
 
   Set<String> _usedCards() {
@@ -112,7 +120,8 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
         child: const Row(
           children: [
             Text('EV Preview',
-                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white70)),
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.white70)),
             Spacer(),
             Text('Not evaluated', style: TextStyle(color: Colors.grey)),
           ],
@@ -129,12 +138,12 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
       child: Row(
         children: [
           const Text('EV Preview',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white70)),
+              style: TextStyle(
+                  fontWeight: FontWeight.bold, color: Colors.white70)),
           const Spacer(),
           Text('$ev%', style: const TextStyle(color: Colors.greenAccent)),
           const SizedBox(width: 8),
-          Text(res.expectedAction,
-              style: const TextStyle(color: Colors.white)),
+          Text(res.expectedAction, style: const TextStyle(color: Colors.white)),
         ],
       ),
     );
@@ -176,8 +185,12 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
           },
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(context, c.text.trim()), child: const Text('OK')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, c.text.trim()),
+              child: const Text('OK')),
         ],
       ),
     );
@@ -210,12 +223,12 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
     _street = widget.spot.street;
     if (_street == 0) {
       _street = widget.spot.hand.board.length >= 5
-        ? 3
-        : widget.spot.hand.board.length == 4
-            ? 2
-            : widget.spot.hand.board.length >= 3
-                ? 1
-                : 1;
+          ? 3
+          : widget.spot.hand.board.length == 4
+              ? 2
+              : widget.spot.hand.board.length >= 3
+                  ? 1
+                  : 1;
     }
     _villainAction = widget.spot.villainAction ?? 'none';
     _heroOptions = widget.spot.heroOptions.toSet();
@@ -236,10 +249,8 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
     widget.spot.hand.heroCards =
         _heroCards.map((c) => '${c.rank}${c.suit}').join(' ');
     widget.spot.hand.position = _position;
-    widget.spot.hand.stacks['0'] =
-        double.tryParse(_heroStackCtr.text) ?? 0;
-    widget.spot.hand.stacks['1'] =
-        double.tryParse(_villainStackCtr.text) ?? 0;
+    widget.spot.hand.stacks['0'] = double.tryParse(_heroStackCtr.text) ?? 0;
+    widget.spot.hand.stacks['1'] = double.tryParse(_villainStackCtr.text) ?? 0;
     widget.spot.hand.playerCount = 2;
     widget.spot.hand.heroIndex = 0;
     widget.spot.hand.actions[0] = List<ActionEntry>.from(_actions);
@@ -256,7 +267,8 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
     widget.spot.title = normalized;
     _titleCtr.text = normalized;
     if (widget.spot.title.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Title is required')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Title is required')));
       return;
     }
     widget.spot.editedAt = DateTime.now();
@@ -276,7 +288,8 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
     _sync();
     setState(() => _loading = true);
     try {
-      final res = await context.read<EvaluationExecutorService>().evaluate(widget.spot);
+      final res =
+          await context.read<EvaluationExecutorService>().evaluate(widget.spot);
       setState(() => widget.spot.evalResult = res);
       final ev = (res.expectedEquity * 100).toStringAsFixed(1);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -322,7 +335,8 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
                 for (final tag in widget.spot.tags)
                   InputChip(
                     label: Text(tag),
-                    onDeleted: () => setState(() => widget.spot.tags.remove(tag)),
+                    onDeleted: () =>
+                        setState(() => widget.spot.tags.remove(tag)),
                   ),
                 InputChip(
                   label: const Text('+ Add'),
@@ -340,7 +354,8 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
               onChanged: (v) => setState(() => _priority = v ?? 3),
             ),
             const SizedBox(height: 24),
-            const Text('Hero Cards', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('Hero Cards',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             CardPickerWidget(
               cards: _heroCards,
@@ -360,7 +375,8 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
               }),
             ),
             const SizedBox(height: 16),
-            const Text('Stacks (BB)', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('Stacks (BB)',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -382,7 +398,8 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
               ],
             ),
             const SizedBox(height: 16),
-            const Text('Preflop Actions', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('Preflop Actions',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             ActionEditorList(
               initial: _actions,
@@ -419,7 +436,8 @@ class _TrainingPackSpotEditorScreenState extends State<TrainingPackSpotEditorScr
                 value: _villainAction,
                 items: const [
                   DropdownMenuItem(value: 'none', child: Text('Villain: none')),
-                  DropdownMenuItem(value: 'check', child: Text('Villain: check')),
+                  DropdownMenuItem(
+                      value: 'check', child: Text('Villain: check')),
                   DropdownMenuItem(value: 'bet', child: Text('Villain: bet')),
                 ],
                 onChanged: (v) => setState(() => _villainAction = v ?? 'none'),

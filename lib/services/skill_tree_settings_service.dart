@@ -31,4 +31,3 @@ class SkillTreeSettingsService {
     await CloudPreferencesService.instance.setBool(_hideCompletedKey, value);
   }
 }
-

@@ -11,7 +11,8 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  TrainingPackTemplateV2 tpl({required String id, required List<String> tags, double pop = 0}) {
+  TrainingPackTemplateV2 tpl(
+      {required String id, required List<String> tags, double pop = 0}) {
     return TrainingPackTemplateV2(
       id: id,
       name: id,
@@ -22,9 +23,16 @@ void main() {
   }
 
   test('returns pack matching weak tag', () async {
-    final library = [tpl(id: 'a', tags: ['cbet'])];
+    final library = [
+      tpl(id: 'a', tags: ['cbet'])
+    ];
     final weak = [
-      const TagPerformance(tag: 'cbet', totalAttempts: 0, correct: 0, accuracy: 0, lastTrained: null),
+      const TagPerformance(
+          tag: 'cbet',
+          totalAttempts: 0,
+          correct: 0,
+          accuracy: 0,
+          lastTrained: null),
     ];
     final service = SuggestedWeakTagPackService(
       library: library,

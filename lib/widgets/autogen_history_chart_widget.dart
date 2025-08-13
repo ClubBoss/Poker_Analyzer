@@ -8,7 +8,8 @@ class AutogenHistoryChartWidget extends StatefulWidget {
   const AutogenHistoryChartWidget({super.key});
 
   @override
-  State<AutogenHistoryChartWidget> createState() => _AutogenHistoryChartWidgetState();
+  State<AutogenHistoryChartWidget> createState() =>
+      _AutogenHistoryChartWidgetState();
 }
 
 class _AutogenHistoryChartWidgetState extends State<AutogenHistoryChartWidget> {
@@ -122,4 +123,3 @@ class _AutogenHistoryChartWidgetState extends State<AutogenHistoryChartWidget> {
 
   String _formatDate(DateTime d) => '${d.month}/${d.day}';
 }
-

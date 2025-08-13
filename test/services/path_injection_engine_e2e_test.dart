@@ -64,8 +64,8 @@ void main() {
     });
 
     test('inject, persist, lifecycle and idempotence', () async {
-      final cluster =
-          SkillTagCluster(tags: ['a', 'b'], clusterId: 'c1', themeName: 'Theme');
+      final cluster = SkillTagCluster(
+          tags: ['a', 'b'], clusterId: 'c1', themeName: 'Theme');
       final modules =
           await engine.injectForClusters(clusters: [cluster], userId: 'u1');
       expect(modules, hasLength(1));
@@ -86,4 +86,3 @@ void main() {
     });
   });
 }
-

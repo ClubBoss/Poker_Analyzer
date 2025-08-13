@@ -29,7 +29,8 @@ class _FakeLibrary implements MiniLessonLibraryService {
       [for (final t in tags) ...lessons.where((l) => l.tags.contains(t))];
 
   @override
-  List<TheoryMiniLessonNode> getByTags(Set<String> tags) => findByTags(tags.toList());
+  List<TheoryMiniLessonNode> getByTags(Set<String> tags) =>
+      findByTags(tags.toList());
 }
 
 class _FakeLoader implements PackLibraryLoaderService {

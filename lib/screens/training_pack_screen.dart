@@ -23,4 +23,3 @@ class TrainingPackScreen extends TrainingPackCore {
           initialPosition: initialPosition,
         );
 }
-

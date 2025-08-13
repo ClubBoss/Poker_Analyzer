@@ -65,4 +65,3 @@ class TheoryLessonUnlockNotificationService {
     await prefs.setStringList(storageKey, currentUnlockedLessonIds);
   }
 }
-

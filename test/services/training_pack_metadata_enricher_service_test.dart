@@ -9,7 +9,8 @@ import 'package:poker_analyzer/services/training_pack_audit_log_service.dart';
 class _FakeAuditService extends TrainingPackAuditLogService {
   int calls = 0;
   @override
-  Future<void> recordChange(TrainingPackModel oldPack, TrainingPackModel newPack,
+  Future<void> recordChange(
+      TrainingPackModel oldPack, TrainingPackModel newPack,
       {String userId = 'unknown', DateTime? timestamp}) async {
     calls++;
   }
@@ -73,4 +74,3 @@ void main() {
     expect(audit.calls, 1);
   });
 }
-

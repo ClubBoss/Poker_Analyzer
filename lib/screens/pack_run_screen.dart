@@ -12,7 +12,8 @@ import 'v2/training_pack_play_screen.dart';
 class PackRunScreen extends StatefulWidget {
   final LearningPathController controller;
   final LearningPathStageModel stage;
-  const PackRunScreen({super.key, required this.controller, required this.stage});
+  const PackRunScreen(
+      {super.key, required this.controller, required this.stage});
 
   @override
   State<PackRunScreen> createState() => _PackRunScreenState();
@@ -31,7 +32,8 @@ class _PackRunScreenState extends State<PackRunScreen> {
   }
 
   Future<void> _load() async {
-    final pack = await PackRegistryService.instance.getById(widget.stage.packId);
+    final pack =
+        await PackRegistryService.instance.getById(widget.stage.packId);
     setState(() {
       _pack = pack;
       _loading = false;
@@ -99,8 +101,7 @@ class _PackRunScreenState extends State<PackRunScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                      'Hands: ${progress.handsPlayed}/$requiredHands'),
+                  Text('Hands: ${progress.handsPlayed}/$requiredHands'),
                   Text(
                       'Accuracy: ${(progress.accuracy * 100).toStringAsFixed(0)}% / ${requiredAcc.toStringAsFixed(0)}%'),
                   const SizedBox(height: 20),
@@ -128,7 +129,9 @@ class _PackRunScreenState extends State<PackRunScreen> {
                       onPressed: _openTheory,
                       child: const Text('Open theory'),
                     ),
-                  if (widget.controller.stageProgress(widget.stage.id).completed)
+                  if (widget.controller
+                      .stageProgress(widget.stage.id)
+                      .completed)
                     const Padding(
                       padding: EdgeInsets.all(16),
                       child: Text('Stage complete!'),
@@ -139,4 +142,3 @@ class _PackRunScreenState extends State<PackRunScreen> {
     );
   }
 }
-

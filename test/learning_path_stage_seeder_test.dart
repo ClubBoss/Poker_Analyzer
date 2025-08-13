@@ -10,7 +10,8 @@ class _FakeBundle extends CachingAssetBundle {
   final Map<String, String> data;
   _FakeBundle(this.data);
   @override
-  Future<String> loadString(String key, {bool cache = true}) async => data[key]!;
+  Future<String> loadString(String key, {bool cache = true}) async =>
+      data[key]!;
 }
 
 void main() {
@@ -72,8 +73,7 @@ positions:
       return null;
     });
 
-    await const LearningPathStageSeeder()
-        .seedFromConfig(audience: 'Beginner');
+    await const LearningPathStageSeeder().seedFromConfig(audience: 'Beginner');
 
     final stages = LearningPathStageLibrary.instance.stages;
     expect(stages, hasLength(1));

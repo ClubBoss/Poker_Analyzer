@@ -37,7 +37,8 @@ TrainingPackTemplateV2 _pack(String id, String tag) {
   );
 }
 
-TrainingAttempt _attempt(String packId, String spotId, double acc) => TrainingAttempt(
+TrainingAttempt _attempt(String packId, String spotId, double acc) =>
+    TrainingAttempt(
       packId: packId,
       spotId: spotId,
       timestamp: DateTime.now(),

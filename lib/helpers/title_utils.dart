@@ -14,4 +14,3 @@ String normalizeSpotTitle(String title) {
   }
   return result.join(' ');
 }
-

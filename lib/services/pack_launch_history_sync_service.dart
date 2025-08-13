@@ -15,11 +15,11 @@ class PackLaunchHistorySyncService {
 
   Future<void> uploadHistory(List<TrainingHistoryEntryV2> history) async {
     if (_uid == null) return;
-    await CloudRetryPolicy.execute(() =>
-        _db.collection('launchHistory').doc(_uid).set({
-          'history': [for (final h in history.take(100)) h.toJson()],
-          'updatedAt': DateTime.now().toIso8601String(),
-        }));
+    await CloudRetryPolicy.execute(
+        () => _db.collection('launchHistory').doc(_uid).set({
+              'history': [for (final h in history.take(100)) h.toJson()],
+              'updatedAt': DateTime.now().toIso8601String(),
+            }));
   }
 
   Future<List<TrainingHistoryEntryV2>> downloadHistory() async {
@@ -33,8 +33,7 @@ class PackLaunchHistorySyncService {
       return [
         for (final e in list)
           if (e is Map)
-            TrainingHistoryEntryV2.fromJson(
-                Map<String, dynamic>.from(e))
+            TrainingHistoryEntryV2.fromJson(Map<String, dynamic>.from(e))
       ];
     }
     return [];

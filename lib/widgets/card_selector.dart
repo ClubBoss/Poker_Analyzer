@@ -3,7 +3,21 @@ import '../models/card_model.dart';
 
 Future<CardModel?> showCardSelector(BuildContext context,
     {Set<String> disabledCards = const {}}) async {
-  final ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
+  final ranks = [
+    'A',
+    'K',
+    'Q',
+    'J',
+    'T',
+    '9',
+    '8',
+    '7',
+    '6',
+    '5',
+    '4',
+    '3',
+    '2'
+  ];
   const suits = ['♠', '♥', '♦', '♣'];
 
   bool isDisabled(String rank, String suit) =>

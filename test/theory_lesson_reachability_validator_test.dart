@@ -30,8 +30,10 @@ void main() {
       TheoryMiniLessonNode(id: 'b', title: 'B', content: '', nextIds: ['c']),
       TheoryMiniLessonNode(id: 'c', title: 'C', content: '', nextIds: []),
       TheoryMiniLessonNode(id: 'orphan', title: 'O', content: '', nextIds: []),
-      TheoryMiniLessonNode(id: 'cycle1', title: '', content: '', nextIds: ['cycle2']),
-      TheoryMiniLessonNode(id: 'cycle2', title: '', content: '', nextIds: ['cycle1']),
+      TheoryMiniLessonNode(
+          id: 'cycle1', title: '', content: '', nextIds: ['cycle2']),
+      TheoryMiniLessonNode(
+          id: 'cycle2', title: '', content: '', nextIds: ['cycle1']),
     ];
 
     final library = _FakeLibrary(lessons);

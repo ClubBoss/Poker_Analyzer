@@ -71,8 +71,10 @@ void main() {
   });
 
   test('queues pack when tag not trained recently', () async {
-    final reminder = _FakeReminder([SkillLoss(tag: 'icm', drop: 0.5, trend: '')]);
-    final tracker = _FakeTracker({'icm': DateTime.now().subtract(const Duration(days: 4))});
+    final reminder =
+        _FakeReminder([SkillLoss(tag: 'icm', drop: 0.5, trend: '')]);
+    final tracker =
+        _FakeTracker({'icm': DateTime.now().subtract(const Duration(days: 4))});
     final library = _FakeLibrary({'icm': _tpl('a', 'icm')});
     final queue = ScheduledTrainingQueueService();
     await queue.load();
@@ -87,8 +89,10 @@ void main() {
   });
 
   test('does not queue when recently trained', () async {
-    final reminder = _FakeReminder([SkillLoss(tag: 'cbet', drop: 0.5, trend: '')]);
-    final tracker = _FakeTracker({'cbet': DateTime.now().subtract(const Duration(days: 1))});
+    final reminder =
+        _FakeReminder([SkillLoss(tag: 'cbet', drop: 0.5, trend: '')]);
+    final tracker = _FakeTracker(
+        {'cbet': DateTime.now().subtract(const Duration(days: 1))});
     final library = _FakeLibrary({'cbet': _tpl('b', 'cbet')});
     final queue = ScheduledTrainingQueueService();
     await queue.load();

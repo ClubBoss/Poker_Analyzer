@@ -67,18 +67,27 @@ class _BoosterLibraryScreenState extends State<BoosterLibraryScreen> {
   }
 
   Future<void> _launch(TrainingPackTemplateV2 pack) async {
-    final progress = await BoosterProgressTrackerService.instance.getLastIndex(pack.id);
-    final completed = await BoosterProgressTrackerService.instance.isCompleted(pack.id);
+    final progress =
+        await BoosterProgressTrackerService.instance.getLastIndex(pack.id);
+    final completed =
+        await BoosterProgressTrackerService.instance.isCompleted(pack.id);
     var start = 0;
-    if (!completed && progress != null && progress > 0 && progress < pack.spotCount) {
+    if (!completed &&
+        progress != null &&
+        progress > 0 &&
+        progress < pack.spotCount) {
       final resume = await showDialog<bool>(
         context: context,
         builder: (_) => AlertDialog(
           title: const Text('Resume?'),
           content: Text('Continue from spot ${progress + 1}?'),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Restart')),
-            TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Continue')),
+            TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Restart')),
+            TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Continue')),
           ],
         ),
       );
@@ -94,7 +103,7 @@ class _BoosterLibraryScreenState extends State<BoosterLibraryScreen> {
   Widget _buildCard(TrainingPackTemplateV2 p) {
     final tag = p.meta['tag']?.toString();
     final diff = _difficultyLabel(p);
-    return FutureBuilder<List<dynamic>>( 
+    return FutureBuilder<List<dynamic>>(
       future: Future.wait([
         BoosterProgressTrackerService.instance.getLastIndex(p.id),
         BoosterProgressTrackerService.instance.isCompleted(p.id),
@@ -120,9 +129,12 @@ class _BoosterLibraryScreenState extends State<BoosterLibraryScreen> {
                 spacing: 4,
                 children: [
                   if (tag != null)
-                    Chip(label: Text(tag), visualDensity: VisualDensity.compact),
+                    Chip(
+                        label: Text(tag), visualDensity: VisualDensity.compact),
                   if (diff != null)
-                    Chip(label: Text(diff), visualDensity: VisualDensity.compact),
+                    Chip(
+                        label: Text(diff),
+                        visualDensity: VisualDensity.compact),
                 ],
               )
             ],
@@ -171,8 +183,7 @@ class _BoosterLibraryScreenState extends State<BoosterLibraryScreen> {
                         value: _tagFilter.isEmpty ? '' : _tagFilter,
                         hint: const Text('Tag'),
                         items: [
-                          const DropdownMenuItem(
-                              value: '', child: Text('All')),
+                          const DropdownMenuItem(value: '', child: Text('All')),
                           for (final t in _tags)
                             DropdownMenuItem(value: t, child: Text(t)),
                         ],
@@ -206,7 +217,8 @@ class _BoosterLibraryScreenState extends State<BoosterLibraryScreen> {
                   child: ListView.separated(
                     itemCount: _filtered.length,
                     separatorBuilder: (_, __) => const Divider(height: 1),
-                    itemBuilder: (context, index) => _buildCard(_filtered[index]),
+                    itemBuilder: (context, index) =>
+                        _buildCard(_filtered[index]),
                   ),
                 ),
               ],

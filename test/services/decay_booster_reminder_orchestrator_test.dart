@@ -26,7 +26,9 @@ class _FakeStats extends PackRecallStatsService {
   final List<String> upcoming;
   _FakeStats(this.upcoming);
   @override
-  Future<List<String>> upcomingReviewPacks({Duration leadTime = const Duration(days: 3)}) async => upcoming;
+  Future<List<String>> upcomingReviewPacks(
+          {Duration leadTime = const Duration(days: 3)}) async =>
+      upcoming;
 }
 
 void main() {

@@ -36,11 +36,14 @@ class BoosterTagHistory {
         'lastInteraction': lastInteraction.toIso8601String(),
       };
 
-  factory BoosterTagHistory.fromJson(Map<String, dynamic> json) => BoosterTagHistory(
+  factory BoosterTagHistory.fromJson(Map<String, dynamic> json) =>
+      BoosterTagHistory(
         tag: json['tag'] as String? ?? '',
         shownCount: (json['shownCount'] as num?)?.toInt() ?? 0,
         startedCount: (json['startedCount'] as num?)?.toInt() ?? 0,
         completedCount: (json['completedCount'] as num?)?.toInt() ?? 0,
-        lastInteraction: DateTime.tryParse(json['lastInteraction'] as String? ?? '') ?? DateTime.now(),
+        lastInteraction:
+            DateTime.tryParse(json['lastInteraction'] as String? ?? '') ??
+                DateTime.now(),
       );
 }

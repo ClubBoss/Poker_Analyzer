@@ -16,7 +16,10 @@ class FeedbackService extends ChangeNotifier {
   FeedbackData? _data;
   FeedbackData? get data => _data;
 
-  FeedbackService({required this.achievements, required this.progress, required this.next}) {
+  FeedbackService(
+      {required this.achievements,
+      required this.progress,
+      required this.next}) {
     achievements.addListener(_update);
     progress.addListener(_update);
     next.addListener(_update);
@@ -52,13 +55,16 @@ class FeedbackService extends ChangeNotifier {
   void _update() {
     final step = next.suggestion;
     if (step != null) {
-      _set(FeedbackData(icon: step.icon, text: '${step.title}: ${step.message}'));
+      _set(FeedbackData(
+          icon: step.icon, text: '${step.title}: ${step.message}'));
       return;
     }
     final pos = _weakPosition();
     if (pos != null) {
       final a = progress.progress[pos]!.accuracy * 100;
-      _set(FeedbackData(icon: Icons.school, text: 'Низкая точность на ${pos.label} - ${a.toStringAsFixed(1)}%'));
+      _set(FeedbackData(
+          icon: Icons.school,
+          text: 'Низкая точность на ${pos.label} - ${a.toStringAsFixed(1)}%'));
       return;
     }
     final ach = _closestAchievement();

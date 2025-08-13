@@ -32,10 +32,12 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
     _future = _load();
   }
 
-  String _handId(SavedHand h) => h.spotId ?? h.savedAt.millisecondsSinceEpoch.toString();
+  String _handId(SavedHand h) =>
+      h.spotId ?? h.savedAt.millisecondsSinceEpoch.toString();
 
   TrainingPackSpot _spotFromHand(SavedHand h) {
-    final hero = h.playerCards[h.heroIndex].map((c) => '${c.rank}${c.suit}').join(' ');
+    final hero =
+        h.playerCards[h.heroIndex].map((c) => '${c.rank}${c.suit}').join(' ');
     final board = [for (final c in h.boardCards) '${c.rank}${c.suit}'];
     final actions = <int, List<ActionEntry>>{};
     for (final a in h.actions) {
@@ -53,7 +55,8 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
       for (final e in h.stackSizes.entries) '${e.key}': e.value.toDouble()
     };
     final tags = List<String>.from(h.tags);
-    if (h.category != null && h.category!.isNotEmpty) tags.add('cat:${h.category}');
+    if (h.category != null && h.category!.isNotEmpty)
+      tags.add('cat:${h.category}');
     return TrainingPackSpot(
       id: _handId(h),
       title: h.name,
@@ -84,7 +87,8 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
       final exp = h.expectedAction;
       final gto = h.gtoAction;
       if (exp == null || gto == null) continue;
-      final acc = exp.trim().toLowerCase() == gto.trim().toLowerCase() ? 1.0 : 0.0;
+      final acc =
+          exp.trim().toLowerCase() == gto.trim().toLowerCase() ? 1.0 : 0.0;
       attempts.add(TrainingAttempt(
         packId: 'history',
         spotId: _handId(h),
@@ -106,7 +110,8 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
     );
 
     const engine = WeaknessClusterEngine();
-    final clusters = engine.computeClusters(attempts: attempts, allPacks: [pack]);
+    final clusters =
+        engine.computeClusters(attempts: attempts, allPacks: [pack]);
     return clusters.take(5).toList();
   }
 
@@ -134,7 +139,9 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
   }
 
   Widget _clusterTile(WeaknessCluster c) {
-    final samples = [for (final id in c.spotIds.take(2)) _handById[id]].whereType<SavedHand>().toList();
+    final samples = [for (final id in c.spotIds.take(2)) _handById[id]]
+        .whereType<SavedHand>()
+        .toList();
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Padding(
@@ -143,10 +150,12 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(c.label, style: const TextStyle(fontWeight: FontWeight.bold)),
-            Text('Avg Accuracy: ${(c.avgAccuracy * 100).toStringAsFixed(0)}% · ${c.spotIds.length} spots'),
+            Text(
+                'Avg Accuracy: ${(c.avgAccuracy * 100).toStringAsFixed(0)}% · ${c.spotIds.length} spots'),
             const SizedBox(height: 8),
             for (final h in samples)
-              Text('${h.heroPosition} – ${h.boardCards.map((c) => '${c.rank}${c.suit}').join(' ')}'),
+              Text(
+                  '${h.heroPosition} – ${h.boardCards.map((c) => '${c.rank}${c.suit}').join(' ')}'),
             const SizedBox(height: 8),
             Align(
               alignment: Alignment.centerRight,

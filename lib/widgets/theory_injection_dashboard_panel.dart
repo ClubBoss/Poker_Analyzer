@@ -37,7 +37,8 @@ class TheoryInjectionDashboardPanel extends StatelessWidget {
     final notifier = AutogenStatusDashboardService.instance.getStatusNotifier(
       'TheoryInjectionScheduler',
     );
-    final policyNotifier = AutogenStatusDashboardService.instance.getStatusNotifier(
+    final policyNotifier =
+        AutogenStatusDashboardService.instance.getStatusNotifier(
       'TheoryLinkPolicy',
     );
     return Card(
@@ -88,15 +89,16 @@ class TheoryInjectionDashboardPanel extends StatelessWidget {
                             if (ablated) ...[
                               const SizedBox(width: 8),
                               Container(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
                                   color: Colors.orange,
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: const Text(
                                   'A/B: Ablated',
-                                  style: TextStyle(color: Colors.white, fontSize: 12),
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 12),
                                 ),
                               ),
                             ],
@@ -110,8 +112,9 @@ class TheoryInjectionDashboardPanel extends StatelessWidget {
                         ),
                         const SizedBox(height: 12),
                         ElevatedButton(
-                          onPressed: () =>
-                              TheoryInjectionSchedulerService.instance.runNow(force: true),
+                          onPressed: () => TheoryInjectionSchedulerService
+                              .instance
+                              .runNow(force: true),
                           child: const Text('Run Now'),
                         ),
                       ],

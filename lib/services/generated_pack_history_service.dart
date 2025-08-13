@@ -53,7 +53,8 @@ class GeneratedPackInfo {
         'ts': ts.toIso8601String(),
       };
 
-  factory GeneratedPackInfo.fromJson(Map<String, dynamic> j) => GeneratedPackInfo(
+  factory GeneratedPackInfo.fromJson(Map<String, dynamic> j) =>
+      GeneratedPackInfo(
         id: j['id'] as String,
         name: j['name'] as String,
         type: j['type'] as String,

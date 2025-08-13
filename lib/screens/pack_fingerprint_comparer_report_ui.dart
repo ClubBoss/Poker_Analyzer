@@ -95,8 +95,7 @@ class _PackFingerprintComparerReportUIState
           children: [
             Text('Candidate: ${cand?.name ?? info.candidateId}'),
             Text('Existing: ${exist?.name ?? info.existingId}'),
-            Text(
-                'Similarity: ${(info.similarity * 100).toStringAsFixed(1)}%'),
+            Text('Similarity: ${(info.similarity * 100).toStringAsFixed(1)}%'),
             Text('Reason: ${info.reason}'),
           ],
         ),
@@ -125,9 +124,11 @@ class _PackFingerprintComparerReportUIState
                   value: _reasonFilter,
                   items: const [
                     DropdownMenuItem(value: 'All', child: Text('All')),
-                    DropdownMenuItem(value: 'duplicate', child: Text('duplicate')),
                     DropdownMenuItem(
-                        value: 'high_similarity', child: Text('high_similarity')),
+                        value: 'duplicate', child: Text('duplicate')),
+                    DropdownMenuItem(
+                        value: 'high_similarity',
+                        child: Text('high_similarity')),
                   ],
                   onChanged: (v) => setState(() {
                     _reasonFilter = v!;
@@ -211,4 +212,3 @@ class _DupDataSource extends DataTableSource {
   @override
   int get selectedRowCount => 0;
 }
-

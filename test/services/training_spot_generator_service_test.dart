@@ -44,8 +44,8 @@ void main() {
         .first;
     expect(spot.boardCards.length, 4);
     final hero = spot.playerCards[spot.heroIndex];
-    final clash = spot.boardCards.any((b) =>
-        hero.any((h) => h.rank == b.rank && h.suit == b.suit));
+    final clash = spot.boardCards
+        .any((b) => hero.any((h) => h.rank == b.rank && h.suit == b.suit));
     expect(clash, false);
   });
 

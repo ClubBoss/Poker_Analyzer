@@ -13,10 +13,12 @@ class YamlPackQuickPreviewScreen extends StatefulWidget {
   const YamlPackQuickPreviewScreen({super.key});
 
   @override
-  State<YamlPackQuickPreviewScreen> createState() => _YamlPackQuickPreviewScreenState();
+  State<YamlPackQuickPreviewScreen> createState() =>
+      _YamlPackQuickPreviewScreenState();
 }
 
-class _YamlPackQuickPreviewScreenState extends State<YamlPackQuickPreviewScreen> {
+class _YamlPackQuickPreviewScreenState
+    extends State<YamlPackQuickPreviewScreen> {
   final List<(File, TrainingPackTemplateV2)> _items = [];
   bool _loading = true;
 
@@ -40,7 +42,8 @@ class _YamlPackQuickPreviewScreenState extends State<YamlPackQuickPreviewScreen>
         list.add((f, TrainingPackTemplateV2.fromYamlAuto(yaml)));
       } catch (_) {}
     }
-    list.sort((a, b) => b.$1.statSync().modified.compareTo(a.$1.statSync().modified));
+    list.sort(
+        (a, b) => b.$1.statSync().modified.compareTo(a.$1.statSync().modified));
     if (!mounted) return;
     setState(() {
       _items
@@ -56,7 +59,8 @@ class _YamlPackQuickPreviewScreenState extends State<YamlPackQuickPreviewScreen>
     if (!mounted) return;
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => YamlViewerScreen(yamlText: yaml, title: name)),
+      MaterialPageRoute(
+          builder: (_) => YamlViewerScreen(yamlText: yaml, title: name)),
     );
   }
 

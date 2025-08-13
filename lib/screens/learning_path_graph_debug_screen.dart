@@ -11,10 +11,12 @@ class LearningPathGraphDebugScreen extends StatefulWidget {
   const LearningPathGraphDebugScreen({super.key});
 
   @override
-  State<LearningPathGraphDebugScreen> createState() => _LearningPathGraphDebugScreenState();
+  State<LearningPathGraphDebugScreen> createState() =>
+      _LearningPathGraphDebugScreenState();
 }
 
-class _LearningPathGraphDebugScreenState extends State<LearningPathGraphDebugScreen> {
+class _LearningPathGraphDebugScreenState
+    extends State<LearningPathGraphDebugScreen> {
   late Future<List<LearningPathNode>> _future;
   String? _currentId;
 
@@ -48,7 +50,7 @@ class _LearningPathGraphDebugScreenState extends State<LearningPathGraphDebugScr
     if (!kDebugMode) return const SizedBox.shrink();
     return Scaffold(
       appBar: AppBar(title: const Text('Path Map Visualizer')),
-      body: FutureBuilder<List<LearningPathNode>>( 
+      body: FutureBuilder<List<LearningPathNode>>(
         future: _future,
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {

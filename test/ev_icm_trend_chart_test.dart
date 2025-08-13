@@ -27,7 +27,8 @@ void main() {
           position: ''),
     ];
     await tester.pumpWidget(MaterialApp(home: EvIcmTrendChart(data: data)));
-    final chart = tester.widget<AnimatedLineChart>(find.byType(AnimatedLineChart));
+    final chart =
+        tester.widget<AnimatedLineChart>(find.byType(AnimatedLineChart));
     final bars = chart.data.lineBarsData;
     expect(bars[0].spots.length, data.length);
     expect(bars[1].spots.length, data.length);

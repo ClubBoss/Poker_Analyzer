@@ -45,8 +45,8 @@ class TheoryTagSummaryService {
 
   /// Builds a markdown table from [stats]. Useful for diagnostics.
   String buildMarkdownReport(Map<String, TheoryTagStats> stats) {
-    final buffer = StringBuffer(
-        '| Tag | Lessons | Examples | Avg Length | Connected |\n');
+    final buffer =
+        StringBuffer('| Tag | Lessons | Examples | Avg Length | Connected |\n');
     buffer.writeln('| --- | --- | --- | --- | --- |');
     final entries = stats.values.toList()
       ..sort((a, b) => a.tag.compareTo(b.tag));
@@ -57,8 +57,7 @@ class TheoryTagSummaryService {
     return buffer.toString();
   }
 
-  int _countWords(String text) =>
-      RegExp(r'\w+').allMatches(text).length;
+  int _countWords(String text) => RegExp(r'\w+').allMatches(text).length;
 
   int _countExamples(String text) {
     final reg = RegExp(r'^(?:Example|Пример|Например)[:\-]',

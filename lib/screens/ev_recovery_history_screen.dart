@@ -37,8 +37,7 @@ class EVRecoveryHistoryScreen extends StatelessWidget {
           final sum = map[d] ?? 0;
           final label = DateFormat('d MMMM', locale).format(d);
           return ListTile(
-            title:
-                Text(label, style: const TextStyle(color: Colors.white)),
+            title: Text(label, style: const TextStyle(color: Colors.white)),
             subtitle: Text(
               '${sum > 0 ? '+' : ''}${sum.toStringAsFixed(2)} EV',
               style: const TextStyle(color: Colors.white70),

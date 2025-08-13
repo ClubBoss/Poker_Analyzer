@@ -26,7 +26,8 @@ class PackCompletionData {
         'elapsed': elapsed.inSeconds,
       };
 
-  factory PackCompletionData.fromJson(Map<String, dynamic> json) => PackCompletionData(
+  factory PackCompletionData.fromJson(Map<String, dynamic> json) =>
+      PackCompletionData(
         completedAt: DateTime.tryParse(json['completedAt'] as String? ?? '') ??
             DateTime.fromMillisecondsSinceEpoch(0),
         correct: (json['correct'] as num?)?.toInt() ?? 0,
@@ -85,8 +86,7 @@ class PackLibraryCompletionService {
     try {
       final data = jsonDecode(raw);
       if (data is Map) {
-        return PackCompletionData.fromJson(
-            Map<String, dynamic>.from(data));
+        return PackCompletionData.fromJson(Map<String, dynamic>.from(data));
       }
     } catch (_) {}
     return null;
@@ -103,8 +103,8 @@ class PackLibraryCompletionService {
           final data = jsonDecode(raw);
           if (data is Map) {
             final id = k.substring(_prefix.length);
-            result[id] = PackCompletionData.fromJson(
-                Map<String, dynamic>.from(data));
+            result[id] =
+                PackCompletionData.fromJson(Map<String, dynamic>.from(data));
           }
         } catch (_) {}
       }
@@ -112,4 +112,3 @@ class PackLibraryCompletionService {
     return result;
   }
 }
-

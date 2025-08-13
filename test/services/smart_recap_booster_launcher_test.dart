@@ -17,7 +17,8 @@ import 'package:poker_analyzer/screens/training_session_screen.dart';
 
 class _FakeLinker extends SmartRecapBoosterLinker {
   final List<TrainingPackTemplateV2> packs;
-  _FakeLinker(this.packs) : super(storage: TrainingPackTemplateStorageService());
+  _FakeLinker(this.packs)
+      : super(storage: TrainingPackTemplateStorageService());
 
   @override
   Future<List<TrainingPackTemplateV2>> getBoostersForLesson(
@@ -45,14 +46,16 @@ void main() {
     );
     final service = SmartRecapBoosterLauncher(linker: _FakeLinker([tpl]));
     await tester.pumpWidget(
-      ChangeNotifierProvider(create: (_) => TrainingSessionService(),
+      ChangeNotifierProvider(
+        create: (_) => TrainingSessionService(),
         child: MaterialApp(
           navigatorKey: navigatorKey,
           home: const Scaffold(body: SizedBox()),
         ),
       ),
     );
-    await service.launchBoosterForLesson(const TheoryMiniLessonNode(id: 'l', title: '', content: '', tags: ['t']));
+    await service.launchBoosterForLesson(const TheoryMiniLessonNode(
+        id: 'l', title: '', content: '', tags: ['t']));
     await tester.pumpAndSettle();
     expect(find.byType(TrainingSessionScreen), findsOneWidget);
   });
@@ -60,15 +63,18 @@ void main() {
   testWidgets('shows dialog when no booster found', (tester) async {
     final service = SmartRecapBoosterLauncher(linker: _FakeLinker([]));
     await tester.pumpWidget(
-      ChangeNotifierProvider(create: (_) => TrainingSessionService(),
+      ChangeNotifierProvider(
+        create: (_) => TrainingSessionService(),
         child: MaterialApp(
           navigatorKey: navigatorKey,
           home: const Scaffold(body: SizedBox()),
         ),
       ),
     );
-    await service.launchBoosterForLesson(const TheoryMiniLessonNode(id: 'l', title: '', content: '', tags: ['t']));
+    await service.launchBoosterForLesson(const TheoryMiniLessonNode(
+        id: 'l', title: '', content: '', tags: ['t']));
     await tester.pumpAndSettle();
-    expect(find.text('Нет тренировок по теме. Попробуйте позже'), findsOneWidget);
+    expect(
+        find.text('Нет тренировок по теме. Попробуйте позже'), findsOneWidget);
   });
 }

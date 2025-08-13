@@ -1,4 +1,3 @@
-
 import '../models/inline_theory_linked_text.dart';
 import '../models/theory_mini_lesson_node.dart';
 import '../models/spot_model.dart';
@@ -15,10 +14,10 @@ class InlineTheoryLinkerService {
     TheoryMiniLessonNavigator? navigator,
     TheoryEngagementAnalyticsService? analytics,
     TheorySuggestionEngagementTrackerService? tracker,
-  }) : _library = library ?? MiniLessonLibraryService.instance,
-       _navigator = navigator ?? TheoryMiniLessonNavigator.instance,
-       _analytics = analytics ?? const TheoryEngagementAnalyticsService(),
-       _tracker = tracker ?? TheorySuggestionEngagementTrackerService.instance;
+  })  : _library = library ?? MiniLessonLibraryService.instance,
+        _navigator = navigator ?? TheoryMiniLessonNavigator.instance,
+        _analytics = analytics ?? const TheoryEngagementAnalyticsService(),
+        _tracker = tracker ?? TheorySuggestionEngagementTrackerService.instance;
 
   final MiniLessonLibraryService _library;
   final TheoryMiniLessonNavigator _navigator;
@@ -135,9 +134,7 @@ class InlineTheoryLinkerService {
     if (rawActions is Map) {
       for (final v in rawActions.values) {
         if (v is String) {
-          final parts = v
-              .toLowerCase()
-              .split(RegExp(r'[^a-z0-9]+'))
+          final parts = v.toLowerCase().split(RegExp(r'[^a-z0-9]+'))
             ..removeWhere((e) => e.isEmpty);
           actionKeywords.addAll(parts);
         }
@@ -145,9 +142,7 @@ class InlineTheoryLinkerService {
     } else if (rawActions is List) {
       for (final v in rawActions) {
         if (v is String) {
-          final parts = v
-              .toLowerCase()
-              .split(RegExp(r'[^a-z0-9]+'))
+          final parts = v.toLowerCase().split(RegExp(r'[^a-z0-9]+'))
             ..removeWhere((e) => e.isEmpty);
           actionKeywords.addAll(parts);
         }
@@ -163,7 +158,8 @@ class InlineTheoryLinkerService {
       final title = lesson.title.toLowerCase();
 
       var score = 0;
-      if (position.isNotEmpty && (tags.contains(position) || title.contains(position))) {
+      if (position.isNotEmpty &&
+          (tags.contains(position) || title.contains(position))) {
         score += 4;
       }
       if (street.isNotEmpty &&
@@ -207,8 +203,8 @@ class InlineTheoryLinkerService {
   /// and success rate analytics.
   Future<List<String>> getLinkedLessonIdsForSpot(SpotModel spot) async {
     await _library.loadAll();
-    final spotTags =
-        spot.tags.map((t) => t.trim().toLowerCase()).toSet()..removeWhere((t) => t.isEmpty);
+    final spotTags = spot.tags.map((t) => t.trim().toLowerCase()).toSet()
+      ..removeWhere((t) => t.isEmpty);
     if (spotTags.isEmpty) return const [];
 
     final lessons = _library.findByTags(spotTags.toList());
@@ -240,9 +236,8 @@ class InlineTheoryLinkerService {
     int maxCount = 3,
   }) async {
     await _library.loadAll();
-    final spotTags =
-        spot.tags.map((t) => t.trim().toLowerCase()).toSet()
-          ..removeWhere((t) => t.isEmpty);
+    final spotTags = spot.tags.map((t) => t.trim().toLowerCase()).toSet()
+      ..removeWhere((t) => t.isEmpty);
     if (spotTags.isEmpty) return;
     final lessons = _library.findByTags(spotTags.toList());
     if (lessons.isEmpty) return;
@@ -304,9 +299,8 @@ class InlineTheoryLinkerService {
       if (spot.inlineLessonId != null && spot.inlineLessonId!.isNotEmpty) {
         continue;
       }
-      final spotTags =
-          spot.tags.map((t) => t.trim().toLowerCase()).toSet()
-            ..removeWhere((t) => t.isEmpty);
+      final spotTags = spot.tags.map((t) => t.trim().toLowerCase()).toSet()
+        ..removeWhere((t) => t.isEmpty);
       if (spotTags.isEmpty) continue;
       final streetName = _streetName(spot.street).toLowerCase();
 

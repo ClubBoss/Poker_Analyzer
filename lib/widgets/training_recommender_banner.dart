@@ -37,7 +37,9 @@ class _TrainingRecommenderBannerState extends State<TrainingRecommenderBanner> {
 
   Future<List<TrainingResult>> _resultsFromLogs(List<SessionLog> logs) async {
     await PackLibraryLoaderService.instance.loadLibrary();
-    final library = {for (final t in PackLibraryLoaderService.instance.library) t.id: t};
+    final library = {
+      for (final t in PackLibraryLoaderService.instance.library) t.id: t
+    };
     return [
       for (final log in logs)
         TrainingResult(
@@ -88,8 +90,8 @@ class _TrainingRecommenderBannerState extends State<TrainingRecommenderBanner> {
       pack = plan.mistakeReplayPack;
       goalId = 'mistake_replay';
     } else {
-      final track = plan.recommendedTracks
-          .firstWhereOrNull((t) => t.id == rec.packId);
+      final track =
+          plan.recommendedTracks.firstWhereOrNull((t) => t.id == rec.packId);
       if (track != null) {
         pack = TrainingPackTemplateV2(
           id: track.id,

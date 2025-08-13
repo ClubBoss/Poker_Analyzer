@@ -50,14 +50,14 @@ class TrainingPackController extends ChangeNotifier {
     _stackFilter = value;
     _commit();
   }
+
   void _applyStackFilter() {
     final filter = StackRangeFilter(_stackFilter);
     _sessionHands = allHands
         .where((h) => filter.matches(h.stackSizes[h.heroIndex] ?? 0))
         .toList();
-    _spots = _allSpots
-        .where((s) => filter.matches(s.stacks[s.heroIndex]))
-        .toList();
+    _spots =
+        _allSpots.where((s) => filter.matches(s.stacks[s.heroIndex])).toList();
   }
 
   void _commit() {

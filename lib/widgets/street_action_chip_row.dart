@@ -35,9 +35,7 @@ class StreetActionChipRow extends StatelessWidget {
         return 'R';
       case 'custom':
         final label = a.customLabel;
-        return label != null && label.isNotEmpty
-            ? label[0].toUpperCase()
-            : 'C';
+        return label != null && label.isNotEmpty ? label[0].toUpperCase() : 'C';
       default:
         return action.isNotEmpty ? action[0].toUpperCase() : '?';
     }

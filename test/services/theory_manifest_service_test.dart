@@ -12,7 +12,8 @@ import 'package:test/test.dart';
 
 void main() {
   Future<ConfigSource> config0() async {
-    final cfg = File('config.yaml')..writeAsStringSync('theory.reader.strict: false\n');
+    final cfg = File('config.yaml')
+      ..writeAsStringSync('theory.reader.strict: false\n');
     return ConfigSource.from(configFile: cfg.path);
   }
 
@@ -22,7 +23,8 @@ void main() {
     final dir = Directory('packs')..createSync();
     final file = File(p.join(dir.path, 'pack.yaml'));
     final body = 'name: good\n';
-    final canon = const TheoryYamlCanonicalizer().canonicalize({'name': 'good'});
+    final canon =
+        const TheoryYamlCanonicalizer().canonicalize({'name': 'good'});
     final hash = sha256.convert(utf8.encode(canon)).toString();
     file.writeAsStringSync(
         '# x-hash: $hash | x-ver: 1 | x-ts: 0 | x-hash-algo: sha256-canon@v1\n$body');
@@ -60,7 +62,8 @@ void main() {
     final dir = Directory('packs')..createSync();
     final file = File(p.join(dir.path, 'pack.yaml'));
     final body = 'name: good\n';
-    final canon = const TheoryYamlCanonicalizer().canonicalize({'name': 'good'});
+    final canon =
+        const TheoryYamlCanonicalizer().canonicalize({'name': 'good'});
     final hash = sha256.convert(utf8.encode(canon)).toString();
     file.writeAsStringSync(
         '# x-hash: $hash | x-ver: 1 | x-ts: 0 | x-hash-algo: sha256-canon@v1\n$body');

@@ -20,7 +20,6 @@ class ReminderService extends ChangeNotifier {
   final StreakService streakService;
   final BuildContext context;
 
-
   bool _enabled = true;
   DateTime? _dismissed;
   Map<String, DateTime> _dismissDrillUntil = {};
@@ -57,7 +56,8 @@ class ReminderService extends ChangeNotifier {
         final data = jsonDecode(raw) as Map<String, dynamic>;
         _dismissDrillUntil = {
           for (final e in data.entries)
-            if (e.value is String && DateTime.tryParse(e.value as String) != null)
+            if (e.value is String &&
+                DateTime.tryParse(e.value as String) != null)
               e.key: DateTime.parse(e.value as String)
         };
       } catch (_) {
@@ -72,7 +72,6 @@ class ReminderService extends ChangeNotifier {
     _scheduleResetTimer();
   }
 
-
   Future<void> setEnabled(bool value) async {
     if (_enabled == value) return;
     final prefs = await SharedPreferences.getInstance();
@@ -85,7 +84,6 @@ class ReminderService extends ChangeNotifier {
     }
     notifyListeners();
   }
-
 
   bool _cleanupExpiredDismissals() {
     final now = DateTime.now();
@@ -104,7 +102,8 @@ class ReminderService extends ChangeNotifier {
   Future<void> _saveDismissals() async {
     final prefs = await SharedPreferences.getInstance();
     final data = {
-      for (final e in _dismissDrillUntil.entries) e.key: e.value.toIso8601String()
+      for (final e in _dismissDrillUntil.entries)
+        e.key: e.value.toIso8601String()
     };
     await prefs.setString(_drillDismissKey, jsonEncode(data));
   }
@@ -161,4 +160,3 @@ class ReminderService extends ChangeNotifier {
     await NotificationService.scheduleDailyProgress(context);
   }
 }
-

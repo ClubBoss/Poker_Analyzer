@@ -78,4 +78,3 @@ void main() {
     expect(spots.first.templateSourceId, 'good');
   });
 }
-

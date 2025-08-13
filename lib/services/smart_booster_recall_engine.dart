@@ -47,7 +47,9 @@ class SmartBoosterRecallEngine {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
       _prefsKey,
-      jsonEncode({for (final e in _dismissed.entries) e.key: e.value.toIso8601String()}),
+      jsonEncode({
+        for (final e in _dismissed.entries) e.key: e.value.toIso8601String()
+      }),
     );
   }
 

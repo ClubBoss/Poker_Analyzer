@@ -31,4 +31,3 @@ class TheoryMap {
     return null;
   }
 }
-

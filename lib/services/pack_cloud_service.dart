@@ -38,7 +38,9 @@ class PackCloudService {
   Future<List<Map<String, dynamic>>> listBundles() async {
     final snap =
         await CloudRetryPolicy.execute(() => _db.collection('bundles').get());
-    return [for (final d in snap.docs) {...d.data(), 'id': d.id}];
+    return [
+      for (final d in snap.docs) {...d.data(), 'id': d.id}
+    ];
   }
 
   Future<Uint8List?> downloadBundle(String id) async {

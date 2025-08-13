@@ -15,7 +15,8 @@ class DecayRecallInsightPanel extends StatefulWidget {
   });
 
   @override
-  State<DecayRecallInsightPanel> createState() => _DecayRecallInsightPanelState();
+  State<DecayRecallInsightPanel> createState() =>
+      _DecayRecallInsightPanelState();
 }
 
 class _DecayRecallInsightPanelState extends State<DecayRecallInsightPanel> {
@@ -38,8 +39,8 @@ class _DecayRecallInsightPanelState extends State<DecayRecallInsightPanel> {
     int c7 = 0;
     int c30 = 0;
     int c90 = 0;
-    final start =
-        DateTime(now.year, now.month, now.day).subtract(const Duration(days: 29));
+    final start = DateTime(now.year, now.month, now.day)
+        .subtract(const Duration(days: 29));
     final data = List<double>.filled(30, 0);
     for (final e in events) {
       final diff = now.difference(e.timestamp).inDays;

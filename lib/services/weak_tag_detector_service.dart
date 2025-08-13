@@ -10,11 +10,13 @@ class WeakTagDetectorService {
   static DateTime _cacheTime = DateTime.fromMillisecondsSinceEpoch(0);
   static int _cacheAttempts = 0;
   static int _cacheLimit = 0;
+
   /// Compute and return the weakest tags sorted by accuracy.
   /// [minAttempts] sets the minimum attempt count per tag and [limit]
   /// limits the number of returned results.
 
-  static Future<List<TagPerformance>> detectWeakTags({int minAttempts = 10, int limit = 5}) async {
+  static Future<List<TagPerformance>> detectWeakTags(
+      {int minAttempts = 10, int limit = 5}) async {
     final now = DateTime.now();
     if (_cache != null &&
         _cacheAttempts == minAttempts &&

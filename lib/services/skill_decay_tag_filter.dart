@@ -44,7 +44,8 @@ class SkillDecayTagFilter {
     for (final t in tags) {
       final tag = t.toLowerCase();
       final entries = hist[tag];
-      final last = entries == null || entries.isEmpty ? null : entries.last.date;
+      final last =
+          entries == null || entries.isEmpty ? null : entries.last.date;
       final recentlyReinforced =
           last != null && current.difference(last) < recent;
       if (recentlyReinforced || queued.contains(tag)) continue;

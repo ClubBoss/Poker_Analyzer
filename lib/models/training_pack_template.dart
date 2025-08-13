@@ -12,12 +12,16 @@ class TrainingPackTemplate with CopyWithMixin<TrainingPackTemplate> {
   final String? category;
   final String description;
   final List<SavedHand> hands;
+
   /// семантическая версия шаблона (major.minor.patch)
   final String version;
+
   /// имя или ник автора шаблона
   final String author;
+
   /// уникальная ревизия (монотонно увеличивается, служит для обновлений)
   final int revision;
+
   /// дата создания и последнего обновления
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -69,10 +73,10 @@ class TrainingPackTemplate with CopyWithMixin<TrainingPackTemplate> {
       version: map['version']?.toString() ?? '1.0.0',
       author: map['author']?.toString() ?? '',
       revision: (map['revision'] as num?)?.toInt() ?? 1,
-      createdAt:
-          DateTime.tryParse(map['createdAt']?.toString() ?? '') ?? DateTime.now(),
-      updatedAt:
-          DateTime.tryParse(map['updatedAt']?.toString() ?? '') ?? DateTime.now(),
+      createdAt: DateTime.tryParse(map['createdAt']?.toString() ?? '') ??
+          DateTime.now(),
+      updatedAt: DateTime.tryParse(map['updatedAt']?.toString() ?? '') ??
+          DateTime.now(),
       isBuiltIn: map['isBuiltIn'] == true,
       tags: [for (final t in (map['tags'] as List? ?? const [])) t.toString()],
       defaultColor: map['defaultColor']?.toString() ?? '#2196F3',

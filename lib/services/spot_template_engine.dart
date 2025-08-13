@@ -23,9 +23,7 @@ class SpotTemplateEngine {
     const uuid = Uuid();
     final spots = <TrainingPackSpot>[];
     for (final stack in stackRange) {
-      final actions = <int, List<ActionEntry>>{
-        0: _actions(actionType, stack)
-      };
+      final actions = <int, List<ActionEntry>>{0: _actions(actionType, stack)};
       if (actions[0] == null) continue;
       final hand = HandData(
         position: heroPosition,
@@ -39,8 +37,9 @@ class SpotTemplateEngine {
       );
       spots.add(TrainingPackSpot(id: uuid.v4(), hand: hand));
     }
-    final templateName =
-        name ?? _buildName(actionType, heroPosition, villainPosition, stackRange, withIcm);
+    final templateName = name ??
+        _buildName(
+            actionType, heroPosition, villainPosition, stackRange, withIcm);
     final template = TrainingPackTemplate(
       id: uuid.v4(),
       name: templateName,

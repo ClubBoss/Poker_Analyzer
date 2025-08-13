@@ -14,7 +14,8 @@ class FakeTagMasteryService extends TagMasteryService {
       : super(logs: SessionLogService(sessions: TrainingSessionService()));
 
   @override
-  Future<Map<String, double>> computeMastery({bool force = false}) async => _map;
+  Future<Map<String, double>> computeMastery({bool force = false}) async =>
+      _map;
 }
 
 class FakeTrackMasteryService extends TrackMasteryService {
@@ -23,7 +24,8 @@ class FakeTrackMasteryService extends TrackMasteryService {
       : super(mastery: FakeTagMasteryService(const {}));
 
   @override
-  Future<Map<String, double>> computeTrackMastery({bool force = false}) async => _map;
+  Future<Map<String, double>> computeTrackMastery({bool force = false}) async =>
+      _map;
 }
 
 void main() {
@@ -45,6 +47,7 @@ void main() {
 
     final engine = LearningTrackRecommendationEngine(masteryService: mastery);
     final list = await engine.getRecommendedTracks();
-    expect(list.map((e) => e.id).toList(), ['mtt_pro', 'yaml_sample', 'live_exploit']);
+    expect(list.map((e) => e.id).toList(),
+        ['mtt_pro', 'yaml_sample', 'live_exploit']);
   });
 }

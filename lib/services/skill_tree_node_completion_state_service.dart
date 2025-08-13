@@ -28,4 +28,3 @@ class SkillTreeNodeCompletionStateService {
     return SkillTreeNodeState.locked;
   }
 }
-

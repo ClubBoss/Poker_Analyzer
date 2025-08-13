@@ -38,15 +38,14 @@ class SkillTreeStageBadgeEvaluatorService {
     if (state == SkillTreeStageState.completed) {
       final allCompleted = nodes.every((n) =>
           nodeStateService.getNodeState(
-                node: n,
-                unlocked: unlocked,
-                completed: completed,
-              ) ==
-              SkillTreeNodeState.completed);
+            node: n,
+            unlocked: unlocked,
+            completed: completed,
+          ) ==
+          SkillTreeNodeState.completed);
       if (allCompleted) return 'perfect';
     }
 
     return 'in_progress';
   }
 }
-

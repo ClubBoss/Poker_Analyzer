@@ -478,7 +478,8 @@ class _PokerTableViewState extends State<PokerTableView> {
 
         if (cardsToShow.isNotEmpty) {
           final dx = cos(angle) < 0 ? -40 * widget.scale : 40 * widget.scale;
-          final keyString = cardsToShow.map((c) => '${c.rank}${c.suit}').join('-');
+          final keyString =
+              cardsToShow.map((c) => '${c.rank}${c.suit}').join('-');
           items.add(Positioned(
             left: offset.dx + dx,
             top: offset.dy - 18 * widget.scale,
@@ -561,12 +562,9 @@ class _PokerTableViewState extends State<PokerTableView> {
   }
 
   Widget _buildBoards() {
-    List<List<CardModel>> boards =
-        widget.multiBoardCards.isNotEmpty
-            ? List<List<CardModel>>.from(widget.multiBoardCards)
-            : (widget.boardCards.isNotEmpty
-                ? [widget.boardCards]
-                : []);
+    List<List<CardModel>> boards = widget.multiBoardCards.isNotEmpty
+        ? List<List<CardModel>>.from(widget.multiBoardCards)
+        : (widget.boardCards.isNotEmpty ? [widget.boardCards] : []);
 
     if (widget.compactMode && boards.isNotEmpty) {
       boards = [boards.first];
@@ -645,8 +643,8 @@ class _ActionIndicator extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          padding: EdgeInsets.symmetric(
-              horizontal: 4 * scale, vertical: 2 * scale),
+          padding:
+              EdgeInsets.symmetric(horizontal: 4 * scale, vertical: 2 * scale),
           decoration: BoxDecoration(
             color: playerActionColors[action],
             borderRadius: BorderRadius.circular(4),
@@ -722,7 +720,8 @@ class _ActionSpotHighlightState extends State<_ActionSpotHighlight>
         height: radius * 2,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(color: Colors.yellow.withValues(alpha: 0.6), width: 3),
+          border:
+              Border.all(color: Colors.yellow.withValues(alpha: 0.6), width: 3),
           boxShadow: [
             BoxShadow(
               color: Colors.yellow.withValues(alpha: 0.4),

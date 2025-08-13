@@ -126,4 +126,3 @@ class _TheoryGoalWidgetState extends State<TheoryGoalWidget> {
     );
   }
 }
-

@@ -103,15 +103,18 @@ class _LessonPathScreenState extends State<LessonPathScreen> {
                       children: [
                         if (_showDashboardBanner)
                           MaterialBanner(
-                            leading: const Text('🧠', style: TextStyle(fontSize: 24)),
-                            content: const Text('Откройте обзор теории по кластерам'),
+                            leading: const Text('🧠',
+                                style: TextStyle(fontSize: 24)),
+                            content: const Text(
+                                'Откройте обзор теории по кластерам'),
                             actions: [
                               TextButton(
                                 onPressed: () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (_) => const TheoryClusterDashboardScreen(),
+                                      builder: (_) =>
+                                          const TheoryClusterDashboardScreen(),
                                     ),
                                   );
                                   setState(() => _showDashboardBanner = false);
@@ -119,7 +122,8 @@ class _LessonPathScreenState extends State<LessonPathScreen> {
                                 child: const Text('Открыть'),
                               ),
                               TextButton(
-                                onPressed: () => setState(() => _showDashboardBanner = false),
+                                onPressed: () => setState(
+                                    () => _showDashboardBanner = false),
                                 child: const Text('Закрыть'),
                               ),
                             ],

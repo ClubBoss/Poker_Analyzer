@@ -87,4 +87,3 @@ class MistakeHistoryQueryService {
     return entries;
   }
 }
-

@@ -62,7 +62,8 @@ class WeakTheoryZoneHighlighter {
     if (clusters.isEmpty || lessons.isEmpty) return [];
 
     final tagScores = {
-      for (final t in detectWeakTags(profile: profile, lessons: lessons)) t.tag: t.score
+      for (final t in detectWeakTags(profile: profile, lessons: lessons))
+        t.tag: t.score
     };
     final lessonList = lessons.values.toList();
     final result = <WeakClusterInfo>[];
@@ -86,9 +87,8 @@ class WeakTheoryZoneHighlighter {
       final scores = c.sharedTags
           .map((t) => tagScores[t.trim().toLowerCase()] ?? 0.0)
           .toList();
-      final avg = scores.isEmpty
-          ? 0.0
-          : scores.reduce((a, b) => a + b) / scores.length;
+      final avg =
+          scores.isEmpty ? 0.0 : scores.reduce((a, b) => a + b) / scores.length;
       final score = (1 - coverage) + avg;
       result.add(
         WeakClusterInfo(

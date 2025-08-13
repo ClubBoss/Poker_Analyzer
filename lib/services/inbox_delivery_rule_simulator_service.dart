@@ -36,8 +36,8 @@ class InboxDeliveryRuleSimulatorService {
 
     final results = <InboxSimulationResult>[];
     for (final tag in tags) {
-      final cooldown =
-          tuning.cooldownOverrides[tag] ?? SmartBoosterInboxLimiterService.tagCooldown;
+      final cooldown = tuning.cooldownOverrides[tag] ??
+          SmartBoosterInboxLimiterService.tagCooldown;
       final dailyLimit = SmartBoosterInboxLimiterService.maxPerDay +
           (tuning.dailyLimitAdjustments[tag] ?? 0);
 
@@ -61,7 +61,8 @@ class InboxDeliveryRuleSimulatorService {
 
       var wouldShow = true;
       var reason = '';
-      if (lastRateLimited != null && now.difference(lastRateLimited) < cooldown) {
+      if (lastRateLimited != null &&
+          now.difference(lastRateLimited) < cooldown) {
         wouldShow = false;
         reason = 'cooldown';
       } else if (rateLimitedCount >= dailyLimit) {
@@ -83,4 +84,3 @@ class InboxDeliveryRuleSimulatorService {
     }
   }
 }
-

@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 class SessionSummaryScreen extends StatelessWidget {
   final int total;
   final int correct;
-  const SessionSummaryScreen({super.key, required this.total, required this.correct});
+  const SessionSummaryScreen(
+      {super.key, required this.total, required this.correct});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +17,10 @@ class SessionSummaryScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text('$correct / $total',
-                style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Text('Accuracy: ${accuracy.toStringAsFixed(1)}%',
                 style: const TextStyle(color: Colors.white70)),

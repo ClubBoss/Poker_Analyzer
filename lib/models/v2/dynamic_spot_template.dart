@@ -27,7 +27,9 @@ class DynamicSpotTemplate {
     return DynamicSpotTemplate(
       handPool: [for (final h in (j['handPool'] as List? ?? [])) h.toString()],
       villainAction: j['villainAction']?.toString() ?? '',
-      heroOptions: [for (final o in (j['heroOptions'] as List? ?? [])) o.toString()],
+      heroOptions: [
+        for (final o in (j['heroOptions'] as List? ?? [])) o.toString()
+      ],
       position: parseHeroPosition(j['position']?.toString() ?? ''),
       playerCount: (j['playerCount'] as num?)?.toInt() ?? 2,
       stack: (j['stack'] as num?)?.toInt() ?? 0,

@@ -44,10 +44,12 @@ class ActionHistoryOverlay extends StatelessWidget {
         amountText = a.action == 'raise' ? 'to $formatted' : formatted;
       }
       final chip = Container(
-        padding: EdgeInsets.symmetric(horizontal: 6 * scale, vertical: 3 * scale),
+        padding:
+            EdgeInsets.symmetric(horizontal: 6 * scale, vertical: 3 * scale),
         margin: const EdgeInsets.only(right: 4, bottom: 4),
         decoration: BoxDecoration(
-          color: ActionFormattingHelper.actionColor(a.action).withValues(alpha: 0.8),
+          color: ActionFormattingHelper.actionColor(a.action)
+              .withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -132,8 +134,8 @@ class ActionHistoryOverlay extends StatelessWidget {
             interactive,
             ReorderableDragStartListener(
               index: index,
-              child:
-                  const Icon(Icons.drag_handle, color: Colors.white70, size: 16),
+              child: const Icon(Icons.drag_handle,
+                  color: Colors.white70, size: 16),
             ),
           ],
         );
@@ -189,22 +191,24 @@ class ActionHistoryOverlay extends StatelessWidget {
                               itemCount: visibleList.length,
                               onReorder: (oldIndex, newIndex) {
                                 if (isLocked || onReorder == null) return;
-                                final oldGlobal =
-                                    actionHistory.indexOf(visibleList[oldIndex]);
+                                final oldGlobal = actionHistory
+                                    .indexOf(visibleList[oldIndex]);
                                 int newGlobal;
                                 if (newIndex >= visibleList.length) {
                                   newGlobal =
-                                      actionHistory.indexOf(visibleList.last) + 1;
+                                      actionHistory.indexOf(visibleList.last) +
+                                          1;
                                 } else {
-                                  final target = visibleList[
-                                      newIndex > oldIndex ? newIndex - 1 : newIndex];
+                                  final target = visibleList[newIndex > oldIndex
+                                      ? newIndex - 1
+                                      : newIndex];
                                   newGlobal = actionHistory.indexOf(target);
                                   if (newIndex > oldIndex) newGlobal += 1;
                                 }
                                 onReorder!(oldGlobal, newGlobal);
                               },
-                              itemBuilder: (context, i) => buildChip(
-                                  visibleList[i], i),
+                              itemBuilder: (context, i) =>
+                                  buildChip(visibleList[i], i),
                             )
                           : SingleChildScrollView(
                               scrollDirection: Axis.horizontal,

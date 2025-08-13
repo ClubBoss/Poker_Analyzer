@@ -4,8 +4,7 @@ import 'autogen_pack_error_classifier_service.dart';
 class AutogenErrorStatsLogger {
   AutogenErrorStatsLogger._();
 
-  static final AutogenErrorStatsLogger _instance =
-      AutogenErrorStatsLogger._();
+  static final AutogenErrorStatsLogger _instance = AutogenErrorStatsLogger._();
 
   /// Shared singleton instance.
   factory AutogenErrorStatsLogger() => _instance;

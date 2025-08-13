@@ -23,7 +23,8 @@ class TrainingImportExportService {
   const TrainingImportExportService();
 
   /// Create a TrainingSpot from a saved hand, including tournament metadata.
-  TrainingSpot fromSavedHand(SavedHand hand) => TrainingSpot.fromSavedHand(hand);
+  TrainingSpot fromSavedHand(SavedHand hand) =>
+      TrainingSpot.fromSavedHand(hand);
 
   /// Build a TrainingSpot from current services.
   TrainingSpot buildSpot({
@@ -157,7 +158,8 @@ class TrainingImportExportService {
     }
 
     // Preserve predefined order
-    headers.sort((a, b) => fieldOrder.indexOf(a).compareTo(fieldOrder.indexOf(b)));
+    headers
+        .sort((a, b) => fieldOrder.indexOf(a).compareTo(fieldOrder.indexOf(b)));
 
     String escapeValue(Object value) {
       final str = value.toString();
@@ -443,8 +445,9 @@ class TrainingImportExportService {
         return null;
       }
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Файл загружен: ${file.path.split(Platform.pathSeparator).last}')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(
+                'Файл загружен: ${file.path.split(Platform.pathSeparator).last}')));
       }
       return spot;
     } catch (_) {
@@ -484,8 +487,8 @@ class TrainingImportExportService {
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка сохранения файла')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Ошибка сохранения файла')));
       }
     }
   }
@@ -494,8 +497,8 @@ class TrainingImportExportService {
       BuildContext context, List<TrainingSpot> spots) async {
     if (spots.isEmpty) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Нет спотов для экспорта')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Нет спотов для экспорта')));
       }
       return;
     }
@@ -506,7 +509,8 @@ class TrainingImportExportService {
       archive.addFile(ArchiveFile(name, data.length, data));
     }
     final bytes = ZipEncoder().encode(archive);
-    final fileName = 'training_spots_${DateTime.now().millisecondsSinceEpoch}.zip';
+    final fileName =
+        'training_spots_${DateTime.now().millisecondsSinceEpoch}.zip';
     final savePath = await FilePicker.platform.saveFile(
       dialogTitle: 'Сохранить архив',
       fileName: fileName,
@@ -519,15 +523,14 @@ class TrainingImportExportService {
       await file.writeAsBytes(bytes, flush: true);
       if (context.mounted) {
         final displayName = savePath.split(Platform.pathSeparator).last;
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Архив сохранён: $displayName')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Архив сохранён: $displayName')));
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка сохранения архива')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Ошибка сохранения архива')));
       }
     }
   }
 }
-

@@ -22,8 +22,7 @@ class TagSkillTile extends StatelessWidget {
       onTap: onTap ??
           () => Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (_) => TagInsightScreen(tag: tag)),
+                MaterialPageRoute(builder: (_) => TagInsightScreen(tag: tag)),
               ),
       child: Container(
         padding: kCardPadding,

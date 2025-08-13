@@ -45,7 +45,10 @@ class CloudTrainingSession {
       tags = <String, List<String>>{};
       tagsJson.forEach((key, value) {
         if (key is String && value is List) {
-          tags![key] = [for (final t in value) if (t is String) t];
+          tags![key] = [
+            for (final t in value)
+              if (t is String) t
+          ];
         }
       });
       if (tags.isEmpty) tags = null;

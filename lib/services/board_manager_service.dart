@@ -57,7 +57,6 @@ class BoardManagerService extends ChangeNotifier {
     super.dispose();
   }
 
-
   void _onPlayerManagerChanged() {
     final prevStreet = boardStreet;
     final changed = _boardSync.ensureBoardStreetConsistent();
@@ -73,8 +72,7 @@ class BoardManagerService extends ChangeNotifier {
   }
 
   void _jumpPlaybackToStreet(int street) {
-    final index =
-        actions.lastIndexWhere((a) => a.street <= street) + 1;
+    final index = actions.lastIndexWhere((a) => a.street <= street) + 1;
     _playbackManager.seek(index);
     _playbackManager.updatePlaybackState();
   }
@@ -129,7 +127,6 @@ class BoardManagerService extends ChangeNotifier {
       ..addAll(cards);
     _playerManager.notifyListeners();
   }
-
 
   /// Clear all community cards and reset board streets.
   void clearBoard() {

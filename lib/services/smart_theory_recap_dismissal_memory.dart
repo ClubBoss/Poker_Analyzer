@@ -24,7 +24,8 @@ class SmartTheoryRecapDismissalMemory {
         if (data is Map) {
           data.forEach((key, value) {
             if (value is Map) {
-              final info = _DismissInfo.fromJson(Map<String, dynamic>.from(value));
+              final info =
+                  _DismissInfo.fromJson(Map<String, dynamic>.from(value));
               _cache[key.toString()] = info;
             }
           });

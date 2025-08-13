@@ -105,4 +105,3 @@ void showLossAmountOverlay({
   );
   overlay.insert(entry);
 }
-

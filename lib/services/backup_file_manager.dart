@@ -20,7 +20,8 @@ class BackupFileManager {
   Timer? _autoBackupTimer;
   bool _autoBackupRunning = false;
 
-  BackupFileManager({this.autoBackupRetentionLimit = defaultAutoBackupRetentionLimit});
+  BackupFileManager(
+      {this.autoBackupRetentionLimit = defaultAutoBackupRetentionLimit});
 
   /// Returns the backup directory for the given [subfolder], creating it if necessary.
   Future<Directory> getBackupDirectory(String subfolder) async {
@@ -56,14 +57,16 @@ class BackupFileManager {
     return jsonDecode(content);
   }
 
-  String _timestamp() => DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now());
+  String _timestamp() =>
+      DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now());
 
   /// Removes old files in [subfolder] keeping only [retentionLimit] most recent ones.
   Future<void> cleanupOldFiles(String subfolder, int retentionLimit) async {
     try {
       final Directory dir = await getBackupDirectory(subfolder);
 
-      final List<MapEntry<File, DateTime>> entries = <MapEntry<File, DateTime>>[];
+      final List<MapEntry<File, DateTime>> entries =
+          <MapEntry<File, DateTime>>[];
       await for (final FileSystemEntity entity in dir.list()) {
         if (entity is File && entity.path.endsWith('.json')) {
           try {
@@ -79,7 +82,8 @@ class BackupFileManager {
 
       entries.sort((MapEntry<File, DateTime> a, MapEntry<File, DateTime> b) =>
           b.value.compareTo(a.value));
-      for (final MapEntry<File, DateTime> entry in entries.skip(retentionLimit)) {
+      for (final MapEntry<File, DateTime> entry
+          in entries.skip(retentionLimit)) {
         try {
           await entry.key.delete();
         } catch (e) {
@@ -107,7 +111,8 @@ class BackupFileManager {
     _autoBackupRunning = true;
     try {
       final Directory backupDir = await getBackupDirectory(autoBackupsFolder);
-      final File file = await createFile(backupDir, 'auto_${_timestamp()}.json');
+      final File file =
+          await createFile(backupDir, 'auto_${_timestamp()}.json');
       await writeJsonFile(file, queueStateProvider());
       await cleanupOldAutoBackups();
       if (kDebugMode) {
@@ -126,8 +131,8 @@ class BackupFileManager {
   void startAutoBackupTimer(Map<String, dynamic> Function() queueStateProvider,
       {Duration interval = const Duration(minutes: 15)}) {
     _autoBackupTimer?.cancel();
-    _autoBackupTimer =
-        Timer.periodic(interval, (_) => autoBackupEvaluationQueue(queueStateProvider));
+    _autoBackupTimer = Timer.periodic(
+        interval, (_) => autoBackupEvaluationQueue(queueStateProvider));
   }
 
   /// Cancels the auto backup timer when no longer needed.
@@ -135,4 +140,3 @@ class BackupFileManager {
     _autoBackupTimer?.cancel();
   }
 }
-

@@ -42,7 +42,8 @@ class SpotOfTheDayCard extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => TrainingScreen(spot: spot)),
+                    MaterialPageRoute(
+                        builder: (_) => TrainingScreen(spot: spot)),
                   );
                 },
                 child: const Text('Play'),
@@ -52,7 +53,8 @@ class SpotOfTheDayCard extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const SpotOfTheDayHistoryScreen()),
+                    MaterialPageRoute(
+                        builder: (_) => const SpotOfTheDayHistoryScreen()),
                   );
                 },
                 child: const Text('History'),

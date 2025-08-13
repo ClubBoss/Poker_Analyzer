@@ -100,12 +100,15 @@ class _RefundChipStackMovingWidgetState
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        final control = widget.control ?? Offset(
-          (widget.start.dx + widget.end.dx) / 2,
-          (widget.start.dy + widget.end.dy) / 2 -
-              (40 + RefundChipStackMovingWidget.activeCount * 8) * widget.scale,
-        );
-        final pos = _bezier(widget.start, control, widget.end, _controller.value);
+        final control = widget.control ??
+            Offset(
+              (widget.start.dx + widget.end.dx) / 2,
+              (widget.start.dy + widget.end.dy) / 2 -
+                  (40 + RefundChipStackMovingWidget.activeCount * 8) *
+                      widget.scale,
+            );
+        final pos =
+            _bezier(widget.start, control, widget.end, _controller.value);
         final sizeFactor = _scaleAnim.value * widget.scale;
         return Positioned(
           left: pos.dx - 12 * sizeFactor,

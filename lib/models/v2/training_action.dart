@@ -15,8 +15,8 @@ class TrainingAction {
         spotId: j['spotId'] as String? ?? '',
         chosenAction: j['chosenAction'] as String? ?? '',
         isCorrect: j['isCorrect'] as bool? ?? false,
-        timestamp:
-            DateTime.tryParse(j['timestamp'] as String? ?? '') ?? DateTime.now(),
+        timestamp: DateTime.tryParse(j['timestamp'] as String? ?? '') ??
+            DateTime.now(),
       );
 
   Map<String, dynamic> toJson() => {

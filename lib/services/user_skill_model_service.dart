@@ -23,7 +23,8 @@ class TagSkill {
     double? confidence,
     DateTime? lastSeen,
     int? seenCount,
-  }) => TagSkill(
+  }) =>
+      TagSkill(
         mastery: mastery ?? this.mastery,
         confidence: confidence ?? this.confidence,
         lastSeen: lastSeen ?? this.lastSeen,
@@ -91,9 +92,10 @@ class UserSkillModelService {
       const gamma = 0.02;
       const delta = 0.002;
       const epsilon = 0.15;
-      final confPrime =
-          (confidence + ((result - mPrime).abs() < epsilon ? gamma : 0.0) - delta)
-              .clamp(0.0, 1.0);
+      final confPrime = (confidence +
+              ((result - mPrime).abs() < epsilon ? gamma : 0.0) -
+              delta)
+          .clamp(0.0, 1.0);
       skills[tag] = TagSkill(
         mastery: mPrime,
         confidence: confPrime,
@@ -127,4 +129,3 @@ class UserSkillModelService {
     if (changed) await _save(userId, skills);
   }
 }
-

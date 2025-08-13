@@ -35,8 +35,8 @@ class _AutogenErrorInspectorWidgetState
       if (kIsWeb || !(Platform.isAndroid || Platform.isIOS)) {
         await FileSaverService.instance.saveCsv('autogen_recent_errors', csv);
       } else {
-        final dir =
-            await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
+        final dir = await getDownloadsDirectory() ??
+            await getApplicationDocumentsDirectory();
         final file = File(p.join(dir.path, 'autogen_recent_errors.csv'));
         await file.writeAsString(csv);
         await Share.shareXFiles([XFile(file.path)]);
@@ -82,8 +82,7 @@ class _AutogenErrorInspectorWidgetState
                       hint: const Text('Filter'),
                       onChanged: (v) => setState(() => _filter = v),
                       items: [
-                        const DropdownMenuItem(
-                            value: null, child: Text('All')),
+                        const DropdownMenuItem(value: null, child: Text('All')),
                         ...AutogenPackErrorType.values.map(
                           (t) => DropdownMenuItem(
                             value: t,
@@ -109,8 +108,8 @@ class _AutogenErrorInspectorWidgetState
                     child: ListView.builder(
                       itemCount: filtered.length,
                       itemBuilder: (context, index) {
-                        final e =
-                            filtered[filtered.length - 1 - index]; // latest first
+                        final e = filtered[
+                            filtered.length - 1 - index]; // latest first
                         final ts = DateFormat('HH:mm:ss').format(e.timestamp);
                         return ListTile(
                           dense: true,
@@ -130,4 +129,3 @@ class _AutogenErrorInspectorWidgetState
     );
   }
 }
-

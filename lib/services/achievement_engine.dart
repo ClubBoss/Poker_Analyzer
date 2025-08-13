@@ -109,7 +109,7 @@ class AchievementEngine extends ChangeNotifier {
       if (ctx != null) {
         showConfettiOverlay(ctx);
         ScaffoldMessenger.of(ctx).showSnackBar(
-          SnackBar(content: Text('Achievement level up: ${ach.title}')), 
+          SnackBar(content: Text('Achievement level up: ${ach.title}')),
         );
       }
     }

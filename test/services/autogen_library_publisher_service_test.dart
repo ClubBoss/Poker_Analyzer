@@ -41,4 +41,3 @@ void main() {
     expect(logs.last['skippedDuplicates'], 1);
   });
 }
-

@@ -46,4 +46,3 @@ class SkillTreeNodeDetailHintWidget extends StatelessWidget {
     );
   }
 }
-

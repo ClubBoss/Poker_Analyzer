@@ -14,8 +14,10 @@ class CurrentHandContextService {
   final TextEditingController tagsController = TextEditingController();
   final TextEditingController tournamentIdController = TextEditingController();
   final TextEditingController buyInController = TextEditingController();
-  final TextEditingController totalPrizePoolController = TextEditingController();
-  final TextEditingController numberOfEntrantsController = TextEditingController();
+  final TextEditingController totalPrizePoolController =
+      TextEditingController();
+  final TextEditingController numberOfEntrantsController =
+      TextEditingController();
   final TextEditingController gameTypeController = TextEditingController();
   final TextEditingController categoryController = TextEditingController();
 
@@ -47,8 +49,9 @@ class CurrentHandContextService {
 
   set tags(List<String> value) => tagsController.text = value.join(', ');
 
-  String? get tournamentId =>
-      tournamentIdController.text.isNotEmpty ? tournamentIdController.text : null;
+  String? get tournamentId => tournamentIdController.text.isNotEmpty
+      ? tournamentIdController.text
+      : null;
   set tournamentId(String? value) => tournamentIdController.text = value ?? '';
 
   int? get buyIn => int.tryParse(buyInController.text);
@@ -77,8 +80,9 @@ class CurrentHandContextService {
 
   set tagsCursor(int? offset) {
     tagsController.selection = TextSelection.collapsed(
-      offset:
-          offset != null && offset <= tagsController.text.length ? offset : tagsController.text.length,
+      offset: offset != null && offset <= tagsController.text.length
+          ? offset
+          : tagsController.text.length,
     );
   }
 

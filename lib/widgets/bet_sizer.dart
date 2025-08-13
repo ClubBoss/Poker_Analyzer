@@ -132,7 +132,8 @@ class _BetSizerState extends State<BetSizer> {
             decoration: InputDecoration(
               filled: true,
               fillColor: Colors.white10,
-              contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
               ),

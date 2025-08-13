@@ -84,8 +84,7 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
     final List<ActionEntry> actions =
         hand.actions.values.expand((list) => list).toList();
     final stacks = [
-      for (var i = 0; i < hand.playerCount; i++)
-        hand.stacks['$i']?.round() ?? 0
+      for (var i = 0; i < hand.playerCount; i++) hand.stacks['$i']?.round() ?? 0
     ];
     final positions = List.generate(hand.playerCount, (_) => '');
     if (hand.heroIndex < positions.length) {
@@ -113,8 +112,12 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
         .map((e) => e.trim())
         .where((e) => e.isNotEmpty)
         .toList();
-    final stackParts = _stackController.text.split(RegExp('[,s]+')).where((e) => e.isNotEmpty).toList();
-    final heroStack = int.tryParse(stackParts.isNotEmpty ? stackParts.first : '') ?? 10;
+    final stackParts = _stackController.text
+        .split(RegExp('[,s]+'))
+        .where((e) => e.isNotEmpty)
+        .toList();
+    final heroStack =
+        int.tryParse(stackParts.isNotEmpty ? stackParts.first : '') ?? 10;
     final count = int.tryParse(_playersController.text.trim()) ?? 2;
     final players = [
       for (var i = 0; i < count; i++)
@@ -168,7 +171,8 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
                     children: [
                       TextField(
                         controller: _nameController,
-                        decoration: const InputDecoration(labelText: 'Название'),
+                        decoration:
+                            const InputDecoration(labelText: 'Название'),
                       ),
                       const SizedBox(height: 12),
                       TextField(
@@ -182,7 +186,8 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
                             const InputDecoration(labelText: 'Сложность'),
                         items: const [
                           DropdownMenuItem(value: 1, child: Text('Beginner')),
-                          DropdownMenuItem(value: 2, child: Text('Intermediate')),
+                          DropdownMenuItem(
+                              value: 2, child: Text('Intermediate')),
                           DropdownMenuItem(value: 3, child: Text('Advanced')),
                         ],
                         onChanged: (v) => setState(() => _difficulty = v ?? 1),
@@ -198,15 +203,13 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
                       const SizedBox(height: 12),
                       TextField(
                         controller: _playersController,
-                        decoration:
-                            const InputDecoration(labelText: 'Players'),
+                        decoration: const InputDecoration(labelText: 'Players'),
                         keyboardType: TextInputType.number,
                       ),
                       const SizedBox(height: 12),
                       TextField(
                         controller: _rangeController,
-                        decoration:
-                            const InputDecoration(labelText: 'Range'),
+                        decoration: const InputDecoration(labelText: 'Range'),
                       ),
                     ],
                   ),
@@ -217,8 +220,9 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
                     itemCount: _spots.length,
                     itemBuilder: (_, i) {
                       final s = _spots[i];
-                      final pos =
-                          s.positions.isNotEmpty ? s.positions[s.heroIndex] : '';
+                      final pos = s.positions.isNotEmpty
+                          ? s.positions[s.heroIndex]
+                          : '';
                       final stack =
                           s.stacks.isNotEmpty ? s.stacks[s.heroIndex] : 0;
                       return CheckboxListTile(

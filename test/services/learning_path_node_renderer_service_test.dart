@@ -16,10 +16,10 @@ void main() {
       tags: [],
       nextIds: [],
     );
-    final group = LearningPathEntryGroup(title: 'Review', entries: const [lesson]);
+    final group =
+        LearningPathEntryGroup(title: 'Review', entries: const [lesson]);
     final logger = _FakeLogger();
-    final service =
-        LearningPathNodeRendererService(analyticsLogger: logger);
+    final service = LearningPathNodeRendererService(analyticsLogger: logger);
 
     await tester.pumpWidget(MaterialApp(
       home: Builder(

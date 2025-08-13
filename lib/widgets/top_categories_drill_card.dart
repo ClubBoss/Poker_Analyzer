@@ -52,10 +52,13 @@ class TopCategoriesDrillCard extends StatelessWidget {
                   const SizedBox(width: 8),
                   ElevatedButton(
                     onPressed: () async {
-                      final tpl = await TrainingPackService.createDrillFromCategory(
-                          context, e.key);
+                      final tpl =
+                          await TrainingPackService.createDrillFromCategory(
+                              context, e.key);
                       if (tpl == null) return;
-                      await context.read<TrainingSessionService>().startSession(tpl);
+                      await context
+                          .read<TrainingSessionService>()
+                          .startSession(tpl);
                       if (context.mounted) {
                         await Navigator.push(
                           context,

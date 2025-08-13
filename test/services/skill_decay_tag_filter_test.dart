@@ -70,10 +70,22 @@ void main() {
     ];
 
     final history = _FakeHistoryService({
-      'push': [TagXpHistoryEntry(date: now.subtract(const Duration(days: 10)), xp: 5, source: '')],
-      'call': [TagXpHistoryEntry(date: now.subtract(const Duration(days: 10)), xp: 5, source: '')],
-      'fold': [TagXpHistoryEntry(date: now.subtract(const Duration(days: 2)), xp: 5, source: '')],
-      'bluff': [TagXpHistoryEntry(date: now.subtract(const Duration(days: 5)), xp: 5, source: '')],
+      'push': [
+        TagXpHistoryEntry(
+            date: now.subtract(const Duration(days: 10)), xp: 5, source: '')
+      ],
+      'call': [
+        TagXpHistoryEntry(
+            date: now.subtract(const Duration(days: 10)), xp: 5, source: '')
+      ],
+      'fold': [
+        TagXpHistoryEntry(
+            date: now.subtract(const Duration(days: 2)), xp: 5, source: '')
+      ],
+      'bluff': [
+        TagXpHistoryEntry(
+            date: now.subtract(const Duration(days: 5)), xp: 5, source: '')
+      ],
     });
 
     final filter = SkillDecayTagFilter(
@@ -86,7 +98,8 @@ void main() {
     await RecapBoosterQueue.instance.add('l1');
     GoalQueue.instance.push(lessons[1]);
 
-    final result = await filter.filter(['push', 'call', 'fold', 'bluff'], now: now);
+    final result =
+        await filter.filter(['push', 'call', 'fold', 'bluff'], now: now);
     expect(result, ['bluff']);
   });
 }

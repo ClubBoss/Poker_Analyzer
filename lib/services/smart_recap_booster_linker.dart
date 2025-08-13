@@ -1,4 +1,3 @@
-
 import '../models/v2/training_pack_template_v2.dart';
 import '../models/theory_mini_lesson_node.dart';
 import 'training_pack_template_storage_service.dart';
@@ -17,9 +16,8 @@ class SmartRecapBoosterLinker {
   /// Returns booster packs matching lesson tags sorted by pack size ascending.
   Future<List<TrainingPackTemplateV2>> getBoostersForLesson(
       TheoryMiniLessonNode lesson) async {
-    final tags = {
-      for (final t in lesson.tags) t.trim().toLowerCase()
-    }..removeWhere((t) => t.isEmpty);
+    final tags = {for (final t in lesson.tags) t.trim().toLowerCase()}
+      ..removeWhere((t) => t.isEmpty);
     if (tags.isEmpty) return [];
 
     await storage.load();
@@ -30,10 +28,11 @@ class SmartRecapBoosterLinker {
 
     for (final model in storage.templates) {
       final raw = model.filters['tags'];
-      final tplTags = <String>[for (final t in (raw as List? ?? [])) t.toString()];
-      final tplTagSet = {
-        for (final t in tplTags) t.trim().toLowerCase()
-      }..removeWhere((t) => t.isEmpty);
+      final tplTags = <String>[
+        for (final t in (raw as List? ?? [])) t.toString()
+      ];
+      final tplTagSet = {for (final t in tplTags) t.trim().toLowerCase()}
+        ..removeWhere((t) => t.isEmpty);
       if (tplTagSet.isEmpty) continue;
       if (tplTagSet.intersection(tags).isEmpty) continue;
       final builtin = builtIn[model.id];

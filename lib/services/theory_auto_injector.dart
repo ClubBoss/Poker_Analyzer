@@ -24,10 +24,10 @@ class TheoryInjectReport {
   }) : errors = errors ?? const {};
 
   Map<String, dynamic> toJson() => {
-    'packsUpdated': packsUpdated,
-    'linksAdded': linksAdded,
-    'errors': errors,
-  };
+        'packsUpdated': packsUpdated,
+        'linksAdded': linksAdded,
+        'errors': errors,
+      };
 
   factory TheoryInjectReport.fromJson(Map<String, dynamic> json) =>
       TheoryInjectReport(
@@ -42,7 +42,7 @@ class TheoryInjectReport {
 /// Automatically injects theory links into packs based on a remediation plan.
 class TheoryAutoInjector {
   TheoryAutoInjector({AutogenStatusDashboardService? dashboard})
-    : _dashboard = dashboard ?? AutogenStatusDashboardService.instance;
+      : _dashboard = dashboard ?? AutogenStatusDashboardService.instance;
 
   final AutogenStatusDashboardService _dashboard;
 

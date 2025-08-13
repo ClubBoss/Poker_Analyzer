@@ -10,10 +10,12 @@ class PositionTagAnalyticsScreen extends StatefulWidget {
   const PositionTagAnalyticsScreen({super.key});
 
   @override
-  State<PositionTagAnalyticsScreen> createState() => _PositionTagAnalyticsScreenState();
+  State<PositionTagAnalyticsScreen> createState() =>
+      _PositionTagAnalyticsScreenState();
 }
 
-class _PositionTagAnalyticsScreenState extends State<PositionTagAnalyticsScreen> {
+class _PositionTagAnalyticsScreenState
+    extends State<PositionTagAnalyticsScreen> {
   bool _byTag = false;
   String? _current;
 
@@ -25,8 +27,12 @@ class _PositionTagAnalyticsScreenState extends State<PositionTagAnalyticsScreen>
       _current = values.isNotEmpty ? values.first : null;
     }
     final data = _byTag
-        ? (_current != null ? service.tagSeries(_current!) : const <ProgressEntry>[])
-        : (_current != null ? service.positionSeries(_current!) : const <ProgressEntry>[]);
+        ? (_current != null
+            ? service.tagSeries(_current!)
+            : const <ProgressEntry>[])
+        : (_current != null
+            ? service.positionSeries(_current!)
+            : const <ProgressEntry>[]);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Position & Tag'),
@@ -54,7 +60,8 @@ class _PositionTagAnalyticsScreenState extends State<PositionTagAnalyticsScreen>
                 dropdownColor: Colors.black,
                 style: const TextStyle(color: Colors.white),
                 items: [
-                  for (final v in values) DropdownMenuItem(value: v, child: Text(v))
+                  for (final v in values)
+                    DropdownMenuItem(value: v, child: Text(v))
                 ],
                 onChanged: (v) => setState(() => _current = v),
               ),

@@ -81,14 +81,15 @@ class WeakSpotRecommendationService extends ChangeNotifier {
         ? _rec
         : _list.firstWhere(
             (e) => e.position == pos,
-            orElse: () => _rec ??
+            orElse: () =>
+                _rec ??
                 WeakSpotRecommendation(
-                    position: pos,
-                    accuracy: 0.5,
-                    ev: 0,
-                    icm: 0,
-                    hands: 0,
-                  ),
+                  position: pos,
+                  accuracy: 0.5,
+                  ev: 0,
+                  icm: 0,
+                  hands: 0,
+                ),
           );
     if (rec == null) return null;
     final acc = rec.accuracy;
@@ -122,8 +123,8 @@ class WeakSpotRecommendationService extends ChangeNotifier {
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final now = DateTime.now();
-    final cacheTime = DateTime.tryParse(
-        prefs.getString('weak_training_type_time') ?? '');
+    final cacheTime =
+        DateTime.tryParse(prefs.getString('weak_training_type_time') ?? '');
     final cacheVal = prefs.getString('weak_training_type_val');
     if (cacheVal != null &&
         cacheTime != null &&
@@ -172,8 +173,7 @@ class WeakSpotRecommendationService extends ChangeNotifier {
     final recentTypes = <TrainingType>{};
     for (final entry in history) {
       if (entry.timestamp.isBefore(cutoff)) break;
-      final tpl =
-          library.firstWhereOrNull((t) => t.id == entry.packId);
+      final tpl = library.firstWhereOrNull((t) => t.id == entry.packId);
       if (tpl != null) recentTypes.add(tpl.trainingType);
     }
 
@@ -190,9 +190,7 @@ class WeakSpotRecommendationService extends ChangeNotifier {
       }
     }
 
-    final result = (weakest != null && weakestAcc < 0.9)
-        ? weakest.name
-        : null;
+    final result = (weakest != null && weakestAcc < 0.9) ? weakest.name : null;
 
     await prefs.setString('weak_training_type_time', now.toIso8601String());
     await prefs.setString('weak_training_type_val', result ?? '');

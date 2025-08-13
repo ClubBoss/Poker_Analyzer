@@ -56,8 +56,8 @@ class AutoPackGenerationSchedulerService {
       if (data is List) {
         return data
             .whereType<Map>()
-            .map((e) => ScheduledAutogenJob.fromJson(
-                Map<String, dynamic>.from(e)))
+            .map((e) =>
+                ScheduledAutogenJob.fromJson(Map<String, dynamic>.from(e)))
             .toList();
       }
     } catch (_) {}
@@ -109,4 +109,3 @@ class AutoPackGenerationSchedulerService {
     await _saveJobs(pending);
   }
 }
-

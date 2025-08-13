@@ -121,7 +121,8 @@ void main() {
     expect(lesson?.id, 'l1');
   });
 
-  test('findSuggestedLessonForSpot uses engagement score tie breaker', () async {
+  test('findSuggestedLessonForSpot uses engagement score tie breaker',
+      () async {
     const lessons = [
       TheoryMiniLessonNode(
         id: 'l1',

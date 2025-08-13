@@ -50,7 +50,8 @@ class DailyProgressHistoryScreen extends StatelessWidget {
                 Text('${d.day}',
                     style: const TextStyle(color: Colors.white, fontSize: 12)),
                 Text('$count',
-                    style: const TextStyle(color: Colors.white70, fontSize: 10)),
+                    style:
+                        const TextStyle(color: Colors.white70, fontSize: 10)),
               ],
             ),
           );

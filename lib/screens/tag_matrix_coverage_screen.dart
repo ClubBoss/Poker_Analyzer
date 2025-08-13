@@ -11,7 +11,8 @@ class TagMatrixCoverageScreen extends StatefulWidget {
   const TagMatrixCoverageScreen({super.key});
 
   @override
-  State<TagMatrixCoverageScreen> createState() => _TagMatrixCoverageScreenState();
+  State<TagMatrixCoverageScreen> createState() =>
+      _TagMatrixCoverageScreenState();
 }
 
 class _TagMatrixCoverageScreenState extends State<TagMatrixCoverageScreen> {
@@ -43,7 +44,9 @@ class _TagMatrixCoverageScreenState extends State<TagMatrixCoverageScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tag Matrix Coverage'),
-        actions: [IconButton(onPressed: _load, icon: const Icon(Icons.refresh))],
+        actions: [
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh))
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
           child: TagMatrixCoverageFilters(

@@ -7,7 +7,8 @@ class TemplateSelectionDialog extends StatefulWidget {
   const TemplateSelectionDialog({super.key, required this.templates});
 
   @override
-  State<TemplateSelectionDialog> createState() => _TemplateSelectionDialogState();
+  State<TemplateSelectionDialog> createState() =>
+      _TemplateSelectionDialogState();
 }
 
 class _TemplateSelectionDialogState extends State<TemplateSelectionDialog> {
@@ -53,4 +54,3 @@ class _TemplateSelectionDialogState extends State<TemplateSelectionDialog> {
     );
   }
 }
-

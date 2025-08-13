@@ -11,7 +11,9 @@ class _FakeImporter extends TheoryYamlImporter {
   final List<TrainingPackTemplateV2> list;
   const _FakeImporter(this.list);
   @override
-  Future<List<TrainingPackTemplateV2>> importFromDirectory(String dirPath) async => list;
+  Future<List<TrainingPackTemplateV2>> importFromDirectory(
+          String dirPath) async =>
+      list;
 }
 
 TrainingPackTemplateV2 _tpl(String id, String tag) => TrainingPackTemplateV2(

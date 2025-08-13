@@ -52,4 +52,3 @@ class BetChip extends StatelessWidget {
     );
   }
 }
-

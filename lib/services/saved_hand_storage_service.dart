@@ -22,18 +22,23 @@ class SavedHandStorageService extends ChangeNotifier {
     final raw = prefs.getStringList(_storageKey) ?? [];
     _hands
       ..clear()
-      ..addAll(raw.map((e) => SavedHand.fromJson(jsonDecode(e) as Map<String, dynamic>)));
+      ..addAll(raw.map(
+          (e) => SavedHand.fromJson(jsonDecode(e) as Map<String, dynamic>)));
     if (cloud != null) {
       final remote = cloud!.getCached('saved_hands');
       if (remote != null) {
-        final remoteAt = DateTime.tryParse(remote['updatedAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
-        final localAt = DateTime.tryParse(prefs.getString(_timeKey) ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
+        final remoteAt =
+            DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
+                DateTime.fromMillisecondsSinceEpoch(0);
+        final localAt = DateTime.tryParse(prefs.getString(_timeKey) ?? '') ??
+            DateTime.fromMillisecondsSinceEpoch(0);
         if (remoteAt.isAfter(localAt)) {
           final list = remote['hands'];
           if (list is List) {
             _hands
               ..clear()
-              ..addAll(list.map((e) => SavedHand.fromJson(Map<String, dynamic>.from(e as Map))));
+              ..addAll(list.map((e) =>
+                  SavedHand.fromJson(Map<String, dynamic>.from(e as Map))));
             await _persist();
           }
         } else if (localAt.isAfter(remoteAt)) {

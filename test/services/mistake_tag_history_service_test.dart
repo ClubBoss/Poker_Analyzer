@@ -49,8 +49,8 @@ void main() {
     expect(freq[MistakeTag.overfoldBtn], 2);
     expect(freq[MistakeTag.missedEvPush], 1);
 
-    final recent =
-        await MistakeTagHistoryService.getRecentMistakesByTag(MistakeTag.overfoldBtn);
+    final recent = await MistakeTagHistoryService.getRecentMistakesByTag(
+        MistakeTag.overfoldBtn);
     expect(recent.length, 2);
     expect(recent.first.spotId, 's2');
   });
@@ -81,7 +81,8 @@ void main() {
       await file.writeAsString(jsonEncode(list), flush: true);
     }
 
-    final trend = await MistakeTagHistoryService.getTrend(MistakeTag.overfoldBtn);
+    final trend =
+        await MistakeTagHistoryService.getTrend(MistakeTag.overfoldBtn);
     expect(trend, TagTrend.rising);
   });
 }

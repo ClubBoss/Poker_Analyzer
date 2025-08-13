@@ -32,7 +32,8 @@ import 'package:uuid/uuid.dart';
 class SessionReplayScreen extends StatefulWidget {
   final List<SavedHand> hands;
   final int initialIndex;
-  const SessionReplayScreen({super.key, required this.hands, this.initialIndex = 0});
+  const SessionReplayScreen(
+      {super.key, required this.hands, this.initialIndex = 0});
 
   @override
   State<SessionReplayScreen> createState() => _SessionReplayScreenState();
@@ -65,9 +66,16 @@ class _SessionReplayScreenState extends State<SessionReplayScreen> {
   }
 
   TrainingPackSpot _packSpot(SavedHand h) {
-    final heroCards = h.playerCards[h.heroIndex].map((c) => '${c.rank}${c.suit}').join(' ');
-    final actions = <ActionEntry>[for (final a in h.actions) if (a.street == 0) a];
-    final stacks = <String, double>{for (int i = 0; i < h.numberOfPlayers; i++) '$i': (h.stackSizes[i] ?? 0).toDouble()};
+    final heroCards =
+        h.playerCards[h.heroIndex].map((c) => '${c.rank}${c.suit}').join(' ');
+    final actions = <ActionEntry>[
+      for (final a in h.actions)
+        if (a.street == 0) a
+    ];
+    final stacks = <String, double>{
+      for (int i = 0; i < h.numberOfPlayers; i++)
+        '$i': (h.stackSizes[i] ?? 0).toDouble()
+    };
     return TrainingPackSpot(
       id: const Uuid().v4(),
       hand: HandData(
@@ -86,7 +94,9 @@ class _SessionReplayScreenState extends State<SessionReplayScreen> {
     final exec = context.read<EvaluationExecutorService>();
     for (final h in widget.hands) {
       final pack = _packSpot(h);
-      try { await exec.evaluateSingle(context, pack, hand: h, anteBb: h.anteBb); } catch (_) {}
+      try {
+        await exec.evaluateSingle(context, pack, hand: h, anteBb: h.anteBb);
+      } catch (_) {}
       _evs.add(pack.heroEv ?? 0);
       _icms.add(pack.heroIcmEv ?? 0);
       _spots.add(TrainingSpot.fromSavedHand(h));
@@ -147,18 +157,22 @@ class _SessionReplayScreenState extends State<SessionReplayScreen> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => PlayerProfileService()),
-        ChangeNotifierProvider(create: (context) => PlayerManagerService(context.read<PlayerProfileService>())),
+        ChangeNotifierProvider(
+            create: (context) =>
+                PlayerManagerService(context.read<PlayerProfileService>())),
         ChangeNotifierProvider(create: (_) => AllInPlayersService()),
         ChangeNotifierProvider(create: (_) => FoldedPlayersService()),
-        ChangeNotifierProvider(create: (context) => ActionSyncService(
-              foldedPlayers: context.read<FoldedPlayersService>(),
-              allInPlayers: context.read<AllInPlayersService>(),
-            )),
+        ChangeNotifierProvider(
+            create: (context) => ActionSyncService(
+                  foldedPlayers: context.read<FoldedPlayersService>(),
+                  allInPlayers: context.read<AllInPlayersService>(),
+                )),
         ChangeNotifierProvider(create: (context) {
           final history = PotHistoryService();
           final potSync = PotSyncService(historyService: history);
           final stackService = StackManagerService(
-            Map<int, int>.from(context.read<PlayerManagerService>().initialStacks),
+            Map<int, int>.from(
+                context.read<PlayerManagerService>().initialStacks),
             potSync: potSync,
           );
           return PlaybackManagerService(
@@ -167,10 +181,11 @@ class _SessionReplayScreenState extends State<SessionReplayScreen> {
             actionSync: context.read<ActionSyncService>(),
           );
         }),
-        Provider(create: (context) => BoardSyncService(
-              playerManager: context.read<PlayerManagerService>(),
-              actionSync: context.read<ActionSyncService>(),
-            )),
+        Provider(
+            create: (context) => BoardSyncService(
+                  playerManager: context.read<PlayerManagerService>(),
+                  actionSync: context.read<ActionSyncService>(),
+                )),
         Provider(create: (_) => ActionHistoryService()),
       ],
       child: Builder(builder: (context) {
@@ -183,32 +198,37 @@ class _SessionReplayScreenState extends State<SessionReplayScreen> {
           providers: [
             Provider<TransitionLockService>.value(value: lockService),
             Provider<BoardRevealService>.value(value: reveal),
-            ChangeNotifierProvider(create: (_) => BoardManagerService(
-                  playerManager: context.read<PlayerManagerService>(),
-                  actionSync: context.read<ActionSyncService>(),
-                  playbackManager: context.read<PlaybackManagerService>(),
-                  lockService: lockService,
-                  boardSync: context.read<BoardSyncService>(),
-                  boardReveal: reveal,
-                )),
-            Provider(create: (_) => BoardEditingService(
-                  boardManager: context.read<BoardManagerService>(),
-                  boardSync: context.read<BoardSyncService>(),
-                  playerManager: context.read<PlayerManagerService>(),
-                  profile: context.read<PlayerProfileService>(),
-                )),
-            Provider(create: (_) => PlayerEditingService(
-                  playerManager: context.read<PlayerManagerService>(),
-                  stackService: context.read<PlaybackManagerService>().stackService,
-                  playbackManager: context.read<PlaybackManagerService>(),
-                  profile: context.read<PlayerProfileService>(),
-                )),
-            Provider(create: (_) => DemoPlaybackController(
-                  playbackManager: context.read<PlaybackManagerService>(),
-                  boardManager: context.read<BoardManagerService>(),
-                  importExportService: const TrainingImportExportService(),
-                  potSync: context.read<PlaybackManagerService>().potSync,
-                )),
+            ChangeNotifierProvider(
+                create: (_) => BoardManagerService(
+                      playerManager: context.read<PlayerManagerService>(),
+                      actionSync: context.read<ActionSyncService>(),
+                      playbackManager: context.read<PlaybackManagerService>(),
+                      lockService: lockService,
+                      boardSync: context.read<BoardSyncService>(),
+                      boardReveal: reveal,
+                    )),
+            Provider(
+                create: (_) => BoardEditingService(
+                      boardManager: context.read<BoardManagerService>(),
+                      boardSync: context.read<BoardSyncService>(),
+                      playerManager: context.read<PlayerManagerService>(),
+                      profile: context.read<PlayerProfileService>(),
+                    )),
+            Provider(
+                create: (_) => PlayerEditingService(
+                      playerManager: context.read<PlayerManagerService>(),
+                      stackService:
+                          context.read<PlaybackManagerService>().stackService,
+                      playbackManager: context.read<PlaybackManagerService>(),
+                      profile: context.read<PlayerProfileService>(),
+                    )),
+            Provider(
+                create: (_) => DemoPlaybackController(
+                      playbackManager: context.read<PlaybackManagerService>(),
+                      boardManager: context.read<BoardManagerService>(),
+                      importExportService: const TrainingImportExportService(),
+                      potSync: context.read<PlaybackManagerService>().potSync,
+                    )),
           ],
           child: Scaffold(
             appBar: AppBar(title: const Text('Session Replay')),
@@ -221,19 +241,25 @@ class _SessionReplayScreenState extends State<SessionReplayScreen> {
                       child: PokerAnalyzerScreen(
                         key: _key,
                         actionSync: context.read<ActionSyncService>(),
-                        foldedPlayersService: context.read<FoldedPlayersService>(),
-                        allInPlayersService: context.read<AllInPlayersService>(),
+                        foldedPlayersService:
+                            context.read<FoldedPlayersService>(),
+                        allInPlayersService:
+                            context.read<AllInPlayersService>(),
                         handContext: CurrentHandContextService(),
                         playbackManager: context.read<PlaybackManagerService>(),
-                        stackService: context.read<PlaybackManagerService>().stackService,
-                        potSyncService: context.read<PlaybackManagerService>().potSync,
+                        stackService:
+                            context.read<PlaybackManagerService>().stackService,
+                        potSyncService:
+                            context.read<PlaybackManagerService>().potSync,
                         boardManager: context.read<BoardManagerService>(),
                         boardSync: context.read<BoardSyncService>(),
                         boardEditing: context.read<BoardEditingService>(),
                         playerEditing: context.read<PlayerEditingService>(),
                         playerManager: context.read<PlayerManagerService>(),
                         playerProfile: context.read<PlayerProfileService>(),
-                        actionTagService: context.read<PlayerProfileService>().actionTagService,
+                        actionTagService: context
+                            .read<PlayerProfileService>()
+                            .actionTagService,
                         boardReveal: reveal,
                         lockService: lockService,
                         actionHistory: context.read<ActionHistoryService>(),
@@ -245,8 +271,10 @@ class _SessionReplayScreenState extends State<SessionReplayScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          ElevatedButton(onPressed: _prev, child: const Text('Prev')),
-                          ElevatedButton(onPressed: _next, child: const Text('Next')),
+                          ElevatedButton(
+                              onPressed: _prev, child: const Text('Prev')),
+                          ElevatedButton(
+                              onPressed: _next, child: const Text('Next')),
                         ],
                       ),
                     ),

@@ -15,7 +15,8 @@ class TrainingPackVariant {
     this.rangeId,
   });
 
-  factory TrainingPackVariant.fromJson(Map<String, dynamic> j) => TrainingPackVariant(
+  factory TrainingPackVariant.fromJson(Map<String, dynamic> j) =>
+      TrainingPackVariant(
         position: HeroPosition.values.firstWhere(
           (e) => e.name == j['position'],
           orElse: () => HeroPosition.unknown,

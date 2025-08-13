@@ -13,4 +13,3 @@ class EvaluationCache {
   /// Clears all cached results.
   void clear() => _cache.clear();
 }
-

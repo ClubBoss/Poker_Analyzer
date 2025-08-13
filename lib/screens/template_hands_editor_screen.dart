@@ -90,8 +90,12 @@ class _TemplateHandsEditorScreenState extends State<TemplateHandsEditorScreen> {
         title: const Text('Add Tag'),
         content: TextField(controller: c, autofocus: true),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(context, c.text.trim()), child: const Text('OK')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, c.text.trim()),
+              child: const Text('OK')),
         ],
       ),
     );
@@ -106,7 +110,9 @@ class _TemplateHandsEditorScreenState extends State<TemplateHandsEditorScreen> {
   }
 
   Future<void> _bulkRemoveTag() async {
-    final hands = [for (final id in _selectedIds) _handById(id)].whereType<SavedHand>().toList();
+    final hands = [for (final id in _selectedIds) _handById(id)]
+        .whereType<SavedHand>()
+        .toList();
     if (hands.isEmpty) return;
     Set<String> tags = Set.from(hands.first.tags);
     for (final h in hands.skip(1)) {
@@ -121,12 +127,18 @@ class _TemplateHandsEditorScreenState extends State<TemplateHandsEditorScreen> {
           title: const Text('Remove Tag'),
           content: DropdownButton<String>(
             value: selected,
-            items: [for (final t in tags) DropdownMenuItem(value: t, child: Text(t))],
+            items: [
+              for (final t in tags) DropdownMenuItem(value: t, child: Text(t))
+            ],
             onChanged: (v) => setStateDialog(() => selected = v),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-            TextButton(onPressed: () => Navigator.pop(context, selected), child: const Text('OK')),
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel')),
+            TextButton(
+                onPressed: () => Navigator.pop(context, selected),
+                child: const Text('OK')),
           ],
         ),
       ),
@@ -149,8 +161,12 @@ class _TemplateHandsEditorScreenState extends State<TemplateHandsEditorScreen> {
       builder: (_) => AlertDialog(
         title: Text('Delete $count spots?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Delete')),
         ],
       ),
     );
@@ -199,11 +215,18 @@ class _TemplateHandsEditorScreenState extends State<TemplateHandsEditorScreen> {
             : const Text('Редактор шаблона'),
         actions: _isSelecting
             ? [
-                IconButton(icon: const Icon(Icons.label), onPressed: _bulkAddTag),
-                IconButton(icon: const Icon(Icons.label_off), onPressed: _bulkRemoveTag),
-                IconButton(icon: const Icon(Icons.delete), onPressed: _bulkDelete),
+                IconButton(
+                    icon: const Icon(Icons.label), onPressed: _bulkAddTag),
+                IconButton(
+                    icon: const Icon(Icons.label_off),
+                    onPressed: _bulkRemoveTag),
+                IconButton(
+                    icon: const Icon(Icons.delete), onPressed: _bulkDelete),
               ]
-            : [SyncStatusIcon.of(context), IconButton(onPressed: _save, icon: const Icon(Icons.check))],
+            : [
+                SyncStatusIcon.of(context),
+                IconButton(onPressed: _save, icon: const Icon(Icons.check))
+              ],
       ),
       body: Column(
         children: [
@@ -216,18 +239,18 @@ class _TemplateHandsEditorScreenState extends State<TemplateHandsEditorScreen> {
                   decoration: const InputDecoration(labelText: 'Название'),
                 ),
                 const SizedBox(height: 16),
-              TextField(
-                controller: _descController,
-                decoration: const InputDecoration(labelText: 'Описание'),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _categoryController,
-                decoration:
-                    const InputDecoration(labelText: 'Категория (опц.)'),
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
+                TextField(
+                  controller: _descController,
+                  decoration: const InputDecoration(labelText: 'Описание'),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _categoryController,
+                  decoration:
+                      const InputDecoration(labelText: 'Категория (опц.)'),
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
                   value: _gameType,
                   decoration: const InputDecoration(labelText: 'Тип игры'),
                   items: const [
@@ -253,7 +276,8 @@ class _TemplateHandsEditorScreenState extends State<TemplateHandsEditorScreen> {
                 final title = hand.name.isEmpty ? 'Без названия' : hand.name;
                 return ListTile(
                   key: ValueKey(id),
-                  tileColor: selected ? Colors.blue.withValues(alpha: 0.3) : null,
+                  tileColor:
+                      selected ? Colors.blue.withValues(alpha: 0.3) : null,
                   onLongPress: () => setState(() => _selectedIds.add(id)),
                   onTap: _isSelecting
                       ? () {
@@ -267,7 +291,8 @@ class _TemplateHandsEditorScreenState extends State<TemplateHandsEditorScreen> {
                         }
                       : null,
                   title: Text(title),
-                  subtitle: hand.tags.isEmpty ? null : Text(hand.tags.join(', ')),
+                  subtitle:
+                      hand.tags.isEmpty ? null : Text(hand.tags.join(', ')),
                   trailing: _isSelecting
                       ? Checkbox(
                           value: selected,

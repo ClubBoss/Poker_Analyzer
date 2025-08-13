@@ -57,7 +57,8 @@ class RecommendationFeedEngine {
       final accPct = (acc * 100).round();
       final subtitleParts = <String>[];
       if (acc > 0) {
-        final label = accPct < 70 ? 'Low accuracy: $accPct%' : 'Accuracy: $accPct%';
+        final label =
+            accPct < 70 ? 'Low accuracy: $accPct%' : 'Accuracy: $accPct%';
         subtitleParts.add(label);
       }
       if (last != null) {
@@ -97,4 +98,3 @@ class RecommendationFeedEngine {
     return cards;
   }
 }
-

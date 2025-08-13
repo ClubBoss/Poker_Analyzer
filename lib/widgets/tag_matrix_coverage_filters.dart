@@ -19,7 +19,7 @@ class TagMatrixCoverageFilters extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(children: [
-      DropdownButton<TrainingType?> (
+      DropdownButton<TrainingType?>(
         value: type,
         hint: const Text('All'),
         onChanged: onTypeChanged,

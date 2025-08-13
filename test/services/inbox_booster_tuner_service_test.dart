@@ -27,8 +27,10 @@ void main() {
 
   test('computeTagBoostScores calculates scores', () async {
     final lessons = [
-      const TheoryMiniLessonNode(id: 'l1', title: 'A', content: '', tags: ['icm']),
-      const TheoryMiniLessonNode(id: 'l2', title: 'B', content: '', tags: ['call']),
+      const TheoryMiniLessonNode(
+          id: 'l1', title: 'A', content: '', tags: ['icm']),
+      const TheoryMiniLessonNode(
+          id: 'l2', title: 'B', content: '', tags: ['call']),
     ];
     final library = _FakeLibrary(lessons);
 
@@ -52,4 +54,3 @@ void main() {
     expect(scores['call'], closeTo(0.9, 0.01));
   });
 }
-

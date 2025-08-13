@@ -17,8 +17,8 @@ class TheoryLessonGraphNavigatorService {
     MiniLessonLibraryService? library,
     this.cluster,
     Set<String>? tagFilter,
-  }) : library = library ?? MiniLessonLibraryService.instance,
-       tagFilter = tagFilter ?? const {};
+  })  : library = library ?? MiniLessonLibraryService.instance,
+        tagFilter = tagFilter ?? const {};
 
   /// Loads lessons and builds navigation indexes.
   Future<void> initialize() async {
@@ -112,4 +112,3 @@ class TheoryLessonGraphNavigatorService {
     return result.toList();
   }
 }
-

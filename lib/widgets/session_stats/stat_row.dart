@@ -25,9 +25,11 @@ class SessionStatRow extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: TextStyle(color: Colors.white70, fontSize: 14 * scale)),
+            Text(label,
+                style: TextStyle(color: Colors.white70, fontSize: 14 * scale)),
             SizedBox(height: 4 * scale),
-            Text(value, style: TextStyle(color: Colors.white, fontSize: 14 * scale)),
+            Text(value,
+                style: TextStyle(color: Colors.white, fontSize: 14 * scale)),
           ],
         );
       }
@@ -38,7 +40,8 @@ class SessionStatRow extends StatelessWidget {
             child: Text(label,
                 style: TextStyle(color: Colors.white70, fontSize: 14 * scale)),
           ),
-          Text(value, style: TextStyle(color: Colors.white, fontSize: 14 * scale)),
+          Text(value,
+              style: TextStyle(color: Colors.white, fontSize: 14 * scale)),
         ],
       );
     });

@@ -75,7 +75,8 @@ Map<String, int> _allocateCounts(Map<String, double> mix, int total) {
   return counts;
 }
 
-final Map<String, List<List<String>>> _allFlopsByTexture = _computeAllFlopsByTexture();
+final Map<String, List<List<String>>> _allFlopsByTexture =
+    _computeAllFlopsByTexture();
 
 Map<String, List<List<String>>> _computeAllFlopsByTexture() {
   final deck = _buildDeck();
@@ -183,8 +184,7 @@ void _generateForPreset(
   };
 
   final actual = <String, int>{
-    for (final e in counts.entries)
-      e.key: min(e.value, available[e.key] ?? 0),
+    for (final e in counts.entries) e.key: min(e.value, available[e.key] ?? 0),
   };
 
   final shortages = <String, int>{};
@@ -207,7 +207,8 @@ void _generateForPreset(
         actual[n] = (actual[n] ?? 0) + take;
         remaining -= take;
         need -= take;
-        stdout.writeln('::warning::${name} borrowed $take from $n for ${entry.key}');
+        stdout.writeln(
+            '::warning::${name} borrowed $take from $n for ${entry.key}');
       }
       if (need == 0) break;
     }
@@ -305,4 +306,3 @@ void _generateForPreset(
   }
   file.writeAsStringSync(sb.toString());
 }
-

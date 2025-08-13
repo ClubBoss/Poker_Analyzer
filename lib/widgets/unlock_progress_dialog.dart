@@ -29,9 +29,8 @@ Future<void> showUnlockProgressDialog(
     final h = neededHands.toInt();
     remainingParts.add('$h ру${h == 1 ? 'ка' : h < 5 ? 'ки' : 'к'}');
   }
-  final remainingText = achieved
-      ? 'Цель достигнута!'
-      : 'Осталось: ${remainingParts.join(' и ')}';
+  final remainingText =
+      achieved ? 'Цель достигнута!' : 'Осталось: ${remainingParts.join(' и ')}';
 
   if (achieved) {
     WidgetsBinding.instance.addPostFrameCallback((_) {

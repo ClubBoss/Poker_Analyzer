@@ -29,7 +29,8 @@ class StreakMiniCard extends StatelessWidget {
                 Text('Streak: ${service.count}',
                     style: const TextStyle(color: Colors.white)),
                 Text('Best: ${service.max}',
-                    style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                    style:
+                        const TextStyle(color: Colors.white70, fontSize: 12)),
               ],
             ),
           ),

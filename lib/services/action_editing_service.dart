@@ -56,8 +56,7 @@ class ActionEditingService {
   }
 
   /// Insert [entry] at [index] in the actions list.
-  void insertAction(int index, ActionEntry entry,
-      {bool recordHistory = true}) {
+  void insertAction(int index, ActionEntry entry, {bool recordHistory = true}) {
     final prevStreet = currentStreet;
     final inferred = boardSync.inferBoardStreet();
     if (inferred > currentStreet) {
@@ -119,8 +118,10 @@ class ActionEditingService {
           prevStreet: currentStreet,
           newStreet: currentStreet));
     }
-    actionSync.foldedPlayers?.editAction(previous, entry, actionSync.analyzerActions);
-    actionSync.allInPlayers?.editAction(previous, entry, actionSync.analyzerActions);
+    actionSync.foldedPlayers
+        ?.editAction(previous, entry, actionSync.analyzerActions);
+    actionSync.allInPlayers
+        ?.editAction(previous, entry, actionSync.analyzerActions);
     actionSync.syncStacks();
     actionSync.notifyListeners();
     actionTag.updateForAction(entry);
@@ -154,13 +155,16 @@ class ActionEditingService {
     final removed = actions[index];
     actionSync.analyzerActions.removeAt(index);
     if (recordHistory) {
-      actionSync.recordHistory(ActionHistoryEntry(ActionChangeType.delete, index,
+      actionSync.recordHistory(ActionHistoryEntry(
+          ActionChangeType.delete, index,
           oldEntry: removed,
           prevStreet: currentStreet,
           newStreet: currentStreet));
     }
-    actionSync.foldedPlayers?.removeFromAction(removed, actionSync.analyzerActions);
-    actionSync.allInPlayers?.removeFromAction(removed, actionSync.analyzerActions);
+    actionSync.foldedPlayers
+        ?.removeFromAction(removed, actionSync.analyzerActions);
+    actionSync.allInPlayers
+        ?.removeFromAction(removed, actionSync.analyzerActions);
     actionSync.syncStacks();
     actionSync.notifyListeners();
     if (playbackManager.playbackIndex > actions.length) {
@@ -180,7 +184,8 @@ class ActionEditingService {
   void reorderAction(int oldIndex, int newIndex) {
     if (oldIndex < 0 || oldIndex >= actions.length) return;
     if (newIndex > oldIndex) newIndex -= 1;
-    if (newIndex < 0 || newIndex >= actions.length) newIndex = actions.length - 1;
+    if (newIndex < 0 || newIndex >= actions.length)
+      newIndex = actions.length - 1;
     final entry = actionSync.analyzerActions.removeAt(oldIndex);
     actionSync.analyzerActions.insert(newIndex, entry);
     actionTag.recompute(actionSync.analyzerActions);
@@ -240,8 +245,10 @@ class ActionEditingService {
     for (final idx in toRemove) {
       final removed = actions[idx];
       actionSync.analyzerActions.removeAt(idx);
-      actionSync.foldedPlayers?.removeFromAction(removed, actionSync.analyzerActions);
-      actionSync.allInPlayers?.removeFromAction(removed, actionSync.analyzerActions);
+      actionSync.foldedPlayers
+          ?.removeFromAction(removed, actionSync.analyzerActions);
+      actionSync.allInPlayers
+          ?.removeFromAction(removed, actionSync.analyzerActions);
     }
     actionSync.syncStacks();
     actionSync.notifyListeners();

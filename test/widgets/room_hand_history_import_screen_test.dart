@@ -25,7 +25,9 @@ class _TestPathProvider extends PathProviderPlatform {
   @override
   Future<List<String>?> getExternalCachePaths() async => [path];
   @override
-  Future<List<String>?> getExternalStoragePaths({StorageDirectory? type}) async => [path];
+  Future<List<String>?> getExternalStoragePaths(
+          {StorageDirectory? type}) async =>
+      [path];
   @override
   Future<String?> getDownloadsPath() async => path;
 }

@@ -1,4 +1,3 @@
-
 import 'learning_graph_engine.dart';
 import 'smart_weak_review_planner.dart';
 import 'theory_booster_injector.dart';
@@ -125,9 +124,8 @@ class AutoTheoryReviewEngine {
     await library.loadAll();
     final masteryMap = await masteryService.computeMastery();
 
-    final tagSet = {
-      for (final t in recentWeakTags) t.trim().toLowerCase()
-    }..removeWhere((e) => e.isEmpty);
+    final tagSet = {for (final t in recentWeakTags) t.trim().toLowerCase()}
+      ..removeWhere((e) => e.isEmpty);
 
     final scored = <_BoosterScore>[];
     for (final id in candidateBoosters) {

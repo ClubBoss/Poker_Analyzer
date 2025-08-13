@@ -14,8 +14,8 @@ class _FakeLibrary implements PackLibraryService {
   @override
   Future<TrainingPackTemplateV2?> recommendedStarter() async => null;
   @override
-  Future<TrainingPackTemplateV2?> getById(String id) async =>
-      byTag.values.firstWhere((p) => p.id == id, orElse: () => byTag.values.first);
+  Future<TrainingPackTemplateV2?> getById(String id) async => byTag.values
+      .firstWhere((p) => p.id == id, orElse: () => byTag.values.first);
   @override
   Future<TrainingPackTemplateV2?> findByTag(String tag) async => byTag[tag];
   @override

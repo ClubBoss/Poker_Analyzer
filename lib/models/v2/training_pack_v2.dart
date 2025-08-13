@@ -34,52 +34,54 @@ class TrainingPackV2 {
     List<String>? positions,
     this.difficulty = 0,
     Map<String, dynamic>? meta,
-  }) : tags = tags ?? [],
-       spots = spots ?? [],
-       positions = positions ?? [],
-       generatedAt = generatedAt ?? DateTime.now(),
-       meta = meta ?? {};
+  })  : tags = tags ?? [],
+        spots = spots ?? [],
+        positions = positions ?? [],
+        generatedAt = generatedAt ?? DateTime.now(),
+        meta = meta ?? {};
 
   factory TrainingPackV2.fromJson(Map<String, dynamic> j) => TrainingPackV2(
-    id: j['id'] as String? ?? '',
-    sourceTemplateId: j['sourceTemplateId'] as String? ?? '',
-    name: j['name'] as String? ?? '',
-    description: j['description'] as String? ?? '',
-    tags: [for (final t in (j['tags'] as List? ?? [])) t.toString()],
-    type: TrainingType.values.firstWhere(
-      (e) => e.name == j['type'],
-      orElse: () => TrainingType.pushFold,
-    ),
-    spots: [
-      for (final s in (j['spots'] as List? ?? []))
-        TrainingPackSpot.fromJson(Map<String, dynamic>.from(s)),
-    ],
-    spotCount: j['spotCount'] as int? ?? 0,
-    generatedAt:
-        DateTime.tryParse(j['generatedAt'] as String? ?? '') ?? DateTime.now(),
-    gameType: parseGameType(j['gameType']),
-    bb: (j['bb'] as num?)?.toInt() ?? 0,
-    positions: [for (final p in (j['positions'] as List? ?? [])) p.toString()],
-    difficulty: (j['difficulty'] as num?)?.toInt() ?? 0,
-    meta: j['meta'] != null ? Map<String, dynamic>.from(j['meta']) : {},
-  );
+        id: j['id'] as String? ?? '',
+        sourceTemplateId: j['sourceTemplateId'] as String? ?? '',
+        name: j['name'] as String? ?? '',
+        description: j['description'] as String? ?? '',
+        tags: [for (final t in (j['tags'] as List? ?? [])) t.toString()],
+        type: TrainingType.values.firstWhere(
+          (e) => e.name == j['type'],
+          orElse: () => TrainingType.pushFold,
+        ),
+        spots: [
+          for (final s in (j['spots'] as List? ?? []))
+            TrainingPackSpot.fromJson(Map<String, dynamic>.from(s)),
+        ],
+        spotCount: j['spotCount'] as int? ?? 0,
+        generatedAt: DateTime.tryParse(j['generatedAt'] as String? ?? '') ??
+            DateTime.now(),
+        gameType: parseGameType(j['gameType']),
+        bb: (j['bb'] as num?)?.toInt() ?? 0,
+        positions: [
+          for (final p in (j['positions'] as List? ?? [])) p.toString()
+        ],
+        difficulty: (j['difficulty'] as num?)?.toInt() ?? 0,
+        meta: j['meta'] != null ? Map<String, dynamic>.from(j['meta']) : {},
+      );
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'sourceTemplateId': sourceTemplateId,
-    'name': name,
-    'description': description,
-    if (tags.isNotEmpty) 'tags': tags,
-    'type': type.name,
-    if (spots.isNotEmpty) 'spots': [for (final s in spots) s.toJson()],
-    'spotCount': spotCount,
-    'generatedAt': generatedAt.toIso8601String(),
-    'gameType': gameType.name,
-    'bb': bb,
-    if (positions.isNotEmpty) 'positions': positions,
-    'difficulty': difficulty,
-    if (meta.isNotEmpty) 'meta': meta,
-  };
+        'id': id,
+        'sourceTemplateId': sourceTemplateId,
+        'name': name,
+        'description': description,
+        if (tags.isNotEmpty) 'tags': tags,
+        'type': type.name,
+        if (spots.isNotEmpty) 'spots': [for (final s in spots) s.toJson()],
+        'spotCount': spotCount,
+        'generatedAt': generatedAt.toIso8601String(),
+        'gameType': gameType.name,
+        'bb': bb,
+        if (positions.isNotEmpty) 'positions': positions,
+        'difficulty': difficulty,
+        if (meta.isNotEmpty) 'meta': meta,
+      };
 
   factory TrainingPackV2.fromTemplate(TrainingPackTemplateV2 t, String id) {
     final spotList =

@@ -31,8 +31,9 @@ class SkillTreeNodeBlockReasonWidget extends StatelessWidget {
   })  : _linkService = linkService ?? SkillTreeDependencyLinkService(),
         _library = library ?? SkillTreeLibraryService.instance,
         _progress = progress ?? SkillTreeNodeProgressTracker.instance,
-        _unlockEval =
-            unlockEvaluator ?? SkillTreeUnlockEvaluator(progress: progress ?? SkillTreeNodeProgressTracker.instance);
+        _unlockEval = unlockEvaluator ??
+            SkillTreeUnlockEvaluator(
+                progress: progress ?? SkillTreeNodeProgressTracker.instance);
 
   String _titleForNode(String id) {
     for (final n in _library.getAllNodes()) {
@@ -131,8 +132,8 @@ class _DependencyItemState extends State<_DependencyItem> {
     super.initState();
     final service = SkillTreeSettingsService.instance;
     _hideCompleted = service.hideCompletedPrereqs.value;
-    _notifierListener =
-        () => setState(() => _hideCompleted = service.hideCompletedPrereqs.value);
+    _notifierListener = () =>
+        setState(() => _hideCompleted = service.hideCompletedPrereqs.value);
     service.hideCompletedPrereqs.addListener(_notifierListener);
     service.load();
   }
@@ -145,8 +146,7 @@ class _DependencyItemState extends State<_DependencyItem> {
   }
 
   Future<void> _toggleHideCompleted(bool value) async {
-    await SkillTreeSettingsService.instance
-        .setHideCompletedPrereqs(value);
+    await SkillTreeSettingsService.instance.setHideCompletedPrereqs(value);
   }
 
   @override
@@ -198,8 +198,7 @@ class _DependencyItemState extends State<_DependencyItem> {
                 for (var i = 0; i < visiblePrereqs.length; i++) ...[
                   _buildPrereqChip(context, visiblePrereqs[i]),
                   if (i != visiblePrereqs.length - 1)
-                    const Icon(Icons.arrow_right,
-                        size: 14, color: Colors.grey),
+                    const Icon(Icons.arrow_right, size: 14, color: Colors.grey),
                 ],
               ],
             ),
@@ -254,4 +253,3 @@ class _DependencyItemState extends State<_DependencyItem> {
     );
   }
 }
-

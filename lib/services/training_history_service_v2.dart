@@ -45,13 +45,15 @@ class TrainingHistoryServiceV2 {
     );
   }
 
-  static Future<List<TrainingHistoryEntryV2>> getHistory({int limit = 20}) async {
+  static Future<List<TrainingHistoryEntryV2>> getHistory(
+      {int limit = 20}) async {
     final file = await _file();
     final list = await _load(file);
     return list.take(limit).toList();
   }
 
-  static Future<void> replaceHistory(List<TrainingHistoryEntryV2> entries) async {
+  static Future<void> replaceHistory(
+      List<TrainingHistoryEntryV2> entries) async {
     final file = await _file();
     await file.create(recursive: true);
     await file.writeAsString(

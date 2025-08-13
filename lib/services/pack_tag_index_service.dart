@@ -28,9 +28,8 @@ class PackTagIndexService {
         final yaml = await f.readAsString();
         final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
         final rel = p.relative(f.path, from: dir.path);
-        final tags = <String>{
-          for (final t in tpl.tags) t.trim().toLowerCase()
-        }..removeWhere((e) => e.isEmpty);
+        final tags = <String>{for (final t in tpl.tags) t.trim().toLowerCase()}
+          ..removeWhere((e) => e.isEmpty);
         if (tags.isEmpty) continue;
         packMap[rel] = tags.toList();
         for (final t in tags) {
@@ -38,7 +37,8 @@ class PackTagIndexService {
         }
       } catch (_) {}
     }
-    final file = File(p.join(dir.path, 'tag_index.json'))..createSync(recursive: true);
+    final file = File(p.join(dir.path, 'tag_index.json'))
+      ..createSync(recursive: true);
     await file.writeAsString(
       jsonEncode({
         'tags': {for (final e in tagMap.entries) e.key: e.value.toList()},

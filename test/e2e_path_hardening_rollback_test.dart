@@ -48,8 +48,9 @@ class _FakeFormatSelector extends AutoFormatSelector {
 class _PassGatekeeper extends PackQualityGatekeeperService {
   const _PassGatekeeper();
   @override
-  bool isQualityAcceptable(pack, {double minScore = 0.7, seedIssues = const {}})
-      => true;
+  bool isQualityAcceptable(pack,
+          {double minScore = 0.7, seedIssues = const {}}) =>
+      true;
 }
 
 class _FailingExecutor extends AdaptivePlanExecutor {

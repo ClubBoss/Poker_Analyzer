@@ -9,7 +9,8 @@ class TheoryTrackRunnerScreen extends StatefulWidget {
   const TheoryTrackRunnerScreen({super.key, required this.track});
 
   @override
-  State<TheoryTrackRunnerScreen> createState() => _TheoryTrackRunnerScreenState();
+  State<TheoryTrackRunnerScreen> createState() =>
+      _TheoryTrackRunnerScreenState();
 }
 
 class _TheoryTrackRunnerScreenState extends State<TheoryTrackRunnerScreen> {

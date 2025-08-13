@@ -49,4 +49,3 @@ void main() {
     expect(stats['lastDismissed'], isNull);
   });
 }
-

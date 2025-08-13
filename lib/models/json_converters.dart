@@ -1,4 +1,5 @@
 import 'player_model.dart';
+
 Map<int, int> _intIntMapFromJson(Map<String, dynamic> json) =>
     json.map((k, v) => MapEntry(int.parse(k), (v as num).toInt()));
 Map<String, int> _intIntMapToJson(Map<int, int> map) =>
@@ -20,7 +21,9 @@ Map<int, String?>? _intNullableStringMapFromJson(Map<String, dynamic>? json) =>
 Map<String, String?>? _intNullableStringMapToJson(Map<int, String?>? map) =>
     map?.map((k, v) => MapEntry(k.toString(), v));
 Map<int, PlayerType>? _playerTypeMapFromJson(Map<String, dynamic>? json) =>
-    json?.map((k, v) => MapEntry(int.parse(k), PlayerType.values.firstWhere(
+    json?.map((k, v) => MapEntry(
+        int.parse(k),
+        PlayerType.values.firstWhere(
           (e) => e.name == v,
           orElse: () => PlayerType.unknown,
         )));

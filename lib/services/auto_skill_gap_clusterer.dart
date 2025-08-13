@@ -63,8 +63,7 @@ class AutoSkillGapClusterer {
     for (final a in pairCounts.keys) {
       for (final b in pairCounts[a]!.keys) {
         final co = pairCounts[a]![b]!.toDouble();
-        final minCount =
-            min(tagCounts[a] ?? 0, tagCounts[b] ?? 0).toDouble();
+        final minCount = min(tagCounts[a] ?? 0, tagCounts[b] ?? 0).toDouble();
         if (minCount == 0) continue;
         final freq = co / minCount;
         if (freq >= linkPercentage) {
@@ -78,8 +77,7 @@ class AutoSkillGapClusterer {
     var idx = 0;
     for (final members in groups.values) {
       final sorted = members.toList()
-        ..sort((a, b) =>
-            (tagCounts[b] ?? 0).compareTo(tagCounts[a] ?? 0));
+        ..sort((a, b) => (tagCounts[b] ?? 0).compareTo(tagCounts[a] ?? 0));
       final trimmed = sorted.take(maxClusterSize).toList();
       final top = trimmed.first;
       final theme = themeMap[top] ?? top;
@@ -127,4 +125,3 @@ class _UnionFind {
     return result;
   }
 }
-

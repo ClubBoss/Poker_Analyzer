@@ -33,8 +33,7 @@ void main() {
       ),
     });
 
-    final evaluator =
-        TheoryBlockReviewStreakEvaluator(library: library);
+    final evaluator = TheoryBlockReviewStreakEvaluator(library: library);
     final days = await evaluator.getStreakDays();
     final today = DateTime.utc(now.year, now.month, now.day);
     final twoAgo = today.subtract(const Duration(days: 2));
@@ -61,8 +60,7 @@ void main() {
       ),
     });
 
-    final evaluator =
-        TheoryBlockReviewStreakEvaluator(library: library);
+    final evaluator = TheoryBlockReviewStreakEvaluator(library: library);
     expect(await evaluator.getCurrentStreak(), 2);
     expect(await evaluator.getMaxStreak(), 2);
   });

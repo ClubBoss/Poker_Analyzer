@@ -14,4 +14,3 @@ class InboxCardModel {
     required this.onTap,
   });
 }
-

@@ -169,7 +169,8 @@ void main() {
     await tester.runAsync(() async {
       await EvaluationExecutorService().evaluateSingle(ctx, spot);
     });
-    final ev = computePushEV(heroBbStack: 10, bbCount: 2, heroHand: 'AA', anteBb: 0);
+    final ev =
+        computePushEV(heroBbStack: 10, bbCount: 2, heroHand: 'AA', anteBb: 0);
     final icm = computeMultiwayIcmEV(
       chipStacksBb: const [10, 10, 10],
       heroIndex: 0,

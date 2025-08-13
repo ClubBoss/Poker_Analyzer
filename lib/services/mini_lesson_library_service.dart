@@ -22,13 +22,13 @@ class MiniLessonLibraryService {
   final Map<String, TheoryMiniLessonNode> _byId = {};
   final Map<String, List<TheoryMiniLessonNode>> _byTag = {};
 
-    List<TheoryMiniLessonNode> get all => List.unmodifiable(_lessons);
+  List<TheoryMiniLessonNode> get all => List.unmodifiable(_lessons);
 
-    TheoryMiniLessonNode? getById(String id) => _byId[id];
+  TheoryMiniLessonNode? getById(String id) => _byId[id];
 
-    /// Returns training pack ids linked to [lessonId].
-    List<String> linkedPacksFor(String lessonId) =>
-        _byId[lessonId]?.linkedPackIds ?? const [];
+  /// Returns training pack ids linked to [lessonId].
+  List<String> linkedPacksFor(String lessonId) =>
+      _byId[lessonId]?.linkedPackIds ?? const [];
 
   /// Returns `true` if the lesson with [lessonId] has been completed.
   Future<bool> isLessonCompleted(String lessonId) async {

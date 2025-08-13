@@ -15,16 +15,17 @@ class LevelTagAutoAssigner {
 
   int _detectLevel(TrainingPackTemplateV2 tpl) {
     final tags = {for (final t in tpl.tags) t.toLowerCase()};
-    if (tags.contains('pushfold') || tpl.trainingType == TrainingType.pushFold) {
+    if (tags.contains('pushfold') ||
+        tpl.trainingType == TrainingType.pushFold) {
       return 1;
     }
     if (tags.contains('open') || tags.contains('3betpush')) {
       return 2;
     }
-    if (tags.contains('jamdecision') || tpl.trainingType == TrainingType.postflop) {
+    if (tags.contains('jamdecision') ||
+        tpl.trainingType == TrainingType.postflop) {
       return 3;
     }
     return 0;
   }
 }
-

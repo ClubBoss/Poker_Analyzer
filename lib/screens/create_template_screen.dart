@@ -56,8 +56,10 @@ class _CreateTemplateScreenState extends State<CreateTemplateScreen> {
       ),
       body: Shortcuts(
         shortcuts: const {
-          LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.enter): _SaveIntent(),
-          LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.enter): _SaveIntent(),
+          LogicalKeySet(LogicalKeyboardKey.meta, LogicalKeyboardKey.enter):
+              _SaveIntent(),
+          LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.enter):
+              _SaveIntent(),
         },
         child: Actions(
           actions: {
@@ -83,17 +85,21 @@ class _CreateTemplateScreenState extends State<CreateTemplateScreen> {
                 const SizedBox(height: 16),
                 TextField(
                   controller: _categoryController,
-                  decoration: const InputDecoration(labelText: 'Категория (опц.)'),
+                  decoration:
+                      const InputDecoration(labelText: 'Категория (опц.)'),
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
                   value: _gameType,
                   decoration: const InputDecoration(labelText: 'Тип игры'),
                   items: const [
-                    DropdownMenuItem(value: 'Tournament', child: Text('Tournament')),
-                    DropdownMenuItem(value: 'Cash Game', child: Text('Cash Game')),
+                    DropdownMenuItem(
+                        value: 'Tournament', child: Text('Tournament')),
+                    DropdownMenuItem(
+                        value: 'Cash Game', child: Text('Cash Game')),
                   ],
-                  onChanged: (v) => setState(() => _gameType = v ?? 'Cash Game'),
+                  onChanged: (v) =>
+                      setState(() => _gameType = v ?? 'Cash Game'),
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(

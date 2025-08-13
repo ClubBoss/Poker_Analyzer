@@ -46,12 +46,11 @@ class _LearningTrackScreenState extends State<LearningTrackScreen> {
     if (mounted) {
       setState(() => _unlocked = unlocked);
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        final targetId =
-            (last != null && unlocked.any((b) => b.id == last))
-                ? last
-                : unlocked.isNotEmpty
-                    ? unlocked.first.id
-                    : null;
+        final targetId = (last != null && unlocked.any((b) => b.id == last))
+            ? last
+            : unlocked.isNotEmpty
+                ? unlocked.first.id
+                : null;
         final key = targetId != null ? _blockKeys[targetId] : null;
         final context = key?.currentContext;
         if (context != null) {
@@ -76,10 +75,8 @@ class _LearningTrackScreenState extends State<LearningTrackScreen> {
               itemCount: widget.track.blocks.length,
               itemBuilder: (context, index) {
                 final block = widget.track.blocks[index];
-                final key =
-                    _blockKeys.putIfAbsent(block.id, () => GlobalKey());
-                final isUnlocked =
-                    unlocked.any((b) => b.id == block.id);
+                final key = _blockKeys.putIfAbsent(block.id, () => GlobalKey());
+                final isUnlocked = unlocked.any((b) => b.id == block.id);
                 final card = TheoryBlockCardWidget(
                   key: key,
                   block: block,

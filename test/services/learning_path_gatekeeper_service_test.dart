@@ -23,7 +23,8 @@ class _FakeMasteryService extends TagMasteryService {
       : super(logs: SessionLogService(sessions: TrainingSessionService()));
 
   @override
-  Future<Map<String, double>> computeMastery({bool force = false}) async => _map;
+  Future<Map<String, double>> computeMastery({bool force = false}) async =>
+      _map;
 }
 
 void main() {
@@ -36,7 +37,8 @@ void main() {
 
   test('stage unlock respects mastery threshold', () async {
     final logs = [
-      SessionLog(tags: const [], 
+      SessionLog(
+        tags: const [],
         sessionId: '1',
         templateId: 'pack1',
         startedAt: DateTime.now(),
@@ -62,7 +64,8 @@ void main() {
 
   test('sequential unlock by section', () async {
     final logs = [
-      SessionLog(tags: const [], 
+      SessionLog(
+        tags: const [],
         sessionId: '1',
         templateId: 'pack1',
         startedAt: DateTime.now(),
@@ -92,7 +95,8 @@ void main() {
 
   test('fallback to stage unlocking when no sections', () async {
     final logs = [
-      SessionLog(tags: const [], 
+      SessionLog(
+        tags: const [],
         sessionId: '1',
         templateId: 'pack1',
         startedAt: DateTime.now(),
@@ -120,7 +124,8 @@ void main() {
 
   test('ignores stage prerequisites within unlocked sections', () async {
     final logs = [
-      SessionLog(tags: const [], 
+      SessionLog(
+        tags: const [],
         sessionId: '1',
         templateId: 'pack1',
         startedAt: DateTime.now(),
@@ -150,7 +155,8 @@ void main() {
 
   test('unlockAfter enforces intra-section order', () async {
     final logs = [
-      SessionLog(tags: const [], 
+      SessionLog(
+        tags: const [],
         sessionId: '1',
         templateId: 'pack1',
         startedAt: DateTime.now(),

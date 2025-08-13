@@ -71,8 +71,7 @@ class _TrackSelectorScreenState extends State<TrackSelectorScreen> {
               final isLocked = locked[track.id] == true;
               final card = Card(
                 color: const Color(0xFF1E1E1E),
-                margin:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: ListTile(
                   title: Text(track.title),
                   subtitle: Text(

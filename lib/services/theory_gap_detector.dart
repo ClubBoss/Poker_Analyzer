@@ -29,11 +29,11 @@ class TheoryGapDetector {
     this.targetCoveragePerTopic = 5,
     this.minTheoryLinksPerPack = 1,
     this.freshnessWindowDays = 30,
-  }) : clusters = clusters ?? const <String, List<String>>{},
-       coverageTracker = coverageTracker ?? SkillTagCoverageTracker(),
-       theoryIndex = theoryIndex ?? const <String, List<String>>{},
-       linkStatus = linkStatus ?? const <String, bool>{},
-       topicUpdated = topicUpdated ?? const <String, DateTime>{};
+  })  : clusters = clusters ?? const <String, List<String>>{},
+        coverageTracker = coverageTracker ?? SkillTagCoverageTracker(),
+        theoryIndex = theoryIndex ?? const <String, List<String>>{},
+        linkStatus = linkStatus ?? const <String, bool>{},
+        topicUpdated = topicUpdated ?? const <String, DateTime>{};
 
   /// Scans all topics and updates [gapsNotifier] with detected gaps.
   Future<List<TheoryGap>> detectGaps() async {
@@ -52,8 +52,7 @@ class TheoryGapDetector {
       final target = targetCoveragePerTopic;
       final severity = (target - coverage).clamp(0, target);
       final hasTheory = (theoryIndex[topic] ?? const []).isNotEmpty;
-      final needsGap =
-          severity > 0 ||
+      final needsGap = severity > 0 ||
           !hasTheory ||
           candidates.length < minTheoryLinksPerPack;
       if (!needsGap) continue;
@@ -63,9 +62,8 @@ class TheoryGapDetector {
         final age = now.difference(updated).inDays;
         if (age > freshnessWindowDays) freshnessBoost = 1.5;
       }
-      final base = severity > 0
-          ? severity.toDouble()
-          : candidates.length.toDouble();
+      final base =
+          severity > 0 ? severity.toDouble() : candidates.length.toDouble();
       final priority = base * freshnessBoost;
       gaps.add(
         TheoryGap(

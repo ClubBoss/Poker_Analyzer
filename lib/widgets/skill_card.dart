@@ -17,11 +17,14 @@ class SkillCard extends StatelessWidget {
     this.onTap,
   });
 
-  String _capitalize(String s) => s.isNotEmpty ? s[0].toUpperCase() + s.substring(1) : s;
+  String _capitalize(String s) =>
+      s.isNotEmpty ? s[0].toUpperCase() + s.substring(1) : s;
 
   @override
   Widget build(BuildContext context) {
-    final color = Color.lerp(Colors.red, Colors.green, mastery.clamp(0.0, 1.0)) ?? Colors.red;
+    final color =
+        Color.lerp(Colors.red, Colors.green, mastery.clamp(0.0, 1.0)) ??
+            Colors.red;
     final name = _capitalize(tag);
     return GestureDetector(
       onTap: onTap,

@@ -44,7 +44,9 @@ class _FakeSuppression extends TheoryRecapSuppressionEngine {
   final bool value;
   _FakeSuppression(this.value) : super();
   @override
-  Future<bool> shouldSuppress({required String lessonId, required String trigger}) async => value;
+  Future<bool> shouldSuppress(
+          {required String lessonId, required String trigger}) async =>
+      value;
 }
 
 class _FakeDismissal extends SmartTheoryRecapDismissalMemory {
@@ -71,7 +73,8 @@ void main() {
   });
 
   test('shows due recap banner', () async {
-    final lesson = const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
+    final lesson =
+        const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
     final lib = _FakeLibrary([lesson]);
     final controller = _FakeController();
     final service = SmartRecapBannerReinjectionService(
@@ -82,8 +85,7 @@ void main() {
       suppression: _FakeSuppression(false),
       dismissal: _FakeDismissal(false),
     );
-    await RecapAutoRepeatScheduler.instance
-        .scheduleRepeat('l1', Duration.zero);
+    await RecapAutoRepeatScheduler.instance.scheduleRepeat('l1', Duration.zero);
     await service.start(interval: const Duration(milliseconds: 10));
     await Future.delayed(const Duration(milliseconds: 20));
     expect(controller.count, 1);
@@ -92,7 +94,8 @@ void main() {
   });
 
   test('skips when suppressed', () async {
-    final lesson = const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
+    final lesson =
+        const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
     final lib = _FakeLibrary([lesson]);
     final controller = _FakeController();
     final service = SmartRecapBannerReinjectionService(
@@ -103,8 +106,7 @@ void main() {
       suppression: _FakeSuppression(true),
       dismissal: _FakeDismissal(false),
     );
-    await RecapAutoRepeatScheduler.instance
-        .scheduleRepeat('l1', Duration.zero);
+    await RecapAutoRepeatScheduler.instance.scheduleRepeat('l1', Duration.zero);
     await service.start(interval: const Duration(milliseconds: 10));
     await Future.delayed(const Duration(milliseconds: 20));
     expect(controller.count, 0);

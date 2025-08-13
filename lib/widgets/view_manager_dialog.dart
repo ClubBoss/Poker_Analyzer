@@ -4,7 +4,8 @@ import '../models/view_preset.dart';
 class ViewManagerDialog extends StatefulWidget {
   final List<ViewPreset> views;
   final ValueChanged<List<ViewPreset>> onChanged;
-  const ViewManagerDialog({super.key, required this.views, required this.onChanged});
+  const ViewManagerDialog(
+      {super.key, required this.views, required this.onChanged});
 
   @override
   State<ViewManagerDialog> createState() => _ViewManagerDialogState();
@@ -30,8 +31,11 @@ class _ViewManagerDialogState extends State<ViewManagerDialog> {
         title: const Text('Rename View'),
         content: TextField(controller: c, autofocus: true),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(ctx, c.text.trim()), child: const Text('Save')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, c.text.trim()),
+              child: const Text('Save')),
         ],
       ),
     );
@@ -47,8 +51,12 @@ class _ViewManagerDialogState extends State<ViewManagerDialog> {
       builder: (ctx) => AlertDialog(
         title: const Text('Delete View?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Delete')),
         ],
       ),
     );
@@ -109,8 +117,12 @@ class _ViewManagerDialogState extends State<ViewManagerDialog> {
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          IconButton(icon: const Icon(Icons.edit), onPressed: () => _rename(filtered[i])),
-                          IconButton(icon: const Icon(Icons.delete), onPressed: () => _delete(filtered[i])),
+                          IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () => _rename(filtered[i])),
+                          IconButton(
+                              icon: const Icon(Icons.delete),
+                              onPressed: () => _delete(filtered[i])),
                         ],
                       ),
                     ),
@@ -121,7 +133,9 @@ class _ViewManagerDialogState extends State<ViewManagerDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
+        TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close')),
       ],
     );
   }

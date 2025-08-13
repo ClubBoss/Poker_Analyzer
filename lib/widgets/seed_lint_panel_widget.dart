@@ -114,4 +114,3 @@ class _SeedLintPanelWidgetState extends State<SeedLintPanelWidget> {
     );
   }
 }
-

@@ -12,7 +12,8 @@ class _FakeRetention extends DecayTagRetentionTrackerService {
   final Map<String, double> scores;
   const _FakeRetention(this.scores);
   @override
-  Future<Map<String, double>> getAllDecayScores({DateTime? now}) async => scores;
+  Future<Map<String, double>> getAllDecayScores({DateTime? now}) async =>
+      scores;
 }
 
 class _FakeLogger extends RecallSuccessLoggerService {
@@ -33,7 +34,6 @@ class _FakeStreak extends ReviewStreakEvaluatorService {
 }
 
 void main() {
-
   test('recommends top decayed tags', () async {
     final now = DateTime.now();
     final service = SmartDecayGoalGenerator(
@@ -103,4 +103,3 @@ void main() {
     expect(list.first.tag, 'b');
   });
 }
-

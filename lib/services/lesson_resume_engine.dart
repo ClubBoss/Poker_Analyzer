@@ -15,8 +15,8 @@ class LessonResumeEngine {
 
   Future<LessonStep?> getResumeStep(PlayerProfile profile) async {
     final steps = await LessonLoaderService.instance.loadAllLessons();
-    final filtered = const LessonStepFilterEngine()
-        .applyFilters(steps, profile: profile);
+    final filtered =
+        const LessonStepFilterEngine().applyFilters(steps, profile: profile);
     final completed = await LessonProgressService.instance.getCompletedSteps();
 
     final prefs = await SharedPreferences.getInstance();

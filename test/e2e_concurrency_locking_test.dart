@@ -50,8 +50,9 @@ class _FakeFormatSelector extends AutoFormatSelector {
 class _PassGatekeeper extends PackQualityGatekeeperService {
   const _PassGatekeeper();
   @override
-  bool isQualityAcceptable(pack, {double minScore = 0.7, seedIssues = const {}})
-      => true;
+  bool isQualityAcceptable(pack,
+          {double minScore = 0.7, seedIssues = const {}}) =>
+      true;
 }
 
 class _SlowExecutor extends AdaptivePlanExecutor {
@@ -106,8 +107,8 @@ void main() {
       durationMinutes: 40,
       executor: slow,
     );
-    final status = AutogenStatusDashboardService.instance
-        .getStatus('PathHardening');
+    final status =
+        AutogenStatusDashboardService.instance.getStatus('PathHardening');
     expect(status, isNotNull);
     final data = jsonDecode(status!.currentStage) as Map<String, dynamic>;
     expect(data['action'], 'locked');

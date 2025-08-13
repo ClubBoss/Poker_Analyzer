@@ -35,7 +35,8 @@ class CollapsibleStreetSection extends StatefulWidget {
   });
 
   @override
-  State<CollapsibleStreetSection> createState() => _CollapsibleStreetSectionState();
+  State<CollapsibleStreetSection> createState() =>
+      _CollapsibleStreetSectionState();
 }
 
 class _CollapsibleStreetSectionState extends State<CollapsibleStreetSection> {
@@ -48,13 +49,11 @@ class _CollapsibleStreetSectionState extends State<CollapsibleStreetSection> {
 
   String _buildSummary(List<ActionEntry> actions) {
     if (actions.isEmpty) return 'Нет действий';
-    return actions
-        .map((a) {
-          final label =
-              a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action;
-          return '${_capitalize(label)}${a.amount != null ? ' ${a.amount}' : ''}';
-        })
-        .join(' – ');
+    return actions.map((a) {
+      final label =
+          a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action;
+      return '${_capitalize(label)}${a.amount != null ? ' ${a.amount}' : ''}';
+    }).join(' – ');
   }
 
   @override
@@ -62,8 +61,9 @@ class _CollapsibleStreetSectionState extends State<CollapsibleStreetSection> {
     final relevant = widget.visibleCount != null
         ? widget.actions.take(widget.visibleCount!).toList(growable: false)
         : widget.actions;
-    final streetActions =
-        relevant.where((a) => a.street == widget.street).toList(growable: false);
+    final streetActions = relevant
+        .where((a) => a.street == widget.street)
+        .toList(growable: false);
 
     final summary = _buildSummary(streetActions);
     final summaryColor = streetActions.isNotEmpty
@@ -110,7 +110,8 @@ class _CollapsibleStreetSectionState extends State<CollapsibleStreetSection> {
                             ),
                             if (hasNegative) ...[
                               const SizedBox(width: 4),
-                              const Icon(Icons.warning, color: Colors.red, size: 16),
+                              const Icon(Icons.warning,
+                                  color: Colors.red, size: 16),
                             ]
                           ],
                         ),
@@ -137,7 +138,8 @@ class _CollapsibleStreetSectionState extends State<CollapsibleStreetSection> {
               duration: const Duration(milliseconds: 300),
               heightFactor: _open ? 1 : 0,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                 child: StreetActionsList(
                   street: widget.street,
                   actions: widget.actions,
@@ -161,4 +163,3 @@ class _CollapsibleStreetSectionState extends State<CollapsibleStreetSection> {
     );
   }
 }
-

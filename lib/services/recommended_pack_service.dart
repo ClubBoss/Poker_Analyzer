@@ -13,7 +13,8 @@ class RecommendedPackService extends ChangeNotifier {
   List<String> _preferredCategories = [];
 
   List<String> get preferredTags => List.unmodifiable(_preferredTags);
-  List<String> get preferredCategories => List.unmodifiable(_preferredCategories);
+  List<String> get preferredCategories =>
+      List.unmodifiable(_preferredCategories);
 
   RecommendedPackService({required this.hands}) {
     _load();

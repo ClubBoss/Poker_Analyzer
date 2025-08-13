@@ -38,9 +38,8 @@ class TheoryBoosterSuggestionService {
     await linker.link();
     await library.loadAll();
 
-    final tags = {
-      for (final t in spot.tags) t.toLowerCase().trim()
-    }..removeWhere(_isStageTag);
+    final tags = {for (final t in spot.tags) t.toLowerCase().trim()}
+      ..removeWhere(_isStageTag);
     final stage = _extractStage(spot.tags);
 
     final candidates = <MapEntry<TheoryMiniLessonNode, int>>[];
@@ -51,9 +50,8 @@ class TheoryBoosterSuggestionService {
             lesson.stage?.toLowerCase() ?? _extractStage(lesson.tags);
         if (lessonStage != null && lessonStage != stage) continue;
       }
-      final lessonTags = {
-        for (final t in lesson.tags) t.toLowerCase().trim()
-      }..removeWhere(_isStageTag);
+      final lessonTags = {for (final t in lesson.tags) t.toLowerCase().trim()}
+        ..removeWhere(_isStageTag);
       final overlap = lessonTags.intersection(tags).length;
       if (overlap == 0) continue;
       if (await progress.isCompleted(lesson.id)) continue;

@@ -30,16 +30,15 @@ class YamlPackHistoryService {
             Directory(p.join(docs.path, 'training_packs', 'archive', pack.id));
         await arcDir.create(recursive: true);
         final ts2 = DateTime.now().toIso8601String();
-        final bak =
-            File(p.join(arcDir.path, '${pack.id}_$ts2.bak.yaml'));
+        final bak = File(p.join(arcDir.path, '${pack.id}_$ts2.bak.yaml'));
         await bak.writeAsString(current);
         final files = arcDir
             .listSync()
             .whereType<File>()
             .where((f) => f.path.endsWith('.bak.yaml'))
             .toList()
-          ..sort((a, b) =>
-              b.statSync().modified.compareTo(a.statSync().modified));
+          ..sort(
+              (a, b) => b.statSync().modified.compareTo(a.statSync().modified));
         for (var i = 10; i < files.length; i++) {
           try {
             files[i].deleteSync();

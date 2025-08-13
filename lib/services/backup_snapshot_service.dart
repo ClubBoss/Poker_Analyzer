@@ -34,7 +34,8 @@ class BackupSnapshotService {
   List<ActionEvaluationRequest> get _failed => queueService.failed;
   List<ActionEvaluationRequest> get _completed => queueService.completed;
 
-  String _timestamp() => DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now());
+  String _timestamp() =>
+      DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now());
 
   Future<void> cleanupOldEvaluationSnapshots() async {
     await fileManager.cleanupOldFiles(snapshotsFolder, _snapshotRetentionLimit);
@@ -97,16 +98,16 @@ class BackupSnapshotService {
       final dir = await fileManager.getBackupDirectory(snapshotsFolder);
       if (!await dir.exists()) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('No snapshot files found')));
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('No snapshot files found')));
         }
         return;
       }
       final files = await dir.list(recursive: true).whereType<File>().toList();
       if (files.isEmpty) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('No snapshot files found')));
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('No snapshot files found')));
         }
         return;
       }
@@ -134,8 +135,8 @@ class BackupSnapshotService {
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Failed to export snapshots')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to export snapshots')));
       }
     }
   }
@@ -230,8 +231,9 @@ class BackupSnapshotService {
     _completed.addAll(importedCompleted);
     await queueService.persist();
     debugPanelCallback?.call();
-    final total =
-        importedPending.length + importedFailed.length + importedCompleted.length;
+    final total = importedPending.length +
+        importedFailed.length +
+        importedCompleted.length;
     final msg = skipped == 0
         ? 'Imported $total evaluations from ${result.files.length} files'
         : 'Imported $total evaluations, $skipped files skipped';
@@ -255,4 +257,3 @@ class BackupSnapshotService {
     await _bulkImport(context, dir.path, null);
   }
 }
-

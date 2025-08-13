@@ -45,8 +45,10 @@ void main() {
     completedStages: 1,
     completionPercent: 1 / 3,
     sections: [
-      SectionStats(id: 'sec1', title: 'Intro', completedStages: 1, totalStages: 2),
-      SectionStats(id: 'sec2', title: 'Advanced', completedStages: 0, totalStages: 1),
+      SectionStats(
+          id: 'sec1', title: 'Intro', completedStages: 1, totalStages: 2),
+      SectionStats(
+          id: 'sec2', title: 'Advanced', completedStages: 0, totalStages: 1),
     ],
     lockedStageIds: ['s3'],
   );
@@ -59,7 +61,8 @@ void main() {
     );
 
     expect(find.text('1/3 стадий — 33%'), findsOneWidget);
-    final bar = tester.widget<LinearProgressIndicator>(find.byType(LinearProgressIndicator).first);
+    final bar = tester.widget<LinearProgressIndicator>(
+        find.byType(LinearProgressIndicator).first);
     expect(bar.value, closeTo(1 / 3, 0.01));
     expect(find.text('Intro'), findsOneWidget);
     await tester.tap(find.textContaining('Заблокированные стадии'));

@@ -28,7 +28,8 @@ class _FakeMastery extends TagMasteryService {
       : super(logs: SessionLogService(sessions: TrainingSessionService()));
 
   @override
-  Future<Map<String, double>> computeMastery({bool force = false}) async => values;
+  Future<Map<String, double>> computeMastery({bool force = false}) async =>
+      values;
 }
 
 void main() {
@@ -40,9 +41,12 @@ void main() {
 
   test('recommendNextLesson prefers weak tag lessons', () async {
     final lessons = [
-      const TheoryMiniLessonNode(id: 'l1', title: 'L1', content: '', tags: ['a'], nextIds: ['l2']),
-      const TheoryMiniLessonNode(id: 'l2', title: 'L2', content: '', tags: ['b']),
-      const TheoryMiniLessonNode(id: 'l3', title: 'L3', content: '', tags: ['c']),
+      const TheoryMiniLessonNode(
+          id: 'l1', title: 'L1', content: '', tags: ['a'], nextIds: ['l2']),
+      const TheoryMiniLessonNode(
+          id: 'l2', title: 'L2', content: '', tags: ['b']),
+      const TheoryMiniLessonNode(
+          id: 'l3', title: 'L3', content: '', tags: ['c']),
     ];
     final library = _StubLibrary(lessons);
     final scheduler = AdaptiveTheoryScheduler(
@@ -57,8 +61,10 @@ void main() {
 
   test('recommendNextLesson falls back to unlocked lesson', () async {
     final lessons = [
-      const TheoryMiniLessonNode(id: 'l1', title: 'L1', content: '', tags: ['a']),
-      const TheoryMiniLessonNode(id: 'l2', title: 'L2', content: '', tags: ['b']),
+      const TheoryMiniLessonNode(
+          id: 'l1', title: 'L1', content: '', tags: ['a']),
+      const TheoryMiniLessonNode(
+          id: 'l2', title: 'L2', content: '', tags: ['b']),
     ];
     final library = _StubLibrary(lessons);
     final scheduler = AdaptiveTheoryScheduler(

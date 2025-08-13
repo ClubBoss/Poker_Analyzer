@@ -25,8 +25,7 @@ class SessionStorageService {
   Future<void> setInt(String key, int value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(key, value);
-    await prefs.setString(
-        '$key$_timeSuffix', DateTime.now().toIso8601String());
+    await prefs.setString('$key$_timeSuffix', DateTime.now().toIso8601String());
   }
 
   /// Removes value and timestamp associated with [key].

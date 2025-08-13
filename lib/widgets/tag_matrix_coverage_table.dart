@@ -32,10 +32,13 @@ class TagMatrixCoverageTable extends StatelessWidget {
         title: Text('$x · $y'),
         content: SizedBox(
           width: 300,
-          child: ListView(shrinkWrap: true, children: [for (final p in list) Text(p)]),
+          child: ListView(
+              shrinkWrap: true, children: [for (final p in list) Text(p)]),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close')),
         ],
       ),
     );

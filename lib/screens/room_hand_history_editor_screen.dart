@@ -16,13 +16,16 @@ import '../theme/app_colors.dart';
 class RoomHandHistoryEditorScreen extends StatefulWidget {
   final TrainingPack pack;
   final List<SavedHand> hands;
-  const RoomHandHistoryEditorScreen({super.key, required this.pack, required this.hands});
+  const RoomHandHistoryEditorScreen(
+      {super.key, required this.pack, required this.hands});
 
   @override
-  State<RoomHandHistoryEditorScreen> createState() => _RoomHandHistoryEditorScreenState();
+  State<RoomHandHistoryEditorScreen> createState() =>
+      _RoomHandHistoryEditorScreenState();
 }
 
-class _RoomHandHistoryEditorScreenState extends State<RoomHandHistoryEditorScreen> {
+class _RoomHandHistoryEditorScreenState
+    extends State<RoomHandHistoryEditorScreen> {
   late TrainingPack _pack;
 
   @override
@@ -121,7 +124,8 @@ class _SpotDialogState extends State<_SpotDialog> {
           children: [
             DropdownButtonFormField<int>(
               value: _heroIndex,
-              decoration: const InputDecoration(labelText: 'Hero', border: OutlineInputBorder()),
+              decoration: const InputDecoration(
+                  labelText: 'Hero', border: OutlineInputBorder()),
               dropdownColor: AppColors.cardBackground,
               items: [
                 for (int i = 0; i < positions.length; i++)
@@ -162,7 +166,9 @@ class _SpotDialogState extends State<_SpotDialog> {
             final spot = TrainingSpot(
               playerCards: List.generate(
                 widget.initial.numberOfPlayers,
-                (i) => i == _heroIndex ? List.from(_cards) : widget.initial.playerCards[i],
+                (i) => i == _heroIndex
+                    ? List.from(_cards)
+                    : widget.initial.playerCards[i],
               ),
               boardCards: widget.initial.boardCards,
               actions: List.from(_actions),

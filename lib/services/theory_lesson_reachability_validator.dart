@@ -47,7 +47,10 @@ class TheoryLessonReachabilityValidator {
     if (rootIds.isNotEmpty) {
       queue.addAll(rootIds.where((id) => byId.containsKey(id)));
     } else {
-      queue.addAll([for (final n in lessons) if ((incoming[n.id] ?? 0) == 0) n.id]);
+      queue.addAll([
+        for (final n in lessons)
+          if ((incoming[n.id] ?? 0) == 0) n.id
+      ]);
     }
 
     final reachable = <String>{};
@@ -61,7 +64,10 @@ class TheoryLessonReachabilityValidator {
       }
     }
 
-    final unreachable = <String>[for (final n in lessons) if (!reachable.contains(n.id)) n.id];
+    final unreachable = <String>[
+      for (final n in lessons)
+        if (!reachable.contains(n.id)) n.id
+    ];
 
     final color = <String, int>{};
     final cycle = <String>{};
@@ -97,4 +103,3 @@ class TheoryLessonReachabilityValidator {
     );
   }
 }
-

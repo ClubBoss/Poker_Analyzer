@@ -5,11 +5,13 @@ import 'decay_tag_retention_tracker_service.dart';
 class DecayForecastEngine {
   final DecayTagRetentionTrackerService retention;
 
-  const DecayForecastEngine({this.retention = const DecayTagRetentionTrackerService()});
+  const DecayForecastEngine(
+      {this.retention = const DecayTagRetentionTrackerService()});
 
   /// Returns forecasted decay scores for [tags].
   /// Forecast horizon defaults to 30 days but 7/14/30 day values are always returned.
-  Future<List<TagDecayForecast>> forecast(List<String> tags, {int horizonDays = 30}) async {
+  Future<List<TagDecayForecast>> forecast(List<String> tags,
+      {int horizonDays = 30}) async {
     final result = <TagDecayForecast>[];
     for (final raw in tags) {
       final tag = raw.trim().toLowerCase();

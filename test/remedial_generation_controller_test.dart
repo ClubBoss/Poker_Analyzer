@@ -35,17 +35,14 @@ void main() {
       remedialPackId: 'existing',
       accuracyAfter: 0.5,
     );
-    await prefs.setString(
-        'learning.remedial.p.s', jsonEncode(meta.toJson()));
+    await prefs.setString('learning.remedial.p.s', jsonEncode(meta.toJson()));
 
-    final uri1 = await controller.createRemedialPack(
-        pathId: 'p', stageId: 's');
+    final uri1 = await controller.createRemedialPack(pathId: 'p', stageId: 's');
     expect(runCalls, 0);
     expect(uri1.queryParameters['sideQuestId'], 'existing');
 
     currentAccuracy = 0.59; // +9pp improvement
-    final uri2 = await controller.createRemedialPack(
-        pathId: 'p', stageId: 's');
+    final uri2 = await controller.createRemedialPack(pathId: 'p', stageId: 's');
     expect(runCalls, 1);
     expect(uri2.queryParameters['sideQuestId'], 'gen1');
 
@@ -58,8 +55,7 @@ void main() {
         'learning.remedial.p.s', jsonEncode(oldMeta.toJson()));
 
     currentAccuracy = 0.60; // <8pp but meta old
-    final uri3 = await controller.createRemedialPack(
-        pathId: 'p', stageId: 's');
+    final uri3 = await controller.createRemedialPack(pathId: 'p', stageId: 's');
     expect(runCalls, 2);
     expect(uri3.queryParameters['sideQuestId'], 'gen2');
   });
@@ -69,11 +65,12 @@ void main() {
       required String presetId,
       Map<String, dynamic>? extras,
       int? spotsPerPack,
-    }) async => 'pack123';
+    }) async =>
+        'pack123';
 
     final controller = RemedialGenerationController(autogenRunner: runAutogen);
-    final uri = await controller.createRemedialPack(
-        pathId: 'path', stageId: 'stage');
+    final uri =
+        await controller.createRemedialPack(pathId: 'path', stageId: 'stage');
     expect(uri.path, '/pathPlayer');
     expect(uri.queryParameters['pathId'], 'path');
     expect(uri.queryParameters['stageId'], 'stage');

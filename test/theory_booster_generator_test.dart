@@ -27,7 +27,10 @@ void main() {
       spots: baseSpots,
       spotCount: baseSpots.length,
     );
-    final theory1Spots = [_spot('t1', type: 'theory'), _spot('t2', type: 'theory')];
+    final theory1Spots = [
+      _spot('t1', type: 'theory'),
+      _spot('t2', type: 'theory')
+    ];
     final theory1 = TrainingPackTemplateV2(
       id: 'th1',
       name: 'Theory1',

@@ -88,7 +88,8 @@ class _TheoryRecapHistoryViewerScreenState
                         hint: const Text('Trigger'),
                         value: _filter,
                         items: [
-                          const DropdownMenuItem(value: null, child: Text('All')),
+                          const DropdownMenuItem(
+                              value: null, child: Text('All')),
                           ..._triggers.map(
                             (t) => DropdownMenuItem(value: t, child: Text(t)),
                           ),

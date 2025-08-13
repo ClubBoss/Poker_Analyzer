@@ -14,8 +14,14 @@ void main() {
       GoalProgress(tag: 'c', stagesCompleted: 0, averageAccuracy: 0),
     ];
     final log = [
-      GoalEngagement(tag: 'a', action: 'start', timestamp: now.subtract(const Duration(days: 7))),
-      GoalEngagement(tag: 'b', action: 'dismiss', timestamp: now.subtract(const Duration(days: 2))),
+      GoalEngagement(
+          tag: 'a',
+          action: 'start',
+          timestamp: now.subtract(const Duration(days: 7))),
+      GoalEngagement(
+          tag: 'b',
+          action: 'dismiss',
+          timestamp: now.subtract(const Duration(days: 2))),
     ];
     const engine = SmartGoalReminderEngine();
     final result = await engine.getStaleGoalTags(
@@ -33,7 +39,10 @@ void main() {
       GoalProgress(tag: 'todo', stagesCompleted: 1, averageAccuracy: 50),
     ];
     final log = [
-      GoalEngagement(tag: 'done', action: 'start', timestamp: now.subtract(const Duration(days: 10))),
+      GoalEngagement(
+          tag: 'done',
+          action: 'start',
+          timestamp: now.subtract(const Duration(days: 10))),
     ];
     const engine = SmartGoalReminderEngine();
     final result = await engine.getStaleGoalTags(

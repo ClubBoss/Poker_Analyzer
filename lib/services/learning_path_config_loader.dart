@@ -19,7 +19,9 @@ class LearningPathConfigLoader {
       final raw = await rootBundle.loadString(yamlPath);
       final yaml = loadYaml(raw);
       if (yaml is! Map) return;
-      final packPaths = [for (final p in (yaml['packs'] as List? ?? [])) p.toString()];
+      final packPaths = [
+        for (final p in (yaml['packs'] as List? ?? [])) p.toString()
+      ];
       final reader = const YamlReader();
       var index = 0;
       for (final path in packPaths) {
@@ -57,4 +59,3 @@ class LearningPathConfigLoader {
     }
   }
 }
-

@@ -9,7 +9,8 @@ void main() {
     const engine = LearningGoalEngine();
     final clusters = [
       const WeaknessCluster(tag: 'btn push', reason: 'low EV', severity: 0.3),
-      const WeaknessCluster(tag: 'sb vs bb', reason: 'many mistakes', severity: 0.7),
+      const WeaknessCluster(
+          tag: 'sb vs bb', reason: 'many mistakes', severity: 0.7),
     ];
 
     final goals = engine.generateGoals(clusters);
@@ -23,8 +24,10 @@ void main() {
   test('groups similar tags', () {
     const engine = LearningGoalEngine();
     final clusters = [
-      const WeaknessCluster(tag: 'btn push 10bb', reason: 'low EV', severity: 0.4),
-      const WeaknessCluster(tag: 'btn push 12bb', reason: 'many mistakes', severity: 0.5),
+      const WeaknessCluster(
+          tag: 'btn push 10bb', reason: 'low EV', severity: 0.4),
+      const WeaknessCluster(
+          tag: 'btn push 12bb', reason: 'many mistakes', severity: 0.5),
     ];
 
     final goals = engine.generateGoals(clusters);

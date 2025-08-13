@@ -113,6 +113,7 @@ int _writePack({
   file.writeAsStringSync(sb.toString());
   return spotCount;
 }
+
 bool generateOpenFold(Random rng, String outDir, L2Preset preset) {
   final dir = p.join(outDir, 'open-fold');
   var unlockAfter;

@@ -42,7 +42,8 @@ class PlayerProfileService extends ChangeNotifier {
   void updatePositions() {
     final order = positionsForPlayers(numberOfPlayers);
     final heroPosIndex = order.indexOf(heroPosition);
-    final buttonIndex = (heroIndex - heroPosIndex + numberOfPlayers) % numberOfPlayers;
+    final buttonIndex =
+        (heroIndex - heroPosIndex + numberOfPlayers) % numberOfPlayers;
     playerPositions = {};
     for (int i = 0; i < numberOfPlayers; i++) {
       final posIndex = (i - buttonIndex + numberOfPlayers) % numberOfPlayers;

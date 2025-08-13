@@ -33,4 +33,3 @@ class AutogenPipelineEventLoggerService {
   /// Clears all logged events.
   static void clearLog() => _events.clear();
 }
-

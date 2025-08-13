@@ -54,7 +54,8 @@ class DebugPanelPreferences extends ChangeNotifier {
 
   Future<void> loadProcessingDelay() async {
     final prefs = await SharedPreferences.getInstance();
-    _processingDelay = (prefs.getInt(_processingDelayKey) ?? 500).clamp(100, 2000);
+    _processingDelay =
+        (prefs.getInt(_processingDelayKey) ?? 500).clamp(100, 2000);
   }
 
   Future<void> setProcessingDelay(int value) async {
@@ -190,7 +191,8 @@ class DebugPanelPreferences extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<T> applyAdvancedFilters<T extends ActionEvaluationRequest>(List<T> list) {
+  List<T> applyAdvancedFilters<T extends ActionEvaluationRequest>(
+      List<T> list) {
     final filters = _advancedFilters;
     final sort = _sortBySpr;
     final search = _searchQuery.trim().toLowerCase();
@@ -202,8 +204,11 @@ class DebugPanelPreferences extends ChangeNotifier {
     final checkHighSpr = filters.contains('highspr');
     final searchActive = search.isNotEmpty;
 
-    final shouldFilter =
-        checkFeedback || checkOpponent || checkFailed || checkHighSpr || searchActive;
+    final shouldFilter = checkFeedback ||
+        checkOpponent ||
+        checkFailed ||
+        checkHighSpr ||
+        searchActive;
 
     if (!shouldFilter && !sort) {
       return list;

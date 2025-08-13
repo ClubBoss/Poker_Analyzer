@@ -6,7 +6,8 @@ import '../theme/app_colors.dart';
 class PackNextStepCard extends StatelessWidget {
   final TrainingPack pack;
   final double progress;
-  const PackNextStepCard({super.key, required this.pack, required this.progress});
+  const PackNextStepCard(
+      {super.key, required this.pack, required this.progress});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +28,8 @@ class PackNextStepCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(pack.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(pack.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
@@ -39,7 +41,8 @@ class PackNextStepCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text('$percent%', style: const TextStyle(color: Colors.white70)),
+                Text('$percent%',
+                    style: const TextStyle(color: Colors.white70)),
               ],
             ),
           ),
@@ -48,7 +51,8 @@ class PackNextStepCard extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => TrainingPackReviewScreen(pack: pack)),
+                MaterialPageRoute(
+                    builder: (_) => TrainingPackReviewScreen(pack: pack)),
               );
             },
             child: const Text('Продолжить'),

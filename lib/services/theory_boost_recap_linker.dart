@@ -40,4 +40,3 @@ class TheoryBoostRecapLinker {
     return id != null ? MiniLessonLibraryService.instance.getById(id) : null;
   }
 }
-

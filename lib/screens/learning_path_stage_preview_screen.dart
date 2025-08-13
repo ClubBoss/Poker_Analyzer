@@ -73,7 +73,8 @@ class _LearningPathStagePreviewScreenState
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => TheoryPackReaderScreen(pack: pack, stageId: widget.stage.id),
+        builder: (_) =>
+            TheoryPackReaderScreen(pack: pack, stageId: widget.stage.id),
       ),
     );
   }
@@ -205,4 +206,3 @@ class _LearningPathStagePreviewScreenState
     );
   }
 }
-

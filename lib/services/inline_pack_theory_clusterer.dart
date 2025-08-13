@@ -43,7 +43,8 @@ class _Cluster {
   final List<_ScoredResource> items;
   final double score;
 
-  const _Cluster({required this.theme, required this.items, required this.score});
+  const _Cluster(
+      {required this.theme, required this.items, required this.score});
 }
 
 /// Clusters theory resources and injects references into packs and spots.
@@ -94,7 +95,8 @@ class InlinePackTheoryClusterer {
       if (items.isEmpty) continue;
       items.sort((a, b) => b.score.compareTo(a.score));
       final clusterScore = items.first.score;
-      if (!_noveltyGuard.isNovel({tag}, items.map((e) => e.resource.id).toList())) {
+      if (!_noveltyGuard
+          .isNovel({tag}, items.map((e) => e.resource.id).toList())) {
         continue; // skip non novel clusters
       }
       clusters.add(_Cluster(theme: tag, items: items, score: clusterScore));
@@ -139,7 +141,8 @@ class InlinePackTheoryClusterer {
             'id': item.resource.id,
             'title': item.resource.title,
             'uri': item.resource.uri,
-            'reason': 'matches tags: ${spotTags.where(item.resource.tags.contains).join(',')}',
+            'reason':
+                'matches tags: ${spotTags.where(item.resource.tags.contains).join(',')}',
             'score': item.score,
           });
           linkCount++;

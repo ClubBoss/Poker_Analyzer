@@ -12,6 +12,8 @@ class YamlPackReviewReport {
   factory YamlPackReviewReport.fromJson(Map<String, dynamic> j) =>
       YamlPackReviewReport(
         warnings: [for (final w in j['warnings'] as List? ?? []) w.toString()],
-        suggestions: [for (final s in j['suggestions'] as List? ?? []) s.toString()],
+        suggestions: [
+          for (final s in j['suggestions'] as List? ?? []) s.toString()
+        ],
       );
 }

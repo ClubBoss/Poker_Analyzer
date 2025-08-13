@@ -127,7 +127,9 @@ class _ReplaySpotWidgetState extends State<ReplaySpotWidget> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: kCardPadding,
       decoration: BoxDecoration(
-        color: highlight ? Colors.redAccent.withValues(alpha: 0.2) : Colors.white10,
+        color: highlight
+            ? Colors.redAccent.withValues(alpha: 0.2)
+            : Colors.white10,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -180,7 +182,8 @@ class _ReplaySpotWidgetState extends State<ReplaySpotWidget> {
           'playerIndex': a.playerIndex,
           'action': a.action,
           if (a.amount != null) 'amount': a.amount,
-          if (a.manualEvaluation != null) 'manualEvaluation': a.manualEvaluation,
+          if (a.manualEvaluation != null)
+            'manualEvaluation': a.manualEvaluation,
         }
     ];
     final subset = TrainingSpot.fromJson(json);
@@ -231,8 +234,7 @@ class _ReplaySpotWidgetState extends State<ReplaySpotWidget> {
             padding: const EdgeInsets.only(top: 8.0),
             child: Chip(
               label: Text(widget.spot.positions[widget.spot.heroIndex]),
-              backgroundColor:
-                  Theme.of(context).colorScheme.secondary,
+              backgroundColor: Theme.of(context).colorScheme.secondary,
               labelStyle: const TextStyle(
                   color: Colors.black, fontWeight: FontWeight.bold),
             ),

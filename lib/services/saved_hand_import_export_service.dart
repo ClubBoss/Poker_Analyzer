@@ -126,7 +126,10 @@ class SavedHandImportExportService {
       boardStreet: boardManager.boardStreet,
       revealedCards: [
         for (int i = 0; i < playerManager.numberOfPlayers; i++)
-          [for (final c in playerManager.players[i].revealedCards) if (c != null) c]
+          [
+            for (final c in playerManager.players[i].revealedCards)
+              if (c != null) c
+          ]
       ],
       opponentIndex: playerManager.opponentIndex,
       activePlayerIndex: activePlayerIndex,
@@ -157,8 +160,9 @@ class SavedHandImportExportService {
       foldedPlayers: foldedPlayers.toNullableList(),
       allInPlayers: allInPlayers.toNullableList(),
       actionTags: actionTags.toNullableMap(),
-      pendingEvaluations:
-          queueService.pending.isEmpty ? null : List<ActionEvaluationRequest>.from(queueService.pending),
+      pendingEvaluations: queueService.pending.isEmpty
+          ? null
+          : List<ActionEvaluationRequest>.from(queueService.pending),
       showFullBoard: reveal['showFullBoard'] as bool,
       revealStreet: reveal['revealStreet'] as int,
     );
@@ -315,8 +319,8 @@ class SavedHandImportExportService {
     final hands = manager.hands;
     if (hands.isEmpty) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('No saved hands to export')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No saved hands to export')));
       }
       return;
     }

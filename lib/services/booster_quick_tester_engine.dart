@@ -26,8 +26,7 @@ class BoosterQuickTesterEngine {
 
   BoosterTestReport test(TrainingPackTemplateV2 pack,
       {bool detectAnomalies = false}) {
-    final validation =
-        const BoosterPackValidatorService().validate(pack);
+    final validation = const BoosterPackValidatorService().validate(pack);
     final total = pack.spots.length;
     int emptyExp = 0;
     int badPos = 0;
@@ -97,4 +96,3 @@ class BoosterQuickTesterEngine {
     return 'pass';
   }
 }
-

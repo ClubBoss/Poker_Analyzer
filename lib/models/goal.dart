@@ -41,7 +41,8 @@ class Goal {
         ),
         targetXP: json['targetXP'] as int,
         currentXP: json['currentXP'] as int? ?? 0,
-        deadline: DateTime.tryParse(json['deadline'] as String? ?? '') ?? DateTime.now(),
+        deadline: DateTime.tryParse(json['deadline'] as String? ?? '') ??
+            DateTime.now(),
         reward: json['reward'] as int? ?? 0,
         completed: json['completed'] as bool? ?? false,
       );

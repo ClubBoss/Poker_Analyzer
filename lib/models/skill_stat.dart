@@ -23,7 +23,7 @@ class SkillStat {
         handsPlayed: json['hands'] as int? ?? 0,
         evAvg: (json['ev'] as num?)?.toDouble() ?? 0,
         mistakes: json['mistakes'] as int? ?? 0,
-        lastUpdated:
-            DateTime.tryParse(json['updated'] as String? ?? '') ?? DateTime.now(),
+        lastUpdated: DateTime.tryParse(json['updated'] as String? ?? '') ??
+            DateTime.now(),
       );
 }

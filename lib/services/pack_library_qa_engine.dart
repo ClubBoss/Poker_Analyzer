@@ -22,7 +22,8 @@ class PackLibraryQAEngine {
         if (_isEmptySpot(s)) blank++;
       }
       if (missingEval > 0) {
-        warnings.add(PackWarning('missing_evaluation', '$missingEval spots without evaluation', p.id));
+        warnings.add(PackWarning('missing_evaluation',
+            '$missingEval spots without evaluation', p.id));
       }
       if (blank > 0) {
         warnings.add(PackWarning('blank_spots', '$blank empty spots', p.id));
@@ -30,7 +31,10 @@ class PackLibraryQAEngine {
       if (p.name.trim().length < 3 || p.name.length > 50) {
         warnings.add(PackWarning('bad_name', p.name, p.id));
       }
-      final outdated = [for (final t in p.tags) if (_badTag(t)) t];
+      final outdated = [
+        for (final t in p.tags)
+          if (_badTag(t)) t
+      ];
       if (outdated.isNotEmpty) {
         warnings.add(PackWarning('outdated_tags', outdated.join(','), p.id));
       }

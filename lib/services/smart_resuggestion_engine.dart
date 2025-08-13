@@ -27,7 +27,8 @@ class SmartReSuggestionEngine {
     final stats = await analytics.getStats();
 
     await PackLibraryLoaderService.instance.loadLibrary();
-    final library = _libraryOverride ?? PackLibraryLoaderService.instance.library;
+    final library =
+        _libraryOverride ?? PackLibraryLoaderService.instance.library;
 
     final entries = <MapEntry<TrainingPackTemplateV2, PackEngagementStats>>[];
     for (final s in stats) {
@@ -35,15 +36,15 @@ class SmartReSuggestionEngine {
       final tpl = library.firstWhereOrNull((p) => p.id == s.packId);
       if (tpl == null) continue;
       if (await SuggestedTrainingPacksHistoryService.wasRecentlySuggested(
-            tpl.id,
-            within: const Duration(days: 14),
-          )) {
+        tpl.id,
+        within: const Duration(days: 14),
+      )) {
         continue;
       }
       if (await SuggestionCooldownManager.isUnderCooldown(
-            tpl.id,
-            cooldown: const Duration(days: 14),
-          )) {
+        tpl.id,
+        cooldown: const Duration(days: 14),
+      )) {
         continue;
       }
       entries.add(MapEntry(tpl, s));
@@ -68,7 +69,8 @@ class SmartReSuggestionEngine {
     final stats = await analytics.getStats();
 
     await PackLibraryLoaderService.instance.loadLibrary();
-    final library = _libraryOverride ?? PackLibraryLoaderService.instance.library;
+    final library =
+        _libraryOverride ?? PackLibraryLoaderService.instance.library;
 
     final entries = <MapEntry<TrainingPackTemplateV2, PackEngagementStats>>[];
     for (final s in stats) {
@@ -76,15 +78,15 @@ class SmartReSuggestionEngine {
       final tpl = library.firstWhereOrNull((p) => p.id == s.packId);
       if (tpl == null) continue;
       if (await SuggestedTrainingPacksHistoryService.wasRecentlySuggested(
-            tpl.id,
-            within: const Duration(days: 14),
-          )) {
+        tpl.id,
+        within: const Duration(days: 14),
+      )) {
         continue;
       }
       if (await SuggestionCooldownManager.isUnderCooldown(
-            tpl.id,
-            cooldown: const Duration(days: 14),
-          )) {
+        tpl.id,
+        cooldown: const Duration(days: 14),
+      )) {
         continue;
       }
       entries.add(MapEntry(tpl, s));

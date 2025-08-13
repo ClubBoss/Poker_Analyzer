@@ -15,8 +15,10 @@ class TagXpHistoryEntry {
         'source': source,
       };
 
-  factory TagXpHistoryEntry.fromJson(Map<String, dynamic> json) => TagXpHistoryEntry(
-        date: DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now(),
+  factory TagXpHistoryEntry.fromJson(Map<String, dynamic> json) =>
+      TagXpHistoryEntry(
+        date:
+            DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now(),
         xp: (json['xp'] as num?)?.toInt() ?? 0,
         source: json['source'] as String? ?? '',
       );

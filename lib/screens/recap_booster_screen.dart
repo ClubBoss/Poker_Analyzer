@@ -28,8 +28,7 @@ class _RecapBoosterScreenState extends State<RecapBoosterScreen> {
     final ids = RecapBoosterQueue.instance.getQueue();
     await MiniLessonLibraryService.instance.loadAll();
     final list = [
-      for (final id in ids)
-        MiniLessonLibraryService.instance.getById(id)
+      for (final id in ids) MiniLessonLibraryService.instance.getById(id)
     ].whereType<TheoryMiniLessonNode>().toList();
     if (!mounted) return;
     setState(() {
@@ -101,4 +100,3 @@ class _RecapBoosterScreenState extends State<RecapBoosterScreen> {
     );
   }
 }
-

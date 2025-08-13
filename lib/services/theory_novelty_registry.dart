@@ -24,7 +24,8 @@ class TheoryNoveltyRegistry {
     await file.writeAsString(jsonEncode(list));
   }
 
-  Future<void> record(String userId, List<String> tags, List<String> theoryIds) async {
+  Future<void> record(
+      String userId, List<String> tags, List<String> theoryIds) async {
     final list = await _load();
     list.add({
       'userId': userId,
@@ -52,7 +53,8 @@ class TheoryNoveltyRegistry {
       final ts = DateTime.tryParse(item['ts']?.toString() ?? '');
       if (ts == null || now.difference(ts) > within) continue;
       final prevTags = (item['tags'] as List).cast<String>().toSet();
-      if (prevTags.length != tagSet.length || !prevTags.containsAll(tagSet)) continue;
+      if (prevTags.length != tagSet.length || !prevTags.containsAll(tagSet))
+        continue;
       final prevIds = (item['theoryIds'] as List).cast<String>().toSet();
       final inter = prevIds.intersection(idSet).length;
       final union = prevIds.union(idSet).length;

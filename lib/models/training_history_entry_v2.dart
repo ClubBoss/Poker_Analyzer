@@ -24,9 +24,11 @@ class TrainingHistoryEntryV2 {
         'type': type.name,
       };
 
-  factory TrainingHistoryEntryV2.fromJson(Map<String, dynamic> j) => TrainingHistoryEntryV2(
+  factory TrainingHistoryEntryV2.fromJson(Map<String, dynamic> j) =>
+      TrainingHistoryEntryV2(
         id: j['id'] as String?,
-        timestamp: DateTime.tryParse(j['timestamp'] as String? ?? '') ?? DateTime.now(),
+        timestamp: DateTime.tryParse(j['timestamp'] as String? ?? '') ??
+            DateTime.now(),
         tags: [for (final t in (j['tags'] as List? ?? [])) t.toString()],
         packId: j['packId'] as String? ?? '',
         type: TrainingType.values.firstWhere(

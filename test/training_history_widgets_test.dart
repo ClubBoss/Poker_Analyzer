@@ -8,7 +8,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('FilterSummary hides when empty', (tester) async {
-    await tester.pumpWidget(const MaterialApp(home: FilterSummary(summary: '')));
+    await tester
+        .pumpWidget(const MaterialApp(home: FilterSummary(summary: '')));
     expect(find.byType(Text), findsNothing);
   });
 

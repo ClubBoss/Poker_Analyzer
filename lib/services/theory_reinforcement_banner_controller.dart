@@ -53,8 +53,7 @@ class TheoryReinforcementBannerController extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool _underCooldown() =>
-      DateTime.now().difference(_lastShown) < cooldown;
+  bool _underCooldown() => DateTime.now().difference(_lastShown) < cooldown;
 
   Future<void> _handle(RecapCompletionLog log) async {
     if (_underCooldown()) return;

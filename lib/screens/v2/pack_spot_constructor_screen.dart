@@ -16,7 +16,8 @@ class PackSpotConstructorScreen extends StatefulWidget {
   const PackSpotConstructorScreen({super.key});
 
   @override
-  State<PackSpotConstructorScreen> createState() => _PackSpotConstructorScreenState();
+  State<PackSpotConstructorScreen> createState() =>
+      _PackSpotConstructorScreenState();
 }
 
 class _PackSpotConstructorScreenState extends State<PackSpotConstructorScreen> {
@@ -84,7 +85,8 @@ class _PackSpotConstructorScreenState extends State<PackSpotConstructorScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('Hero Cards', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('Hero Cards',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             CardPickerWidget(
               cards: _cards,
@@ -116,13 +118,15 @@ class _PackSpotConstructorScreenState extends State<PackSpotConstructorScreen> {
                   child: TextField(
                     controller: _villainStackCtrl,
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'Villain Stack'),
+                    decoration:
+                        const InputDecoration(labelText: 'Villain Stack'),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            const Text('Preflop Actions', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('Preflop Actions',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             ActionEditorList(
               initial: _actions,

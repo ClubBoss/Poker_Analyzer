@@ -6,8 +6,8 @@ import 'package:poker_analyzer/models/v2/training_pack_template.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  TrainingPackTemplate tpl(String id) =>
-      TrainingPackTemplate(id: id, name: 'Pack $id', spots: [], tags: [], isBuiltIn: false);
+  TrainingPackTemplate tpl(String id) => TrainingPackTemplate(
+      id: id, name: 'Pack $id', spots: [], tags: [], isBuiltIn: false);
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});

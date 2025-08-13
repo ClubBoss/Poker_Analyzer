@@ -15,4 +15,3 @@ class AppInfoService {
   /// Whether the app is running in release mode.
   bool isReleaseMode() => kReleaseMode;
 }
-

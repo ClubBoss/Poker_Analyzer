@@ -12,8 +12,11 @@ import 'package:poker_analyzer/services/skill_loss_detector.dart';
 import 'package:poker_analyzer/widgets/review_path_card.dart';
 
 class MockQueue extends Mock implements ScheduledTrainingQueueService {}
+
 class MockLibrary extends Mock implements PackLibraryService {}
+
 class MockReminder extends Mock implements TagInsightReminderEngine {}
+
 class MockLauncher extends Mock implements TrainingSessionLauncher {}
 
 class FakeTemplate extends Fake implements TrainingPackTemplateV2 {}

@@ -32,7 +32,8 @@ class GptPackTemplateGenerator {
     );
     if (res.statusCode != 200) return '';
     final map = jsonDecode(res.body) as Map<String, dynamic>;
-    var text = (map['choices'] as List).first['message']['content']?.toString() ?? '';
+    var text =
+        (map['choices'] as List).first['message']['content']?.toString() ?? '';
     text = _cleanup(text);
     try {
       reader.read(text);

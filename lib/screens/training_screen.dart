@@ -64,8 +64,7 @@ class _TrainingScreenState extends State<TrainingScreen> {
 
   bool get _drill => widget.drillMode;
 
-  bool get _finished =>
-      _drill && _index >= (widget.hands?.length ?? 0);
+  bool get _finished => _drill && _index >= (widget.hands?.length ?? 0);
 
   TrainingSpot get _spot =>
       _drill ? TrainingSpot.fromSavedHand(widget.hands![_index]) : widget.spot!;
@@ -82,7 +81,8 @@ class _TrainingScreenState extends State<TrainingScreen> {
         break;
       }
     }
-    if (!isCorrect && hero?.ev != null &&
+    if (!isCorrect &&
+        hero?.ev != null &&
         hero!.ev!.abs() < widget.minEvForCorrect) {
       isCorrect = true;
     }
@@ -99,8 +99,7 @@ class _TrainingScreenState extends State<TrainingScreen> {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-            isCorrect ? '✅ Correct!' : '❌ Correct was $expected'),
+        content: Text(isCorrect ? '✅ Correct!' : '❌ Correct was $expected'),
       ),
     );
     Future.delayed(const Duration(seconds: 1), () {
@@ -233,14 +232,17 @@ class _TrainingScreenState extends State<TrainingScreen> {
       total: total,
       correct: correct,
       evLoss: evLoss,
-      wrongSpotIds: [for (final id in _wrongIds) if (id.isNotEmpty) id],
+      wrongSpotIds: [
+        for (final id in _wrongIds)
+          if (id.isNotEmpty) id
+      ],
     );
     await context.read<DrillHistoryService>().add(result);
     if (_wrongIds.isNotEmpty && widget.templateId != null) {
-      await context
-          .read<MistakeReviewPackService>()
-          .addPack([for (final id in _wrongIds) if (id.isNotEmpty) id],
-              templateId: widget.templateId!);
+      await context.read<MistakeReviewPackService>().addPack([
+        for (final id in _wrongIds)
+          if (id.isNotEmpty) id
+      ], templateId: widget.templateId!);
     }
     if (!mounted) return;
     if (repeat == true && widget.templateId != null) {
@@ -249,7 +251,8 @@ class _TrainingScreenState extends State<TrainingScreen> {
       if (tpl != null) {
         final hands = [
           for (final s in tpl.spots)
-            if (_wrongIds.contains(s.id)) handFromPackSpot(s, anteBb: tpl.anteBb)
+            if (_wrongIds.contains(s.id))
+              handFromPackSpot(s, anteBb: tpl.anteBb)
         ];
         if (hands.isNotEmpty) {
           unawaited(Navigator.pushReplacement(
@@ -430,7 +433,8 @@ class _TrainingScreenState extends State<TrainingScreen> {
                             backgroundColor: Colors.grey[900],
                             isScrollControlled: true,
                             shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                              borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(16)),
                             ),
                             builder: (_) => ReplaySpotWidget(spot: spot),
                           );

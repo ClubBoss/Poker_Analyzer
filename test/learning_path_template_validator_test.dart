@@ -9,10 +9,12 @@ import 'package:poker_analyzer/services/learning_path_template_validator.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  TrainingPackTemplateV2 pack(String id, {TrainingType type = TrainingType.pushFold}) =>
+  TrainingPackTemplateV2 pack(String id,
+          {TrainingType type = TrainingType.pushFold}) =>
       TrainingPackTemplateV2(id: id, name: id, trainingType: type);
 
-  LearningPathStageModel stage(String id, String packId, {List<String>? tags, String? theoryPackId}) =>
+  LearningPathStageModel stage(String id, String packId,
+          {List<String>? tags, String? theoryPackId}) =>
       LearningPathStageModel(
         id: id,
         title: id,

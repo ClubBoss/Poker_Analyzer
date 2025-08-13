@@ -131,7 +131,8 @@ class StackDisplay extends StatelessWidget {
                   ),
                   child: CentralPotWidget(
                     key: ValueKey('side-$i-$amount'),
-                    text: 'Side Pot ${i + 1}: ${ActionFormattingHelper.formatAmount(amount)}',
+                    text:
+                        'Side Pot ${i + 1}: ${ActionFormattingHelper.formatAmount(amount)}',
                     scale: scale * 0.8,
                   ),
                 ),
@@ -180,8 +181,9 @@ class StackDisplay extends StatelessWidget {
 
     for (int i = 0; i < numberOfPlayers; i++) {
       final index = (i + viewIndex) % numberOfPlayers;
-      final playerActions =
-          actions.where((a) => a.playerIndex == index && a.street == currentStreet).toList();
+      final playerActions = actions
+          .where((a) => a.playerIndex == index && a.street == currentStreet)
+          .toList();
       if (playerActions.isEmpty) continue;
       final lastAction = playerActions.last;
       if (['bet', 'raise', 'call', 'all-in'].contains(lastAction.action) &&

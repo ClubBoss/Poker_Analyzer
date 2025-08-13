@@ -17,7 +17,11 @@ class _SRItem {
   int box;
   int due; // epoch day
   int last; // epoch seconds
-  _SRItem({required this.packId, required this.box, required this.due, required this.last});
+  _SRItem(
+      {required this.packId,
+      required this.box,
+      required this.due,
+      required this.last});
 
   Map<String, dynamic> toJson() => {
         'p': packId,
@@ -131,9 +135,7 @@ class SpacedReviewService extends ChangeNotifier {
 
   List<String> dueSpotIds(DateTime today, {int limit = 10}) {
     final day = _epochDay(today);
-    final entries = _data.entries
-        .where((e) => e.value.due <= day)
-        .toList()
+    final entries = _data.entries.where((e) => e.value.due <= day).toList()
       ..sort((a, b) => a.value.due.compareTo(b.value.due));
     return entries.take(limit).map((e) => e.key).toList();
   }
@@ -143,7 +145,8 @@ class SpacedReviewService extends ChangeNotifier {
     return _data.values.where((e) => e.due <= day).length;
   }
 
-  Future<TrainingPackTemplate?> duePack({int limit = 10, bool log = true}) async {
+  Future<TrainingPackTemplate?> duePack(
+      {int limit = 10, bool log = true}) async {
     await _load();
     final ids = dueSpotIds(DateTime.now(), limit: limit);
     if (ids.isEmpty) return null;
@@ -191,9 +194,7 @@ class SpacedReviewService extends ChangeNotifier {
       final count = dueCount(dayFor);
       if (count > 0) {
         await NotificationService.schedule(
-            id: _notifId,
-            when: when,
-            body: 'You have $count reviews due');
+            id: _notifId, when: when, body: 'You have $count reviews due');
       } else {
         await NotificationService.cancel(_notifId);
       }

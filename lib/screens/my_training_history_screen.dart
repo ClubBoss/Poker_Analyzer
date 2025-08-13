@@ -15,7 +15,8 @@ class MyTrainingHistoryScreen extends StatefulWidget {
   const MyTrainingHistoryScreen({super.key});
 
   @override
-  State<MyTrainingHistoryScreen> createState() => _MyTrainingHistoryScreenState();
+  State<MyTrainingHistoryScreen> createState() =>
+      _MyTrainingHistoryScreenState();
 }
 
 class _HistoryEntry {

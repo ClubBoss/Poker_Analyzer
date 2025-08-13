@@ -7,7 +7,8 @@ class DailyReminderScheduler {
   static final DailyReminderScheduler instance = DailyReminderScheduler._();
   DailyReminderScheduler._();
 
-  final FlutterLocalNotificationsPlugin _plugin = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _plugin =
+      FlutterLocalNotificationsPlugin();
   bool _initialized = false;
 
   static const _packKey = 'daily_reminder_pack';
@@ -18,7 +19,8 @@ class DailyReminderScheduler {
     if (_initialized) return;
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
-    await _plugin.initialize(const InitializationSettings(android: android, iOS: ios));
+    await _plugin
+        .initialize(const InitializationSettings(android: android, iOS: ios));
     tz.initializeTimeZones();
     _initialized = true;
   }
@@ -39,7 +41,8 @@ class DailyReminderScheduler {
     var first = tz.TZDateTime(local, now.year, now.month, now.day, 18);
     if (!first.isAfter(now)) first = first.add(const Duration(days: 1));
 
-    final body = '🔁 Напоминание: вы ещё не начали "[$packName]" — давайте улучшим этот спот!';
+    final body =
+        '🔁 Напоминание: вы ещё не начали "[$packName]" — давайте улучшим этот спот!';
 
     for (int i = count; i < 3; i++) {
       final when = first.add(Duration(days: i));
@@ -49,11 +52,13 @@ class DailyReminderScheduler {
         body,
         when,
         const NotificationDetails(
-          android: AndroidNotificationDetails('daily_pack_reminder', 'Daily Pack Reminder'),
+          android: AndroidNotificationDetails(
+              'daily_pack_reminder', 'Daily Pack Reminder'),
           iOS: DarwinNotificationDetails(),
         ),
         androidAllowWhileIdle: true,
-        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
       );
     }
     await prefs.setInt(_countKey, 3);

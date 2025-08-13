@@ -10,8 +10,8 @@ class LessonFailure {
       };
 
   factory LessonFailure.fromJson(Map<String, dynamic> j) => LessonFailure(
-        timestamp:
-            DateTime.tryParse(j['timestamp']?.toString() ?? '') ?? DateTime.now(),
+        timestamp: DateTime.tryParse(j['timestamp']?.toString() ?? '') ??
+            DateTime.now(),
         evLoss: (j['evLoss'] as num?)?.toDouble() ?? 0,
       );
 }

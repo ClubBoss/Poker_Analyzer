@@ -58,7 +58,8 @@ class PlayerManagerService extends ChangeNotifier {
 
   int getStack(int playerIndex) {
     return _stackService?.getStackForPlayer(playerIndex) ??
-        initialStacks[playerIndex] ?? 0;
+        initialStacks[playerIndex] ??
+        0;
   }
 
   List<String> positionsForPlayers(int count) =>
@@ -82,8 +83,7 @@ class PlayerManagerService extends ChangeNotifier {
   }
 
   /// Convert the player profile to a map via [PlayerProfileImportExportService].
-  Map<String, dynamic> profileToMap() =>
-      profileImportExportService.toMap();
+  Map<String, dynamic> profileToMap() => profileImportExportService.toMap();
 
   /// Load player profile information from a serialized map.
   void loadProfileFromMap(Map<String, dynamic> data) {
@@ -244,8 +244,9 @@ class PlayerManagerService extends ChangeNotifier {
     final newPlayerCount = data['numberOfPlayers'] as int? ?? pcData.length;
 
     final posList = (data['positions'] as List?)?.cast<String>() ?? [];
-    final heroPos =
-        newHeroIndex < posList.length ? posList[newHeroIndex] : profileService.heroPosition;
+    final heroPos = newHeroIndex < posList.length
+        ? posList[newHeroIndex]
+        : profileService.heroPosition;
     final newPositions = <int, String>{};
     for (var i = 0; i < posList.length; i++) {
       newPositions[i] = posList[i];
@@ -281,9 +282,9 @@ class PlayerManagerService extends ChangeNotifier {
 
   void removePlayer(
     int index, {
-      required int heroIndexOverride,
-      required List<ActionEntry> actions,
-      required List<bool> hintFlags,
+    required int heroIndexOverride,
+    required List<ActionEntry> actions,
+    required List<bool> hintFlags,
   }) {
     if (numberOfPlayers <= 2) return;
 
@@ -307,15 +308,17 @@ class PlayerManagerService extends ChangeNotifier {
       playerCards[i] = playerCards[i + 1];
       players[i] = players[i + 1];
       initialStacks[i] = initialStacks[i + 1] ?? 0;
-      profileService.playerPositions[i] = profileService.playerPositions[i + 1] ?? '';
-      profileService.playerTypes[i] = profileService.playerTypes[i + 1] ?? PlayerType.unknown;
+      profileService.playerPositions[i] =
+          profileService.playerPositions[i + 1] ?? '';
+      profileService.playerTypes[i] =
+          profileService.playerTypes[i + 1] ?? PlayerType.unknown;
       hintFlags[i] = hintFlags[i + 1];
     }
     playerCards[numberOfPlayers - 1] = [];
-    players[numberOfPlayers - 1] =
-        PlayerModel(name: 'Player $numberOfPlayers');
+    players[numberOfPlayers - 1] = PlayerModel(name: 'Player $numberOfPlayers');
     initialStacks.remove(numberOfPlayers - 1);
-    profileService.actionTagService.shiftAfterPlayerRemoval(index, numberOfPlayers);
+    profileService.actionTagService
+        .shiftAfterPlayerRemoval(index, numberOfPlayers);
     profileService.playerPositions.remove(numberOfPlayers - 1);
     profileService.playerTypes.remove(numberOfPlayers - 1);
     hintFlags[numberOfPlayers - 1] = true;
@@ -388,4 +391,3 @@ class PlayerManagerService extends ChangeNotifier {
     notifyListeners();
   }
 }
-

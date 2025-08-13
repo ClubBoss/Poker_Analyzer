@@ -54,8 +54,7 @@ class SmartReinjectionFlow {
     if (candidateIds.isEmpty) return;
 
     final masteryMap = await masteryService.computeMastery();
-    final weakTags = masteryMap.entries
-        .toList()
+    final weakTags = masteryMap.entries.toList()
       ..sort((a, b) => a.value.compareTo(b.value));
     final tags = [for (final e in weakTags.take(weakTagCount)) e.key];
 

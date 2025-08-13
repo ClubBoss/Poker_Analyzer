@@ -4,7 +4,6 @@ import 'animated_line_chart.dart';
 
 import 'package:intl/intl.dart';
 
-
 enum MistakeTrendMode { daily, weekly }
 
 class MistakeTrendChart extends StatelessWidget {
@@ -38,9 +37,7 @@ class MistakeTrendChart extends StatelessWidget {
     if (min == null || max == null) return {};
     final start = min.subtract(Duration(days: min.weekday - 1));
     final end = max.subtract(Duration(days: max.weekday - 1));
-    final result = {
-      for (final k in src.keys) k: <DateTime, int>{}
-    };
+    final result = {for (final k in src.keys) k: <DateTime, int>{}};
     for (var d = start; !d.isAfter(end); d = d.add(const Duration(days: 7))) {
       for (final k in src.keys) {
         result[k]![d] = 0;
@@ -60,8 +57,10 @@ class MistakeTrendChart extends StatelessWidget {
   String _weekLabel(DateTime monday) {
     final week = _weekNumber(monday);
     final end = monday.add(const Duration(days: 6));
-    final s = '${monday.day.toString().padLeft(2, '0')}.${monday.month.toString().padLeft(2, '0')}';
-    final e = '${end.day.toString().padLeft(2, '0')}.${end.month.toString().padLeft(2, '0')}';
+    final s =
+        '${monday.day.toString().padLeft(2, '0')}.${monday.month.toString().padLeft(2, '0')}';
+    final e =
+        '${end.day.toString().padLeft(2, '0')}.${end.month.toString().padLeft(2, '0')}';
     return 'W$week ($s–$e)';
   }
 
@@ -181,8 +180,10 @@ class MistakeTrendChart extends StatelessWidget {
               const FlLine(color: Colors.white24, strokeWidth: 1),
         ),
         titlesData: FlTitlesData(
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,

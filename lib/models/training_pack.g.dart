@@ -1,6 +1,7 @@
 part of 'training_pack.dart';
 
-TrainingSessionResult _$TrainingSessionResultFromJson(Map<String, dynamic> json) =>
+TrainingSessionResult _$TrainingSessionResultFromJson(
+        Map<String, dynamic> json) =>
     TrainingSessionResult(
       date: DateTime.parse(json['date'] as String),
       total: json['total'] as int? ?? 0,
@@ -9,7 +10,8 @@ TrainingSessionResult _$TrainingSessionResultFromJson(Map<String, dynamic> json)
     );
 
 Map<String, dynamic> _$TrainingSessionResultToJson(
-        TrainingSessionResult instance) => <String, dynamic>{};
+        TrainingSessionResult instance) =>
+    <String, dynamic>{};
 
 TrainingPack _$TrainingPackFromJson(Map<String, dynamic> json) => TrainingPack(
       id: json['id'] as String?,
@@ -24,8 +26,8 @@ TrainingPack _$TrainingPackFromJson(Map<String, dynamic> json) => TrainingPack(
       spots: const [],
       difficulty: (json['difficulty'] as num?)?.toInt() ?? 1,
       history: const [],
-      createdAt:
-          DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
+          DateTime.now(),
     );
 
 Map<String, dynamic> _$TrainingPackToJson(TrainingPack instance) =>

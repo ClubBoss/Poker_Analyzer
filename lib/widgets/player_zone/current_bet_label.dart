@@ -17,7 +17,8 @@ class CurrentBetLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (bet <= 0) return const SizedBox.shrink();
-    final textColor = Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white;
+    final textColor =
+        Theme.of(context).textTheme.bodyMedium?.color ?? Colors.white;
     return Padding(
       padding: EdgeInsets.only(top: 4.0 * scale),
       child: Row(

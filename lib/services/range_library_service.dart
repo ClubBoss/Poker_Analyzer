@@ -3,7 +3,8 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'range_import_export_service.dart';
 
 class RangeLibraryService {
-  RangeLibraryService._([RangeImportExportService? io]) : _io = io ?? const RangeImportExportService();
+  RangeLibraryService._([RangeImportExportService? io])
+      : _io = io ?? const RangeImportExportService();
   static final instance = RangeLibraryService._();
 
   final RangeImportExportService _io;
@@ -22,7 +23,10 @@ class RangeLibraryService {
       final data = await rootBundle.loadString('assets/ranges/$id.json');
       final list = jsonDecode(data);
       if (list is List) {
-        final range = [for (final e in list) if (e is String) e];
+        final range = [
+          for (final e in list)
+            if (e is String) e
+        ];
         _cache[id] = range;
         return range;
       }

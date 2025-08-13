@@ -23,8 +23,7 @@ class PlaybackProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final progress =
-        actionCount > 0 ? playbackIndex / actionCount : 0.0;
+    final progress = actionCount > 0 ? playbackIndex / actionCount : 0.0;
     final accent = Theme.of(context).colorScheme.secondary;
 
     return GestureDetector(

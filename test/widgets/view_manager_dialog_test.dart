@@ -22,7 +22,8 @@ void main() {
       ),
     );
 
-    final list = tester.widget<ReorderableListView>(find.byType(ReorderableListView));
+    final list =
+        tester.widget<ReorderableListView>(find.byType(ReorderableListView));
     list.onReorder(0, views.length);
     await tester.pump();
 

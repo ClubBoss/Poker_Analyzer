@@ -60,7 +60,8 @@ class OverlayBoosterManager with WidgetsBindingObserver {
     if (await BoosterQueuePressureMonitor.instance.isOverloaded()) return;
     final ctx = navigatorKey.currentContext;
     if (ctx == null) return;
-    if (await BoosterCooldownBlockerService.instance.isCoolingDown('skill_gap')) {
+    if (await BoosterCooldownBlockerService.instance
+        .isCoolingDown('skill_gap')) {
       return;
     }
     if (!await TheoryInjectionHorizonService.instance.canInject(
@@ -79,6 +80,7 @@ class OverlayBoosterManager with WidgetsBindingObserver {
         _remove();
         BoosterCooldownBlockerService.instance.markDismissed('skill_gap');
       }
+
       Future<void> open() async {
         _remove();
         await TheoryBoosterRecallEngine.instance.recordLaunch(lesson.id);

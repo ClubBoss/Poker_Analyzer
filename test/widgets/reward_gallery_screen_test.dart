@@ -14,7 +14,9 @@ class _FakeSharePlatform extends SharePlatform {
 
   @override
   Future<void> shareXFiles(List<XFile> files,
-      {String? text, String? subject, ShareOptions? sharePositionOrigin}) async {
+      {String? text,
+      String? subject,
+      ShareOptions? sharePositionOrigin}) async {
     shared = true;
   }
 }

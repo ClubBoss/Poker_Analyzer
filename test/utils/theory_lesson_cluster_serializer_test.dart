@@ -6,8 +6,10 @@ import 'package:poker_analyzer/utils/theory_lesson_cluster_serializer.dart';
 
 void main() {
   test('serializes and deserializes cluster', () {
-    final l1 = TheoryMiniLessonNode(id: 'a', title: 'A', content: '', tags: ['t']);
-    final l2 = TheoryMiniLessonNode(id: 'b', title: 'B', content: '', tags: ['t']);
+    final l1 =
+        TheoryMiniLessonNode(id: 'a', title: 'A', content: '', tags: ['t']);
+    final l2 =
+        TheoryMiniLessonNode(id: 'b', title: 'B', content: '', tags: ['t']);
     final cluster = TheoryLessonCluster(
       lessons: [l1, l2],
       tags: {'t'},

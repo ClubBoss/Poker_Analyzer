@@ -36,8 +36,9 @@ class RecapCompletionTracker {
         final data = jsonDecode(raw);
         if (data is List) {
           _logs.addAll(data.whereType<Map>().map(
-            (e) => RecapCompletionLog.fromJson(Map<String, dynamic>.from(e)),
-          ));
+                (e) =>
+                    RecapCompletionLog.fromJson(Map<String, dynamic>.from(e)),
+              ));
         }
       } catch (_) {}
     }

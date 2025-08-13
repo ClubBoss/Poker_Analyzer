@@ -67,4 +67,3 @@ void main() {
     expect(firstLesson.content, isEmpty);
   });
 }
-

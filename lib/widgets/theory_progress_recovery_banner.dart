@@ -177,7 +177,8 @@ class _TheoryProgressRecoveryBannerState
     if (_loading || !_visible || _tag == null) return const SizedBox.shrink();
     final accent = Theme.of(context).colorScheme.secondary;
     if (_booster != null) {
-      final booster = BoosterLibraryService.instance.getById(_booster!.boosterId);
+      final booster =
+          BoosterLibraryService.instance.getById(_booster!.boosterId);
       final name = booster?.name ?? _booster!.boosterId;
       return Container(
         margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),

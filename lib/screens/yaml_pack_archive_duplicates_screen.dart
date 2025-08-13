@@ -11,10 +11,12 @@ class YamlPackArchiveDuplicatesScreen extends StatefulWidget {
   const YamlPackArchiveDuplicatesScreen({super.key});
 
   @override
-  State<YamlPackArchiveDuplicatesScreen> createState() => _YamlPackArchiveDuplicatesScreenState();
+  State<YamlPackArchiveDuplicatesScreen> createState() =>
+      _YamlPackArchiveDuplicatesScreenState();
 }
 
-class _YamlPackArchiveDuplicatesScreenState extends State<YamlPackArchiveDuplicatesScreen> {
+class _YamlPackArchiveDuplicatesScreenState
+    extends State<YamlPackArchiveDuplicatesScreen> {
   bool _loading = true;
   final Map<String, Map<String, List<File>>> _items = {};
 
@@ -29,7 +31,10 @@ class _YamlPackArchiveDuplicatesScreenState extends State<YamlPackArchiveDuplica
     if (!mounted) return;
     final map = <String, Map<String, List<File>>>{};
     for (final e in data.entries) {
-      map[e.key] = {for (final g in e.value.entries) g.key: [for (final pth in g.value) File(pth)]};
+      map[e.key] = {
+        for (final g in e.value.entries)
+          g.key: [for (final pth in g.value) File(pth)]
+      };
     }
     setState(() {
       _items
@@ -42,15 +47,20 @@ class _YamlPackArchiveDuplicatesScreenState extends State<YamlPackArchiveDuplica
   Future<void> _deleteGroup(String id, String hash) async {
     final files = _items[id]?[hash];
     if (files == null || files.length <= 1) return;
-    files.sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
+    files
+        .sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
     final keep = files.first;
     int deleted = 0;
     for (final f in files.skip(1)) {
-      try { f.deleteSync(); deleted++; } catch (_) {}
+      try {
+        f.deleteSync();
+        deleted++;
+      } catch (_) {}
     }
     await _load();
     if (mounted && deleted > 0) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Удалено файлов: $deleted')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Удалено файлов: $deleted')));
     }
   }
 
@@ -61,8 +71,12 @@ class _YamlPackArchiveDuplicatesScreenState extends State<YamlPackArchiveDuplica
         backgroundColor: AppColors.cardBackground,
         title: const Text('Удалить все дубликаты?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Нет')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Да')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Нет')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Да')),
         ],
       ),
     );
@@ -71,15 +85,20 @@ class _YamlPackArchiveDuplicatesScreenState extends State<YamlPackArchiveDuplica
     for (final map in _items.values) {
       for (final files in map.values) {
         if (files.length <= 1) continue;
-        files.sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
+        files.sort(
+            (a, b) => b.statSync().modified.compareTo(a.statSync().modified));
         for (final f in files.skip(1)) {
-          try { f.deleteSync(); deleted++; } catch (_) {}
+          try {
+            f.deleteSync();
+            deleted++;
+          } catch (_) {}
         }
       }
     }
     await _load();
     if (mounted && deleted > 0) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Удалено файлов: $deleted')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Удалено файлов: $deleted')));
     }
   }
 
@@ -89,7 +108,9 @@ class _YamlPackArchiveDuplicatesScreenState extends State<YamlPackArchiveDuplica
     return Scaffold(
       appBar: AppBar(
         title: const Text('Дубликаты архива'),
-        actions: [IconButton(onPressed: _load, icon: const Icon(Icons.refresh))],
+        actions: [
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh))
+        ],
       ),
       backgroundColor: AppColors.background,
       body: _loading
@@ -108,7 +129,8 @@ class _YamlPackArchiveDuplicatesScreenState extends State<YamlPackArchiveDuplica
                             child: Column(
                               children: [
                                 ListTile(
-                                  title: Text('${g.key.substring(0, 8)} (${g.value.length})'),
+                                  title: Text(
+                                      '${g.key.substring(0, 8)} (${g.value.length})'),
                                   trailing: IconButton(
                                     icon: const Icon(Icons.delete),
                                     onPressed: () => _deleteGroup(e.key, g.key),
@@ -117,7 +139,9 @@ class _YamlPackArchiveDuplicatesScreenState extends State<YamlPackArchiveDuplica
                                 for (final f in g.value)
                                   ListTile(
                                     title: Text(p.basename(f.path)),
-                                    subtitle: Text(DateFormat('yyyy-MM-dd HH:mm').format(f.statSync().modified)),
+                                    subtitle: Text(
+                                        DateFormat('yyyy-MM-dd HH:mm')
+                                            .format(f.statSync().modified)),
                                   ),
                               ],
                             ),

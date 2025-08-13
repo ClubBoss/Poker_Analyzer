@@ -42,7 +42,8 @@ class BackupImportExportService {
         completed: _completed,
       );
 
-  String _timestamp() => DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now());
+  String _timestamp() =>
+      DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now());
 
   Future<void> exportEvaluationQueue(BuildContext context) async {
     if (_pending.isEmpty) return;
@@ -50,7 +51,8 @@ class BackupImportExportService {
       final dir = await fileManager.getBackupDirectory(exportsFolder);
       final fileName = 'evaluation_queue_${_timestamp()}.json';
       final file = await fileManager.createFile(dir, fileName);
-      await fileManager.writeJsonFile(file, [for (final e in _pending) e.toJson()]);
+      await fileManager
+          .writeJsonFile(file, [for (final e in _pending) e.toJson()]);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -280,8 +282,9 @@ class BackupImportExportService {
       _completed.addAll(importedCompleted);
       await queueService.persist();
       debugPanelCallback?.call();
-      final total =
-          importedPending.length + importedFailed.length + importedCompleted.length;
+      final total = importedPending.length +
+          importedFailed.length +
+          importedCompleted.length;
       final msg = skipped == 0
           ? 'Imported $total evaluations from ${result.files.length} files'
           : 'Imported $total evaluations, $skipped files skipped';
@@ -474,8 +477,9 @@ class BackupImportExportService {
     _completed.addAll(importedCompleted);
     await queueService.persist();
     debugPanelCallback?.call();
-    final total =
-        importedPending.length + importedFailed.length + importedCompleted.length;
+    final total = importedPending.length +
+        importedFailed.length +
+        importedCompleted.length;
     final msg = skipped == 0
         ? 'Imported $total evaluations from ${result.files.length} files'
         : 'Imported $total evaluations, $skipped files skipped';
@@ -516,4 +520,3 @@ class BackupImportExportService {
     await _bulkImport(context, dir.path, null);
   }
 }
-

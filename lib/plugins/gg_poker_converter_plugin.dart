@@ -3,7 +3,8 @@ import 'package:poker_analyzer/plugins/plugin.dart';
 import 'package:poker_analyzer/plugins/converter_registry.dart';
 import 'package:poker_analyzer/services/service_registry.dart';
 
-class GGPokerConverterPlugin extends GGPokerHandHistoryConverter implements Plugin {
+class GGPokerConverterPlugin extends GGPokerHandHistoryConverter
+    implements Plugin {
   @override
   void register(ServiceRegistry registry) {
     registry.registerIfAbsent<ConverterRegistry>(ConverterRegistry());
@@ -19,4 +20,3 @@ class GGPokerConverterPlugin extends GGPokerHandHistoryConverter implements Plug
   @override
   String get version => '1.0.0';
 }
-

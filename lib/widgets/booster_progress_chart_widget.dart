@@ -48,8 +48,7 @@ class _BoosterProgressChartWidgetState
     for (final t in widget.tags) {
       var list = await _service.getProgressForTag(t);
       if (widget.since != null) {
-        list =
-            list.where((e) => !e.date.isBefore(widget.since!)).toList();
+        list = list.where((e) => !e.date.isBefore(widget.since!)).toList();
       }
       if (widget.lastSessions != null && list.length > widget.lastSessions!) {
         list = list.sublist(list.length - widget.lastSessions!);
@@ -126,10 +125,10 @@ class _BoosterProgressChartWidgetState
                   gridData: const FlGridData(show: false),
                   borderData: FlBorderData(show: false),
                   titlesData: FlTitlesData(
-                    rightTitles:
-                        const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    topTitles:
-                        const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
+                    topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
@@ -169,4 +168,3 @@ class _BoosterProgressChartWidgetState
     );
   }
 }
-

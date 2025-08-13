@@ -27,8 +27,7 @@ class YamlPackMarkdownPreviewService {
           final board = s.hand.board.join(' ');
           final ev = s.heroEv?.toStringAsFixed(2) ?? '';
           final tags = s.tags.join(', ');
-          buffer.writeln(
-              '|${s.hand.position.label}|$hero|$board|$ev|$tags|');
+          buffer.writeln('|${s.hand.position.label}|$hero|$board|$ev|$tags|');
         }
       }
       return buffer.toString().trimRight();

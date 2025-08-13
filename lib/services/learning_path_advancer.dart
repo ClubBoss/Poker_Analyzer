@@ -73,9 +73,9 @@ class LearningPathAdvancer {
         reason = 'confidence decay';
       }
 
-      final recentMistake = attemptsByPack[stage.packId]
-              ?.any((a) =>
-                  a.accuracy < 0.7 && current.difference(a.timestamp).inDays <= 7) ??
+      final recentMistake = attemptsByPack[stage.packId]?.any((a) =>
+              a.accuracy < 0.7 &&
+              current.difference(a.timestamp).inDays <= 7) ??
           false;
       if (recentMistake) {
         score += 50;
@@ -98,9 +98,9 @@ class LearningPathAdvancer {
         .computeProgress(allPacks: allPacks, stats: stats, path: path)
         .currentStageId;
     if (fallback != null) {
-      return SuggestedNextAction(stageId: fallback, reason: 'next unlocked stage');
+      return SuggestedNextAction(
+          stageId: fallback, reason: 'next unlocked stage');
     }
     return null;
   }
 }
-

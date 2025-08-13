@@ -25,7 +25,8 @@ class RecapInjectionPlan {
         if (t is String) tags.add(t);
       }
     }
-    final ts = DateTime.tryParse(json['time']?.toString() ?? '') ?? DateTime.now();
+    final ts =
+        DateTime.tryParse(json['time']?.toString() ?? '') ?? DateTime.now();
     return RecapInjectionPlan(tagIds: tags, plannedAt: ts);
   }
 }
@@ -40,7 +41,8 @@ class SmartRecapInjectionPlanner {
   })  : history = history ?? BoosterPathHistoryService.instance,
         analyzer = analyzer ?? RecapEffectivenessAnalyzer.instance;
 
-  static final SmartRecapInjectionPlanner instance = SmartRecapInjectionPlanner();
+  static final SmartRecapInjectionPlanner instance =
+      SmartRecapInjectionPlanner();
 
   static const _prefsKey = 'smart_recap_injection_plan';
 
@@ -81,8 +83,9 @@ class SmartRecapInjectionPlanner {
       if (now.difference(hist.lastInteraction) < excludeRecent) {
         return;
       }
-      final urgency =
-          (1 - eff.repeatRate) + 1 / (eff.count + 1) + 1 / (eff.averageDuration.inSeconds + 1);
+      final urgency = (1 - eff.repeatRate) +
+          1 / (eff.count + 1) +
+          1 / (eff.averageDuration.inSeconds + 1);
       final recency = hist == null
           ? 1000.0
           : now.difference(hist.lastInteraction).inHours.toDouble();

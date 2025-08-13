@@ -39,8 +39,8 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     super.initState();
     _filtered = [...widget.spots];
     _loadPrefs();
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => InlineTheoryLinkerCache.instance.ensureReady());
+    WidgetsBinding.instance.addPostFrameCallback(
+        (_) => InlineTheoryLinkerCache.instance.ensureReady());
   }
 
   Future<void> _loadPrefs() async {

@@ -30,4 +30,3 @@ class TrackLockEvaluator {
     return unlocked;
   }
 }
-

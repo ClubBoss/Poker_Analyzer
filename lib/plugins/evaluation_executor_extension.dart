@@ -7,5 +7,6 @@ class EvaluationExecutorExtension extends ServiceExtension<EvaluationExecutor> {
   const EvaluationExecutorExtension();
 
   @override
-  EvaluationExecutor create(ServiceRegistry registry) => EvaluationExecutorService();
+  EvaluationExecutor create(ServiceRegistry registry) =>
+      EvaluationExecutorService();
 }

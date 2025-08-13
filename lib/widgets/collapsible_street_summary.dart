@@ -31,7 +31,8 @@ class CollapsibleStreetSummary extends StatefulWidget {
   });
 
   @override
-  State<CollapsibleStreetSummary> createState() => _CollapsibleStreetSummaryState();
+  State<CollapsibleStreetSummary> createState() =>
+      _CollapsibleStreetSummaryState();
 }
 
 class _CollapsibleStreetSummaryState extends State<CollapsibleStreetSummary> {
@@ -121,7 +122,8 @@ class _CollapsibleStreetSummaryState extends State<CollapsibleStreetSummary> {
                     duration: const Duration(milliseconds: 300),
                     heightFactor: expanded ? 1 : 0,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0, vertical: 4.0),
                       child: StreetActionsList(
                         street: i,
                         actions: widget.actions,

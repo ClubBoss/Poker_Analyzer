@@ -49,4 +49,3 @@ class TrainingHistoryViewModel extends ChangeNotifier {
     return total / list.length;
   }
 }
-

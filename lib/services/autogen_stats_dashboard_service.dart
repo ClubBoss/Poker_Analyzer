@@ -10,7 +10,7 @@ import '../models/autogen_preset.dart';
 /// Centralized logger aggregating key metrics during hyperscale autogeneration.
 class AutogenStatsDashboardService extends ChangeNotifier {
   AutogenStatsDashboardService._({String logPath = 'autogen_report.log'})
-    : _logFile = File(logPath);
+      : _logFile = File(logPath);
 
   static final AutogenStatsDashboardService _instance =
       AutogenStatsDashboardService._();

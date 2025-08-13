@@ -20,10 +20,12 @@ class TrainingRecommendationScreen extends StatefulWidget {
   const TrainingRecommendationScreen({super.key});
 
   @override
-  State<TrainingRecommendationScreen> createState() => _TrainingRecommendationScreenState();
+  State<TrainingRecommendationScreen> createState() =>
+      _TrainingRecommendationScreenState();
 }
 
-class _TrainingRecommendationScreenState extends State<TrainingRecommendationScreen> {
+class _TrainingRecommendationScreenState
+    extends State<TrainingRecommendationScreen> {
   Map<String, List<TrainingPack>> _data = {};
   bool _loading = true;
   NextStepAdvice? _advice;
@@ -41,7 +43,8 @@ class _TrainingRecommendationScreenState extends State<TrainingRecommendationScr
     final suggestions = service.getExtendedSuggestions(goals, mistakes);
 
     final global = await TrainingPackStatsService.getGlobalStats();
-    final pathDone = await LearningPathProgressService.instance.isAllStagesCompleted();
+    final pathDone =
+        await LearningPathProgressService.instance.isAllStagesCompleted();
     final customStarted =
         await LearningPathProgressService.instance.isCustomPathStarted();
     final customCompleted =
@@ -115,7 +118,9 @@ class _Section extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            child: Text(title,
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ),
           const SizedBox(height: 8),
           SizedBox(
@@ -164,8 +169,8 @@ class _PackCard extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                    child:
-                        Text(pack.name, style: const TextStyle(color: Colors.white))),
+                    child: Text(pack.name,
+                        style: const TextStyle(color: Colors.white))),
                 if (DateTime.now().difference(pack.createdAt).inDays < 7)
                   const SizedBox(width: 4),
                 if (DateTime.now().difference(pack.createdAt).inDays < 7)

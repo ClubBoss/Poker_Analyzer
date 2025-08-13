@@ -26,4 +26,3 @@ void main() {
     expect(filtered.every((a) => a.playerIndex != 1), isTrue);
   });
 }
-

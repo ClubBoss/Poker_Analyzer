@@ -1,4 +1,3 @@
-
 import '../models/decay_tag_reinforcement_event.dart';
 import 'decay_session_tag_impact_recorder.dart';
 import 'mastery_persistence_service.dart';
@@ -16,15 +15,15 @@ class DecayRecallMasteryIntegrator {
   final double maxDelta;
 
   DecayRecallMasteryIntegrator({
-    Future<List<DecayTagReinforcementEvent>> Function(String tag)? historyLoader,
+    Future<List<DecayTagReinforcementEvent>> Function(String tag)?
+        historyLoader,
     MasteryPersistenceService? persistence,
     TagMasteryAdjustmentLogService? logger,
     this.staleThreshold = const Duration(days: 30),
     this.negativeDelta = -0.02,
     this.positiveDelta = 0.01,
     this.maxDelta = 0.05,
-  })  : _historyLoader =
-            historyLoader ??
+  })  : _historyLoader = historyLoader ??
             DecaySessionTagImpactRecorder.instance.getRecentReinforcements,
         _persistence = persistence ?? MasteryPersistenceService(),
         _logger = logger;

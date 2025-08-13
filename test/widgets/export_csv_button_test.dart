@@ -17,7 +17,10 @@ class _FakePathProvider extends PathProviderPlatform {
 class _FakeSharePlatform extends SharePlatform {
   bool shared = false;
   @override
-  Future<void> shareXFiles(List<XFile> files, {String? text, String? subject, ShareOptions? sharePositionOrigin}) async {
+  Future<void> shareXFiles(List<XFile> files,
+      {String? text,
+      String? subject,
+      ShareOptions? sharePositionOrigin}) async {
     shared = true;
   }
 }

@@ -61,7 +61,8 @@ class LearningPathTheoryInjectorService {
           final title = e['title'] as String?;
           final uri = e['uri'] as String?;
           final tags = (e['tags'] as List?)?.cast<String>() ?? const <String>[];
-          final media = (e['media'] as List?)?.cast<String>() ?? const <String>[];
+          final media =
+              (e['media'] as List?)?.cast<String>() ?? const <String>[];
           if (id != null && title != null && uri != null && tags.isNotEmpty) {
             items.add(_IndexEntry(
               id: id,

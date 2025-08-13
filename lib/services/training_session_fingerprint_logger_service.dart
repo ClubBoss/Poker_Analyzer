@@ -67,8 +67,7 @@ class TrainingSessionFingerprint {
     return TrainingSessionFingerprint(
       sessionId: json['sessionId'] as String?,
       packId: json['packId'] as String? ?? '',
-      startTime:
-          DateTime.tryParse(json['startTime'] ?? '') ?? DateTime.now(),
+      startTime: DateTime.tryParse(json['startTime'] ?? '') ?? DateTime.now(),
       endTime: DateTime.tryParse(json['endTime'] ?? '') ?? DateTime.now(),
       tagsCovered: [
         for (final t in (json['tagsCovered'] as List? ?? [])) t.toString()
@@ -150,8 +149,7 @@ class TrainingSessionFingerprintLoggerService {
       return [
         for (final e in list)
           if (e is Map)
-            TrainingSessionFingerprint.fromJson(
-                Map<String, dynamic>.from(e)),
+            TrainingSessionFingerprint.fromJson(Map<String, dynamic>.from(e)),
       ];
     } catch (_) {
       return [];

@@ -351,15 +351,12 @@ class _PackCardState extends State<PackCard>
         .replaceAllMapped(RegExp(r'(?<=[a-z])(?=[A-Z])'), (m) => ' ')
         .split(RegExp(r'[\s_]+'));
     const uppers = {'btn', 'bb', 'sb', 'utg', 'mp', 'co', 'hj'};
-    return words
-        .where((w) => w.isNotEmpty)
-        .map((w) {
-          final lower = w.toLowerCase();
-          if (lower == 'vs') return 'vs';
-          if (uppers.contains(lower)) return lower.toUpperCase();
-          return lower[0].toUpperCase() + lower.substring(1);
-        })
-        .join(' ');
+    return words.where((w) => w.isNotEmpty).map((w) {
+      final lower = w.toLowerCase();
+      if (lower == 'vs') return 'vs';
+      if (uppers.contains(lower)) return lower.toUpperCase();
+      return lower[0].toUpperCase() + lower.substring(1);
+    }).join(' ');
   }
 
   @override
@@ -494,8 +491,8 @@ class _PackCardState extends State<PackCard>
                           ),
                           materialTapTargetSize:
                               MaterialTapTargetSize.shrinkWrap,
-                          visualDensity: const VisualDensity(
-                              horizontal: -4, vertical: -4),
+                          visualDensity:
+                              const VisualDensity(horizontal: -4, vertical: -4),
                         ),
                       ),
                   ],

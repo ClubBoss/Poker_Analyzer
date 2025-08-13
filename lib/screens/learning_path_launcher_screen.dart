@@ -41,7 +41,8 @@ class _LearningPathLauncherScreenState
 
   Future<void> _setMode(LearningPathViewMode mode) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_prefsKey, mode == LearningPathViewMode.linear ? 'linear' : 'horizontal');
+    await prefs.setString(_prefsKey,
+        mode == LearningPathViewMode.linear ? 'linear' : 'horizontal');
     setState(() {
       _mode = mode;
     });

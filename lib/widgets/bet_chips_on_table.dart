@@ -54,9 +54,7 @@ class BetChipsOnTable extends StatelessWidget {
             child: Transform.rotate(
               angle: angle,
               child: AnimatedSwitcher(
-                duration: animate
-                    ? AppConstants.fadeDuration
-                    : Duration.zero,
+                duration: animate ? AppConstants.fadeDuration : Duration.zero,
                 transitionBuilder: (child, animation) => FadeTransition(
                   opacity: animation,
                   child: ScaleTransition(scale: animation, child: child),

@@ -20,6 +20,7 @@ class _CloudSyncScreenState extends State<CloudSyncScreen> {
   Future<void> _download() async {
     await context.read<CloudSyncService>().syncDown();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,7 +37,8 @@ class _CloudSyncScreenState extends State<CloudSyncScreen> {
           children: [
             ValueListenableBuilder<double>(
               valueListenable: context.read<CloudSyncService>().progress,
-              builder: (_, value, __) => Text('Progress: ${(value * 100).toInt()}%'),
+              builder: (_, value, __) =>
+                  Text('Progress: ${(value * 100).toInt()}%'),
             ),
             const SizedBox(height: 24),
             ElevatedButton(
@@ -54,4 +56,3 @@ class _CloudSyncScreenState extends State<CloudSyncScreen> {
     );
   }
 }
-

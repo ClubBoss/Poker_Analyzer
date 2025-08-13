@@ -9,6 +9,7 @@ import 'package:poker_analyzer/services/tag_mastery_service.dart';
 import 'package:poker_analyzer/models/session_log.dart';
 
 class _MockSessionLogService extends Mock implements SessionLogService {}
+
 class _MockTagMasteryService extends Mock implements TagMasteryService {}
 
 void main() {

@@ -198,4 +198,3 @@ class _MenuItem {
     this.key,
   });
 }
-

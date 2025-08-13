@@ -68,7 +68,8 @@ class _TheoryBoosterPreviewScreenState
                   subtitle: Text('Spots: $count • $type'),
                   onTap: () => _open(tpl),
                   trailing: TextButton.icon(
-                    onPressed: () => const BoosterPreviewLauncher().launch(context, tpl),
+                    onPressed: () =>
+                        const BoosterPreviewLauncher().launch(context, tpl),
                     icon: const Text("▶️"),
                     label: const Text("Запустить"),
                   ),

@@ -58,8 +58,8 @@ void showConfettiOverlay(BuildContext context,
 
   late OverlayEntry entry;
   entry = OverlayEntry(
-    builder: (_) =>
-        ConfettiOverlay(onCompleted: () => entry.remove(), particlePath: particlePath),
+    builder: (_) => ConfettiOverlay(
+        onCompleted: () => entry.remove(), particlePath: particlePath),
   );
   overlay.insert(entry);
 }

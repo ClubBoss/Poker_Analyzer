@@ -12,10 +12,12 @@ class LearningPathDashboardBlock extends StatefulWidget {
   const LearningPathDashboardBlock({super.key});
 
   @override
-  State<LearningPathDashboardBlock> createState() => _LearningPathDashboardBlockState();
+  State<LearningPathDashboardBlock> createState() =>
+      _LearningPathDashboardBlockState();
 }
 
-class _LearningPathDashboardBlockState extends State<LearningPathDashboardBlock> {
+class _LearningPathDashboardBlockState
+    extends State<LearningPathDashboardBlock> {
   late Future<_BlockData?> _future;
 
   @override
@@ -39,9 +41,7 @@ class _LearningPathDashboardBlockState extends State<LearningPathDashboardBlock>
       for (final p in paths) {
         progress[p] = await engine.getPathProgress(p.id);
       }
-      final incomplete = progress.entries
-          .where((e) => e.value < 1.0)
-          .toList();
+      final incomplete = progress.entries.where((e) => e.value < 1.0).toList();
       if (incomplete.isEmpty) continue;
       incomplete.sort((a, b) => a.value.compareTo(b.value));
       final best = incomplete.first;
@@ -81,12 +81,14 @@ class _LearningPathDashboardBlockState extends State<LearningPathDashboardBlock>
             children: [
               Text(
                 data.track.title,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
               Text(
                 data.path.title,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               if (data.path.description.isNotEmpty)
                 Padding(
@@ -129,5 +131,6 @@ class _BlockData {
   final LearningPathTrackModel track;
   final LearningPathTemplateV2 path;
   final double progress;
-  const _BlockData({required this.track, required this.path, required this.progress});
+  const _BlockData(
+      {required this.track, required this.path, required this.progress});
 }

@@ -11,13 +11,16 @@ class NextStepCard extends StatelessWidget {
   void _open(BuildContext context, String route) {
     switch (route) {
       case '/mistake_repeat':
-        Navigator.push(context, MaterialPageRoute(builder: (_) => const MistakeRepeatScreen()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (_) => const MistakeRepeatScreen()));
         break;
       case '/goals':
-        Navigator.push(context, MaterialPageRoute(builder: (_) => const GoalsOverviewScreen()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (_) => const GoalsOverviewScreen()));
         break;
       case '/spot_of_the_day':
-        Navigator.push(context, MaterialPageRoute(builder: (_) => const SpotOfTheDayScreen()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (_) => const SpotOfTheDayScreen()));
         break;
     }
   }
@@ -44,9 +47,11 @@ class NextStepCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(suggestion.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text(suggestion.title,
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text(suggestion.message, style: const TextStyle(color: Colors.white)),
+                  Text(suggestion.message,
+                      style: const TextStyle(color: Colors.white)),
                 ],
               ),
             ),

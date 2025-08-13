@@ -47,7 +47,8 @@ void main() {
     expect(entries.first.lessonId, 'new');
   });
 
-  test('logging same lesson on different days creates separate entries', () async {
+  test('logging same lesson on different days creates separate entries',
+      () async {
     final yesterday = DateTime.now().toUtc().subtract(const Duration(days: 1));
     SharedPreferences.setMockInitialValues({
       'lesson_completion_log': jsonEncode([

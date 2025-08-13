@@ -137,15 +137,14 @@ class AutogenStatusDashboardService {
     if (_runSummaries.length > 10) {
       _runSummaries.removeLast();
     }
-    final encoded =
-        _runSummaries.map((s) => jsonEncode(s.toJson())).toList();
+    final encoded = _runSummaries.map((s) => jsonEncode(s.toJson())).toList();
     await prefs.setStringList(_runSummariesKey, encoded);
     final covList = prefs.getStringList(_coverageSummariesKey) ?? [];
     covList.insert(0, jsonEncode(coverageHistogramNotifier.value));
     if (covList.length > 10) covList.removeLast();
     await prefs.setStringList(_coverageSummariesKey, covList);
-    _coverageSummaries
-      .insert(0, Map<String, int>.from(coverageHistogramNotifier.value));
+    _coverageSummaries.insert(
+        0, Map<String, int>.from(coverageHistogramNotifier.value));
     if (_coverageSummaries.length > 10) {
       _coverageSummaries.removeLast();
     }

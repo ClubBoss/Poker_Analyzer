@@ -38,7 +38,8 @@ class TrainingSpotExpander {
   }
 
   TrainingPackSpot _clone(TrainingPackSpot spot) {
-    final hand = HandData.fromJson(Map<String, dynamic>.from(spot.hand.toJson()));
+    final hand =
+        HandData.fromJson(Map<String, dynamic>.from(spot.hand.toJson()));
     final copy = spot.copyWith(
       id: _uuid.v4(),
       hand: hand,
@@ -68,8 +69,7 @@ class TrainingSpotExpander {
   TrainingPackSpot _stackVariant(TrainingPackSpot spot, {int diff = 2}) {
     final clone = _clone(spot);
     clone.hand.stacks = {
-      for (final e in spot.hand.stacks.entries)
-        e.key: e.value + diff
+      for (final e in spot.hand.stacks.entries) e.key: e.value + diff
     };
     return clone;
   }

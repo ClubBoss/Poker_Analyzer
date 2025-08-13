@@ -4,7 +4,8 @@ import '../services/smart_resume_engine.dart';
 class PackProgressOverlay extends StatelessWidget {
   final String templateId;
   final double size;
-  const PackProgressOverlay({super.key, required this.templateId, this.size = 24});
+  const PackProgressOverlay(
+      {super.key, required this.templateId, this.size = 24});
 
   @override
   Widget build(BuildContext context) {

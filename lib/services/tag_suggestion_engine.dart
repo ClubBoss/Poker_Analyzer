@@ -10,10 +10,15 @@ class TagSuggestionEngine {
     for (final s in pack.spots) {
       posSet.add(s.hand.position);
     }
-    if (posSet.isNotEmpty && posSet.every((p) => p == HeroPosition.btn || p == HeroPosition.sb || p == HeroPosition.bb)) {
+    if (posSet.isNotEmpty &&
+        posSet.every((p) =>
+            p == HeroPosition.btn ||
+            p == HeroPosition.sb ||
+            p == HeroPosition.bb)) {
       set.add('blind_defense');
     }
-    if (pack.spots.isNotEmpty && pack.spots.every((s) => s.hand.playerCount == 6)) {
+    if (pack.spots.isNotEmpty &&
+        pack.spots.every((s) => s.hand.playerCount == 6)) {
       set.add('6max');
     }
     if (pack.bb == 10) set.add('10bb');

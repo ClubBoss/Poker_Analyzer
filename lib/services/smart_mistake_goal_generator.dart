@@ -51,8 +51,9 @@ class SmartMistakeGoalGenerator {
 
       final successes = successMap[data.tag] ?? 0;
       final completed = stats?.completedCount ?? 0;
-      final successRate =
-          completed > 0 ? successes * 100 / completed : (successes > 0 ? 100 : 0);
+      final successRate = completed > 0
+          ? successes * 100 / completed
+          : (successes > 0 ? 100 : 0);
       if (successRate > 90) continue;
 
       final reason =

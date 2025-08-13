@@ -9,10 +9,12 @@ class YamlPackArchiveCleanupScreen extends StatefulWidget {
   const YamlPackArchiveCleanupScreen({super.key});
 
   @override
-  State<YamlPackArchiveCleanupScreen> createState() => _YamlPackArchiveCleanupScreenState();
+  State<YamlPackArchiveCleanupScreen> createState() =>
+      _YamlPackArchiveCleanupScreenState();
 }
 
-class _YamlPackArchiveCleanupScreenState extends State<YamlPackArchiveCleanupScreen> {
+class _YamlPackArchiveCleanupScreenState
+    extends State<YamlPackArchiveCleanupScreen> {
   final Map<String, List<File>> _items = {};
   final TextEditingController _daysCtrl = TextEditingController(text: '30');
   bool _loading = true;
@@ -81,8 +83,12 @@ class _YamlPackArchiveCleanupScreenState extends State<YamlPackArchiveCleanupScr
         backgroundColor: AppColors.cardBackground,
         title: Text('Удалить ${files.length} файлов?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Нет')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Да')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Нет')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Да')),
         ],
       ),
     );
@@ -110,8 +116,12 @@ class _YamlPackArchiveCleanupScreenState extends State<YamlPackArchiveCleanupScr
         backgroundColor: AppColors.cardBackground,
         title: Text('Удалить архив $id?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Нет')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Да')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Нет')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Да')),
         ],
       ),
     );
@@ -139,8 +149,12 @@ class _YamlPackArchiveCleanupScreenState extends State<YamlPackArchiveCleanupScr
         backgroundColor: AppColors.cardBackground,
         title: const Text('Очистить весь архив?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Нет')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Да')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Нет')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Да')),
         ],
       ),
     );
@@ -182,7 +196,9 @@ class _YamlPackArchiveCleanupScreenState extends State<YamlPackArchiveCleanupScr
                       ),
                     ),
                     const SizedBox(width: 16),
-                    ElevatedButton(onPressed: _deleteOld, child: const Text('Удалить старые')),
+                    ElevatedButton(
+                        onPressed: _deleteOld,
+                        child: const Text('Удалить старые')),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -201,7 +217,9 @@ class _YamlPackArchiveCleanupScreenState extends State<YamlPackArchiveCleanupScr
                 if (_items.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 16),
-                    child: ElevatedButton(onPressed: _clearAll, child: const Text('Очистить весь архив')),
+                    child: ElevatedButton(
+                        onPressed: _clearAll,
+                        child: const Text('Очистить весь архив')),
                   ),
               ],
             ),

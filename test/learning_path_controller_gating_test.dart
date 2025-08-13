@@ -44,4 +44,3 @@ void main() {
     expect(controller.stageProgress('s').completed, true);
   });
 }
-

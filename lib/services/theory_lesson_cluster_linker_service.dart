@@ -33,8 +33,7 @@ class TheoryLessonClusterLinkerService {
       }
       if (cached.isNotEmpty) {
         _clustersCache = cached;
-        await UserActionLogger.instance
-            .log('theory_cluster_linker.load.cache');
+        await UserActionLogger.instance.log('theory_cluster_linker.load.cache');
         return _clustersCache!;
       }
     }
@@ -61,7 +60,9 @@ class TheoryLessonClusterLinkerService {
     await library.loadAll();
     final lessons = library.all;
     final byId = {for (final l in lessons) l.id: l};
-    final adj = <String, Set<String>>{for (final l in lessons) l.id: <String>{}};
+    final adj = <String, Set<String>>{
+      for (final l in lessons) l.id: <String>{}
+    };
 
     // Shared tags.
     final tagIndex = <String, List<String>>{};
@@ -158,4 +159,3 @@ class TheoryLessonClusterLinkerService {
     return clusters;
   }
 }
-

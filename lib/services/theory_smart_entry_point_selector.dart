@@ -28,9 +28,8 @@ class TheorySmartEntryPointSelector {
     Set<String> focusTags = const {},
   }) async {
     await library.loadAll();
-    final normalized = {
-      for (final t in focusTags) t.trim().toLowerCase()
-    }..removeWhere((e) => e.isEmpty);
+    final normalized = {for (final t in focusTags) t.trim().toLowerCase()}
+      ..removeWhere((e) => e.isEmpty);
 
     // 1) unfinished lesson matching focus tags
     if (normalized.isNotEmpty) {

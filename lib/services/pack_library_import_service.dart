@@ -27,8 +27,7 @@ class PackLibraryImportService {
         .where((f) => f.path.toLowerCase().endsWith('.yaml'))
         .toList();
     final names = <String>{
-      for (final f in existingFiles)
-        f.path.split(Platform.pathSeparator).last,
+      for (final f in existingFiles) f.path.split(Platform.pathSeparator).last,
     };
     final hashes = <String>{
       for (final f in existingFiles)

@@ -10,7 +10,8 @@ class TemplatePreviewDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final parts = template.version.split('.');
-    final version = parts.length >= 2 ? '${parts[0]}.${parts[1]}' : template.version;
+    final version =
+        parts.length >= 2 ? '${parts[0]}.${parts[1]}' : template.version;
     final names = [
       for (final h in template.hands.take(5))
         h.name.isEmpty ? 'Без названия' : h.name
@@ -41,9 +42,11 @@ class TemplatePreviewDialog extends StatelessWidget {
             Text('Версия: $version'),
             if (template.author.isNotEmpty) Text('Автор: ${template.author}'),
             const SizedBox(height: 8),
-            Text('${template.hands.length} раздач / ${template.tags.length} тегов'),
+            Text(
+                '${template.hands.length} раздач / ${template.tags.length} тегов'),
             const SizedBox(height: 8),
-            for (final n in names) Text('• $n', overflow: TextOverflow.ellipsis),
+            for (final n in names)
+              Text('• $n', overflow: TextOverflow.ellipsis),
             if (rest > 0) Text('… +$rest'),
           ],
         ),

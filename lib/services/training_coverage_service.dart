@@ -106,4 +106,3 @@ class TrainingCoverageService {
     file.writeAsStringSync(jsonEncode(report));
   }
 }
-

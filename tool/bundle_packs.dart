@@ -9,7 +9,8 @@ import 'package:poker_analyzer/services/pack_export_service.dart';
 
 Future<void> main(List<String> args) async {
   if (args.isEmpty) {
-    stderr.writeln('Usage: dart run tool/bundle_packs.dart <templatesDir> [outputDir] [--keep-original] [--index]');
+    stderr.writeln(
+        'Usage: dart run tool/bundle_packs.dart <templatesDir> [outputDir] [--keep-original] [--index]');
     exit(1);
   }
   final srcPath = args[0];
@@ -52,9 +53,12 @@ Future<void> main(List<String> args) async {
       if (dest.existsSync()) dest.deleteSync();
       bundle.copySync(dest.path);
       if (!keep) {
-        try { bundle.deleteSync(); } catch (_) {}
+        try {
+          bundle.deleteSync();
+        } catch (_) {}
       }
-      stdout.writeln('[${j + 1}/${files.length}] ${p.basename(dest.path)}  –  OK');
+      stdout.writeln(
+          '[${j + 1}/${files.length}] ${p.basename(dest.path)}  –  OK');
       if (buildIndex) {
         indexRows.add([
           tpl.id,
@@ -67,12 +71,21 @@ Future<void> main(List<String> args) async {
         ]);
       }
     } catch (e) {
-      stdout.writeln('[${j + 1}/${files.length}] ${p.basename(file.path)}  –  [ERROR]');
+      stdout.writeln(
+          '[${j + 1}/${files.length}] ${p.basename(file.path)}  –  [ERROR]');
     }
   }
   if (buildIndex) {
     final rows = <List<dynamic>>[
-      ['id', 'name', 'spots', 'evCovered', 'icmCovered', 'createdAt', 'lastGeneratedAt'],
+      [
+        'id',
+        'name',
+        'spots',
+        'evCovered',
+        'icmCovered',
+        'createdAt',
+        'lastGeneratedAt'
+      ],
       ...indexRows
     ];
     final csvStr = const ListToCsvConverter().convert(rows);

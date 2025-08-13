@@ -26,9 +26,7 @@ class TrainingPackGeneratorV2 {
     int spotCount = 10,
   }) async {
     // Pick up to three weakest tags below 0.5 mastery.
-    final entries = mastery.entries
-        .where((e) => e.value < 0.5)
-        .toList()
+    final entries = mastery.entries.where((e) => e.value < 0.5).toList()
       ..sort((a, b) => a.value.compareTo(b.value));
     final tags = <String>[];
     final label = cluster.label.trim().toLowerCase();

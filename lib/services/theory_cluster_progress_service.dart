@@ -32,8 +32,7 @@ class TheoryClusterProgressService {
       for (final l in c.lessons) {
         if (await progress.isCompleted(l.id)) done++;
       }
-      result.add(
-          ClusterProgress(cluster: c, completed: done, total: total));
+      result.add(ClusterProgress(cluster: c, completed: done, total: total));
     }
     return result;
   }

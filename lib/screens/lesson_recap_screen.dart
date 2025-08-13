@@ -38,8 +38,7 @@ class _LessonRecapScreenState extends State<LessonRecapScreen>
     if (next == null) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-            builder: (_) => const TrackProgressDashboardScreen()),
+        MaterialPageRoute(builder: (_) => const TrackProgressDashboardScreen()),
       );
     } else {
       Navigator.pushReplacement(

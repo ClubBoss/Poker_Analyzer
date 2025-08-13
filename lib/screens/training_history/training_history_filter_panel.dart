@@ -41,4 +41,3 @@ class TrainingHistoryFilterPanel extends StatelessWidget {
     );
   }
 }
-

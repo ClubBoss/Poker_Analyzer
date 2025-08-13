@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 enum LevelStage { bronze, silver, gold, platinum, diamond }
 
 extension LevelStageX on LevelStage {

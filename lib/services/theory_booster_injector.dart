@@ -20,7 +20,8 @@ class TheoryBoosterInjector {
   static final TheoryBoosterInjector instance = TheoryBoosterInjector();
 
   /// Inserts [reviewNodeIds] before [targetNodeId] if possible.
-  Future<void> injectBefore(String targetNodeId, List<String> reviewNodeIds) async {
+  Future<void> injectBefore(
+      String targetNodeId, List<String> reviewNodeIds) async {
     final mapEngine = _engine.engine;
     if (mapEngine == null || reviewNodeIds.isEmpty) return;
 

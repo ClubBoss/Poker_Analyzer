@@ -15,7 +15,8 @@ class TagAnalytics {
     required this.mistakes,
   });
 
-  double get valueScore => (launches * 2 + totalTrained - mistakes * 3).toDouble();
+  double get valueScore =>
+      (launches * 2 + totalTrained - mistakes * 3).toDouble();
 }
 
 class TrainingPackTagAnalyticsService extends ChangeNotifier {
@@ -31,7 +32,9 @@ class TrainingPackTagAnalyticsService extends ChangeNotifier {
     if (statsService == null) return;
     for (final p in packs) {
       final stats = await statsService.getStatsForPack(p.id);
-      if (stats.launches == 0 && stats.totalTrained == 0 && stats.mistakes == 0) {
+      if (stats.launches == 0 &&
+          stats.totalTrained == 0 &&
+          stats.mistakes == 0) {
         continue;
       }
       final tags = <String>{for (final t in p.tags) t.trim().toLowerCase()}
@@ -55,8 +58,7 @@ class TrainingPackTagAnalyticsService extends ChangeNotifier {
           totalTrained: e.value.total,
           mistakes: e.value.mistakes,
         )
-    ]
-      ..sort((a, b) => b.valueScore.compareTo(a.valueScore));
+    ]..sort((a, b) => b.valueScore.compareTo(a.valueScore));
     return list;
   }
 }

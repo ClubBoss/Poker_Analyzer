@@ -110,8 +110,8 @@ class TemplateStorageService extends ChangeNotifier {
       if (stored != null && stored.isNotEmpty) {
         _templates
           ..clear()
-          ..addAll(stored.map((e) =>
-              TrainingPackTemplate.fromJson(jsonDecode(e) as Map<String, dynamic>)));
+          ..addAll(stored.map((e) => TrainingPackTemplate.fromJson(
+              jsonDecode(e) as Map<String, dynamic>)));
       } else {
         final manifest = await _manifestFuture;
         final paths = manifest.keys.where((e) =>
@@ -133,7 +133,8 @@ class TemplateStorageService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<TrainingPackTemplate?> importTemplateFromFile(BuildContext context) async {
+  Future<TrainingPackTemplate?> importTemplateFromFile(
+      BuildContext context) async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['json'],
@@ -147,16 +148,16 @@ class TemplateStorageService extends ChangeNotifier {
       final data = jsonDecode(content);
       if (data is! Map<String, dynamic>) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Неверный формат шаблона: неверный JSON')));
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('Неверный формат шаблона: неверный JSON')));
         }
         return null;
       }
       final error = validateTemplateJson(Map<String, dynamic>.from(data));
       if (error != null) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('Неверный формат шаблона: $error')));
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Неверный формат шаблона: $error')));
         }
         return null;
       }
@@ -321,10 +322,9 @@ class TemplateStorageService extends ChangeNotifier {
       BuildContext context, TrainingPackTemplate template) async {
     if (template.isBuiltIn) return;
     try {
-      final dir =
-          await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
-      final safeName =
-          template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+      final dir = await getDownloadsDirectory() ??
+          await getApplicationDocumentsDirectory();
+      final safeName = template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
       final file = File('${dir.path}/$safeName.json');
       await file.writeAsString(jsonEncode(template.toJson()));
       if (context.mounted) {

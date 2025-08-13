@@ -41,19 +41,26 @@ void main() {
   test('getNextLessonsToReview orders lessons by priority', () async {
     final now = DateTime.now();
     SharedPreferences.setMockInitialValues({
-      'mini_lesson_progress_l1': '{"viewCount":2,"lastViewed":"${now.subtract(const Duration(days: 10)).toIso8601String()}","completed":false}',
-      'mini_lesson_progress_l2': '{"viewCount":1,"lastViewed":"${now.subtract(const Duration(days: 5)).toIso8601String()}","completed":true}',
-      'mini_lesson_progress_l3': '{"viewCount":1,"lastViewed":"${now.subtract(const Duration(days: 2)).toIso8601String()}","completed":false}',
+      'mini_lesson_progress_l1':
+          '{"viewCount":2,"lastViewed":"${now.subtract(const Duration(days: 10)).toIso8601String()}","completed":false}',
+      'mini_lesson_progress_l2':
+          '{"viewCount":1,"lastViewed":"${now.subtract(const Duration(days: 5)).toIso8601String()}","completed":true}',
+      'mini_lesson_progress_l3':
+          '{"viewCount":1,"lastViewed":"${now.subtract(const Duration(days: 2)).toIso8601String()}","completed":false}',
     });
 
     final lessons = [
-      const TheoryMiniLessonNode(id: 'l1', title: 'L1', content: '', tags: ['a']),
-      const TheoryMiniLessonNode(id: 'l2', title: 'L2', content: '', tags: ['b']),
-      const TheoryMiniLessonNode(id: 'l3', title: 'L3', content: '', tags: ['a', 'b']),
+      const TheoryMiniLessonNode(
+          id: 'l1', title: 'L1', content: '', tags: ['a']),
+      const TheoryMiniLessonNode(
+          id: 'l2', title: 'L2', content: '', tags: ['b']),
+      const TheoryMiniLessonNode(
+          id: 'l3', title: 'L3', content: '', tags: ['a', 'b']),
     ];
 
     final logs = [
-      SessionLog(tags: const [], 
+      SessionLog(
+        tags: const [],
         sessionId: 's1',
         templateId: 'p1',
         startedAt: now,

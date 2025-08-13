@@ -38,7 +38,9 @@ class EvaluationQueueSerializer {
 
   ActionEvaluationRequest _decodeRequest(Map<String, dynamic> json) {
     final map = Map<String, dynamic>.from(json);
-    if (map['id'] == null || map['id'] is! String || (map['id'] as String).isEmpty) {
+    if (map['id'] == null ||
+        map['id'] is! String ||
+        (map['id'] as String).isEmpty) {
       map['id'] = const Uuid().v4();
     }
     return ActionEvaluationRequest.fromJson(map);
@@ -58,4 +60,3 @@ class EvaluationQueueSerializer {
     return items;
   }
 }
-

@@ -20,13 +20,16 @@ void main(List<String> args) {
     stderr.writeln('File not found: ${args.first}');
     exit(1);
   }
-  final rows = const CsvToListConverter().convert(file.readAsStringSync().trim());
+  final rows =
+      const CsvToListConverter().convert(file.readAsStringSync().trim());
   if (rows.isEmpty) {
     stderr.writeln('Empty CSV');
     exit(1);
   }
   final header = [for (final h in rows.first) h.toString().trim()];
-  final Map<String, int> idx = {for (var i = 0; i < header.length; i++) header[i]: i};
+  final Map<String, int> idx = {
+    for (var i = 0; i < header.length; i++) header[i]: i
+  };
   final required = [
     'group',
     'title',
@@ -92,7 +95,10 @@ void main(List<String> args) {
               position: pos,
               heroIndex: 0,
               playerCount: stacks.length,
-              stacks: {for (var j = 0; j < stacks.length; j++) '$j': stacks[j].toDouble()},
+              stacks: {
+                for (var j = 0; j < stacks.length; j++)
+                  '$j': stacks[j].toDouble()
+              },
               actions: acts,
             ),
             tags: const [],
@@ -143,7 +149,10 @@ double? _double(String v) {
 }
 
 List<int> _list(String v) {
-  return [for (final s in v.split('/')) if (s.trim().isNotEmpty) _int(s.trim()) ?? 0];
+  return [
+    for (final s in v.split('/'))
+      if (s.trim().isNotEmpty) _int(s.trim()) ?? 0
+  ];
 }
 
 Map<int, List<ActionEntry>> _actions(String v) {
@@ -156,8 +165,7 @@ Map<int, List<ActionEntry>> _actions(String v) {
       if (value is List) {
         map[k] = [
           for (final a in value)
-            if (a is Map)
-              ActionEntry.fromJson(Map<String, dynamic>.from(a))
+            if (a is Map) ActionEntry.fromJson(Map<String, dynamic>.from(a))
         ];
       }
     });

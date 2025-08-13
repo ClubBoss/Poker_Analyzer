@@ -52,7 +52,8 @@ class _LessonStepRecapScreenState extends State<LessonStepRecapScreen> {
     final steps = await LessonLoaderService.instance.loadAllLessons();
     final completed = await path.getCompletedStepMap();
     final templates = context.read<TrainingPackTemplateStorageService>();
-    final profile = await SmartReviewService.instance.getMistakeProfile(templates);
+    final profile =
+        await SmartReviewService.instance.getMistakeProfile(templates);
     final spots = await SmartReviewService.instance.getMistakeSpots(templates);
     final advisor = LearningPathAdvisor(steps: steps);
     final next = advisor.recommendNextStep(
@@ -110,7 +111,10 @@ class _LessonStepRecapScreenState extends State<LessonStepRecapScreen> {
   @override
   Widget build(BuildContext context) {
     final accent = Theme.of(context).colorScheme.secondary;
-    final tags = (widget.step.meta['tags'] as List?)?.map((e) => e.toString()).toList() ?? const <String>[];
+    final tags = (widget.step.meta['tags'] as List?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        const <String>[];
     return Scaffold(
       appBar: AppBar(title: const Text('Резюме шага')),
       backgroundColor: const Color(0xFF121212),
@@ -179,8 +183,7 @@ class _LessonStepRecapScreenState extends State<LessonStepRecapScreen> {
                       child: const Text('Итоги трека'),
                     ),
                   ),
-                ]
-                else if (next != null) ...[
+                ] else if (next != null) ...[
                   Text(
                     'Следующий шаг: ${next.title}',
                     style: const TextStyle(color: Colors.white),
@@ -194,8 +197,7 @@ class _LessonStepRecapScreenState extends State<LessonStepRecapScreen> {
                       child: const Text('Начать следующий шаг'),
                     ),
                   ),
-                ]
-                else ...[
+                ] else ...[
                   Align(
                     alignment: Alignment.centerRight,
                     child: ElevatedButton(

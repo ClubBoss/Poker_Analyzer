@@ -56,12 +56,16 @@ class _InsightsScreenState extends State<InsightsScreen> {
                 const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                interval: data.map((e) => e.value).reduce((a, b) => a > b ? a : b) / 4,
+                interval:
+                    data.map((e) => e.value).reduce((a, b) => a > b ? a : b) /
+                        4,
                 reservedSize: 30,
                 getTitlesWidget: (v, meta) => Text(v.toInt().toString(),
                     style: const TextStyle(color: Colors.white, fontSize: 10)),
@@ -108,7 +112,6 @@ class _InsightsScreenState extends State<InsightsScreen> {
       ),
     );
   }
-
 
   Widget _pie(UserGoalEngine g) {
     final goals = g.goals;
@@ -160,7 +163,8 @@ class _InsightsScreenState extends State<InsightsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Insights'),
-        actions: [SyncStatusIcon.of(context), 
+        actions: [
+          SyncStatusIcon.of(context),
           ToggleButtons(
             isSelected: [_mode == _Mode.daily, _mode == _Mode.weekly],
             onPressed: (i) => setState(() => _mode = _Mode.values[i]),

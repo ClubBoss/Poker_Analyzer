@@ -45,21 +45,21 @@ void main() {
       final clusterer = InlinePackTheoryClusterer(
         noveltyGuard: const _TestNoveltyGuard(),
       );
-      final result = clusterer.attach(pack, library,
-          mistakeTelemetry: {'push': 0.4, 'bb': 0.8});
-      final clusters =
-          (result.metadata['theoryClusters'] as List).cast<Map<String, dynamic>>();
+      final result = clusterer
+          .attach(pack, library, mistakeTelemetry: {'push': 0.4, 'bb': 0.8});
+      final clusters = (result.metadata['theoryClusters'] as List)
+          .cast<Map<String, dynamic>>();
       expect(clusters.length, 1); // push cluster skipped by novelty guard
       expect(clusters.first['theme'], 'bb');
 
-      final spotLinks =
-          (result.spots[1].meta['theoryLinks'] as List).cast<Map<String, dynamic>>();
+      final spotLinks = (result.spots[1].meta['theoryLinks'] as List)
+          .cast<Map<String, dynamic>>();
       expect(spotLinks, isNotEmpty);
       expect(spotLinks.first['id'], 't2');
       expect(spotLinks.first['reason'], isNotEmpty);
 
-      final again = clusterer.attach(pack, library,
-          mistakeTelemetry: {'push': 0.4, 'bb': 0.8});
+      final again = clusterer
+          .attach(pack, library, mistakeTelemetry: {'push': 0.4, 'bb': 0.8});
       expect(again.metadata['theoryClusters'], clusters);
     });
   });

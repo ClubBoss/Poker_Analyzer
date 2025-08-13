@@ -15,7 +15,9 @@ class TheoryLessonTagClusterer {
     if (lessons.isEmpty) return [];
 
     final byId = {for (final l in lessons) l.id: l};
-    final adj = <String, Set<String>>{for (final l in lessons) l.id: <String>{}};
+    final adj = <String, Set<String>>{
+      for (final l in lessons) l.id: <String>{}
+    };
 
     // Build edges based on shared tags.
     final tagIndex = <String, List<String>>{};

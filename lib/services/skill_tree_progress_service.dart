@@ -19,4 +19,3 @@ class SkillTreeProgressService {
     return all.length;
   }
 }
-

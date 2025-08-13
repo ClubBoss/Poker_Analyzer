@@ -16,7 +16,8 @@ class PackRatingService {
         final data = jsonDecode(raw);
         if (data is Map) {
           _ratings = {
-            for (final e in data.entries) e.key.toString(): (e.value as num).toInt()
+            for (final e in data.entries)
+              e.key.toString(): (e.value as num).toInt()
           };
         }
       } catch (_) {}

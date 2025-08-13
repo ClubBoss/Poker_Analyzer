@@ -17,10 +17,12 @@ class CloudTrainingHistoryScreen extends StatefulWidget {
   const CloudTrainingHistoryScreen({super.key});
 
   @override
-  State<CloudTrainingHistoryScreen> createState() => _CloudTrainingHistoryScreenState();
+  State<CloudTrainingHistoryScreen> createState() =>
+      _CloudTrainingHistoryScreenState();
 }
 
-class _CloudTrainingHistoryScreenState extends State<CloudTrainingHistoryScreen> {
+class _CloudTrainingHistoryScreenState
+    extends State<CloudTrainingHistoryScreen> {
   List<CloudHistoryEntry> _sessions = [];
   _SortOption _sort = _SortOption.newest;
 
@@ -48,12 +50,10 @@ class _CloudTrainingHistoryScreenState extends State<CloudTrainingHistoryScreen>
         list.sort((a, b) => a.summary.date.compareTo(b.summary.date));
         break;
       case _SortOption.accuracyDesc:
-        list.sort(
-            (a, b) => b.summary.accuracy.compareTo(a.summary.accuracy));
+        list.sort((a, b) => b.summary.accuracy.compareTo(a.summary.accuracy));
         break;
       case _SortOption.accuracyAsc:
-        list.sort(
-            (a, b) => a.summary.accuracy.compareTo(b.summary.accuracy));
+        list.sort((a, b) => a.summary.accuracy.compareTo(b.summary.accuracy));
         break;
     }
   }
@@ -92,8 +92,8 @@ class _CloudTrainingHistoryScreenState extends State<CloudTrainingHistoryScreen>
     final session = await service.importFromJson(file);
     if (session == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Invalid file')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Invalid file')));
       }
       return;
     }
@@ -111,7 +111,8 @@ class _CloudTrainingHistoryScreenState extends State<CloudTrainingHistoryScreen>
       appBar: AppBar(
         title: const Text('Cloud History'),
         centerTitle: true,
-        actions: [SyncStatusIcon.of(context),
+        actions: [
+          SyncStatusIcon.of(context),
           IconButton(
             icon: const Icon(Icons.upload_file),
             tooltip: 'Import JSON',

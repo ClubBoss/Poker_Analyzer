@@ -82,7 +82,8 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
                     },
                     items: const [
                       DropdownMenuItem(value: 'any', child: Text('All')),
-                      DropdownMenuItem(value: 'preflop', child: Text('Preflop')),
+                      DropdownMenuItem(
+                          value: 'preflop', child: Text('Preflop')),
                       DropdownMenuItem(value: 'flop', child: Text('Flop')),
                       DropdownMenuItem(value: 'turn', child: Text('Turn')),
                       DropdownMenuItem(value: 'river', child: Text('River')),
@@ -138,16 +139,18 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
                                     style:
                                         const TextStyle(color: Colors.white)),
                                 subtitle: Text(sub,
-                                    style: const TextStyle(color: Colors.white70)),
+                                    style:
+                                        const TextStyle(color: Colors.white70)),
                                 trailing: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Text('$pct%',
-                                        style: const TextStyle(color: Colors.white)),
+                                        style: const TextStyle(
+                                            color: Colors.white)),
                                     Text('${s.total}',
-                                        style:
-                                            const TextStyle(color: Colors.white70)),
+                                        style: const TextStyle(
+                                            color: Colors.white70)),
                                   ],
                                 ),
                               ),

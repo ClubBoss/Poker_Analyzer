@@ -9,7 +9,8 @@ class RecentPack {
   final String name;
   final DateTime lastOpenedAt;
 
-  RecentPack({required this.id, required this.name, required this.lastOpenedAt});
+  RecentPack(
+      {required this.id, required this.name, required this.lastOpenedAt});
 
   factory RecentPack.fromJson(Map<String, dynamic> json) {
     return RecentPack(
@@ -31,7 +32,8 @@ class RecentPacksService {
   static final RecentPacksService instance = RecentPacksService._();
 
   static const _prefsKey = 'recent_packs_v1';
-  final ValueNotifier<List<RecentPack>> _recents = ValueNotifier<List<RecentPack>>([]);
+  final ValueNotifier<List<RecentPack>> _recents =
+      ValueNotifier<List<RecentPack>>([]);
   ValueListenable<List<RecentPack>> get listenable => _recents;
 
   Future<void> load() async {
@@ -39,7 +41,8 @@ class RecentPacksService {
     final raw = prefs.getStringList(_prefsKey);
     if (raw != null) {
       final items = raw
-          .map((e) => RecentPack.fromJson(jsonDecode(e) as Map<String, dynamic>))
+          .map(
+              (e) => RecentPack.fromJson(jsonDecode(e) as Map<String, dynamic>))
           .toList();
       items.sort((a, b) => b.lastOpenedAt.compareTo(a.lastOpenedAt));
       _recents.value = items;
@@ -58,7 +61,8 @@ class RecentPacksService {
     final time = when ?? DateTime.now();
     final list = List<RecentPack>.from(_recents.value);
     list.removeWhere((e) => e.id == template.id);
-    list.insert(0, RecentPack(id: template.id, name: template.name, lastOpenedAt: time));
+    list.insert(0,
+        RecentPack(id: template.id, name: template.name, lastOpenedAt: time));
     if (list.length > 5) {
       list.removeRange(5, list.length);
     }
@@ -67,7 +71,8 @@ class RecentPacksService {
   }
 
   Future<void> remove(String id) async {
-    final list = List<RecentPack>.from(_recents.value)..removeWhere((e) => e.id == id);
+    final list = List<RecentPack>.from(_recents.value)
+      ..removeWhere((e) => e.id == id);
     _recents.value = list;
     await _save();
   }

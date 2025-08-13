@@ -31,7 +31,8 @@ void main() {
 
     final packLibrary = TrainingPackLibraryV2.instance;
     packLibrary.clear();
-    final spot = TrainingPackSpot(id: 's1', hand: HandData(), tags: ['a'], categories: []);
+    final spot = TrainingPackSpot(
+        id: 's1', hand: HandData(), tags: ['a'], categories: []);
     final pack = TrainingPackTemplateV2(
       id: 'p1',
       name: 'Pack',
@@ -60,7 +61,8 @@ void main() {
       store: store,
       libraryIndex: TheoryLibraryIndex(),
       telemetry: MistakeTelemetryStore(),
-      noveltyRegistry: TheoryNoveltyRegistry(path: 'test_cache_ablation/novelty.json'),
+      noveltyRegistry:
+          TheoryNoveltyRegistry(path: 'test_cache_ablation/novelty.json'),
       policy: policy,
       packLibrary: packLibrary,
       dashboard: AutogenStatusDashboardService(),

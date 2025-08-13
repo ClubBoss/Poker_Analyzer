@@ -7,7 +7,8 @@ import 'package:poker_analyzer/models/v2/training_pack_template_v2.dart';
 import 'package:poker_analyzer/models/game_type.dart';
 import 'package:poker_analyzer/core/training/engine/training_type_engine.dart';
 
-TrainingPackTemplateV2 booster({required String id, required MistakeTagCluster c}) {
+TrainingPackTemplateV2 booster(
+    {required String id, required MistakeTagCluster c}) {
   return TrainingPackTemplateV2(
     id: id,
     name: id,

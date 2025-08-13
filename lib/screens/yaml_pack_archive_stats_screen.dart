@@ -10,7 +10,8 @@ class YamlPackArchiveStatsScreen extends StatefulWidget {
   const YamlPackArchiveStatsScreen({super.key});
 
   @override
-  State<YamlPackArchiveStatsScreen> createState() => _YamlPackArchiveStatsScreenState();
+  State<YamlPackArchiveStatsScreen> createState() =>
+      _YamlPackArchiveStatsScreenState();
 }
 
 class _PackStat {
@@ -21,7 +22,8 @@ class _PackStat {
   const _PackStat(this.count, this.size, this.first, this.last);
 }
 
-class _YamlPackArchiveStatsScreenState extends State<YamlPackArchiveStatsScreen> {
+class _YamlPackArchiveStatsScreenState
+    extends State<YamlPackArchiveStatsScreen> {
   bool _loading = true;
   final Map<String, _PackStat> _stats = {};
   int _totalFiles = 0;
@@ -83,7 +85,9 @@ class _YamlPackArchiveStatsScreenState extends State<YamlPackArchiveStatsScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Статистика архива'),
-        actions: [IconButton(onPressed: _load, icon: const Icon(Icons.refresh))],
+        actions: [
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh))
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
           child: Row(
@@ -91,15 +95,21 @@ class _YamlPackArchiveStatsScreenState extends State<YamlPackArchiveStatsScreen>
             children: [
               TextButton(
                 onPressed: () => setState(() => _sort = 'id'),
-                child: Text('ID', style: TextStyle(color: _sort == 'id' ? Colors.amber : Colors.white)),
+                child: Text('ID',
+                    style: TextStyle(
+                        color: _sort == 'id' ? Colors.amber : Colors.white)),
               ),
               TextButton(
                 onPressed: () => setState(() => _sort = 'date'),
-                child: Text('Дата', style: TextStyle(color: _sort == 'date' ? Colors.amber : Colors.white)),
+                child: Text('Дата',
+                    style: TextStyle(
+                        color: _sort == 'date' ? Colors.amber : Colors.white)),
               ),
               TextButton(
                 onPressed: () => setState(() => _sort = 'size'),
-                child: Text('Размер', style: TextStyle(color: _sort == 'size' ? Colors.amber : Colors.white)),
+                child: Text('Размер',
+                    style: TextStyle(
+                        color: _sort == 'size' ? Colors.amber : Colors.white)),
               ),
             ],
           ),
@@ -133,7 +143,8 @@ class _YamlPackArchiveStatsScreenState extends State<YamlPackArchiveStatsScreen>
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text('📊 Архив: $_totalFiles файлов, ${_sizeStr(_totalSize)}, ${_stats.length} паков'),
+                Text(
+                    '📊 Архив: $_totalFiles файлов, ${_sizeStr(_totalSize)}, ${_stats.length} паков'),
               ],
             ),
     );

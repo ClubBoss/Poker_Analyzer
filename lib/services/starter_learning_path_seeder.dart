@@ -25,18 +25,20 @@ class StarterLearningPathSeeder {
     }
 
     const writer = YamlWriter();
-    await writer.write({'packs': unique},
-        'assets/learning_paths/beginner_path.yaml');
+    await writer
+        .write({'packs': unique}, 'assets/learning_paths/beginner_path.yaml');
   }
 
-  List<TrainingPackTemplateV2> _selectPacks(List<TrainingPackTemplateV2> packs) {
+  List<TrainingPackTemplateV2> _selectPacks(
+      List<TrainingPackTemplateV2> packs) {
     final list = <TrainingPackTemplateV2>[];
     for (final p in packs) {
       final aud = p.audience?.toLowerCase();
       final tags = p.tags.map((t) => t.toLowerCase()).toList();
       if (aud == 'beginner') {
         list.add(p);
-      } else if (tags.contains('beginner') || tags.contains('starter')) list.add(p);
+      } else if (tags.contains('beginner') || tags.contains('starter'))
+        list.add(p);
     }
     list.sort((a, b) {
       final cmp = _rank(a).compareTo(_rank(b));

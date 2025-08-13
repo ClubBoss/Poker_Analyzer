@@ -29,8 +29,7 @@ class TrainingSessionFingerprintService {
     if (_currentSessionId == null) return;
     final prefs = await SharedPreferences.getInstance();
     final sessions = _loadSessions(prefs);
-    final idx =
-        sessions.indexWhere((e) => e['sessionId'] == _currentSessionId);
+    final idx = sessions.indexWhere((e) => e['sessionId'] == _currentSessionId);
     if (idx == -1) return;
     final summary = SpotAttemptSummary(
       spotId: attempt.spot.id,
@@ -84,4 +83,3 @@ class TrainingSessionFingerprintService {
     }
   }
 }
-

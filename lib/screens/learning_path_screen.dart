@@ -8,7 +8,8 @@ import 'pack_run_screen.dart';
 class LearningPathScreen extends StatefulWidget {
   final String pathId;
   final LearningPathController? controller;
-  const LearningPathScreen({super.key, this.pathId = 'default', this.controller});
+  const LearningPathScreen(
+      {super.key, this.pathId = 'default', this.controller});
 
   @override
   State<LearningPathScreen> createState() => _LearningPathScreenState();
@@ -80,4 +81,3 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     );
   }
 }
-

@@ -25,8 +25,7 @@ class BoosterExhaustionOverlayManager {
   bool _dialogOpen = false;
 
   Future<void> start() async {
-    _sub =
-        TheoryInjectionHorizonService.instance.injections.listen(_onInject);
+    _sub = TheoryInjectionHorizonService.instance.injections.listen(_onInject);
   }
 
   Future<void> dispose() async {

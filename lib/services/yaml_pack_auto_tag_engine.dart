@@ -55,8 +55,8 @@ class YamlPackAutoTagEngine {
     var total = 0;
     counts.forEach((_, v) => total += v);
     if (total == 0) return;
-    final maxEntry = counts.entries
-        .reduce((a, b) => a.value >= b.value ? a : b);
+    final maxEntry =
+        counts.entries.reduce((a, b) => a.value >= b.value ? a : b);
     if (maxEntry.value >= total / 2 && maxEntry.key != HeroPosition.unknown) {
       final label = maxEntry.key.name.toUpperCase();
       tags.add('hero$label');

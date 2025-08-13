@@ -32,7 +32,8 @@ class StreakCounterService extends ChangeNotifier {
   DateTime? get lastSuccess => _last;
   int get max => _max;
 
-  StreakCounterService({required this.stats, required this.target, required this.xp}) {
+  StreakCounterService(
+      {required this.stats, required this.target, required this.xp}) {
     _init();
   }
 
@@ -77,7 +78,8 @@ class StreakCounterService extends ChangeNotifier {
         showConfettiOverlay(ctx);
         final xp = level * 50;
         ScaffoldMessenger.of(ctx).showSnackBar(
-          SnackBar(content: Text('🔥 Вы достигли $_count-дневной цепочки! +$xp XP')),
+          SnackBar(
+              content: Text('🔥 Вы достигли $_count-дневной цепочки! +$xp XP')),
         );
       }
     }
@@ -112,7 +114,8 @@ class StreakCounterService extends ChangeNotifier {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final hands = stats.handsPerDay[today] ?? 0;
-    if (hands >= target.target && (_last == null || !_isSameDay(_last!, today))) {
+    if (hands >= target.target &&
+        (_last == null || !_isSameDay(_last!, today))) {
       _last = today;
       await _save();
       await xp.add(xp: XPTrackerService.targetXp, source: 'daily_target');

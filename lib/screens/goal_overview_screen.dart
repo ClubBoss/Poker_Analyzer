@@ -22,7 +22,6 @@ class GoalOverviewScreen extends StatefulWidget {
 }
 
 class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
-
   @override
   void initState() {
     super.initState();
@@ -48,9 +47,8 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
     final categories = tipService.categories;
     final streak = streakService.count;
     final history = streakService.history;
-    final maxStreak = history.isEmpty
-        ? streak
-        : history.map((e) => e.value).reduce(math.max);
+    final maxStreak =
+        history.isEmpty ? streak : history.map((e) => e.value).reduce(math.max);
     final target = targetService.target;
     final now = DateTime.now();
     final start = DateTime(now.year, now.month, now.day)
@@ -62,7 +60,8 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
       appBar: AppBar(
         title: const Text('Goal'),
         centerTitle: true,
-        actions: [SyncStatusIcon.of(context), 
+        actions: [
+          SyncStatusIcon.of(context),
           IconButton(
             icon: const Icon(Icons.calendar_today),
             onPressed: () {
@@ -124,14 +123,15 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
                                     .read<DailyTipService>()
                                     .setCategory(v!),
                                 items: categories
-                                    .map(
-                                        (c) => DropdownMenuItem(value: c, child: Text(c)))
+                                    .map((c) => DropdownMenuItem(
+                                        value: c, child: Text(c)))
                                     .toList(),
                               ),
                             ],
                           ),
                           const SizedBox(height: 4),
-                          Text(tip, style: const TextStyle(color: Colors.white)),
+                          Text(tip,
+                              style: const TextStyle(color: Colors.white)),
                         ],
                       ),
                     ),
@@ -170,7 +170,8 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
                   child: LinearProgressIndicator(
                     value: xpService.progress.clamp(0.0, 1.0),
                     backgroundColor: Colors.white24,
-                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.blueAccent),
+                    valueColor:
+                        const AlwaysStoppedAnimation<Color>(Colors.blueAccent),
                     minHeight: 6,
                   ),
                 ),
@@ -195,7 +196,8 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
                   child: LinearProgressIndicator(
                     value: challengeService.progress,
                     backgroundColor: Colors.white24,
-                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.greenAccent),
+                    valueColor:
+                        const AlwaysStoppedAnimation<Color>(Colors.greenAccent),
                     minHeight: 6,
                   ),
                 ),

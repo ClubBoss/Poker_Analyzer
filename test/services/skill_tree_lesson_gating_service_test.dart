@@ -27,7 +27,8 @@ void main() {
   const builder = SkillTreeBuilderService();
 
   SkillTreeNodeModel node(String id, {List<String>? prereqs}) =>
-      SkillTreeNodeModel(id: id, title: id, category: 'Push/Fold', prerequisites: prereqs);
+      SkillTreeNodeModel(
+          id: id, title: id, category: 'Push/Fold', prerequisites: prereqs);
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -48,7 +49,8 @@ void main() {
       progress: tracker,
       detector: SkillTreeFinalNodeCompletionDetector(progress: tracker),
     );
-    final gating = SkillTreeLessonGatingService(progressService: progressService);
+    final gating =
+        SkillTreeLessonGatingService(progressService: progressService);
 
     var map = await gating.evaluate(tree);
     expect(map['n1']!.isVisible, isTrue);

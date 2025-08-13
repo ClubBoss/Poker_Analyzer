@@ -11,7 +11,8 @@ class TrackMasteryService {
   final TagMasteryService mastery;
   final LessonStepTagProvider tagProvider;
 
-  TrackMasteryService({required this.mastery, LessonStepTagProvider? tagProvider})
+  TrackMasteryService(
+      {required this.mastery, LessonStepTagProvider? tagProvider})
       : tagProvider = tagProvider ?? LessonStepTagService.instance;
 
   static Map<String, double>? _cache;
@@ -19,7 +20,8 @@ class TrackMasteryService {
 
   Future<Map<String, double>> computeTrackMastery({bool force = false}) async {
     final now = DateTime.now();
-    if (!force && _cache != null &&
+    if (!force &&
+        _cache != null &&
         now.difference(_cacheTime) < const Duration(hours: 6)) {
       return _cache!;
     }

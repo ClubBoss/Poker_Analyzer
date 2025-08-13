@@ -15,8 +15,7 @@ class PackFilterService {
     TrainingPackLevel? level,
     String? goal,
   }) {
-    final themeSet =
-        themes?.map((e) => e.trim().toLowerCase()).toSet() ?? {};
+    final themeSet = themes?.map((e) => e.trim().toLowerCase()).toSet() ?? {};
     final tagSet = tags?.map((e) => e.trim().toLowerCase()).toSet() ?? {};
     final typeSet = types ?? {};
     final diffSet = difficulties ?? {};
@@ -87,11 +86,10 @@ class PackFilterService {
     }
 
     if (goal != null && goal.isNotEmpty) {
-      final g = (tpl.goal.isNotEmpty
-              ? tpl.goal
-              : tpl.meta['goal']?.toString() ?? '')
-          .trim()
-          .toLowerCase();
+      final g =
+          (tpl.goal.isNotEmpty ? tpl.goal : tpl.meta['goal']?.toString() ?? '')
+              .trim()
+              .toLowerCase();
       if (g != goal) return false;
     }
     return true;

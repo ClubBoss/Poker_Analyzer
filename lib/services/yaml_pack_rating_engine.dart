@@ -15,8 +15,7 @@ class YamlPackRatingEngine {
     }..removeWhere((e) => e.trim().isEmpty);
     final streets = {for (final s in spots) s.street};
     final stacks = {
-      for (final s in spots)
-        s.hand.stacks['${s.hand.heroIndex}']?.round() ?? 0
+      for (final s in spots) s.hand.stacks['${s.hand.heroIndex}']?.round() ?? 0
     };
     final ev = (pack.meta['evScore'] as num?)?.toDouble() ?? 0;
     final diff = (pack.meta['rankScore'] as num?)?.toDouble() ?? 0;

@@ -17,4 +17,3 @@ class LearningPathLibraryValidator {
     return issues;
   }
 }
-

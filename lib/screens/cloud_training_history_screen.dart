@@ -64,8 +64,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) =>
-            CloudTrainingSessionDetailsScreen(session: session),
+        builder: (_) => CloudTrainingSessionDetailsScreen(session: session),
       ),
     );
   }
@@ -136,7 +135,9 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
 
   Future<void> _drillTag() async {
     final manager = context.read<SavedHandManagerService>();
-    final Map<String, SavedHand> map = {for (final h in manager.hands) h.name: h};
+    final Map<String, SavedHand> map = {
+      for (final h in manager.hands) h.name: h
+    };
     final Set<String> names = {};
     for (final s in _getVisibleSessions()) {
       for (final r in s.results) {
@@ -145,7 +146,10 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
         }
       }
     }
-    final hands = [for (final n in names) if (map[n] != null) map[n]!];
+    final hands = [
+      for (final n in names)
+        if (map[n] != null) map[n]!
+    ];
     if (hands.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context)
@@ -244,7 +248,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       appBar: AppBar(
         title: const Text('История тренировок'),
         centerTitle: true,
-        actions: [SyncStatusIcon.of(context), 
+        actions: [
+          SyncStatusIcon.of(context),
           IconButton(
             icon: const Icon(Icons.download),
             tooltip: 'Экспорт',
@@ -353,8 +358,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                               _chartMode == _ChartMode.weekly,
                               _chartMode == _ChartMode.monthly,
                             ],
-                            onPressed: (index) =>
-                                setState(() => _chartMode = _ChartMode.values[index]),
+                            onPressed: (index) => setState(
+                                () => _chartMode = _ChartMode.values[index]),
                             borderRadius: BorderRadius.circular(4),
                             selectedColor: Colors.white,
                             fillColor: Colors.blueGrey,
@@ -408,32 +413,39 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
                                 if (s.comment != null && s.comment!.isNotEmpty)
                                   Text(
                                     s.comment!,
-                                    style: const TextStyle(color: Colors.white60),
+                                    style:
+                                        const TextStyle(color: Colors.white60),
                                   ),
                               ],
                             ),
-                            trailing: const Icon(Icons.chevron_right, color: Colors.white70),
+                            trailing: const Icon(Icons.chevron_right,
+                                color: Colors.white70),
                             onTap: () => _openSession(s),
                             onLongPress: () async {
                               final confirm = await showDialog<bool>(
                                 context: context,
                                 builder: (context) => AlertDialog(
                                   title: const Text('Delete Session?'),
-                                  content: const Text('Are you sure you want to delete this session?'),
+                                  content: const Text(
+                                      'Are you sure you want to delete this session?'),
                                   actions: [
                                     TextButton(
-                                      onPressed: () => Navigator.pop(context, false),
+                                      onPressed: () =>
+                                          Navigator.pop(context, false),
                                       child: const Text('Cancel'),
                                     ),
                                     TextButton(
-                                      onPressed: () => Navigator.pop(context, true),
+                                      onPressed: () =>
+                                          Navigator.pop(context, true),
                                       child: const Text('Delete'),
                                     ),
                                   ],
                                 ),
                               );
                               if (confirm == true) {
-                                await context.read<CloudTrainingHistoryService>().deleteSession(s.path);
+                                await context
+                                    .read<CloudTrainingHistoryService>()
+                                    .deleteSession(s.path);
                                 if (mounted) {
                                   setState(() => _sessions.removeAt(index));
                                   _updateTags();

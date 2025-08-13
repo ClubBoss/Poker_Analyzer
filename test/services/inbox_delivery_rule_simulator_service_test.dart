@@ -23,7 +23,8 @@ void main() {
   test('detects cooldown and rate limit with adjustments', () async {
     final tracker = SmartBoosterExclusionTrackerService();
     final tuning = SmartInboxHeuristicTuningService();
-    final sim = InboxDeliveryRuleSimulatorService(tuning: tuning, tracker: tracker);
+    final sim =
+        InboxDeliveryRuleSimulatorService(tuning: tuning, tracker: tracker);
 
     // first exclusion triggers cooldown
     await tracker.logExclusion('t1', 'rateLimited');
@@ -44,4 +45,3 @@ void main() {
     expect(results.single.wouldShow, true);
   });
 }
-

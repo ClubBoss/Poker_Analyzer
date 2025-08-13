@@ -96,9 +96,7 @@ class YamlPackMergeEngine {
       created: DateTime.now(),
       gameType: first.gameType,
       bb: first.bb,
-      positions: {
-        for (final p in list) ...p.positions
-      }.toList(),
+      positions: {for (final p in list) ...p.positions}.toList(),
       meta: meta,
       recommended: list.any((p) => p.recommended),
     );

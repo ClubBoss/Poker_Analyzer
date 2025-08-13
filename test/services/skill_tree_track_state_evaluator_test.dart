@@ -26,14 +26,21 @@ void main() {
 
     final svc = SkillTreeTrackStateEvaluator(
       progressService: _FakeProgressService([
-        const TrackProgressEntry(tree: treeA, completionRate: 0.0, isCompleted: false),
-        const TrackProgressEntry(tree: treeB, completionRate: 0.0, isCompleted: false),
+        const TrackProgressEntry(
+            tree: treeA, completionRate: 0.0, isCompleted: false),
+        const TrackProgressEntry(
+            tree: treeB, completionRate: 0.0, isCompleted: false),
       ]),
-      prerequisites: const {'B': ['A']},
+      prerequisites: const {
+        'B': ['A']
+      },
     );
 
     final states = await svc.evaluateStates();
-    final map = {for (final e in states) e.progress.tree.nodes.values.first.category: e.state};
+    final map = {
+      for (final e in states)
+        e.progress.tree.nodes.values.first.category: e.state
+    };
     expect(map['A'], SkillTreeTrackState.unlocked);
     expect(map['B'], SkillTreeTrackState.locked);
   });
@@ -45,15 +52,23 @@ void main() {
 
     final svc = SkillTreeTrackStateEvaluator(
       progressService: _FakeProgressService([
-        const TrackProgressEntry(tree: treeA, completionRate: 1.0, isCompleted: true),
-        const TrackProgressEntry(tree: treeB, completionRate: 0.3, isCompleted: false),
-        const TrackProgressEntry(tree: treeC, completionRate: 0.0, isCompleted: false),
+        const TrackProgressEntry(
+            tree: treeA, completionRate: 1.0, isCompleted: true),
+        const TrackProgressEntry(
+            tree: treeB, completionRate: 0.3, isCompleted: false),
+        const TrackProgressEntry(
+            tree: treeC, completionRate: 0.0, isCompleted: false),
       ]),
-      prerequisites: const {'B': ['A']},
+      prerequisites: const {
+        'B': ['A']
+      },
     );
 
     final states = await svc.evaluateStates();
-    final map = {for (final e in states) e.progress.tree.nodes.values.first.category: e.state};
+    final map = {
+      for (final e in states)
+        e.progress.tree.nodes.values.first.category: e.state
+    };
     expect(map['A'], SkillTreeTrackState.completed);
     expect(map['B'], SkillTreeTrackState.inProgress);
     expect(map['C'], SkillTreeTrackState.unlocked);

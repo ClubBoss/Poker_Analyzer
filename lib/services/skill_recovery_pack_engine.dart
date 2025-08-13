@@ -1,4 +1,3 @@
-
 import '../models/v2/training_pack_template_v2.dart';
 import 'suggestion_cooldown_manager.dart';
 import 'pack_library_loader_service.dart';

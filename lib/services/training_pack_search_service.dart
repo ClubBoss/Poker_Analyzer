@@ -66,4 +66,3 @@ class TrainingPackSearchService {
     return topics.toList();
   }
 }
-

@@ -45,7 +45,8 @@ void main() {
     expect(plan.mix['assessment']! >= plan.mix['booster']!, true);
   });
 
-  test('bandit impact >1.0 tag is preferred under equal mastery/decay', () async {
+  test('bandit impact >1.0 tag is preferred under equal mastery/decay',
+      () async {
     const user = 'u3';
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('planner.maxTagsPerPlan', 1);

@@ -75,26 +75,26 @@ class _WinnerGlowWidgetState extends State<WinnerGlowWidget>
               horizontal: 6 * widget.scale,
               vertical: 2 * widget.scale,
             ),
-          decoration: BoxDecoration(
-            color: Colors.amberAccent,
-            borderRadius: BorderRadius.circular(8 * widget.scale),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.amberAccent.withValues(alpha: 0.7),
-                blurRadius: 8 * widget.scale,
-                spreadRadius: 1 * widget.scale,
+            decoration: BoxDecoration(
+              color: Colors.amberAccent,
+              borderRadius: BorderRadius.circular(8 * widget.scale),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.amberAccent.withValues(alpha: 0.7),
+                  blurRadius: 8 * widget.scale,
+                  spreadRadius: 1 * widget.scale,
+                ),
+              ],
+            ),
+            child: Text(
+              'Winner',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 14 * widget.scale,
               ),
-            ],
-          ),
-          child: Text(
-            'Winner',
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 14 * widget.scale,
             ),
           ),
-        ),
         ),
       ),
     );

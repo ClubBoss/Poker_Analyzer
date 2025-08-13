@@ -31,8 +31,7 @@ class LearningPathController extends ChangeNotifier {
   LearningPathTemplateV2? get path => _path;
   String? get currentStageId => _progress.currentStageId;
   LearningPathStageModel? get currentStage =>
-      _path?.stages.firstWhere(
-          (s) => s.id == _progress.currentStageId,
+      _path?.stages.firstWhere((s) => s.id == _progress.currentStageId,
           orElse: () => _path!.stages.first);
 
   StageProgress stageProgress(String stageId) =>
@@ -96,8 +95,8 @@ class LearningPathController extends ChangeNotifier {
       return;
     }
     _lastRecord = now;
-    final stage =
-        _path!.stages.firstWhere((s) => s.id == stageId, orElse: () => _path!.stages.first);
+    final stage = _path!.stages
+        .firstWhere((s) => s.id == stageId, orElse: () => _path!.stages.first);
     final current = stageProgress(stageId).recordHand(correct: correct);
     var updated = current;
     if (current.handsPlayed >= stage.requiredHands &&
@@ -109,12 +108,12 @@ class LearningPathController extends ChangeNotifier {
       _unlockNext(stageId);
       final id = _pathId;
       if (id != null) {
-      _telemetry.log('stage_completed', {
-        'pathId': id,
-        'stageId': stageId,
-        'hands': updated.handsPlayed,
-        'accuracy': updated.accuracy,
-      });
+        _telemetry.log('stage_completed', {
+          'pathId': id,
+          'stageId': stageId,
+          'hands': updated.handsPlayed,
+          'accuracy': updated.accuracy,
+        });
       }
     }
     _progress = _progress.copyWith(
@@ -172,8 +171,7 @@ class LearningPathController extends ChangeNotifier {
           _progress.stages.values.fold<int>(0, (a, b) => a + b.handsPlayed);
       final avgAcc = _progress.stages.isEmpty
           ? 0.0
-          : _progress.stages.values
-                  .fold<double>(0, (a, b) => a + b.accuracy) /
+          : _progress.stages.values.fold<double>(0, (a, b) => a + b.accuracy) /
               _progress.stages.length;
       _telemetry.log('path_summary', {
         'pathId': id,
@@ -193,4 +191,3 @@ class LearningPathController extends ChangeNotifier {
     await load(id);
   }
 }
-

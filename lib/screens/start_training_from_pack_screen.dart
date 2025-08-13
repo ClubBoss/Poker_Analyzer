@@ -10,10 +10,12 @@ class StartTrainingFromPackScreen extends StatefulWidget {
   const StartTrainingFromPackScreen({super.key});
 
   @override
-  State<StartTrainingFromPackScreen> createState() => _StartTrainingFromPackScreenState();
+  State<StartTrainingFromPackScreen> createState() =>
+      _StartTrainingFromPackScreenState();
 }
 
-class _StartTrainingFromPackScreenState extends State<StartTrainingFromPackScreen> {
+class _StartTrainingFromPackScreenState
+    extends State<StartTrainingFromPackScreen> {
   final List<TrainingPackTemplate> _templates = [];
   bool _loading = true;
   String? _last;
@@ -37,12 +39,13 @@ class _StartTrainingFromPackScreenState extends State<StartTrainingFromPackScree
     });
   }
 
-
   Future<void> _start(TrainingPackTemplate tpl) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_lastKey, tpl.name);
     setState(() => _last = tpl.name);
-    final hands = [for (final s in tpl.spots) handFromPackSpot(s, anteBb: tpl.anteBb)];
+    final hands = [
+      for (final s in tpl.spots) handFromPackSpot(s, anteBb: tpl.anteBb)
+    ];
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -92,4 +95,3 @@ class _StartTrainingFromPackScreenState extends State<StartTrainingFromPackScree
     );
   }
 }
-

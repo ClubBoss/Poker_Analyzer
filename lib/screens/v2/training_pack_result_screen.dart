@@ -30,11 +30,16 @@ class TrainingPackResultScreen extends StatefulWidget {
   final TrainingPackTemplate template;
   final TrainingPackTemplate original;
   final Map<String, String> results;
-  const TrainingPackResultScreen({super.key, required this.template, required this.results, TrainingPackTemplate? original})
+  const TrainingPackResultScreen(
+      {super.key,
+      required this.template,
+      required this.results,
+      TrainingPackTemplate? original})
       : original = original ?? template;
-  
+
   @override
-  State<TrainingPackResultScreen> createState() => _TrainingPackResultScreenState();
+  State<TrainingPackResultScreen> createState() =>
+      _TrainingPackResultScreenState();
 }
 
 class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
@@ -96,7 +101,9 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
     for (final s in widget.template.spots) {
       final exp = _expected(s);
       final ans = widget.results[s.id];
-      if (exp != null && ans != null && ans.toLowerCase() == exp.toLowerCase()) {
+      if (exp != null &&
+          ans != null &&
+          ans.toLowerCase() == exp.toLowerCase()) {
         c++;
       }
     }
@@ -175,8 +182,7 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
   double get _evDeltaSum => _evDeltas.fold(0.0, (a, b) => a + b);
   double get _icmDeltaSum => _icmDeltas.fold(0.0, (a, b) => a + b);
 
-  List<TrainingPackSpot> get _mistakeSpots => widget.template.spots
-      .where((s) {
+  List<TrainingPackSpot> get _mistakeSpots => widget.template.spots.where((s) {
         final exp = _expected(s);
         final ans = widget.results[s.id];
         return exp != null &&
@@ -195,11 +201,15 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
       final template = widget.template.copyWith(
         id: const Uuid().v4(),
         name: 'Review mistakes',
-        spots: [for (final s in widget.template.spots) if (ids.contains(s.id)) s],
+        spots: [
+          for (final s in widget.template.spots)
+            if (ids.contains(s.id)) s
+        ],
       );
       MistakeReviewPackService.setLatestTemplate(template);
-      unawaited(context.read<MistakeReviewPackService>().addPack(ids,
-          templateId: widget.template.id));
+      unawaited(context
+          .read<MistakeReviewPackService>()
+          .addPack(ids, templateId: widget.template.id));
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         final start = await showDialog<bool>(
           context: context,
@@ -301,12 +311,14 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
       correct: _correct,
       total: _total,
     ));
-    SharedPreferences.getInstance().then((p) =>
-        p.setString('last_trained_tpl_${widget.original.id}', DateTime.now().toIso8601String()));
+    SharedPreferences.getInstance().then((p) => p.setString(
+        'last_trained_tpl_${widget.original.id}',
+        DateTime.now().toIso8601String()));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final ctx = _firstKey.currentContext;
       if (ctx != null) {
-        Scrollable.ensureVisible(ctx, duration: const Duration(milliseconds: 300));
+        Scrollable.ensureVisible(ctx,
+            duration: const Duration(milliseconds: 300));
       }
     });
     WidgetsBinding.instance.addPostFrameCallback((_) => _maybeShowPackTip());
@@ -347,12 +359,19 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 spacing: 8,
                 children: [
-                  Text(l.spotsLabel('$_total'), style: const TextStyle(color: Colors.white)),
-                  Text('•', style: TextStyle(color: Colors.white.withValues(alpha: 0.5))),
-                  Text(l.accuracyLabel(_rate.toStringAsFixed(0)), style: const TextStyle(color: Colors.white)),
-                  Text('•', style: TextStyle(color: Colors.white.withValues(alpha: 0.5))),
+                  Text(l.spotsLabel('$_total'),
+                      style: const TextStyle(color: Colors.white)),
+                  Text('•',
+                      style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.5))),
+                  Text(l.accuracyLabel(_rate.toStringAsFixed(0)),
+                      style: const TextStyle(color: Colors.white)),
+                  Text('•',
+                      style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.5))),
                   Text(
-                    l.evBb("${_evSum >= 0 ? '+' : ''}${_evSum.toStringAsFixed(1)}"),
+                    l.evBb(
+                        "${_evSum >= 0 ? '+' : ''}${_evSum.toStringAsFixed(1)}"),
                     style: TextStyle(
                       color: _evSum > 0
                           ? Colors.greenAccent
@@ -360,9 +379,12 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
                     ),
                   ),
                   if (_icmEvs.isNotEmpty) ...[
-                    Text('•', style: TextStyle(color: Colors.white.withValues(alpha: 0.5))),
+                    Text('•',
+                        style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.5))),
                     Text(
-                      l.icmLabel("${_icmSum >= 0 ? '+' : ''}${_icmSum.toStringAsFixed(1)}"),
+                      l.icmLabel(
+                          "${_icmSum >= 0 ? '+' : ''}${_icmSum.toStringAsFixed(1)}"),
                       style: TextStyle(
                         color: _icmSum > 0
                             ? Colors.greenAccent
@@ -389,9 +411,11 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
             const SizedBox(height: 8),
             Text(_message, style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
-            Text('Mistakes: $_mistakes', style: const TextStyle(color: Colors.white70)),
+            Text('Mistakes: $_mistakes',
+                style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
-            Text('Accuracy: ${_mistakes == 0 ? '100' : _rate.toStringAsFixed(1)}%',
+            Text(
+                'Accuracy: ${_mistakes == 0 ? '100' : _rate.toStringAsFixed(1)}%',
                 style: const TextStyle(color: Colors.white70)),
             if (_evCumulative.length + _icmCumulative.length >= 4) ...[
               const SizedBox(height: 16),
@@ -436,8 +460,7 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('Hero: $hero',
-                                style:
-                                    const TextStyle(color: Colors.white70),
+                                style: const TextStyle(color: Colors.white70),
                                 softWrap: false,
                                 overflow: TextOverflow.ellipsis),
                             Text('Expected: $exp',
@@ -446,8 +469,7 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
                                 softWrap: false,
                                 overflow: TextOverflow.ellipsis),
                             Text('Your: $ans',
-                                style:
-                                    const TextStyle(color: Colors.redAccent),
+                                style: const TextStyle(color: Colors.redAccent),
                                 softWrap: false,
                                 overflow: TextOverflow.ellipsis),
                           ],
@@ -464,7 +486,10 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
                   final template = widget.template.copyWith(
                     id: const Uuid().v4(),
                     name: 'Review mistakes',
-                    spots: [for (final s in widget.template.spots) if (_mistakeIds.contains(s.id)) s],
+                    spots: [
+                      for (final s in widget.template.spots)
+                        if (_mistakeIds.contains(s.id)) s
+                    ],
                   );
                   MistakeReviewPackService.setLatestTemplate(template);
                   await context
@@ -475,8 +500,7 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (_) => TrainingPackPlayScreen(
-                        template:
-                            MistakeReviewPackService.cachedTemplate!,
+                        template: MistakeReviewPackService.cachedTemplate!,
                         original: null,
                       ),
                     ),
@@ -506,11 +530,15 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
                             ans != 'false' &&
                             exp.toLowerCase() != ans.toLowerCase();
                       }).toList();
-                      final retry = widget.template.copyWith(id: const Uuid().v4(), name: 'Retry mistakes', spots: spots);
+                      final retry = widget.template.copyWith(
+                          id: const Uuid().v4(),
+                          name: 'Retry mistakes',
+                          spots: spots);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => TrainingPackPlayScreen(template: retry, original: widget.original),
+                          builder: (_) => TrainingPackPlayScreen(
+                              template: retry, original: widget.original),
                         ),
                       );
                     },
@@ -522,7 +550,9 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => TrainingPackTemplateEditorScreen(template: widget.original, templates: [widget.original]),
+                    builder: (_) => TrainingPackTemplateEditorScreen(
+                        template: widget.original,
+                        templates: [widget.original]),
                   ),
                 );
               },
@@ -546,7 +576,9 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
     for (final s in widget.template.spots) {
       final exp = _expected(s);
       final ans = widget.results[s.id];
-      if (exp != null && ans != null && ans.toLowerCase() == exp.toLowerCase()) {
+      if (exp != null &&
+          ans != null &&
+          ans.toLowerCase() == exp.toLowerCase()) {
         correct++;
       }
     }
@@ -561,18 +593,22 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
     final lastStr = prefs.getString(key);
     if (lastStr != null) {
       final last = DateTime.tryParse(lastStr);
-      if (last != null && DateTime.now().difference(last) < const Duration(days: 1)) {
+      if (last != null &&
+          DateTime.now().difference(last) < const Duration(days: 1)) {
         return;
       }
     }
     await prefs.setString(key, DateTime.now().toIso8601String());
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Want to improve your ${rec.position.label}? Try ${tpl.name}.'),
+        content: Text(
+            'Want to improve your ${rec.position.label}? Try ${tpl.name}.'),
         action: SnackBarAction(
           label: 'Train',
           onPressed: () async {
-            await context.read<TrainingSessionService>().startSession(tpl, persist: false);
+            await context
+                .read<TrainingSessionService>()
+                .startSession(tpl, persist: false);
             if (!context.mounted) return;
             Navigator.pushReplacement(
               context,
@@ -584,7 +620,6 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
       ),
     );
   }
-
 }
 
 class _DeltaChart extends StatelessWidget {
@@ -630,11 +665,14 @@ class _DeltaChart extends StatelessWidget {
             show: true,
             drawVerticalLine: false,
             horizontalInterval: interval,
-            getDrawingHorizontalLine: (value) => const FlLine(color: Colors.white24, strokeWidth: 1),
+            getDrawingHorizontalLine: (value) =>
+                const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -653,8 +691,11 @@ class _DeltaChart extends StatelessWidget {
                 getTitlesWidget: (value, meta) {
                   final i = value.toInt();
                   if (i < 0 || i >= len) return const SizedBox.shrink();
-                  if (i % step != 0 && i != len - 1) return const SizedBox.shrink();
-                  return Text('${i + 1}', style: const TextStyle(color: Colors.white, fontSize: 10));
+                  if (i % step != 0 && i != len - 1)
+                    return const SizedBox.shrink();
+                  return Text('${i + 1}',
+                      style:
+                          const TextStyle(color: Colors.white, fontSize: 10));
                 },
               ),
             ),

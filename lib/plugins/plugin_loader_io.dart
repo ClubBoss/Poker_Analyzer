@@ -199,8 +199,8 @@ class PluginLoader {
     if (!name.endsWith(_suffix)) {
       throw Exception('Invalid plugin file');
     }
-    final dir =
-        Directory(p.join((await getApplicationSupportDirectory()).path, 'plugins'));
+    final dir = Directory(
+        p.join((await getApplicationSupportDirectory()).path, 'plugins'));
     await dir.create(recursive: true);
     final file = File(p.join(dir.path, name));
     final cached = await _loadCache();
@@ -234,8 +234,8 @@ class PluginLoader {
         throw Exception('Checksum mismatch');
       }
       final cache = cached ?? <String, dynamic>{};
-      final checksums =
-          (cache['checksums'] as Map?)?.cast<String, String>() ?? <String, String>{};
+      final checksums = (cache['checksums'] as Map?)?.cast<String, String>() ??
+          <String, String>{};
       checksums[name] = digest;
       cache['checksums'] = checksums;
       final f = await _cacheFile();
@@ -248,8 +248,8 @@ class PluginLoader {
   }
 
   Future<void> delete(String name) async {
-    final supportDir =
-        Directory(p.join((await getApplicationSupportDirectory()).path, 'plugins'));
+    final supportDir = Directory(
+        p.join((await getApplicationSupportDirectory()).path, 'plugins'));
     final supportFile = File(p.join(supportDir.path, name));
     if (await supportFile.exists()) await supportFile.delete();
     final rootFile = File(p.join('plugins', name));
@@ -263,7 +263,8 @@ class PluginLoader {
     _config = Map<String, bool>.from(config);
 
     final cache = await _loadCache() ?? <String, dynamic>{};
-    final files = (cache['files'] as List?)?.cast<String>().toList() ?? <String>[];
+    final files =
+        (cache['files'] as List?)?.cast<String>().toList() ?? <String>[];
     files.remove(name);
     final checksums = (cache['checksums'] as Map?)?.cast<String, String>() ??
         <String, String>{};

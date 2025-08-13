@@ -10,8 +10,7 @@ class DeduplicationPolicyEditor extends StatefulWidget {
       _DeduplicationPolicyEditorState();
 }
 
-class _DeduplicationPolicyEditorState
-    extends State<DeduplicationPolicyEditor> {
+class _DeduplicationPolicyEditorState extends State<DeduplicationPolicyEditor> {
   final _engine = DeduplicationPolicyEngine();
   List<DeduplicationPolicy> _policies = const [];
   String _reason = 'duplicate';
@@ -88,7 +87,8 @@ class _DeduplicationPolicyEditorState
                         child: Text('high_similarity'),
                       ),
                     ],
-                    onChanged: (v) => setState(() => _reason = v ?? 'duplicate'),
+                    onChanged: (v) =>
+                        setState(() => _reason = v ?? 'duplicate'),
                   ),
                 ),
                 Expanded(
@@ -101,15 +101,14 @@ class _DeduplicationPolicyEditorState
                           child: Text(a.name),
                         ),
                     ],
-                    onChanged: (v) =>
-                        setState(() => _action = v ?? DeduplicationAction.block),
+                    onChanged: (v) => setState(
+                        () => _action = v ?? DeduplicationAction.block),
                   ),
                 ),
                 Expanded(
                   child: TextField(
                     controller: _thresholdCtrl,
-                    decoration:
-                        const InputDecoration(labelText: 'Threshold'),
+                    decoration: const InputDecoration(labelText: 'Threshold'),
                     keyboardType: TextInputType.number,
                   ),
                 ),
@@ -125,4 +124,3 @@ class _DeduplicationPolicyEditorState
     );
   }
 }
-

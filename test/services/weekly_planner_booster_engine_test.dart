@@ -68,9 +68,12 @@ void main() {
     );
     Future<List<String>> planner() async => ['s1', 's2'];
     final theoryLib = _FakeTheoryLibrary({
-      't1': TheoryPackModel(id: 't1', title: 'Bubble Play', sections: const [], tags: const []),
+      't1': TheoryPackModel(
+          id: 't1', title: 'Bubble Play', sections: const [], tags: const []),
     });
-    final packLib = _FakePackLibrary({'bubble': ['b1']});
+    final packLib = _FakePackLibrary({
+      'bubble': ['b1']
+    });
 
     final engine = WeeklyPlannerBoosterEngine(
       library: packLib,
@@ -80,6 +83,8 @@ void main() {
     );
 
     final result = await engine.suggestBoostersForPlannedStages();
-    expect(result, {'s1': ['b1']});
+    expect(result, {
+      's1': ['b1']
+    });
   });
 }

@@ -38,12 +38,15 @@ class MotivationCard extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final showGoal = bestGoal != null && (bestAch == null || goalRemain <= achRemain);
+    final showGoal =
+        bestGoal != null && (bestAch == null || goalRemain <= achRemain);
     final title = showGoal ? bestGoal.title : bestAch!.title;
     final icon = showGoal ? Icons.flag : bestAch!.icon;
     final progress = showGoal ? engine.progress(bestGoal) : bestAch!.progress;
     final target = showGoal ? bestGoal.target : bestAch!.nextTarget;
-    final accent = showGoal ? Theme.of(context).colorScheme.secondary : bestAch!.level.color;
+    final accent = showGoal
+        ? Theme.of(context).colorScheme.secondary
+        : bestAch!.level.color;
 
     return GestureDetector(
       onTap: () {

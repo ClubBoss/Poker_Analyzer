@@ -53,10 +53,12 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
       return DateTimeRange(start: start, end: now);
     }
     if (_dateFilter == '7 дней') {
-      return DateTimeRange(start: now.subtract(const Duration(days: 7)), end: now);
+      return DateTimeRange(
+          start: now.subtract(const Duration(days: 7)), end: now);
     }
     if (_dateFilter == '30 дней') {
-      return DateTimeRange(start: now.subtract(const Duration(days: 30)), end: now);
+      return DateTimeRange(
+          start: now.subtract(const Duration(days: 30)), end: now);
     }
     return null;
   }
@@ -98,9 +100,11 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
     List<SavedHand> visible = [
       for (final hand in filtered)
         if ((!_onlyFavorites || hand.isFavorite) &&
-            (_streetFilter == 'Все' || streetName(hand.boardStreet) == _streetFilter) &&
+            (_streetFilter == 'Все' ||
+                streetName(hand.boardStreet) == _streetFilter) &&
             (hand.evLoss == null ||
-                (hand.evLoss! >= _evRange.start && hand.evLoss! <= _evRange.end)))
+                (hand.evLoss! >= _evRange.start &&
+                    hand.evLoss! <= _evRange.end)))
           hand
     ];
     final query = _searchController.text.toLowerCase();
@@ -134,7 +138,8 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
           ),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: AppConstants.padding16),
+            padding:
+                const EdgeInsets.symmetric(horizontal: AppConstants.padding16),
             child: Row(
               children: [
                 DropdownButton<String>(
@@ -149,7 +154,8 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
                 DropdownButton<String>(
                   value: _positionFilter,
                   dropdownColor: const Color(0xFF2A2B2E),
-                  onChanged: (v) => setState(() => _positionFilter = v ?? 'Все'),
+                  onChanged: (v) =>
+                      setState(() => _positionFilter = v ?? 'Все'),
                   items: ['Все', ...positions]
                       .map((p) => DropdownMenuItem(value: p, child: Text(p)))
                       .toList(),
@@ -176,7 +182,8 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
                 DropdownButton<String>(
                   value: _accuracyFilter,
                   dropdownColor: const Color(0xFF2A2B2E),
-                  onChanged: (v) => setState(() => _accuracyFilter = v ?? 'Все'),
+                  onChanged: (v) =>
+                      setState(() => _accuracyFilter = v ?? 'Все'),
                   items: ['Все', 'Только ошибки', 'Только верные']
                       .map((d) => DropdownMenuItem(value: d, child: Text(d)))
                       .toList(),
@@ -200,7 +207,8 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
                   ),
                 ),
                 IconButton(
-                  onPressed: () => setState(() => _onlyFavorites = !_onlyFavorites),
+                  onPressed: () =>
+                      setState(() => _onlyFavorites = !_onlyFavorites),
                   icon: Icon(_onlyFavorites ? Icons.star : Icons.star_border),
                   color: _onlyFavorites ? Colors.amber : Colors.white,
                 ),
@@ -213,8 +221,7 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 ElevatedButton(
-                  onPressed:
-                      handManager.hands.isEmpty ? null : _exportArchive,
+                  onPressed: handManager.hands.isEmpty ? null : _exportArchive,
                   child: const Text('Экспорт архива'),
                 ),
               ],

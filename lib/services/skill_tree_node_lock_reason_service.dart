@@ -19,8 +19,9 @@ class SkillTreeNodeLockReasonService {
   })  : _library = library ?? SkillTreeLibraryService.instance,
         _progress = progress ?? SkillTreeNodeProgressTracker.instance,
         _stageEval = stageEvaluator ?? const SkillTreeStageGateEvaluator(),
-        _unlockEval =
-            unlockEvaluator ?? SkillTreeUnlockEvaluator(progress: progress ?? SkillTreeNodeProgressTracker.instance);
+        _unlockEval = unlockEvaluator ??
+            SkillTreeUnlockEvaluator(
+                progress: progress ?? SkillTreeNodeProgressTracker.instance);
 
   Future<String?> getLockReason(SkillTreeNodeModel node) async {
     final res = _library.getTree(node.category);
@@ -35,8 +36,7 @@ class SkillTreeNodeLockReasonService {
     if (unlockedIds.contains(node.id)) return null;
 
     if (!_stageEval.isStageUnlocked(tree, node.level, completed)) {
-      final blockers =
-          _stageEval.getBlockingNodes(tree, node.level, completed);
+      final blockers = _stageEval.getBlockingNodes(tree, node.level, completed);
       if (blockers.isNotEmpty) {
         blockers.sort((a, b) => b.level.compareTo(a.level));
         final b = blockers.first;

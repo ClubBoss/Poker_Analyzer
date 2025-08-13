@@ -7,7 +7,8 @@ import '../services/session_log_service.dart';
 class PackHistoryScreen extends StatelessWidget {
   final String templateId;
   final String title;
-  const PackHistoryScreen({super.key, required this.templateId, required this.title});
+  const PackHistoryScreen(
+      {super.key, required this.templateId, required this.title});
 
   @override
   Widget build(BuildContext context) {

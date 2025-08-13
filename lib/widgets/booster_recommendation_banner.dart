@@ -26,7 +26,7 @@ class _BoosterRecommendationBannerState
     extends State<BoosterRecommendationBanner> {
   bool _loading = true;
   bool _visible = true;
-  
+
   @override
   void initState() {
     super.initState();
@@ -39,8 +39,8 @@ class _BoosterRecommendationBannerState
   }
 
   Future<void> _start() async {
-    final tpl = BoosterLibraryService.instance
-        .getById(widget.recommendation.boosterId);
+    final tpl =
+        BoosterLibraryService.instance.getById(widget.recommendation.boosterId);
     if (tpl == null) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

@@ -25,8 +25,7 @@ class TrainingPackTheoryScreen extends StatelessWidget {
                 )
                 .toRichText(
                   style: const TextStyle(color: Colors.white, fontSize: 12),
-                  linkStyle:
-                      const TextStyle(color: Colors.lightBlueAccent),
+                  linkStyle: const TextStyle(color: Colors.lightBlueAccent),
                 ),
           if (template.goal.isNotEmpty) ...[
             const SizedBox(height: 8),
@@ -37,8 +36,7 @@ class TrainingPackTheoryScreen extends StatelessWidget {
                 )
                 .toRichText(
                   style: const TextStyle(color: Colors.white, fontSize: 12),
-                  linkStyle:
-                      const TextStyle(color: Colors.lightBlueAccent),
+                  linkStyle: const TextStyle(color: Colors.lightBlueAccent),
                 ),
           ],
         ],
@@ -46,4 +44,3 @@ class TrainingPackTheoryScreen extends StatelessWidget {
     );
   }
 }
-

@@ -19,8 +19,8 @@ class TrainingReminderEngine {
     if (_initialized) return;
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
-    await _plugin.initialize(
-        const InitializationSettings(android: android, iOS: ios));
+    await _plugin
+        .initialize(const InitializationSettings(android: android, iOS: ios));
     tz.initializeTimeZones();
     _initialized = true;
   }
@@ -32,7 +32,8 @@ class TrainingReminderEngine {
     final now = DateTime.now();
     final lastStr = prefs.getString(_checkKey);
     final lastCheck = lastStr == null ? null : DateTime.tryParse(lastStr);
-    if (lastCheck != null && now.difference(lastCheck) < const Duration(days: 1)) {
+    if (lastCheck != null &&
+        now.difference(lastCheck) < const Duration(days: 1)) {
       return false;
     }
     await prefs.setString(_checkKey, now.toIso8601String());
@@ -56,8 +57,8 @@ class TrainingReminderEngine {
     await _init();
     final now = tz.TZDateTime.now(tz.local);
     final today = tz.TZDateTime(tz.local, now.year, now.month, now.day);
-    final lastDay = tz.TZDateTime(
-        tz.local, lastTrainingTime.year, lastTrainingTime.month, lastTrainingTime.day);
+    final lastDay = tz.TZDateTime(tz.local, lastTrainingTime.year,
+        lastTrainingTime.month, lastTrainingTime.day);
     if (lastDay.isAtSameMomentAs(today)) return;
 
     var when = tz.TZDateTime(tz.local, today.year, today.month, today.day, 20);

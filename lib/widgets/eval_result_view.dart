@@ -65,4 +65,3 @@ class _EvalResultViewState extends State<EvalResultView> {
     );
   }
 }
-

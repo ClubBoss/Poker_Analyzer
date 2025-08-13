@@ -24,13 +24,15 @@ class PackReviewStatsExporter {
     final box = await _openBox();
 
     final tagStats = <String, Map<String, int>>{};
-    final len =
-        result.tasks.length < template.spots.length ? result.tasks.length : template.spots.length;
+    final len = result.tasks.length < template.spots.length
+        ? result.tasks.length
+        : template.spots.length;
     for (var i = 0; i < len; i++) {
       final spot = template.spots[i];
       final task = result.tasks[i];
       for (final tag in spot.tags) {
-        final stat = tagStats.putIfAbsent(tag, () => {'total': 0, 'correct': 0});
+        final stat =
+            tagStats.putIfAbsent(tag, () => {'total': 0, 'correct': 0});
         stat['total'] = (stat['total'] ?? 0) + 1;
         if (task.correct) {
           stat['correct'] = (stat['correct'] ?? 0) + 1;
@@ -56,4 +58,3 @@ class PackReviewStatsExporter {
     await box.add(record);
   }
 }
-

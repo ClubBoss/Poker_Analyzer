@@ -62,7 +62,8 @@ class _SkillTreeTrackCelebrationScreenState
               mainAxisSize: MainAxisSize.min,
               children: [
                 ScaleTransition(
-                  scale: CurvedAnimation(parent: _anim, curve: Curves.elasticOut),
+                  scale:
+                      CurvedAnimation(parent: _anim, curve: Curves.elasticOut),
                   child: Lottie.asset(
                     'assets/animations/congrats.json',
                     width: 160,
@@ -84,7 +85,8 @@ class _SkillTreeTrackCelebrationScreenState
                 const SizedBox(height: 32),
                 ElevatedButton(
                   onPressed: _finish,
-                  child: Text(widget.onNext == null ? 'Готово' : 'Следующий трек'),
+                  child:
+                      Text(widget.onNext == null ? 'Готово' : 'Следующий трек'),
                 ),
               ],
             ),

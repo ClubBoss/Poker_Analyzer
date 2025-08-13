@@ -75,4 +75,3 @@ class MainMenuSuggestedBanner extends StatelessWidget {
     );
   }
 }
-

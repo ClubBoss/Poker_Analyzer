@@ -39,24 +39,23 @@ class _GlobalEvaluationScreenState extends State<GlobalEvaluationScreen> {
       final batch = templates.sublist(i, min(i + batchSize, total));
       final results = await Future.wait([
         for (var j = 0; j < batch.length; j++)
-          BulkEvaluatorService()
-              .generateMissingForTemplate(
-                batch[j],
-                onProgress: (p) {
-                  if (!mounted || _cancelRequested) return;
-                  final base = (i + j) / total;
-                  setState(() => _progress = base + p / total);
-                },
-              )
-              .catchError((e) {
-                debugPrint('globalEval: $e');
-                return 0;
-              }),
+          BulkEvaluatorService().generateMissingForTemplate(
+            batch[j],
+            onProgress: (p) {
+              if (!mounted || _cancelRequested) return;
+              final base = (i + j) / total;
+              setState(() => _progress = base + p / total);
+            },
+          ).catchError((e) {
+            debugPrint('globalEval: $e');
+            return 0;
+          }),
       ]);
       if (!mounted) return;
       if (_cancelRequested) break;
       for (var j = 0; j < batch.length; j++) {
-        if (results[j] > 0) TemplateCoverageUtils.recountAll(batch[j]).applyTo(batch[j].meta);
+        if (results[j] > 0)
+          TemplateCoverageUtils.recountAll(batch[j]).applyTo(batch[j].meta);
       }
       setState(() => _progress = (i + batch.length) / total);
     }

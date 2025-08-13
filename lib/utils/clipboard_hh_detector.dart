@@ -1,6 +1,11 @@
 const Set<String> _hhMarkers = {
-  '*** hole cards ***', 'pokerstars', 'hand #', 'pokertracker',
-  'карманные карты', 'раздача #', 'рука #',
+  '*** hole cards ***',
+  'pokerstars',
+  'hand #',
+  'pokertracker',
+  'карманные карты',
+  'раздача #',
+  'рука #',
 };
 
 bool containsPokerHistoryMarkers(String text) {

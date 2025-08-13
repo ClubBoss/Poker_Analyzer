@@ -19,7 +19,8 @@ class DrillHistoryService extends ChangeNotifier {
         if (list is List) {
           _results
             ..clear()
-            ..addAll(list.map((e) => DrillResult.fromJson(Map<String, dynamic>.from(e as Map))));
+            ..addAll(list.map((e) =>
+                DrillResult.fromJson(Map<String, dynamic>.from(e as Map))));
           _results.sort((a, b) => b.date.compareTo(a.date));
         }
       } catch (_) {}
@@ -29,7 +30,8 @@ class DrillHistoryService extends ChangeNotifier {
 
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_key, jsonEncode([for (final r in _results) r.toJson()]));
+    await prefs.setString(
+        _key, jsonEncode([for (final r in _results) r.toJson()]));
   }
 
   Future<void> add(DrillResult r) async {

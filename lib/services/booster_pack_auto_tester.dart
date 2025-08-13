@@ -7,7 +7,8 @@ class BoosterAutoTestReport {
   final List<String> passed;
   final Map<String, List<String>> failed;
 
-  BoosterAutoTestReport({List<String>? passed, Map<String, List<String>>? failed})
+  BoosterAutoTestReport(
+      {List<String>? passed, Map<String, List<String>>? failed})
       : passed = passed ?? <String>[],
         failed = failed ?? <String, List<String>>{};
 
@@ -20,7 +21,8 @@ class BoosterAutoTestReport {
 class BoosterPackAutoTester {
   const BoosterPackAutoTester();
 
-  Future<BoosterAutoTestReport> testAll({String dir = 'yaml_out/boosters'}) async {
+  Future<BoosterAutoTestReport> testAll(
+      {String dir = 'yaml_out/boosters'}) async {
     final report = BoosterAutoTestReport();
     final directory = Directory(dir);
     if (!directory.existsSync()) return report;

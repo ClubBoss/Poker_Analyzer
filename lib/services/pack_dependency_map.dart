@@ -37,8 +37,8 @@ class PackDependencyMap {
     for (final dep in dependents) {
       if (unlocked.contains(dep)) continue;
       final reqs = _deps[dep] ?? const [];
-      final allDone = await Future.wait(
-              reqs.map((r) => LearningPathProgressService.instance.isCompleted(r)))
+      final allDone = await Future.wait(reqs
+              .map((r) => LearningPathProgressService.instance.isCompleted(r)))
           .then((v) => v.every((e) => e));
       if (allDone) {
         unlocked.add(dep);
@@ -57,8 +57,8 @@ class PackDependencyMap {
     final unlocked = <String>[];
     for (final entry in _deps.entries) {
       final reqs = entry.value;
-      final allDone = await Future.wait(
-              reqs.map((r) => LearningPathProgressService.instance.isCompleted(r)))
+      final allDone = await Future.wait(reqs
+              .map((r) => LearningPathProgressService.instance.isCompleted(r)))
           .then((v) => v.every((e) => e));
       if (allDone) unlocked.add(entry.key);
     }

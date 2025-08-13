@@ -95,10 +95,8 @@ void main() {
     await tester.pumpAndSettle();
 
     final dataTable = tester.widget<DataTable>(find.byType(DataTable));
-    final base = Theme.of(
-            tester.element(find.byType(DataTable)))
-        .colorScheme
-        .surface;
+    final base =
+        Theme.of(tester.element(find.byType(DataTable))).colorScheme.surface;
     final rowColorA = dataTable.rows[0].color!.resolve({});
     final rowColorC = dataTable.rows[2].color!.resolve({});
     expect(rowColorA, isNot(equals(base)));
@@ -153,4 +151,3 @@ void main() {
     expect(cat2.avg, 0);
   });
 }
-

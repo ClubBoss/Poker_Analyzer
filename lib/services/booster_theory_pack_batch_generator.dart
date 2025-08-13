@@ -41,8 +41,7 @@ class BoosterTheoryPackBatchGenerator {
         prefix = '$idPrefix${attempt++}';
       } while (existingIds.contains(pack.id));
 
-      pack.trainingType =
-          const TrainingTypeEngine().detectTrainingType(pack);
+      pack.trainingType = const TrainingTypeEngine().detectTrainingType(pack);
       newPacks.add(pack);
       existingTags.add(key);
       existingIds.add(pack.id);

@@ -25,14 +25,18 @@ void main() {
         TrainingPackModel(
           id: 'p2',
           title: 'Pack2',
-          spots: [TrainingPackSpot(id: 's3', tags: ['raise'])],
+          spots: [
+            TrainingPackSpot(id: 's3', tags: ['raise'])
+          ],
           tags: const ['misc'],
         ),
       ];
 
       final lessons = [
-        TheoryMiniLessonNode(id: 'l1', title: 'L1', content: '', tags: ['push']),
-        TheoryMiniLessonNode(id: 'l2', title: 'L2', content: '', tags: ['raise']),
+        TheoryMiniLessonNode(
+            id: 'l1', title: 'L1', content: '', tags: ['push']),
+        TheoryMiniLessonNode(
+            id: 'l2', title: 'L2', content: '', tags: ['raise']),
       ];
 
       final service = const SkillTreeAutoLinkerService();

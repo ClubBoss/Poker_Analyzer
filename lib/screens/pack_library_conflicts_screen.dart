@@ -7,10 +7,12 @@ import '../services/pack_library_conflict_scanner.dart';
 class PackLibraryConflictsScreen extends StatefulWidget {
   const PackLibraryConflictsScreen({super.key});
   @override
-  State<PackLibraryConflictsScreen> createState() => _PackLibraryConflictsScreenState();
+  State<PackLibraryConflictsScreen> createState() =>
+      _PackLibraryConflictsScreenState();
 }
 
-class _PackLibraryConflictsScreenState extends State<PackLibraryConflictsScreen> {
+class _PackLibraryConflictsScreenState
+    extends State<PackLibraryConflictsScreen> {
   bool _loading = true;
   final List<(String, String)> _items = [];
 
@@ -42,11 +44,13 @@ class _PackLibraryConflictsScreenState extends State<PackLibraryConflictsScreen>
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                ElevatedButton(onPressed: _load, child: const Text('🔄 Обновить')),
+                ElevatedButton(
+                    onPressed: _load, child: const Text('🔄 Обновить')),
                 const SizedBox(height: 16),
                 for (final i in _items)
                   ListTile(
-                    title: Text(File(i.$1).path.split(Platform.pathSeparator).last),
+                    title: Text(
+                        File(i.$1).path.split(Platform.pathSeparator).last),
                     subtitle: Text(i.$2),
                   ),
               ],
@@ -57,5 +61,7 @@ class _PackLibraryConflictsScreenState extends State<PackLibraryConflictsScreen>
 
 Future<List<List<String>>> _scanTask(String _) async {
   final res = await const PackLibraryConflictScanner().scanConflicts();
-  return [for (final e in res) [e.$1, e.$2]];
+  return [
+    for (final e in res) [e.$1, e.$2]
+  ];
 }

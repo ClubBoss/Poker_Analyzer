@@ -26,7 +26,8 @@ class ActiveGoalsCard extends StatelessWidget {
             children: [
               const Expanded(
                 child: Text('Active Goals',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               ),
               TextButton(
                 onPressed: () {
@@ -43,8 +44,7 @@ class ActiveGoalsCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           for (var i = 0; i < goals.length; i++) ...[
-            Text(goals[i].title,
-                style: const TextStyle(color: Colors.white)),
+            Text(goals[i].title, style: const TextStyle(color: Colors.white)),
             const SizedBox(height: 4),
             ClipRRect(
               borderRadius: BorderRadius.circular(4),

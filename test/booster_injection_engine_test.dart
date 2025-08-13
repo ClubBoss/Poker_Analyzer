@@ -16,7 +16,8 @@ WeakClusterInfo _cluster(String tag) => WeakClusterInfo(
       score: 1.0,
     );
 
-TrainingPackTemplateV2 _booster(String id, String tag) => TrainingPackTemplateV2(
+TrainingPackTemplateV2 _booster(String id, String tag) =>
+    TrainingPackTemplateV2(
       id: id,
       name: id,
       trainingType: TrainingType.theory,

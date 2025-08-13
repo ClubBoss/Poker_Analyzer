@@ -73,9 +73,8 @@ class ActionTagService {
     }
     _tags
       ..clear()
-      ..addAll({
-        for (final e in json.entries) int.parse(e.key): e.value as String?
-      });
+      ..addAll(
+          {for (final e in json.entries) int.parse(e.key): e.value as String?});
   }
 
   /// Returns a copy of the current tags map.

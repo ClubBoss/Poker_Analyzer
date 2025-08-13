@@ -333,14 +333,14 @@ class PackGeneratorService {
     final actions = <int, List<ActionEntry>>{};
     for (final a in spot.actions) {
       actions.putIfAbsent(a.street, () => []).add(ActionEntry(
-        a.street,
-        a.playerIndex,
-        a.action,
-        amount: a.amount,
-        generated: a.generated,
-        manualEvaluation: a.manualEvaluation,
-        customLabel: a.customLabel,
-      ));
+            a.street,
+            a.playerIndex,
+            a.action,
+            amount: a.amount,
+            generated: a.generated,
+            manualEvaluation: a.manualEvaluation,
+            customLabel: a.customLabel,
+          ));
     }
     final stacks = <String, double>{};
     for (var i = 0; i < spot.stacks.length; i++) {
@@ -436,8 +436,9 @@ class PackGeneratorService {
       range = topNHands(25).toList();
     }
     final hand = range.first;
-    final pos =
-        variant.position == HeroPosition.unknown ? template.heroPos : variant.position;
+    final pos = variant.position == HeroPosition.unknown
+        ? template.heroPos
+        : variant.position;
     switch (variant.gameType) {
       case GameType.tournament:
         final tpl = generatePushFoldPackSync(

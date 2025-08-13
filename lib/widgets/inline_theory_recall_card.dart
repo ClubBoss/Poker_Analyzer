@@ -26,8 +26,8 @@ class _InlineTheoryRecallCardState extends State<InlineTheoryRecallCard>
   @override
   void initState() {
     super.initState();
-    _controller =
-        AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 300));
     _controller.forward();
     _timer = Timer(const Duration(seconds: 12), _handleDismiss);
   }

@@ -27,7 +27,8 @@ class _PackInsightsBannerState extends State<PackInsightsBanner> {
 
   Future<void> _load() async {
     final stat = await TrainingPackStatsService.getStats(widget.templateId);
-    final completed = await TrainingPackStatsService.getHandsCompleted(widget.templateId);
+    final completed =
+        await TrainingPackStatsService.getHandsCompleted(widget.templateId);
     final logs = context.read<SessionLogService>().logs;
     final mistakes = <String, int>{};
     double timeSum = 0;
@@ -49,10 +50,13 @@ class _PackInsightsBannerState extends State<PackInsightsBanner> {
         ..sort((a, b) => b.value.compareTo(a.value));
       top = entries.first.key;
     }
-    final mastered = await TrainingPackStatsService.isMastered(widget.templateId);
+    final mastered =
+        await TrainingPackStatsService.isMastered(widget.templateId);
     final rec = mastered
         ? 'Освоено'
-        : (stat != null && stat.accuracy >= 0.8 ? 'Попробуйте похожее' : 'Повторить');
+        : (stat != null && stat.accuracy >= 0.8
+            ? 'Попробуйте похожее'
+            : 'Повторить');
     if (mounted) {
       setState(() {
         _accuracy = stat?.accuracy;

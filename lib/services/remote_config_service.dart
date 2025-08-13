@@ -28,7 +28,11 @@ class RemoteConfigService extends ChangeNotifier {
     final now = DateTime.now();
     if (_lastFetch == null || now.difference(_lastFetch!).inHours >= 12) {
       try {
-        final doc = await CloudRetryPolicy.execute(() => FirebaseFirestore.instance.collection('config').doc('public').get());
+        final doc = await CloudRetryPolicy.execute(() => FirebaseFirestore
+            .instance
+            .collection('config')
+            .doc('public')
+            .get());
         if (doc.exists) {
           _data = doc.data() ?? {};
           data.value = Map.from(_data);
@@ -44,7 +48,8 @@ class RemoteConfigService extends ChangeNotifier {
   Future<void> reload() async {
     try {
       final doc = await CloudRetryPolicy.execute(
-        () => FirebaseFirestore.instance.collection('config').doc('public').get(),
+        () =>
+            FirebaseFirestore.instance.collection('config').doc('public').get(),
       );
       if (doc.exists) {
         final prefs = await SharedPreferences.getInstance();

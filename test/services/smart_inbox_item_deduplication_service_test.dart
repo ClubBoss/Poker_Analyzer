@@ -20,15 +20,9 @@ void main() {
     final service = SmartInboxItemDeduplicationService();
     final input = [
       const PinnedBlockBoosterSuggestion(
-          blockId: '1',
-          blockTitle: 'b1',
-          tag: 'a',
-          action: 'reviewTheory'),
+          blockId: '1', blockTitle: 'b1', tag: 'a', action: 'reviewTheory'),
       const PinnedBlockBoosterSuggestion(
-          blockId: '2',
-          blockTitle: 'b2',
-          tag: 'a',
-          action: 'reviewTheory'),
+          blockId: '2', blockTitle: 'b2', tag: 'a', action: 'reviewTheory'),
     ];
     final result = await service.deduplicate(input);
     expect(result.length, 1);
@@ -39,15 +33,9 @@ void main() {
     final service = SmartInboxItemDeduplicationService();
     final input = [
       const PinnedBlockBoosterSuggestion(
-          blockId: '1',
-          blockTitle: 'b1',
-          tag: 'a',
-          action: 'reviewTheory'),
+          blockId: '1', blockTitle: 'b1', tag: 'a', action: 'reviewTheory'),
       const PinnedBlockBoosterSuggestion(
-          blockId: '1',
-          blockTitle: 'b1',
-          tag: 'b',
-          action: 'resumePack'),
+          blockId: '1', blockTitle: 'b1', tag: 'b', action: 'resumePack'),
     ];
     final result = await service.deduplicate(input);
     expect(result.length, 1);
@@ -58,19 +46,12 @@ void main() {
     final service = SmartInboxItemDeduplicationService();
     final input = [
       const PinnedBlockBoosterSuggestion(
-          blockId: '1',
-          blockTitle: 'b1',
-          tag: 'a',
-          action: 'reviewTheory'),
+          blockId: '1', blockTitle: 'b1', tag: 'a', action: 'reviewTheory'),
       const PinnedBlockBoosterSuggestion(
-          blockId: '2',
-          blockTitle: 'b2',
-          tag: 'a',
-          action: 'reviewTheory'),
+          blockId: '2', blockTitle: 'b2', tag: 'a', action: 'reviewTheory'),
     ];
     await service.deduplicate(input);
-    final log =
-        await SmartBoosterExclusionTrackerService().exportLog();
+    final log = await SmartBoosterExclusionTrackerService().exportLog();
     expect(log.length, 1);
     expect(log.first['tag'], 'a');
     expect(log.first['reason'], 'deduplicated');

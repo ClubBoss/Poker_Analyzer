@@ -39,9 +39,11 @@ class GraphPathTemplateValidator {
 
     final startCount = idCounts['start'] ?? 0;
     if (startCount == 0) {
-      issues.add(const ValidationIssue(type: 'error', message: 'missing_start'));
+      issues
+          .add(const ValidationIssue(type: 'error', message: 'missing_start'));
     } else if (startCount > 1) {
-      issues.add(const ValidationIssue(type: 'error', message: 'multiple_start'));
+      issues
+          .add(const ValidationIssue(type: 'error', message: 'multiple_start'));
     }
 
     for (final node in nodes) {
@@ -58,17 +60,21 @@ class GraphPathTemplateValidator {
           }
         }
       } else if (node is StageNode || node is TheoryLessonNode) {
-        final nextIds = node is StageNode ? node.nextIds : (node as TheoryLessonNode).nextIds;
+        final nextIds = node is StageNode
+            ? node.nextIds
+            : (node as TheoryLessonNode).nextIds;
         if (node is StageNode) {
           for (final d in node.dependsOn) {
             if (!byId.containsKey(d)) {
-              issues.add(ValidationIssue(type: 'error', message: 'unknown_dep:${node.id}:$d'));
+              issues.add(ValidationIssue(
+                  type: 'error', message: 'unknown_dep:${node.id}:$d'));
             }
           }
         }
         for (final n in nextIds) {
           if (!byId.containsKey(n)) {
-            issues.add(ValidationIssue(type: 'error', message: 'unknown_next:${node.id}:$n'));
+            issues.add(ValidationIssue(
+                type: 'error', message: 'unknown_next:${node.id}:$n'));
           }
         }
       }
@@ -91,7 +97,8 @@ class GraphPathTemplateValidator {
       }
       for (final n in nodes) {
         if (!reachable.contains(n.id)) {
-          issues.add(ValidationIssue(type: 'warning', message: 'orphan:${n.id}'));
+          issues
+              .add(ValidationIssue(type: 'warning', message: 'orphan:${n.id}'));
         }
       }
     }

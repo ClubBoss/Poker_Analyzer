@@ -7,12 +7,14 @@ class TheoryLessonClusterSerializer {
   const TheoryLessonClusterSerializer();
 
   /// Converts [cluster] into a JSON-friendly map.
-  Map<String, dynamic> toJson(TheoryLessonCluster cluster, {String? clusterId}) {
+  Map<String, dynamic> toJson(TheoryLessonCluster cluster,
+      {String? clusterId}) {
     return {
       'clusterId': clusterId ?? TheoryClusterIdHasher.hash(cluster),
       'lessons': [for (final l in cluster.lessons) l.toJson()],
       'sharedTags': cluster.sharedTags.toList(),
-      if (cluster.autoTags.isNotEmpty) 'autoTags': List<String>.from(cluster.autoTags),
+      if (cluster.autoTags.isNotEmpty)
+        'autoTags': List<String>.from(cluster.autoTags),
     };
   }
 

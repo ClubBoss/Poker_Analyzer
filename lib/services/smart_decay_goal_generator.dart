@@ -18,7 +18,8 @@ class SmartDecayGoalGenerator {
         streak = streak ?? const ReviewStreakEvaluatorService();
 
   /// Returns recommended recovery goals for highly decayed tags.
-  Future<List<GoalRecommendation>> recommendDecayRecoveryGoals({int max = 5}) async {
+  Future<List<GoalRecommendation>> recommendDecayRecoveryGoals(
+      {int max = 5}) async {
     if (max <= 0) return <GoalRecommendation>[];
     final decayScores = await retention.getAllDecayScores();
     final successLogs = await logger.getSuccesses();
@@ -50,8 +51,9 @@ class SmartDecayGoalGenerator {
 
       final successes = successMap[tag] ?? 0;
       final completed = stats?.completedCount ?? 0;
-      final successRate =
-          completed > 0 ? successes * 100 / completed : (successes > 0 ? 100 : 0);
+      final successRate = completed > 0
+          ? successes * 100 / completed
+          : (successes > 0 ? 100 : 0);
       if (successRate > 90) continue;
 
       final reason =
@@ -68,4 +70,3 @@ class SmartDecayGoalGenerator {
     return recommendations;
   }
 }
-

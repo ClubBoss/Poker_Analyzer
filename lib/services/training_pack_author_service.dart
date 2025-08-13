@@ -152,8 +152,7 @@ class TrainingPackAuthorService {
           heroHand: hand,
           chipPushEv: chipEv,
         );
-        actions[0]![0] =
-            actions[0]![0].copyWith(ev: chipEv, icmEv: icmEv);
+        actions[0]![0] = actions[0]![0].copyWith(ev: chipEv, icmEv: icmEv);
         stacks = {
           for (var j = 0; j < playerStacks.length; j++)
             '$j': playerStacks[j].toDouble()
@@ -193,9 +192,8 @@ class TrainingPackAuthorService {
       gameType: config.gameType,
       spots: spots,
       heroBbStack: isIcm ? 12 : stackValue,
-      playerStacksBb: isIcm
-          ? const [25, 20, 12, 18, 9, 6]
-          : [stackValue, stackValue],
+      playerStacksBb:
+          isIcm ? const [25, 20, 12, 18, 9, 6] : [stackValue, stackValue],
       heroPos: config.pos,
       spotCount: spots.length,
       bbCallPct: 0,

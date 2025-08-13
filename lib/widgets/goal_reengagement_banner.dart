@@ -96,7 +96,8 @@ class _GoalReengagementBannerWidgetState
               ElevatedButton(
                 onPressed: _start,
                 style: ElevatedButton.styleFrom(backgroundColor: accent),
-                child: const Text('\u0422\u0440\u0435\u043D\u0438\u0440\u043E\u0432\u0430\u0442\u044C'),
+                child: const Text(
+                    '\u0422\u0440\u0435\u043D\u0438\u0440\u043E\u0432\u0430\u0442\u044C'),
               ),
               const SizedBox(width: 12),
               OutlinedButton(

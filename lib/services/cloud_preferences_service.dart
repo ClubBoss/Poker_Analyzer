@@ -5,8 +5,7 @@ import 'cloud_retry_policy.dart';
 
 class CloudPreferencesService {
   CloudPreferencesService._();
-  static final CloudPreferencesService instance =
-      CloudPreferencesService._();
+  static final CloudPreferencesService instance = CloudPreferencesService._();
 
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -44,4 +43,3 @@ class CloudPreferencesService {
     });
   }
 }
-

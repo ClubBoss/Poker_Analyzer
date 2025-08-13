@@ -42,7 +42,8 @@ class PackLibraryRefactorService {
       tpl.tags
         ..clear()
         ..addAll(tags);
-      if ((tpl.audience == null || tpl.audience!.isEmpty) && tpl.tags.isNotEmpty) {
+      if ((tpl.audience == null || tpl.audience!.isEmpty) &&
+          tpl.tags.isNotEmpty) {
         final aud = _detectAudience(tpl.tags, matrix);
         if (aud != null) tpl.audience = aud;
       }
@@ -84,7 +85,8 @@ class PackLibraryRefactorService {
     return refactored + removed;
   }
 
-  String? _detectAudience(List<String> tags, List<(String, List<String>)> matrix) {
+  String? _detectAudience(
+      List<String> tags, List<(String, List<String>)> matrix) {
     final res = <String>{};
     for (final item in matrix) {
       for (final t in item.$2) {

@@ -97,7 +97,8 @@ class TrainingActivityByWeekdayScreen extends StatelessWidget {
                   tooltipBgColor: Colors.black54,
                   getTooltipItem: (group, groupIndex, rod, rodIndex) {
                     final c = counts[group.x];
-                    return BarTooltipItem('$c попыток', const TextStyle(color: Colors.white));
+                    return BarTooltipItem(
+                        '$c попыток', const TextStyle(color: Colors.white));
                   },
                 ),
               ),
@@ -142,7 +143,8 @@ class TrainingActivityByWeekdayScreen extends StatelessWidget {
                       }
                       return Text(
                         labels[index],
-                        style: const TextStyle(color: Colors.white, fontSize: 10),
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 10),
                       );
                     },
                   ),

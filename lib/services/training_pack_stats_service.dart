@@ -219,7 +219,10 @@ class TrainingPackStatsService {
       final log = SessionLog.fromJson(Map<String, dynamic>.from(v));
       count.update(log.templateId, (c) => c + 1, ifAbsent: () => 1);
     }
-    final list = [for (final t in templates) if (count[t.id] != null) t];
+    final list = [
+      for (final t in templates)
+        if (count[t.id] != null) t
+    ];
     list.sort((a, b) {
       final r = (count[b.id] ?? 0).compareTo(count[a.id] ?? 0);
       return r == 0 ? a.name.compareTo(b.name) : r;
@@ -241,9 +244,7 @@ class TrainingPackStatsService {
       if (log.completedAt.isBefore(cutoff)) continue;
       count.update(log.templateId, (c) => c + 1, ifAbsent: () => 1);
     }
-    final list = count.entries
-        .where((e) => e.value >= minCount)
-        .toList()
+    final list = count.entries.where((e) => e.value >= minCount).toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     return [for (final e in list) e.key];
   }
@@ -304,7 +305,8 @@ class TrainingPackStatsService {
   static DateTime _cacheTime = DateTime.fromMillisecondsSinceEpoch(0);
 
   static Future<GlobalPackStats> getGlobalStats({bool force = false}) async {
-    if (!force && _cache != null &&
+    if (!force &&
+        _cache != null &&
         DateTime.now().difference(_cacheTime) < const Duration(minutes: 1)) {
       return _cache!;
     }
@@ -328,8 +330,10 @@ class TrainingPackStatsService {
         } catch (_) {}
       }
     }
-    final completed = prefs.getKeys()
-        .where((k) => k.startsWith('completed_tpl_') && prefs.getBool(k) == true)
+    final completed = prefs
+        .getKeys()
+        .where(
+            (k) => k.startsWith('completed_tpl_') && prefs.getBool(k) == true)
         .length;
     final streak = prefs.getInt('training_streak_count') ?? 0;
     final result = GlobalPackStats(

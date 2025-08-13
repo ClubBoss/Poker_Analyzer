@@ -33,8 +33,9 @@ class SmartInboxItemDeduplicationService {
           last = opened ?? dismissed;
         }
       }
-      final ageMs =
-          last == null ? double.infinity : now.difference(last).inMilliseconds.toDouble();
+      final ageMs = last == null
+          ? double.infinity
+          : now.difference(last).inMilliseconds.toDouble();
       final isResumePack = s.action == 'resumePack';
       scored.add(_ScoredSuggestion(s, ageMs, isResumePack));
     }

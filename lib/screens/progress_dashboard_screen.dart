@@ -26,28 +26,35 @@ class ProgressDashboardScreen extends StatefulWidget {
   const ProgressDashboardScreen({super.key});
 
   @override
-  State<ProgressDashboardScreen> createState() => _ProgressDashboardScreenState();
+  State<ProgressDashboardScreen> createState() =>
+      _ProgressDashboardScreenState();
 }
 
 class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
   final _boundaryKey = GlobalKey();
 
   Future<void> _share() async {
-    final boundary = _boundaryKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+    final boundary = _boundaryKey.currentContext?.findRenderObject()
+        as RenderRepaintBoundary?;
     if (boundary == null) return;
     final bytes = await PngExporter.captureBoundary(boundary);
     if (bytes == null) return;
     final dir = await getTemporaryDirectory();
-    final file = File('${dir.path}/dashboard_${DateTime.now().millisecondsSinceEpoch}.png');
+    final file = File(
+        '${dir.path}/dashboard_${DateTime.now().millisecondsSinceEpoch}.png');
     await file.writeAsBytes(bytes, flush: true);
     await Share.shareXFiles([XFile(file.path)]);
   }
 
   Future<void> _exportCsv() async {
     final service = context.read<TrainingStatsService>();
-    final sessions = {for (final e in service.sessionsDaily(30)) e.key: e.value};
+    final sessions = {
+      for (final e in service.sessionsDaily(30)) e.key: e.value
+    };
     final hands = {for (final e in service.handsDaily(30)) e.key: e.value};
-    final mistakes = {for (final e in service.mistakesDaily(30)) e.key: e.value};
+    final mistakes = {
+      for (final e in service.mistakesDaily(30)) e.key: e.value
+    };
     final dates = {
       ...sessions.keys,
       ...hands.keys,
@@ -58,16 +65,12 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
       ['Date', 'Sessions', 'Hands', 'Mistakes']
     ];
     for (final d in dates) {
-      rows.add([
-        formatDate(d),
-        sessions[d] ?? 0,
-        hands[d] ?? 0,
-        mistakes[d] ?? 0
-      ]);
+      rows.add(
+          [formatDate(d), sessions[d] ?? 0, hands[d] ?? 0, mistakes[d] ?? 0]);
     }
     final csvStr = const ListToCsvConverter().convert(rows, eol: '\r\n');
-    final dir =
-        await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
+    final dir = await getDownloadsDirectory() ??
+        await getApplicationDocumentsDirectory();
     final fileName = 'daily_stats_${DateTime.now().millisecondsSinceEpoch}.csv';
     final file = File('${dir.path}/$fileName');
     await file.writeAsString(csvStr, encoding: utf8);
@@ -131,7 +134,6 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     final stats = context.watch<TrainingStatsService>();
@@ -152,7 +154,8 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
           ),
           IconButton(onPressed: _share, icon: const Icon(Icons.share)),
           IconButton(onPressed: _exportCsv, icon: const Icon(Icons.download)),
-          IconButton(onPressed: _exportPdf, icon: const Icon(Icons.picture_as_pdf)),
+          IconButton(
+              onPressed: _exportPdf, icon: const Icon(Icons.picture_as_pdf)),
           SyncStatusIcon.of(context)
         ],
       ),
@@ -161,53 +164,55 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: days.length,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: isLandscape(context)
-                  ? (isCompactWidth(context) ? 6 : 10)
-                  : (isCompactWidth(context) ? 4 : 7),
-              mainAxisSpacing: 4,
-              crossAxisSpacing: 4,
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: days.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: isLandscape(context)
+                    ? (isCompactWidth(context) ? 6 : 10)
+                    : (isCompactWidth(context) ? 4 : 7),
+                mainAxisSpacing: 4,
+                crossAxisSpacing: 4,
+              ),
+              itemBuilder: (context, index) {
+                final d = days[index];
+                final count = hands[d] ?? 0;
+                final met = count >= target;
+                return Container(
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: met ? Colors.greenAccent : Colors.redAccent,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('${d.day}',
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 12)),
+                      Text('$count',
+                          style: const TextStyle(
+                              color: Colors.white70, fontSize: 10))
+                    ],
+                  ),
+                );
+              },
             ),
-            itemBuilder: (context, index) {
-              final d = days[index];
-              final count = hands[d] ?? 0;
-              final met = count >= target;
-              return Container(
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: met ? Colors.greenAccent : Colors.redAccent,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('${d.day}',
-                        style: const TextStyle(color: Colors.white, fontSize: 12)),
-                    Text('$count',
-                        style: const TextStyle(color: Colors.white70, fontSize: 10))
-                  ],
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 16),
-          const DailyEvIcmChart(),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => const MistakeReviewScreen()),
-              );
-            },
-            child: const Text('Повтор ошибок'),
-          ),
-        ],
+            const SizedBox(height: 16),
+            const DailyEvIcmChart(),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const MistakeReviewScreen()),
+                );
+              },
+              child: const Text('Повтор ошибок'),
+            ),
+          ],
         ),
       ),
     );

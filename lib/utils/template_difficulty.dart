@@ -8,7 +8,9 @@ extension TemplateDifficulty on Object {
       return (this as TrainingPackTemplateModel).difficulty;
     }
     if (this is legacy.TrainingPackTemplate) {
-      return int.tryParse((this as legacy.TrainingPackTemplate).difficulty ?? '') ?? 0;
+      return int.tryParse(
+              (this as legacy.TrainingPackTemplate).difficulty ?? '') ??
+          0;
     }
     if (this is v2.TrainingPackTemplateV2) {
       final diff = (this as v2.TrainingPackTemplateV2).meta['difficulty'];

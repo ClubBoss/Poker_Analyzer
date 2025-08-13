@@ -103,8 +103,8 @@ class _StarterPathCardState extends State<StarterPathCard> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) =>
-                            TrainingPackPlayScreen(template: tpl, original: tpl),
+                        builder: (_) => TrainingPackPlayScreen(
+                            template: tpl, original: tpl),
                       ),
                     ).then((_) => setState(() => _future = _load()));
                   },

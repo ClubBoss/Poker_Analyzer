@@ -25,7 +25,8 @@ void main() {
   TrainingPackTemplateV2 buildPack(String id, List<String> boards) {
     final spots = <TrainingPackSpot>[];
     for (var i = 0; i < boards.length; i++) {
-      spots.add(TrainingPackSpot(id: '${id}_$i', tags: ['t'], board: [boards[i]]));
+      spots.add(
+          TrainingPackSpot(id: '${id}_$i', tags: ['t'], board: [boards[i]]));
     }
     return TrainingPackTemplateV2(
       id: id,
@@ -57,4 +58,3 @@ void main() {
     expect(result.isDuplicate, isFalse);
   });
 }
-

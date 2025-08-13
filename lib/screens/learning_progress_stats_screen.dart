@@ -12,7 +12,8 @@ class LearningProgressStatsScreen extends StatelessWidget {
       builder: (context, snapshot) {
         final stages = snapshot.data ?? [];
         return Scaffold(
-          appBar: AppBar(title: const Text('\uD83D\uDCCA Статистика')), // '📊 Статистика'
+          appBar: AppBar(
+              title: const Text('\uD83D\uDCCA Статистика')), // '📊 Статистика'
           backgroundColor: const Color(0xFF121212),
           body: snapshot.connectionState != ConnectionState.done
               ? const Center(child: CircularProgressIndicator())

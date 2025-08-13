@@ -17,5 +17,4 @@ void main() {
     expect(a.action, 'push');
     expect(a.ev, 1.0);
   });
-
 }

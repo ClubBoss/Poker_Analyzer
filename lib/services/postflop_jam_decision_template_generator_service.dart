@@ -25,8 +25,8 @@ class PostflopJamDecisionTemplateGeneratorService {
     Random? random,
     FullBoardGeneratorService? boardGenerator,
   })  : _random = random ?? Random(),
-        _boardGenerator =
-            boardGenerator ?? FullBoardGeneratorService(random: random ?? Random());
+        _boardGenerator = boardGenerator ??
+            FullBoardGeneratorService(random: random ?? Random());
 
   /// Generates jam decision templates for river or delayed turn scenarios.
   List<TrainingPackTemplateV2> generate({
@@ -50,10 +50,8 @@ class PostflopJamDecisionTemplateGeneratorService {
       final boardResult = delayedTurn
           ? _boardGenerator.generatePartialBoard(
               stages: 4, boardFilterParams: boardFilter)
-          : _boardGenerator.generateFullBoard(
-              boardFilterParams: boardFilter);
-      final board =
-          boardResult.cards.map((c) => '${c.rank}${c.suit}').toList();
+          : _boardGenerator.generateFullBoard(boardFilterParams: boardFilter);
+      final board = boardResult.cards.map((c) => '${c.rank}${c.suit}').toList();
       final heroPos = _random.nextBool() ? HeroPosition.btn : HeroPosition.bb;
       final facingJam = delayedTurn ? true : _random.nextBool();
       final spot = _buildSpot(
@@ -137,15 +135,12 @@ class PostflopJamDecisionTemplateGeneratorService {
       else
         3: facingJam
             ? [
-                ActionEntry(3, 1, 'push',
-                    amount: effectiveStack.toDouble()),
-                ActionEntry(3, 0, 'call',
-                    amount: effectiveStack.toDouble()),
+                ActionEntry(3, 1, 'push', amount: effectiveStack.toDouble()),
+                ActionEntry(3, 0, 'call', amount: effectiveStack.toDouble()),
                 ActionEntry(3, 0, 'fold'),
               ]
             : [
-                ActionEntry(3, 0, 'push',
-                    amount: effectiveStack.toDouble()),
+                ActionEntry(3, 0, 'push', amount: effectiveStack.toDouble()),
                 ActionEntry(3, 1, 'fold'),
               ],
     };
@@ -192,4 +187,3 @@ class PostflopJamDecisionTemplateGeneratorService {
     return '$r1${suits[0]} $r2${suits[1]}';
   }
 }
-

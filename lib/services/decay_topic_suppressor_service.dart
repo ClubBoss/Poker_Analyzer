@@ -64,7 +64,8 @@ class DecayTopicSuppressorService {
     await prefs.setString(_prefsKey, jsonEncode(_ignored));
     await prefs.setString(
       _decayKey,
-      jsonEncode({for (final e in _since.entries) e.key: e.value.toIso8601String()}),
+      jsonEncode(
+          {for (final e in _since.entries) e.key: e.value.toIso8601String()}),
     );
   }
 
@@ -127,4 +128,3 @@ class DecayTopicSuppressorService {
     return suppress;
   }
 }
-

@@ -18,9 +18,8 @@ class SkillTreeUnlockNotificationService {
 
   /// Checks [tree] for newly unlocked nodes or stages and shows notifications.
   Future<void> maybeNotify(BuildContext context, SkillTree tree) async {
-    final trackId = tree.nodes.values.isNotEmpty
-        ? tree.nodes.values.first.category
-        : '';
+    final trackId =
+        tree.nodes.values.isNotEmpty ? tree.nodes.values.first.category : '';
     if (trackId.isEmpty) return;
 
     final prefs = await SharedPreferences.getInstance();
@@ -31,16 +30,15 @@ class SkillTreeUnlockNotificationService {
     final evaluator = SkillTreeUnlockEvaluator(progress: progress);
     final unlockedNodes =
         evaluator.getUnlockedNodes(tree).map((n) => n.id).toSet();
-    final prevNodes = prefs.getStringList(_nodeKey(trackId))?.toSet() ?? <String>{};
+    final prevNodes =
+        prefs.getStringList(_nodeKey(trackId))?.toSet() ?? <String>{};
     final newNodes = unlockedNodes.difference(prevNodes);
 
     const gateEval = SkillTreeStageGateEvaluator();
     final unlockedStages = gateEval.getUnlockedStages(tree, completed).toSet();
-    final prevStages = prefs
-            .getStringList(_stageKey(trackId))
-            ?.map(int.parse)
-            .toSet() ??
-        <int>{};
+    final prevStages =
+        prefs.getStringList(_stageKey(trackId))?.map(int.parse).toSet() ??
+            <int>{};
     final newStages = unlockedStages.difference(prevStages);
 
     for (final level in newStages) {
@@ -65,4 +63,3 @@ class SkillTreeUnlockNotificationService {
     );
   }
 }
-

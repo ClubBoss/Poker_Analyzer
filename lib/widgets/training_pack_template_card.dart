@@ -8,10 +8,12 @@ import '../services/inline_theory_linker_service.dart';
 class TrainingPackTemplateCard extends StatefulWidget {
   final TrainingPackTemplate template;
   final VoidCallback? onTap;
-  const TrainingPackTemplateCard({super.key, required this.template, this.onTap});
+  const TrainingPackTemplateCard(
+      {super.key, required this.template, this.onTap});
 
   @override
-  State<TrainingPackTemplateCard> createState() => _TrainingPackTemplateCardState();
+  State<TrainingPackTemplateCard> createState() =>
+      _TrainingPackTemplateCardState();
 }
 
 class _TrainingPackTemplateCardState extends State<TrainingPackTemplateCard> {
@@ -28,13 +30,16 @@ class _TrainingPackTemplateCardState extends State<TrainingPackTemplateCard> {
   }
 
   void _load() async {
-    final path = await ThumbnailCacheService.instance.getThumbnail(widget.template);
+    final path =
+        await ThumbnailCacheService.instance.getThumbnail(widget.template);
     final stat = await TrainingPackStatsService.getStats(widget.template.id);
     final done = await _isFullyCompleted(widget.template);
     var progress = false;
     double pct = 0;
     if (stat != null && widget.template.spots.isNotEmpty) {
-      pct = ((stat.lastIndex + 1) * 100 / widget.template.spots.length).clamp(0, 100).toDouble();
+      pct = ((stat.lastIndex + 1) * 100 / widget.template.spots.length)
+          .clamp(0, 100)
+          .toDouble();
       progress = pct > 0 && pct < 100;
     }
     if (!mounted) return;
@@ -50,7 +55,8 @@ class _TrainingPackTemplateCardState extends State<TrainingPackTemplateCard> {
   Future<bool> _isFullyCompleted(TrainingPackTemplate t) async {
     final stat = await TrainingPackStatsService.getStats(t.id);
     if (stat == null || t.spots.isEmpty) return false;
-    final progress = ((stat.lastIndex + 1) * 100 / t.spots.length).clamp(0, 100);
+    final progress =
+        ((stat.lastIndex + 1) * 100 / t.spots.length).clamp(0, 100);
     final ev = stat.postEvPct > 0 ? stat.postEvPct : stat.preEvPct;
     final icm = stat.postIcmPct > 0 ? stat.postIcmPct : stat.preIcmPct;
     return progress == 100 && (stat.accuracy >= .9 || ev >= 90 || icm >= 90);
@@ -126,7 +132,8 @@ class _TrainingPackTemplateCardState extends State<TrainingPackTemplateCard> {
                 left: 4,
                 top: 4,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: Colors.orangeAccent.withValues(alpha: 0.9),
                     borderRadius: BorderRadius.circular(4),
@@ -146,7 +153,8 @@ class _TrainingPackTemplateCardState extends State<TrainingPackTemplateCard> {
                 right: 4,
                 top: 4,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: Colors.black54,
                     borderRadius: BorderRadius.circular(4),

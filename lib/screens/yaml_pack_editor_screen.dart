@@ -73,7 +73,8 @@ class _YamlPackEditorScreenState extends State<YamlPackEditorScreen> {
     try {
       final yaml = await file.readAsString();
       final map = const YamlReader().read(yaml);
-      final pack = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+      final pack =
+          TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
       setState(() {
         _file = file;
         _pack = pack;
@@ -96,8 +97,8 @@ class _YamlPackEditorScreenState extends State<YamlPackEditorScreen> {
       ..goal = _goal.text.trim()
       ..description = _desc.text.trim()
       ..tags
-          ..clear()
-          ..addAll(_tags)
+      ..clear()
+      ..addAll(_tags)
       ..spotCount = pack.spots.length;
     await const YamlPackHistoryService().saveSnapshot(pack, 'save');
     const service = YamlPackHistoryService();
@@ -143,8 +144,12 @@ class _YamlPackEditorScreenState extends State<YamlPackEditorScreen> {
         title: const Text('Новый тег'),
         content: TextField(controller: c, autofocus: true),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Отмена')),
-          TextButton(onPressed: () => Navigator.pop(context, c.text.trim()), child: const Text('OK')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Отмена')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, c.text.trim()),
+              child: const Text('OK')),
         ],
       ),
     );
@@ -179,7 +184,8 @@ class _YamlPackEditorScreenState extends State<YamlPackEditorScreen> {
       ),
     );
     if (format == null) return;
-    final file = await const YamlPackExporterService().exportToTextFile(pack, format);
+    final file =
+        await const YamlPackExporterService().exportToTextFile(pack, format);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -213,7 +219,9 @@ class _YamlPackEditorScreenState extends State<YamlPackEditorScreen> {
     final file = _file;
     return Scaffold(
       appBar: AppBar(
-        title: Text(file == null ? 'YAML Pack' : file.path.split(Platform.pathSeparator).last),
+        title: Text(file == null
+            ? 'YAML Pack'
+            : file.path.split(Platform.pathSeparator).last),
         actions: [
           IconButton(icon: const Icon(Icons.save), onPressed: _save),
           IconButton(icon: const Icon(Icons.download), onPressed: _export),
@@ -273,8 +281,10 @@ class _YamlPackEditorScreenState extends State<YamlPackEditorScreen> {
                     separatorBuilder: (_, __) => const SizedBox(height: 8),
                     itemBuilder: (_, i) {
                       final s = pack.spots[i];
-                      final title = s.title.isNotEmpty ? s.title : s.hand.heroCards;
-                      final sub = '${s.hand.position.label} ${s.hand.board.join(' ')}';
+                      final title =
+                          s.title.isNotEmpty ? s.title : s.hand.heroCards;
+                      final sub =
+                          '${s.hand.position.label} ${s.hand.board.join(' ')}';
                       return Card(
                         color: AppColors.cardBackground,
                         child: ListTile(

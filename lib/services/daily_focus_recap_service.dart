@@ -11,7 +11,8 @@ class _PosStats {
   final int correct;
   final double ev;
   final double icm;
-  const _PosStats({this.hands = 0, this.correct = 0, this.ev = 0, this.icm = 0});
+  const _PosStats(
+      {this.hands = 0, this.correct = 0, this.ev = 0, this.icm = 0});
   double get accuracy => hands > 0 ? correct / hands : 0;
 }
 
@@ -41,8 +42,8 @@ class DailyFocusRecapService extends ChangeNotifier {
     _date = dateStr != null ? DateTime.tryParse(dateStr) : null;
     final focusStr = prefs.getString(_focusKey);
     _focus = focusStr != null
-        ? HeroPosition.values
-            .firstWhere((e) => e.name == focusStr, orElse: () => HeroPosition.unknown)
+        ? HeroPosition.values.firstWhere((e) => e.name == focusStr,
+            orElse: () => HeroPosition.unknown)
         : null;
     _summary = prefs.getString(_summaryKey) ?? '';
     _shown = prefs.getString(_shownKey) == dateStr && dateStr != null;
@@ -61,7 +62,8 @@ class DailyFocusRecapService extends ChangeNotifier {
 
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
-    if (_date != null) await prefs.setString(_dateKey, _date!.toIso8601String());
+    if (_date != null)
+      await prefs.setString(_dateKey, _date!.toIso8601String());
     if (_focus != null) await prefs.setString(_focusKey, _focus!.name);
     await prefs.setString(_summaryKey, _summary);
     if (_shown && _date != null) {
@@ -89,8 +91,8 @@ class DailyFocusRecapService extends ChangeNotifier {
     for (final h in list) {
       final pos = parseHeroPosition(h.heroPosition);
       final prev = map[pos] ?? const _PosStats();
-      final correct =
-          h.expectedAction?.trim().toLowerCase() == h.gtoAction?.trim().toLowerCase();
+      final correct = h.expectedAction?.trim().toLowerCase() ==
+          h.gtoAction?.trim().toLowerCase();
       map[pos] = _PosStats(
         hands: prev.hands + 1,
         correct: prev.correct + (correct ? 1 : 0),

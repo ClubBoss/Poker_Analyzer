@@ -15,7 +15,8 @@ class PackLibraryExportService {
     if (!libDir.existsSync()) return 0;
     final dst = Directory(target);
     await dst.create(recursive: true);
-    final errors = await const YamlValidationService().validateAll(dir: libDir.path);
+    final errors =
+        await const YamlValidationService().validateAll(dir: libDir.path);
     final invalid = {for (final e in errors) File(e.$1).path};
     var count = 0;
     for (final f in libDir

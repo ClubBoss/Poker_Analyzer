@@ -30,4 +30,3 @@ class PackSpotList extends StatelessWidget {
     );
   }
 }
-

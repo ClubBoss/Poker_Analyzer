@@ -19,4 +19,5 @@ TrainingPackTemplateModel _$TrainingPackTemplateModelFromJson(
     );
 
 Map<String, dynamic> _$TrainingPackTemplateModelToJson(
-        TrainingPackTemplateModel instance) => <String, dynamic>{};
+        TrainingPackTemplateModel instance) =>
+    <String, dynamic>{};

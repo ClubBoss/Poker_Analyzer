@@ -71,4 +71,3 @@ class AutogenMetricsHistoryService {
     return reversed.take(2).toList();
   }
 }
-

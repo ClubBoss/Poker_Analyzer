@@ -14,4 +14,5 @@ SavedHand _$SavedHandFromJson(Map<String, dynamic> json) => SavedHand(
       revealedCards: const [],
     );
 
-Map<String, dynamic> _$SavedHandToJson(SavedHand instance) => <String, dynamic>{};
+Map<String, dynamic> _$SavedHandToJson(SavedHand instance) =>
+    <String, dynamic>{};

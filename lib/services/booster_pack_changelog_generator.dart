@@ -11,10 +11,13 @@ class BoosterPackChangelogGenerator {
   /// and returns a markdown changelog summarizing the differences.
   Future<String> generateChangelog(String id,
       {String dir = 'yaml_out/booster_archive'}) async {
-    final history = await const BoosterSnapshotArchiver().loadHistory(id, dir: dir);
+    final history =
+        await const BoosterSnapshotArchiver().loadHistory(id, dir: dir);
     if (history.length < 2) return 'No history for $id';
-    final latest = TrainingPackTemplateV2.fromYamlString(await history.first.readAsString());
-    final previous = TrainingPackTemplateV2.fromYamlString(await history[1].readAsString());
+    final latest = TrainingPackTemplateV2.fromYamlString(
+        await history.first.readAsString());
+    final previous =
+        TrainingPackTemplateV2.fromYamlString(await history[1].readAsString());
     return buildChangelog(previous, latest);
   }
 
@@ -27,7 +30,8 @@ class BoosterPackChangelogGenerator {
     buffer.writeln();
 
     if (oldPack.spotCount != newPack.spotCount) {
-      buffer.writeln('- **Spots:** ${oldPack.spotCount} → ${newPack.spotCount}');
+      buffer
+          .writeln('- **Spots:** ${oldPack.spotCount} → ${newPack.spotCount}');
     }
     final oldTags = {...oldPack.tags};
     final newTags = {...newPack.tags};

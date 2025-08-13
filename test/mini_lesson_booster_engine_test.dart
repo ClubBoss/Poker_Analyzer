@@ -35,6 +35,7 @@ class _FakeProgress extends TrainingPathProgressServiceV2 {
   Future<void> markStageCompleted(String stageId, double accuracy) async {
     completed.add(stageId);
   }
+
   @override
   List<String> unlockedStageIds() => [];
 }
@@ -90,7 +91,8 @@ void main() {
 
     final nodes = engine.engine!.allNodes;
     expect(nodes.any((n) => n is TheoryMiniLessonNode && n.id == 'm1'), isTrue);
-    final startNode = nodes.whereType<StageNode>().firstWhere((n) => n.id == 'start');
+    final startNode =
+        nodes.whereType<StageNode>().firstWhere((n) => n.id == 'start');
     expect(startNode.nextIds.first, 'm1');
   });
 

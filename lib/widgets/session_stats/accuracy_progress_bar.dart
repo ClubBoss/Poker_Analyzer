@@ -28,10 +28,12 @@ class AccuracyProgressBar extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Сессии с точностью > 80%',
-                      style: TextStyle(color: Colors.white70, fontSize: 14 * scale)),
+                      style: TextStyle(
+                          color: Colors.white70, fontSize: 14 * scale)),
                   SizedBox(height: 4 * scale),
                   Text('$good из $total',
-                      style: TextStyle(color: Colors.white, fontSize: 14 * scale)),
+                      style:
+                          TextStyle(color: Colors.white, fontSize: 14 * scale)),
                 ],
               );
             }
@@ -39,9 +41,11 @@ class AccuracyProgressBar extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Сессии с точностью > 80%',
-                    style: TextStyle(color: Colors.white70, fontSize: 14 * scale)),
+                    style:
+                        TextStyle(color: Colors.white70, fontSize: 14 * scale)),
                 Text('$good из $total',
-                    style: TextStyle(color: Colors.white, fontSize: 14 * scale)),
+                    style:
+                        TextStyle(color: Colors.white, fontSize: 14 * scale)),
               ],
             );
           }),

@@ -20,9 +20,14 @@ class _FakeStore implements LastViewedTheoryStore {
 
 void main() {
   test('ranks by error rate and pack linkage', () async {
-    final l1 = TheoryMiniLessonNode(id: 'l1', title: 'L1', content: 'c', tags: ['a']);
+    final l1 =
+        TheoryMiniLessonNode(id: 'l1', title: 'L1', content: 'c', tags: ['a']);
     final l2 = TheoryMiniLessonNode(
-        id: 'l2', title: 'L2', content: 'c', tags: ['b'], linkedPackIds: ['p1']);
+        id: 'l2',
+        title: 'L2',
+        content: 'c',
+        tags: ['b'],
+        linkedPackIds: ['p1']);
     final ranker = TheorySuggestionRanker(
       userErrorRate: {'a': 0.8, 'b': 0.1},
       packId: 'p1',
@@ -33,8 +38,10 @@ void main() {
   });
 
   test('applies novelty suppression', () async {
-    final l1 = TheoryMiniLessonNode(id: 'l1', title: 'L1', content: 'c', tags: ['a']);
-    final l2 = TheoryMiniLessonNode(id: 'l2', title: 'L2', content: 'c', tags: ['b']);
+    final l1 =
+        TheoryMiniLessonNode(id: 'l1', title: 'L1', content: 'c', tags: ['a']);
+    final l2 =
+        TheoryMiniLessonNode(id: 'l2', title: 'L2', content: 'c', tags: ['b']);
     final ranker = TheorySuggestionRanker(
       userErrorRate: {'a': 0.2, 'b': 0.2},
       packId: 'p1',
@@ -44,4 +51,3 @@ void main() {
     expect(ranked.first.lesson.id, 'l2');
   });
 }
-

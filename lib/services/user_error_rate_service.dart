@@ -122,4 +122,3 @@ class UserErrorRateService {
     await _flush();
   }
 }
-

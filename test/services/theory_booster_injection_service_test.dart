@@ -38,17 +38,21 @@ class _FakeLibrary implements MiniLessonLibraryService {
   }
 
   @override
-  List<TheoryMiniLessonNode> getByTags(Set<String> tags) => findByTags(tags.toList());
+  List<TheoryMiniLessonNode> getByTags(Set<String> tags) =>
+      findByTags(tags.toList());
 }
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('returns lesson for decayed tag', () async {
-    const lesson = TheoryMiniLessonNode(id: 'l1', title: 'T', content: '', tags: ['a']);
+    const lesson =
+        TheoryMiniLessonNode(id: 'l1', title: 'T', content: '', tags: ['a']);
     final service = TheoryBoosterInjectionService(
       engine: _FakeEngine('a'),
-      library: _FakeLibrary({'a': [lesson]}),
+      library: _FakeLibrary({
+        'a': [lesson]
+      }),
     );
     final result = await service.getLesson();
     expect(result?.id, 'l1');

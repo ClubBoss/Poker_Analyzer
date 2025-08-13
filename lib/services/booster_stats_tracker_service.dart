@@ -62,4 +62,3 @@ class BoosterStatsTrackerService {
     return list;
   }
 }
-

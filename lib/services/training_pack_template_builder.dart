@@ -167,8 +167,7 @@ class TrainingPackTemplateBuilder {
     final tpl = TrainingPackTemplateV2(
       id: const Uuid().v4(),
       name: 'Уязвимость: $tagLabel',
-      description:
-          'Ситуации, где вы чаще ошибались. Работайте точечно.',
+      description: 'Ситуации, где вы чаще ошибались. Работайте точечно.',
       trainingType: TrainingType.pushFold,
       tags: List<String>.from(weak),
       spots: spots,

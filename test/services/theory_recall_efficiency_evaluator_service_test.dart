@@ -42,4 +42,3 @@ void main() {
     expect(scores['tag2'], 0.0);
   });
 }
-

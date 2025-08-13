@@ -15,8 +15,7 @@ class PackSortingEngine {
     final completions =
         await PackLibraryCompletionService.instance.getAllCompletions();
     final entries = packs.asMap().entries.toList();
-    mergeSort<MapEntry<int, TrainingPackTemplateV2>>(entries,
-        compare: (a, b) {
+    mergeSort<MapEntry<int, TrainingPackTemplateV2>>(entries, compare: (a, b) {
       final aData = completions[a.value.id];
       final bData = completions[b.value.id];
       if (prioritizeUntrained) {
@@ -40,8 +39,7 @@ class PackSortingEngine {
     final completions =
         await PackLibraryCompletionService.instance.getAllCompletions();
     final entries = packs.asMap().entries.toList();
-    mergeSort<MapEntry<int, TrainingPackTemplateV2>>(entries,
-        compare: (a, b) {
+    mergeSort<MapEntry<int, TrainingPackTemplateV2>>(entries, compare: (a, b) {
       final aAcc = completions[a.value.id]?.accuracy ?? -1.0;
       final bAcc = completions[b.value.id]?.accuracy ?? -1.0;
       final r = descending ? bAcc.compareTo(aAcc) : aAcc.compareTo(bAcc);
@@ -55,8 +53,7 @@ class PackSortingEngine {
       List<TrainingPackTemplateV2> packs) async {
     final prefs = await SharedPreferences.getInstance();
     final entries = packs.asMap().entries.toList();
-    mergeSort<MapEntry<int, TrainingPackTemplateV2>>(entries,
-        compare: (a, b) {
+    mergeSort<MapEntry<int, TrainingPackTemplateV2>>(entries, compare: (a, b) {
       DateTime parse(String? s) =>
           DateTime.tryParse(s ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
       final aDt = parse(prefs.getString('last_trained_tpl_${a.value.id}'));

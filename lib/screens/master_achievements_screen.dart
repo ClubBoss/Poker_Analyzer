@@ -38,11 +38,16 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
           final history = snapshot.data![1] as List<DateTime>;
           final completedCount = history.length;
           final achievements = [
-            _Achievement('\uD83E\uDD49 Первые шаги', 'Заверши 1 челлендж', completedCount >= 1),
-            _Achievement('\uD83D\uDD25 Не остановиться!', 'Заверши 3 дня подряд', streak >= 3),
-            _Achievement('\uD83E\uDDF1 Формируется привычка', 'Заверши 7 дней подряд', streak >= 7),
-            _Achievement('\uD83E\uDD48 Настойчивый', 'Заверши 14 дней подряд', streak >= 14),
-            _Achievement('\uD83C\uDFC6 Легенда', 'Заверши 30 дней подряд', streak >= 30),
+            _Achievement('\uD83E\uDD49 Первые шаги', 'Заверши 1 челлендж',
+                completedCount >= 1),
+            _Achievement('\uD83D\uDD25 Не остановиться!',
+                'Заверши 3 дня подряд', streak >= 3),
+            _Achievement('\uD83E\uDDF1 Формируется привычка',
+                'Заверши 7 дней подряд', streak >= 7),
+            _Achievement('\uD83E\uDD48 Настойчивый', 'Заверши 14 дней подряд',
+                streak >= 14),
+            _Achievement(
+                '\uD83C\uDFC6 Легенда', 'Заверши 30 дней подряд', streak >= 30),
           ];
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -93,4 +98,3 @@ class _Achievement {
   final bool done;
   const _Achievement(this.title, this.desc, this.done);
 }
-

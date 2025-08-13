@@ -34,4 +34,3 @@ class EffectiveStackInfo extends StatelessWidget {
     );
   }
 }
-

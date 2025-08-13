@@ -15,10 +15,12 @@ class TrainingPackPresetListScreen extends StatefulWidget {
   const TrainingPackPresetListScreen({super.key});
 
   @override
-  State<TrainingPackPresetListScreen> createState() => _TrainingPackPresetListScreenState();
+  State<TrainingPackPresetListScreen> createState() =>
+      _TrainingPackPresetListScreenState();
 }
 
-class _TrainingPackPresetListScreenState extends State<TrainingPackPresetListScreen> {
+class _TrainingPackPresetListScreenState
+    extends State<TrainingPackPresetListScreen> {
   final List<TrainingPackPreset> _presets = [];
   bool _loading = true;
 
@@ -80,15 +82,16 @@ class _TrainingPackPresetListScreenState extends State<TrainingPackPresetListScr
               Future.microtask(() async {
                 for (final p in list) {
                   if (cancel) break;
-                  final tpl = await PackGeneratorService.generatePackFromPreset(p);
+                  final tpl =
+                      await PackGeneratorService.generatePackFromPreset(p);
                   final model = TrainingPackTemplateModel(
                     id: tpl.id,
                     name: tpl.name,
                     description: tpl.description,
-                  category: p.category,
-                  difficulty: 1,
-                  rating: 0,
-                  filters: const {},
+                    category: p.category,
+                    difficulty: 1,
+                    rating: 0,
+                    filters: const {},
                     isTournament: p.gameType == GameType.tournament,
                     createdAt: DateTime.now(),
                     lastGeneratedAt: tpl.lastGeneratedAt,
@@ -118,7 +121,9 @@ class _TrainingPackPresetListScreenState extends State<TrainingPackPresetListScr
                 ],
               ),
               actions: [
-                TextButton(onPressed: () => cancel = true, child: const Text('Cancel')),
+                TextButton(
+                    onPressed: () => cancel = true,
+                    child: const Text('Cancel')),
               ],
             );
           },
@@ -147,7 +152,8 @@ class _TrainingPackPresetListScreenState extends State<TrainingPackPresetListScr
         for (final e in decoded) {
           if (e is Map) {
             try {
-              list.add(TrainingPackPreset.fromJson(Map<String, dynamic>.from(e)));
+              list.add(
+                  TrainingPackPreset.fromJson(Map<String, dynamic>.from(e)));
             } catch (_) {}
           }
         }
@@ -160,7 +166,9 @@ class _TrainingPackPresetListScreenState extends State<TrainingPackPresetListScr
     if (!mounted) return;
     if (ok) setState(() => _presets.addAll(list));
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(ok ? 'Импортировано ${list.length}' : '⚠️ Ошибка импорта')),
+      SnackBar(
+          content:
+              Text(ok ? 'Импортировано ${list.length}' : '⚠️ Ошибка импорта')),
     );
   }
 
@@ -170,7 +178,8 @@ class _TrainingPackPresetListScreenState extends State<TrainingPackPresetListScr
       appBar: AppBar(
         title: const Text('Presets'),
         actions: [
-          IconButton(onPressed: _generateAll, icon: const Icon(Icons.playlist_play)),
+          IconButton(
+              onPressed: _generateAll, icon: const Icon(Icons.playlist_play)),
           IconButton(onPressed: _import, icon: const Icon(Icons.upload_file)),
         ],
       ),
@@ -180,8 +189,9 @@ class _TrainingPackPresetListScreenState extends State<TrainingPackPresetListScr
               itemCount: _presets.length,
               itemBuilder: (context, index) {
                 final p = _presets[index];
-                final templates =
-                    context.watch<TrainingPackTemplateStorageService>().templates;
+                final templates = context
+                    .watch<TrainingPackTemplateStorageService>()
+                    .templates;
                 final exists = templates.any((t) => t.id == p.id);
                 return ListTile(
                   title: Text(p.name),

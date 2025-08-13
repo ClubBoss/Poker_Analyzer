@@ -69,7 +69,8 @@ class _YamlPackHistoryScreenState extends State<YamlPackHistoryScreen> {
       final yaml = await file.readAsString();
       y = yaml;
       final map = const YamlReader().read(yaml);
-      final tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+      final tpl =
+          TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
       md = const YamlPackMarkdownPreviewService().generateMarkdownPreview(tpl);
     } catch (_) {}
     if (!mounted) return;
@@ -141,7 +142,8 @@ class _YamlPackHistoryScreenState extends State<YamlPackHistoryScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: _selectionMode
-            ? IconButton(icon: const Icon(Icons.close), onPressed: _clearSelection)
+            ? IconButton(
+                icon: const Icon(Icons.close), onPressed: _clearSelection)
             : null,
         title: _selectionMode
             ? Text('${_selectedIndices.length}')

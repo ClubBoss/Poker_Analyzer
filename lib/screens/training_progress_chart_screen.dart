@@ -8,10 +8,12 @@ class TrainingProgressChartScreen extends StatefulWidget {
   const TrainingProgressChartScreen({super.key});
 
   @override
-  State<TrainingProgressChartScreen> createState() => _TrainingProgressChartScreenState();
+  State<TrainingProgressChartScreen> createState() =>
+      _TrainingProgressChartScreenState();
 }
 
-class _TrainingProgressChartScreenState extends State<TrainingProgressChartScreen> {
+class _TrainingProgressChartScreenState
+    extends State<TrainingProgressChartScreen> {
   late Future<List<_DailyStats>> _statsFuture;
   bool _showTagAccuracy = false;
 
@@ -42,7 +44,8 @@ class _TrainingProgressChartScreenState extends State<TrainingProgressChartScree
           final tagMap = Map<String, dynamic>.from(value['tagBreakdown'] ?? {});
           for (final entry in tagMap.entries) {
             final data = Map<String, dynamic>.from(entry.value as Map);
-            final tagStat = stat.tagStats.putIfAbsent(entry.key, () => _TagStats());
+            final tagStat =
+                stat.tagStats.putIfAbsent(entry.key, () => _TagStats());
             tagStat.correct += (data['correct'] ?? 0) as int;
             tagStat.total += (data['total'] ?? 0) as int;
           }
@@ -51,8 +54,7 @@ class _TrainingProgressChartScreenState extends State<TrainingProgressChartScree
         }
       }
     }
-    final list = map.values.toList()
-      ..sort((a, b) => a.date.compareTo(b.date));
+    final list = map.values.toList()..sort((a, b) => a.date.compareTo(b.date));
     return list;
   }
 
@@ -133,13 +135,16 @@ class _AccuracyChart extends StatelessWidget {
                 showTitles: true,
                 getTitlesWidget: (value, _) {
                   final i = value.toInt();
-                  if (i < 0 || i >= labels.length) return const SizedBox.shrink();
+                  if (i < 0 || i >= labels.length)
+                    return const SizedBox.shrink();
                   return Text(labels[i], style: const TextStyle(fontSize: 10));
                 },
               ),
             ),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           ),
           gridData: const FlGridData(
             show: true,
@@ -199,13 +204,16 @@ class _HandsChart extends StatelessWidget {
                 showTitles: true,
                 getTitlesWidget: (value, _) {
                   final i = value.toInt();
-                  if (i < 0 || i >= labels.length) return const SizedBox.shrink();
+                  if (i < 0 || i >= labels.length)
+                    return const SizedBox.shrink();
                   return Text(labels[i], style: const TextStyle(fontSize: 10));
                 },
               ),
             ),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           ),
           borderData: FlBorderData(show: true),
           gridData: const FlGridData(show: false),
@@ -233,7 +241,9 @@ class _TagAccuracyChart extends StatelessWidget {
       final spots = <FlSpot>[];
       for (var i = 0; i < data.length; i++) {
         final stat = data[i].tagStats[tag];
-        final acc = stat == null || stat.total == 0 ? 0.0 : stat.correct / stat.total * 100;
+        final acc = stat == null || stat.total == 0
+            ? 0.0
+            : stat.correct / stat.total * 100;
         spots.add(FlSpot(i.toDouble(), acc));
       }
       lines.add(LineChartBarData(
@@ -266,13 +276,16 @@ class _TagAccuracyChart extends StatelessWidget {
                 showTitles: true,
                 getTitlesWidget: (value, _) {
                   final i = value.toInt();
-                  if (i < 0 || i >= labels.length) return const SizedBox.shrink();
+                  if (i < 0 || i >= labels.length)
+                    return const SizedBox.shrink();
                   return Text(labels[i], style: const TextStyle(fontSize: 10));
                 },
               ),
             ),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           ),
           gridData: const FlGridData(
             show: true,
@@ -330,4 +343,3 @@ class _TagStats {
   int correct = 0;
   int total = 0;
 }
-

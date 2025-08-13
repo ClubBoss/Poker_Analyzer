@@ -13,4 +13,3 @@ class Board {
         if (river != null) river!,
       ];
 }
-

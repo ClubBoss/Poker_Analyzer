@@ -30,4 +30,3 @@ class LearningPathProgressStats {
     required this.lockedStageIds,
   });
 }
-

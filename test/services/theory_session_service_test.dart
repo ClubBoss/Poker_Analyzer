@@ -8,8 +8,8 @@ class _FakeRecommender extends TheoryBoosterRecommender {
   final BoosterRecommendationResult? result;
   const _FakeRecommender(this.result);
   @override
-  Future<BoosterRecommendationResult?> recommend(
-      TheoryMiniLessonNode lesson, {List recentMistakes = const []}) async {
+  Future<BoosterRecommendationResult?> recommend(TheoryMiniLessonNode lesson,
+      {List recentMistakes = const []}) async {
     return result;
   }
 }

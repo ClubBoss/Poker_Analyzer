@@ -46,7 +46,8 @@ Future<void> main() async {
         stderr.writeln(e.toString());
       }
     }
-    stdout.writeln('[$index/${files.length}] $name.yaml  –  ${ok ? 'OK' : '[ERROR]'}');
+    stdout.writeln(
+        '[$index/${files.length}] $name.yaml  –  ${ok ? 'OK' : '[ERROR]'}');
     if (!ok) {
       errors++;
       stderr.write(res.stdout);

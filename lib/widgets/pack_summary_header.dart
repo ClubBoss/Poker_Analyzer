@@ -10,8 +10,9 @@ class PackSummaryHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final subtitleCount =
-        pack.spots.isNotEmpty ? '${pack.spots.length} spots' : '${pack.hands.length} hands';
+    final subtitleCount = pack.spots.isNotEmpty
+        ? '${pack.spots.length} spots'
+        : '${pack.hands.length} hands';
     return ListTile(
       leading: pack.isBuiltIn
           ? const Text('📦')
@@ -27,4 +28,3 @@ class PackSummaryHeader extends StatelessWidget {
     );
   }
 }
-

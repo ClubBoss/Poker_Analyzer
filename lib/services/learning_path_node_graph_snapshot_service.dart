@@ -53,4 +53,3 @@ class LearningPathNodeGraphSnapshotService {
     return const [];
   }
 }
-

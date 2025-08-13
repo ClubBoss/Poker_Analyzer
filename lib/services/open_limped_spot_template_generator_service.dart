@@ -155,4 +155,3 @@ class OpenLimpedSpotTemplateGeneratorService {
     return '$r1${suits[0]} $r2${suits[1]}';
   }
 }
-

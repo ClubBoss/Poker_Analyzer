@@ -132,56 +132,58 @@ class BoosterTheoryWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (slot != BoosterSlot.none)
-                Text('$icon $slotLabel',
-                    style: TextStyle(color: accent, fontWeight: FontWeight.bold)),
-              if (slot != BoosterSlot.none) const SizedBox(width: 4),
-              Expanded(
-                child: Text(
-                  lesson.resolvedTitle,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (slot != BoosterSlot.none)
+                    Text('$icon $slotLabel',
+                        style: TextStyle(
+                            color: accent, fontWeight: FontWeight.bold)),
+                  if (slot != BoosterSlot.none) const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      lesson.resolvedTitle,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
-          if (tag != null) ...[
-            const SizedBox(height: 4),
-            TagBadge(tag),
-          ],
-          if (preview.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Text(
-              preview,
-              style: const TextStyle(color: Colors.white70),
-            ),
-          ],
-          const SizedBox(height: 8),
-          vertical
-              ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (int i = 0; i < actions.length; i++) ...[
-                      actions[i],
-                      if (i != actions.length - 1) const SizedBox(height: 4),
-                    ],
-                  ],
-                )
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    for (int i = 0; i < actions.length; i++) ...[
-                      actions[i],
-                      if (i != actions.length - 1) const SizedBox(width: 8),
-                    ],
-                  ],
+              if (tag != null) ...[
+                const SizedBox(height: 4),
+                TagBadge(tag),
+              ],
+              if (preview.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text(
+                  preview,
+                  style: const TextStyle(color: Colors.white70),
                 ),
-        ],
+              ],
+              const SizedBox(height: 8),
+              vertical
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (int i = 0; i < actions.length; i++) ...[
+                          actions[i],
+                          if (i != actions.length - 1)
+                            const SizedBox(height: 4),
+                        ],
+                      ],
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        for (int i = 0; i < actions.length; i++) ...[
+                          actions[i],
+                          if (i != actions.length - 1) const SizedBox(width: 8),
+                        ],
+                      ],
+                    ),
+            ],
           ),
         ),
       ),

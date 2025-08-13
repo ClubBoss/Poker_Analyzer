@@ -70,9 +70,11 @@ class _RecapFatigueCooldownVisualizerState
       }
     }
 
-    final dropoff = await SmartBoosterDropoffDetector.instance.isInDropoffState();
+    final dropoff =
+        await SmartBoosterDropoffDetector.instance.isInDropoffState();
 
-    final suppressed = await TheoryRecapSuppressionEngine.instance.shouldSuppress(
+    final suppressed =
+        await TheoryRecapSuppressionEngine.instance.shouldSuppress(
       lessonId: widget.lessonId,
       trigger: widget.trigger,
     );
@@ -89,8 +91,8 @@ class _RecapFatigueCooldownVisualizerState
       chips.add(_ChipInfo('🚫', 'Suppressed', 'Suppressed by analytics rules'));
     }
     if (dismissed) {
-      chips.add(_ChipInfo('😒', 'Dismissed recently',
-          'Dismissed recap prompts earlier'));
+      chips.add(_ChipInfo(
+          '😒', 'Dismissed recently', 'Dismissed recap prompts earlier'));
     }
     if (dropoff) {
       chips.add(_ChipInfo('🔇', 'Dropoff', 'User is in dropoff state'));
@@ -124,4 +126,3 @@ class _RecapFatigueCooldownVisualizerState
     );
   }
 }
-

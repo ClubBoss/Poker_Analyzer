@@ -57,8 +57,7 @@ class Open3betSpotTemplateGeneratorService {
       );
 
       final tpl = TrainingPackTemplateV2(
-        id:
-            '3bet_${heroPosition.name}_vs_${villainPosition.name}_${effectiveStack}bb_$idx',
+        id: '3bet_${heroPosition.name}_vs_${villainPosition.name}_${effectiveStack}bb_$idx',
         name:
             '3bet Push ${heroPosition.label} vs ${villainPosition.label} (${effectiveStack}BB)',
         description:
@@ -156,4 +155,3 @@ class Open3betSpotTemplateGeneratorService {
     return '$r1${suits[0]} $r2${suits[1]}';
   }
 }
-

@@ -120,9 +120,7 @@ class LearningPathService {
     if (remaining.isEmpty) return null;
 
     if (smartMode && remaining.length > 1) {
-      final stages = [
-        for (final p in remaining) StageID(p.id, tags: p.tags)
-      ];
+      final stages = [for (final p in remaining) StageID(p.id, tags: p.tags)];
       final engine = SmartRecommenderEngine(
         masteryService: masteryService,
       );
@@ -130,8 +128,8 @@ class LearningPathService {
         progress: progress,
         availableStages: stages,
       );
-      final found =
-          remaining.firstWhere((e) => e.id == next?.id, orElse: () => remaining.first);
+      final found = remaining.firstWhere((e) => e.id == next?.id,
+          orElse: () => remaining.first);
       return found;
     }
 

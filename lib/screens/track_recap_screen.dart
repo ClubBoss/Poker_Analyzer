@@ -98,9 +98,12 @@ class _TrackRecapScreenState extends State<TrackRecapScreen> {
           alignment: BarChartAlignment.spaceBetween,
           gridData: const FlGridData(show: false),
           titlesData: FlTitlesData(
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -183,8 +186,7 @@ class _TrackRecapScreenState extends State<TrackRecapScreen> {
                     alignment: Alignment.centerRight,
                     child: ElevatedButton(
                       onPressed: _openLibrary,
-                      style:
-                          ElevatedButton.styleFrom(backgroundColor: accent),
+                      style: ElevatedButton.styleFrom(backgroundColor: accent),
                       child: const Text('Начать следующий трек'),
                     ),
                   )
@@ -202,4 +204,3 @@ class _TrackRecapScreenState extends State<TrackRecapScreen> {
     );
   }
 }
-

@@ -169,8 +169,7 @@ class _YamlPackArchiveScreenState extends State<YamlPackArchiveScreen> {
         ),
       );
     } else if (action == 'md' && current != null) {
-      final md =
-          const YamlPackDiffService().generateMarkdownDiff(bak, current);
+      final md = const YamlPackDiffService().generateMarkdownDiff(bak, current);
       if (md.isNotEmpty && mounted) {
         await showMarkdownPreviewDialog(context, md);
       }

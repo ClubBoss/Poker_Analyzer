@@ -56,12 +56,10 @@ class SmartBoosterDiversitySchedulerService {
     final rnd = Random();
     final result = <PinnedBlockBoosterSuggestion>[];
     var added = true;
-    while (added &&
-        result.length < SmartBoosterInboxLimiterService.maxPerDay) {
+    while (added && result.length < SmartBoosterInboxLimiterService.maxPerDay) {
       added = false;
       for (final tag in tags) {
-        if (result.length >=
-            SmartBoosterInboxLimiterService.maxPerDay) {
+        if (result.length >= SmartBoosterInboxLimiterService.maxPerDay) {
           break;
         }
         final list = byTag[tag]!;
@@ -92,4 +90,3 @@ class _ScoredSuggestion {
   final double score;
   _ScoredSuggestion(this.suggestion, this.score);
 }
-

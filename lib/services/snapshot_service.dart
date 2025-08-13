@@ -42,7 +42,8 @@ class SnapshotService {
     }
   }
 
-  String _timestamp() => DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now());
+  String _timestamp() =>
+      DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now());
 
   Future<void> _cleanupOldFiles(String subfolder, int limit) async {
     try {
@@ -121,8 +122,7 @@ class SnapshotService {
           return null;
         }
       }));
-      final entries =
-          results.whereType<MapEntry<File, DateTime>>().toList();
+      final entries = results.whereType<MapEntry<File, DateTime>>().toList();
       if (entries.isEmpty) return null;
       entries.sort((a, b) => b.value.compareTo(a.value));
       final file = entries.first.key;

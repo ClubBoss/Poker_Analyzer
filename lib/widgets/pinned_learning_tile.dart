@@ -26,7 +26,8 @@ class PinnedLearningTile extends StatelessWidget {
         title: Text(lesson.title),
         trailing: IconButton(
           icon: const Icon(Icons.close),
-          onPressed: () => PinnedLearningService.instance.unpin('lesson', item.id),
+          onPressed: () =>
+              PinnedLearningService.instance.unpin('lesson', item.id),
         ),
         onTap: () => _openLesson(context, lesson),
         onLongPress: () => showPinnedLearningMenu(
@@ -72,7 +73,8 @@ class PinnedLearningTile extends StatelessWidget {
           title: Text(tpl.name),
           trailing: IconButton(
             icon: const Icon(Icons.close),
-            onPressed: () => PinnedLearningService.instance.unpin('pack', item.id),
+            onPressed: () =>
+                PinnedLearningService.instance.unpin('pack', item.id),
           ),
           onTap: () => _openPack(context, tpl),
           onLongPress: () => showPinnedLearningMenu(
@@ -112,7 +114,6 @@ class PinnedLearningTile extends StatelessWidget {
   void _openBlock(BuildContext context, TheoryBlockModel block) {
     const TheoryBlockLauncher().launch(context: context, block: block);
   }
-
 }
 
 Future<void> showPinnedLearningMenu(
@@ -161,5 +162,3 @@ Future<void> showPinnedLearningMenu(
       break;
   }
 }
-
-

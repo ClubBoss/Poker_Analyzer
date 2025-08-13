@@ -38,7 +38,8 @@ class BoardEditor extends StatefulWidget {
   State<BoardEditor> createState() => BoardEditorState();
 }
 
-class BoardEditorState extends State<BoardEditor> with TickerProviderStateMixin {
+class BoardEditorState extends State<BoardEditor>
+    with TickerProviderStateMixin {
   late int _prevStreet;
   late final BoardRevealService _reveal;
 

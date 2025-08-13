@@ -84,7 +84,8 @@ class TrainingTrackSummarizer {
         final tag = t.trim().toLowerCase();
         if (tag.isEmpty) continue;
         tagTotal.update(tag, (v) => v + 1, ifAbsent: () => 1);
-        if (correctFlag) tagCorrect.update(tag, (v) => v + 1, ifAbsent: () => 1);
+        if (correctFlag)
+          tagCorrect.update(tag, (v) => v + 1, ifAbsent: () => 1);
         if (before != null) {
           tagEvBeforeSum.update(tag, (v) => v + before, ifAbsent: () => before);
           tagEvBeforeCount.update(tag, (v) => v + 1, ifAbsent: () => 1);

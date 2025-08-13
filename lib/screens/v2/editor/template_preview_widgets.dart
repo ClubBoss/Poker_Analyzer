@@ -76,7 +76,8 @@ class TemplateSummaryPanel extends StatelessWidget {
                   for (final t in tags)
                     Chip(
                       backgroundColor: Colors.grey[800],
-                      label: Text(t, style: const TextStyle(color: Colors.white)),
+                      label:
+                          Text(t, style: const TextStyle(color: Colors.white)),
                     ),
                 ],
               ),
@@ -169,14 +170,26 @@ class _MatrixPickerPageState extends State<MatrixPickerPage> {
 }
 
 const _hands = [
-  'AA', 'KK', 'QQ', 'JJ', 'TT',
-  '99', '88', '77', '66', '55', '44', '33', '22'
+  'AA',
+  'KK',
+  'QQ',
+  'JJ',
+  'TT',
+  '99',
+  '88',
+  '77',
+  '66',
+  '55',
+  '44',
+  '33',
+  '22'
 ];
 
 class DragAutoScroll extends StatefulWidget {
   final Widget child;
   final ScrollController controller;
-  const DragAutoScroll({super.key, required this.child, required this.controller});
+  const DragAutoScroll(
+      {super.key, required this.child, required this.controller});
 
   @override
   State<DragAutoScroll> createState() => _DragAutoScrollState();
@@ -199,4 +212,3 @@ class _DragAutoScrollState extends State<DragAutoScroll> {
     );
   }
 }
-

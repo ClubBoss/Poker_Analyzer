@@ -17,7 +17,9 @@ class XPTrackerCloudService {
         .orderBy('date', descending: true)
         .limit(100)
         .get());
-    return [for (final d in snap.docs) XPEntry.fromJson({...d.data(), 'id': d.id})];
+    return [
+      for (final d in snap.docs) XPEntry.fromJson({...d.data(), 'id': d.id})
+    ];
   }
 
   Future<void> saveEntry(XPEntry e) async {

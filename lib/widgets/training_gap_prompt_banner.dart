@@ -8,7 +8,8 @@ import '../screens/training_session_screen.dart';
 class TrainingGapPromptBanner extends StatelessWidget {
   final String category;
   final TrainingPackTemplate pack;
-  const TrainingGapPromptBanner({super.key, required this.category, required this.pack});
+  const TrainingGapPromptBanner(
+      {super.key, required this.category, required this.pack});
 
   @override
   Widget build(BuildContext context) {

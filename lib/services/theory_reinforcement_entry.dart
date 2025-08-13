@@ -12,7 +12,5 @@ class TheoryReinforcementEntry {
   factory TheoryReinforcementEntry.fromJson(Map<String, dynamic> json) =>
       _$TheoryReinforcementEntryFromJson(json);
 
-  Map<String, dynamic> toJson() =>
-      _$TheoryReinforcementEntryToJson(this);
+  Map<String, dynamic> toJson() => _$TheoryReinforcementEntryToJson(this);
 }
-

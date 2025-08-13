@@ -46,8 +46,8 @@ class TagMasteryAdjustmentLogService {
       if (data is List) {
         _logs
           ..clear()
-          ..addAll(data.map((e) =>
-              TagMasteryAdjustmentEntry.fromJson(Map<String, dynamic>.from(e))));
+          ..addAll(data.map((e) => TagMasteryAdjustmentEntry.fromJson(
+              Map<String, dynamic>.from(e))));
         _logs.sort((a, b) => b.timestamp.compareTo(a.timestamp));
       }
     } catch (_) {}
@@ -55,7 +55,8 @@ class TagMasteryAdjustmentLogService {
 
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_key, jsonEncode([for (final l in _logs) l.toJson()]));
+    await prefs.setString(
+        _key, jsonEncode([for (final l in _logs) l.toJson()]));
   }
 
   Future<void> add(TagMasteryAdjustmentEntry entry) async {

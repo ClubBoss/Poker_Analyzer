@@ -12,10 +12,12 @@ class YamlPackArchiveValidatorScreen extends StatefulWidget {
   const YamlPackArchiveValidatorScreen({super.key});
 
   @override
-  State<YamlPackArchiveValidatorScreen> createState() => _YamlPackArchiveValidatorScreenState();
+  State<YamlPackArchiveValidatorScreen> createState() =>
+      _YamlPackArchiveValidatorScreenState();
 }
 
-class _YamlPackArchiveValidatorScreenState extends State<YamlPackArchiveValidatorScreen> {
+class _YamlPackArchiveValidatorScreenState
+    extends State<YamlPackArchiveValidatorScreen> {
   bool _loading = true;
   final List<_ErrorEntry> _errors = [];
 
@@ -48,7 +50,9 @@ class _YamlPackArchiveValidatorScreenState extends State<YamlPackArchiveValidato
     return Scaffold(
       appBar: AppBar(
         title: const Text('Валидатор YAML-паков'),
-        actions: [IconButton(onPressed: _load, icon: const Icon(Icons.refresh))],
+        actions: [
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh))
+        ],
       ),
       backgroundColor: AppColors.background,
       body: _loading
@@ -90,7 +94,8 @@ class _ErrorEntry {
   final String path;
   final String error;
   final DateTime time;
-  const _ErrorEntry({required this.path, required this.error, required this.time});
+  const _ErrorEntry(
+      {required this.path, required this.error, required this.time});
 }
 
 Future<List<Map<String, dynamic>>> _validateTask(String _) async {

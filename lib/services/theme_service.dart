@@ -64,8 +64,8 @@ class ThemeService extends ChangeNotifier {
     } else {
       _mode = ThemeMode.dark;
     }
-    _accent =
-        Color(prefs.getInt(AppConstants.prefsAccentColor) ?? AppColors.accent.value);
+    _accent = Color(
+        prefs.getInt(AppConstants.prefsAccentColor) ?? AppColors.accent.value);
     AppColors.accent = _accent;
     notifyListeners();
   }

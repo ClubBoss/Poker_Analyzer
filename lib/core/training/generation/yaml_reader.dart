@@ -54,8 +54,7 @@ class YamlReader {
       final set = TrainingPackTemplateSet.fromJson(map);
       return const TrainingPackTemplateSetGenerator().generate(set);
     }
-    final tpl =
-        TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+    final tpl = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
     return [tpl];
   }
 }

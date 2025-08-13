@@ -29,8 +29,7 @@ class NudgeFatigueDetectorService {
     final lastDismissedMillis = stats['lastDismissed'] as int?;
 
     if (lastOpenedMillis != null) {
-      final lastOpened =
-          DateTime.fromMillisecondsSinceEpoch(lastOpenedMillis);
+      final lastOpened = DateTime.fromMillisecondsSinceEpoch(lastOpenedMillis);
       if (now.difference(lastOpened) < const Duration(days: 7)) {
         return false;
       }

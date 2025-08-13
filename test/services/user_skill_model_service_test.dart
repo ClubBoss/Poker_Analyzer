@@ -44,4 +44,3 @@ void main() {
     expect(after, lessThan(before));
   });
 }
-

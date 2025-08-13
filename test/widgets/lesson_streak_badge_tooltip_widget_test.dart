@@ -20,23 +20,19 @@ void main() {
       'lesson_completion_log': jsonEncode([
         {
           'lessonId': 'a',
-          'timestamp':
-              now.subtract(const Duration(days: 10)).toIso8601String(),
+          'timestamp': now.subtract(const Duration(days: 10)).toIso8601String(),
         },
         {
           'lessonId': 'b',
-          'timestamp':
-              now.subtract(const Duration(days: 9)).toIso8601String(),
+          'timestamp': now.subtract(const Duration(days: 9)).toIso8601String(),
         },
         {
           'lessonId': 'c',
-          'timestamp':
-              now.subtract(const Duration(days: 8)).toIso8601String(),
+          'timestamp': now.subtract(const Duration(days: 8)).toIso8601String(),
         },
         {
           'lessonId': 'd',
-          'timestamp':
-              now.subtract(const Duration(days: 1)).toIso8601String(),
+          'timestamp': now.subtract(const Duration(days: 1)).toIso8601String(),
         },
         {
           'lessonId': 'e',
@@ -60,4 +56,3 @@ void main() {
     expect(find.text('Your longest streak: 3 days'), findsOneWidget);
   });
 }
-

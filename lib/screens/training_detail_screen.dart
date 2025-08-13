@@ -102,7 +102,8 @@ class TrainingDetailScreen extends StatelessWidget {
                           border: pw.Border.all(),
                           borderRadius: pw.BorderRadius.circular(4),
                         ),
-                        child: pw.Text(tag, style: pw.TextStyle(font: regularFont)),
+                        child: pw.Text(tag,
+                            style: pw.TextStyle(font: regularFont)),
                       ),
                   ],
                 ),
@@ -158,8 +159,7 @@ class TrainingDetailScreen extends StatelessWidget {
                     PieChartSectionData(
                       value: incorrect.toDouble(),
                       color: Colors.red,
-                      title:
-                          '${(incorrect * 100 / total).toStringAsFixed(0)}%',
+                      title: '${(incorrect * 100 / total).toStringAsFixed(0)}%',
                       titleStyle: const TextStyle(color: Colors.white),
                     ),
                   ],
@@ -209,7 +209,8 @@ class TrainingDetailScreen extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.red),
                     onPressed: () => _confirmDelete(context),
                     child: const Text('Delete'),
                   ),

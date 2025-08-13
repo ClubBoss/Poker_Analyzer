@@ -5,7 +5,8 @@ class LessonOnboardingOverlay extends StatefulWidget {
   const LessonOnboardingOverlay({super.key, required this.onDismiss});
 
   @override
-  State<LessonOnboardingOverlay> createState() => _LessonOnboardingOverlayState();
+  State<LessonOnboardingOverlay> createState() =>
+      _LessonOnboardingOverlayState();
 }
 
 class _LessonOnboardingOverlayState extends State<LessonOnboardingOverlay>
@@ -35,8 +36,9 @@ class _LessonOnboardingOverlayState extends State<LessonOnboardingOverlay>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor =
-        isDark ? Colors.black.withValues(alpha: 0.8) : Colors.white.withValues(alpha: 0.8);
+    final bgColor = isDark
+        ? Colors.black.withValues(alpha: 0.8)
+        : Colors.white.withValues(alpha: 0.8);
     final cardColor = isDark ? Colors.black54 : Colors.white;
     final textColor = isDark ? Colors.white : Colors.black;
     final secondary = isDark ? Colors.white70 : Colors.black54;
@@ -94,7 +96,8 @@ class _LessonOnboardingOverlayState extends State<LessonOnboardingOverlay>
   }
 }
 
-void showLessonOnboardingOverlay(BuildContext context, {VoidCallback? onDismiss}) {
+void showLessonOnboardingOverlay(BuildContext context,
+    {VoidCallback? onDismiss}) {
   final overlay = Overlay.of(context);
   late OverlayEntry entry;
   entry = OverlayEntry(

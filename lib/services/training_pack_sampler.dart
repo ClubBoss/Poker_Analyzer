@@ -45,8 +45,7 @@ class TrainingPackSampler {
       }
 
       int stackBucket(TrainingPackSpot s) {
-        final stack =
-            s.hand.stacks['${s.hand.heroIndex}']?.toInt() ?? 0;
+        final stack = s.hand.stacks['${s.hand.heroIndex}']?.toInt() ?? 0;
         if (stack <= 10) return 10;
         if (stack <= 20) return 20;
         if (stack <= 40) return 40;
@@ -102,4 +101,3 @@ class TrainingPackSampler {
     return result;
   }
 }
-

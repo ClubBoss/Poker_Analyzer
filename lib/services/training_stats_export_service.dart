@@ -79,7 +79,8 @@ class TrainingStatsExportService {
     );
     final csvStr = const ListToCsvConverter().convert(rows, eol: '\r\n');
     final dir = await getTemporaryDirectory();
-    final file = File('${dir.path}/training_stats_${DateTime.now().millisecondsSinceEpoch}.csv');
+    final file = File(
+        '${dir.path}/training_stats_${DateTime.now().millisecondsSinceEpoch}.csv');
     await file.writeAsString(csvStr, encoding: utf8);
     return file;
   }
@@ -145,7 +146,8 @@ class TrainingStatsExportService {
     );
     final bytes = await pdf.save();
     final dir = await getTemporaryDirectory();
-    final file = File('${dir.path}/training_stats_${DateTime.now().millisecondsSinceEpoch}.pdf');
+    final file = File(
+        '${dir.path}/training_stats_${DateTime.now().millisecondsSinceEpoch}.pdf');
     await file.writeAsBytes(bytes);
     return file;
   }

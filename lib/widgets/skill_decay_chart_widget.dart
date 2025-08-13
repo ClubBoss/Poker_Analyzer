@@ -46,9 +46,8 @@ class _SkillDecayChartWidgetState extends State<SkillDecayChartWidget> {
       final spots = <FlSpot>[];
       for (var i = 0; i <= widget.days; i++) {
         final date = start.add(Duration(days: i));
-        final daysSince = last == null
-            ? 100.0
-            : date.difference(last).inDays.toDouble();
+        final daysSince =
+            last == null ? 100.0 : date.difference(last).inDays.toDouble();
         final retention = (1 - daysSince / 100).clamp(0.0, 1.0) * 100;
         spots.add(FlSpot(date.millisecondsSinceEpoch.toDouble(), retention));
       }
@@ -102,8 +101,7 @@ class _SkillDecayChartWidgetState extends State<SkillDecayChartWidget> {
               Container(
                 width: 8,
                 height: 8,
-                decoration:
-                    BoxDecoration(color: color, shape: BoxShape.circle),
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
               ),
               const SizedBox(width: 4),
               Text(entry.key),
@@ -139,10 +137,10 @@ class _SkillDecayChartWidgetState extends State<SkillDecayChartWidget> {
                   gridData: const FlGridData(show: false),
                   borderData: FlBorderData(show: false),
                   titlesData: FlTitlesData(
-                    topTitles:
-                        const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    rightTitles:
-                        const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
@@ -182,4 +180,3 @@ class _SkillDecayChartWidgetState extends State<SkillDecayChartWidget> {
     );
   }
 }
-

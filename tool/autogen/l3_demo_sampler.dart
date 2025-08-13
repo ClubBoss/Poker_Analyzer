@@ -8,7 +8,8 @@ import 'package:yaml/yaml.dart';
 void main(List<String> args) {
   final parser = ArgParser()
     ..addOption('source', defaultsTo: 'build/tmp/l3')
-    ..addOption('preset', defaultsTo: 'all', allowed: ['paired', 'unpaired', 'ace-high', 'all'])
+    ..addOption('preset',
+        defaultsTo: 'all', allowed: ['paired', 'unpaired', 'ace-high', 'all'])
     ..addOption('out', defaultsTo: 'assets/packs/l3/demo')
     ..addOption('spots', defaultsTo: '100')
     ..addOption('dedupe', defaultsTo: 'flop', allowed: ['flop', 'board'])
@@ -22,16 +23,16 @@ void main(List<String> args) {
   final seed = int.parse(res['seed'] as String);
 
   final source = _resolveSource(sourceArg);
-  final presets = presetArg == 'all'
-      ? ['paired', 'unpaired', 'ace-high']
-      : [presetArg];
+  final presets =
+      presetArg == 'all' ? ['paired', 'unpaired', 'ace-high'] : [presetArg];
 
   final out = Directory(outDir);
   out.createSync(recursive: true);
 
   var hasError = false;
   for (final preset in presets) {
-    final file = File(p.join(source.path, 'postflop-jam', preset, 'l3-postflop-jam-$preset.yaml'));
+    final file = File(p.join(
+        source.path, 'postflop-jam', preset, 'l3-postflop-jam-$preset.yaml'));
     if (!file.existsSync()) {
       stderr.writeln('Missing source pack for preset $preset at ${file.path}');
       hasError = true;

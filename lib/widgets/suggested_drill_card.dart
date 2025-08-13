@@ -44,7 +44,8 @@ class SuggestedDrillCard extends StatelessWidget {
           const SizedBox(width: 8),
           ElevatedButton(
             onPressed: () {
-              final pack = context.read<DrillSuggestionEngine>().startDrill(drill);
+              final pack =
+                  context.read<DrillSuggestionEngine>().startDrill(drill);
               Navigator.push(
                 context,
                 MaterialPageRoute(

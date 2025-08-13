@@ -44,7 +44,10 @@ class TagHealthCheckService {
         if (d > 0 && d <= 1) typos.add([a, b]);
       }
     }
-    final single = [for (final e in counts.entries) if (e.value == 1) e.key];
+    final single = [
+      for (final e in counts.entries)
+        if (e.value == 1) e.key
+    ];
     final normMap = <String, Set<String>>{};
     for (final t in tags) {
       final n = _normalize(t);
@@ -69,7 +72,8 @@ class TagHealthCheckService {
       } catch (_) {}
     }
     final unmapped = [
-      for (final t in tags) if (mapped.isNotEmpty && !mapped.contains(t)) t
+      for (final t in tags)
+        if (mapped.isNotEmpty && !mapped.contains(t)) t
     ];
     final file = File('${dir.path}/tag_health_report.json')
       ..createSync(recursive: true);

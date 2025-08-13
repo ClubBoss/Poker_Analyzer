@@ -20,7 +20,6 @@ class WinamaxHandHistoryConverter extends ConverterPlugin {
           ),
         );
 
-
   double _amount(String s) => double.tryParse(s.replaceAll(',', '.')) ?? 0;
 
   @override
@@ -49,7 +48,8 @@ class WinamaxHandHistoryConverter extends ConverterPlugin {
     String? heroName;
     List<CardModel> heroCards = [];
     for (final line in lines) {
-      final m = RegExp(r'^Dealt to (.+?) \[(.+?) (.+?)\]').firstMatch(line.trim());
+      final m =
+          RegExp(r'^Dealt to (.+?) \[(.+?) (.+?)\]').firstMatch(line.trim());
       if (m != null) {
         heroName = m.group(1)!.trim();
         final c1 = parseCard(m.group(2)!);
@@ -95,19 +95,24 @@ class WinamaxHandHistoryConverter extends ConverterPlugin {
       m = RegExp(r'^(.+?): calls ([\d.,]+)').firstMatch(t);
       if (m != null) {
         final idx = nameToIndex[m.group(1)!.toLowerCase()];
-        if (idx != null) actions.add(ActionEntry(0, idx, 'call', amount: _amount(m.group(2)!)));
+        if (idx != null)
+          actions
+              .add(ActionEntry(0, idx, 'call', amount: _amount(m.group(2)!)));
         continue;
       }
       m = RegExp(r'^(.+?): bets ([\d.,]+)').firstMatch(t);
       if (m != null) {
         final idx = nameToIndex[m.group(1)!.toLowerCase()];
-        if (idx != null) actions.add(ActionEntry(0, idx, 'bet', amount: _amount(m.group(2)!)));
+        if (idx != null)
+          actions.add(ActionEntry(0, idx, 'bet', amount: _amount(m.group(2)!)));
         continue;
       }
       m = RegExp(r'^(.+?): raises .* to ([\d.,]+)').firstMatch(t);
       if (m != null) {
         final idx = nameToIndex[m.group(1)!.toLowerCase()];
-        if (idx != null) actions.add(ActionEntry(0, idx, 'raise', amount: _amount(m.group(2)!)));
+        if (idx != null)
+          actions
+              .add(ActionEntry(0, idx, 'raise', amount: _amount(m.group(2)!)));
         continue;
       }
     }
@@ -124,7 +129,9 @@ class WinamaxHandHistoryConverter extends ConverterPlugin {
       stackSizes: stackSizes,
       playerPositions: positions,
       comment: '',
-      playerTypes: {for (int i = 0; i < playerCount; i++) i: PlayerType.unknown},
+      playerTypes: {
+        for (int i = 0; i < playerCount; i++) i: PlayerType.unknown
+      },
     );
   }
 }

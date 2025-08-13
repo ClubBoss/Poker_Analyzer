@@ -70,9 +70,8 @@ class _RecallHotspotOverlayPanelState extends State<RecallHotspotOverlayPanel> {
           ],
           onPressed: (index) {
             setState(() {
-              _mode = index == 0
-                  ? RecallHotspotMode.tag
-                  : RecallHotspotMode.spot;
+              _mode =
+                  index == 0 ? RecallHotspotMode.tag : RecallHotspotMode.spot;
               _refresh();
             });
           },
@@ -107,8 +106,7 @@ class _RecallHotspotOverlayPanelState extends State<RecallHotspotOverlayPanel> {
                   columns: [
                     DataColumn(
                       label: const Text('Tag/SpotId'),
-                      onSort: (i, asc) =>
-                          _sort((e) => e.id, i, asc, data),
+                      onSort: (i, asc) => _sort((e) => e.id, i, asc, data),
                     ),
                     DataColumn(
                       numeric: true,

@@ -10,7 +10,8 @@ class _FakeMasteryService extends TagMasteryService {
       : super(logs: SessionLogService(sessions: TrainingSessionService()));
 
   @override
-  Future<Map<String, double>> computeMastery({bool force = false}) async => _map;
+  Future<Map<String, double>> computeMastery({bool force = false}) async =>
+      _map;
 }
 
 void main() {

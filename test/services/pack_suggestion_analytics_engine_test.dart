@@ -40,7 +40,8 @@ void main() {
 
     final now = DateTime.now();
     final logs = [
-      SessionLog(tags: const [], 
+      SessionLog(
+        tags: const [],
         sessionId: '1',
         templateId: 'a',
         startedAt: now,
@@ -48,7 +49,8 @@ void main() {
         correctCount: 1,
         mistakeCount: 0,
       ),
-      SessionLog(tags: const [], 
+      SessionLog(
+        tags: const [],
         sessionId: '2',
         templateId: 'b',
         startedAt: now,
@@ -56,7 +58,8 @@ void main() {
         correctCount: 1,
         mistakeCount: 0,
       ),
-      SessionLog(tags: const [], 
+      SessionLog(
+        tags: const [],
         sessionId: '3',
         templateId: 'c',
         startedAt: now,

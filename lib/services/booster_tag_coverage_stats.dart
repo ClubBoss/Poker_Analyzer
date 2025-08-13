@@ -3,7 +3,8 @@ import 'theory_yaml_importer.dart';
 class BoosterTagCoverageStats {
   const BoosterTagCoverageStats();
 
-  Future<Map<String, int>> loadCoverage({String dir = 'yaml_out/boosters'}) async {
+  Future<Map<String, int>> loadCoverage(
+      {String dir = 'yaml_out/boosters'}) async {
     const importer = TheoryYamlImporter();
     final packs = await importer.importFromDirectory(dir);
     final Map<String, int> counts = {};

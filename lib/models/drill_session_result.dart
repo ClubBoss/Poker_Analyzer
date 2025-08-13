@@ -37,8 +37,10 @@ class DrillSessionResult {
         if (handsSeen != null) 'handsSeen': handsSeen,
       };
 
-  factory DrillSessionResult.fromJson(Map<String, dynamic> json) => DrillSessionResult(
-        date: DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now(),
+  factory DrillSessionResult.fromJson(Map<String, dynamic> json) =>
+      DrillSessionResult(
+        date:
+            DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now(),
         position: json['position'] as String? ?? '',
         street: json['street'] as String? ?? '',
         total: json['total'] as int? ?? 0,

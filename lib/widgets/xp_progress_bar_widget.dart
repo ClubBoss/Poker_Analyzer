@@ -37,7 +37,8 @@ class XPProgressBarWidget extends StatelessWidget {
         if (label != null) ...[
           Text(
             label!,
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+                color: Colors.white, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
         ],

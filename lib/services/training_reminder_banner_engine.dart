@@ -44,7 +44,8 @@ class TrainingReminderBannerEngine {
   Future<ReminderBanner?> getNextReminderBanner() async {
     final prefs = await SharedPreferences.getInstance();
     final now = DateTime.now();
-    final ordered = [...sources]..sort((a, b) => b.priority.compareTo(a.priority));
+    final ordered = [...sources]
+      ..sort((a, b) => b.priority.compareTo(a.priority));
     for (final src in ordered) {
       final lastStr = prefs.getString('trb_${src.id}');
       final last = lastStr != null ? DateTime.tryParse(lastStr) : null;
@@ -116,7 +117,8 @@ class AutoMistakeDrillReminder implements ReminderSource {
   Duration get cooldown => const Duration(days: 1);
 
   @override
-  ReminderBanner build() => const ReminderBanner(AutoMistakeDrillBannerWidget());
+  ReminderBanner build() =>
+      const ReminderBanner(AutoMistakeDrillBannerWidget());
 
   @override
   Future<bool> canShow() async {
@@ -220,4 +222,3 @@ class _MistakePackHistory extends MistakeHistoryQueryService {
     return entries.take(limit).toList();
   }
 }
-

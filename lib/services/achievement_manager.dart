@@ -194,8 +194,7 @@ class AchievementManager {
         _achievements[i] = updated;
       }
     }
-    if (_achievements.length > 8 &&
-        _achievements[8].progress != streakDays) {
+    if (_achievements.length > 8 && _achievements[8].progress != streakDays) {
       _achievements[8] = _withProgress(_achievements[8], streakDays);
       changed = true;
     }
@@ -219,7 +218,8 @@ class AchievementManager {
     int value = 0;
     if (results.length >= 5) {
       final last = results.reversed.take(5).toList();
-      final avg = last.map((e) => e.accuracy).reduce((a, b) => a + b) / last.length;
+      final avg =
+          last.map((e) => e.accuracy).reduce((a, b) => a + b) / last.length;
       if (avg >= 0.8) value = 1;
     }
     if (_achievements[9].progress != value) {

@@ -17,7 +17,9 @@ class Quiz {
 
   factory Quiz.fromYaml(Map yaml) {
     final question = yaml['question']?.toString() ?? '';
-    final options = [for (final o in (yaml['options'] as List? ?? [])) o.toString()];
+    final options = [
+      for (final o in (yaml['options'] as List? ?? [])) o.toString()
+    ];
     final index = (yaml['correctIndex'] as num?)?.toInt() ?? 0;
     return Quiz(question: question, options: options, correctIndex: index);
   }
@@ -62,8 +64,7 @@ class LessonStep {
     final filterYaml = yaml['filter'];
     LessonStepFilter? filter;
     if (filterYaml is Map) {
-      filter = LessonStepFilter.fromYaml(
-          Map<String, dynamic>.from(filterYaml));
+      filter = LessonStepFilter.fromYaml(Map<String, dynamic>.from(filterYaml));
     }
     return LessonStep(
       id: yaml['id']?.toString() ?? '',

@@ -23,7 +23,8 @@ void main() {
 
   test('upload and download session logs', () async {
     final logs = [
-      SessionLog(tags: const [], 
+      SessionLog(
+        tags: const [],
         sessionId: 's',
         templateId: 't',
         startedAt: DateTime.utc(2024),

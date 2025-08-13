@@ -62,7 +62,9 @@ class TrainingPackRankingEngine {
         tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
       }
     }
-    final maxTag = tagCounts.isEmpty ? 0 : tagCounts.values.reduce((a, b) => a > b ? a : b);
+    final maxTag = tagCounts.isEmpty
+        ? 0
+        : tagCounts.values.reduce((a, b) => a > b ? a : b);
     final minEv = evs.reduce((a, b) => a < b ? a : b);
     final maxEv = evs.reduce((a, b) => a > b ? a : b);
     final minIcm = icms.reduce((a, b) => a < b ? a : b);
@@ -72,7 +74,8 @@ class TrainingPackRankingEngine {
     for (var i = 0; i < templates.length; i++) {
       final t = templates[i];
       final evNorm = maxEv == minEv ? 0 : (evs[i] - minEv) / (maxEv - minEv);
-      final icmNorm = maxIcm == minIcm ? 0 : (icms[i] - minIcm) / (maxIcm - minIcm);
+      final icmNorm =
+          maxIcm == minIcm ? 0 : (icms[i] - minIcm) / (maxIcm - minIcm);
       final covNorm = maxCov == 0 ? 0 : covs[i] / maxCov;
       final tags = <String>{for (final x in t.tags) x.trim().toLowerCase()}
         ..removeWhere((e) => e.isEmpty);
@@ -86,7 +89,11 @@ class TrainingPackRankingEngine {
       final key = tags.isEmpty ? '' : (tags.toList()..sort()).join('|');
       final uniqNorm = 1 / (tagSets[key] ?? 1);
       final lenNorm = maxSpots == 0 ? 0 : t.spotCount / maxSpots;
-      final rank = _w1 * evNorm + _w2 * icmNorm + _w3 * covNorm + _w4 * uniqNorm + _w5 * lenNorm;
+      final rank = _w1 * evNorm +
+          _w2 * icmNorm +
+          _w3 * covNorm +
+          _w4 * uniqNorm +
+          _w5 * lenNorm;
       final map = t.toJson();
       final meta = Map<String, dynamic>.from(map['meta'] as Map? ?? {});
       meta['rankScore'] = double.parse(rank.toStringAsFixed(4));
@@ -106,14 +113,17 @@ class TrainingPackRankingEngine {
   }
 
   double rank(TrainingPackTemplateV2 pack, List<TrainingPackTemplateV2> all) {
-    final ratings = [for (final p in all) const YamlPackRatingEngine().rate(p).toDouble()];
+    final ratings = [
+      for (final p in all) const YamlPackRatingEngine().rate(p).toDouble()
+    ];
     if (ratings.isEmpty) return 0;
     ratings.sort();
     final median = ratings.length.isOdd
         ? ratings[ratings.length ~/ 2]
         : (ratings[ratings.length ~/ 2 - 1] + ratings[ratings.length ~/ 2]) / 2;
     final avg = ratings.reduce((a, b) => a + b) / ratings.length;
-    final sd = sqrt(ratings.fold(0, (s, v) => s + pow(v - avg, 2)) / ratings.length);
+    final sd =
+        sqrt(ratings.fold(0, (s, v) => s + pow(v - avg, 2)) / ratings.length);
     if (sd == 0) return 0.5;
     final r = const YamlPackRatingEngine().rate(pack).toDouble();
     final z = (r - median) / sd;

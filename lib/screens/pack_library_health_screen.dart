@@ -9,7 +9,8 @@ class PackLibraryHealthScreen extends StatefulWidget {
   const PackLibraryHealthScreen({super.key});
 
   @override
-  State<PackLibraryHealthScreen> createState() => _PackLibraryHealthScreenState();
+  State<PackLibraryHealthScreen> createState() =>
+      _PackLibraryHealthScreenState();
 }
 
 class _PackLibraryHealthScreenState extends State<PackLibraryHealthScreen> {
@@ -48,13 +49,15 @@ class _PackLibraryHealthScreenState extends State<PackLibraryHealthScreen> {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                ElevatedButton(onPressed: _load, child: const Text('🔄 Обновить')),
+                ElevatedButton(
+                    onPressed: _load, child: const Text('🔄 Обновить')),
                 const SizedBox(height: 16),
                 Text('Ошибок: $_errors, Предупреждений: $_warnings'),
                 const SizedBox(height: 16),
                 for (final i in _issues)
                   ListTile(
-                    title: Text(File(i.$1).path.split(Platform.pathSeparator).last),
+                    title: Text(
+                        File(i.$1).path.split(Platform.pathSeparator).last),
                     subtitle: Text(i.$2),
                   ),
               ],

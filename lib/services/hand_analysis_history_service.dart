@@ -18,7 +18,8 @@ class HandAnalysisHistoryService extends ChangeNotifier {
         if (list is List) {
           _records
             ..clear()
-            ..addAll(list.map((e) => HandAnalysisRecord.fromJson(Map<String, dynamic>.from(e as Map))));
+            ..addAll(list.map((e) => HandAnalysisRecord.fromJson(
+                Map<String, dynamic>.from(e as Map))));
           _records.sort((a, b) => b.date.compareTo(a.date));
         }
       } catch (_) {}
@@ -28,7 +29,8 @@ class HandAnalysisHistoryService extends ChangeNotifier {
 
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_key, jsonEncode([for (final r in _records) r.toJson()]));
+    await prefs.setString(
+        _key, jsonEncode([for (final r in _records) r.toJson()]));
   }
 
   Future<void> add(HandAnalysisRecord r) async {

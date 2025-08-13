@@ -30,31 +30,33 @@ void main() {
   test('custom path session marks started flag', () async {
     SharedPreferences.setMockInitialValues({});
     await SmartReviewService.instance.load();
-    LearningPathProgressService.instance
-      .mock = true;
+    LearningPathProgressService.instance.mock = true;
     await LearningPathProgressService.instance.resetProgress();
     await LearningPathProgressService.instance.resetCustomPath();
     final spot = TrainingPackSpot(id: 'c');
-    final tpl = TrainingPackTemplate(id: 'c', name: 'c', spots: [spot], tags: ['customPath']);
+    final tpl = TrainingPackTemplate(
+        id: 'c', name: 'c', spots: [spot], tags: ['customPath']);
     final service = TrainingSessionService();
     await service.startSession(tpl, persist: false);
-    final started = await LearningPathProgressService.instance.isCustomPathStarted();
+    final started =
+        await LearningPathProgressService.instance.isCustomPathStarted();
     expect(started, isTrue);
   });
 
   test('custom path completion marked after finish', () async {
     SharedPreferences.setMockInitialValues({});
     await SmartReviewService.instance.load();
-    LearningPathProgressService.instance
-      .mock = true;
+    LearningPathProgressService.instance.mock = true;
     await LearningPathProgressService.instance.resetProgress();
     await LearningPathProgressService.instance.resetCustomPath();
     final spot = TrainingPackSpot(id: 'd');
-    final tpl = TrainingPackTemplate(id: 'd', name: 'd', spots: [spot], tags: ['customPath']);
+    final tpl = TrainingPackTemplate(
+        id: 'd', name: 'd', spots: [spot], tags: ['customPath']);
     final service = TrainingSessionService();
     await service.startSession(tpl, persist: false);
     service.nextSpot();
-    final done = await LearningPathProgressService.instance.isCustomPathCompleted();
+    final done =
+        await LearningPathProgressService.instance.isCustomPathCompleted();
     expect(done, isTrue);
   });
 }

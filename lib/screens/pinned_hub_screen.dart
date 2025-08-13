@@ -67,7 +67,8 @@ class _PinnedHubScreenState extends State<PinnedHubScreen> {
     );
   }
 
-  Widget _buildSection(String title, List<PinnedLearningItem> items, String type) {
+  Widget _buildSection(
+      String title, List<PinnedLearningItem> items, String type) {
     if (items.isEmpty) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),
@@ -215,4 +216,3 @@ class _PinnedHubScreenState extends State<PinnedHubScreen> {
     const TheoryBlockLauncher().launch(context: context, block: block);
   }
 }
-

@@ -44,6 +44,7 @@ class PotAnimationService {
     _highlightedPlayer = playerName;
     state.highlightWinner();
   }
+
   void startPotWinFlights({
     required BuildContext context,
     required Map<int, int> payouts,
@@ -68,8 +69,8 @@ class PotAnimationService {
     final tableWidth = screen.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screen.width / 2 + 10;
-    final centerY =
-        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final centerY = screen.height / 2 -
+        TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
     final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
     final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
@@ -140,8 +141,8 @@ class PotAnimationService {
     final tableWidth = screen.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screen.width / 2 + 10;
-    final centerY =
-        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final centerY = screen.height / 2 -
+        TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
     final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
     final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;
@@ -218,8 +219,8 @@ class PotAnimationService {
     final tableWidth = screen.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screen.width / 2 + 10;
-    final centerY =
-        screen.height / 2 - TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
+    final centerY = screen.height / 2 -
+        TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
     final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
     final radiusY = (tableHeight / 2 + 90) * scale * radiusMod;

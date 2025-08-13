@@ -93,8 +93,7 @@ class _ActionListWidgetState extends State<ActionListWidget> {
   }
 
   String _format(ActionEntry a) {
-    final label =
-        a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action;
+    final label = a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action;
     var text = 'P${a.playerIndex} $label';
     if (a.amount != null) text += ' ${a.amount}';
     return text;
@@ -151,7 +150,7 @@ class _ActionListWidgetState extends State<ActionListWidget> {
           final needLabel = act == 'custom';
           final needEquity =
               player == widget.heroIndex && (act == 'call' || act == 'push');
-          
+
           return AlertDialog(
             title: const Text('Edit action'),
             content: Column(
@@ -412,11 +411,10 @@ class _ActionListWidgetState extends State<ActionListWidget> {
             final isBlind = index < 2 && a.action == 'post';
             final heroBg = (a.playerIndex == widget.heroIndex && a.ev != null)
                 ? (a.ev! >= 0
-                      ? Colors.green.withValues(alpha: 0.1)
-                      : Colors.red.withValues(alpha: 0.1))
+                    ? Colors.green.withValues(alpha: 0.1)
+                    : Colors.red.withValues(alpha: 0.1))
                 : null;
-            final bg =
-                heroBg ??
+            final bg = heroBg ??
                 (_errors[index] == null
                     ? Colors.transparent
                     : Colors.red.withValues(alpha: 0.15));
@@ -554,7 +552,8 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                         padding: const EdgeInsets.only(top: 4, right: 8),
                         child: Text(
                           'Total pot: ${pot.potAfter.toStringAsFixed(1)} BB',
-                          style: const TextStyle(color: Colors.grey, fontSize: 12),
+                          style:
+                              const TextStyle(color: Colors.grey, fontSize: 12),
                         ),
                       ),
                     )

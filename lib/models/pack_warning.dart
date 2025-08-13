@@ -8,6 +8,8 @@ class PackWarning {
         'message': message,
         'packId': packId,
       };
-  factory PackWarning.fromJson(Map<String, dynamic> j) =>
-      PackWarning(j['type']?.toString() ?? '', j['message']?.toString() ?? '', j['packId']?.toString() ?? '');
+  factory PackWarning.fromJson(Map<String, dynamic> j) => PackWarning(
+      j['type']?.toString() ?? '',
+      j['message']?.toString() ?? '',
+      j['packId']?.toString() ?? '');
 }

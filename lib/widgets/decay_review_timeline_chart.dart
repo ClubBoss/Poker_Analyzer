@@ -70,7 +70,8 @@ class _DecayReviewTimelineChartState extends State<DecayReviewTimelineChart> {
                         CheckboxListTile(
                           value: checked[t],
                           title: Text(t),
-                          onChanged: (v) => setState(() => checked[t] = v ?? false),
+                          onChanged: (v) =>
+                              setState(() => checked[t] = v ?? false),
                         ),
                     ],
                   ),
@@ -86,7 +87,10 @@ class _DecayReviewTimelineChartState extends State<DecayReviewTimelineChart> {
             TextButton(
               onPressed: () => Navigator.pop(
                 context,
-                [for (final e in checked.entries) if (e.value) e.key],
+                [
+                  for (final e in checked.entries)
+                    if (e.value) e.key
+                ],
               ),
               child: const Text('OK'),
             ),
@@ -132,7 +136,8 @@ class _DecayReviewTimelineChartState extends State<DecayReviewTimelineChart> {
     }
     minDate ??= DateTime.now();
     maxDate ??= minDate.add(const Duration(days: 1));
-    final totalDays = math.max(1, maxDate.difference(minDate).inDays.toDouble());
+    final totalDays =
+        math.max(1, maxDate.difference(minDate).inDays.toDouble());
 
     final colors = [
       Colors.greenAccent,
@@ -215,8 +220,10 @@ class _DecayReviewTimelineChartState extends State<DecayReviewTimelineChart> {
                 drawVerticalLine: false,
               ),
               titlesData: FlTitlesData(
-                rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                rightTitles:
+                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                topTitles:
+                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                 leftTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
@@ -224,9 +231,11 @@ class _DecayReviewTimelineChartState extends State<DecayReviewTimelineChart> {
                     reservedSize: 60,
                     getTitlesWidget: (value, meta) {
                       final i = value.toInt();
-                      if (i < 0 || i >= tags.length) return const SizedBox.shrink();
+                      if (i < 0 || i >= tags.length)
+                        return const SizedBox.shrink();
                       return Text(tags[i],
-                          style: const TextStyle(color: Colors.white, fontSize: 10));
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 10));
                     },
                   ),
                 ),
@@ -238,7 +247,8 @@ class _DecayReviewTimelineChartState extends State<DecayReviewTimelineChart> {
                       final d = minDate!.add(Duration(days: value.toInt()));
                       return Text(
                         '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}',
-                        style: const TextStyle(color: Colors.white, fontSize: 10),
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 10),
                       );
                     },
                   ),

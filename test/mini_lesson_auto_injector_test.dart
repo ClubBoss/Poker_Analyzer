@@ -40,6 +40,7 @@ class _FakeProgress extends TrainingPathProgressServiceV2 {
   Future<void> markStageCompleted(String stageId, double accuracy) async {
     completed.add(stageId);
   }
+
   @override
   List<String> unlockedStageIds() => [];
 }
@@ -76,7 +77,8 @@ class _FakeMasteryService extends TagMasteryService {
       : super(logs: SessionLogService(sessions: TrainingSessionService()));
 
   @override
-  Future<Map<String, double>> computeMastery({bool force = false}) async => _map;
+  Future<Map<String, double>> computeMastery({bool force = false}) async =>
+      _map;
 }
 
 void main() {
@@ -170,4 +172,3 @@ void main() {
     expect(list.length, 1);
   });
 }
-

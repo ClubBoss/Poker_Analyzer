@@ -7,7 +7,8 @@ class PositionProgress {
   final int correct;
   final double ev;
   final double icm;
-  const PositionProgress({this.hands = 0, this.correct = 0, this.ev = 0, this.icm = 0});
+  const PositionProgress(
+      {this.hands = 0, this.correct = 0, this.ev = 0, this.icm = 0});
   double get accuracy => hands > 0 ? correct / hands : 0;
 }
 
@@ -39,7 +40,8 @@ class PlayerProgressService extends ChangeNotifier {
       final correct = e.value.fold(0, (p, v) => p + v.correct);
       final ev = e.value.fold(0.0, (p, v) => p + v.ev) / hands;
       final icm = e.value.fold(0.0, (p, v) => p + v.icm) / hands;
-      result[e.key] = PositionProgress(hands: hands, correct: correct, ev: ev, icm: icm);
+      result[e.key] =
+          PositionProgress(hands: hands, correct: correct, ev: ev, icm: icm);
     }
     _progress = result;
     notifyListeners();

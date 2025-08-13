@@ -55,4 +55,3 @@ void main() {
     expect(find.text('Complete n1 to unlock this node'), findsOneWidget);
   });
 }
-

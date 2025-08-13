@@ -12,11 +12,16 @@ class SyncStatusIcon extends InheritedWidget {
       context.dependOnInheritedWidgetOfExactType<SyncStatusIcon>()!.icon;
 
   @override
-  bool updateShouldNotify(covariant SyncStatusIcon oldWidget) => icon != oldWidget.icon;
+  bool updateShouldNotify(covariant SyncStatusIcon oldWidget) =>
+      icon != oldWidget.icon;
 }
 
 class SyncStatusWidget extends StatefulWidget {
-  const SyncStatusWidget({required this.child, required this.sync, required this.cloud, super.key});
+  const SyncStatusWidget(
+      {required this.child,
+      required this.sync,
+      required this.cloud,
+      super.key});
 
   final Widget child;
   final ConnectivitySyncController sync;

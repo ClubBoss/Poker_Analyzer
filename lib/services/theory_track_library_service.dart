@@ -7,7 +7,8 @@ import '../models/theory_block_model.dart';
 /// Loads and indexes theory tracks from bundled YAML files.
 class TheoryTrackLibraryService {
   TheoryTrackLibraryService._();
-  static final TheoryTrackLibraryService instance = TheoryTrackLibraryService._();
+  static final TheoryTrackLibraryService instance =
+      TheoryTrackLibraryService._();
 
   static const String _trackDir = 'assets/theory_tracks/';
   static const String _blockDir = 'assets/theory_blocks/';
@@ -48,8 +49,8 @@ class TheoryTrackLibraryService {
           try {
             final bRaw = await rootBundle.loadString('$_blockDir$bid.yaml');
             final bMap = const YamlReader().read(bRaw);
-            blocks.add(TheoryBlockModel.fromYaml(
-                Map<String, dynamic>.from(bMap)));
+            blocks.add(
+                TheoryBlockModel.fromYaml(Map<String, dynamic>.from(bMap)));
           } catch (_) {}
         }
         final track = TheoryTrackModel(id: id, title: title, blocks: blocks);

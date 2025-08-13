@@ -37,9 +37,12 @@ class UserActionLogger extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> logThrottled(String action, [Duration delay = const Duration(seconds: 2)]) async {
+  Future<void> logThrottled(String action,
+      [Duration delay = const Duration(seconds: 2)]) async {
     final now = DateTime.now();
-    if (_lastAction == action && _last != null && now.difference(_last!) < delay) {
+    if (_lastAction == action &&
+        _last != null &&
+        now.difference(_last!) < delay) {
       return;
     }
     _lastAction = action;

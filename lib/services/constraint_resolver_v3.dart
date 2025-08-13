@@ -18,8 +18,7 @@ class ConstraintResolverV3 {
     FullBoardGeneratorV2? boardGenerator,
     LineGraphEngine? lineEngine,
     Uuid? uuid,
-  })
-      : _boardGenerator = boardGenerator ?? const FullBoardGeneratorV2(),
+  })  : _boardGenerator = boardGenerator ?? const FullBoardGeneratorV2(),
         _lineEngine = lineEngine ?? LineGraphEngine(),
         _uuid = uuid ?? const Uuid();
 
@@ -148,8 +147,7 @@ class ConstraintResolverV3 {
       var map = Map<String, dynamic>.from(params);
       final preset = map.remove('preset');
       if (preset != null) {
-        final expanded =
-            BoardTexturePresetLibrary.get(preset.toString());
+        final expanded = BoardTexturePresetLibrary.get(preset.toString());
         map = {...expanded, ...map};
       }
       final street = map.remove('targetStreet')?.toString().toLowerCase();

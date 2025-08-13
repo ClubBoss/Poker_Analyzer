@@ -78,7 +78,11 @@ class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('📘 Theory Pack Debugger'),
-        actions: const [Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: StreakBadge())],
+        actions: const [
+          Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              child: StreakBadge())
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
           child: Padding(

@@ -2,7 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TheoryLinkConfigService {
-  TheoryLinkConfigService._() : notifier = ValueNotifier(TheoryLinkConfig.defaults);
+  TheoryLinkConfigService._()
+      : notifier = ValueNotifier(TheoryLinkConfig.defaults);
   static final TheoryLinkConfigService instance = TheoryLinkConfigService._();
 
   final ValueNotifier<TheoryLinkConfig> notifier;
@@ -14,7 +15,8 @@ class TheoryLinkConfigService {
       maxPerModule: prefs.getInt('theory.maxPerModule') ?? 3,
       maxPerPack: prefs.getInt('theory.maxPerPack') ?? 2,
       maxPerSpot: prefs.getInt('theory.maxPerSpot') ?? 2,
-      noveltyRecent: Duration(hours: prefs.getInt('theory.noveltyRecentHours') ?? 72),
+      noveltyRecent:
+          Duration(hours: prefs.getInt('theory.noveltyRecentHours') ?? 72),
       noveltyMinOverlap: prefs.getDouble('theory.noveltyMinOverlap') ?? 0.6,
       wTag: prefs.getDouble('theory.weight.tag') ?? 0.2,
       wErr: prefs.getDouble('theory.weight.errorRate') ?? 0.5,

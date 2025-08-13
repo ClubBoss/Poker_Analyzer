@@ -42,7 +42,10 @@ class YamlPackBalanceAnalyzer {
     checkBias('street_bias', streets, 1);
     checkBias('stack_bias', stacks, 1);
 
-    final evs = [for (final s in spots) if (s.heroEv != null) s.heroEv!];
+    final evs = [
+      for (final s in spots)
+        if (s.heroEv != null) s.heroEv!
+    ];
     if (evs.length >= 5) {
       final posCount = evs.where((e) => e >= 0).length;
       final pct = posCount / evs.length;

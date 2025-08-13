@@ -39,10 +39,10 @@ class TrainingProgressTrackerService {
       if (acc < requiresAccuracy) return false;
     }
     if (requiresVolume != null) {
-      final completed = await TrainingPackStatsService.getHandsCompleted(packId);
+      final completed =
+          await TrainingPackStatsService.getHandsCompleted(packId);
       if (completed < requiresVolume) return false;
     }
     return true;
   }
 }
-

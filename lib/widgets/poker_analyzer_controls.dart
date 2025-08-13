@@ -18,4 +18,3 @@ class PokerAnalyzerControls extends StatelessWidget {
     );
   }
 }
-

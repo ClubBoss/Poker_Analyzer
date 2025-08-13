@@ -1,6 +1,5 @@
 import 'dart:async';
 
-
 import 'mini_lesson_library_service.dart';
 import 'recap_auto_repeat_scheduler.dart';
 import 'smart_recap_banner_controller.dart';
@@ -25,11 +24,11 @@ class SmartRecapBannerReinjectionService {
     RecapFatigueEvaluator? fatigue,
     TheoryRecapSuppressionEngine? suppression,
     SmartTheoryRecapDismissalMemory? dismissal,
-  }) : scheduler = scheduler ?? RecapAutoRepeatScheduler.instance,
-       library = library ?? MiniLessonLibraryService.instance,
-       fatigue = fatigue ?? RecapFatigueEvaluator.instance,
-       suppression = suppression ?? TheoryRecapSuppressionEngine.instance,
-       dismissal = dismissal ?? SmartTheoryRecapDismissalMemory.instance;
+  })  : scheduler = scheduler ?? RecapAutoRepeatScheduler.instance,
+        library = library ?? MiniLessonLibraryService.instance,
+        fatigue = fatigue ?? RecapFatigueEvaluator.instance,
+        suppression = suppression ?? TheoryRecapSuppressionEngine.instance,
+        dismissal = dismissal ?? SmartTheoryRecapDismissalMemory.instance;
 
   StreamSubscription<List<String>>? _sub;
 

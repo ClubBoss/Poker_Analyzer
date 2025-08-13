@@ -16,7 +16,9 @@ class GoalSuggestionRow extends StatelessWidget {
     final isDecay = rec.type == GoalRecommendationType.decay;
     final goal = UserGoal(
       id: '${isDecay ? 'decay' : 'mistake'}_${rec.tag}_${now.millisecondsSinceEpoch}',
-      title: isDecay ? 'Восстановить тег ${rec.tag}' : 'Исправить ошибку ${rec.tag}',
+      title: isDecay
+          ? 'Восстановить тег ${rec.tag}'
+          : 'Исправить ошибку ${rec.tag}',
       type: 'tag',
       target: isDecay ? 80 : 90,
       base: 0,
@@ -84,8 +86,7 @@ class GoalSuggestionRow extends StatelessWidget {
                   alignment: Alignment.centerRight,
                   child: ElevatedButton(
                     onPressed: () => _addGoal(context, rec),
-                    style:
-                        ElevatedButton.styleFrom(backgroundColor: accent),
+                    style: ElevatedButton.styleFrom(backgroundColor: accent),
                     child: Text(buttonLabel),
                   ),
                 ),

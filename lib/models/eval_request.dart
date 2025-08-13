@@ -1,4 +1,5 @@
 import 'training_spot.dart';
+
 class EvalRequest {
   final String hash;
   final TrainingSpot spot;

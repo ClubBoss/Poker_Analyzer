@@ -122,7 +122,9 @@ class PotSyncService extends ChangeNotifier {
     for (final entry in stackService.stackSizes.entries) {
       final index = entry.key;
       final folded = actions.any((a) =>
-          a.playerIndex == index && a.action == 'fold' && a.street <= currentStreet);
+          a.playerIndex == index &&
+          a.action == 'fold' &&
+          a.street <= currentStreet);
       if (folded) continue;
       final stack = entry.value;
       if (minStack == null || stack < minStack) {

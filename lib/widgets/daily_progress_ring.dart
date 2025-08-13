@@ -25,7 +25,8 @@ class DailyProgressRing extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => const SavedHandsScreen(initialDateFilter: 'Сегодня'),
+            builder: (_) =>
+                const SavedHandsScreen(initialDateFilter: 'Сегодня'),
           ),
         );
       },
@@ -60,7 +61,8 @@ class DailyProgressRing extends StatelessWidget {
                       ),
                       Text('$percent%',
                           style: const TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold)),
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold)),
                     ],
                   ),
                 );

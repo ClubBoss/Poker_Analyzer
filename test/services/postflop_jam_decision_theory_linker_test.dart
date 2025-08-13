@@ -41,8 +41,7 @@ void main() {
       tags: ['river', 'jam', 'decision'],
     );
     final library = _FakeLibrary([lesson]);
-    final linker =
-        PostflopJamDecisionTheoryLinker(library: library);
+    final linker = PostflopJamDecisionTheoryLinker(library: library);
     final pack = TrainingPackTemplateV2(
       id: 'p1',
       name: 'Pack',
@@ -69,8 +68,7 @@ void main() {
       tags: ['river', 'jam', 'decision'],
     );
     final library = _FakeLibrary([lesson]);
-    final linker =
-        PostflopJamDecisionTheoryLinker(library: library);
+    final linker = PostflopJamDecisionTheoryLinker(library: library);
     final pack = TrainingPackTemplateV2(
       id: 'p1',
       name: 'Pack',

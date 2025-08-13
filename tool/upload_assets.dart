@@ -34,7 +34,8 @@ Future<void> main(List<String> args) async {
     stderr.writeln('Bucket not specified');
     exit(1);
   }
-  bucket = bucket.replaceAll(RegExp(r'^gs://'), '').replaceAll(RegExp(r'/$'), '');
+  bucket =
+      bucket.replaceAll(RegExp(r'^gs://'), '').replaceAll(RegExp(r'/$'), '');
   final storage = FirebaseStorage.instanceFor(bucket: bucket);
   final manifestFile = File(p.join(dir.path, 'manifest.json'));
   if (!manifestFile.existsSync()) {
@@ -91,6 +92,7 @@ Future<void> main(List<String> args) async {
       errors++;
     }
   }
+
   for (var i = 0; i < pngNames.length; i += 8) {
     final batch = pngNames.skip(i).take(8).toList();
     await Future.wait(batch.map((name) async {
@@ -112,7 +114,8 @@ Future<void> main(List<String> args) async {
     encoding: 'utf-8',
   );
   final elapsed = DateTime.now().difference(start).inMilliseconds / 1000;
-  stdout.writeln('Uploaded: $uploaded  |  Skipped: $skipped  |  Errors: $errors');
+  stdout
+      .writeln('Uploaded: $uploaded  |  Skipped: $skipped  |  Errors: $errors');
   stdout.writeln('Time: ${elapsed.toStringAsFixed(1)} s');
   if (errors > 0) exitCode = 1;
 }

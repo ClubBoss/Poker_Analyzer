@@ -36,6 +36,7 @@ class _FakeProgress extends TrainingPathProgressServiceV2 {
   Future<void> markStageCompleted(String stageId, double accuracy) async {
     completed.add(stageId);
   }
+
   @override
   List<String> unlockedStageIds() => [];
 }
@@ -65,12 +66,14 @@ void main() {
 
   test('auto expands mini lesson chain on completion', () async {
     SharedPreferences.setMockInitialValues({});
-    final a = TheoryMiniLessonNode(id: 'a', title: 'A', content: '', nextIds: const ['b']);
+    final a = TheoryMiniLessonNode(
+        id: 'a', title: 'A', content: '', nextIds: const ['b']);
     final orch = _FakeOrchestrator([a]);
     final progress = _FakeProgress({});
     final library = _FakeLibrary([
       a,
-      TheoryMiniLessonNode(id: 'b', title: 'B', content: '', nextIds: const ['c']),
+      TheoryMiniLessonNode(
+          id: 'b', title: 'B', content: '', nextIds: const ['c']),
       TheoryMiniLessonNode(id: 'c', title: 'C', content: '', nextIds: const []),
     ]);
     final expander = LearningPathAutoExpander(library: library);

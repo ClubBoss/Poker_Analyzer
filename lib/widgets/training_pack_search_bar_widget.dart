@@ -10,10 +10,12 @@ class TrainingPackSearchBarWidget extends StatefulWidget {
   final ValueChanged<List<TrainingPackTemplateV2>> onFilterChanged;
 
   @override
-  State<TrainingPackSearchBarWidget> createState() => _TrainingPackSearchBarWidgetState();
+  State<TrainingPackSearchBarWidget> createState() =>
+      _TrainingPackSearchBarWidgetState();
 }
 
-class _TrainingPackSearchBarWidgetState extends State<TrainingPackSearchBarWidget> {
+class _TrainingPackSearchBarWidgetState
+    extends State<TrainingPackSearchBarWidget> {
   TrainingPackLevel? _level;
   TrainingPackTopic? _topic;
   TrainingPackFormat? _format;
@@ -35,7 +37,8 @@ class _TrainingPackSearchBarWidgetState extends State<TrainingPackSearchBarWidge
     );
     widget.onFilterChanged(res);
     setState(() {
-      _topics = TrainingPackSearchService.instance.getAvailableTopics(level: _level);
+      _topics =
+          TrainingPackSearchService.instance.getAvailableTopics(level: _level);
       if (_topic != null && !_topics.contains(_topic)) {
         _topic = null;
       }
@@ -54,7 +57,8 @@ class _TrainingPackSearchBarWidgetState extends State<TrainingPackSearchBarWidge
 
   void _onFormatPressed(int index) {
     setState(() {
-      final selected = index == 0 ? TrainingPackFormat.cash : TrainingPackFormat.tournament;
+      final selected =
+          index == 0 ? TrainingPackFormat.cash : TrainingPackFormat.tournament;
       _format = _format == selected ? null : selected;
     });
     _update();
@@ -113,4 +117,3 @@ class _TrainingPackSearchBarWidgetState extends State<TrainingPackSearchBarWidge
     );
   }
 }
-

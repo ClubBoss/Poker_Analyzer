@@ -163,4 +163,3 @@ class PackFingerprintComparerService {
 
   String _norm(String v) => v.trim().toLowerCase();
 }
-

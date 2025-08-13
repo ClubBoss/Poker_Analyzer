@@ -67,8 +67,7 @@ class _SkillGapOverlayBannerState extends State<SkillGapOverlayBanner>
                   const SizedBox(width: 8),
                   ElevatedButton(
                     onPressed: widget.onOpen,
-                    style:
-                        ElevatedButton.styleFrom(backgroundColor: accent),
+                    style: ElevatedButton.styleFrom(backgroundColor: accent),
                     child: const Text('Пройти бустер'),
                   ),
                 ],

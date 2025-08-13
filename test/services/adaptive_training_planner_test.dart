@@ -10,7 +10,8 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  test('selects high score tags under budget respecting maxTagsPerPlan', () async {
+  test('selects high score tags under budget respecting maxTagsPerPlan',
+      () async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('planner.maxTagsPerPlan', 2);
     await prefs.setInt('planner.budgetPaddingMins', 5);
@@ -27,8 +28,8 @@ void main() {
 
     final retention = const DecayTagRetentionTrackerService();
     await retention.markBoosterCompleted('b', time: DateTime.now());
-    await retention.markBoosterCompleted(
-        'c', time: DateTime.now().subtract(const Duration(days: 15)));
+    await retention.markBoosterCompleted('c',
+        time: DateTime.now().subtract(const Duration(days: 15)));
 
     final planner = AdaptiveTrainingPlanner();
     final plan = await planner.plan(userId: user, durationMinutes: 40);
@@ -46,7 +47,8 @@ void main() {
     expect(m2.values.reduce((a, b) => a + b), 3);
   });
 
-  test('deterministic ordering with equal scores tie-breaking by name', () async {
+  test('deterministic ordering with equal scores tie-breaking by name',
+      () async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('planner.maxTagsPerPlan', 2);
 
@@ -60,4 +62,3 @@ void main() {
     expect(plan.tagWeights.keys.toList(), ['a', 'b']);
   });
 }
-

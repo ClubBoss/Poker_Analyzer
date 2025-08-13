@@ -86,7 +86,8 @@ class _RecoveryPromptBannerState extends State<RecoveryPromptBanner> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => TrainingPackPlayScreen(template: template, original: template),
+        builder: (_) =>
+            TrainingPackPlayScreen(template: template, original: template),
       ),
     );
   }

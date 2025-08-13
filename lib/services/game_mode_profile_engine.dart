@@ -43,4 +43,3 @@ class GameModeProfileEngine {
   List<GameModeProfile> getAvailableProfiles() =>
       List.unmodifiable(GameModeProfile.values);
 }
-

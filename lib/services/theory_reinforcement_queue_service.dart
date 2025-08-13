@@ -55,8 +55,7 @@ class TheoryReinforcementQueueService {
       map.remove(lessonId);
     } else {
       final next = DateTime.now().add(_intervals[level]);
-      map[lessonId] =
-          TheoryReinforcementEntry(level: level + 1, next: next);
+      map[lessonId] = TheoryReinforcementEntry(level: level + 1, next: next);
     }
     await _save(map);
   }
@@ -92,4 +91,3 @@ class TheoryReinforcementQueueService {
     return result;
   }
 }
-

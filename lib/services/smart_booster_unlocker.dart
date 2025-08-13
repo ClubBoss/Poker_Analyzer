@@ -65,7 +65,8 @@ class SmartBoosterUnlocker {
     for (final entry in decayScores.entries) {
       if (entry.value > decayThreshold) {
         counts.putIfAbsent(entry.key, () => 0);
-        priorities[entry.key] = (counts[entry.key]?.toDouble() ?? 0) + entry.value;
+        priorities[entry.key] =
+            (counts[entry.key]?.toDouble() ?? 0) + entry.value;
       }
     }
     for (final entry in counts.entries) {

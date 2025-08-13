@@ -25,7 +25,8 @@ class MistakeSummarySection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Ошибки: $mistakes', style: const TextStyle(color: Colors.white)),
+          Text('Ошибки: $mistakes',
+              style: const TextStyle(color: Colors.white)),
           const SizedBox(height: 4),
           Text('Средняя точность: ${accuracy.toStringAsFixed(1)}%',
               style: const TextStyle(color: Colors.white)),

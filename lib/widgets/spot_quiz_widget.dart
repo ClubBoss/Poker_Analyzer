@@ -68,7 +68,8 @@ class SpotQuizWidget extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: badgeColor,
                       borderRadius: BorderRadius.circular(8),
@@ -95,8 +96,11 @@ class SpotQuizWidget extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(top: 2),
                   child: Text(
-                    heroLabel.length > 40 ? heroLabel.substring(0, 40) : heroLabel,
-                    style: const TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
+                    heroLabel.length > 40
+                        ? heroLabel.substring(0, 40)
+                        : heroLabel,
+                    style: const TextStyle(
+                        fontSize: 14, fontStyle: FontStyle.italic),
                   ),
                 ),
               if (board.isNotEmpty)
@@ -117,7 +121,8 @@ class SpotQuizWidget extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: heroEv >= 0 ? Colors.greenAccent : Colors.redAccent,
+                      color:
+                          heroEv >= 0 ? Colors.greenAccent : Colors.redAccent,
                     ),
                   ),
                 ),
@@ -129,7 +134,8 @@ class SpotQuizWidget extends StatelessWidget {
                     children: [
                       for (final tag in spot.tags)
                         InputChip(
-                          label: Text(tag, style: const TextStyle(fontSize: 12)),
+                          label:
+                              Text(tag, style: const TextStyle(fontSize: 12)),
                           onPressed: () {},
                         ),
                     ],

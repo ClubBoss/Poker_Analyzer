@@ -21,8 +21,7 @@ class PackLibraryLoaderService {
         _cache = [
           for (final item in data)
             if (item is Map)
-              TrainingPackTemplateV2.fromJson(
-                  Map<String, dynamic>.from(item))
+              TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(item))
         ];
         return _cache!;
       }

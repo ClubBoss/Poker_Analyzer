@@ -45,8 +45,7 @@ class BoosterQueuePressureMonitor {
     final inboxScore = inboxLen / maxInbox;
     final gapScore = gapLen / maxSkillGap;
 
-    final score =
-        (recapScore + goalScore + inboxScore + gapScore) / 4.0;
+    final score = (recapScore + goalScore + inboxScore + gapScore) / 4.0;
     if (score < 0) return 0.0;
     if (score > 1) return 1.0;
     return score;

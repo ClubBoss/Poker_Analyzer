@@ -11,7 +11,8 @@ class SkillDecayDashboardTile extends StatefulWidget {
   const SkillDecayDashboardTile({super.key});
 
   @override
-  State<SkillDecayDashboardTile> createState() => _SkillDecayDashboardTileState();
+  State<SkillDecayDashboardTile> createState() =>
+      _SkillDecayDashboardTileState();
 }
 
 class _SkillDecayDashboardTileState extends State<SkillDecayDashboardTile> {
@@ -26,9 +27,7 @@ class _SkillDecayDashboardTileState extends State<SkillDecayDashboardTile> {
   Future<List<MapEntry<String, double>>> _load() async {
     final tracker = TheoryTagDecayTracker();
     final scores = await tracker.computeDecayScores();
-    final entries = scores.entries
-        .where((e) => e.value > 50)
-        .toList()
+    final entries = scores.entries.where((e) => e.value > 50).toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     return entries.take(3).toList();
   }

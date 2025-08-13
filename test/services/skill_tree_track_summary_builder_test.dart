@@ -13,7 +13,8 @@ void main() {
   const builder = SkillTreeBuilderService();
   final tracker = SkillTreeNodeProgressTracker.instance;
 
-  SkillTreeNodeModel node(String id, {List<String>? prereqs}) => SkillTreeNodeModel(
+  SkillTreeNodeModel node(String id, {List<String>? prereqs}) =>
+      SkillTreeNodeModel(
         id: id,
         title: id,
         category: 'Push/Fold',
@@ -43,7 +44,8 @@ void main() {
   test('generates completion message when all done', () async {
     final tree = builder.build([node('c')]).tree;
     await tracker.markCompleted('c');
-    final summary = await SkillTreeTrackSummaryBuilder(progress: tracker).build(tree);
+    final summary =
+        await SkillTreeTrackSummaryBuilder(progress: tracker).build(tree);
     expect(summary.completedCount, 1);
     expect(summary.motivationalLine.toLowerCase(), contains('crushed'));
   });

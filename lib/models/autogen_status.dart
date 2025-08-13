@@ -105,12 +105,10 @@ class AutogenStatus {
       queueDepth: json['queueDepth'] ?? 0,
       processed: json['processed'] ?? 0,
       errorsCount: json['errorsCount'] ?? 0,
-      startedAt: json['startedAt'] != null
-          ? DateTime.parse(json['startedAt'])
-          : null,
-      updatedAt: json['updatedAt'] != null
-          ? DateTime.parse(json['updatedAt'])
-          : null,
+      startedAt:
+          json['startedAt'] != null ? DateTime.parse(json['startedAt']) : null,
+      updatedAt:
+          json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
       eta: json['eta'] != null
           ? Duration(milliseconds: json['eta'] as int)
           : null,
@@ -118,4 +116,3 @@ class AutogenStatus {
     );
   }
 }
-

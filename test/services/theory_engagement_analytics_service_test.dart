@@ -52,4 +52,3 @@ void main() {
     expect(lesson2.successRate, 0);
   });
 }
-

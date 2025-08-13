@@ -31,8 +31,7 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
     final box = Hive.box('sessions');
     final raw = box.get(widget.logId);
     if (raw is Map) {
-      final session =
-          TrainingSession.fromJson(Map<String, dynamic>.from(raw));
+      final session = TrainingSession.fromJson(Map<String, dynamic>.from(raw));
       final templates = await TrainingPackStorage.load();
       final template =
           templates.firstWhereOrNull((t) => t.id == session.templateId);
@@ -95,4 +94,3 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
     );
   }
 }
-

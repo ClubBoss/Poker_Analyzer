@@ -16,10 +16,14 @@ void main() {
     final weak = WeakClusterInfo(cluster: cluster, coverage: 0.5, score: 1.0);
 
     final lessons = <String, TheoryMiniLessonNode>{
-      'l1': const TheoryMiniLessonNode(id: 'l1', title: 'L1', content: '', tags: ['push']),
-      'l2': const TheoryMiniLessonNode(id: 'l2', title: 'L2', content: '', tags: ['push']),
-      'l3': const TheoryMiniLessonNode(id: 'l3', title: 'L3', content: '', tags: ['call']),
-      'l4': const TheoryMiniLessonNode(id: 'l4', title: 'L4', content: '', tags: ['fold']),
+      'l1': const TheoryMiniLessonNode(
+          id: 'l1', title: 'L1', content: '', tags: ['push']),
+      'l2': const TheoryMiniLessonNode(
+          id: 'l2', title: 'L2', content: '', tags: ['push']),
+      'l3': const TheoryMiniLessonNode(
+          id: 'l3', title: 'L3', content: '', tags: ['call']),
+      'l4': const TheoryMiniLessonNode(
+          id: 'l4', title: 'L4', content: '', tags: ['fold']),
     };
 
     final builder = ClusterReviewBoosterBuilder();

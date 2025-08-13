@@ -44,13 +44,13 @@ class PositionProgressCard extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 2),
-          child:
-              Text(stat.ev.toStringAsFixed(1), style: const TextStyle(color: Colors.white)),
+          child: Text(stat.ev.toStringAsFixed(1),
+              style: const TextStyle(color: Colors.white)),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 2),
-          child:
-              Text(stat.icm.toStringAsFixed(1), style: const TextStyle(color: Colors.white)),
+          child: Text(stat.icm.toStringAsFixed(1),
+              style: const TextStyle(color: Colors.white)),
         ),
       ]));
     }

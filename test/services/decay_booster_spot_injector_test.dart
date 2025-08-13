@@ -16,7 +16,8 @@ class _FakeDecay extends TheoryTagDecayTracker {
   final Map<String, double> scores;
   _FakeDecay(this.scores);
   @override
-  Future<Map<String, double>> computeDecayScores({DateTime? now}) async => scores;
+  Future<Map<String, double>> computeDecayScores({DateTime? now}) async =>
+      scores;
 }
 
 class _FakeLessonLibrary implements MiniLessonLibraryService {
@@ -37,8 +38,10 @@ class _FakeLessonLibrary implements MiniLessonLibraryService {
       lessons.firstWhereOrNull((l) => l.id == id);
 
   @override
-  List<TheoryMiniLessonNode> findByTags(List<String> tags) =>
-      [for (final l in lessons) if (l.tags.any(tags.contains)) l];
+  List<TheoryMiniLessonNode> findByTags(List<String> tags) => [
+        for (final l in lessons)
+          if (l.tags.any(tags.contains)) l
+      ];
 
   @override
   List<TheoryMiniLessonNode> getByTags(Set<String> tags) =>
@@ -78,7 +81,8 @@ class _FakePackLibrary implements TrainingPackLibraryV2 {
   }
 
   @override
-  Future<void> loadFromFolder([String path = TrainingPackLibraryV2.packsDir]) async {}
+  Future<void> loadFromFolder(
+      [String path = TrainingPackLibraryV2.packsDir]) async {}
 
   @override
   Future<void> reload() async {}
@@ -90,7 +94,9 @@ TrainingPackTemplateV2 _pack(String id, String tag, String spotId) {
     name: id,
     trainingType: TrainingType.pushFold,
     tags: [tag],
-    spots: [TrainingPackSpot(id: spotId, tags: [tag])],
+    spots: [
+      TrainingPackSpot(id: spotId, tags: [tag])
+    ],
     spotCount: 1,
   );
 }

@@ -11,7 +11,8 @@ class BoosterBulkStatsDashboard extends StatefulWidget {
   const BoosterBulkStatsDashboard({super.key});
 
   @override
-  State<BoosterBulkStatsDashboard> createState() => _BoosterBulkStatsDashboardState();
+  State<BoosterBulkStatsDashboard> createState() =>
+      _BoosterBulkStatsDashboardState();
 }
 
 class _BoosterBulkStatsDashboardState extends State<BoosterBulkStatsDashboard> {
@@ -42,10 +43,15 @@ class _BoosterBulkStatsDashboardState extends State<BoosterBulkStatsDashboard> {
       _empty = res['empty'] as int? ?? 0;
       _quality
         ..clear()
-        ..addAll([for (final q in res['packs'] as List) (q[0] as String, q[1] as String)]);
+        ..addAll([
+          for (final q in res['packs'] as List) (q[0] as String, q[1] as String)
+        ]);
       _tags
         ..clear()
-        ..addAll([for (final t in res['tags'] as List) (t[0] as String, (t[1] as num).toInt())]);
+        ..addAll([
+          for (final t in res['tags'] as List)
+            (t[0] as String, (t[1] as num).toInt())
+        ]);
     });
   }
 
@@ -61,7 +67,8 @@ class _BoosterBulkStatsDashboardState extends State<BoosterBulkStatsDashboard> {
             color: q.$2 == 'fail'
                 ? WidgetStateProperty.all(AppColors.errorBg)
                 : q.$2 == 'warning'
-                    ? WidgetStateProperty.all(Colors.orange.withValues(alpha: .2))
+                    ? WidgetStateProperty.all(
+                        Colors.orange.withValues(alpha: .2))
                     : null,
             cells: [DataCell(Text(q.$1)), DataCell(Text(q.$2))],
           ),
@@ -88,7 +95,9 @@ class _BoosterBulkStatsDashboardState extends State<BoosterBulkStatsDashboard> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Booster Bulk Stats'),
-        actions: [IconButton(onPressed: _load, icon: const Icon(Icons.refresh))],
+        actions: [
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh))
+        ],
       ),
       backgroundColor: AppColors.background,
       body: _loading
@@ -104,7 +113,8 @@ class _BoosterBulkStatsDashboardState extends State<BoosterBulkStatsDashboard> {
                       children: [
                         Text('Total packs: $_total'),
                         const SizedBox(height: 4),
-                        Text('Valid: $_valid (${_total == 0 ? 0 : (_valid * 100 / _total).toStringAsFixed(1)}%)'),
+                        Text(
+                            'Valid: $_valid (${_total == 0 ? 0 : (_valid * 100 / _total).toStringAsFixed(1)}%)'),
                         const SizedBox(height: 4),
                         Text('Invalid: ${_total - _valid}'),
                         const SizedBox(height: 4),
@@ -158,7 +168,8 @@ Future<Map<String, dynamic>> _statsTask(String dir) async {
       evSum += report.evAvg * report.totalSpots;
       evCount += report.totalSpots;
       empty += report.emptyExplanations;
-      duplicates += report.issues.where((i) => i.startsWith('duplicate_id')).length;
+      duplicates +=
+          report.issues.where((i) => i.startsWith('duplicate_id')).length;
       if (report.issues.contains('duplicate_ids')) {
         if (!report.issues.any((i) => i.startsWith('duplicate_id'))) {
           duplicates++;
@@ -167,12 +178,17 @@ Future<Map<String, dynamic>> _statsTask(String dir) async {
       for (final e in report.tagHistogram.entries) {
         tags[e.key] = (tags[e.key] ?? 0) + e.value;
       }
-      final name = tpl.name.isNotEmpty ? tpl.name : file.path.split(Platform.pathSeparator).last;
+      final name = tpl.name.isNotEmpty
+          ? tpl.name
+          : file.path.split(Platform.pathSeparator).last;
       packs.add([name, report.quality]);
     } catch (_) {}
   }
-  final tagList = tags.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
-  final topTags = [for (final e in tagList.take(10)) [e.key, e.value]];
+  final tagList = tags.entries.toList()
+    ..sort((a, b) => b.value.compareTo(a.value));
+  final topTags = [
+    for (final e in tagList.take(10)) [e.key, e.value]
+  ];
   return {
     'total': total,
     'valid': valid,

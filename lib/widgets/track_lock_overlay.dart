@@ -42,7 +42,8 @@ class TrackLockOverlay extends StatelessWidget {
     return Stack(
       children: [
         ColorFiltered(
-          colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+          colorFilter:
+              const ColorFilter.mode(Colors.grey, BlendMode.saturation),
           child: IgnorePointer(child: child),
         ),
         Positioned.fill(

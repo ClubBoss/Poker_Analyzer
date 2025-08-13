@@ -16,7 +16,10 @@ class MainMenuProgressCard extends StatelessWidget {
     final executor = EvaluationExecutorService();
     final total = executor.summarizeHands(hands).totalHands;
     final cutoff = DateTime.now().subtract(const Duration(days: 7));
-    final recent = [for (final h in hands) if (h.date.isAfter(cutoff)) h];
+    final recent = [
+      for (final h in hands)
+        if (h.date.isAfter(cutoff)) h
+    ];
     final recentSummary = executor.summarizeHands(recent);
     final accuracy =
         recentSummary.totalHands > 0 ? recentSummary.accuracy : null;
@@ -63,4 +66,3 @@ class MainMenuProgressCard extends StatelessWidget {
     );
   }
 }
-

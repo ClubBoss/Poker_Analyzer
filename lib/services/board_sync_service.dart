@@ -48,7 +48,8 @@ class BoardSyncService {
   ///
   /// When [showFullBoard] is true the board is shown up to [boardStreet]
   /// regardless of the current street.
-  void syncRevealState({required int revealStreet, bool showFullBoard = false}) {
+  void syncRevealState(
+      {required int revealStreet, bool showFullBoard = false}) {
     final street =
         (showFullBoard ? boardStreet : revealStreet).clamp(0, boardStreet);
     final visibleCount = stageCardCounts[street];

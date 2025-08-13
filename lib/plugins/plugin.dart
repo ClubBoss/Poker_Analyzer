@@ -13,7 +13,8 @@ abstract class Plugin implements PluginInterface {
 
   /// Additional service extensions provided by the plug-in.
   @override
-  List<ServiceExtension<dynamic>> get extensions => <ServiceExtension<dynamic>>[];
+  List<ServiceExtension<dynamic>> get extensions =>
+      <ServiceExtension<dynamic>>[];
 
   String get name;
 

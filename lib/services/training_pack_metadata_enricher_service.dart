@@ -61,7 +61,8 @@ class TrainingPackMetadataEnricherService {
       if (preflop.any((a) => a.action == 'limp')) {
         hasLimp = true;
       } else {
-        final hasRaise = preflop.any((a) => a.action == 'raise' || a.action == 'bet');
+        final hasRaise =
+            preflop.any((a) => a.action == 'raise' || a.action == 'bet');
         final hasCall = preflop.any((a) => a.action == 'call');
         if (!hasRaise && hasCall) hasLimp = true;
       }
@@ -79,8 +80,10 @@ class TrainingPackMetadataEnricherService {
       // stack spread using hero stack
       final heroKey = s.hand.heroIndex.toString();
       final stack = s.hand.stacks[heroKey] ?? 0;
-      minStack = (minStack == null) ? stack : (stack < minStack ? stack : minStack);
-      maxStack = (maxStack == null) ? stack : (stack > maxStack ? stack : maxStack);
+      minStack =
+          (minStack == null) ? stack : (stack < minStack ? stack : minStack);
+      maxStack =
+          (maxStack == null) ? stack : (stack > maxStack ? stack : maxStack);
       stackTotal += stack;
       stackCount++;
     }
@@ -138,4 +141,3 @@ class TrainingPackMetadataEnricherService {
     return advanced.contains(a.action.toLowerCase());
   }
 }
-

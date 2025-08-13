@@ -73,13 +73,15 @@ class _PreviewPreferences implements SharedPreferences {
   Future<bool> setBool(String key, bool value) => _base.setBool(key, value);
 
   @override
-  Future<bool> setDouble(String key, double value) => _base.setDouble(key, value);
+  Future<bool> setDouble(String key, double value) =>
+      _base.setDouble(key, value);
 
   @override
   Future<bool> setInt(String key, int value) => _base.setInt(key, value);
 
   @override
-  Future<bool> setString(String key, String value) => _base.setString(key, value);
+  Future<bool> setString(String key, String value) =>
+      _base.setString(key, value);
 
   @override
   Future<bool> setStringList(String key, List<String> value) =>
@@ -94,4 +96,3 @@ class _PreviewPreferences implements SharedPreferences {
   @override
   Future<void> reload() => _base.reload();
 }
-

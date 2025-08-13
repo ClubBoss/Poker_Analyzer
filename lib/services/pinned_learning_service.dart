@@ -27,8 +27,7 @@ class PinnedLearningService extends ChangeNotifier {
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_prefsKey);
-    _items
-      .clear();
+    _items.clear();
     if (raw != null) {
       try {
         final list = jsonDecode(raw) as List;
@@ -56,8 +55,8 @@ class PinnedLearningService extends ChangeNotifier {
 
   Future<void> toggle(String type, String id) async {
     if (type == 'block') {
-      final block =
-          TheoryBlockLibraryService.instance.getById(id) ?? TheoryBlockModel(
+      final block = TheoryBlockLibraryService.instance.getById(id) ??
+          TheoryBlockModel(
             id: id,
             title: '',
             nodeIds: const [],

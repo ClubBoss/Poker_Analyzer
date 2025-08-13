@@ -22,10 +22,13 @@ class SessionAnalysisService {
       final act = heroAction(h);
       if (act == null) continue;
       final spot = TrainingSpot.fromSavedHand(h);
-      final req = EvalRequest(hash: const Uuid().v4(), spot: spot, action: act.action);
+      final req =
+          EvalRequest(hash: const Uuid().v4(), spot: spot, action: act.action);
       final res = await _exec.evaluate(req);
       String? gto;
-      if (!res.isError && res.reason != null && res.reason!.startsWith('Expected ')) {
+      if (!res.isError &&
+          res.reason != null &&
+          res.reason!.startsWith('Expected ')) {
         gto = res.reason!.substring(9);
       } else if (!res.isError && res.reason == null) {
         gto = act.action;

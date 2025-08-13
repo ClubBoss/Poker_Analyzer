@@ -7,7 +7,8 @@ class TrainingOnboardingScreen extends StatefulWidget {
   const TrainingOnboardingScreen({super.key});
 
   @override
-  State<TrainingOnboardingScreen> createState() => _TrainingOnboardingScreenState();
+  State<TrainingOnboardingScreen> createState() =>
+      _TrainingOnboardingScreenState();
 }
 
 class _TrainingOnboardingScreenState extends State<TrainingOnboardingScreen> {
@@ -59,9 +60,11 @@ class _TrainingOnboardingScreenState extends State<TrainingOnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     final pages = [
-      _page('Тренировочный пак', 'Карточка со спотом, варианты действий и EV каждой опции'),
+      _page('Тренировочный пак',
+          'Карточка со спотом, варианты действий и EV каждой опции'),
       _page('Ошибки', 'Неверные ответы сохраняются в «Повторы»'),
-      _page('Прогресс и стрик', 'Проходи споты без ошибок, чтобы растить стрик'),
+      _page(
+          'Прогресс и стрик', 'Проходи споты без ошибок, чтобы растить стрик'),
       _page('Статистика', 'Смотри результаты во вкладке «📊 Insights»'),
     ];
     return Scaffold(

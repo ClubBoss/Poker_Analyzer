@@ -7,12 +7,18 @@ SavedHand handFromPackSpot(TrainingPackSpot spot, {int anteBb = 0}) {
       .split(RegExp(r'\s+'))
       .where((e) => e.isNotEmpty)
       .toList();
-  final cards = [for (final p in parts) CardModel(rank: p[0], suit: p.substring(1))];
-  final playerCards = [for (int i = 0; i < spot.hand.playerCount; i++) <CardModel>[]];
+  final cards = [
+    for (final p in parts) CardModel(rank: p[0], suit: p.substring(1))
+  ];
+  final playerCards = [
+    for (int i = 0; i < spot.hand.playerCount; i++) <CardModel>[]
+  ];
   if (cards.length >= 2 && spot.hand.heroIndex < playerCards.length) {
     playerCards[spot.hand.heroIndex] = cards;
   }
-  final board = [for (final c in spot.hand.board) CardModel(rank: c[0], suit: c.substring(1))];
+  final board = [
+    for (final c in spot.hand.board) CardModel(rank: c[0], suit: c.substring(1))
+  ];
   final actions = spot.hand.actions.values.expand((l) => l).toList();
   final stacks = {
     for (int i = 0; i < spot.hand.playerCount; i++)

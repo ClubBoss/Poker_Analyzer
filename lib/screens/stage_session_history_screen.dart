@@ -51,8 +51,9 @@ class _StageSessionHistoryScreenState extends State<StageSessionHistoryScreen> {
               final evText = ev != null ? ev.toStringAsFixed(1) : '—';
               final cats = log.categories.entries.toList()
                 ..sort((a, b) => b.value.compareTo(a.value));
-              final tagText =
-                  cats.isEmpty ? null : cats.map((e) => e.key).take(3).join(', ');
+              final tagText = cats.isEmpty
+                  ? null
+                  : cats.map((e) => e.key).take(3).join(', ');
               return Card(
                 color: const Color(0xFF2A2B2D),
                 child: ListTile(
@@ -78,7 +79,8 @@ class _StageSessionHistoryScreenState extends State<StageSessionHistoryScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => SessionDetailScreen(logId: log.sessionId),
+                        builder: (_) =>
+                            SessionDetailScreen(logId: log.sessionId),
                       ),
                     );
                   },

@@ -11,7 +11,8 @@ import 'pack_library_diff_screen.dart';
 class PackMergeExplorerScreen extends StatefulWidget {
   const PackMergeExplorerScreen({super.key});
   @override
-  State<PackMergeExplorerScreen> createState() => _PackMergeExplorerScreenState();
+  State<PackMergeExplorerScreen> createState() =>
+      _PackMergeExplorerScreenState();
 }
 
 class _PackMergeExplorerScreenState extends State<PackMergeExplorerScreen> {
@@ -55,7 +56,8 @@ class _PackMergeExplorerScreenState extends State<PackMergeExplorerScreen> {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                ElevatedButton(onPressed: _load, child: const Text('🔄 Обновить')),
+                ElevatedButton(
+                    onPressed: _load, child: const Text('🔄 Обновить')),
                 const SizedBox(height: 16),
                 for (final g in _items)
                   ExpansionTile(
@@ -119,7 +121,8 @@ Future<List<_Group>> _exploreTask(String _) async {
       .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
     try {
       final map = reader.read(await f.readAsString());
-      packs.add(TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map)));
+      packs
+          .add(TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map)));
     } catch (_) {}
   }
   final pairs = <_Candidate>[];
@@ -154,7 +157,8 @@ Future<List<_Group>> _exploreTask(String _) async {
   return list;
 }
 
-Map<String, dynamic> _compare(TrainingPackTemplateV2 a, TrainingPackTemplateV2 b) {
+Map<String, dynamic> _compare(
+    TrainingPackTemplateV2 a, TrainingPackTemplateV2 b) {
   final sameType = a.type == b.type;
   final sameTitle = a.name.trim().toLowerCase() == b.name.trim().toLowerCase();
   final tagsA = a.tags.toSet();

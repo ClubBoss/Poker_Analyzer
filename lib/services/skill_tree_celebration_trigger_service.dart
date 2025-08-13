@@ -28,7 +28,8 @@ class SkillTreeCelebrationTriggerService {
 
   /// Checks [tree] completion and shows celebration once per tree.
   Future<void> maybeCelebrate(BuildContext context, SkillTree tree) async {
-    final id = tree.nodes.values.isNotEmpty ? tree.nodes.values.first.category : '';
+    final id =
+        tree.nodes.values.isNotEmpty ? tree.nodes.values.first.category : '';
     final key = '$_prefix$id';
     final prefs = await SharedPreferences.getInstance();
     if (prefs.getBool(key) ?? false) return;

@@ -36,7 +36,10 @@ class _FakeLibrary implements BoosterLibraryService {
       boosters.firstWhereOrNull((b) => b.id == id);
   @override
   List<TrainingPackTemplateV2> findByTag(String tag) {
-    return [for (final b in boosters) if (b.meta['tag'] == tag) b];
+    return [
+      for (final b in boosters)
+        if (b.meta['tag'] == tag) b
+    ];
   }
 }
 

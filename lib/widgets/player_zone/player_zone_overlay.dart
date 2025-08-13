@@ -94,8 +94,8 @@ class AllInLabel extends StatelessWidget {
         child: ScaleTransition(
           scale: labelScale,
           child: Container(
-            padding:
-                EdgeInsets.symmetric(horizontal: 6 * scale, vertical: 2 * scale),
+            padding: EdgeInsets.symmetric(
+                horizontal: 6 * scale, vertical: 2 * scale),
             decoration: BoxDecoration(
               color: Colors.black54,
               borderRadius: BorderRadius.circular(8 * scale),
@@ -238,7 +238,6 @@ class _WinnerCelebrationState extends State<WinnerCelebration>
   }
 }
 
-
 /// Dark overlay that fades in and out when revealing opponent cards.
 class CardRevealBackdrop extends StatefulWidget {
   final Animation<double> revealAnimation;
@@ -268,7 +267,9 @@ class _CardRevealBackdropState extends State<CardRevealBackdrop>
     );
     Future.delayed(const Duration(milliseconds: 2500), () {
       if (mounted) {
-        _fadeOutController.reverse().whenComplete(() => widget.onCompleted?.call());
+        _fadeOutController
+            .reverse()
+            .whenComplete(() => widget.onCompleted?.call());
       }
     });
   }
@@ -284,9 +285,11 @@ class _CardRevealBackdropState extends State<CardRevealBackdrop>
     return Positioned.fill(
       child: IgnorePointer(
         child: AnimatedBuilder(
-          animation: Listenable.merge([widget.revealAnimation, _fadeOutController]),
+          animation:
+              Listenable.merge([widget.revealAnimation, _fadeOutController]),
           builder: (context, child) {
-            final opacity = widget.revealAnimation.value * _fadeOutController.value;
+            final opacity =
+                widget.revealAnimation.value * _fadeOutController.value;
             return Opacity(opacity: opacity, child: child);
           },
           child: Container(color: Colors.black54),
@@ -518,8 +521,8 @@ Future<void> showWinnerSequence(
     if (showCelebration && prefs.showWinnerCelebration) {
       await Future.delayed(const Duration(milliseconds: 1000));
       showWinnerCelebration(context, registry, name);
+    }
   }
-}
 }
 
 /// Highlights the player at [winnerIndex] and animates their stack increasing
@@ -587,4 +590,3 @@ void onShowdownResult(PlayerZoneRegistry registry, String playerName) {
   final state = registry[playerName];
   state?.onShowdownResult();
 }
-

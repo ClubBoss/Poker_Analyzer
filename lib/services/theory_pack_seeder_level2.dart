@@ -35,13 +35,15 @@ class TheoryPackSeederLevel2 {
         if (t == 'level2') continue;
         final tpl = templates[t];
         if (tpl != null) {
-          lessons.add({'tag': t, 'title': tpl['title']!, 'content': tpl['content']!});
+          lessons.add(
+              {'tag': t, 'title': tpl['title']!, 'content': tpl['content']!});
           if (lessons.length >= 2) break;
         }
       }
       if (lessons.isEmpty) continue;
       final spots = (map['spots'] as List? ?? []).cast<Map>();
-      final packId = map['id']?.toString() ?? p.basenameWithoutExtension(file.path);
+      final packId =
+          map['id']?.toString() ?? p.basenameWithoutExtension(file.path);
       final newSpots = <Map<String, dynamic>>[];
       for (var i = 0; i < lessons.length; i++) {
         final l = lessons[i];
@@ -54,7 +56,8 @@ class TheoryPackSeederLevel2 {
         });
       }
       map['spots'] = [...newSpots, ...spots];
-      map['spotCount'] = (map['spotCount'] as int? ?? spots.length) + newSpots.length;
+      map['spotCount'] =
+          (map['spotCount'] as int? ?? spots.length) + newSpots.length;
       final meta = Map<String, dynamic>.from(map['meta'] as Map? ?? {});
       meta['hasTheory'] = true;
       map['meta'] = meta;
@@ -92,7 +95,8 @@ const Map<String, Map<String, String>> _defaultTemplates = {
   },
   'float': {
     'title': 'Turn Float Strategy',
-    'content': 'Call flop to take the pot on later streets when conditions are right.'
+    'content':
+        'Call flop to take the pot on later streets when conditions are right.'
   },
   'donk': {
     'title': 'Donk Bet Insights',

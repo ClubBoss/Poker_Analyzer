@@ -45,7 +45,8 @@ class _ReviewPathCardState extends State<ReviewPathCard> {
     await queue.load();
     if (queue.queue.isEmpty) return null;
     final id = queue.queue.first;
-    final pack = await (widget.library ?? PackLibraryService.instance).getById(id);
+    final pack =
+        await (widget.library ?? PackLibraryService.instance).getById(id);
     if (pack == null) return null;
     final tag = pack.tags.isNotEmpty ? pack.tags.first : '';
     final reminder =

@@ -29,8 +29,8 @@ abstract class StageNode implements LearningPathNode {
     List<String>? nextIds,
     List<String>? dependsOn,
     this.recoveredFromMistake = false,
-  }) : nextIds = nextIds ?? const [],
-       dependsOn = dependsOn ?? const [];
+  })  : nextIds = nextIds ?? const [],
+        dependsOn = dependsOn ?? const [];
 }
 
 /// Node representing a practice or training stage.
@@ -76,7 +76,7 @@ class PathMapEngine {
       List<LearningPathNode>.unmodifiable(_nodes.values);
 
   PathMapEngine({required this.progress, LearningPathRegistryService? registry})
-    : registry = registry ?? LearningPathRegistryService.instance;
+      : registry = registry ?? LearningPathRegistryService.instance;
 
   /// Loads [nodes] directly and positions the engine at the first node.
   Future<void> loadNodes(List<LearningPathNode> nodes) async {
@@ -214,7 +214,9 @@ class PathMapEngine {
   }
 
   bool _isCompleted(LearningPathNode node) {
-    if (node is StageNode || node is TheoryLessonNode || node is TheoryMiniLessonNode) {
+    if (node is StageNode ||
+        node is TheoryLessonNode ||
+        node is TheoryMiniLessonNode) {
       return _completed.contains(node.id);
     }
     return false;
@@ -231,7 +233,9 @@ class PathMapEngine {
   Future<void> _advancePastCompleted() async {
     while (true) {
       final node = getCurrentNode();
-      if (node is! StageNode && node is! TheoryLessonNode && node is! TheoryMiniLessonNode) break;
+      if (node is! StageNode &&
+          node is! TheoryLessonNode &&
+          node is! TheoryMiniLessonNode) break;
       if (!_isCompleted(node)) break;
       await _advanceToNext();
       if (_currentId == null) break;

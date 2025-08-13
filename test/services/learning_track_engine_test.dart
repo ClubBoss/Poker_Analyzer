@@ -36,8 +36,8 @@ void main() {
       'c': stat(0.8),
     };
 
-    final track = const LearningTrackEngine()
-        .computeTrack(allPacks: packs, stats: stats);
+    final track =
+        const LearningTrackEngine().computeTrack(allPacks: packs, stats: stats);
 
     expect(track.unlockedPacks.map((p) => p.id), ['a', 'b', 'c']);
     expect(track.nextUpPack?.id, 'c');
@@ -47,8 +47,8 @@ void main() {
     final packs = [tpl('a'), tpl('b')];
     final stats = {'a': stat(0.95), 'b': stat(0.92)};
 
-    final track = const LearningTrackEngine()
-        .computeTrack(allPacks: packs, stats: stats);
+    final track =
+        const LearningTrackEngine().computeTrack(allPacks: packs, stats: stats);
 
     expect(track.unlockedPacks.length, 2);
     expect(track.nextUpPack, isNull);

@@ -39,8 +39,8 @@ class BoosterDiffReport {
     this.modified = const [],
   });
 
-  bool get breaking => modified.any((d) =>
-      d.fields.contains('actions') || d.fields.contains('heroCards'));
+  bool get breaking => modified.any(
+      (d) => d.fields.contains('actions') || d.fields.contains('heroCards'));
 
   Map<String, dynamic> toJson() => {
         'added': added,
@@ -49,7 +49,8 @@ class BoosterDiffReport {
         'breaking': breaking,
       };
 
-  factory BoosterDiffReport.fromJson(Map<String, dynamic> j) => BoosterDiffReport(
+  factory BoosterDiffReport.fromJson(Map<String, dynamic> j) =>
+      BoosterDiffReport(
         added: [for (final a in j['added'] as List? ?? []) a.toString()],
         removed: [for (final r in j['removed'] as List? ?? []) r.toString()],
         modified: [

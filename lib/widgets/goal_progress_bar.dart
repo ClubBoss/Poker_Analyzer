@@ -24,14 +24,16 @@ class GoalProgressBar extends StatelessWidget {
         Row(
           children: [
             Text(label,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold)),
             const Spacer(),
             Text('${progress.current} / ${progress.target}',
                 style: const TextStyle(color: Colors.white70)),
             if (completed)
               const Padding(
                 padding: EdgeInsets.only(left: 4),
-                child: Icon(Icons.check_circle, color: Colors.greenAccent, size: 16),
+                child: Icon(Icons.check_circle,
+                    color: Colors.greenAccent, size: 16),
               ),
           ],
         ),

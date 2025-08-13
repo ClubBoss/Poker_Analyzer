@@ -15,9 +15,11 @@ class TheoryRecapReviewEntry {
         'timestamp': timestamp.toIso8601String(),
       };
 
-  factory TheoryRecapReviewEntry.fromJson(Map<String, dynamic> json) => TheoryRecapReviewEntry(
+  factory TheoryRecapReviewEntry.fromJson(Map<String, dynamic> json) =>
+      TheoryRecapReviewEntry(
         lessonId: json['lessonId'] as String? ?? '',
         trigger: json['trigger'] as String? ?? '',
-        timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ?? DateTime.now(),
+        timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ??
+            DateTime.now(),
       );
 }

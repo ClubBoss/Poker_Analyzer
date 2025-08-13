@@ -10,10 +10,12 @@ class MistakeBoosterProgressSummaryCard extends StatefulWidget {
   const MistakeBoosterProgressSummaryCard({super.key, this.showButton = true});
 
   @override
-  State<MistakeBoosterProgressSummaryCard> createState() => _MistakeBoosterProgressSummaryCardState();
+  State<MistakeBoosterProgressSummaryCard> createState() =>
+      _MistakeBoosterProgressSummaryCardState();
 }
 
-class _MistakeBoosterProgressSummaryCardState extends State<MistakeBoosterProgressSummaryCard> {
+class _MistakeBoosterProgressSummaryCardState
+    extends State<MistakeBoosterProgressSummaryCard> {
   late Future<MistakeRecoverySummary> _future;
 
   @override
@@ -59,7 +61,8 @@ class _MistakeBoosterProgressSummaryCardState extends State<MistakeBoosterProgre
                     const SizedBox(height: 4),
                     Text(
                       '✅ ${l.mistakeBoosterRecovered(data.recovered)}',
-                      style: TextStyle(color: accent, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(color: accent, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),

@@ -56,6 +56,7 @@ class ComplexEVCalculationService {
         anteBb: 0,
       );
     }
-    return RangeAnalysis(hero / heroRange.length, villain / villainRange.length);
+    return RangeAnalysis(
+        hero / heroRange.length, villain / villainRange.length);
   }
 }

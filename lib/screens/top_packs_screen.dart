@@ -81,14 +81,14 @@ class _TopPacksScreenState extends State<TopPacksScreen> {
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text('$count',
-                                style:
-                                    const TextStyle(color: Colors.white70)),
+                                style: const TextStyle(color: Colors.white70)),
                           ),
                           onTap: () async {
                             await Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (_) => TrainingPackScreen(pack: pack)),
+                                  builder: (_) =>
+                                      TrainingPackScreen(pack: pack)),
                             );
                             if (mounted) _reload();
                           },

@@ -72,7 +72,9 @@ void main() {
       handCounter: 5,
       lastShownAt: 2,
       tagLastShown: {'a': 1},
-      recallHistory: {'a': ['1']},
+      recallHistory: {
+        'a': ['1']
+      },
       recallShownBySpot: {'s1': true},
       attemptsBySpot: {'s1': 2},
     );
@@ -105,4 +107,3 @@ void main() {
     expect(shown!.tagId, 'b');
   });
 }
-

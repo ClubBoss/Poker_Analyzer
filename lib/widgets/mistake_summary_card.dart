@@ -31,12 +31,15 @@ class MistakeSummaryCard extends StatelessWidget {
       final exp = h.expectedAction?.trim().toLowerCase();
       final gto = h.gtoAction?.trim().toLowerCase();
       if (exp != null && gto != null && exp != gto) {
-        streetMap.update(streetName(h.boardStreet), (v) => v + 1, ifAbsent: () => 1);
+        streetMap.update(streetName(h.boardStreet), (v) => v + 1,
+            ifAbsent: () => 1);
         posMap.update(h.heroPosition, (v) => v + 1, ifAbsent: () => 1);
       }
     }
-    final topStreets = streetMap.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
-    final topPositions = posMap.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+    final topStreets = streetMap.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final topPositions = posMap.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
     return Container(
       padding: const EdgeInsets.all(AppConstants.padding16),
       decoration: BoxDecoration(
@@ -47,7 +50,8 @@ class MistakeSummaryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('Топ улиц с ошибками',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -69,7 +73,8 @@ class MistakeSummaryCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           const Text('Топ позиций с ошибками',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -80,7 +85,8 @@ class MistakeSummaryCard extends StatelessWidget {
                   label: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.event_seat, size: 16, color: Colors.white70),
+                      const Icon(Icons.event_seat,
+                          size: 16, color: Colors.white70),
                       const SizedBox(width: 4),
                       Text('${e.key} ${e.value}',
                           style: const TextStyle(color: Colors.white)),

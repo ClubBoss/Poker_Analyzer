@@ -11,10 +11,12 @@ class LearningPathValidationScreen extends StatefulWidget {
   const LearningPathValidationScreen({super.key});
 
   @override
-  State<LearningPathValidationScreen> createState() => _LearningPathValidationScreenState();
+  State<LearningPathValidationScreen> createState() =>
+      _LearningPathValidationScreenState();
 }
 
-class _LearningPathValidationScreenState extends State<LearningPathValidationScreen> {
+class _LearningPathValidationScreenState
+    extends State<LearningPathValidationScreen> {
   bool _loading = true;
   final List<PathValidationIssue> _issues = [];
 
@@ -50,7 +52,9 @@ class _LearningPathValidationScreenState extends State<LearningPathValidationScr
     return Scaffold(
       appBar: AppBar(
         title: const Text('Learning Path Validation'),
-        actions: [IconButton(onPressed: _load, icon: const Icon(Icons.refresh))],
+        actions: [
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh))
+        ],
       ),
       backgroundColor: AppColors.background,
       body: _loading
@@ -71,20 +75,23 @@ class _LearningPathValidationScreenState extends State<LearningPathValidationScr
                           ListTile(
                             title: Text('${i.issueType.name}: ${i.message}'),
                             subtitle: i.stageId != null
-                                ? Text('stage: ${i.stageId}${i.subStageId != null ? ' / ${i.subStageId}' : ''}')
+                                ? Text(
+                                    'stage: ${i.stageId}${i.subStageId != null ? ' / ${i.subStageId}' : ''}')
                                 : null,
                           ),
                       ],
                     ),
                   ),
-                if (_issues.isEmpty) const Center(child: Text('No issues found')),
+                if (_issues.isEmpty)
+                  const Center(child: Text('No issues found')),
               ],
             ),
     );
   }
 }
 
-Future<List<Map<String, dynamic>>> _validateTask(List<Map<String, dynamic>> json) async {
+Future<List<Map<String, dynamic>>> _validateTask(
+    List<Map<String, dynamic>> json) async {
   final paths = [for (final m in json) LearningPathTemplateV2.fromJson(m)];
   final issues = const SmartPathValidator().validateAll(paths);
   return [for (final i in issues) i.toJson()];

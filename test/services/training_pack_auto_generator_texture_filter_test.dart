@@ -18,7 +18,11 @@ class _FakeEngine extends TrainingPackGeneratorEngineV2 {
 }
 
 TrainingPackSpot _spot(String id, String board) {
-  final cards = [board.substring(0, 2), board.substring(2, 4), board.substring(4, 6)];
+  final cards = [
+    board.substring(0, 2),
+    board.substring(2, 4),
+    board.substring(4, 6)
+  ];
   return TrainingPackSpot(id: id, hand: HandData(board: cards), board: cards);
 }
 

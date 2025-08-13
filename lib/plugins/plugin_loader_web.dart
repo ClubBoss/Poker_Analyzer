@@ -42,9 +42,12 @@ class PluginLoader {
     _db = await window.indexedDB!.open('plugins', version: 1,
         onUpgradeNeeded: (e) {
       final db = (e.target as OpenDbRequest).result as Database;
-      if (!db.objectStoreNames!.contains('files')) db.createObjectStore('files');
-      if (!db.objectStoreNames!.contains('config')) db.createObjectStore('config');
-      if (!db.objectStoreNames!.contains('cache')) db.createObjectStore('cache');
+      if (!db.objectStoreNames!.contains('files'))
+        db.createObjectStore('files');
+      if (!db.objectStoreNames!.contains('config'))
+        db.createObjectStore('config');
+      if (!db.objectStoreNames!.contains('cache'))
+        db.createObjectStore('cache');
     });
     return _db!;
   }
@@ -184,7 +187,8 @@ class PluginLoader {
     final port = ReceivePort();
     Isolate? isolate;
     try {
-      isolate = await Isolate.spawnUri(Uri.parse(url), <String>[], port.sendPort);
+      isolate =
+          await Isolate.spawnUri(Uri.parse(url), <String>[], port.sendPort);
       final msg = await port.first.timeout(const Duration(seconds: 2));
       Plugin? plugin;
       if (msg is Plugin) {
@@ -249,8 +253,8 @@ class PluginLoader {
     await txn.objectStore('files').put(code, name);
     await txn.completed;
     final cacheMap = cached ?? <String, dynamic>{};
-    final checksums =
-        (cacheMap['checksums'] as Map?)?.cast<String, String>() ?? <String, String>{};
+    final checksums = (cacheMap['checksums'] as Map?)?.cast<String, String>() ??
+        <String, String>{};
     checksums[name] = digest;
     cacheMap['checksums'] = checksums;
     await _writeCache(cacheMap);
@@ -271,7 +275,8 @@ class PluginLoader {
     _config = Map<String, bool>.from(config);
 
     final cache = await _loadCache() ?? <String, dynamic>{};
-    final files = (cache['files'] as List?)?.cast<String>().toList() ?? <String>[];
+    final files =
+        (cache['files'] as List?)?.cast<String>().toList() ?? <String>[];
     files.remove(name);
     final checksums = (cache['checksums'] as Map?)?.cast<String, String>() ??
         <String, String>{};
@@ -291,9 +296,10 @@ class PluginLoader {
     final files = await _listFiles();
     final config = await loadConfig();
     final cached = await _loadCache();
-    final cachedFiles = (cached?['files'] as List?)?.cast<String>() ?? <String>[];
-    final cachedConfig =
-        (cached?['config'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
+    final cachedFiles =
+        (cached?['files'] as List?)?.cast<String>() ?? <String>[];
+    final cachedConfig = (cached?['config'] as Map?)?.cast<String, dynamic>() ??
+        <String, dynamic>{};
     final match = const DeepCollectionEquality().equals(cachedFiles, files) &&
         const DeepCollectionEquality().equals(
           config,
@@ -347,7 +353,8 @@ class PluginLoader {
       }
       if (context != null && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Duplicate plugins: ${duplicates.join(', ')}')),
+          SnackBar(
+              content: Text('Duplicate plugins: ${duplicates.join(', ')}')),
         );
       }
     }

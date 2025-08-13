@@ -5,11 +5,13 @@ import '../core/training/generation/yaml_reader.dart';
 import '../models/v2/training_pack_template_v2.dart';
 
 class TheoryYamlImporter {
-  const TheoryYamlImporter({ErrorLogger? logger}) : _logger = logger ?? ErrorLogger.instance;
+  const TheoryYamlImporter({ErrorLogger? logger})
+      : _logger = logger ?? ErrorLogger.instance;
 
   final ErrorLogger _logger;
 
-  Future<List<TrainingPackTemplateV2>> importFromDirectory(String dirPath) async {
+  Future<List<TrainingPackTemplateV2>> importFromDirectory(
+      String dirPath) async {
     final dir = Directory(dirPath);
     if (!dir.existsSync()) return <TrainingPackTemplateV2>[];
 

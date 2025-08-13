@@ -15,10 +15,16 @@ import 'package:poker_analyzer/models/recap_tag_performance.dart';
 class _FakeDecay extends SkillTagDecayTracker {
   final List<String> tags;
   _FakeDecay(this.tags)
-      : super(logs: SessionLogService(sessions: TrainingSessionService()),
+      : super(
+            logs: SessionLogService(sessions: TrainingSessionService()),
             history: TagMasteryHistoryService());
   @override
-  Future<List<String>> getDecayingTags({int maxTags = 5, int recentSessions = 10, DateTime? now, double timeWeight = 0.5, double trendWeight = 0.5}) async {
+  Future<List<String>> getDecayingTags(
+      {int maxTags = 5,
+      int recentSessions = 10,
+      DateTime? now,
+      double timeWeight = 0.5,
+      double trendWeight = 0.5}) async {
     return tags;
   }
 }
@@ -29,7 +35,10 @@ class _FakeAnalytics extends RecapTagAnalyticsService {
       : super(logs: SessionLogService(sessions: TrainingSessionService()));
   @override
   Future<Map<String, RecapTagPerformance>> computeRecapTagImprovements() async {
-    return {for (final e in map.entries) e.key: RecapTagPerformance(tag: e.key, improvement: e.value)};
+    return {
+      for (final e in map.entries)
+        e.key: RecapTagPerformance(tag: e.key, improvement: e.value)
+    };
   }
 }
 
@@ -74,7 +83,8 @@ void main() {
   });
 
   test('queues banner for decaying tag', () async {
-    final lesson = const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
+    final lesson =
+        const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
     final controller = _FakeController();
     final scheduler = SmartRecapScheduler(
       decay: _FakeDecay(['push']),

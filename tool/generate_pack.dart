@@ -59,7 +59,9 @@ Future<void> main(List<String> args) async {
     final cards = _firstCombo(handStr!);
     final hand = HandData.fromSimpleInput(cards, pos, stack!);
     if (action == 'fold') {
-      hand.actions = {0: [ActionEntry(0, 0, 'fold')]};
+      hand.actions = {
+        0: [ActionEntry(0, 0, 'fold')]
+      };
     }
     final spot = TrainingPackSpot(
       id: 's${i + 1}',

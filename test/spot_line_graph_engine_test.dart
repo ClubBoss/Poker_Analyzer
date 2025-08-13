@@ -28,7 +28,11 @@ void main() {
     final graph = engine.build(spot);
     final lines = graph.getAllLines();
     expect(lines.length, 2);
-    expect(lines.any((l) =>
-        l.actions.length == 1 && l.actions.first.action == 'call' && l.actions.first.correct == true), isTrue);
+    expect(
+        lines.any((l) =>
+            l.actions.length == 1 &&
+            l.actions.first.action == 'call' &&
+            l.actions.first.correct == true),
+        isTrue);
   });
 }

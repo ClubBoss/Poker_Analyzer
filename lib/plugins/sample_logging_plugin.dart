@@ -37,4 +37,3 @@ class SampleLoggingPlugin implements Plugin {
   @override
   String get version => '1.0.0';
 }
-

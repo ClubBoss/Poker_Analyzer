@@ -44,8 +44,7 @@ class _BoosterArchiveScreenState extends State<BoosterArchiveScreen> {
     final history = await TrainingHistoryServiceV2.getHistory(limit: 1000);
     final List<_Entry> list = [];
     for (final h in history) {
-      final pack =
-          TrainingPackLibraryLoaderService.instance.findById(h.packId);
+      final pack = TrainingPackLibraryLoaderService.instance.findById(h.packId);
       if (pack == null) continue;
       if (pack.meta['type']?.toString() != 'booster') continue;
       list.add(
@@ -98,9 +97,8 @@ class _BoosterArchiveScreenState extends State<BoosterArchiveScreen> {
         list.sort((a, b) => b.date.compareTo(a.date));
         break;
       case _SortMode.tag:
-        list.sort((a, b) =>
-            (a.tags.isEmpty ? '' : a.tags.first)
-                .compareTo(b.tags.isEmpty ? '' : b.tags.first));
+        list.sort((a, b) => (a.tags.isEmpty ? '' : a.tags.first)
+            .compareTo(b.tags.isEmpty ? '' : b.tags.first));
         break;
       case _SortMode.mostUsed:
         final counts = <String, int>{};
@@ -164,7 +162,8 @@ class _BoosterArchiveScreenState extends State<BoosterArchiveScreen> {
                           for (final o in _origins)
                             DropdownMenuItem(value: o, child: Text(o)),
                         ],
-                        onChanged: (v) => setState(() => _originFilter = v ?? ''),
+                        onChanged: (v) =>
+                            setState(() => _originFilter = v ?? ''),
                       ),
                       const SizedBox(height: 8),
                       Row(
@@ -213,8 +212,7 @@ class _BoosterArchiveScreenState extends State<BoosterArchiveScreen> {
                               Wrap(
                                 spacing: 4,
                                 children: [
-                                  for (final t in e.tags)
-                                    Chip(label: Text(t)),
+                                  for (final t in e.tags) Chip(label: Text(t)),
                                 ],
                               ),
                             if (e.origin != null)

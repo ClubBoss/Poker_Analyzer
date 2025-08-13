@@ -6,7 +6,8 @@ class CoverageSummary {
   final int icm;
   final int total;
 
-  const CoverageSummary({required this.ev, required this.icm, required this.total});
+  const CoverageSummary(
+      {required this.ev, required this.icm, required this.total});
 
   void applyTo(Map<String, dynamic> meta) {
     meta['evCovered'] = ev;

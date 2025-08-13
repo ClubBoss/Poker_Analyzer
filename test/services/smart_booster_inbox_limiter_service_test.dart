@@ -34,8 +34,11 @@ void main() {
     final dateKey =
         '${yesterday.year.toString().padLeft(4, '0')}-${yesterday.month.toString().padLeft(2, '0')}-${yesterday.day.toString().padLeft(2, '0')}';
     await prefs.setString('booster_inbox_total_date', dateKey);
-    await prefs.setInt('booster_inbox_last_t1',
-        DateTime.now().subtract(const Duration(hours: 49)).millisecondsSinceEpoch);
+    await prefs.setInt(
+        'booster_inbox_last_t1',
+        DateTime.now()
+            .subtract(const Duration(hours: 49))
+            .millisecondsSinceEpoch);
 
     expect(await limiter.getTotalBoostersShownToday(), 0);
     expect(await limiter.canShow('t1'), isTrue);
@@ -45,8 +48,7 @@ void main() {
     final limiter = SmartBoosterInboxLimiterService();
     await limiter.recordShown('t1');
     expect(await limiter.canShow('t1'), isFalse);
-    final log =
-        await SmartBoosterExclusionTrackerService().exportLog();
+    final log = await SmartBoosterExclusionTrackerService().exportLog();
     expect(log.length, 1);
     expect(log.first['tag'], 't1');
     expect(log.first['reason'], 'rateLimited');

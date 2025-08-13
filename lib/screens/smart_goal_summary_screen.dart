@@ -42,8 +42,7 @@ class _SmartGoalSummaryScreenState extends State<SmartGoalSummaryScreen> {
       final lesson = MiniLessonLibraryService.instance.getById(a.goal.id);
       final tag =
           lesson != null && lesson.tags.isNotEmpty ? lesson.tags.first : '';
-      final completed =
-          (history[tag.toLowerCase()]?.completedCount ?? 0) > 0;
+      final completed = (history[tag.toLowerCase()]?.completedCount ?? 0) > 0;
       final item = _GoalItem(goal: a.goal, tag: tag, completed: completed);
       map.putIfAbsent(a.slot, () => []).add(item);
     }
@@ -80,8 +79,8 @@ class _SmartGoalSummaryScreenState extends State<SmartGoalSummaryScreen> {
               children: [
                 Text(
                   item.goal.label,
-                  style:
-                      const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 if (item.tag.isNotEmpty)
                   Padding(
@@ -99,8 +98,7 @@ class _SmartGoalSummaryScreenState extends State<SmartGoalSummaryScreen> {
               ? const Icon(Icons.check, color: Colors.greenAccent)
               : ElevatedButton(
                   onPressed: () => _start(item),
-                  style:
-                      ElevatedButton.styleFrom(backgroundColor: accent),
+                  style: ElevatedButton.styleFrom(backgroundColor: accent),
                   child: const Text('Start'),
                 ),
         ],
@@ -134,11 +132,11 @@ class _SmartGoalSummaryScreenState extends State<SmartGoalSummaryScreen> {
                 children: [
                   _section('🏠 Home Priorities', _bySlot['home']),
                   _section('📚 Theory Boosters', _bySlot['theory']),
-                  _section('🕓 Post-Recap Reinforcements', _bySlot['postrecap']),
+                  _section(
+                      '🕓 Post-Recap Reinforcements', _bySlot['postrecap']),
                 ],
               ),
             ),
     );
   }
 }
-

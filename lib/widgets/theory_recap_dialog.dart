@@ -107,7 +107,8 @@ class _TheoryRecapDialogState extends State<TheoryRecapDialog> {
               child: Markdown(
                 controller: _scroll,
                 data: _lesson!.resolvedContent,
-                styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+                styleSheet:
+                    MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
                   p: const TextStyle(color: Colors.white),
                 ),
               ),

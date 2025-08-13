@@ -11,12 +11,14 @@ class ClusterMistakeDashboardScreen extends StatefulWidget {
   const ClusterMistakeDashboardScreen({super.key});
 
   @override
-  State<ClusterMistakeDashboardScreen> createState() => _ClusterMistakeDashboardScreenState();
+  State<ClusterMistakeDashboardScreen> createState() =>
+      _ClusterMistakeDashboardScreenState();
 }
 
 enum _SortMode { mistakes, evLoss }
 
-class _ClusterMistakeDashboardScreenState extends State<ClusterMistakeDashboardScreen> {
+class _ClusterMistakeDashboardScreenState
+    extends State<ClusterMistakeDashboardScreen> {
   bool _loading = true;
   List<ClusterAnalytics> _clusters = [];
   _SortMode _sort = _SortMode.mistakes;
@@ -39,10 +41,12 @@ class _ClusterMistakeDashboardScreenState extends State<ClusterMistakeDashboardS
   void _toggleSort() {
     setState(() {
       if (_sort == _SortMode.mistakes) {
-        _clusters = const MistakeClusterAnalyticsService().sortByEvLoss(_clusters);
+        _clusters =
+            const MistakeClusterAnalyticsService().sortByEvLoss(_clusters);
         _sort = _SortMode.evLoss;
       } else {
-        _clusters = const MistakeClusterAnalyticsService().sortByMistakes(_clusters);
+        _clusters =
+            const MistakeClusterAnalyticsService().sortByMistakes(_clusters);
         _sort = _SortMode.mistakes;
       }
     });
@@ -65,9 +69,12 @@ class _ClusterMistakeDashboardScreenState extends State<ClusterMistakeDashboardS
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(c.cluster.label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            Text(c.cluster.label,
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
-            Text('Ошибок: ${c.totalMistakes} · EV потеря: ${c.totalEvLoss.toStringAsFixed(2)}',
+            Text(
+                'Ошибок: ${c.totalMistakes} · EV потеря: ${c.totalEvLoss.toStringAsFixed(2)}',
                 style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
             ClipRRect(
@@ -76,7 +83,8 @@ class _ClusterMistakeDashboardScreenState extends State<ClusterMistakeDashboardS
                 value: ratio.clamp(0.0, 1.0),
                 minHeight: 6,
                 backgroundColor: Colors.white24,
-                valueColor: const AlwaysStoppedAnimation<Color>(Colors.redAccent),
+                valueColor:
+                    const AlwaysStoppedAnimation<Color>(Colors.redAccent),
               ),
             ),
             const SizedBox(height: 8),
@@ -95,7 +103,9 @@ class _ClusterMistakeDashboardScreenState extends State<ClusterMistakeDashboardS
 
   @override
   Widget build(BuildContext context) {
-    final maxLoss = _clusters.isEmpty ? 0.0 : _clusters.map((e) => e.totalEvLoss).reduce(max);
+    final maxLoss = _clusters.isEmpty
+        ? 0.0
+        : _clusters.map((e) => e.totalEvLoss).reduce(max);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mistake Clusters'),
@@ -103,17 +113,25 @@ class _ClusterMistakeDashboardScreenState extends State<ClusterMistakeDashboardS
         actions: [
           IconButton(
             onPressed: _toggleSort,
-            tooltip: _sort == _SortMode.mistakes ? 'Sort by EV loss' : 'Sort by count',
-            icon: Icon(_sort == _SortMode.mistakes ? Icons.trending_down : Icons.format_list_numbered),
+            tooltip: _sort == _SortMode.mistakes
+                ? 'Sort by EV loss'
+                : 'Sort by count',
+            icon: Icon(_sort == _SortMode.mistakes
+                ? Icons.trending_down
+                : Icons.format_list_numbered),
           ),
         ],
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _clusters.isEmpty
-              ? const Center(child: Text('Нет данных', style: TextStyle(color: Colors.white70)))
+              ? const Center(
+                  child: Text('Нет данных',
+                      style: TextStyle(color: Colors.white70)))
               : ListView(
-                  children: [for (final c in _clusters) _clusterCard(c, maxLoss)],
+                  children: [
+                    for (final c in _clusters) _clusterCard(c, maxLoss)
+                  ],
                 ),
     );
   }

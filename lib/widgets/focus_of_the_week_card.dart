@@ -47,7 +47,8 @@ class FocusOfTheWeekCard extends StatelessWidget {
         }
       }
     }
-    if (max <= 3 || pos == null || street == null) return const SizedBox.shrink();
+    if (max <= 3 || pos == null || street == null)
+      return const SizedBox.shrink();
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       padding: const EdgeInsets.all(12),
@@ -121,7 +122,8 @@ class FocusOfTheWeekCard extends StatelessWidget {
 class _FocusMistakeHandsScreen extends StatelessWidget {
   final String position;
   final String street;
-  const _FocusMistakeHandsScreen({required this.position, required this.street});
+  const _FocusMistakeHandsScreen(
+      {required this.position, required this.street});
 
   @override
   Widget build(BuildContext context) {

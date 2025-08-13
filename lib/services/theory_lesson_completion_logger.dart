@@ -17,8 +17,8 @@ class TheoryLessonCompletionLogger {
     final prefs = await SharedPreferences.getInstance();
     final now = DateTime.now().toUtc();
     final entries = await _load(prefs);
-    final exists = entries.any(
-        (e) => e.lessonId == lessonId && _isSameDay(e.timestamp, now));
+    final exists = entries
+        .any((e) => e.lessonId == lessonId && _isSameDay(e.timestamp, now));
     if (!exists) {
       entries.add(LessonCompletionEntry(lessonId: lessonId, timestamp: now));
       await _save(prefs, entries);
@@ -36,10 +36,7 @@ class TheoryLessonCompletionLogger {
     entries.sort((a, b) => a.timestamp.compareTo(b.timestamp));
     if (since != null) {
       final s = since.toUtc();
-      return entries
-          .where((e) =>
-              !e.timestamp.isBefore(s))
-          .toList();
+      return entries.where((e) => !e.timestamp.isBefore(s)).toList();
     }
     return entries;
   }

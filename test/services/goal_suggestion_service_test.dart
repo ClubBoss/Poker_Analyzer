@@ -16,8 +16,7 @@ class _FakeLogService extends SessionLogService {
 
 class _FakeMasteryService extends TagMasteryService {
   final Map<String, double> map;
-  _FakeMasteryService(this.map)
-      : super(logs: _FakeLogService());
+  _FakeMasteryService(this.map) : super(logs: _FakeLogService());
 
   @override
   Future<Map<String, double>> computeMastery({bool force = false}) async => map;

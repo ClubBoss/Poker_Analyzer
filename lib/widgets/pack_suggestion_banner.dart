@@ -39,8 +39,7 @@ class _PackSuggestionBannerState extends State<PackSuggestionBanner> {
       if (mounted) setState(() => _loading = false);
       return;
     }
-    final list =
-        await context.read<SmartSuggestionEngine>().suggestNextPacks();
+    final list = await context.read<SmartSuggestionEngine>().suggestNextPacks();
     if (mounted) {
       setState(() {
         _packs = list;
@@ -100,8 +99,7 @@ class _PackSuggestionBannerState extends State<PackSuggestionBanner> {
                 onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) =>
-                        PackSuggestionPreviewScreen(packs: _packs),
+                    builder: (_) => PackSuggestionPreviewScreen(packs: _packs),
                   ),
                 ),
                 child: const Text('Другие варианты'),

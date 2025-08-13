@@ -10,8 +10,7 @@ import 'package:poker_analyzer/services/training_pack_audit_log_service.dart';
 void main() {
   test('records changes between packs', () async {
     final dir = await Directory.systemTemp.createTemp();
-    final storage = AuditLogStorageService(
-        filePath: '${dir.path}/audit.json');
+    final storage = AuditLogStorageService(filePath: '${dir.path}/audit.json');
     final service = TrainingPackAuditLogService(storage: storage);
 
     final oldPack = TrainingPackModel(
@@ -32,8 +31,8 @@ void main() {
       metadata: {'level': 2},
     );
 
-    await service.recordChange(oldPack, newPack, userId: 'tester',
-        timestamp: DateTime.utc(2024, 1, 1));
+    await service.recordChange(oldPack, newPack,
+        userId: 'tester', timestamp: DateTime.utc(2024, 1, 1));
     final logs = await storage.query();
     expect(logs.length, 1);
     final entry = logs.first;

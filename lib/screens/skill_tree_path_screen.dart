@@ -154,9 +154,8 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
         TextButton(
           onPressed: () async {
             BannerQueueService.instance.dismissCurrent();
-            final nodeId = _newTheoryNodeIds.isNotEmpty
-                ? _newTheoryNodeIds.first
-                : null;
+            final nodeId =
+                _newTheoryNodeIds.isNotEmpty ? _newTheoryNodeIds.first : null;
             final node = nodeId != null ? _track?.nodes[nodeId] : null;
             if (node != null) {
               await _openNode(node);
@@ -239,8 +238,7 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
   }
 
   void _onScroll() {
-    final listBox =
-        _listKey.currentContext?.findRenderObject() as RenderBox?;
+    final listBox = _listKey.currentContext?.findRenderObject() as RenderBox?;
     if (listBox == null) return;
     final listTop = listBox.localToGlobal(Offset.zero).dy;
     final entries = _stageKeys.entries.toList()
@@ -327,9 +325,8 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
       ),
     );
 
-    final title = tree.roots.isNotEmpty
-        ? tree.roots.first.title
-        : widget.trackId;
+    final title =
+        tree.roots.isNotEmpty ? tree.roots.first.title : widget.trackId;
 
     final header = Padding(
       padding: const EdgeInsets.all(12),

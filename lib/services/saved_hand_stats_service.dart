@@ -4,8 +4,8 @@ import '../models/saved_hand.dart';
 import 'saved_hand_manager_service.dart';
 
 class SavedHandSessionStats {
-  SavedHandSessionStats(this.start, this.end, this.count, this.correct,
-      this.incorrect,
+  SavedHandSessionStats(
+      this.start, this.end, this.count, this.correct, this.incorrect,
       {this.evAvg, this.icmAvg});
 
   final DateTime start;
@@ -79,7 +79,8 @@ class SavedHandStatsService extends ChangeNotifier {
         evAvg: evAvg, icmAvg: icmAvg);
   }
 
-  List<SavedHand> filtered({String? tag, String? position, DateTimeRange? range}) {
+  List<SavedHand> filtered(
+      {String? tag, String? position, DateTimeRange? range}) {
     return [
       for (final h in hands)
         if ((tag == null || h.tags.contains(tag)) &&
@@ -182,4 +183,3 @@ class SavedHandStatsService extends ChangeNotifier {
     return list.take(limit).toList();
   }
 }
-

@@ -41,4 +41,3 @@ class SkillTreeLevelGateEvaluator {
     return locked;
   }
 }
-

@@ -25,7 +25,8 @@ class TrainingNodeSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget statusIcon;
     if (isCompleted) {
-      statusIcon = const Icon(Icons.check_circle, color: Colors.green, size: 18);
+      statusIcon =
+          const Icon(Icons.check_circle, color: Colors.green, size: 18);
     } else {
       final color = isUnlocked ? Colors.blue : Colors.grey;
       statusIcon = Container(
@@ -59,4 +60,3 @@ class TrainingNodeSummaryCard extends StatelessWidget {
     );
   }
 }
-

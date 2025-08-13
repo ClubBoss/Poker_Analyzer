@@ -74,10 +74,9 @@ class ABOrchestratorService {
           await prefs.setInt(cKey, (prefs.getInt(cKey) ?? 0) + 1);
           continue;
         }
-        final arms = (exp['arms'] as List?)?.cast<Map<String, dynamic>>() ??
-            const [];
-        final h2 =
-            sha256.convert(utf8.encode('$userId|$expId|arm')).toString();
+        final arms =
+            (exp['arms'] as List?)?.cast<Map<String, dynamic>>() ?? const [];
+        final h2 = sha256.convert(utf8.encode('$userId|$expId|arm')).toString();
         final u2 = int.parse(h2.substring(0, 8), radix: 16) / 0xFFFFFFFF;
         final total =
             arms.fold<num>(0, (s, a) => s + (a['ratio'] as num? ?? 1));
@@ -182,4 +181,3 @@ class ABOrchestratorService {
     );
   }
 }
-

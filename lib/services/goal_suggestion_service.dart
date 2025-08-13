@@ -13,7 +13,8 @@ class GoalSuggestionService {
   }) : engine = engine ?? SmartRecommenderEngine(masteryService: mastery);
 
   /// Returns a list of up to three high-impact goals sorted by weakness severity.
-  Future<List<TrainingGoal>> suggestGoals({required UserProgress progress}) async {
+  Future<List<TrainingGoal>> suggestGoals(
+      {required UserProgress progress}) async {
     final masteryMap = await mastery.computeMastery();
     final clusters = engine.clusterEngine.detectWeaknesses(
       results: progress.history,
@@ -29,8 +30,8 @@ class GoalSuggestionService {
       if (!used.add(tag)) continue;
       final mapping = _tagGoals[tag];
       final title = mapping?['title'] ?? 'Улучшить игру $tag';
-      final desc = mapping?['description'] ??
-          'Закрой хотя бы 3 стадии с этим тегом';
+      final desc =
+          mapping?['description'] ?? 'Закрой хотя бы 3 стадии с этим тегом';
       goals.add(TrainingGoal(title, description: desc, tag: tag));
       if (goals.length >= 3) break;
     }

@@ -79,4 +79,3 @@ class DailyStreakTrackerService {
     _controller.add(0);
   }
 }
-

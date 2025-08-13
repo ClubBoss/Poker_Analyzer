@@ -18,7 +18,8 @@ import 'package:uuid/uuid.dart';
 class SavedHandViewerDialog extends StatelessWidget {
   final SavedHand hand;
   final BuildContext parentContext;
-  const SavedHandViewerDialog({super.key, required this.hand, required this.parentContext});
+  const SavedHandViewerDialog(
+      {super.key, required this.hand, required this.parentContext});
 
   Map<int, String> _posMap() => {
         for (int i = 0; i < hand.numberOfPlayers; i++)
@@ -54,7 +55,10 @@ class SavedHandViewerDialog extends StatelessWidget {
     final heroCards = hand.playerCards[hand.heroIndex]
         .map((c) => '${c.rank}${c.suit}')
         .join(' ');
-    final actions = <ActionEntry>[for (final a in hand.actions) if (a.street == 0) a];
+    final actions = <ActionEntry>[
+      for (final a in hand.actions)
+        if (a.street == 0) a
+    ];
     final stacks = <String, double>{
       for (int i = 0; i < hand.numberOfPlayers; i++)
         '$i': (hand.stackSizes[i] ?? 0).toDouble()
@@ -122,7 +126,8 @@ class SavedHandViewerDialog extends StatelessWidget {
         color: Colors.grey.shade800,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: rows),
+      child:
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: rows),
     );
   }
 
@@ -139,9 +144,11 @@ class SavedHandViewerDialog extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Рекомендуемые паки:', style: TextStyle(color: Colors.white)),
+          const Text('Рекомендуемые паки:',
+              style: TextStyle(color: Colors.white)),
           const SizedBox(height: 4),
-          for (final p in list) Text(p.name, style: const TextStyle(color: Colors.white70)),
+          for (final p in list)
+            Text(p.name, style: const TextStyle(color: Colors.white70)),
         ],
       ),
     );
@@ -159,7 +166,8 @@ class SavedHandViewerDialog extends StatelessWidget {
             icon: const Text('➕'),
             tooltip: 'Add to Pack',
           ),
-          IconButton(onPressed: () => _edit(context), icon: const Icon(Icons.edit)),
+          IconButton(
+              onPressed: () => _edit(context), icon: const Icon(Icons.edit)),
         ],
       ),
       content: SingleChildScrollView(
@@ -174,7 +182,8 @@ class SavedHandViewerDialog extends StatelessWidget {
               feedbackText: hand.feedbackText,
             ),
             const SizedBox(height: 8),
-            ActionHistoryWidget(actions: _actions(), playerPositions: _posMap()),
+            ActionHistoryWidget(
+                actions: _actions(), playerPositions: _posMap()),
             _evCard(),
             _recCard(context),
           ],

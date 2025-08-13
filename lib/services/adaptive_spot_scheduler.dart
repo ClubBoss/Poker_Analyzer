@@ -10,8 +10,7 @@ import 'user_error_rate_service.dart';
 class AdaptiveSpotScheduler {
   AdaptiveSpotScheduler({int? seed, Set<String>? packTags})
       : _rng = Random(seed),
-        _packTags =
-            packTags?.map((e) => e.toLowerCase()).toSet() ?? <String>{};
+        _packTags = packTags?.map((e) => e.toLowerCase()).toSet() ?? <String>{};
 
   final Random _rng;
   final Set<String> _packTags;
@@ -47,8 +46,10 @@ class AdaptiveSpotScheduler {
           _packTags.where((t) => (_tagCounts[t] ?? 0) == 0).toList();
       if (starved.isNotEmpty) {
         final forced = pool
-            .where((s) =>
-                s.tags.map((e) => e.toLowerCase()).toSet().any(starved.contains))
+            .where((s) => s.tags
+                .map((e) => e.toLowerCase())
+                .toSet()
+                .any(starved.contains))
             .toList();
         if (forced.isNotEmpty) {
           final pick = forced[_rng.nextInt(forced.length)];
@@ -98,10 +99,13 @@ class AdaptiveSpotScheduler {
 
     final sorted = weights.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    final top3 = sorted.take(3).map((e) => {
-          'spotId': e.key.id,
-          'w': e.value,
-        }).toList();
+    final top3 = sorted
+        .take(3)
+        .map((e) => {
+              'spotId': e.key.id,
+              'w': e.value,
+            })
+        .toList();
 
     final exps = weights.values.map((w) => exp(w)).toList();
     final sumExp = exps.fold<double>(0, (p, e) => p + e);
@@ -131,4 +135,3 @@ class AdaptiveSpotScheduler {
     return chosen;
   }
 }
-

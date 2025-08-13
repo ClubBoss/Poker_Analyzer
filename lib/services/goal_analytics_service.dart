@@ -24,8 +24,7 @@ class GoalAnalyticsService {
     await prefs.setBool(key, true);
   }
 
-  Future<void> _logEvent(
-      String type, UserGoal goal, double progress) async {
+  Future<void> _logEvent(String type, UserGoal goal, double progress) async {
     final event = {
       'event': type,
       'goalId': goal.id,

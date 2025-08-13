@@ -15,8 +15,7 @@ class TheoryMiniLessonNavigator {
   final MiniLessonLibraryService _library;
   final NavigationService _navigation;
 
-  static final TheoryMiniLessonNavigator instance =
-      TheoryMiniLessonNavigator();
+  static final TheoryMiniLessonNavigator instance = TheoryMiniLessonNavigator();
 
   /// Resolves a mini lesson by [tag] and pushes [MiniLessonScreen].
   ///
@@ -57,4 +56,3 @@ class TheoryMiniLessonNavigator {
     );
   }
 }
-

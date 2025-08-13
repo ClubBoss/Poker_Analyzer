@@ -42,4 +42,3 @@ class AutoBackupService {
     await fileManager.cleanupOldAutoBackups();
   }
 }
-

@@ -30,9 +30,8 @@ class TheoryLessonReviewQueue {
     await logs.load();
 
     final mistakeMap = logs.getRecentMistakes();
-    final normalizedFocus = {
-      for (final t in focusTags) t.trim().toLowerCase()
-    }..removeWhere((e) => e.isEmpty);
+    final normalizedFocus = {for (final t in focusTags) t.trim().toLowerCase()}
+      ..removeWhere((e) => e.isEmpty);
 
     final entries = <_Entry>[];
     for (final lesson in library.all) {

@@ -14,11 +14,11 @@ class MistakeHistorySyncService {
 
   Future<void> uploadMistakes(Map<String, int> mistakeCounts) async {
     if (_uid == null) return;
-    await CloudRetryPolicy.execute(() =>
-        _db.collection('mistakeHistory').doc(_uid).set({
-          'counts': mistakeCounts,
-          'updatedAt': DateTime.now().toIso8601String(),
-        }));
+    await CloudRetryPolicy.execute(
+        () => _db.collection('mistakeHistory').doc(_uid).set({
+              'counts': mistakeCounts,
+              'updatedAt': DateTime.now().toIso8601String(),
+            }));
   }
 
   Future<Map<String, int>> downloadMistakes() async {

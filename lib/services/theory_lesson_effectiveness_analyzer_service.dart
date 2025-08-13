@@ -55,7 +55,8 @@ class TheoryLessonEffectivenessAnalyzerService {
   /// Records a theory review for [tag] and [lessonId].
   ///
   /// The [time] parameter allows tests to control the timestamp.
-  Future<void> recordReview(String tag, String lessonId, {DateTime? time}) async {
+  Future<void> recordReview(String tag, String lessonId,
+      {DateTime? time}) async {
     final normTag = tag.trim().toLowerCase();
     if (normTag.isEmpty) return;
     final reviewTime = time ?? DateTime.now();
@@ -108,7 +109,8 @@ class TheoryLessonEffectivenessAnalyzerService {
 
   /// Returns lessons sorted by average recall gain, requiring at least
   /// [minSessions] recorded reviews per lesson.
-  Future<Map<String, double>> getTopEffectiveLessons({int minSessions = 3}) async {
+  Future<Map<String, double>> getTopEffectiveLessons(
+      {int minSessions = 3}) async {
     await _load();
     if (_sessions.isEmpty) return <String, double>{};
 
@@ -124,12 +126,15 @@ class TheoryLessonEffectivenessAnalyzerService {
       final list = byTag[session.tag];
       if (list == null) continue;
       final success = list.firstWhereOrNull(
-        (e) => e.timestamp.isAfter(session.time) &&
+        (e) =>
+            e.timestamp.isAfter(session.time) &&
             (e.source == null || e.source == session.lessonId),
       );
       if (success == null) continue;
       final post = success.timestamp.difference(session.time).inDays.toDouble();
-      gains.putIfAbsent(session.lessonId, () => []).add(session.preDecay - post);
+      gains
+          .putIfAbsent(session.lessonId, () => [])
+          .add(session.preDecay - post);
     }
 
     final result = <String, double>{};
@@ -168,7 +173,8 @@ class _ReviewSession {
   factory _ReviewSession.fromJson(Map<String, dynamic> json) => _ReviewSession(
         tag: json['tag'] as String? ?? '',
         lessonId: json['lessonId'] as String? ?? '',
-        time: DateTime.tryParse(json['time'] as String? ?? '') ?? DateTime.now(),
+        time:
+            DateTime.tryParse(json['time'] as String? ?? '') ?? DateTime.now(),
         preDecay: (json['pre'] as num?)?.toDouble() ?? 0.0,
       );
 }

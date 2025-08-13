@@ -51,7 +51,8 @@ Future<ActionEntry?> showEditActionDialog(
               if (needAmount)
                 TextField(
                   controller: controller,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
                   decoration: const InputDecoration(labelText: 'Amount'),
                 ),
             ],
@@ -63,11 +64,10 @@ Future<ActionEntry?> showEditActionDialog(
             ),
             TextButton(
               onPressed: () {
-                final amount = (action == 'bet' ||
-                        action == 'raise' ||
-                        action == 'call')
-                    ? double.tryParse(controller.text)
-                    : null;
+                final amount =
+                    (action == 'bet' || action == 'raise' || action == 'call')
+                        ? double.tryParse(controller.text)
+                        : null;
                 Navigator.pop(
                   ctx,
                   ActionEntry(entry.street, player, action, amount: amount),

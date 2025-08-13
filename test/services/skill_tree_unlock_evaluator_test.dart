@@ -12,7 +12,8 @@ void main() {
   const evaluator = SkillTreeUnlockEvaluator();
 
   SkillTreeNodeModel node(String id, {List<String>? prereqs}) =>
-      SkillTreeNodeModel(id: id, title: id, category: 'Push/Fold', prerequisites: prereqs);
+      SkillTreeNodeModel(
+          id: id, title: id, category: 'Push/Fold', prerequisites: prereqs);
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});

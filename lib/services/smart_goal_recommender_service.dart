@@ -8,7 +8,8 @@ class SmartGoalRecommenderService {
   final TagMasteryService mastery;
   final SessionLogService logs;
 
-  const SmartGoalRecommenderService({required this.mastery, required this.logs});
+  const SmartGoalRecommenderService(
+      {required this.mastery, required this.logs});
 
   Future<List<UserGoal>> recommendGoals(UserProfile profile) async {
     await PackLibraryIndexLoader.instance.load();
@@ -49,7 +50,8 @@ class SmartGoalRecommenderService {
       final packs = PackLibraryIndexLoader.instance.library;
       for (final tag in weak) {
         for (final pack in packs.where((p) => p.tags.any((t) => t == tag))) {
-          if (profile.completedPackIds.contains(pack.id) || recentIds.contains(pack.id)) continue;
+          if (profile.completedPackIds.contains(pack.id) ||
+              recentIds.contains(pack.id)) continue;
           if (!used.add('pack:${pack.id}')) continue;
           goals.add(UserGoal(
             id: 'pack_${pack.id}_${now.millisecondsSinceEpoch}',

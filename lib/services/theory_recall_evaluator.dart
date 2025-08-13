@@ -56,8 +56,11 @@ class TheoryRecallEvaluator {
 
       double score = overlap * tagWeight;
 
-      final lessonStage = lesson.stage?.toLowerCase() ?? _extractStage(lesson.tags);
-      if (spotStage != null && lessonStage != null && spotStage == lessonStage) {
+      final lessonStage =
+          lesson.stage?.toLowerCase() ?? _extractStage(lesson.tags);
+      if (spotStage != null &&
+          lessonStage != null &&
+          spotStage == lessonStage) {
         score += stageWeight;
       }
 
@@ -95,13 +98,15 @@ class TheoryRecallEvaluator {
     MiniLessonLibraryService? library,
   }) async {
     if (limit <= 0) return [];
-    final packs = boosterLibrary ?? await PackLibraryLoaderService.instance.loadLibrary();
+    final packs =
+        boosterLibrary ?? await PackLibraryLoaderService.instance.loadLibrary();
     final lessons = library ?? MiniLessonLibraryService.instance;
     await lessons.loadAll();
     final prefs = await SharedPreferences.getInstance();
     final cutoff = DateTime.now().subtract(Duration(days: days));
 
-    final completed = await BoosterCompletionTracker.instance.getAllCompletedBoosters();
+    final completed =
+        await BoosterCompletionTracker.instance.getAllCompletedBoosters();
     final tagScores = <String, double>{};
     for (final pack in packs) {
       if (!completed.contains(pack.id)) continue;
@@ -145,7 +150,9 @@ class TheoryRecallEvaluator {
           last = ts;
         }
       }
-      final since = last == null ? days.toDouble() : now.difference(last).inDays.toDouble();
+      final since = last == null
+          ? days.toDouble()
+          : now.difference(last).inDays.toDouble();
       final score = entry.value * (1 + since / days);
       tagEntries.add(_TagEntry(tag, score));
     }

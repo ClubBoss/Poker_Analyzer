@@ -58,8 +58,9 @@ class LearningPathStageProgressCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        constraints:
-            compact ? const BoxConstraints(maxHeight: 140) : const BoxConstraints(),
+        constraints: compact
+            ? const BoxConstraints(maxHeight: 140)
+            : const BoxConstraints(),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: AppColors.cardBackground,

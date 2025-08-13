@@ -264,7 +264,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(
         logger.events.any((e) =>
-            e['event'] == 'theory_suggestion_shown' && e['topLessonId'] == 'l2'),
+            e['event'] == 'theory_suggestion_shown' &&
+            e['topLessonId'] == 'l2'),
         isTrue,
       );
     });

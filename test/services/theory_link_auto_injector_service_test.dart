@@ -160,8 +160,8 @@ void main() {
         library: library,
         maxRefsPerSpot: 2,
       );
-      final spot =
-          TrainingPackSpot(id: 's1', hand: HandData(), tags: ['t1', 't2', 't3']);
+      final spot = TrainingPackSpot(
+          id: 's1', hand: HandData(), tags: ['t1', 't2', 't3']);
 
       final map = await service.injectTheoryRefs([spot]);
 

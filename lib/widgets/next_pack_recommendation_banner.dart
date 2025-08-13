@@ -13,10 +13,12 @@ class NextPackRecommendationBanner extends StatefulWidget {
   const NextPackRecommendationBanner({super.key, required this.currentPackId});
 
   @override
-  State<NextPackRecommendationBanner> createState() => _NextPackRecommendationBannerState();
+  State<NextPackRecommendationBanner> createState() =>
+      _NextPackRecommendationBannerState();
 }
 
-class _NextPackRecommendationBannerState extends State<NextPackRecommendationBanner> {
+class _NextPackRecommendationBannerState
+    extends State<NextPackRecommendationBanner> {
   bool _loading = true;
   TrainingPackTemplateV2? _pack;
 
@@ -28,7 +30,8 @@ class _NextPackRecommendationBannerState extends State<NextPackRecommendationBan
 
   Future<void> _load() async {
     final engine = context.read<SuggestedNextPackEngine>();
-    final tpl = await engine.suggestNextPack(currentPackId: widget.currentPackId);
+    final tpl =
+        await engine.suggestNextPack(currentPackId: widget.currentPackId);
     if (mounted) {
       setState(() {
         _pack = tpl;
@@ -54,7 +57,8 @@ class _NextPackRecommendationBannerState extends State<NextPackRecommendationBan
     if (tpl == null) return;
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => TrainingPackPreviewScreen(template: tpl)),
+      MaterialPageRoute(
+          builder: (_) => TrainingPackPreviewScreen(template: tpl)),
     );
   }
 

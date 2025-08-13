@@ -32,7 +32,8 @@ mixin TrainingPackTemplateIo on State<TrainingPackTemplateListScreen> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Import templates?'),
-        content: Text('This will add ${imported.length} template(s) to your list.'),
+        content:
+            Text('This will add ${imported.length} template(s) to your list.'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, false),
@@ -89,7 +90,8 @@ mixin TrainingPackTemplateIo on State<TrainingPackTemplateListScreen> {
       TrainingPackStorage.save(_templates);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Imported ${tpl.spots.length} spots${skipped > 0 ? ', $skipped skipped' : ''}'),
+          content: Text(
+              'Imported ${tpl.spots.length} spots${skipped > 0 ? ', $skipped skipped' : ''}'),
         ),
       );
       _edit(tpl);
@@ -127,7 +129,8 @@ mixin TrainingPackTemplateIo on State<TrainingPackTemplateListScreen> {
       TrainingPackStorage.save(_templates);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Imported ${tpl.spots.length} spots${skipped > 0 ? ', $skipped skipped' : ''}'),
+          content: Text(
+              'Imported ${tpl.spots.length} spots${skipped > 0 ? ', $skipped skipped' : ''}'),
         ),
       );
       _edit(tpl);

@@ -13,7 +13,8 @@ MaterialBanner _banner(String text) {
 }
 
 void main() {
-  testWidgets('displays banners sequentially with auto dismiss', (tester) async {
+  testWidgets('displays banners sequentially with auto dismiss',
+      (tester) async {
     final key = GlobalKey<NavigatorState>();
     await tester.pumpWidget(MaterialApp(
       navigatorKey: key,
@@ -47,7 +48,8 @@ void main() {
     expect(find.text('third'), findsNothing);
   });
 
-  testWidgets('dismissCurrent skips to next banner immediately', (tester) async {
+  testWidgets('dismissCurrent skips to next banner immediately',
+      (tester) async {
     final key = GlobalKey<NavigatorState>();
     await tester.pumpWidget(MaterialApp(
       navigatorKey: key,
@@ -72,4 +74,3 @@ void main() {
     await tester.pump();
   });
 }
-

@@ -11,7 +11,8 @@ class StreetTransitionOverlay extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<StreetTransitionOverlay> createState() => _StreetTransitionOverlayState();
+  State<StreetTransitionOverlay> createState() =>
+      _StreetTransitionOverlayState();
 }
 
 class _StreetTransitionOverlayState extends State<StreetTransitionOverlay>
@@ -34,8 +35,8 @@ class _StreetTransitionOverlayState extends State<StreetTransitionOverlay>
       ),
       TweenSequenceItem(tween: ConstantTween(1.0), weight: 60),
       TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 0.0)
-            .chain(CurveTween(curve: Curves.easeIn)),
+        tween:
+            Tween(begin: 1.0, end: 0.0).chain(CurveTween(curve: Curves.easeIn)),
         weight: 20,
       ),
     ]).animate(_controller);

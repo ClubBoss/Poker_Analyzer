@@ -8,14 +8,23 @@ class ImportMistake {
   final String expected;
   final double ev;
   final double icm;
-  ImportMistake({required this.cards, required this.actual, required this.expected, required this.ev, required this.icm});
+  ImportMistake(
+      {required this.cards,
+      required this.actual,
+      required this.expected,
+      required this.ev,
+      required this.icm});
 }
 
 class ImportSessionSummaryScreen extends StatelessWidget {
   final int total;
   final int correct;
   final List<ImportMistake> mistakes;
-  const ImportSessionSummaryScreen({super.key, required this.total, required this.correct, required this.mistakes});
+  const ImportSessionSummaryScreen(
+      {super.key,
+      required this.total,
+      required this.correct,
+      required this.mistakes});
 
   Widget _card(CardModel c) {
     final red = c.suit == '♥' || c.suit == '♦';
@@ -52,10 +61,12 @@ class ImportSessionSummaryScreen extends StatelessWidget {
           children: [
             Text('Hands: $total', style: const TextStyle(color: Colors.white)),
             const SizedBox(height: 4),
-            Text('Accuracy: ${accuracy.toStringAsFixed(1)}%', style: const TextStyle(color: Colors.white)),
+            Text('Accuracy: ${accuracy.toStringAsFixed(1)}%',
+                style: const TextStyle(color: Colors.white)),
             const SizedBox(height: 16),
             if (mistakes.isNotEmpty) ...[
-              const Text('Biggest mistakes', style: TextStyle(color: Colors.white70)),
+              const Text('Biggest mistakes',
+                  style: TextStyle(color: Colors.white70)),
               const SizedBox(height: 8),
               for (final m in mistakes.take(5))
                 Container(
@@ -71,7 +82,8 @@ class ImportSessionSummaryScreen extends StatelessWidget {
                       _card(m.cards[1]),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: Text('You: ${m.actual} • GTO: ${m.expected} • ${m.ev.toStringAsFixed(2)} / ${m.icm.toStringAsFixed(2)}',
+                        child: Text(
+                            'You: ${m.actual} • GTO: ${m.expected} • ${m.ev.toStringAsFixed(2)} / ${m.icm.toStringAsFixed(2)}',
                             style: const TextStyle(color: Colors.white70)),
                       ),
                     ],

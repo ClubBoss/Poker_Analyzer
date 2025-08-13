@@ -67,10 +67,8 @@ mixin TrainingPackTemplateSortFilter on State<TrainingPackTemplateListScreen> {
         break;
       case 'last_trained':
         _templates.sort((a, b) {
-          final aDt =
-              a.lastTrainedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
-          final bDt =
-              b.lastTrainedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+          final aDt = a.lastTrainedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+          final bDt = b.lastTrainedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
           final r = bDt.compareTo(aDt);
           return r == 0
               ? a.name.toLowerCase().compareTo(b.name.toLowerCase())
@@ -92,8 +90,8 @@ mixin TrainingPackTemplateSortFilter on State<TrainingPackTemplateListScreen> {
   Future<void> _loadStackFilter() async {
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
-      setState(() =>
-          _stackFilter = prefs.getString(TrainingPackTemplatePrefs.stackFilter));
+      setState(() => _stackFilter =
+          prefs.getString(TrainingPackTemplatePrefs.stackFilter));
     }
   }
 
@@ -121,8 +119,8 @@ mixin TrainingPackTemplateSortFilter on State<TrainingPackTemplateListScreen> {
   Future<void> _loadStreetFilter() async {
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
-      setState(() =>
-          _streetFilter = prefs.getString(TrainingPackTemplatePrefs.streetFilter));
+      setState(() => _streetFilter =
+          prefs.getString(TrainingPackTemplatePrefs.streetFilter));
     }
   }
 
@@ -187,6 +185,7 @@ mixin TrainingPackTemplateSortFilter on State<TrainingPackTemplateListScreen> {
           return 'Name';
       }
     }
+
     parts.add('Sort: ${sortLabel()}');
     return parts.join(' • ');
   }
@@ -239,24 +238,40 @@ mixin TrainingPackTemplateSortFilter on State<TrainingPackTemplateListScreen> {
         ? [
             for (final t in _templates)
               if (_favorites.contains(t.id) ||
-                  FavoritePackService.instance.isFavorite(t.id)) t
+                  FavoritePackService.instance.isFavorite(t.id))
+                t
           ]
         : _templates;
     final byType = _selectedType == null
         ? base
-        : [for (final t in base) if (t.gameType == _selectedType) t];
+        : [
+            for (final t in base)
+              if (t.gameType == _selectedType) t
+          ];
     final filtered = _selectedTag == null
         ? byType
-        : [for (final t in byType) if (t.tags.contains(_selectedTag)) t];
+        : [
+            for (final t in byType)
+              if (t.tags.contains(_selectedTag)) t
+          ];
     final icmFiltered = !_icmOnly
         ? filtered
-        : [for (final t in filtered) if (_isIcmTemplate(t)) t];
+        : [
+            for (final t in filtered)
+              if (_isIcmTemplate(t)) t
+          ];
     final stackFiltered = _stackFilter == null
         ? icmFiltered
-        : [for (final t in icmFiltered) if (_matchStack(t.heroBbStack)) t];
+        : [
+            for (final t in icmFiltered)
+              if (_matchStack(t.heroBbStack)) t
+          ];
     final posFiltered = _posFilter == null
         ? stackFiltered
-        : [for (final t in stackFiltered) if (t.heroPos == _posFilter) t];
+        : [
+            for (final t in stackFiltered)
+              if (t.heroPos == _posFilter) t
+          ];
     final diffFiltered = _difficultyFilter == null
         ? posFiltered
         : [
@@ -267,24 +282,29 @@ mixin TrainingPackTemplateSortFilter on State<TrainingPackTemplateListScreen> {
           ];
     final streetFiltered = _streetFilter == null
         ? diffFiltered
-        : [for (final t in diffFiltered) if (t.targetStreet == _streetFilter) t];
+        : [
+            for (final t in diffFiltered)
+              if (t.targetStreet == _streetFilter) t
+          ];
     final evalFiltered = !_showNeedsEvalOnly
         ? streetFiltered
         : [
             for (final t in streetFiltered)
-              if (t.evCovered < t.totalWeight ||
-                  t.icmCovered < t.totalWeight)
-                t
+              if (t.evCovered < t.totalWeight || t.icmCovered < t.totalWeight) t
           ];
     final completed = _completedOnly
-        ? [for (final t in evalFiltered) if (t.goalAchieved) t]
+        ? [
+            for (final t in evalFiltered)
+              if (t.goalAchieved) t
+          ]
         : evalFiltered;
     final visible = _hideCompleted
         ? [
             for (final t in completed)
               if ((t.spots.isEmpty
-                      ? 0.0
-                      : (_progress[t.id] ?? 0) / t.spots.length) < 1.0 ||
+                          ? 0.0
+                          : (_progress[t.id] ?? 0) / t.spots.length) <
+                      1.0 ||
                   !t.goalAchieved)
                 t
           ]

@@ -10,7 +10,8 @@ class _FakeBooster extends BoosterSuggestionEngine {
   final List<TheoryMiniLessonNode> lessons;
   const _FakeBooster(this.lessons);
   @override
-  Future<List<TheoryMiniLessonNode>> getRecommendedBoosters({int maxCount = 3}) async {
+  Future<List<TheoryMiniLessonNode>> getRecommendedBoosters(
+      {int maxCount = 3}) async {
     return lessons.take(maxCount).toList();
   }
 }
@@ -23,8 +24,10 @@ void main() {
   });
 
   test('shows banner when lesson available', () async {
-    final lesson = const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
-    final engine = TheoryInboxBannerEngine(booster: const _FakeBooster([lesson]));
+    final lesson =
+        const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
+    final engine =
+        TheoryInboxBannerEngine(booster: const _FakeBooster([lesson]));
     final controller = TheoryInboxBannerController(engine: engine);
     await controller.start(interval: Duration.zero);
     expect(controller.shouldShowInboxBanner(), isTrue);

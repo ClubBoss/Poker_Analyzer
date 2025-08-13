@@ -18,7 +18,8 @@ class _Result {
 
 void main(List<String> args) {
   if (args.isEmpty) {
-    stderr.writeln('Usage: dart run tool/validate_packs.dart <inputDir> [--md]');
+    stderr
+        .writeln('Usage: dart run tool/validate_packs.dart <inputDir> [--md]');
     exit(1);
   }
   final dir = Directory(args.first);
@@ -27,14 +28,10 @@ void main(List<String> args) {
     exit(1);
   }
   final md = args.contains('--md');
-  final files = dir
-      .listSync(recursive: true)
-      .whereType<File>()
-      .where((f) {
-        final l = f.path.toLowerCase();
-        return l.endsWith('.json') || l.endsWith('.pka');
-      })
-      .toList();
+  final files = dir.listSync(recursive: true).whereType<File>().where((f) {
+    final l = f.path.toLowerCase();
+    return l.endsWith('.json') || l.endsWith('.pka');
+  }).toList();
   final start = DateTime.now();
   final results = <_Result>[];
   var ready = 0;
@@ -49,7 +46,8 @@ void main(List<String> args) {
       } else {
         final bytes = file.readAsBytesSync();
         final archive = ZipDecoder().decodeBytes(bytes);
-        final tplFile = archive.files.firstWhere((e) => e.name == 'template.json');
+        final tplFile =
+            archive.files.firstWhere((e) => e.name == 'template.json');
         final jsonMap =
             jsonDecode(utf8.decode(tplFile.content)) as Map<String, dynamic>;
         tpl = TrainingPackTemplate.fromJson(jsonMap);
@@ -83,7 +81,8 @@ void main(List<String> args) {
       icon = '❌';
       invalid++;
     }
-    results.add(_Result(p.basename(file.path), icon, status, ev, icm, issues.length));
+    results.add(
+        _Result(p.basename(file.path), icon, status, ev, icm, issues.length));
   }
   final elapsed = DateTime.now().difference(start).inMilliseconds / 1000;
   if (md) {
@@ -93,23 +92,32 @@ void main(List<String> args) {
       final ev = r.status == 'Invalid' ? '' : '${(r.ev * 100).round()} %';
       final icm = r.status == 'Invalid' ? '' : '${(r.icm * 100).round()} %';
       final issues = r.issues > 0 ? r.issues.toString() : '';
-      stdout.writeln('| ${r.name} | ${r.icon} ${r.status} | $ev | $icm | $issues |');
+      stdout.writeln(
+          '| ${r.name} | ${r.icon} ${r.status} | $ev | $icm | $issues |');
     }
     stdout.writeln('');
-    stdout.writeln('Total: ${results.length} files  |  Ready $ready  |  Partial $partial  |  Invalid $invalid');
+    stdout.writeln(
+        'Total: ${results.length} files  |  Ready $ready  |  Partial $partial  |  Invalid $invalid');
     stdout.writeln('Time: ${elapsed.toStringAsFixed(1)} s');
   } else {
-    final nameWidth = results.fold<int>(0, (p, e) => e.name.length > p ? e.name.length : p) + 2;
+    final nameWidth =
+        results.fold<int>(0, (p, e) => e.name.length > p ? e.name.length : p) +
+            2;
     for (final r in results) {
       final name = r.name.padRight(nameWidth);
       final status = '${r.icon} ${r.status}'.padRight(10);
-      final ev = r.status == 'Invalid' ? ''.padRight(8) : 'EV ${(r.ev * 100).round()} %'.padRight(8);
-      final icm = r.status == 'Invalid' ? ''.padRight(8) : 'ICM ${(r.icm * 100).round()} %'.padRight(8);
+      final ev = r.status == 'Invalid'
+          ? ''.padRight(8)
+          : 'EV ${(r.ev * 100).round()} %'.padRight(8);
+      final icm = r.status == 'Invalid'
+          ? ''.padRight(8)
+          : 'ICM ${(r.icm * 100).round()} %'.padRight(8);
       final issues = r.status == 'Invalid' ? '${r.issues} issues' : '';
       stdout.writeln('$name$status  $ev  $icm$issues');
     }
     stdout.writeln('----');
-    stdout.writeln('Total: ${results.length} files  |  Ready $ready  |  Partial $partial  |  Invalid $invalid');
+    stdout.writeln(
+        'Total: ${results.length} files  |  Ready $ready  |  Partial $partial  |  Invalid $invalid');
     stdout.writeln('Time: ${elapsed.toStringAsFixed(1)} s');
   }
 }

@@ -81,4 +81,3 @@ class _PokerAnalyzerView extends StatelessWidget {
     );
   }
 }
-

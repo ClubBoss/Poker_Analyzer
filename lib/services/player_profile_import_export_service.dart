@@ -40,7 +40,8 @@ class PlayerProfileImportExportService {
   /// Load player profile information from a previously serialized map.
   void loadFromMap(Map<String, dynamic> data) {
     final heroIndex = data['heroIndex'] as int? ?? 0;
-    final heroPosition = data['heroPosition'] as String? ?? profile.heroPosition;
+    final heroPosition =
+        data['heroPosition'] as String? ?? profile.heroPosition;
     final count = data['numberOfPlayers'] as int? ?? profile.numberOfPlayers;
     final opponent = data['opponentIndex'] as int?;
     final posList = (data['playerPositions'] as List?)?.cast<String>() ?? [];
@@ -52,7 +53,9 @@ class PlayerProfileImportExportService {
     profile.setHeroIndex(heroIndex);
     profile.heroPosition = heroPosition;
     profile.opponentIndex =
-        opponent != null && opponent < profile.numberOfPlayers ? opponent : null;
+        opponent != null && opponent < profile.numberOfPlayers
+            ? opponent
+            : null;
 
     profile.playerPositions.clear();
     for (int i = 0; i < posList.length && i < profile.numberOfPlayers; i++) {
@@ -61,8 +64,8 @@ class PlayerProfileImportExportService {
 
     profile.playerTypes.clear();
     for (int i = 0; i < typeList.length && i < profile.numberOfPlayers; i++) {
-      final type = PlayerType.values
-          .firstWhere((e) => e.name == typeList[i], orElse: () => PlayerType.unknown);
+      final type = PlayerType.values.firstWhere((e) => e.name == typeList[i],
+          orElse: () => PlayerType.unknown);
       profile.playerTypes[i] = type;
     }
 
@@ -97,8 +100,8 @@ class PlayerProfileImportExportService {
   Future<void> exportToClipboard(BuildContext context) async {
     await Clipboard.setData(ClipboardData(text: serialize()));
     if (context.mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Profile copied to clipboard')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile copied to clipboard')));
     }
   }
 
@@ -107,19 +110,19 @@ class PlayerProfileImportExportService {
       final data = await Clipboard.getData('text/plain');
       if (data == null || data.text == null || !deserialize(data.text!)) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Invalid clipboard data')));
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Invalid clipboard data')));
         }
         return;
       }
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Profile loaded from clipboard')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Profile loaded from clipboard')));
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Failed to read clipboard')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to read clipboard')));
       }
     }
   }
@@ -170,14 +173,15 @@ class PlayerProfileImportExportService {
       final content = await file.readAsString();
       if (!deserialize(content)) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Invalid file format')));
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Invalid file format')));
         }
         return;
       }
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('File loaded: ${file.path.split(Platform.pathSeparator).last}')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(
+                'File loaded: ${file.path.split(Platform.pathSeparator).last}')));
       }
     } catch (_) {
       if (context.mounted) {
@@ -207,13 +211,13 @@ class PlayerProfileImportExportService {
       await file.writeAsBytes(bytes, flush: true);
       if (context.mounted) {
         final displayName = savePath.split(Platform.pathSeparator).last;
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Archive saved: $displayName')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Archive saved: $displayName')));
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Failed to save archive')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to save archive')));
       }
     }
   }

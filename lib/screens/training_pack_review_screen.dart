@@ -36,7 +36,8 @@ class TrainingPackReviewScreen extends StatefulWidget {
   });
 
   @override
-  State<TrainingPackReviewScreen> createState() => _TrainingPackReviewScreenState();
+  State<TrainingPackReviewScreen> createState() =>
+      _TrainingPackReviewScreenState();
 }
 
 enum _SortOption { name, rating, date }
@@ -63,7 +64,8 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
     setState(() {
       _prefs = prefs;
       _onlyMistakes = prefs.getBool(_mistakesKey) ?? false;
-      _sort = _SortOption.values[sortIndex.clamp(0, _SortOption.values.length - 1)];
+      _sort =
+          _SortOption.values[sortIndex.clamp(0, _SortOption.values.length - 1)];
       _searchController.text = prefs.getString(_searchKey) ?? '';
     });
   }
@@ -197,8 +199,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Hand?'),
-        content:
-            const Text('Are you sure you want to delete this hand?'),
+        content: const Text('Are you sure you want to delete this hand?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -287,8 +288,8 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
 
   Future<void> _exportReport() async {
     final markdown = _generateReport();
-    final dir =
-        await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
+    final dir = await getDownloadsDirectory() ??
+        await getApplicationDocumentsDirectory();
     final safeName = widget.pack.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
     final fileName = '${safeName}_${DateTime.now().millisecondsSinceEpoch}.md';
     final file = File('${dir.path}/$fileName');
@@ -346,8 +347,8 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
 
     final bytes = await pdf.save();
 
-    final dir =
-        await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
+    final dir = await getDownloadsDirectory() ??
+        await getApplicationDocumentsDirectory();
     final safeName = widget.pack.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
     final fileName = '${safeName}_${DateTime.now().millisecondsSinceEpoch}.pdf';
     final file = File('${dir.path}/$fileName');
@@ -403,8 +404,8 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
     );
     if (model != null && mounted) {
       await context.read<TrainingPackTemplateStorageService>().add(model);
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Шаблон сохранён')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Шаблон сохранён')));
     }
   }
 
@@ -523,7 +524,8 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
       appBar: AppBar(
         title: Text(widget.pack.name),
         centerTitle: true,
-        actions: [SyncStatusIcon.of(context), 
+        actions: [
+          SyncStatusIcon.of(context),
           IconButton(
             icon: const Icon(Icons.picture_as_pdf),
             tooltip: 'Export to PDF',
@@ -590,8 +592,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
               ),
               onChanged: (_) async {
                 setState(() {});
-                final prefs =
-                    _prefs ?? await SharedPreferences.getInstance();
+                final prefs = _prefs ?? await SharedPreferences.getInstance();
                 await prefs.setString(_searchKey, _searchController.text);
               },
             ),
@@ -600,8 +601,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                const Text('Sort by',
-                    style: TextStyle(color: Colors.white)),
+                const Text('Sort by', style: TextStyle(color: Colors.white)),
                 const SizedBox(width: 8),
                 DropdownButton<_SortOption>(
                   value: _sort,
@@ -639,7 +639,8 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
                 : ListView.builder(
                     padding: const EdgeInsets.all(16),
                     itemCount: hands.length,
-                    itemBuilder: (context, index) => _buildHandTile(hands[index]),
+                    itemBuilder: (context, index) =>
+                        _buildHandTile(hands[index]),
                   ),
           ),
         ],
@@ -647,4 +648,3 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
     );
   }
 }
-

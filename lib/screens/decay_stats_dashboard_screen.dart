@@ -10,7 +10,8 @@ class DecayStatsDashboardScreen extends StatefulWidget {
   const DecayStatsDashboardScreen({super.key});
 
   @override
-  State<DecayStatsDashboardScreen> createState() => _DecayStatsDashboardScreenState();
+  State<DecayStatsDashboardScreen> createState() =>
+      _DecayStatsDashboardScreenState();
 }
 
 class _DecayStatsDashboardScreenState extends State<DecayStatsDashboardScreen> {
@@ -110,16 +111,20 @@ class _DecayStatsDashboardScreenState extends State<DecayStatsDashboardScreen> {
           gridData: const FlGridData(show: false),
           borderData: FlBorderData(show: false),
           titlesData: FlTitlesData(
-            leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
                 interval: 1,
                 getTitlesWidget: (value, _) {
                   final idx = value.toInt();
-                  if (idx < 0 || idx >= tags.length) return const SizedBox.shrink();
+                  if (idx < 0 || idx >= tags.length)
+                    return const SizedBox.shrink();
                   final tag = tags[idx];
                   return Transform.rotate(
                     angle: -1.5708,

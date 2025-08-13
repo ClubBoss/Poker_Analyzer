@@ -9,7 +9,8 @@ class DecayAdaptationInsightScreen extends StatefulWidget {
   const DecayAdaptationInsightScreen({super.key});
 
   @override
-  State<DecayAdaptationInsightScreen> createState() => _DecayAdaptationInsightScreenState();
+  State<DecayAdaptationInsightScreen> createState() =>
+      _DecayAdaptationInsightScreenState();
 }
 
 class _RowData {
@@ -29,7 +30,8 @@ class _RowData {
   });
 }
 
-class _DecayAdaptationInsightScreenState extends State<DecayAdaptationInsightScreen> {
+class _DecayAdaptationInsightScreenState
+    extends State<DecayAdaptationInsightScreen> {
   bool _loading = true;
   List<_RowData> _rows = [];
   int? _sortColumnIndex;
@@ -46,9 +48,11 @@ class _DecayAdaptationInsightScreenState extends State<DecayAdaptationInsightScr
     setState(() => _loading = true);
     final tuner = BoosterAdaptationTuner.instance;
     final adaptations = await tuner.loadAdaptations();
-    final successLogs = await RecallSuccessLoggerService.instance.getSuccesses();
+    final successLogs =
+        await RecallSuccessLoggerService.instance.getSuccesses();
     final tagStats = await const ReviewStreakEvaluatorService().getTagStats();
-    final decayScores = await const DecayTagRetentionTrackerService().getAllDecayScores();
+    final decayScores =
+        await const DecayTagRetentionTrackerService().getAllDecayScores();
 
     final successMap = <String, int>{};
     for (final e in successLogs) {
@@ -70,7 +74,9 @@ class _DecayAdaptationInsightScreenState extends State<DecayAdaptationInsightScr
       final stats = tagStats[tag];
       final completed = stats?.completedCount ?? 0;
       final successes = successMap[tag] ?? 0;
-      final successRate = completed > 0 ? successes * 100 / completed : (successes > 0 ? 100 : 0);
+      final successRate = completed > 0
+          ? successes * 100 / completed
+          : (successes > 0 ? 100 : 0);
       final last = stats?.lastInteraction;
       final daysSince = last != null ? now.difference(last).inDays : 999;
       final decay = (decayScores[tag] ?? 0.0) * 100;
@@ -111,7 +117,8 @@ class _DecayAdaptationInsightScreenState extends State<DecayAdaptationInsightScr
   }
 
   void _sort(List<_RowData> list) {
-    int compare<num>(num a, num b) => _ascending ? a.compareTo(b) : b.compareTo(a);
+    int compare<num>(num a, num b) =>
+        _ascending ? a.compareTo(b) : b.compareTo(a);
     switch (_sortColumnIndex) {
       case 1:
         list.sort((a, b) => compare(a.adaptation.index, b.adaptation.index));
@@ -126,7 +133,8 @@ class _DecayAdaptationInsightScreenState extends State<DecayAdaptationInsightScr
         list.sort((a, b) => compare(a.decay, b.decay));
         break;
       default:
-        list.sort((a, b) => _ascending ? a.tag.compareTo(b.tag) : b.tag.compareTo(a.tag));
+        list.sort((a, b) =>
+            _ascending ? a.tag.compareTo(b.tag) : b.tag.compareTo(a.tag));
     }
   }
 
@@ -168,9 +176,12 @@ class _DecayAdaptationInsightScreenState extends State<DecayAdaptationInsightScr
       columns: [
         DataColumn(label: const Text('Tag'), onSort: _onSort),
         DataColumn(label: const Text('Adaptation'), onSort: _onSort),
-        DataColumn(label: const Text('Success %'), numeric: true, onSort: _onSort),
-        DataColumn(label: const Text('Days since'), numeric: true, onSort: _onSort),
-        DataColumn(label: const Text('Decay %'), numeric: true, onSort: _onSort),
+        DataColumn(
+            label: const Text('Success %'), numeric: true, onSort: _onSort),
+        DataColumn(
+            label: const Text('Days since'), numeric: true, onSort: _onSort),
+        DataColumn(
+            label: const Text('Decay %'), numeric: true, onSort: _onSort),
         const DataColumn(label: Text('Reason')),
       ],
       rows: [
@@ -195,7 +206,9 @@ class _DecayAdaptationInsightScreenState extends State<DecayAdaptationInsightScr
     return Scaffold(
       appBar: AppBar(
         title: const Text('Decay Adaptation'),
-        actions: [IconButton(onPressed: _load, icon: const Icon(Icons.refresh))],
+        actions: [
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh))
+        ],
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())

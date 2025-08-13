@@ -13,7 +13,8 @@ class BoosterLibraryService {
 
   Future<void> loadAll({int limit = 500}) async {
     if (_loaded) return;
-    await TrainingPackLibraryLoaderService.instance.preloadLibrary(limit: limit);
+    await TrainingPackLibraryLoaderService.instance
+        .preloadLibrary(limit: limit);
     final all = TrainingPackLibraryLoaderService.instance.loadedTemplates;
     _boosters.clear();
     _index.clear();

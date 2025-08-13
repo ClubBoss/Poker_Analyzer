@@ -137,8 +137,7 @@ class TheoryLessonViewerScreen extends StatelessWidget {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: onContinue,
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: accent),
+                      style: ElevatedButton.styleFrom(backgroundColor: accent),
                       child: const Text('Continue'),
                     ),
                   ),

@@ -106,9 +106,7 @@ class DecayBoosterNotificationService with WidgetsBindingObserver {
     }
 
     final scores = await decay.computeDecayScores();
-    final candidates = scores.entries
-        .where((e) => e.value > 50)
-        .toList()
+    final candidates = scores.entries.where((e) => e.value > 50).toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     if (candidates.isEmpty) return;
 
@@ -145,8 +143,7 @@ class DecayBoosterNotificationService with WidgetsBindingObserver {
           uiLocalNotificationDateInterpretation:
               UILocalNotificationDateInterpretation.absoluteTime,
         );
-        unawaited(
-            DecayTopicSuppressorService.instance.recordIgnored(tag));
+        unawaited(DecayTopicSuppressorService.instance.recordIgnored(tag));
         sent++;
         idIndex = (idIndex + 1) % _ids.length;
         break;

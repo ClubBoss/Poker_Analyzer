@@ -40,7 +40,8 @@ class RecapOpportunityDetector {
 
   static final RecapOpportunityDetector instance = RecapOpportunityDetector(
     retention: TagRetentionTracker(
-      mastery: TagMasteryService(logs: SessionLogService(sessions: TrainingSessionService())),
+      mastery: TagMasteryService(
+          logs: SessionLogService(sessions: TrainingSessionService())),
     ),
   );
 
@@ -52,8 +53,8 @@ class RecapOpportunityDetector {
     await usage.init();
     _timer?.cancel();
     _timer = Timer.periodic(interval, (_) => _check());
-
   }
+
   void notifyDrillCompleted() {
     _lastCompletion = DateTime.now();
   }

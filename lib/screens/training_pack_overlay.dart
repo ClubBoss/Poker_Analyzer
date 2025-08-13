@@ -46,4 +46,3 @@ class TrainingPackOverlay extends StatelessWidget {
     );
   }
 }
-

@@ -18,11 +18,10 @@ class YamlPackDuplicateCleanerService {
     if (!dir.existsSync()) return [];
     const reader = YamlReader();
     final groups = <String, List<(File, int, bool, DateTime)>>{};
-    for (final f
-        in dir
-            .listSync(recursive: true)
-            .whereType<File>()
-            .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
+    for (final f in dir
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
       try {
         final yaml = await f.readAsString();
         final map = reader.read(yaml);

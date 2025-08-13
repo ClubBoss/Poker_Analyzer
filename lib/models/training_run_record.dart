@@ -47,7 +47,8 @@ class TrainingRunRecord {
     required this.format,
   });
 
-  factory TrainingRunRecord.fromJson(Map<String, dynamic> j) => TrainingRunRecord(
+  factory TrainingRunRecord.fromJson(Map<String, dynamic> j) =>
+      TrainingRunRecord(
         armId: j['armId'] as String? ?? '',
         packId: j['packId'] as String? ?? '',
         accuracy: (j['accuracy'] as num?)?.toDouble() ?? 0,
@@ -56,7 +57,8 @@ class TrainingRunRecord {
         novelty: (j['novelty'] as num?)?.toDouble() ?? 0,
         retryRate: (j['retryRate'] as num?)?.toDouble() ?? 0,
         audience: j['audience'] as String?,
-        format: FormatMeta.fromJson(j['format'] as Map<String, dynamic>? ?? const {}),
+        format: FormatMeta.fromJson(
+            j['format'] as Map<String, dynamic>? ?? const {}),
       );
 
   Map<String, dynamic> toJson() => {

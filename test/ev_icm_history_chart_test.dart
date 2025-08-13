@@ -15,8 +15,7 @@ class _FakeService extends ProgressForecastService {
   final List<MapEntry<DateTime, double>> _acc;
   _FakeService(this._ev, this._icm, this._acc)
       : super(
-            hands: SavedHandManagerService(
-                storage: SavedHandStorageService()),
+            hands: SavedHandManagerService(storage: SavedHandStorageService()),
             style: PlayerStyleService(
                 hands: SavedHandManagerService(
                     storage: SavedHandStorageService())));
@@ -41,13 +40,10 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   testWidgets('chart shows 3 data series', (tester) async {
     SharedPreferences.setMockInitialValues({});
-    final service = _FakeService([
-      const MapEntry(DateTime(2023, 1, 1), 1.0)
-    ], [
-      const MapEntry(DateTime(2023, 1, 1), 2.0)
-    ], [
-      const MapEntry(DateTime(2023, 1, 1), 0.5)
-    ]);
+    final service = _FakeService(
+        [const MapEntry(DateTime(2023, 1, 1), 1.0)],
+        [const MapEntry(DateTime(2023, 1, 1), 2.0)],
+        [const MapEntry(DateTime(2023, 1, 1), 0.5)]);
     await tester.pumpWidget(
       ChangeNotifierProvider<ProgressForecastService>.value(
         value: service,

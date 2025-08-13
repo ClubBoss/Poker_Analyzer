@@ -59,4 +59,3 @@ class TrainingPackStatsPanel extends StatelessWidget {
     );
   }
 }
-

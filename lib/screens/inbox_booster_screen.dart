@@ -28,8 +28,7 @@ class _InboxBoosterScreenState extends State<InboxBoosterScreen> {
     final ids = await InboxBoosterTrackerService.instance.getInbox();
     await MiniLessonLibraryService.instance.loadAll();
     final list = [
-      for (final id in ids)
-        MiniLessonLibraryService.instance.getById(id)
+      for (final id in ids) MiniLessonLibraryService.instance.getById(id)
     ].whereType<TheoryMiniLessonNode>().toList();
     if (!mounted) return;
     setState(() {

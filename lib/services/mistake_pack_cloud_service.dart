@@ -19,28 +19,37 @@ class MistakePackCloudService {
         .limit(50)
         .get();
     return [
-      for (final d in snap.docs)
-        MistakePack.fromJson({...d.data(), 'id': d.id})
+      for (final d in snap.docs) MistakePack.fromJson({...d.data(), 'id': d.id})
     ];
   }
 
   Future<void> savePack(MistakePack pack) async {
     if (_uid == null) return;
-    await CloudRetryPolicy.execute(() =>
-        _db.collection('mistakes').doc(_uid).collection('packs').doc(pack.id).set(pack.toJson()));
+    await CloudRetryPolicy.execute(() => _db
+        .collection('mistakes')
+        .doc(_uid)
+        .collection('packs')
+        .doc(pack.id)
+        .set(pack.toJson()));
   }
 
   Future<void> deletePack(String id) async {
     if (_uid == null) return;
-    await CloudRetryPolicy.execute(() =>
-        _db.collection('mistakes').doc(_uid).collection('packs').doc(id).delete());
+    await CloudRetryPolicy.execute(() => _db
+        .collection('mistakes')
+        .doc(_uid)
+        .collection('packs')
+        .doc(id)
+        .delete());
   }
 
   Future<void> deleteOlderThan(DateTime cutoff) async {
     if (_uid == null) return;
     await CloudRetryPolicy.execute<void>(() async {
       final col = _db.collection('mistakes').doc(_uid).collection('packs');
-      final snap = await col.where('createdAt', isLessThan: cutoff.toIso8601String()).get();
+      final snap = await col
+          .where('createdAt', isLessThan: cutoff.toIso8601String())
+          .get();
       final batch = _db.batch();
       for (final d in snap.docs) {
         batch.delete(col.doc(d.id));

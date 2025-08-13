@@ -5,7 +5,6 @@ import 'weakness_cluster_engine.dart';
 import 'tag_mastery_service.dart';
 import 'package:collection/collection.dart';
 
-
 /// Container for user progress data required by [SmartRecommenderEngine].
 class UserProgress {
   final List<TrainingResult> history;

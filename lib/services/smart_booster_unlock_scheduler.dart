@@ -85,4 +85,3 @@ class SmartBoosterUnlockScheduler with WidgetsBindingObserver {
     await prefs.setString(_prefsKey, time.toIso8601String());
   }
 }
-

@@ -8,7 +8,8 @@ import '../models/booster_tag_history.dart';
 /// Stores booster lesson interaction history in local preferences.
 class BoosterPathHistoryService {
   BoosterPathHistoryService._();
-  static final BoosterPathHistoryService instance = BoosterPathHistoryService._();
+  static final BoosterPathHistoryService instance =
+      BoosterPathHistoryService._();
 
   static const String _prefsKey = 'booster_path_logs';
 
@@ -32,8 +33,7 @@ class BoosterPathHistoryService {
           _logs = [
             for (final e in data)
               if (e is Map)
-                BoosterPathLogEntry.fromJson(
-                    Map<String, dynamic>.from(e))
+                BoosterPathLogEntry.fromJson(Map<String, dynamic>.from(e))
           ];
           _logs.sort((a, b) => b.shownAt.compareTo(a.shownAt));
         }
@@ -108,8 +108,7 @@ class BoosterPathHistoryService {
       } else {
         map[e.tag] = hist.copyWith(
           shownCount: hist.shownCount + 1,
-          completedCount:
-              hist.completedCount + (e.completedAt != null ? 1 : 0),
+          completedCount: hist.completedCount + (e.completedAt != null ? 1 : 0),
           lastInteraction: e.completedAt ?? e.shownAt,
         );
       }

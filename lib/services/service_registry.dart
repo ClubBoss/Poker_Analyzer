@@ -1,4 +1,3 @@
-
 /// Centralized registry for application services.
 ///
 /// Services are registered and looked up by their runtime type. Attempts to

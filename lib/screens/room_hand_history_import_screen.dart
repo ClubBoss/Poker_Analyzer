@@ -149,9 +149,10 @@ class _RoomHandHistoryImportScreenState
                 children: [
                   for (final tag in tags)
                     Chip(
-                      label: Text(tag, style: const TextStyle(color: Colors.white)),
-                      backgroundColor:
-                          Colors.primaries[tag.hashCode % Colors.primaries.length],
+                      label: Text(tag,
+                          style: const TextStyle(color: Colors.white)),
+                      backgroundColor: Colors
+                          .primaries[tag.hashCode % Colors.primaries.length],
                       onDeleted: () => setStateDialog(() => tags.remove(tag)),
                     ),
                 ],
@@ -358,7 +359,8 @@ class _RoomHandHistoryImportScreenState
             },
             itemBuilder: (_) => const [
               PopupMenuItem(value: 'select_all', child: Text('Select all')),
-              PopupMenuItem(value: 'clear_selection', child: Text('Clear selection')),
+              PopupMenuItem(
+                  value: 'clear_selection', child: Text('Clear selection')),
             ],
           )
         ],
@@ -379,7 +381,8 @@ class _RoomHandHistoryImportScreenState
                       ),
                       const SizedBox(width: 8),
                       PopupMenuButton<String>(
-                        icon: const Icon(Icons.label_outline, color: Colors.white),
+                        icon: const Icon(Icons.label_outline,
+                            color: Colors.white),
                         onSelected: (value) async {
                           if (value.startsWith('add:')) {
                             final tag = value.substring(4);
@@ -389,11 +392,18 @@ class _RoomHandHistoryImportScreenState
                                 context: context,
                                 builder: (context) => AlertDialog(
                                   backgroundColor: AppColors.cardBackground,
-                                  title: const Text('New Tag', style: TextStyle(color: Colors.white)),
-                                  content: TextField(controller: c, autofocus: true),
+                                  title: const Text('New Tag',
+                                      style: TextStyle(color: Colors.white)),
+                                  content:
+                                      TextField(controller: c, autofocus: true),
                                   actions: [
-                                    TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-                                    TextButton(onPressed: () => Navigator.pop(context, c.text.trim()), child: const Text('OK')),
+                                    TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('Cancel')),
+                                    TextButton(
+                                        onPressed: () => Navigator.pop(
+                                            context, c.text.trim()),
+                                        child: const Text('OK')),
                                   ],
                                 ),
                               );
@@ -412,15 +422,18 @@ class _RoomHandHistoryImportScreenState
                         itemBuilder: (_) => [
                           const PopupMenuItem<String>(
                             enabled: false,
-                            child: Text('Add Tag', style: TextStyle(fontWeight: FontWeight.bold)),
+                            child: Text('Add Tag',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
                           ),
                           for (final t in (_allTags.toList()..sort()))
                             PopupMenuItem(value: 'add:$t', child: Text(t)),
-                          const PopupMenuItem(value: 'add:__new__', child: Text('New…')),
+                          const PopupMenuItem(
+                              value: 'add:__new__', child: Text('New…')),
                           const PopupMenuDivider(),
                           const PopupMenuItem<String>(
                             enabled: false,
-                            child: Text('Remove Tag', style: TextStyle(fontWeight: FontWeight.bold)),
+                            child: Text('Remove Tag',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
                           ),
                           for (final t in (_allTags.toList()..sort()))
                             PopupMenuItem(value: 'remove:$t', child: Text(t)),
@@ -471,8 +484,8 @@ class _RoomHandHistoryImportScreenState
                         backgroundColor: Colors
                             .primaries[tag.hashCode % Colors.primaries.length]
                             .withValues(alpha: 0.3),
-                        selectedColor:
-                            Colors.primaries[tag.hashCode % Colors.primaries.length],
+                        selectedColor: Colors
+                            .primaries[tag.hashCode % Colors.primaries.length],
                         onSelected: (_) => setState(() => _tagFilter = tag),
                       ),
                       const SizedBox(width: 8),
@@ -541,39 +554,57 @@ class _RoomHandHistoryImportScreenState
                                       ),
                                     ),
                                     title: Text(h.name,
-                                        style: const TextStyle(color: Colors.white)),
+                                        style: const TextStyle(
+                                            color: Colors.white)),
                                     subtitle: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Text('${h.heroPosition} • ${h.numberOfPlayers}p',
-                                            style: const TextStyle(color: Colors.white70)),
+                                        Text(
+                                            '${h.heroPosition} • ${h.numberOfPlayers}p',
+                                            style: const TextStyle(
+                                                color: Colors.white70)),
                                         Builder(builder: (_) {
-                                          final hero = h.playerCards.length > h.heroIndex
-                                              ? h.playerCards[h.heroIndex]
-                                                  .map((c) => c.toString())
-                                                  .join(' ')
-                                              : '';
-                                          final board = h.boardCards.map((c) => c.toString()).join(' ');
-                                          if (hero.isEmpty && board.isEmpty) return const SizedBox.shrink();
-                                          final text = hero.isEmpty ? board : '$hero  $board';
+                                          final hero =
+                                              h.playerCards.length > h.heroIndex
+                                                  ? h.playerCards[h.heroIndex]
+                                                      .map((c) => c.toString())
+                                                      .join(' ')
+                                                  : '';
+                                          final board = h.boardCards
+                                              .map((c) => c.toString())
+                                              .join(' ');
+                                          if (hero.isEmpty && board.isEmpty)
+                                            return const SizedBox.shrink();
+                                          final text = hero.isEmpty
+                                              ? board
+                                              : '$hero  $board';
                                           return Padding(
-                                            padding: const EdgeInsets.only(top: 2),
+                                            padding:
+                                                const EdgeInsets.only(top: 2),
                                             child: Text(text,
-                                                style: const TextStyle(color: Colors.white70)),
+                                                style: const TextStyle(
+                                                    color: Colors.white70)),
                                           );
                                         }),
                                         if (h.tags.isNotEmpty)
                                           Padding(
-                                            padding: const EdgeInsets.only(top: 4),
+                                            padding:
+                                                const EdgeInsets.only(top: 4),
                                             child: Wrap(
                                               spacing: 4,
                                               children: [
                                                 for (final t in h.tags)
                                                   Chip(
                                                     label: Text(t,
-                                                        style: const TextStyle(color: Colors.white)),
-                                                    backgroundColor: Colors.primaries[
-                                                        t.hashCode % Colors.primaries.length],
+                                                        style: const TextStyle(
+                                                            color:
+                                                                Colors.white)),
+                                                    backgroundColor:
+                                                        Colors.primaries[
+                                                            t.hashCode %
+                                                                Colors.primaries
+                                                                    .length],
                                                   )
                                               ],
                                             ),
@@ -592,7 +623,8 @@ class _RoomHandHistoryImportScreenState
                                             onPressed: () => _preview(h),
                                           ),
                                           IconButton(
-                                            icon: const Text('🏷️', style: TextStyle(fontSize: 20)),
+                                            icon: const Text('🏷️',
+                                                style: TextStyle(fontSize: 20)),
                                             onPressed: () => _editTags(h),
                                           ),
                                           IconButton(

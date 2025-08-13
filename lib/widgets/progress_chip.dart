@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 class ProgressChip extends StatelessWidget {
   final double pct;
   const ProgressChip(this.pct, {super.key});

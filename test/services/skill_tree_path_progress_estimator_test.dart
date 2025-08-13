@@ -33,7 +33,8 @@ void main() {
 
   const builder = SkillTreeBuilderService();
 
-  SkillTreeNodeModel node(String id, {List<String>? prereqs}) => SkillTreeNodeModel(
+  SkillTreeNodeModel node(String id, {List<String>? prereqs}) =>
+      SkillTreeNodeModel(
         id: id,
         title: id,
         category: 'T',
@@ -70,4 +71,3 @@ void main() {
     expect(await estimator.getProgressPercent('T'), 67);
   });
 }
-

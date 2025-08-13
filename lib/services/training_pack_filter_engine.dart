@@ -41,7 +41,9 @@ class TrainingPackFilterEngine {
           if (a != null && a.isNotEmpty && a != audience) continue;
         }
         if (reqTags.isNotEmpty) {
-          final tplTags = <String>{for (final t in tpl.tags) t.trim().toLowerCase()};
+          final tplTags = <String>{
+            for (final t in tpl.tags) t.trim().toLowerCase()
+          };
           if (!reqTags.every(tplTags.contains)) continue;
         }
         list.add(tpl);

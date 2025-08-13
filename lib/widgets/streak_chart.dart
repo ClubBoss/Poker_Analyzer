@@ -16,7 +16,8 @@ class StreakChart extends StatelessWidget {
     final hands = {for (final e in stats.handsDaily(30)) e.key: e.value};
     final mistakes = {for (final e in stats.mistakesDaily(30)) e.key: e.value};
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day).subtract(const Duration(days: 29));
+    final start = DateTime(now.year, now.month, now.day)
+        .subtract(const Duration(days: 29));
     final days = [for (var i = 0; i < 30; i++) start.add(Duration(days: i))];
     int maxHands = 0;
     for (final d in days) {
@@ -77,7 +78,8 @@ class StreakChart extends StatelessWidget {
               const BadgeIcon(Icons.local_fire_department, size: 20),
               const SizedBox(width: 8),
               Text('Streak: ${stats.currentStreak}',
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  style: const TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold)),
             ],
           ),
         ),
@@ -108,10 +110,14 @@ class StreakChart extends StatelessWidget {
                     const FlLine(color: Colors.white24, strokeWidth: 1),
               ),
               titlesData: const FlTitlesData(
-                rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                rightTitles:
+                    AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                topTitles:
+                    AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                leftTitles:
+                    AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                bottomTitles:
+                    AxisTitles(sideTitles: SideTitles(showTitles: false)),
               ),
               borderData: FlBorderData(show: false),
               barGroups: groups,

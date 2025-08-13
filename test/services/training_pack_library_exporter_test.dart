@@ -51,4 +51,3 @@ void main() {
     await dir.delete(recursive: true);
   });
 }
-

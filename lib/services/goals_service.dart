@@ -92,12 +92,11 @@ class GoalsService extends ChangeNotifier {
     return null;
   }
 
-  Goal? get dailyGoal =>
-      _dailyGoalIndex != null &&
-              _dailyGoalIndex! >= 0 &&
-              _dailyGoalIndex! < _goals.length
-          ? _goals[_dailyGoalIndex!]
-          : null;
+  Goal? get dailyGoal => _dailyGoalIndex != null &&
+          _dailyGoalIndex! >= 0 &&
+          _dailyGoalIndex! < _goals.length
+      ? _goals[_dailyGoalIndex!]
+      : null;
   int? get dailyGoalIndex => _dailyGoalIndex;
 
   DateTime? get lastIncrementTime => _lastIncrementTime;
@@ -161,8 +160,7 @@ class GoalsService extends ChangeNotifier {
     _hasSevenDayGoalUnlocked = state.hasSevenDayGoalUnlocked;
     _dailyGoalIndex = state.dailyGoalIndex;
     _dailyGoalDate = state.dailyGoalDate;
-    final completedGoals =
-        _goals.where((g) => g.progress >= g.target).length;
+    final completedGoals = _goals.where((g) => g.progress >= g.target).length;
     int drillMaster = 0;
     if (_drillResults.length >= 5) {
       final last = _drillResults.reversed.take(5).toList();
@@ -229,7 +227,8 @@ class GoalsService extends ChangeNotifier {
   bool _isSameDay(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month && a.day == b.day;
 
-  Future<void> setProgress(int index, int progress, {BuildContext? context}) async {
+  Future<void> setProgress(int index, int progress,
+      {BuildContext? context}) async {
     if (index < 0 || index >= _goals.length) return;
     final goal = _goals[index];
     final time = DateTime.now();
@@ -333,8 +332,7 @@ class GoalsService extends ChangeNotifier {
       correctHands: correctHands,
       streakDays: streakDays,
       goalCompleted: goalCompleted,
-      completedGoals:
-          _goals.where((g) => g.progress >= g.target).length,
+      completedGoals: _goals.where((g) => g.progress >= g.target).length,
       totalGoals: _goals.length,
     );
     if (changed) notifyListeners();
@@ -388,13 +386,11 @@ class GoalsService extends ChangeNotifier {
 
   Future<bool> hasWeeklyStreak() async {
     final history = await getDailySpotHistory();
-    final set = {
-      for (final d in history) DateTime(d.year, d.month, d.day)
-    };
+    final set = {for (final d in history) DateTime(d.year, d.month, d.day)};
     final now = DateTime.now();
     for (int i = 0; i < 7; i++) {
-      final day = DateTime(now.year, now.month, now.day)
-          .subtract(Duration(days: i));
+      final day =
+          DateTime(now.year, now.month, now.day).subtract(Duration(days: i));
       if (!set.contains(day)) return false;
     }
     return true;

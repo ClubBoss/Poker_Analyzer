@@ -14,7 +14,8 @@ class AutogenPipelineSessionTrackerService {
   static AutogenPipelineSessionTrackerService get instance => _instance;
 
   final Map<String, List<AutoGenStepStatus>> _sessionSteps = {};
-  final Map<String, StreamController<List<AutoGenStepStatus>>> _controllers = {};
+  final Map<String, StreamController<List<AutoGenStepStatus>>> _controllers =
+      {};
 
   Stream<List<AutoGenStepStatus>> watchSession(String sessionId) {
     final controller = _controllers.putIfAbsent(

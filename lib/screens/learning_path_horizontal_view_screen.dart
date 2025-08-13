@@ -114,8 +114,8 @@ class _LearningPathHorizontalViewScreenState
                         !isCurrent &&
                         nodeIndex > currentIndex &&
                         currentIndex >= 0;
-                    final pack =
-                        _packs[node.trainingPackTemplateId ?? node.dynamicPackId];
+                    final pack = _packs[
+                        node.trainingPackTemplateId ?? node.dynamicPackId];
                     final key = GlobalKey();
                     return Padding(
                       padding: const EdgeInsets.only(right: 12),
@@ -130,8 +130,8 @@ class _LearningPathHorizontalViewScreenState
                           isBlocked: isBlocked,
                           onTap: () async {
                             if (isBlocked) {
-                              final hint = await const
-                                  SkillTreeNodeDetailUnlockHintService()
+                              final hint =
+                                  await const SkillTreeNodeDetailUnlockHintService()
                                       .getHint(node.id);
                               if (hint != null) {
                                 PathNodeUnlockHintOverlay.show(
@@ -173,4 +173,3 @@ class _LearningPathHorizontalViewScreenState
     );
   }
 }
-

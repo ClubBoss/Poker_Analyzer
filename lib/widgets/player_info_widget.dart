@@ -14,44 +14,60 @@ class PlayerInfoWidget extends StatelessWidget {
   final int stack;
   final String tag;
   final List<CardModel> cards;
+
   /// Last action taken by the player ('fold', 'call', 'bet', 'raise', 'check').
   final String? lastAction;
   final bool isActive;
   final bool isFolded;
   final bool isHero;
   final bool isOpponent;
+
   /// Reveal hole cards with a flip animation when true.
   final bool revealCards;
   final String playerTypeIcon;
+
   /// Text label describing the player's type.
   final String? playerTypeLabel;
+
   /// Simplified position label shown as a badge.
   final String? positionLabel;
+
   /// Shows 'SB' or 'BB' badge when the player is in the blinds.
   final String? blindLabel;
+
   /// Whether to show an indicator that this player made the last action.
   final bool showLastIndicator;
   final VoidCallback? onTap;
   final VoidCallback? onDoubleTap;
   final VoidCallback? onLongPress;
+
   /// Called when the edit icon is tapped.
   final VoidCallback? onEdit;
+
   /// Called when the stack value has been edited and confirmed.
   final ValueChanged<int>? onStackTap;
+
   /// Called when the remove icon is tapped.
   final VoidCallback? onRemove;
+
   /// Called when the active timer finishes.
   final VoidCallback? onTimeExpired;
+
   /// Called when a card slot is tapped. The index corresponds to 0 or 1.
   final void Function(int index)? onCardTap;
+
   /// Amount invested by the player on the current street.
   final int streetInvestment;
+
   /// Last bet amount placed by the player on the current street.
   final int currentBet;
+
   /// Remaining stack after subtracting investments.
   final int? remainingStack;
+
   /// Disables the active timer when true.
   final bool timersDisabled;
+
   /// True when the player has no stack left after an all-in.
   final bool isBust;
 
@@ -143,7 +159,8 @@ class PlayerInfoWidget extends StatelessWidget {
         color: Colors.black.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-            color: borderColor ?? Colors.white24, width: borderColor != null ? 2 : 1),
+            color: borderColor ?? Colors.white24,
+            width: borderColor != null ? 2 : 1),
         boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 2)],
       ),
       child: Column(
@@ -163,7 +180,8 @@ class PlayerInfoWidget extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 4),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                     decoration: BoxDecoration(
                       color: Colors.grey[700],
                       borderRadius: BorderRadius.circular(6),
@@ -178,7 +196,8 @@ class PlayerInfoWidget extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 4),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                     decoration: BoxDecoration(
                       color: Colors.grey[700],
                       borderRadius: BorderRadius.circular(6),
@@ -193,7 +212,8 @@ class PlayerInfoWidget extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 4),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                     decoration: BoxDecoration(
                       color: Colors.grey[700],
                       borderRadius: BorderRadius.circular(6),
@@ -224,16 +244,14 @@ class PlayerInfoWidget extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 2),
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                 decoration: BoxDecoration(
                   color: Colors.grey[700],
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
                   positionLabel!,
-                  style:
-                      const TextStyle(color: Colors.white, fontSize: 10),
+                  style: const TextStyle(color: Colors.white, fontSize: 10),
                 ),
               ),
             ),
@@ -252,7 +270,8 @@ class PlayerInfoWidget extends StatelessWidget {
                     width: 22,
                     height: 30,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: card == null ? 0.3 : 1),
+                      color: Colors.white
+                          .withValues(alpha: card == null ? 0.3 : 1),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     alignment: Alignment.center,
@@ -285,16 +304,14 @@ class PlayerInfoWidget extends StatelessWidget {
               alignment: Alignment.centerRight,
               child: Container(
                 margin: const EdgeInsets.only(top: 4),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                 decoration: BoxDecoration(
                   color: Colors.greenAccent.withValues(alpha: 0.8),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
                   '💰 ${_format(currentBet)}',
-                  style:
-                      const TextStyle(color: Colors.black, fontSize: 10),
+                  style: const TextStyle(color: Colors.black, fontSize: 10),
                 ),
               ),
             ),
@@ -340,7 +357,9 @@ class PlayerInfoWidget extends StatelessWidget {
                         controller: controller,
                         autofocus: true,
                         keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
                           filled: true,
@@ -375,11 +394,11 @@ class PlayerInfoWidget extends StatelessWidget {
                 onStackTap!(result);
               }
             },
-          child: PlayerStackValue(
-            stack: stack,
-            scale: 0.8,
-            isBust: isBust,
-          ),
+            child: PlayerStackValue(
+              stack: stack,
+              scale: 0.8,
+              isBust: isBust,
+            ),
           ),
           if (tag.isNotEmpty) ...[
             const SizedBox(height: 4),
@@ -396,49 +415,49 @@ class PlayerInfoWidget extends StatelessWidget {
             ),
           ],
           Padding(
-          padding: const EdgeInsets.only(top: 2),
-          child: Column(
-            children: [
-              if (playerTypeIcon.isNotEmpty)
-                Text(playerTypeIcon, style: const TextStyle(fontSize: 14)),
-              if (playerTypeLabel != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 2),
-                  child: Text(
-                    playerTypeLabel!,
-                    style: const TextStyle(color: Colors.white60, fontSize: 10),
+            padding: const EdgeInsets.only(top: 2),
+            child: Column(
+              children: [
+                if (playerTypeIcon.isNotEmpty)
+                  Text(playerTypeIcon, style: const TextStyle(fontSize: 14)),
+                if (playerTypeLabel != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Text(
+                      playerTypeLabel!,
+                      style:
+                          const TextStyle(color: Colors.white60, fontSize: 10),
+                    ),
                   ),
-                ),
-            ],
-          ),
-        ),
-        if (actionColor != null && actionLabel != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-              decoration: BoxDecoration(
-                color: actionColor,
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                actionLabel,
-                style: const TextStyle(color: Colors.white, fontSize: 10),
-              ),
+              ],
             ),
           ),
+          if (actionColor != null && actionLabel != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                decoration: BoxDecoration(
+                  color: actionColor,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  actionLabel,
+                  style: const TextStyle(color: Colors.white, fontSize: 10),
+                ),
+              ),
+            ),
         ],
       ),
     );
 
     Widget result = box;
 
-
-
     if (isFolded) {
       result = ClipRect(
         child: ColorFiltered(
-          colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+          colorFilter:
+              const ColorFilter.mode(Colors.grey, BlendMode.saturation),
           child: Opacity(opacity: 0.4, child: result),
         ),
       );
@@ -469,7 +488,10 @@ class PlayerInfoWidget extends StatelessWidget {
     }
 
     Widget withBadge = clickable;
-    if (playerTypeIcon.isNotEmpty || onRemove != null || onEdit != null || showLastIndicator) {
+    if (playerTypeIcon.isNotEmpty ||
+        onRemove != null ||
+        onEdit != null ||
+        showLastIndicator) {
       final children = <Widget>[clickable];
       if (playerTypeIcon.isNotEmpty) {
         children.add(Positioned(

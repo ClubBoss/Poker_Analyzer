@@ -43,7 +43,8 @@ class StackBarWidget extends StatelessWidget {
     final double progress = (stack! / maxStack).clamp(0.0, 1.0);
     final color = _barColor(stack!);
 
-    final progressAnim = progressAnimation ?? AlwaysStoppedAnimation<double>(progress);
+    final progressAnim =
+        progressAnimation ?? AlwaysStoppedAnimation<double>(progress);
     final glowAnim = glowAnimation ?? const AlwaysStoppedAnimation<double>(0.0);
 
     return SizedBox(

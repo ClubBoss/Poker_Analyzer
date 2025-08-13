@@ -37,8 +37,7 @@ class AutogenPackErrorClassifierService {
 
   /// Returns the [AutogenPackErrorType] for a rejected [pack] and optional
   /// generation [error]. Logs the classification for later inspection.
-  AutogenPackErrorType classify(
-      TrainingPackTemplateV2 pack, Exception? error) {
+  AutogenPackErrorType classify(TrainingPackTemplateV2 pack, Exception? error) {
     final msg = error?.toString().toLowerCase() ?? '';
     AutogenPackErrorType type;
     if (msg.contains('duplicate')) {
@@ -61,7 +60,8 @@ class AutogenPackErrorClassifierService {
       type: type,
       message: error?.toString() ?? '',
     );
-    final list = List<AutogenPackErrorEntry>.from(_recentErrors.value)..add(entry);
+    final list = List<AutogenPackErrorEntry>.from(_recentErrors.value)
+      ..add(entry);
     if (list.length > _maxErrors) {
       list.removeRange(0, list.length - _maxErrors);
     }
@@ -71,8 +71,8 @@ class AutogenPackErrorClassifierService {
   }
 
   /// Returns a listenable of recent classified errors.
-  static ValueListenable<List<AutogenPackErrorEntry>> recentErrorsListenable() =>
-      _recentErrors;
+  static ValueListenable<List<AutogenPackErrorEntry>>
+      recentErrorsListenable() => _recentErrors;
 
   /// Returns the current recent error list.
   static List<AutogenPackErrorEntry> getRecentErrors() =>

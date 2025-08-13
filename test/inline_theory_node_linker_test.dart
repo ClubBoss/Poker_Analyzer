@@ -12,7 +12,9 @@ void main() {
     );
     final result = LineGraphResult(
       heroPosition: 'btn',
-      streets: {'flop': [node]},
+      streets: {
+        'flop': [node]
+      },
       tags: ['flopCbet'],
     );
 
@@ -38,7 +40,9 @@ void main() {
     );
     final result = LineGraphResult(
       heroPosition: 'bb',
-      streets: {'river': [node]},
+      streets: {
+        'river': [node]
+      },
       tags: ['riverCall'],
     );
 

@@ -38,7 +38,9 @@ class EvaluationQueueImportExportService {
 
   ActionEvaluationRequest _decodeRequest(Map<String, dynamic> json) {
     final map = Map<String, dynamic>.from(json);
-    if (map['id'] == null || map['id'] is! String || (map['id'] as String).isEmpty) {
+    if (map['id'] == null ||
+        map['id'] is! String ||
+        (map['id'] as String).isEmpty) {
       map['id'] = const Uuid().v4();
     }
     return ActionEvaluationRequest.fromJson(map);
@@ -86,9 +88,12 @@ class EvaluationQueueImportExportService {
       if (data == null || data.text == null) return;
       final decoded = jsonDecode(data.text!);
       if (decoded is Map &&
-          decoded.containsKey('pending') && decoded['pending'] is List &&
-          decoded.containsKey('failed') && decoded['failed'] is List &&
-          decoded.containsKey('completed') && decoded['completed'] is List) {
+          decoded.containsKey('pending') &&
+          decoded['pending'] is List &&
+          decoded.containsKey('failed') &&
+          decoded['failed'] is List &&
+          decoded.containsKey('completed') &&
+          decoded['completed'] is List) {
         final queues = _decodeQueues(decoded);
         await queueService.queueLock.synchronized(() {
           queueService.pending
@@ -297,7 +302,8 @@ class EvaluationQueueImportExportService {
         continue;
       }
       try {
-        final decoded = await debugSnapshotService!.readSnapshotFile(File(path));
+        final decoded =
+            await debugSnapshotService!.readSnapshotFile(File(path));
         final queues = _decodeQueues(decoded);
         importedPending.addAll(queues['pending']!);
         importedFailed.addAll(queues['failed']!);
@@ -312,8 +318,9 @@ class EvaluationQueueImportExportService {
     queueService.failed.addAll(importedFailed);
     queueService.completed.addAll(importedCompleted);
     await _persist();
-    final total =
-        importedPending.length + importedFailed.length + importedCompleted.length;
+    final total = importedPending.length +
+        importedFailed.length +
+        importedCompleted.length;
     final msg = skipped == 0
         ? 'Imported $total evaluations from ${result.files.length} files'
         : 'Imported $total evaluations, $skipped files skipped';

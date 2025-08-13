@@ -26,7 +26,8 @@ class TrainingMilestoneEngine {
     if (_triggered != null) return _triggered!;
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getStringList(_prefsKey);
-    _triggered = raw?.map((e) => int.tryParse(e) ?? 0).where((e) => e > 0).toSet() ?? {};
+    _triggered =
+        raw?.map((e) => int.tryParse(e) ?? 0).where((e) => e > 0).toSet() ?? {};
     return _triggered!;
   }
 

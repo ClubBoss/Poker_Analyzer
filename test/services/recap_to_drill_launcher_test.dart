@@ -39,9 +39,11 @@ void main() {
       launcher: launcher,
     );
 
-    await controller.showManually(const TheoryMiniLessonNode(id: 'l1', title: 't', content: ''));
+    await controller.showManually(
+        const TheoryMiniLessonNode(id: 'l1', title: 't', content: ''));
     await tester.pump();
-    await service.launch(const TheoryMiniLessonNode(id: 'l1', title: 't', content: ''));
+    await service
+        .launch(const TheoryMiniLessonNode(id: 'l1', title: 't', content: ''));
 
     expect(launcher.count, 1);
     expect(launcher.tags, ['recap', 'reinforcement']);
@@ -67,9 +69,11 @@ void main() {
       persist: false,
     );
 
-    await controller.showManually(const TheoryMiniLessonNode(id: 'l1', title: 't', content: ''));
+    await controller.showManually(
+        const TheoryMiniLessonNode(id: 'l1', title: 't', content: ''));
     await tester.pump();
-    await service.launch(const TheoryMiniLessonNode(id: 'l1', title: 't', content: ''));
+    await service
+        .launch(const TheoryMiniLessonNode(id: 'l1', title: 't', content: ''));
 
     expect(launcher.count, 0);
     expect(launcher.tags, isNull);

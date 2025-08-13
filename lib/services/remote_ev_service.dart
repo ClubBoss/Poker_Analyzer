@@ -12,7 +12,8 @@ class RemoteEvService {
   static Box<dynamic>? _box;
 
   const RemoteEvService({String? endpoint, http.Client? client})
-      : endpoint = endpoint ?? EvaluationSettingsService.instance.remoteEndpoint,
+      : endpoint =
+            endpoint ?? EvaluationSettingsService.instance.remoteEndpoint,
         client = client ?? const http.Client();
 
   Future<void> _openBox() async {
@@ -30,7 +31,9 @@ class RemoteEvService {
     final key = '${spot.id}|$anteBb';
     final cached = (_box!.get(key) as Map?)?.cast<String, dynamic>();
     final ts = DateTime.tryParse(cached?['ts'] as String? ?? '');
-    if (cached != null && cached['ev'] != null && ts != null &&
+    if (cached != null &&
+        cached['ev'] != null &&
+        ts != null &&
         DateTime.now().difference(ts) < _cacheAge) {
       _apply(spot, ev: (cached['ev'] as num).toDouble());
       return;
@@ -58,7 +61,9 @@ class RemoteEvService {
     final key = '${spot.id}|$anteBb';
     final cached = (_box!.get(key) as Map?)?.cast<String, dynamic>();
     final ts = DateTime.tryParse(cached?['ts'] as String? ?? '');
-    if (cached != null && cached['icm'] != null && ts != null &&
+    if (cached != null &&
+        cached['icm'] != null &&
+        ts != null &&
         DateTime.now().difference(ts) < _cacheAge) {
       _apply(
         spot,
@@ -71,7 +76,8 @@ class RemoteEvService {
       final res = await client.post(
         Uri.parse(endpoint),
         headers: const {'Content-Type': 'application/json'},
-        body: jsonEncode({'hand': spot.hand.toJson(), 'anteBb': anteBb, 'icm': true}),
+        body: jsonEncode(
+            {'hand': spot.hand.toJson(), 'anteBb': anteBb, 'icm': true}),
       );
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body) as Map<String, dynamic>;

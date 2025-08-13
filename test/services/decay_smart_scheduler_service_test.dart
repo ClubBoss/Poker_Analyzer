@@ -10,7 +10,8 @@ class _FakeRetention extends DecayTagRetentionTrackerService {
   final Map<String, double> scores;
   const _FakeRetention(this.scores);
   @override
-  Future<Map<String, double>> getAllDecayScores({DateTime? now}) async => scores;
+  Future<Map<String, double>> getAllDecayScores({DateTime? now}) async =>
+      scores;
 }
 
 class _FakeTuner extends BoosterAdaptationTuner {

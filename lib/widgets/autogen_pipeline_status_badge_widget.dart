@@ -54,4 +54,3 @@ class AutogenPipelineStatusBadgeWidget extends StatelessWidget {
     }
   }
 }
-

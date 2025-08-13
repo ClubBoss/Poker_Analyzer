@@ -28,8 +28,10 @@ class _FakeLibrary implements MiniLessonLibraryService {
     }
     return result;
   }
+
   @override
-  List<TheoryMiniLessonNode> getByTags(Set<String> tags) => findByTags(tags.toList());
+  List<TheoryMiniLessonNode> getByTags(Set<String> tags) =>
+      findByTags(tags.toList());
 }
 
 void main() {
@@ -42,15 +44,24 @@ void main() {
   test('computeDecayScores factors recency and coverage', () async {
     final now = DateTime(2024, 1, 10);
     SharedPreferences.setMockInitialValues({
-      'mini_lesson_progress_l1': jsonEncode({'lastViewed': now.subtract(const Duration(days: 1)).toIso8601String()}),
-      'mini_lesson_progress_l2': jsonEncode({'lastViewed': now.subtract(const Duration(days: 5)).toIso8601String()}),
-      'mini_lesson_progress_l3': jsonEncode({'lastViewed': now.subtract(const Duration(days: 2)).toIso8601String()}),
+      'mini_lesson_progress_l1': jsonEncode({
+        'lastViewed': now.subtract(const Duration(days: 1)).toIso8601String()
+      }),
+      'mini_lesson_progress_l2': jsonEncode({
+        'lastViewed': now.subtract(const Duration(days: 5)).toIso8601String()
+      }),
+      'mini_lesson_progress_l3': jsonEncode({
+        'lastViewed': now.subtract(const Duration(days: 2)).toIso8601String()
+      }),
     });
 
     final lessons = [
-      const TheoryMiniLessonNode(id: 'l1', title: 'A', content: '', tags: ['a']),
-      const TheoryMiniLessonNode(id: 'l2', title: 'B', content: '', tags: ['a']),
-      const TheoryMiniLessonNode(id: 'l3', title: 'C', content: '', tags: ['b']),
+      const TheoryMiniLessonNode(
+          id: 'l1', title: 'A', content: '', tags: ['a']),
+      const TheoryMiniLessonNode(
+          id: 'l2', title: 'B', content: '', tags: ['a']),
+      const TheoryMiniLessonNode(
+          id: 'l3', title: 'C', content: '', tags: ['b']),
     ];
 
     final library = _FakeLibrary(lessons);

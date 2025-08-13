@@ -10,7 +10,8 @@ class TrainingPackPreviewPanel extends StatefulWidget {
   const TrainingPackPreviewPanel({super.key, required this.tpl});
 
   @override
-  State<TrainingPackPreviewPanel> createState() => _TrainingPackPreviewPanelState();
+  State<TrainingPackPreviewPanel> createState() =>
+      _TrainingPackPreviewPanelState();
 }
 
 class _TrainingPackPreviewPanelState extends State<TrainingPackPreviewPanel> {
@@ -19,7 +20,8 @@ class _TrainingPackPreviewPanelState extends State<TrainingPackPreviewPanel> {
   @override
   void initState() {
     super.initState();
-    _future = Future(() => TrainingPackPreviewService().getPreviewSpots(widget.tpl));
+    _future =
+        Future(() => TrainingPackPreviewService().getPreviewSpots(widget.tpl));
   }
 
   @override
@@ -43,7 +45,8 @@ class _TrainingPackPreviewPanelState extends State<TrainingPackPreviewPanel> {
           children: [
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text('Превью', style: TextStyle(fontWeight: FontWeight.bold)),
+              child:
+                  Text('Превью', style: TextStyle(fontWeight: FontWeight.bold)),
             ),
             const SizedBox(height: 8),
             SizedBox(
@@ -53,7 +56,8 @@ class _TrainingPackPreviewPanelState extends State<TrainingPackPreviewPanel> {
                 scrollDirection: Axis.horizontal,
                 itemCount: spots.length,
                 separatorBuilder: (context, index) => const SizedBox(width: 8),
-                itemBuilder: (context, index) => TrainingPackPreviewCard(spot: spots[index]),
+                itemBuilder: (context, index) =>
+                    TrainingPackPreviewCard(spot: spots[index]),
               ),
             ),
           ],

@@ -72,10 +72,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
   String _levelLabel(TrainingPackLevel l) =>
       l.name[0].toUpperCase() + l.name.substring(1);
 
-  String _goalText(TrainingPackTemplateV2 pack) =>
-      pack.goal.isNotEmpty
-          ? pack.goal
-          : (pack.meta['goal'] as String? ?? '').trim();
+  String _goalText(TrainingPackTemplateV2 pack) => pack.goal.isNotEmpty
+      ? pack.goal
+      : (pack.meta['goal'] as String? ?? '').trim();
 
   @override
   void initState() {
@@ -89,7 +88,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
     final sortVal = prefs.getInt(_sortPrefKey);
-    if (sortVal != null && sortVal >= 0 && sortVal < _SortOption.values.length) {
+    if (sortVal != null &&
+        sortVal >= 0 &&
+        sortVal < _SortOption.values.length) {
       _sort = _SortOption.values[sortVal];
     }
     List<TrainingPackTemplateV2> list;
@@ -156,7 +157,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
     }
     final favIds = PackFavoriteService.instance.allFavorites.toSet();
     final baseTemplates = _favoritesOnly
-        ? [for (final p in _packs) if (favIds.contains(p.id)) p]
+        ? [
+            for (final p in _packs)
+              if (favIds.contains(p.id)) p
+          ]
         : _packs;
 
     final visible = const PackFilterService().filter(
@@ -263,8 +267,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                       children: [
                         for (final theme in _themes)
                           Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 4),
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
                             child: ChoiceChip(
                               label: Text(theme),
                               selected: _selectedThemes.contains(theme),
@@ -408,8 +411,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                       value: _levelFilter,
                       hint: const Text('Level'),
                       items: [
-                        const DropdownMenuItem(
-                            value: null, child: Text('All')),
+                        const DropdownMenuItem(value: null, child: Text('All')),
                         for (final l in TrainingPackLevel.values)
                           DropdownMenuItem(
                               value: l, child: Text(_levelLabel(l))),
@@ -425,8 +427,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   activeColor: Colors.amber,
                   contentPadding: EdgeInsets.zero,
                   controlAffinity: ListTileControlAffinity.leading,
-                  onChanged: (v) =>
-                      setState(() => _favoritesOnly = v ?? false),
+                  onChanged: (v) => setState(() => _favoritesOnly = v ?? false),
                 ),
                 const SizedBox(height: 8),
                 Row(
@@ -552,13 +553,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
                                           horizontal: 6, vertical: 2),
                                       decoration: BoxDecoration(
                                         color: Colors.grey[800],
-                                        borderRadius:
-                                            BorderRadius.circular(8),
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Text(
                                         tag,
                                         style: const TextStyle(
-                                            fontSize: 11, color: Colors.white70),
+                                            fontSize: 11,
+                                            color: Colors.white70),
                                       ),
                                     ),
                                   if (pack.tags.length > 3)
@@ -567,13 +568,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
                                           horizontal: 6, vertical: 2),
                                       decoration: BoxDecoration(
                                         color: Colors.grey[800],
-                                        borderRadius:
-                                            BorderRadius.circular(8),
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Text(
                                         '+${pack.tags.length - 3}',
                                         style: const TextStyle(
-                                            fontSize: 11, color: Colors.white70),
+                                            fontSize: 11,
+                                            color: Colors.white70),
                                       ),
                                     ),
                                 ],

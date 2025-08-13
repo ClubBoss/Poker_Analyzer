@@ -8,7 +8,8 @@ import 'session_streak_tracker_service.dart';
 class SessionStreakOverlayPromptService {
   Future<void> run(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
-    final streak = await SessionStreakTrackerService.instance.getCurrentStreak();
+    final streak =
+        await SessionStreakTrackerService.instance.getCurrentStreak();
     if (streak <= 0) return;
     if (prefs.getBool('reward_10') ?? false) return;
     final overlay = Overlay.of(context);

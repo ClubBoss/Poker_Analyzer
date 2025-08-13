@@ -26,9 +26,7 @@ class TrainingBoosterLauncher {
       spots: spots,
       spotCount: spots.length,
     );
-    await ctx
-        .read<TrainingSessionService>()
-        .startSession(tpl, persist: false);
+    await ctx.read<TrainingSessionService>().startSession(tpl, persist: false);
     await Navigator.push(
       ctx,
       MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),

@@ -35,7 +35,8 @@ void main() {
   test('decays old misses', () async {
     final scheduler = BoosterRecallScheduler.instance;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('booster_recall_scheduler', '{"b1": {"c": 1, "t": "2020-01-01T00:00:00.000Z"}}');
+    await prefs.setString('booster_recall_scheduler',
+        '{"b1": {"c": 1, "t": "2020-01-01T00:00:00.000Z"}}');
     scheduler.resetForTest();
     final due = await scheduler.getDueBoosters('s1');
     expect(due, isEmpty);

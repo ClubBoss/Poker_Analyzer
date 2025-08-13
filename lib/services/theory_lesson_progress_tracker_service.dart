@@ -7,7 +7,8 @@ import 'mini_lesson_progress_tracker.dart';
 class TheoryLessonProgressState {
   final int completed;
   final int total;
-  const TheoryLessonProgressState({required this.completed, required this.total});
+  const TheoryLessonProgressState(
+      {required this.completed, required this.total});
 }
 
 /// Provides reactive updates for overall theory lesson progress.

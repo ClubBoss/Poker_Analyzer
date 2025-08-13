@@ -89,8 +89,12 @@ class GraphPathTemplateParser {
         byId[id] = node;
       } else if (type == 'stage') {
         final stageId = m['stageId']?.toString() ?? id;
-        final nextIds = <String>[for (final v in (m['next'] as List? ?? [])) v.toString()];
-        final dependsOn = <String>[for (final v in (m['dependsOn'] as List? ?? [])) v.toString()];
+        final nextIds = <String>[
+          for (final v in (m['next'] as List? ?? [])) v.toString()
+        ];
+        final dependsOn = <String>[
+          for (final v in (m['dependsOn'] as List? ?? [])) v.toString()
+        ];
         final stageType = _parseStageType(m['stageType']);
         final recovered = m['recoveredFromMistake'] as bool? ?? false;
         final StageNode node = stageType == StageType.theory
@@ -109,7 +113,9 @@ class GraphPathTemplateParser {
         nodes.add(node);
         byId[id] = node;
       } else if (type == 'theory') {
-        final nextIds = <String>[for (final v in (m['next'] as List? ?? [])) v.toString()];
+        final nextIds = <String>[
+          for (final v in (m['next'] as List? ?? [])) v.toString()
+        ];
         final node = TheoryLessonNode(
           id: id,
           refId: m['refId']?.toString(),
@@ -121,8 +127,12 @@ class GraphPathTemplateParser {
         nodes.add(node);
         byId[id] = node;
       } else if (type == 'mini') {
-        final nextIds = <String>[for (final v in (m['next'] as List? ?? [])) v.toString()];
-        final tags = <String>[for (final t in (m['tags'] as List? ?? [])) t.toString()];
+        final nextIds = <String>[
+          for (final v in (m['next'] as List? ?? [])) v.toString()
+        ];
+        final tags = <String>[
+          for (final t in (m['tags'] as List? ?? [])) t.toString()
+        ];
         final node = TheoryMiniLessonNode(
           id: id,
           refId: m['refId']?.toString(),
@@ -141,7 +151,8 @@ class GraphPathTemplateParser {
       if (node is LearningBranchNode) {
         for (final target in node.branches.values) {
           if (!ids.contains(target)) {
-            warnings.add('Unknown node id $target referenced from branch ${node.id}');
+            warnings.add(
+                'Unknown node id $target referenced from branch ${node.id}');
           }
         }
       } else if (node is StageNode ||
@@ -155,13 +166,15 @@ class GraphPathTemplateParser {
         if (node is StageNode) {
           for (final d in node.dependsOn) {
             if (!ids.contains(d)) {
-              warnings.add('Unknown node id $d referenced from dependsOn of ${node.id}');
+              warnings.add(
+                  'Unknown node id $d referenced from dependsOn of ${node.id}');
             }
           }
         }
         for (final n in nextIds) {
           if (!ids.contains(n)) {
-            warnings.add('Unknown node id $n referenced from nextIds of ${node.id}');
+            warnings.add(
+                'Unknown node id $n referenced from nextIds of ${node.id}');
           }
         }
       }

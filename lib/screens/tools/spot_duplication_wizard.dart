@@ -116,9 +116,8 @@ class _SpotDuplicationWizardState extends State<SpotDuplicationWizard> {
         final idx = _pack!.spots.indexOf(spot);
         _pack!.spots[idx] = spot.copyWith(
           tags: tags,
-          explanation: explCtrl.text.trim().isEmpty
-              ? null
-              : explCtrl.text.trim(),
+          explanation:
+              explCtrl.text.trim().isEmpty ? null : explCtrl.text.trim(),
           hand: hand,
         );
       });

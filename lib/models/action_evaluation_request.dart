@@ -28,4 +28,3 @@ class ActionEvaluationRequest {
       _$ActionEvaluationRequestFromJson(json);
   Map<String, dynamic> toJson() => _$ActionEvaluationRequestToJson(this);
 }
-

@@ -51,7 +51,10 @@ class _SmartSuggestionBannerState extends State<SmartSuggestionBanner> {
     final dateStr = prefs.getString(_dateKey);
     if (dateStr != null) {
       final d = DateTime.tryParse(dateStr);
-      if (d != null && d.year == now.year && d.month == now.month && d.day == now.day) {
+      if (d != null &&
+          d.year == now.year &&
+          d.month == now.month &&
+          d.day == now.day) {
         final id = prefs.getString(_packKey);
         final tag = prefs.getString(_tagKey);
         if (id != null && tag != null) {
@@ -81,7 +84,8 @@ class _SmartSuggestionBannerState extends State<SmartSuggestionBanner> {
     }
     await prefs.setString(_packKey, tpl.id);
     await prefs.setString(_tagKey, tag);
-    await prefs.setString(_dateKey, DateTime(now.year, now.month, now.day).toIso8601String());
+    await prefs.setString(
+        _dateKey, DateTime(now.year, now.month, now.day).toIso8601String());
     if (mounted) {
       setState(() {
         _pack = tpl;
@@ -111,7 +115,8 @@ class _SmartSuggestionBannerState extends State<SmartSuggestionBanner> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loading || _pack == null || _tag == null) return const SizedBox.shrink();
+    if (_loading || _pack == null || _tag == null)
+      return const SizedBox.shrink();
     if (widget.selectedTags.contains(_tag)) return const SizedBox.shrink();
     final accent = Theme.of(context).colorScheme.secondary;
     return Container(
@@ -159,4 +164,3 @@ class _SmartSuggestionBannerState extends State<SmartSuggestionBanner> {
     );
   }
 }
-

@@ -21,8 +21,8 @@ class WeeklyPlannerBoosterEngine {
     Future<LearningPathTemplateV2> Function()? getPath,
   })  : _library = library ?? PackLibraryService.instance,
         _theoryLibrary = theoryLibrary ?? TheoryPackLibraryService.instance,
-        _getStageIds =
-            getStageIds ?? LearningPathPlannerEngine.instance.getPlannedStageIds,
+        _getStageIds = getStageIds ??
+            LearningPathPlannerEngine.instance.getPlannedStageIds,
         _getPath = getPath ?? LearningPathOrchestrator.instance.resolve;
 
   /// Returns a map from stage id to recommended booster pack ids.

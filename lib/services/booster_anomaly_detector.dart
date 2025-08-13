@@ -64,7 +64,10 @@ class BoosterAnomalyDetector {
           evGroups.putIfAbsent(pos, () => []).add(ev);
         }
         final exp = (s.explanation ?? '').trim().toLowerCase();
-        if (exp.isEmpty || exp == 'play standard' || exp == 'standard' || exp == 'n/a') {
+        if (exp.isEmpty ||
+            exp == 'play standard' ||
+            exp == 'standard' ||
+            exp == 'n/a') {
           weakExp.add('${p.id}:${s.id}');
         }
       }
@@ -81,7 +84,8 @@ class BoosterAnomalyDetector {
         maxVal = max(maxVal, v);
       }
       if ((maxVal - minVal).abs() > 0.6) {
-        outliers.add('${e.key}:${minVal.toStringAsFixed(2)}-${maxVal.toStringAsFixed(2)}');
+        outliers.add(
+            '${e.key}:${minVal.toStringAsFixed(2)}-${maxVal.toStringAsFixed(2)}');
       }
     }
 

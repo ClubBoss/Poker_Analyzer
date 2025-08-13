@@ -17,7 +17,8 @@ class LessonGoalStreakEngine {
     if (last == null) return 0;
     final today = DateTime.now();
     final lastDay = DateTime(last.year, last.month, last.day);
-    final diff = DateTime(today.year, today.month, today.day).difference(lastDay).inDays;
+    final diff =
+        DateTime(today.year, today.month, today.day).difference(lastDay).inDays;
     if (diff > 1) {
       await prefs.setInt(_countKey, 0);
       return 0;

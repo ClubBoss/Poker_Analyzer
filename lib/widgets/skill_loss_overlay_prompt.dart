@@ -87,15 +87,15 @@ class _SkillLossOverlayPromptState extends State<SkillLossOverlayPrompt>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color:
-                            accent.withValues(alpha: 0.5 + 0.5 * _controller.value),
+                        color: accent.withValues(
+                            alpha: 0.5 + 0.5 * _controller.value),
                         width: 8,
                       ),
                     ),
                     child: child,
                   ),
-                  child: const Icon(Icons.warning,
-                      color: Colors.white, size: 48),
+                  child:
+                      const Icon(Icons.warning, color: Colors.white, size: 48),
                 ),
                 const SizedBox(height: 24),
                 const Text(

@@ -21,9 +21,9 @@ class LearningEvent {
       };
 
   factory LearningEvent.fromJson(Map<String, dynamic> json) => LearningEvent(
-        date: DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now(),
-        type: LearningEventType.values.firstWhere(
-            (e) => e.name == json['type'],
+        date:
+            DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now(),
+        type: LearningEventType.values.firstWhere((e) => e.name == json['type'],
             orElse: () => LearningEventType.trackCompleted),
         label: json['label'] as String? ?? '',
         meta: json['meta'] is Map

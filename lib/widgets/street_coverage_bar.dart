@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 class StreetCoverageBar extends StatelessWidget {
   final List<int> totals;
   final List<int> covered;
-  const StreetCoverageBar({super.key, required this.totals, required this.covered});
+  const StreetCoverageBar(
+      {super.key, required this.totals, required this.covered});
 
   Color _color(int index) {
     final total = totals[index];
@@ -26,6 +27,7 @@ class StreetCoverageBar extends StatelessWidget {
           if (totalAll == 0) return width / 4;
           return width * total / totalAll;
         }
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -47,7 +49,8 @@ class StreetCoverageBar extends StatelessWidget {
                     child: Text(
                       l,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 8, color: Colors.white54),
+                      style:
+                          const TextStyle(fontSize: 8, color: Colors.white54),
                     ),
                   ),
               ],

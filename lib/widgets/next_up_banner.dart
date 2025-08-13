@@ -18,8 +18,7 @@ class NextUpBanner extends StatelessWidget {
         if (stageId == null) return const SizedBox.shrink();
         LearningPathStageModel? stage;
         try {
-          stage = controller.path?.stages
-              .firstWhere((s) => s.id == stageId);
+          stage = controller.path?.stages.firstWhere((s) => s.id == stageId);
         } catch (_) {
           stage = null;
         }
@@ -47,4 +46,3 @@ class NextUpBanner extends StatelessWidget {
     );
   }
 }
-

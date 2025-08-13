@@ -15,7 +15,6 @@ import 'tag_insight_screen.dart';
 class AccuracyMistakeOverviewScreen extends StatelessWidget {
   const AccuracyMistakeOverviewScreen({super.key});
 
-
   @override
   Widget build(BuildContext context) {
     final hands = context.watch<SavedHandManagerService>().hands;
@@ -23,9 +22,7 @@ class AccuracyMistakeOverviewScreen extends StatelessWidget {
         context.read<EvaluationExecutorService>().summarizeHands(hands);
 
     final Map<String, int> tagTotals = {};
-    final Map<String, int> streetTotals = {
-      for (final s in kStreetNames) s: 0
-    };
+    final Map<String, int> streetTotals = {for (final s in kStreetNames) s: 0};
     final Map<String, int> positionTotals = {};
 
     for (final h in hands) {

@@ -17,7 +17,8 @@ class PackValidationEngine {
     final ids = <String>{};
     for (final s in pack.spots) {
       if (!ids.add(s.id)) errors.add('duplicate_id:${s.id}');
-      if (s.priority < 0 || s.priority > 100) warnings.add('bad_priority:${s.id}');
+      if (s.priority < 0 || s.priority > 100)
+        warnings.add('bad_priority:${s.id}');
       final ev = s.heroEv;
       if (ev != null && (ev.isNaN || ev < -100 || ev > 100)) {
         warnings.add('bad_ev:${s.id}');

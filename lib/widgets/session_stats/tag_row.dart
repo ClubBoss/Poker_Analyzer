@@ -40,7 +40,8 @@ class SessionTagRow extends StatelessWidget {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(child: Text(tag, style: style.copyWith(fontSize: 14 * scale))),
+          Expanded(
+              child: Text(tag, style: style.copyWith(fontSize: 14 * scale))),
           Text(count.toString(), style: style.copyWith(fontSize: 14 * scale)),
         ],
       );

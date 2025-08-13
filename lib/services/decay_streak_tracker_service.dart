@@ -26,7 +26,8 @@ class DecayStreakTrackerService {
     final lastStr = prefs.getString(_lastCheckKey);
     final last = lastStr != null ? DateTime.tryParse(lastStr) : null;
     if (last != null &&
-        today.difference(DateTime(last.year, last.month, last.day)).inDays == 0) {
+        today.difference(DateTime(last.year, last.month, last.day)).inDays ==
+            0) {
       return;
     }
 

@@ -11,7 +11,8 @@ class GoalProgressEntry {
 
   factory GoalProgressEntry.fromJson(Map<String, dynamic> json) =>
       GoalProgressEntry(
-        date: DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now(),
+        date:
+            DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now(),
         progress: json['progress'] as int? ?? 0,
       );
 }

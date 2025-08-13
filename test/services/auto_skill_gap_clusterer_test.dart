@@ -23,6 +23,7 @@ void main() {
     expect(clusters.length, 2);
     final main = clusters.firstWhere((c) => c.tags.contains('a'));
     expect(main.tags, containsAll(['a', 'b', 'c']));
-    expect(clusters.any((c) => c.tags.length == 1 && c.tags.first == 'd'), isTrue);
+    expect(
+        clusters.any((c) => c.tags.length == 1 && c.tags.first == 'd'), isTrue);
   });
 }

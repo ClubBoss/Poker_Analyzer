@@ -26,7 +26,10 @@ Future<TrainingPackSpot> _spotFromText(String text) async {
   final hero = hand.playerCards[hand.heroIndex]
       .map((c) => '${c.rank}${c.suit}')
       .join(' ');
-  final acts = <ActionEntry>[for (final a in hand.actions) if (a.street == 0) a];
+  final acts = <ActionEntry>[
+    for (final a in hand.actions)
+      if (a.street == 0) a
+  ];
   final stacks = <String, double>{
     for (int i = 0; i < hand.numberOfPlayers; i++)
       '$i': (hand.stackSizes[i] ?? 0).toDouble()

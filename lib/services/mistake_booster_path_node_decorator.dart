@@ -39,7 +39,7 @@ class MistakeBoosterPathNodeDecorator {
       );
     }
     return _clone(node);
-      return node;
+    return node;
   }
 
   LearningPathNode _clone(LearningPathNode node) {

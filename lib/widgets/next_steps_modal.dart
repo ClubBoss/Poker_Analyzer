@@ -113,7 +113,8 @@ class _NextStepsModalState extends State<NextStepsModal> {
               child: Center(child: CircularProgressIndicator()),
             );
           }
-          final data = snapshot.data ?? _NextStepsData(paths: const [], booster: null);
+          final data =
+              snapshot.data ?? _NextStepsData(paths: const [], booster: null);
           return SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -153,4 +154,3 @@ class _NextStepsModalState extends State<NextStepsModal> {
     );
   }
 }
-

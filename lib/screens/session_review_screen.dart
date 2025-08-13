@@ -4,13 +4,8 @@ import '../models/error_entry.dart';
 import 'retry_training_screen.dart';
 import '../widgets/sync_status_widget.dart';
 
-const _filterOptions = [
-  'All',
-  'Aggressive',
-  'Passive',
-  'Sizing',
-  'Other'
-];
+const _filterOptions = ['All', 'Aggressive', 'Passive', 'Sizing', 'Other'];
+
 class SessionReviewScreen extends StatefulWidget {
   final List<ErrorEntry> errors;
 
@@ -72,15 +67,14 @@ class _SessionReviewScreenState extends State<SessionReviewScreen> {
   Widget build(BuildContext context) {
     final filtered = _selectedType == 'All'
         ? widget.errors
-        : widget.errors
-            .where((e) => e.errorType == _selectedType)
-            .toList();
+        : widget.errors.where((e) => e.errorType == _selectedType).toList();
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Ошибки сессии'),
         centerTitle: true,
-        actions: [SyncStatusIcon.of(context), 
+        actions: [
+          SyncStatusIcon.of(context),
           PopupMenuButton<String>(
             onSelected: (v) {
               setState(() {
@@ -117,7 +111,8 @@ class _SessionReviewScreenState extends State<SessionReviewScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => RetryTrainingScreen(errors: filtered),
+                            builder: (_) =>
+                                RetryTrainingScreen(errors: filtered),
                           ),
                         );
                       },
@@ -176,7 +171,8 @@ class _SessionReviewScreenState extends State<SessionReviewScreen> {
                         child: Stack(
                           children: [
                             Padding(
-                              padding: const EdgeInsets.fromLTRB(12, 24, 12, 12),
+                              padding:
+                                  const EdgeInsets.fromLTRB(12, 24, 12, 12),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -190,7 +186,8 @@ class _SessionReviewScreenState extends State<SessionReviewScreen> {
                                   const SizedBox(height: 4),
                                   Text(
                                     e.situationDescription,
-                                    style: const TextStyle(color: Colors.white70),
+                                    style:
+                                        const TextStyle(color: Colors.white70),
                                   ),
                                   const SizedBox(height: 8),
                                   Text(

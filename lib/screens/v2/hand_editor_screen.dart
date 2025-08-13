@@ -33,8 +33,7 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
     _controller.update();
     final err = _controller.validate();
     if (err != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(err)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
       return;
     }
     widget.spot.editedAt = DateTime.now();

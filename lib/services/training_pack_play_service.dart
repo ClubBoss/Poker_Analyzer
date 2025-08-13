@@ -18,7 +18,8 @@ class TrainingPackPlayService {
     TrainingPackVariant variant, {
     bool forceReload = false,
   }) async {
-    final key = '${tpl.id}_${variant.gameType.name}_${variant.position.name}_${variant.rangeId ?? 'default'}';
+    final key =
+        '${tpl.id}_${variant.gameType.name}_${variant.position.name}_${variant.rangeId ?? 'default'}';
     if (forceReload && _lastKey != null) {
       _builder.clearCache(tpl, variant);
     }

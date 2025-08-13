@@ -57,11 +57,12 @@ class SavedHandExportService {
         pageFormat: PdfPageFormat.a4,
         build: (context) {
           return [
-            for (final hand in _hands) ...ExportUtils.handPdfWidgets(
-              hand,
-              regularFont,
-              boldFont,
-            ),
+            for (final hand in _hands)
+              ...ExportUtils.handPdfWidgets(
+                hand,
+                regularFont,
+                boldFont,
+              ),
           ];
         },
       ),
@@ -298,7 +299,6 @@ class SavedHandExportService {
   Future<String?> exportAllSessionsCsv(Map<int, String> notes) async {
     if (_hands.isEmpty) return null;
 
-
     final grouped = _stats.handsBySession().entries.toList()
       ..sort((a, b) => a.key.compareTo(b.key));
     final rows = <List<dynamic>>[
@@ -332,7 +332,6 @@ class SavedHandExportService {
       List<int> sessionIds, Map<int, String> notes) async {
     if (sessionIds.isEmpty) return null;
 
-
     final grouped = _stats.handsBySession();
     final ids = List<int>.from(sessionIds)..sort();
     final rows = <List<dynamic>>[
@@ -363,9 +362,9 @@ class SavedHandExportService {
     return file.path;
   }
 
-  Future<String?> exportSessionHandsMarkdown(int sessionId, {String? note}) async {
-    final sessionHands =
-        _hands.where((h) => h.sessionId == sessionId).toList();
+  Future<String?> exportSessionHandsMarkdown(int sessionId,
+      {String? note}) async {
+    final sessionHands = _hands.where((h) => h.sessionId == sessionId).toList();
     if (sessionHands.isEmpty) return null;
     final buffer = StringBuffer();
     if (note != null && note.trim().isNotEmpty) {
@@ -382,8 +381,7 @@ class SavedHandExportService {
   }
 
   Future<String?> exportSessionHandsPdf(int sessionId, {String? note}) async {
-    final sessionHands =
-        _hands.where((h) => h.sessionId == sessionId).toList();
+    final sessionHands = _hands.where((h) => h.sessionId == sessionId).toList();
     if (sessionHands.isEmpty) return null;
 
     final regularFont = await pw.PdfGoogleFonts.robotoRegular();
@@ -455,4 +453,3 @@ class SavedHandExportService {
     return out.path;
   }
 }
-

@@ -10,7 +10,8 @@ class SkillTreeTrackMapScreen extends StatefulWidget {
   const SkillTreeTrackMapScreen({super.key});
 
   @override
-  State<SkillTreeTrackMapScreen> createState() => _SkillTreeTrackMapScreenState();
+  State<SkillTreeTrackMapScreen> createState() =>
+      _SkillTreeTrackMapScreenState();
 }
 
 class _SkillTreeTrackMapScreenState extends State<SkillTreeTrackMapScreen> {
@@ -29,7 +30,8 @@ class _SkillTreeTrackMapScreenState extends State<SkillTreeTrackMapScreen> {
     _columns = isLandscape(context)
         ? (isCompactWidth(context) ? 2 : 3)
         : (isCompactWidth(context) ? 1 : 2);
-    _future = SkillTreeLearningMapLayoutService().buildLayout(columns: _columns);
+    _future =
+        SkillTreeLearningMapLayoutService().buildLayout(columns: _columns);
   }
 
   void _openTrack(TrackProgressEntry entry) {
@@ -80,7 +82,8 @@ class _SkillTreeTrackMapScreenState extends State<SkillTreeTrackMapScreen> {
                                   Text(
                                     title,
                                     style: const TextStyle(
-                                        fontSize: 14, fontWeight: FontWeight.bold),
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold),
                                   ),
                                   const SizedBox(height: 4),
                                   ClipRRect(
@@ -88,7 +91,8 @@ class _SkillTreeTrackMapScreenState extends State<SkillTreeTrackMapScreen> {
                                     child: LinearProgressIndicator(
                                       value: pct,
                                       backgroundColor: Colors.white24,
-                                      valueColor: AlwaysStoppedAnimation<Color>(accent),
+                                      valueColor:
+                                          AlwaysStoppedAnimation<Color>(accent),
                                       minHeight: 6,
                                     ),
                                   ),
@@ -100,7 +104,8 @@ class _SkillTreeTrackMapScreenState extends State<SkillTreeTrackMapScreen> {
                                       if (entry.isCompleted)
                                         const Padding(
                                           padding: EdgeInsets.only(left: 4),
-                                          child: Icon(Icons.check, color: Colors.green, size: 16),
+                                          child: Icon(Icons.check,
+                                              color: Colors.green, size: 16),
                                         ),
                                     ],
                                   ),

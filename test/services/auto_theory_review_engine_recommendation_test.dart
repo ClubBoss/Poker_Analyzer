@@ -14,7 +14,8 @@ class _FakeMasteryService extends TagMasteryService {
       : super(logs: SessionLogService(sessions: TrainingSessionService()));
 
   @override
-  Future<Map<String, double>> computeMastery({bool force = false}) async => _map;
+  Future<Map<String, double>> computeMastery({bool force = false}) async =>
+      _map;
 }
 
 class _FakePolicy extends TheoryBoosterReinjectionPolicy {
@@ -54,8 +55,10 @@ void main() {
 
   test('getRecommendedBoosters filters and sorts boosters', () async {
     final library = _FakeLibrary({
-      'b1': TheoryPackModel(id: 'b1', title: 'B1', sections: const [], tags: const ['icm']),
-      'b2': TheoryPackModel(id: 'b2', title: 'B2', sections: const [], tags: const ['cbet']),
+      'b1': TheoryPackModel(
+          id: 'b1', title: 'B1', sections: const [], tags: const ['icm']),
+      'b2': TheoryPackModel(
+          id: 'b2', title: 'B2', sections: const [], tags: const ['cbet']),
     });
     final mastery = _FakeMasteryService({'icm': 0.3, 'cbet': 0.8});
     final policy = _FakePolicy(true);

@@ -22,7 +22,8 @@ void main() {
 
   test('getStatus returns draft otherwise', () {
     final pack = TheoryPackModel(id: 't3', title: 'T', sections: [
-      const TheorySectionModel(title: 's', text: 'few words here', type: 'info'),
+      const TheorySectionModel(
+          title: 's', text: 'few words here', type: 'info'),
     ]);
     expect(engine.getStatus(pack), ReviewStatus.draft);
   });

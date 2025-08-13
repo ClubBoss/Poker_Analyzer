@@ -74,7 +74,8 @@ class SmartPinnedRecommenderService {
       // High decay urgency for any associated tag.
       for (final t in tags) {
         final days = await _retention.getDecayScore(t);
-        if (days > 30) { // Consider tags older than 30 days as high decay
+        if (days > 30) {
+          // Consider tags older than 30 days as high decay
           score += 10;
           break;
         }
@@ -82,8 +83,8 @@ class SmartPinnedRecommenderService {
 
       // Not seen recently
       if (item.lastSeen == null ||
-          DateTime.now()
-                  .difference(DateTime.fromMillisecondsSinceEpoch(item.lastSeen!)) >
+          DateTime.now().difference(
+                  DateTime.fromMillisecondsSinceEpoch(item.lastSeen!)) >
               const Duration(days: 7)) {
         score += 3;
       }
@@ -102,4 +103,3 @@ class SmartPinnedRecommenderService {
     return best;
   }
 }
-

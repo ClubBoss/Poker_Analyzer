@@ -25,8 +25,11 @@ class SessionPinService extends ChangeNotifier {
     if (cloud != null) {
       final remote = cloud!.getCached('pinned_sessions');
       if (remote != null) {
-        final remoteAt = DateTime.tryParse(remote['updatedAt'] as String? ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
-        final localAt = DateTime.tryParse(prefs.getString(_timeKey) ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
+        final remoteAt =
+            DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
+                DateTime.fromMillisecondsSinceEpoch(0);
+        final localAt = DateTime.tryParse(prefs.getString(_timeKey) ?? '') ??
+            DateTime.fromMillisecondsSinceEpoch(0);
         if (remoteAt.isAfter(localAt)) {
           final list = remote['ids'];
           if (list is List) {

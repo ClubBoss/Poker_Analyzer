@@ -63,7 +63,8 @@ class _TopMistakeDrillCardState extends State<TopMistakeDrillCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Топ ошибки',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 SizedBox(height: 4),
                 Text('Восстановите EV',
                     style: TextStyle(color: Colors.white70)),
@@ -73,7 +74,8 @@ class _TopMistakeDrillCardState extends State<TopMistakeDrillCard> {
           const SizedBox(width: 8),
           ElevatedButton(
             onPressed: () async {
-              final tpl = await TrainingPackService.createTopMistakeDrill(context);
+              final tpl =
+                  await TrainingPackService.createTopMistakeDrill(context);
               if (tpl == null) return;
               await context.read<TrainingSessionService>().startSession(tpl);
               await _mark();

@@ -32,6 +32,7 @@ class _FakeProgress extends TrainingPathProgressServiceV2 {
   Future<void> markStageCompleted(String stageId, double accuracy) async {
     completed.add(stageId);
   }
+
   @override
   bool isStageUnlocked(String stageId) => true;
   @override

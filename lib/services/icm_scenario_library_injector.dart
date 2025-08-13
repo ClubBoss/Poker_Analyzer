@@ -102,7 +102,8 @@ class ICMScenarioLibraryInjector {
       if (raw is List) {
         for (final item in raw) {
           if (item is Map) {
-            scenarios.add(ICMScenario.fromJson(Map<String, dynamic>.from(item)));
+            scenarios
+                .add(ICMScenario.fromJson(Map<String, dynamic>.from(item)));
           }
         }
       } else if (raw is Map) {

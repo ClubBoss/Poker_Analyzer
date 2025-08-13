@@ -33,7 +33,9 @@ class DynamicBoardTaggerService {
     final connected = _isStraightDrawHeavy(board);
     final paired = _isPaired(board);
     if (hasFlushDraw || connected || paired) {
-      tags..add('wet')..add('dynamic');
+      tags
+        ..add('wet')
+        ..add('dynamic');
     }
     final isDry = !hasFlushDraw && !connected && !paired && uniqueSuits >= 3;
     if (isDry) tags.add('dry');
@@ -105,4 +107,3 @@ class DynamicBoardTaggerService {
     }
   }
 }
-

@@ -70,10 +70,11 @@ class _SavedHandEditorScreenState extends State<SavedHandEditorScreen> {
   }
 
   TrainingPackSpot _spotFromHand(SavedHand h) {
-    final hero = h.playerCards[h.heroIndex]
-        .map((c) => '${c.rank}${c.suit}').join(' ');
-    final actionsByStreet =
-        <int, List<ActionEntry>>{for (var s = 0; s < 4; s++) s: []};
+    final hero =
+        h.playerCards[h.heroIndex].map((c) => '${c.rank}${c.suit}').join(' ');
+    final actionsByStreet = <int, List<ActionEntry>>{
+      for (var s = 0; s < 4; s++) s: []
+    };
     for (final a in h.actions) {
       actionsByStreet[a.street]!.add(a);
     }
@@ -102,7 +103,9 @@ class _SavedHandEditorScreenState extends State<SavedHandEditorScreen> {
       for (int i = 0; i < widget.hand.numberOfPlayers; i++)
         i: int.tryParse(_stacks[i]?.text ?? '') ?? 0
     };
-    final cards = <List<CardModel>>[for (final l in widget.hand.playerCards) List<CardModel>.from(l)];
+    final cards = <List<CardModel>>[
+      for (final l in widget.hand.playerCards) List<CardModel>.from(l)
+    ];
     if (cards.length <= widget.hand.heroIndex) {
       cards.length = widget.hand.heroIndex + 1;
       while (cards.length <= widget.hand.heroIndex) {
@@ -117,13 +120,15 @@ class _SavedHandEditorScreenState extends State<SavedHandEditorScreen> {
       heroPosition: _position.label,
       stackSizes: stacks,
       playerCards: cards,
-      expectedAction: _expected.text.trim().isEmpty ? null : _expected.text.trim(),
+      expectedAction:
+          _expected.text.trim().isEmpty ? null : _expected.text.trim(),
     );
     final heroCards = hand.playerCards.length > hand.heroIndex
         ? hand.playerCards[hand.heroIndex]
         : <dynamic>[];
-    final complete =
-        heroCards.length >= 2 && hand.boardCards.isNotEmpty && actions.isNotEmpty;
+    final complete = heroCards.length >= 2 &&
+        hand.boardCards.isNotEmpty &&
+        actions.isNotEmpty;
     if (complete) {
       final spot = _spotFromHand(hand);
       await context
@@ -202,7 +207,8 @@ class _SavedHandEditorScreenState extends State<SavedHandEditorScreen> {
                   if (p != HeroPosition.unknown)
                     DropdownMenuItem(
                         value: p,
-                        child: Text(p.label, style: const TextStyle(color: Colors.white)))
+                        child: Text(p.label,
+                            style: const TextStyle(color: Colors.white)))
               ],
             ),
             const SizedBox(height: 16),
@@ -384,9 +390,9 @@ class _ActionRowState extends State<_ActionRow> {
           width: 80,
           child: TextField(
             controller: amount,
-            keyboardType:
-                const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(isDense: true, labelText: 'Amount'),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration:
+                const InputDecoration(isDense: true, labelText: 'Amount'),
             onChanged: (_) => _emit(),
           ),
         ),

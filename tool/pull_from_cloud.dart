@@ -22,7 +22,8 @@ Future<void> main(List<String> args) async {
   final docs = await service.listBundles();
   final items = <Map<String, dynamic>>[];
   for (final d in docs) {
-    final tsStr = d['lastGenerated'] as String? ?? d['createdAt'] as String? ?? '';
+    final tsStr =
+        d['lastGenerated'] as String? ?? d['createdAt'] as String? ?? '';
     final ts = DateTime.tryParse(tsStr);
     if (since != null && (ts == null || ts.isBefore(since))) continue;
     items.add(d);
@@ -39,7 +40,8 @@ Future<void> main(List<String> args) async {
       final path = p.join(dir.path, '$id.pka');
       final file = File(path);
       if (file.existsSync() && file.lengthSync() == bytes.length) {
-        stdout.writeln('[$index/${items.length}] ${p.basename(path)}  –  SKIP (up-to-date)');
+        stdout.writeln(
+            '[$index/${items.length}] ${p.basename(path)}  –  SKIP (up-to-date)');
         continue;
       }
       file.writeAsBytesSync(bytes);

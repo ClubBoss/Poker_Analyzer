@@ -34,8 +34,7 @@ class LearningPathStatsService {
 
     bool sectionReady(String stageId) {
       if (path.sections.isEmpty) return true;
-      final idx =
-          path.sections.indexWhere((s) => s.stageIds.contains(stageId));
+      final idx = path.sections.indexWhere((s) => s.stageIds.contains(stageId));
       if (idx <= 0) return true;
       final prev = path.sections[idx - 1];
       return prev.stageIds.every(completed.contains);
@@ -57,8 +56,7 @@ class LearningPathStatsService {
 
     final totalStages = path.stages.length;
     final finished = completed.length;
-    final percent =
-        totalStages == 0 ? 0.0 : finished / totalStages;
+    final percent = totalStages == 0 ? 0.0 : finished / totalStages;
 
     return LearningPathProgressStats(
       totalStages: totalStages,
@@ -69,4 +67,3 @@ class LearningPathStatsService {
     );
   }
 }
-

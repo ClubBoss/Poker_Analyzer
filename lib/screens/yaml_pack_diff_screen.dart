@@ -8,7 +8,8 @@ import '../core/training/export/training_pack_exporter_v2.dart';
 class YamlPackDiffScreen extends StatelessWidget {
   final TrainingPackTemplateV2 packA;
   final TrainingPackTemplateV2 packB;
-  const YamlPackDiffScreen({super.key, required this.packA, required this.packB});
+  const YamlPackDiffScreen(
+      {super.key, required this.packA, required this.packB});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +21,8 @@ class YamlPackDiffScreen extends StatelessWidget {
         .length;
     final tagsA = {...packA.tags};
     final tagsB = {...packB.tags};
-    final tagsDiff = tagsA.difference(tagsB).length + tagsB.difference(tagsA).length;
+    final tagsDiff =
+        tagsA.difference(tagsB).length + tagsB.difference(tagsA).length;
     final spotCountDiff = (packA.spotCount - packB.spotCount).abs();
     final diffColor = Colors.amber.withValues(alpha: .2);
     return Scaffold(
@@ -32,7 +34,8 @@ class YamlPackDiffScreen extends StatelessWidget {
             icon: const Icon(Icons.copy),
             onPressed: () {
               Clipboard.setData(ClipboardData(text: yamlA));
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied A')));
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(const SnackBar(content: Text('Copied A')));
             },
           ),
           IconButton(
@@ -40,7 +43,8 @@ class YamlPackDiffScreen extends StatelessWidget {
             icon: const Icon(Icons.copy),
             onPressed: () {
               Clipboard.setData(ClipboardData(text: yamlB));
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied B')));
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(const SnackBar(content: Text('Copied B')));
             },
           ),
         ],
@@ -73,7 +77,12 @@ class YamlPackDiffScreen extends StatelessWidget {
                   DataColumn(label: Text('Hand B')),
                 ],
                 rows: [
-                  for (var i = 0; i < (packA.spots.length > packB.spots.length ? packA.spots.length : packB.spots.length); i++)
+                  for (var i = 0;
+                      i <
+                          (packA.spots.length > packB.spots.length
+                              ? packA.spots.length
+                              : packB.spots.length);
+                      i++)
                     _buildRow(i, diffColor),
                 ],
               ),
@@ -99,14 +108,20 @@ class YamlPackDiffScreen extends StatelessWidget {
         DataCell(Text('${i + 1}')),
         DataCell(_diffBox(a?.id ?? '', idDiff, diffColor)),
         DataCell(_diffBox(b?.id ?? '', idDiff, diffColor)),
-        DataCell(_diffBox(a?.heroEv?.toStringAsFixed(2) ?? '-', evDiff, diffColor)),
-        DataCell(_diffBox(b?.heroEv?.toStringAsFixed(2) ?? '-', evDiff, diffColor)),
-        DataCell(_diffBox(a?.heroIcmEv?.toStringAsFixed(2) ?? '-', icmDiff, diffColor)),
-        DataCell(_diffBox(b?.heroIcmEv?.toStringAsFixed(2) ?? '-', icmDiff, diffColor)),
+        DataCell(
+            _diffBox(a?.heroEv?.toStringAsFixed(2) ?? '-', evDiff, diffColor)),
+        DataCell(
+            _diffBox(b?.heroEv?.toStringAsFixed(2) ?? '-', evDiff, diffColor)),
+        DataCell(_diffBox(
+            a?.heroIcmEv?.toStringAsFixed(2) ?? '-', icmDiff, diffColor)),
+        DataCell(_diffBox(
+            b?.heroIcmEv?.toStringAsFixed(2) ?? '-', icmDiff, diffColor)),
         DataCell(_diffBox(a?.note ?? '', noteDiff, diffColor)),
         DataCell(_diffBox(b?.note ?? '', noteDiff, diffColor)),
-        DataCell(_diffBox(a != null ? a.hand.position.label : '-', posDiff, diffColor)),
-        DataCell(_diffBox(b != null ? b.hand.position.label : '-', posDiff, diffColor)),
+        DataCell(_diffBox(
+            a != null ? a.hand.position.label : '-', posDiff, diffColor)),
+        DataCell(_diffBox(
+            b != null ? b.hand.position.label : '-', posDiff, diffColor)),
         DataCell(_diffBox(a?.hand.heroCards ?? '', handDiff, diffColor)),
         DataCell(_diffBox(b?.hand.heroCards ?? '', handDiff, diffColor)),
       ],

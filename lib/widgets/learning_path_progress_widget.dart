@@ -18,10 +18,12 @@ class LearningPathProgressWidget extends StatefulWidget {
   });
 
   @override
-  State<LearningPathProgressWidget> createState() => _LearningPathProgressWidgetState();
+  State<LearningPathProgressWidget> createState() =>
+      _LearningPathProgressWidgetState();
 }
 
-class _LearningPathProgressWidgetState extends State<LearningPathProgressWidget> {
+class _LearningPathProgressWidgetState
+    extends State<LearningPathProgressWidget> {
   late bool _showLocked;
 
   @override
@@ -73,7 +75,8 @@ class _LearningPathProgressWidgetState extends State<LearningPathProgressWidget>
             ),
           ),
           const SizedBox(height: 2),
-          Text('$pct%', style: const TextStyle(color: Colors.white70, fontSize: 12)),
+          Text('$pct%',
+              style: const TextStyle(color: Colors.white70, fontSize: 12)),
         ],
       ),
     );
@@ -110,7 +113,8 @@ class _LearningPathProgressWidgetState extends State<LearningPathProgressWidget>
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 2),
                     child: Text('• $t',
-                        style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                        style: const TextStyle(
+                            color: Colors.white70, fontSize: 12)),
                   ),
               ],
             ),
@@ -161,4 +165,3 @@ class _LearningPathProgressWidgetState extends State<LearningPathProgressWidget>
     );
   }
 }
-

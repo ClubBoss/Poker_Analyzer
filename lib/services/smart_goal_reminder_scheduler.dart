@@ -86,7 +86,8 @@ class SmartGoalReminderScheduler with WidgetsBindingObserver {
           continue;
         }
       }
-      await reminder.scheduleOneTimePush('📝 Цель "${g.title}" ждёт продолжения');
+      await reminder
+          .scheduleOneTimePush('📝 Цель "${g.title}" ждёт продолжения');
       log[g.id] = now.toIso8601String();
     }
 

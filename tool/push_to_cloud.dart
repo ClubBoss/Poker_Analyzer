@@ -24,9 +24,11 @@ Future<void> main(List<String> args) async {
     try {
       final uploaded = await service.uploadBundle(file);
       final status = uploaded ? '[OK]' : 'SKIP';
-      stdout.writeln('[${i + 1}/${files.length}] ${p.basename(file.path)}  –  $status');
+      stdout.writeln(
+          '[${i + 1}/${files.length}] ${p.basename(file.path)}  –  $status');
     } catch (_) {
-      stdout.writeln('[${i + 1}/${files.length}] ${p.basename(file.path)}  –  [ERROR]');
+      stdout.writeln(
+          '[${i + 1}/${files.length}] ${p.basename(file.path)}  –  [ERROR]');
     }
   }
 }

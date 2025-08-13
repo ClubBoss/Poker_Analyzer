@@ -69,6 +69,7 @@ class TheoryRecallOverlayScheduler with WidgetsBindingObserver {
           MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: lesson)),
         );
       }
+
       _entry = OverlayEntry(
         builder: (_) => TheoryRecallOverlayBanner(
           title: lesson.resolvedTitle,

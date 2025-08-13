@@ -72,8 +72,8 @@ class SkillTreeTrackHeaderBuilder {
                 ] else
                   const Padding(
                     padding: EdgeInsets.only(top: 4),
-                    child: Icon(Icons.check_circle,
-                        color: Colors.green, size: 16),
+                    child:
+                        Icon(Icons.check_circle, color: Colors.green, size: 16),
                   ),
               ],
             ),

@@ -69,7 +69,8 @@ class MiniLessonBoosterEngine {
         if (changed) {
           updated[i] = n is TheoryStageNode
               ? TheoryStageNode(id: n.id, nextIds: next, dependsOn: n.dependsOn)
-              : TrainingStageNode(id: n.id, nextIds: next, dependsOn: n.dependsOn);
+              : TrainingStageNode(
+                  id: n.id, nextIds: next, dependsOn: n.dependsOn);
         }
       } else if (n is TheoryLessonNode) {
         final next = List<String>.from(n.nextIds);

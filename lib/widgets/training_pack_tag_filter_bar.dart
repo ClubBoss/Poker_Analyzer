@@ -13,7 +13,8 @@ class TrainingPackTagFilterBar extends StatefulWidget {
   });
 
   @override
-  State<TrainingPackTagFilterBar> createState() => _TrainingPackTagFilterBarState();
+  State<TrainingPackTagFilterBar> createState() =>
+      _TrainingPackTagFilterBarState();
 }
 
 class _TrainingPackTagFilterBarState extends State<TrainingPackTagFilterBar> {

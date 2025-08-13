@@ -43,7 +43,11 @@ class NextStepEngine extends ChangeNotifier {
   bool _isMistake(SavedHand h) {
     final exp = h.expectedAction?.trim().toLowerCase();
     final gto = h.gtoAction?.trim().toLowerCase();
-    return exp != null && gto != null && exp.isNotEmpty && gto.isNotEmpty && exp != gto;
+    return exp != null &&
+        gto != null &&
+        exp.isNotEmpty &&
+        gto.isNotEmpty &&
+        exp != gto;
   }
 
   NextStepSuggestion? _compute() {
@@ -93,7 +97,8 @@ class NextStepEngine extends ChangeNotifier {
   void _update() {
     final next = _compute();
     if (next == null && _suggestion == null) return;
-    if (next == null || _suggestion == null ||
+    if (next == null ||
+        _suggestion == null ||
         next.title != _suggestion!.title ||
         next.message != _suggestion!.message) {
       _suggestion = next;

@@ -46,4 +46,3 @@ class SmartInboxDebugService extends ChangeNotifier {
     notifyListeners();
   }
 }
-

@@ -13,4 +13,3 @@ class MistakeHistoryEntry {
     required this.wasRecovered,
   });
 }
-

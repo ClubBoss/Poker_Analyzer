@@ -11,7 +11,8 @@ class SkillTreeTrackIntroScreen extends StatefulWidget {
   const SkillTreeTrackIntroScreen({super.key, required this.trackId});
 
   @override
-  State<SkillTreeTrackIntroScreen> createState() => _SkillTreeTrackIntroScreenState();
+  State<SkillTreeTrackIntroScreen> createState() =>
+      _SkillTreeTrackIntroScreenState();
 }
 
 class _SkillTreeTrackIntroScreenState extends State<SkillTreeTrackIntroScreen> {

@@ -13,7 +13,8 @@ class SkillTreeMilestoneOverlay extends StatefulWidget {
   });
 
   @override
-  State<SkillTreeMilestoneOverlay> createState() => _SkillTreeMilestoneOverlayState();
+  State<SkillTreeMilestoneOverlay> createState() =>
+      _SkillTreeMilestoneOverlayState();
 }
 
 class _SkillTreeMilestoneOverlayState extends State<SkillTreeMilestoneOverlay>
@@ -72,7 +73,8 @@ class _SkillTreeMilestoneOverlayState extends State<SkillTreeMilestoneOverlay>
 }
 
 /// Shows [SkillTreeMilestoneOverlay] above the current screen.
-Future<void> showSkillTreeMilestoneOverlay(BuildContext context, String message) {
+Future<void> showSkillTreeMilestoneOverlay(
+    BuildContext context, String message) {
   return showDialog(
     context: context,
     barrierDismissible: false,

@@ -78,4 +78,3 @@ class TrainingPackTemplateCompiler {
     return compileYamlsGrouped(yamls, theoryIndex: theoryIndex);
   }
 }
-

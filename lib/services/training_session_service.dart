@@ -212,9 +212,8 @@ class TrainingSessionService extends ChangeNotifier {
             ]);
           _sessionTags
             ..clear()
-            ..addAll([
-              for (final t in (data['tags'] as List? ?? [])) t.toString()
-            ]);
+            ..addAll(
+                [for (final t in (data['tags'] as List? ?? [])) t.toString()]);
           _preEvPct = (data['preEvPct'] as num?)?.toDouble() ?? 0;
           _preIcmPct = (data['preIcmPct'] as num?)?.toDouble() ?? 0;
           _evAverageAll = (data['evAverageAll'] as num?)?.toDouble() ?? 0;
@@ -373,14 +372,14 @@ class TrainingSessionService extends ChangeNotifier {
       unawaited(LearningPathProgressService.instance.markCustomPathStarted());
     }
     AppBootstrap.registry.get<TrainingSessionContextService>().start(
-      packId: template.id,
-      trainingType: 'standard',
-      includedTags: [
-        ...template.tags,
-        ...?sessionTags,
-      ],
-      source: source,
-    );
+          packId: template.id,
+          trainingType: 'standard',
+          includedTags: [
+            ...template.tags,
+            ...?sessionTags,
+          ],
+          source: source,
+        );
     _template = template;
     _sessionTags
       ..clear()
@@ -559,12 +558,12 @@ class TrainingSessionService extends ChangeNotifier {
     for (final tag in _template!.tags) {
       unawaited(TagGoalTrackerService.instance.logTraining(tag));
     }
-    unawaited(TrainingStreakTrackerService.instance.markTrainingCompletedToday());
+    unawaited(
+        TrainingStreakTrackerService.instance.markTrainingCompletedToday());
     unawaited(DailyStreakTrackerService.instance.markCompletedToday());
     unawaited(StreakRewardEngine.instance.checkAndTriggerRewards());
-    unawaited(context
-        .read<GiftDropService>()
-        .checkAndDropGift(context: context));
+    unawaited(
+        context.read<GiftDropService>().checkAndDropGift(context: context));
     unawaited(SessionStreakTrackerService.instance.markCompletedToday());
     unawaited(SessionStreakTrackerService.instance.checkAndTriggerRewards());
     unawaited(_clearIndex());
@@ -675,8 +674,7 @@ class TrainingSessionService extends ChangeNotifier {
         correct: correct,
         incorrect: total - correct,
       );
-      unawaited(
-          TrainingSessionFingerprintLoggerService().logSession(fp));
+      unawaited(TrainingSessionFingerprintLoggerService().logSession(fp));
       unawaited(RecapOpportunityDetector.instance.notifyDrillCompleted());
       final ctx = navigatorKey.currentContext;
       if (ctx != null) {
@@ -694,13 +692,11 @@ class TrainingSessionService extends ChangeNotifier {
             requiredAccuracy: _template!.requiredAccuracy,
             minHands: _template!.minHands,
           ));
-          final correctHands =
-              _session!.results.values.where((e) => e).length;
+          final correctHands = _session!.results.values.where((e) => e).length;
           final tasks = [
             for (final a in _actions)
               (() {
-                final spot = _spots.firstWhere(
-                    (s) => s.id == a.spotId,
+                final spot = _spots.firstWhere((s) => s.id == a.spotId,
                     orElse: () => TrainingPackSpot(id: ''));
                 return SessionTaskResult(
                   question: spot.title.isNotEmpty ? spot.title : spot.id,

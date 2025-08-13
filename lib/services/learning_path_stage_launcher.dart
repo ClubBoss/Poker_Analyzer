@@ -26,7 +26,8 @@ class LearningPathStageLauncher {
         _theoryLibrary = theoryLibrary ?? TheoryPackLibraryService.instance,
         _launcher = launcher;
 
-  Future<void> launch(BuildContext context, LearningPathStageModel stage) async {
+  Future<void> launch(
+      BuildContext context, LearningPathStageModel stage) async {
     await UserActionLogger.instance.logEvent({
       'event': 'stage_opened',
       'type': stage.type.name,
@@ -58,7 +59,8 @@ class LearningPathStageLauncher {
           context,
           MaterialPageRoute(
             settings: const RouteSettings(name: TheoryPackReaderScreen.route),
-            builder: (_) => TheoryPackReaderScreen(pack: pack, stageId: stage.id),
+            builder: (_) =>
+                TheoryPackReaderScreen(pack: pack, stageId: stage.id),
           ),
         );
         break;
@@ -92,7 +94,8 @@ class LearningPathStageLauncher {
           context,
           MaterialPageRoute(
             settings: const RouteSettings(name: TheoryPackReaderScreen.route),
-            builder: (_) => TheoryPackReaderScreen(pack: booster!, stageId: stage.id),
+            builder: (_) =>
+                TheoryPackReaderScreen(pack: booster!, stageId: stage.id),
           ),
         );
         break;

@@ -35,10 +35,12 @@ class CloudSyncService {
   final FirebaseAuth _auth;
   late SharedPreferences _prefs;
   Box? _box;
-  static bool get isLocal => kIsWeb ||
-      (!kIsWeb && (defaultTargetPlatform == TargetPlatform.windows ||
-          defaultTargetPlatform == TargetPlatform.linux ||
-          defaultTargetPlatform == TargetPlatform.macOS));
+  static bool get isLocal =>
+      kIsWeb ||
+      (!kIsWeb &&
+          (defaultTargetPlatform == TargetPlatform.windows ||
+              defaultTargetPlatform == TargetPlatform.linux ||
+              defaultTargetPlatform == TargetPlatform.macOS));
   bool get _local => CloudSyncService.isLocal;
   String? get uid => _auth.currentUser?.uid;
   bool get isEnabled => uid != null;
@@ -110,7 +112,8 @@ class CloudSyncService {
     final batch = _db.batch();
     for (final m in _pending) {
       final ref = user.collection(m['col'] as String).doc(m['id'] as String);
-      batch.set(ref, m['data'] as Map<String, dynamic>, SetOptions(merge: true));
+      batch.set(
+          ref, m['data'] as Map<String, dynamic>, SetOptions(merge: true));
     }
     try {
       await batch.commit();
@@ -139,7 +142,9 @@ class CloudSyncService {
     try {
       await CloudRetryPolicy.execute<void>(() async {
         final user = _db.collection('users').doc(uid);
-        final futures = [for (final c in _cols) user.collection(c).doc('main').get()];
+        final futures = [
+          for (final c in _cols) user.collection(c).doc('main').get()
+        ];
         final snaps = await Future.wait(futures);
         for (var i = 0; i < snaps.length; i++) {
           final col = _cols[i];
@@ -147,12 +152,15 @@ class CloudSyncService {
           if (!snap.exists) continue;
           final remote = snap.data()!;
           final localStr = _prefs.getString('cached_$col');
-          final local =
-              localStr != null ? jsonDecode(localStr) as Map<String, dynamic> : null;
-          final remoteAt = DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
-              DateTime.fromMillisecondsSinceEpoch(0);
-          final localAt = DateTime.tryParse(local?['updatedAt'] as String? ?? '') ??
-              DateTime.fromMillisecondsSinceEpoch(0);
+          final local = localStr != null
+              ? jsonDecode(localStr) as Map<String, dynamic>
+              : null;
+          final remoteAt =
+              DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
+                  DateTime.fromMillisecondsSinceEpoch(0);
+          final localAt =
+              DateTime.tryParse(local?['updatedAt'] as String? ?? '') ??
+                  DateTime.fromMillisecondsSinceEpoch(0);
           if (remoteAt.isAfter(localAt)) {
             await _prefs.setString('cached_$col', jsonEncode(remote));
           }
@@ -168,14 +176,16 @@ class CloudSyncService {
     _notify('Loaded latest from cloud');
   }
 
-  Future<void> queueMutation(String col, String id, Map<String, dynamic> data) async {
+  Future<void> queueMutation(
+      String col, String id, Map<String, dynamic> data) async {
     _pending.removeWhere((e) => e['col'] == col && e['id'] == id);
     _pending.add({'col': col, 'id': id, 'data': data});
     if (_local) {
       await _box!.put('pending_mutations', _pending);
       await _box!.put('cached_$col', data);
     } else {
-      await _prefs.setStringList('pending_mutations', _pending.map(jsonEncode).toList());
+      await _prefs.setStringList(
+          'pending_mutations', _pending.map(jsonEncode).toList());
       await _prefs.setString('cached_$col', jsonEncode(data));
     }
   }
@@ -220,8 +230,12 @@ class CloudSyncService {
     }
     await _prefs.setString(key, value);
     if (uid == null) return;
-    await CloudRetryPolicy.execute(() =>
-        _db.collection('users').doc(uid).collection('prefs').doc(key).set({'v': value}));
+    await CloudRetryPolicy.execute(() => _db
+        .collection('users')
+        .doc(uid)
+        .collection('prefs')
+        .doc(key)
+        .set({'v': value}));
   }
 
   Future<String?> load(String key) async {
@@ -255,20 +269,19 @@ class CloudSyncService {
 
   Future<List<SavedHand>> downloadHands() async {
     if (uid == null) return [];
-    final snap = await CloudRetryPolicy.execute(() =>
-        _db.collection('users')
-            .doc(uid)
-            .collection('saved_hands')
-            .doc('main')
-            .get());
+    final snap = await CloudRetryPolicy.execute(() => _db
+        .collection('users')
+        .doc(uid)
+        .collection('saved_hands')
+        .doc('main')
+        .get());
     if (!snap.exists) return [];
     final data = snap.data();
     final list = data?['hands'];
     if (list is List) {
       return [
         for (final e in list)
-          if (e is Map)
-            SavedHand.fromJson(Map<String, dynamic>.from(e))
+          if (e is Map) SavedHand.fromJson(Map<String, dynamic>.from(e))
       ];
     }
     return [];
@@ -283,31 +296,30 @@ class CloudSyncService {
       if (list is List) {
         hands = [
           for (final e in list)
-            if (e is Map)
-              SavedHand.fromJson(Map<String, dynamic>.from(e))
+            if (e is Map) SavedHand.fromJson(Map<String, dynamic>.from(e))
         ];
       }
       localAt = DateTime.tryParse(cached['updatedAt'] as String? ?? '') ??
           DateTime.fromMillisecondsSinceEpoch(0);
     }
     if (uid == null) return hands;
-    final snap = await CloudRetryPolicy.execute(() =>
-        _db.collection('users')
-            .doc(uid)
-            .collection('saved_hands')
-            .doc('main')
-            .get());
+    final snap = await CloudRetryPolicy.execute(() => _db
+        .collection('users')
+        .doc(uid)
+        .collection('saved_hands')
+        .doc('main')
+        .get());
     if (snap.exists) {
       final remote = snap.data()!;
-      final remoteAt = DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
-          DateTime.fromMillisecondsSinceEpoch(0);
+      final remoteAt =
+          DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
+              DateTime.fromMillisecondsSinceEpoch(0);
       if (remoteAt.isAfter(localAt)) {
         final list = remote['hands'];
         if (list is List) {
           hands = [
             for (final e in list)
-              if (e is Map)
-                SavedHand.fromJson(Map<String, dynamic>.from(e))
+              if (e is Map) SavedHand.fromJson(Map<String, dynamic>.from(e))
           ];
           if (_local) {
             await _box!.put('cached_saved_hands', remote);
@@ -371,8 +383,7 @@ class CloudSyncService {
     if (list is List) {
       return [
         for (final e in list)
-          if (e is Map)
-            SessionLog.fromJson(Map<String, dynamic>.from(e))
+          if (e is Map) SessionLog.fromJson(Map<String, dynamic>.from(e))
       ];
     }
     return [];

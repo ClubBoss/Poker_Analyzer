@@ -105,8 +105,7 @@ class SpotOfTheDayService extends ChangeNotifier {
           _history[idx].recommendedAction != null) {
         final entry = _history[idx];
         _history[idx] = entry.copyWith(
-            correct:
-                entry.userAction == entry.recommendedAction);
+            correct: entry.userAction == entry.recommendedAction);
         await _saveHistory();
       }
     }
@@ -125,7 +124,9 @@ class SpotOfTheDayService extends ChangeNotifier {
     _date = DateTime.now();
     _result = null;
     _history.add(SpotOfDayHistoryEntry(
-        date: _date!, spotIndex: rnd, recommendedAction: _spot?.recommendedAction));
+        date: _date!,
+        spotIndex: rnd,
+        recommendedAction: _spot?.recommendedAction));
     await _saveHistory();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_dateKey, _date!.toIso8601String());
@@ -145,7 +146,8 @@ class SpotOfTheDayService extends ChangeNotifier {
         final entry = _history[idx];
         _history[idx] = entry.copyWith(
             userAction: action,
-            recommendedAction: entry.recommendedAction ?? _spot?.recommendedAction,
+            recommendedAction:
+                entry.recommendedAction ?? _spot?.recommendedAction,
             correct: _spot?.recommendedAction != null
                 ? action == _spot!.recommendedAction
                 : null);

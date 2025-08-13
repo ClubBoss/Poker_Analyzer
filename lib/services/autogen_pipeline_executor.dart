@@ -109,41 +109,38 @@ class AutogenPipelineExecutor {
     TextureFilterConfig? textureFilters,
     String? presetId,
     String? presetName,
-  }) : dedup = dedup ?? AutoDeduplicationEngine(),
-       exporter = exporter ?? const YamlPackExporter(),
-       coverage = coverage ?? SkillTagCoverageTracker(),
-       coverageGuard =
-           coverageGuard ??
-           SkillTagCoverageGuardService.fromEnv() ??
-           SkillTagCoverageGuardService(),
-       theoryInjector = theoryInjector ?? InlineTheoryLinkAutoInjector(),
-       boardClassifier = boardClassifier,
-       skillLinker = skillLinker ?? const SkillTreeAutoLinker(),
-       fingerprintGenerator =
-           fingerprintGenerator ?? const TrainingPackFingerprintGenerator(),
-       _fingerprintLog =
-           fingerprintLog ??
-           File(
-             'generated_pack_fingerprints.log',
-           ).openWrite(mode: FileMode.append),
-       dashboard = dashboard ?? AutogenStatsDashboardService(),
-       status = status ?? AutogenStatusDashboardService(),
-       icmInjector = icmInjector,
-       gatekeeper = gatekeeper ?? const PackQualityGatekeeperService(),
-       runHistory = runHistory ?? const AutogenRunHistoryLoggerService(),
-       packComparer = packComparer ?? const PackFingerprintComparer(),
-       policyEngine = policyEngine ?? DeduplicationPolicyEngine(),
-       boosterEngine = boosterEngine ?? TargetedPackBoosterEngine(),
-       formatSelector = formatSelector ?? AutoFormatSelector(),
-       autoInjector = autoInjector ?? TheoryAutoInjector(),
-       noveltyGuard = noveltyGuard ?? PackNoveltyGuardService(),
-       failOnSeedErrors =
-           failOnSeedErrors ?? (Platform.environment['CI'] == 'true'),
-       textureFilters = textureFilters,
-       presetId = presetId,
-       presetName = presetName {
-    this.generator =
-        generator ??
+  })  : dedup = dedup ?? AutoDeduplicationEngine(),
+        exporter = exporter ?? const YamlPackExporter(),
+        coverage = coverage ?? SkillTagCoverageTracker(),
+        coverageGuard = coverageGuard ??
+            SkillTagCoverageGuardService.fromEnv() ??
+            SkillTagCoverageGuardService(),
+        theoryInjector = theoryInjector ?? InlineTheoryLinkAutoInjector(),
+        boardClassifier = boardClassifier,
+        skillLinker = skillLinker ?? const SkillTreeAutoLinker(),
+        fingerprintGenerator =
+            fingerprintGenerator ?? const TrainingPackFingerprintGenerator(),
+        _fingerprintLog = fingerprintLog ??
+            File(
+              'generated_pack_fingerprints.log',
+            ).openWrite(mode: FileMode.append),
+        dashboard = dashboard ?? AutogenStatsDashboardService(),
+        status = status ?? AutogenStatusDashboardService(),
+        icmInjector = icmInjector,
+        gatekeeper = gatekeeper ?? const PackQualityGatekeeperService(),
+        runHistory = runHistory ?? const AutogenRunHistoryLoggerService(),
+        packComparer = packComparer ?? const PackFingerprintComparer(),
+        policyEngine = policyEngine ?? DeduplicationPolicyEngine(),
+        boosterEngine = boosterEngine ?? TargetedPackBoosterEngine(),
+        formatSelector = formatSelector ?? AutoFormatSelector(),
+        autoInjector = autoInjector ?? TheoryAutoInjector(),
+        noveltyGuard = noveltyGuard ?? PackNoveltyGuardService(),
+        failOnSeedErrors =
+            failOnSeedErrors ?? (Platform.environment['CI'] == 'true'),
+        textureFilters = textureFilters,
+        presetId = presetId,
+        presetName = presetName {
+    this.generator = generator ??
         TrainingPackAutoGenerator(
           dedup: this.dedup,
           boardClassifier: boardClassifier,
@@ -355,7 +352,8 @@ class AutogenPipelineExecutor {
         pack.meta['autogenMeta'] = {
           if (presetId != null) 'presetId': presetId,
           if (presetName != null) 'presetName': presetName,
-          if (textureFilters != null) 'textureFilters': textureFilters!.toJson(),
+          if (textureFilters != null)
+            'textureFilters': textureFilters!.toJson(),
           'textureDistribution': dashboard.textureCounts,
           'theorySummary': theorySummary.toJson(),
         };
@@ -520,9 +518,8 @@ class AutogenPipelineExecutor {
         coverage.aggregateReport,
         yamlFiles: files.length + boosted.length,
       );
-      final avgQuality = processedCount == 0
-          ? 0.0
-          : totalQualityScore / processedCount;
+      final avgQuality =
+          processedCount == 0 ? 0.0 : totalQualityScore / processedCount;
       await runHistory.logRun(
         generated: generatedCount,
         rejected: rejectedCount,

@@ -37,7 +37,9 @@ class LearningPathValidator {
           }
         }
       } else if (node is StageNode || node is TheoryLessonNode) {
-        final nextIds = node is StageNode ? node.nextIds : (node as TheoryLessonNode).nextIds;
+        final nextIds = node is StageNode
+            ? node.nextIds
+            : (node as TheoryLessonNode).nextIds;
         for (final next in nextIds) {
           outgoing[node.id]!.add(next);
           if (!byId.containsKey(next)) {

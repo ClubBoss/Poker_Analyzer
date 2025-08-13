@@ -114,8 +114,7 @@ class _TrainingPackImportValidatorScreenState
                     children: [
                       for (final e in _result!.errors)
                         ListTile(
-                          leading:
-                              const Icon(Icons.error, color: Colors.red),
+                          leading: const Icon(Icons.error, color: Colors.red),
                           title: Text(e),
                         ),
                     ],
@@ -128,4 +127,3 @@ class _TrainingPackImportValidatorScreenState
     );
   }
 }
-

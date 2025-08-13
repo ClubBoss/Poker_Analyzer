@@ -8,7 +8,7 @@ class SkillTreeAutoLinker {
   final SkillTagSkillNodeMapService map;
 
   const SkillTreeAutoLinker({SkillTagSkillNodeMapService? map})
-    : map = map ?? const SkillTagSkillNodeMapService();
+      : map = map ?? const SkillTagSkillNodeMapService();
 
   /// Assigns `skillNode` meta fields for all [spots].
   void linkAll(List<TrainingPackSpot> spots) {

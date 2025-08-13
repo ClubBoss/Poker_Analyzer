@@ -34,8 +34,7 @@ class BoosterCooldownScheduler {
               if (e.value is List)
                 e.key.toString(): [
                   for (final v in e.value as List)
-                    if (v is Map)
-                      _Event.fromJson(Map<String, dynamic>.from(v))
+                    if (v is Map) _Event.fromJson(Map<String, dynamic>.from(v))
                 ]
           };
         }
@@ -115,7 +114,8 @@ class BoosterCooldownScheduler {
     DateTime? lastAccepted;
     DateTime? lastDismissed;
     for (final e in list) {
-      if (lastAccepted == null && e.kind == 'accepted') lastAccepted = e.timestamp;
+      if (lastAccepted == null && e.kind == 'accepted')
+        lastAccepted = e.timestamp;
       if (lastDismissed == null && e.kind == 'dismissed') {
         lastDismissed = e.timestamp;
       }

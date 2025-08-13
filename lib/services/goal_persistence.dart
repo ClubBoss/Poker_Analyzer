@@ -52,8 +52,8 @@ class GoalPersistence {
       final list = <GoalProgressEntry>[];
       for (final item in raw) {
         try {
-          list.add(
-              GoalProgressEntry.fromJson(jsonDecode(item) as Map<String, dynamic>));
+          list.add(GoalProgressEntry.fromJson(
+              jsonDecode(item) as Map<String, dynamic>));
         } catch (_) {}
       }
       result.add(list);
@@ -68,7 +68,8 @@ class GoalPersistence {
       try {
         final data = jsonDecode(item);
         if (data is Map<String, dynamic>) {
-          list.add(DrillSessionResult.fromJson(Map<String, dynamic>.from(data)));
+          list.add(
+              DrillSessionResult.fromJson(Map<String, dynamic>.from(data)));
         }
       } catch (_) {}
     }
@@ -115,7 +116,8 @@ class GoalPersistence {
   Future<void> saveProgress(int index, int progress, DateTime createdAt,
       DateTime? completedAt) async {
     await prefs.setInt('$prefPrefix$index', progress);
-    await prefs.setInt('$prefPrefix${index}_created', createdAt.millisecondsSinceEpoch);
+    await prefs.setInt(
+        '$prefPrefix${index}_created', createdAt.millisecondsSinceEpoch);
     final dateKey = '$prefPrefix${index}_date';
     if (completedAt != null) {
       await prefs.setInt(dateKey, completedAt.millisecondsSinceEpoch);

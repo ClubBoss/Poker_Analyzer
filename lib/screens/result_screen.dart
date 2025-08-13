@@ -35,9 +35,7 @@ class ResultScreen extends StatelessWidget {
           children: [
             Text(
               winnings.length > 1
-                  ? 'Победители: ${winnings.entries
-                          .map((e) => 'P${e.key + 1} (${e.value})')
-                          .join(', ')}'
+                  ? 'Победители: ${winnings.entries.map((e) => 'P${e.key + 1} (${e.value})').join(', ')}'
                   : 'Победитель: Игрок ${winnerIndex + 1}',
               style: const TextStyle(fontSize: 18, color: Colors.white),
             ),
@@ -110,9 +108,8 @@ class _PotBreakdown extends StatelessWidget {
             (potAmount * (amount / (totalWin == 0 ? 1 : totalWin))).round();
         if (share > 0) shares[player] = share;
       });
-      final winnersText = shares.entries
-          .map((e) => 'P${e.key + 1} wins ${e.value}')
-          .join(', ');
+      final winnersText =
+          shares.entries.map((e) => 'P${e.key + 1} wins ${e.value}').join(', ');
       lines.add(Text(
         '${names[i]} → $winnersText',
         style: const TextStyle(fontSize: 16, color: Colors.white70),

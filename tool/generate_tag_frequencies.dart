@@ -6,11 +6,13 @@ import 'package:poker_analyzer/core/training/generation/yaml_reader.dart';
 
 Future<void> main(List<String> args) async {
   final src = args.isNotEmpty ? args[0] : 'assets/packs/v2';
-  final out = args.length > 1 ? args[1] : 'assets/packs/v2/tag_frequencies.json';
+  final out =
+      args.length > 1 ? args[1] : 'assets/packs/v2/tag_frequencies.json';
   final tagCounts = <String, int>{};
   final categoryCounts = <String, int>{};
   void addTag(String tag) => tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
-  void addCategory(String tag) => categoryCounts[tag] = (categoryCounts[tag] ?? 0) + 1;
+  void addCategory(String tag) =>
+      categoryCounts[tag] = (categoryCounts[tag] ?? 0) + 1;
   Future<void> processTemplate(TrainingPackTemplateV2 tpl) async {
     if (tpl.meta['manualSource'] == true) return;
     for (final t in tpl.tags) {
@@ -19,6 +21,7 @@ Future<void> main(List<String> args) async {
     final c = tpl.category ?? (tpl.tags.isNotEmpty ? tpl.tags.first : null);
     if (c != null && c.isNotEmpty) addCategory(c);
   }
+
   var processed = false;
   final indexFile = File(p.join(src, 'library_index.json'));
   if (indexFile.existsSync()) {
@@ -56,11 +59,13 @@ Future<void> main(List<String> args) async {
       }
     }
   }
-  final sortedTags = Map.fromEntries(tagCounts.entries.toList()
-    ..sort((a, b) => b.value.compareTo(a.value)));
+  final sortedTags = Map.fromEntries(
+      tagCounts.entries.toList()..sort((a, b) => b.value.compareTo(a.value)));
   final sortedCategories = Map.fromEntries(categoryCounts.entries.toList()
     ..sort((a, b) => b.value.compareTo(a.value)));
   final file = File(out)..createSync(recursive: true);
-  file.writeAsStringSync(jsonEncode({'tags': sortedTags, 'categories': sortedCategories}));
-  stdout.writeln('Wrote ${sortedTags.length} tags and ${sortedCategories.length} categories to ${p.normalize(out)}');
+  file.writeAsStringSync(
+      jsonEncode({'tags': sortedTags, 'categories': sortedCategories}));
+  stdout.writeln(
+      'Wrote ${sortedTags.length} tags and ${sortedCategories.length} categories to ${p.normalize(out)}');
 }

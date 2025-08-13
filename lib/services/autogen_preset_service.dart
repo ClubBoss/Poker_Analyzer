@@ -30,8 +30,8 @@ class AutogenPresetService {
     try {
       final manifestContent = await rootBundle.loadString('AssetManifest.json');
       final Map<String, dynamic> manifest = jsonDecode(manifestContent);
-      final presetAssets = manifest.keys
-          .where((k) => k.startsWith('assets/autogen_presets/') && k.endsWith('.json'));
+      final presetAssets = manifest.keys.where((k) =>
+          k.startsWith('assets/autogen_presets/') && k.endsWith('.json'));
       for (final path in presetAssets) {
         final str = await rootBundle.loadString(path);
         final p = AutogenPreset.fromJson(jsonDecode(str));

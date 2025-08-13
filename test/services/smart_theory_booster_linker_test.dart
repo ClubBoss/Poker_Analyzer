@@ -16,7 +16,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('linkForLesson returns deep link to containing cluster', () async {
-    const l1 = TheoryMiniLessonNode(id: 'a', title: 'A', content: '', nextIds: ['b']);
+    const l1 =
+        TheoryMiniLessonNode(id: 'a', title: 'A', content: '', nextIds: ['b']);
     const l2 = TheoryMiniLessonNode(id: 'b', title: 'B', content: '');
     final cluster = TheoryLessonCluster(lessons: [l1, l2], tags: {'preflop'});
 
@@ -48,4 +49,3 @@ void main() {
     expect(link, '/theory/cluster?clusterId=l2');
   });
 }
-

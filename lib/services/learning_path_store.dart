@@ -95,7 +95,8 @@ class LearningPathStore {
       );
     }
     if (status == 'completed') {
-      final tags = (metrics['clusterTags'] as List?)?.cast<String>() ?? const [];
+      final tags =
+          (metrics['clusterTags'] as List?)?.cast<String>() ?? const [];
       if (tags.isNotEmpty) {
         await UserSkillModelService.instance.recordAttempt(
           userId,
@@ -114,20 +115,16 @@ class LearningPathStore {
           tagDeltas,
         );
         final prefs = await SharedPreferences.getInstance();
-        final threshold =
-            prefs.getDouble('bandit.optimismThreshold') ?? 10.0;
+        final threshold = prefs.getDouble('bandit.optimismThreshold') ?? 10.0;
         var exploring = 0;
         for (final t in tagDeltas.keys) {
-          final a =
-              prefs.getDouble('bandit.alpha.$userId.$t') ?? 1.0;
-          final b =
-              prefs.getDouble('bandit.beta.$userId.$t') ?? 1.0;
+          final a = prefs.getDouble('bandit.alpha.$userId.$t') ?? 1.0;
+          final b = prefs.getDouble('bandit.beta.$userId.$t') ?? 1.0;
           if (a + b < threshold) exploring++;
         }
         final avgDelta = tagDeltas.values.isEmpty
             ? 0.0
-            : tagDeltas.values.reduce((a, b) => a + b) /
-                tagDeltas.length;
+            : tagDeltas.values.reduce((a, b) => a + b) / tagDeltas.length;
         AutogenStatusDashboardService.instance.update(
           'AdaptiveLearning',
           AutogenStatus(

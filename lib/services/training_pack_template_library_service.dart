@@ -29,4 +29,3 @@ class TrainingPackTemplateLibraryService {
   /// Clears all stored templates. Primarily used in tests.
   void clear() => _templates.clear();
 }
-

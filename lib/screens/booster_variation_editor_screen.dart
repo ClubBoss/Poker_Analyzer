@@ -133,8 +133,7 @@ class _BoosterVariationEditorScreenState
     final map = <TrainingPackSpot, List<TrainingPackSpot>>{};
     final pack = _pack;
     if (pack == null) return map;
-    final originals =
-        pack.spots.where((s) => !_isVariation(s)).toList();
+    final originals = pack.spots.where((s) => !_isVariation(s)).toList();
     for (final o in originals) {
       map[o] = [];
     }
@@ -221,8 +220,7 @@ class _BoosterVariationEditorScreenState
                       ],
                     ),
                   ),
-                if (pack.spots.isEmpty)
-                  const Center(child: Text('No spots')),
+                if (pack.spots.isEmpty) const Center(child: Text('No spots')),
               ],
             ),
     );

@@ -221,7 +221,8 @@ class _CreateCustomPackScreenState extends State<CreateCustomPackScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Новый кастомный пак'),
-        actions: [SyncStatusIcon.of(context), 
+        actions: [
+          SyncStatusIcon.of(context),
           IconButton(
             onPressed: _hands.isEmpty ? null : _save,
             icon: const Icon(Icons.check),
@@ -255,21 +256,25 @@ class _CreateCustomPackScreenState extends State<CreateCustomPackScreen> {
                   items: const [
                     DropdownMenuItem(
                         value: GameType.tournament, child: Text('Tournament')),
-                    DropdownMenuItem(value: GameType.cash, child: Text('Cash Game')),
+                    DropdownMenuItem(
+                        value: GameType.cash, child: Text('Cash Game')),
                   ],
-                  onChanged: (v) => setState(() => _gameType = v ?? GameType.cash),
+                  onChanged: (v) =>
+                      setState(() => _gameType = v ?? GameType.cash),
                 ),
                 const SizedBox(height: 12),
                 ListTile(
                   leading: CircleAvatar(backgroundColor: _color),
                   title: const Text('Цвет'),
-                  trailing:
-                      IconButton(icon: const Icon(Icons.color_lens), onPressed: _pickColor),
+                  trailing: IconButton(
+                      icon: const Icon(Icons.color_lens),
+                      onPressed: _pickColor),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: _tagsController,
-                  decoration: const InputDecoration(labelText: 'Теги через запятую'),
+                  decoration:
+                      const InputDecoration(labelText: 'Теги через запятую'),
                 ),
               ],
             ),
@@ -295,7 +300,8 @@ class _CreateCustomPackScreenState extends State<CreateCustomPackScreen> {
                   child: ListTile(
                     leading: const Icon(Icons.drag_handle),
                     title: Text(title),
-                    subtitle: hand.tags.isEmpty ? null : Text(hand.tags.join(', ')),
+                    subtitle:
+                        hand.tags.isEmpty ? null : Text(hand.tags.join(', ')),
                   ),
                 );
               },

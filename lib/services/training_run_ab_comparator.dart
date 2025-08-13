@@ -77,8 +77,7 @@ class TrainingRunABComparator {
       final dropZ = -_zScore(s.dropoff, means.dropoff, stds.dropoff);
       final timeZ = -_zScore(s.time, means.time, stds.time);
       final noveltyZ = _zScore(s.novelty, means.novelty, stds.novelty);
-      final composite =
-          weights['accuracy']! * accZ +
+      final composite = weights['accuracy']! * accZ +
           weights['dropoff']! * dropZ +
           weights['time']! * timeZ +
           weights['novelty']! * noveltyZ;
@@ -96,14 +95,14 @@ class TrainingRunABComparator {
     }
     results.sort((a, b) => b.compositeScore.compareTo(a.compositeScore));
 
-    await prefs.setString(_reportKey, jsonEncode(results.map((e) => e.toJson()).toList()));
+    await prefs.setString(
+        _reportKey, jsonEncode(results.map((e) => e.toJson()).toList()));
     if (results.isNotEmpty) {
       final best = results.first;
       final arm = armsConfig.firstWhere((a) => a['id'] == best.armId,
           orElse: () => null);
-      await prefs.setString(
-          _recommendedKey, jsonEncode(arm['format'] ?? {}));
-        }
+      await prefs.setString(_recommendedKey, jsonEncode(arm['format'] ?? {}));
+    }
     return results;
   }
 
@@ -126,14 +125,20 @@ class TrainingRunABComparator {
   }
 
   Map<String, double> _loadWeights(SharedPreferences prefs) {
-    const def = {'accuracy': 0.4, 'dropoff': 0.25, 'time': 0.2, 'novelty': 0.15};
+    const def = {
+      'accuracy': 0.4,
+      'dropoff': 0.25,
+      'time': 0.2,
+      'novelty': 0.15
+    };
     final raw = prefs.getString(_weightsKey);
     if (raw == null) return def;
     try {
       final data = jsonDecode(raw);
       if (data is Map) {
         return {
-          'accuracy': (data['accuracy'] as num?)?.toDouble() ?? def['accuracy']!,
+          'accuracy':
+              (data['accuracy'] as num?)?.toDouble() ?? def['accuracy']!,
           'dropoff': (data['dropoff'] as num?)?.toDouble() ?? def['dropoff']!,
           'time': (data['time'] as num?)?.toDouble() ?? def['time']!,
           'novelty': (data['novelty'] as num?)?.toDouble() ?? def['novelty']!,
@@ -237,7 +242,8 @@ class _MetricStd {
   factory _MetricStd.from(Iterable<_ArmStats> stats, _MetricAverages means) {
     double variance(Iterable<double> xs, double mean) {
       if (xs.isEmpty) return 0;
-      final v = xs.map((e) => pow(e - mean, 2)).reduce((a, b) => a + b) / xs.length;
+      final v =
+          xs.map((e) => pow(e - mean, 2)).reduce((a, b) => a + b) / xs.length;
       return sqrt(v);
     }
 

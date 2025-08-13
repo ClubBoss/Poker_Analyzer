@@ -66,9 +66,8 @@ class _BoosterYAMLPreviewerScreenState
   @override
   Widget build(BuildContext context) {
     if (!kDebugMode) return const SizedBox.shrink();
-    final jsonText = _json == null
-        ? ''
-        : const JsonEncoder.withIndent('  ').convert(_json);
+    final jsonText =
+        _json == null ? '' : const JsonEncoder.withIndent('  ').convert(_json);
     return Scaffold(
       appBar: AppBar(title: const Text('Booster YAML Preview')),
       backgroundColor: AppColors.background,
@@ -100,7 +99,8 @@ class _BoosterYAMLPreviewerScreenState
                         length: 2,
                         child: Column(
                           children: [
-                            const TabBar(tabs: [Tab(text: 'YAML'), Tab(text: 'JSON')]),
+                            const TabBar(
+                                tabs: [Tab(text: 'YAML'), Tab(text: 'JSON')]),
                             Expanded(
                               child: TabBarView(
                                 children: [
@@ -115,7 +115,9 @@ class _BoosterYAMLPreviewerScreenState
                                   SingleChildScrollView(
                                     padding: const EdgeInsets.all(16),
                                     child: SelectableText(
-                                      jsonText.isEmpty ? 'Select file' : jsonText,
+                                      jsonText.isEmpty
+                                          ? 'Select file'
+                                          : jsonText,
                                       style:
                                           const TextStyle(color: Colors.white),
                                     ),

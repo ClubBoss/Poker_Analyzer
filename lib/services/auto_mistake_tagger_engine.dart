@@ -13,4 +13,3 @@ class AutoMistakeTaggerEngine {
     return tags;
   }
 }
-

@@ -100,10 +100,8 @@ class AutogenPackGeneratorService {
     final generated = (metrics['generatedCount'] as int? ?? 0);
     final rejected = (metrics['rejectedCount'] as int? ?? 0);
     final total = generated + rejected;
-    final acceptanceRate =
-        total == 0 ? 0.0 : generated / total * 100.0;
-    final avgQuality =
-        (metrics['avgQualityScore'] as num? ?? 0).toDouble();
+    final acceptanceRate = total == 0 ? 0.0 : generated / total * 100.0;
+    final avgQuality = (metrics['avgQualityScore'] as num? ?? 0).toDouble();
     await _history.recordRunMetrics(avgQuality, acceptanceRate);
     return files;
   }

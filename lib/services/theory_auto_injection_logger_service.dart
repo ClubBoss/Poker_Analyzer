@@ -64,7 +64,8 @@ class TheoryAutoInjectionLoggerService {
   }
 
   /// Returns recent logs, most recent first.
-  Future<List<TheoryAutoInjectionLogEntry>> getRecentLogs({int limit = 50}) async {
+  Future<List<TheoryAutoInjectionLogEntry>> getRecentLogs(
+      {int limit = 50}) async {
     await _load();
     return List.unmodifiable(_logs.take(limit));
   }
@@ -84,7 +85,8 @@ class TheoryAutoInjectionLoggerService {
     final counts = <DateTime, int>{};
 
     for (final log in _logs) {
-      final date = DateTime(log.timestamp.year, log.timestamp.month, log.timestamp.day);
+      final date =
+          DateTime(log.timestamp.year, log.timestamp.month, log.timestamp.day);
       if (now.difference(date).inDays >= days) {
         break;
       }
@@ -110,9 +112,7 @@ class TheoryAutoInjectionLoggerService {
     }
     final entries = counts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    return {
-      for (final e in entries.take(limit)) e.key: e.value
-    };
+    return {for (final e in entries.take(limit)) e.key: e.value};
   }
 
   /// Resets in-memory cache for testing.

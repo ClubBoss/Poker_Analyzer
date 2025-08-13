@@ -101,4 +101,3 @@ class StreakReminderSchedulerService {
         last.day == now.day);
   }
 }
-

@@ -14,7 +14,8 @@ class PackCooldownTracker {
         if (data is Map) {
           return {
             for (final e in data.entries)
-              if (e.value is String && DateTime.tryParse(e.value as String) != null)
+              if (e.value is String &&
+                  DateTime.tryParse(e.value as String) != null)
                 e.key.toString(): DateTime.parse(e.value as String),
           };
         }
@@ -27,7 +28,8 @@ class PackCooldownTracker {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
       _prefsKey,
-      jsonEncode({for (final e in data.entries) e.key: e.value.toIso8601String()}),
+      jsonEncode(
+          {for (final e in data.entries) e.key: e.value.toIso8601String()}),
     );
   }
 

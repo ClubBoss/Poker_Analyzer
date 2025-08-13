@@ -20,14 +20,16 @@ class _FakeOrchestrator extends DecayBoosterReminderOrchestrator {
 
 class _FakeRecommender extends AdaptivePackRecommenderService {
   final List<AdaptivePackRecommendation> recs;
-  _FakeRecommender(this.recs)
-      : super(masteryService: _FakeMastery());
+  _FakeRecommender(this.recs) : super(masteryService: _FakeMastery());
   @override
-  Future<List<AdaptivePackRecommendation>> recommend({int count = 3, DateTime? now}) async => recs.take(count).toList();
+  Future<List<AdaptivePackRecommendation>> recommend(
+          {int count = 3, DateTime? now}) async =>
+      recs.take(count).toList();
 }
 
 class _FakeMastery extends TagMasteryService {
-  _FakeMastery() : super(logs: SessionLogService(sessions: TrainingSessionService()));
+  _FakeMastery()
+      : super(logs: SessionLogService(sessions: TrainingSessionService()));
   @override
   Future<Map<String, double>> computeMastery({bool force = false}) async => {};
 }
@@ -68,7 +70,8 @@ void main() {
     final notifier = AdaptivePackInboxNotifier(
       recommender: _FakeRecommender(recs),
       orchestrator: _FakeOrchestrator([
-        const MemoryReminder(type: MemoryReminderType.decayBooster, priority: 3),
+        const MemoryReminder(
+            type: MemoryReminderType.decayBooster, priority: 3),
       ]),
       inbox: InboxBoosterTrackerService.instance,
       cooldown: Duration.zero,

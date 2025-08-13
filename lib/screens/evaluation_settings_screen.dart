@@ -5,7 +5,8 @@ class EvaluationSettingsScreen extends StatefulWidget {
   const EvaluationSettingsScreen({super.key});
 
   @override
-  State<EvaluationSettingsScreen> createState() => _EvaluationSettingsScreenState();
+  State<EvaluationSettingsScreen> createState() =>
+      _EvaluationSettingsScreenState();
 }
 
 class _EvaluationSettingsScreenState extends State<EvaluationSettingsScreen> {
@@ -25,7 +26,8 @@ class _EvaluationSettingsScreenState extends State<EvaluationSettingsScreen> {
   }
 
   Future<void> _save() async {
-    final threshold = double.tryParse(_threshold.text) ?? EvaluationSettingsService.instance.evThreshold;
+    final threshold = double.tryParse(_threshold.text) ??
+        EvaluationSettingsService.instance.evThreshold;
     await EvaluationSettingsService.instance.update(
       threshold: threshold,
       icm: _useIcm,

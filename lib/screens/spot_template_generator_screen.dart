@@ -10,10 +10,12 @@ class SpotTemplateGeneratorScreen extends StatefulWidget {
   const SpotTemplateGeneratorScreen({super.key});
 
   @override
-  State<SpotTemplateGeneratorScreen> createState() => _SpotTemplateGeneratorScreenState();
+  State<SpotTemplateGeneratorScreen> createState() =>
+      _SpotTemplateGeneratorScreenState();
 }
 
-class _SpotTemplateGeneratorScreenState extends State<SpotTemplateGeneratorScreen> {
+class _SpotTemplateGeneratorScreenState
+    extends State<SpotTemplateGeneratorScreen> {
   HeroPosition _hero = HeroPosition.sb;
   HeroPosition _villain = HeroPosition.bb;
   String _action = 'push';
@@ -99,7 +101,8 @@ class _SpotTemplateGeneratorScreenState extends State<SpotTemplateGeneratorScree
               items: const [
                 DropdownMenuItem(value: 'push', child: Text('Push')),
                 DropdownMenuItem(value: 'callPush', child: Text('Call Push')),
-                DropdownMenuItem(value: 'minraiseFold', child: Text('Minraise Fold')),
+                DropdownMenuItem(
+                    value: 'minraiseFold', child: Text('Minraise Fold')),
               ],
               onChanged: (v) => setState(() => _action = v ?? _action),
             ),
@@ -127,4 +130,3 @@ class _SpotTemplateGeneratorScreenState extends State<SpotTemplateGeneratorScree
     );
   }
 }
-

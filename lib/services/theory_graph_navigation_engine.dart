@@ -39,7 +39,10 @@ class TheoryGraphNavigationEngine {
     }
 
     final visited = <String>{};
-    final roots = [for (final id in _byId.keys) if ((incoming[id] ?? 0) == 0) id];
+    final roots = [
+      for (final id in _byId.keys)
+        if ((incoming[id] ?? 0) == 0) id
+    ];
 
     for (final root in roots) {
       _traverseChain(root, visited);

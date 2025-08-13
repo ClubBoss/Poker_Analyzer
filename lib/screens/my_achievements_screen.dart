@@ -45,10 +45,12 @@ class MyAchievementsScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final item = completed[index];
                   return Container(
-                    padding: responsiveAll(context, AppConstants.defaultPadding * 0.75),
+                    padding: responsiveAll(
+                        context, AppConstants.defaultPadding * 0.75),
                     decoration: BoxDecoration(
                       color: Colors.grey[850],
-                      borderRadius: BorderRadius.circular(AppConstants.cardCornerRadius),
+                      borderRadius:
+                          BorderRadius.circular(AppConstants.cardCornerRadius),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,4 +96,3 @@ class MyAchievementsScreen extends StatelessWidget {
     );
   }
 }
-

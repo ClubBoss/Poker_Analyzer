@@ -40,7 +40,8 @@ void main() {
       '111',
     ]);
     if (sampler.exitCode != 0) {
-      fail('sampler failed\nstdout: ${sampler.stdout}\nstderr: ${sampler.stderr}');
+      fail(
+          'sampler failed\nstdout: ${sampler.stdout}\nstderr: ${sampler.stderr}');
     }
 
     final validator = await Process.run('dart', [
@@ -52,14 +53,13 @@ void main() {
       'flop',
     ]);
     if (validator.exitCode != 0) {
-      fail('validator failed\nstdout: ${validator.stdout}\nstderr: ${validator.stderr}');
+      fail(
+          'validator failed\nstdout: ${validator.stdout}\nstderr: ${validator.stderr}');
     }
 
     final dir = Directory('assets/packs/l3/demo');
-    final files = dir
-        .listSync()
-        .whereType<File>()
-        .where((f) => f.path.endsWith('.yaml'));
+    final files =
+        dir.listSync().whereType<File>().where((f) => f.path.endsWith('.yaml'));
     expect(files, isNotEmpty);
     for (final file in files) {
       final content = loadYaml(file.readAsStringSync()) as Map;

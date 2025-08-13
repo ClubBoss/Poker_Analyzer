@@ -33,4 +33,3 @@ class TrainingSessionFingerprint {
   @override
   String toString() => jsonEncode(toJson());
 }
-

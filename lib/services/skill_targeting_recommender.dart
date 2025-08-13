@@ -55,4 +55,3 @@ class SkillTargetingRecommender {
     return [for (final e in scored.take(maxPacks)) e.$1];
   }
 }
-

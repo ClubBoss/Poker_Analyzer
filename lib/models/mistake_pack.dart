@@ -28,8 +28,8 @@ class MistakePack {
         id: j['id'] as String?,
         templateId: j['templateId'] as String? ?? '',
         spotIds: [for (final s in (j['spotIds'] as List? ?? [])) s as String],
-        createdAt:
-            DateTime.tryParse(j['createdAt'] as String? ?? '') ?? DateTime.now(),
+        createdAt: DateTime.tryParse(j['createdAt'] as String? ?? '') ??
+            DateTime.now(),
         note: j['note'] as String? ?? '',
       );
 }

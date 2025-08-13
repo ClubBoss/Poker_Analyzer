@@ -13,7 +13,8 @@ class ProgressHistoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasData = context.watch<ProgressForecastService>().history.length >= 2;
+    final hasData =
+        context.watch<ProgressForecastService>().history.length >= 2;
     return Scaffold(
       appBar: AppBar(
         title: const Text('История EV/ICM'),

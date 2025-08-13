@@ -10,9 +10,9 @@ class MatrixAxis {
   const MatrixAxis(this.name, this.values);
 
   Map<String, dynamic> toJson() => {'name': name, 'values': values};
-  factory MatrixAxis.fromJson(Map<String, dynamic> j) =>
-      MatrixAxis(j['name'] as String? ?? '',
-          [for (final v in (j['values'] as List? ?? [])) v.toString()]);
+  factory MatrixAxis.fromJson(Map<String, dynamic> j) => MatrixAxis(
+      j['name'] as String? ?? '',
+      [for (final v in (j['values'] as List? ?? [])) v.toString()]);
 }
 
 class MatrixTagConfigService {
@@ -34,8 +34,7 @@ class MatrixTagConfigService {
         if (data is List) {
           return [
             for (final e in data)
-              if (e is Map)
-                MatrixAxis.fromJson(Map<String, dynamic>.from(e))
+              if (e is Map) MatrixAxis.fromJson(Map<String, dynamic>.from(e))
           ];
         }
       } catch (_) {}

@@ -10,7 +10,9 @@ class TrainingPackTemplatePreviewScreen extends StatelessWidget {
   const TrainingPackTemplatePreviewScreen({super.key, required this.template});
 
   String _villainRange() {
-    final count = (PackGeneratorService.handRanking.length * template.bbCallPct / 100).round();
+    final count =
+        (PackGeneratorService.handRanking.length * template.bbCallPct / 100)
+            .round();
     return PackGeneratorService.handRanking.take(count).join(' ');
   }
 
@@ -50,4 +52,3 @@ class TrainingPackTemplatePreviewScreen extends StatelessWidget {
     );
   }
 }
-

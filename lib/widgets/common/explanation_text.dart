@@ -35,8 +35,7 @@ class ExplanationText extends StatelessWidget {
               padding: const EdgeInsets.only(top: 2),
               child: Text(
                 'Утечка EV: -${evLoss!.toStringAsFixed(2)}',
-                style:
-                    const TextStyle(fontSize: 12, color: Colors.redAccent),
+                style: const TextStyle(fontSize: 12, color: Colors.redAccent),
               ),
             ),
         ],

@@ -63,6 +63,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String percentLabel(Object value) {
     return '$value %';
   }
+
   @override
   String get starter_packs_title => 'Starterpaket';
 
@@ -77,7 +78,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get starter_packs_choose => 'Pack auswählen';
-
 
   @override
   String accuracySemantics(Object value) {

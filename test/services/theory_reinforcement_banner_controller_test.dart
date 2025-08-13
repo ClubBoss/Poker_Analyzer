@@ -32,7 +32,8 @@ void main() {
   });
 
   test('shows banner when trigger passes', () async {
-    final lesson = const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
+    final lesson =
+        const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
     final controller = TheoryReinforcementBannerController(
       trigger: _FakeTrigger(true),
       library: _FakeLibrary(lesson),
@@ -47,7 +48,8 @@ void main() {
   });
 
   test('respects cooldown between banners', () async {
-    final lesson = const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
+    final lesson =
+        const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
     final controller = TheoryReinforcementBannerController(
       trigger: _FakeTrigger(true),
       library: _FakeLibrary(lesson),

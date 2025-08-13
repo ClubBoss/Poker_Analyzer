@@ -26,7 +26,8 @@ class NextUpEngine {
     LearningTrackEngine trackEngine = const LearningTrackEngine(),
     YamlLessonTrackLoader? yamlLoader,
   })  : unlockEngine = unlockEngine ?? LearningPathUnlockEngine.instance,
-        progressService = progressService ?? LessonProgressTrackerService.instance,
+        progressService =
+            progressService ?? LessonProgressTrackerService.instance,
         metaService = metaService ?? LessonTrackMetaService.instance,
         trackEngine = trackEngine,
         yamlLoader = yamlLoader ?? YamlLessonTrackLoader.instance;
@@ -38,7 +39,9 @@ class NextUpEngine {
   }
 
   DateTime _lastActivity(TrackMeta? meta) {
-    return meta?.completedAt ?? meta?.startedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+    return meta?.completedAt ??
+        meta?.startedAt ??
+        DateTime.fromMillisecondsSinceEpoch(0);
   }
 
   Future<LessonStepRef?> getNextRecommendedStep() async {
@@ -93,5 +96,6 @@ class _TrackEntry {
   final double mastery;
   final DateTime lastActivity;
 
-  _TrackEntry({required this.track, required this.mastery, required this.lastActivity});
+  _TrackEntry(
+      {required this.track, required this.mastery, required this.lastActivity});
 }

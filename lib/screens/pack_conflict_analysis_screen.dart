@@ -7,10 +7,12 @@ import '../theme/app_colors.dart';
 class PackConflictAnalysisScreen extends StatefulWidget {
   const PackConflictAnalysisScreen({super.key});
   @override
-  State<PackConflictAnalysisScreen> createState() => _PackConflictAnalysisScreenState();
+  State<PackConflictAnalysisScreen> createState() =>
+      _PackConflictAnalysisScreenState();
 }
 
-class _PackConflictAnalysisScreenState extends State<PackConflictAnalysisScreen> {
+class _PackConflictAnalysisScreenState
+    extends State<PackConflictAnalysisScreen> {
   bool _loading = true;
   final List<YamlPackConflict> _items = [];
 
@@ -44,12 +46,14 @@ class _PackConflictAnalysisScreenState extends State<PackConflictAnalysisScreen>
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                ElevatedButton(onPressed: _load, child: const Text('🔄 Обновить')),
+                ElevatedButton(
+                    onPressed: _load, child: const Text('🔄 Обновить')),
                 const SizedBox(height: 16),
                 for (final c in _items)
                   ListTile(
                     title: Text('${c.packA.name} ↔ ${c.packB.name}'),
-                    subtitle: Text('${c.type} ${(c.similarityScore * 100).toStringAsFixed(0)}%'),
+                    subtitle: Text(
+                        '${c.type} ${(c.similarityScore * 100).toStringAsFixed(0)}%'),
                   ),
               ],
             ),

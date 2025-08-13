@@ -25,13 +25,13 @@ class _ABResultsPanelWidgetState extends State<ABResultsPanelWidget> {
           children: [
             Row(
               children: [
-                Text('Recommended: '
+                Text(
+                    'Recommended: '
                     '${results.isNotEmpty ? results.first.armId : '-'}',
                     style: Theme.of(context).textTheme.titleMedium),
                 const Spacer(),
                 IconButton(
-                    onPressed: _showSettings,
-                    icon: const Icon(Icons.settings)),
+                    onPressed: _showSettings, icon: const Icon(Icons.settings)),
               ],
             ),
             SingleChildScrollView(
@@ -70,8 +70,8 @@ class _ABResultsPanelWidgetState extends State<ABResultsPanelWidget> {
     );
   }
 
-  DataColumn _buildColumn(String label, int idx,
-      Comparable Function(ABArmResult r) selector) {
+  DataColumn _buildColumn(
+      String label, int idx, Comparable Function(ABArmResult r) selector) {
     final service = AutogenStatusDashboardService.instance;
     return DataColumn(
       label: Text(label),
@@ -114,36 +114,31 @@ class _ABResultsPanelWidgetState extends State<ABResultsPanelWidget> {
             children: [
               TextField(
                 controller: controlCtrl,
-                decoration:
-                    const InputDecoration(labelText: 'Control Arm ID'),
+                decoration: const InputDecoration(labelText: 'Control Arm ID'),
               ),
               TextField(
                 controller: accCtrl,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                decoration:
-                    const InputDecoration(labelText: 'Accuracy Weight'),
+                decoration: const InputDecoration(labelText: 'Accuracy Weight'),
               ),
               TextField(
                 controller: dropCtrl,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                decoration:
-                    const InputDecoration(labelText: 'Dropoff Weight'),
+                decoration: const InputDecoration(labelText: 'Dropoff Weight'),
               ),
               TextField(
                 controller: timeCtrl,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                decoration:
-                    const InputDecoration(labelText: 'Time Weight'),
+                decoration: const InputDecoration(labelText: 'Time Weight'),
               ),
               TextField(
                 controller: novCtrl,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                decoration:
-                    const InputDecoration(labelText: 'Novelty Weight'),
+                decoration: const InputDecoration(labelText: 'Novelty Weight'),
               ),
             ],
           ),

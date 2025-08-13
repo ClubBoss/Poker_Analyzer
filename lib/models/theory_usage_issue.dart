@@ -15,7 +15,8 @@ class TheoryUsageIssue {
         'reason': reason,
       };
 
-  factory TheoryUsageIssue.fromJson(Map<String, dynamic> json) => TheoryUsageIssue(
+  factory TheoryUsageIssue.fromJson(Map<String, dynamic> json) =>
+      TheoryUsageIssue(
         id: json['id']?.toString() ?? '',
         title: json['title']?.toString() ?? '',
         reason: json['reason']?.toString() ?? '',

@@ -48,4 +48,3 @@ class GoalEngagementTracker {
     return List.unmodifiable(_events);
   }
 }
-

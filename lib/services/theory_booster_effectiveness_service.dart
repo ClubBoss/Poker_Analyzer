@@ -57,6 +57,9 @@ class TheoryBoosterEffectivenessService {
 
   Future<List<BoosterEffectLog>> getImpactStats(String id) async {
     final list = await _load();
-    return [for (final l in list) if (l.id == id) l];
+    return [
+      for (final l in list)
+        if (l.id == id) l
+    ];
   }
 }

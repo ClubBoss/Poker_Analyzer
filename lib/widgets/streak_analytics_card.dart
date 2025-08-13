@@ -25,7 +25,8 @@ class StreakAnalyticsCard extends StatelessWidget {
         return Row(
           children: List.generate(6, (col) {
             final index = row * 6 + col;
-            if (index >= days.length) return const SizedBox(width: 12, height: 12);
+            if (index >= days.length)
+              return const SizedBox(width: 12, height: 12);
             final d = days[index];
             final active = map[d] ?? false;
             return Container(
@@ -81,4 +82,3 @@ class _CardData {
   final Map<DateTime, bool> map;
   _CardData(this.current, this.best, this.map);
 }
-

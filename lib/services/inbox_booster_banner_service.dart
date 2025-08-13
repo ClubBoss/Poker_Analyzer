@@ -5,8 +5,7 @@ class InboxBoosterBannerService {
   InboxBoosterBannerService();
 
   /// Singleton instance.
-  static final InboxBoosterBannerService instance =
-      InboxBoosterBannerService();
+  static final InboxBoosterBannerService instance = InboxBoosterBannerService();
 
   String? _lastTag;
 

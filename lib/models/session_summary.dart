@@ -3,7 +3,8 @@ class SessionSummary {
   final int total;
   final int correct;
 
-  SessionSummary({required this.date, required this.total, required this.correct});
+  SessionSummary(
+      {required this.date, required this.total, required this.correct});
 
   double get accuracy => total == 0 ? 0 : correct * 100 / total;
 

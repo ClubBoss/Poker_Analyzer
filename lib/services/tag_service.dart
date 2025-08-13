@@ -66,8 +66,7 @@ class TagService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> renameTag(int index, String newTag,
-      {String? color}) async {
+  Future<void> renameTag(int index, String newTag, {String? color}) async {
     if (index < 0 || index >= _tags.length) return;
     final old = _tags[index];
     if (newTag != old && _tags.contains(newTag)) return;
@@ -109,8 +108,7 @@ class TagService extends ChangeNotifier {
           {'name': name, 'color': _colors[name] ?? _defaultColor}
       ];
       final jsonStr = encoder.convert(data);
-      final fileName =
-          'tags_${DateTime.now().millisecondsSinceEpoch}.json';
+      final fileName = 'tags_${DateTime.now().millisecondsSinceEpoch}.json';
       final savePath = await FilePicker.platform.saveFile(
         dialogTitle: 'Save Tags',
         fileName: fileName,

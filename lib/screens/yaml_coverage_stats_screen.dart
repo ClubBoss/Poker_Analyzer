@@ -10,7 +10,8 @@ class YamlCoverageStatsScreen extends StatefulWidget {
   const YamlCoverageStatsScreen({super.key});
 
   @override
-  State<YamlCoverageStatsScreen> createState() => _YamlCoverageStatsScreenState();
+  State<YamlCoverageStatsScreen> createState() =>
+      _YamlCoverageStatsScreenState();
 }
 
 class _YamlCoverageStatsScreenState extends State<YamlCoverageStatsScreen> {
@@ -43,7 +44,8 @@ class _YamlCoverageStatsScreenState extends State<YamlCoverageStatsScreen> {
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                ElevatedButton(onPressed: _load, child: const Text('🔄 Обновить')),
+                ElevatedButton(
+                    onPressed: _load, child: const Text('🔄 Обновить')),
                 const SizedBox(height: 16),
                 if (_report != null) ...[
                   _section('Частота тегов', _report!.tags),

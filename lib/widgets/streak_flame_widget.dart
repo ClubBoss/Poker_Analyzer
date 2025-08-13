@@ -63,7 +63,10 @@ class _StreakFlameWidgetState extends State<StreakFlameWidget>
               return Transform.scale(
                 scale: scale,
                 child: Row(
-                  children: [for (var i = 0; i < flames; i++) const Text('🔥', style: TextStyle(fontSize: 20))],
+                  children: [
+                    for (var i = 0; i < flames; i++)
+                      const Text('🔥', style: TextStyle(fontSize: 20))
+                  ],
                 ),
               );
             },

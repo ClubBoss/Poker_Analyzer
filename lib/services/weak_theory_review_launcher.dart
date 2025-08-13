@@ -29,8 +29,7 @@ class WeakTheoryReviewLauncher {
 
   /// Checks recent mistakes and opens a [TheoryRecapDialog] if thresholds are exceeded.
   Future<void> maybeLaunch(BuildContext context) async {
-    final history =
-        await MistakeTagHistoryService.getRecentHistory(limit: 100);
+    final history = await MistakeTagHistoryService.getRecentHistory(limit: 100);
     if (history.isEmpty) return;
 
     final packs = <String>[];

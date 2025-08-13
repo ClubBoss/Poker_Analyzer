@@ -17,7 +17,8 @@ class _RecapData {
   final int streak;
   final int completedToday;
   final TheoryMiniLessonNode? next;
-  const _RecapData({required this.streak, required this.completedToday, this.next});
+  const _RecapData(
+      {required this.streak, required this.completedToday, this.next});
 }
 
 class _DailyTrainingRecapCardState extends State<DailyTrainingRecapCard> {

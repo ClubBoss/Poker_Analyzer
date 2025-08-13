@@ -9,7 +9,9 @@ import 'package:poker_analyzer/models/player_model.dart';
 
 class _MockConverter implements ConverterPlugin {
   _MockConverter(this.formatId, this.description,
-      [this.onConvertFrom, this.onConvertTo, this.onValidate,
+      [this.onConvertFrom,
+      this.onConvertTo,
+      this.onValidate,
       this.capabilities = const ConverterFormatCapabilities(
         supportsImport: true,
         supportsExport: true,
@@ -49,7 +51,10 @@ SavedHand _dummyHand() {
     heroPosition: 'BTN',
     numberOfPlayers: 2,
     playerCards: <List<CardModel>>[
-      <CardModel>[CardModel(rank: 'A', suit: '♠'), CardModel(rank: 'K', suit: '♦')],
+      <CardModel>[
+        CardModel(rank: 'A', suit: '♠'),
+        CardModel(rank: 'K', suit: '♦')
+      ],
       <CardModel>[],
     ],
     boardCards: <CardModel>[],
@@ -57,7 +62,10 @@ SavedHand _dummyHand() {
     actions: <ActionEntry>[ActionEntry(0, 0, 'call')],
     stackSizes: <int, int>{0: 100, 1: 100},
     playerPositions: <int, String>{0: 'BTN', 1: 'BB'},
-    playerTypes: <int, PlayerType>{0: PlayerType.unknown, 1: PlayerType.unknown},
+    playerTypes: <int, PlayerType>{
+      0: PlayerType.unknown,
+      1: PlayerType.unknown
+    },
   );
 }
 
@@ -75,7 +83,8 @@ void main() {
       final registry = ConverterRegistry();
       registry.register(_MockConverter('dup', 'D'));
 
-      expect(() => registry.register(_MockConverter('dup', 'D')), throwsStateError);
+      expect(() => registry.register(_MockConverter('dup', 'D')),
+          throwsStateError);
     });
 
     test('findByFormatId returns the correct plugin', () {
@@ -108,8 +117,7 @@ void main() {
 
     test('tryExport returns result on success', () {
       final registry = ConverterRegistry();
-      registry.register(
-          _MockConverter('ok', 'Ok', null, (_) => 'exported'));
+      registry.register(_MockConverter('ok', 'Ok', null, (_) => 'exported'));
 
       final result = registry.tryExport('ok', _dummyHand());
       expect(result, 'exported');
@@ -195,7 +203,8 @@ void main() {
 
     test('detectCompatible finds matching converter', () {
       final registry = ConverterRegistry();
-      final ok = _MockConverter('ok', 'Ok', (d) => d == 'match' ? _dummyHand() : null);
+      final ok =
+          _MockConverter('ok', 'Ok', (d) => d == 'match' ? _dummyHand() : null);
       registry.register(ok);
       registry.register(_MockConverter('bad', 'Bad'));
 

@@ -122,7 +122,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
       _handleDeepLink();
       context.read<GiftDropService>().checkAndDropGift(context: context);
       context.read<SessionStreakOverlayPromptService>().run(context);
-      context.read<DecayBadgeBannerController>().maybeShowStreakBadgeBanner(context);
+      context
+          .read<DecayBadgeBannerController>()
+          .maybeShowStreakBadgeBanner(context);
     });
   }
 
@@ -145,9 +147,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
       MaterialPageRoute(builder: (_) => const OnboardingScreen()),
     );
     if (mounted) {
-      setState(() =>
-          _tutorialCompleted =
-              context.read<UserPreferencesService>().tutorialCompleted);
+      setState(() => _tutorialCompleted =
+          context.read<UserPreferencesService>().tutorialCompleted);
     }
   }
 
@@ -163,10 +164,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
 
   Future<void> _handleDeepLink() async {
     final uri = Uri.base;
-    if (uri.scheme == 'app' && uri.host == 'pack' && uri.pathSegments.isNotEmpty) {
+    if (uri.scheme == 'app' &&
+        uri.host == 'pack' &&
+        uri.pathSegments.isNotEmpty) {
       final packId = uri.pathSegments.first;
       final storage = context.read<TemplateStorageService>();
-      final template = storage.templates.firstWhereOrNull((t) => t.id == packId);
+      final template =
+          storage.templates.firstWhereOrNull((t) => t.id == packId);
       if (template != null) {
         await Navigator.push(
           context,

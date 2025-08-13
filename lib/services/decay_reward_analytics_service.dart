@@ -20,9 +20,8 @@ class DecayRewardAnalyticsService {
       try {
         final data = jsonDecode(raw);
         if (data is List) {
-          _log.addAll(data.whereType<Map>().map(
-              (e) => RewardAnalyticsEntry.fromJson(
-                  Map<String, dynamic>.from(e))));
+          _log.addAll(data.whereType<Map>().map((e) =>
+              RewardAnalyticsEntry.fromJson(Map<String, dynamic>.from(e))));
         }
       } catch (_) {}
     }
@@ -55,7 +54,10 @@ class DecayRewardAnalyticsService {
     await _load();
     if (tag == null) return List.unmodifiable(_log);
     final key = tag.toLowerCase();
-    return [for (final e in _log) if (e.tag == key) e];
+    return [
+      for (final e in _log)
+        if (e.tag == key) e
+    ];
   }
 
   Future<Map<String, int>> getMostCommonRewards({String? tag}) async {

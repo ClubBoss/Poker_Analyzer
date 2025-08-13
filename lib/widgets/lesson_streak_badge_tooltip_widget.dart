@@ -25,4 +25,3 @@ class LessonStreakBadgeTooltipWidget extends StatelessWidget {
     );
   }
 }
-

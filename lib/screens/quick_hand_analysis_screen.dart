@@ -18,7 +18,8 @@ class QuickHandAnalysisScreen extends StatefulWidget {
   const QuickHandAnalysisScreen({super.key, this.record});
 
   @override
-  State<QuickHandAnalysisScreen> createState() => _QuickHandAnalysisScreenState();
+  State<QuickHandAnalysisScreen> createState() =>
+      _QuickHandAnalysisScreenState();
 }
 
 class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
@@ -61,12 +62,12 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
     final stack = int.tryParse(_stackController.text) ?? 10;
     final level = context.read<XPTrackerService>().level;
     final record = context.read<HandAnalyzerService>().analyzePush(
-      cards: _cards,
-      stack: stack,
-      playerCount: _playerCount,
-      heroIndex: _heroIndex,
-      level: level,
-    );
+          cards: _cards,
+          stack: stack,
+          playerCount: _playerCount,
+          heroIndex: _heroIndex,
+          level: level,
+        );
     if (record == null) return;
     setState(() {
       _ev = record.ev;
@@ -85,12 +86,12 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
     final stack = int.tryParse(_stackController.text) ?? 10;
     final level = context.read<XPTrackerService>().level;
     final record = context.read<HandAnalyzerService>().analyzePush(
-      cards: _cards,
-      stack: stack,
-      playerCount: _playerCount,
-      heroIndex: _heroIndex,
-      level: level,
-    );
+          cards: _cards,
+          stack: stack,
+          playerCount: _playerCount,
+          heroIndex: _heroIndex,
+          level: level,
+        );
     if (record == null) return;
     context.read<HandAnalysisHistoryService>().add(record);
     setState(() {
@@ -113,22 +114,31 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
           children: [
             const Text('Карты героя', style: TextStyle(color: Colors.white)),
             const SizedBox(height: 8),
-            CardPickerWidget(cards: _cards, onChanged: (i, c) {
-              setState(() {
-                if (_cards.length > i) {
-                  _cards[i] = c;
-                } else {
-                  _cards.add(c);
-                }
-              });
-              _scheduleAnalysis();
-            }, disabledCards: const {},),
+            CardPickerWidget(
+              cards: _cards,
+              onChanged: (i, c) {
+                setState(() {
+                  if (_cards.length > i) {
+                    _cards[i] = c;
+                  } else {
+                    _cards.add(c);
+                  }
+                });
+                _scheduleAnalysis();
+              },
+              disabledCards: const {},
+            ),
             const SizedBox(height: 16),
             const Text('Позиция', style: TextStyle(color: Colors.white)),
             DropdownButton<int>(
               value: _heroIndex,
               dropdownColor: Colors.black,
-              items: List.generate(_playerCount, (i) => DropdownMenuItem(value: i, child: Text('P${i + 1}', style: const TextStyle(color: Colors.white)))),
+              items: List.generate(
+                  _playerCount,
+                  (i) => DropdownMenuItem(
+                      value: i,
+                      child: Text('P${i + 1}',
+                          style: const TextStyle(color: Colors.white)))),
               onChanged: (v) {
                 setState(() => _heroIndex = v ?? 0);
                 _scheduleAnalysis();
@@ -144,11 +154,17 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
               onChanged: (_) => _scheduleAnalysis(),
             ),
             const SizedBox(height: 16),
-            const Text('Количество игроков', style: TextStyle(color: Colors.white)),
+            const Text('Количество игроков',
+                style: TextStyle(color: Colors.white)),
             DropdownButton<int>(
               value: _playerCount,
               dropdownColor: Colors.black,
-              items: _players.map((e) => DropdownMenuItem(value: e, child: Text('$e', style: const TextStyle(color: Colors.white)))).toList(),
+              items: _players
+                  .map((e) => DropdownMenuItem(
+                      value: e,
+                      child: Text('$e',
+                          style: const TextStyle(color: Colors.white))))
+                  .toList(),
               onChanged: (v) {
                 setState(() {
                   _playerCount = v ?? 6;
@@ -169,27 +185,38 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('EV: ${_ev!.toStringAsFixed(2)} BB', style: const TextStyle(color: Colors.white)),
-                  Text('ICM: ${_icm!.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white)),
-                  Text('Решение: $_action', style: const TextStyle(color: Colors.white)),
-                  if (_hint != null) Text(_hint!, style: const TextStyle(color: Colors.white70)),
-                  ValueListenableBuilder<List<TrainingPackTemplate>>( 
-                    valueListenable: context.read<AdaptiveTrainingService>().recommendedNotifier,
+                  Text('EV: ${_ev!.toStringAsFixed(2)} BB',
+                      style: const TextStyle(color: Colors.white)),
+                  Text('ICM: ${_icm!.toStringAsFixed(2)}',
+                      style: const TextStyle(color: Colors.white)),
+                  Text('Решение: $_action',
+                      style: const TextStyle(color: Colors.white)),
+                  if (_hint != null)
+                    Text(_hint!, style: const TextStyle(color: Colors.white70)),
+                  ValueListenableBuilder<List<TrainingPackTemplate>>(
+                    valueListenable: context
+                        .read<AdaptiveTrainingService>()
+                        .recommendedNotifier,
                     builder: (_, list, __) {
                       if (list.isEmpty) return const SizedBox.shrink();
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const SizedBox(height: 16),
-                          const Text('Рекомендуемые паки:', style: TextStyle(color: Colors.white)),
+                          const Text('Рекомендуемые паки:',
+                              style: TextStyle(color: Colors.white)),
                           for (final t in list.take(3))
                             TextButton(
                               onPressed: () async {
-                                await context.read<TrainingSessionService>().startSession(t);
+                                await context
+                                    .read<TrainingSessionService>()
+                                    .startSession(t);
                                 if (context.mounted) {
                                   await Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+                                    MaterialPageRoute(
+                                        builder: (_) =>
+                                            const TrainingSessionScreen()),
                                   );
                                 }
                               },

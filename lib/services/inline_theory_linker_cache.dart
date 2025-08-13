@@ -38,4 +38,3 @@ class InlineTheoryLinkerCache {
     return matches.isEmpty ? null : matches.first;
   }
 }
-

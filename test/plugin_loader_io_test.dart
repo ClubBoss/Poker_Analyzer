@@ -39,9 +39,10 @@ class _Response extends Stream<List<int>> implements HttpClientResponse {
   @override
   StreamSubscription<List<int>> listen(void Function(List<int>)? onData,
       {Function? onError, void Function()? onDone, bool? cancelOnError}) {
-    return Stream<List<int>>.fromIterable([data])
-        .listen(onData, onError: onError, onDone: onDone, cancelOnError: cancelOnError);
+    return Stream<List<int>>.fromIterable([data]).listen(onData,
+        onError: onError, onDone: onDone, cancelOnError: cancelOnError);
   }
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -114,7 +115,8 @@ void main(List<String> args, SendPort port) {
     PathProviderPlatform.instance = _FakePathProvider(dir.path);
     HttpOverrides.runZoned(() async {
       final loader = PluginLoader();
-      final downloaded = await loader.downloadFromUrl('http://x/TestPlugin.dart');
+      final downloaded =
+          await loader.downloadFromUrl('http://x/TestPlugin.dart');
       expect(downloaded, true);
       final file = File('${dir.path}/plugins/TestPlugin.dart');
       expect(await file.exists(), true);

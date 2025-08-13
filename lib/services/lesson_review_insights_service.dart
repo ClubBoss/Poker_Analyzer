@@ -39,8 +39,8 @@ class LessonReviewInsightsService {
 
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
-    final data = _history.map((key, value) =>
-        MapEntry(key, value.map((e) => e.toJson()).toList()));
+    final data = _history.map(
+        (key, value) => MapEntry(key, value.map((e) => e.toJson()).toList()));
     await prefs.setString(_prefsKey, jsonEncode(data));
   }
 
@@ -111,4 +111,3 @@ class _LessonReviewEntry {
     );
   }
 }
-

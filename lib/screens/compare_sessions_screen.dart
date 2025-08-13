@@ -7,7 +7,8 @@ import '../models/v2/training_session.dart';
 class CompareSessionsScreen extends StatefulWidget {
   final String firstId;
   final String secondId;
-  const CompareSessionsScreen({super.key, required this.firstId, required this.secondId});
+  const CompareSessionsScreen(
+      {super.key, required this.firstId, required this.secondId});
 
   @override
   State<CompareSessionsScreen> createState() => _CompareSessionsScreenState();
@@ -47,9 +48,17 @@ class _CompareSessionsScreenState extends State<CompareSessionsScreen> {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Expanded(child: Text(label, style: const TextStyle(color: Colors.white70))),
-          Expanded(child: Text(left, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white))),
-          Expanded(child: Text(right, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white))),
+          Expanded(
+              child:
+                  Text(label, style: const TextStyle(color: Colors.white70))),
+          Expanded(
+              child: Text(left,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.white))),
+          Expanded(
+              child: Text(right,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.white))),
         ],
       ),
     );
@@ -59,7 +68,8 @@ class _CompareSessionsScreenState extends State<CompareSessionsScreen> {
     Color leftColor;
     Color rightColor;
     if (c.firstCorrect == c.secondCorrect) {
-      leftColor = rightColor = c.firstCorrect ? Colors.greenAccent : Colors.white;
+      leftColor =
+          rightColor = c.firstCorrect ? Colors.greenAccent : Colors.white;
     } else {
       leftColor = c.firstCorrect ? Colors.greenAccent : Colors.redAccent;
       rightColor = c.secondCorrect ? Colors.greenAccent : Colors.redAccent;
@@ -68,9 +78,14 @@ class _CompareSessionsScreenState extends State<CompareSessionsScreen> {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Expanded(child: Text(c.id, style: const TextStyle(color: Colors.white70))),
-          Expanded(child: Icon(c.firstCorrect ? Icons.check : Icons.close, color: leftColor)),
-          Expanded(child: Icon(c.secondCorrect ? Icons.check : Icons.close, color: rightColor)),
+          Expanded(
+              child: Text(c.id, style: const TextStyle(color: Colors.white70))),
+          Expanded(
+              child: Icon(c.firstCorrect ? Icons.check : Icons.close,
+                  color: leftColor)),
+          Expanded(
+              child: Icon(c.secondCorrect ? Icons.check : Icons.close,
+                  color: rightColor)),
         ],
       ),
     );
@@ -88,9 +103,13 @@ class _CompareSessionsScreenState extends State<CompareSessionsScreen> {
     final secondCorrect = _second!.results.values.where((e) => e).length;
     final firstMistakes = _first!.results.length - firstCorrect;
     final secondMistakes = _second!.results.length - secondCorrect;
-    final firstDuration = (_first!.completedAt ?? DateTime.now()).difference(_first!.startedAt);
-    final secondDuration = (_second!.completedAt ?? DateTime.now()).difference(_second!.startedAt);
-    final overlap = _first!.results.keys.toSet().intersection(_second!.results.keys.toSet());
+    final firstDuration =
+        (_first!.completedAt ?? DateTime.now()).difference(_first!.startedAt);
+    final secondDuration =
+        (_second!.completedAt ?? DateTime.now()).difference(_second!.startedAt);
+    final overlap = _first!.results.keys
+        .toSet()
+        .intersection(_second!.results.keys.toSet());
     final spots = [
       for (final id in overlap)
         _SpotComparison(
@@ -109,30 +128,51 @@ class _CompareSessionsScreenState extends State<CompareSessionsScreen> {
           Row(
             children: [
               const Expanded(child: SizedBox()),
-              Expanded(child: Text('Сессия ${_first!.id}', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white))),
-              Expanded(child: Text('Сессия ${_second!.id}', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white))),
+              Expanded(
+                  child: Text('Сессия ${_first!.id}',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.white))),
+              Expanded(
+                  child: Text('Сессия ${_second!.id}',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.white))),
             ],
           ),
           const SizedBox(height: 8),
-          _buildRow('Старт', formatDateTime(_first!.startedAt), formatDateTime(_second!.startedAt)),
+          _buildRow('Старт', formatDateTime(_first!.startedAt),
+              formatDateTime(_second!.startedAt)),
           _buildRow(
             'Финиш',
-            _first!.completedAt != null ? formatDateTime(_first!.completedAt!) : '-',
-            _second!.completedAt != null ? formatDateTime(_second!.completedAt!) : '-',
+            _first!.completedAt != null
+                ? formatDateTime(_first!.completedAt!)
+                : '-',
+            _second!.completedAt != null
+                ? formatDateTime(_second!.completedAt!)
+                : '-',
           ),
-          _buildRow('Споты', _first!.results.length.toString(), _second!.results.length.toString()),
+          _buildRow('Споты', _first!.results.length.toString(),
+              _second!.results.length.toString()),
           _buildRow('Верно', firstCorrect.toString(), secondCorrect.toString()),
-          _buildRow('Ошибки', firstMistakes.toString(), secondMistakes.toString()),
-          _buildRow('Длительность', formatDuration(firstDuration), formatDuration(secondDuration)),
+          _buildRow(
+              'Ошибки', firstMistakes.toString(), secondMistakes.toString()),
+          _buildRow('Длительность', formatDuration(firstDuration),
+              formatDuration(secondDuration)),
           if (spots.isNotEmpty) ...[
             const SizedBox(height: 16),
-            const Text('Совпадающие споты', style: TextStyle(color: Colors.white)),
+            const Text('Совпадающие споты',
+                style: TextStyle(color: Colors.white)),
             const SizedBox(height: 8),
             const Row(
               children: [
                 Expanded(child: SizedBox()),
-                Expanded(child: Text('Первая', textAlign: TextAlign.center, style: TextStyle(color: Colors.white))),
-                Expanded(child: Text('Вторая', textAlign: TextAlign.center, style: TextStyle(color: Colors.white))),
+                Expanded(
+                    child: Text('Первая',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white))),
+                Expanded(
+                    child: Text('Вторая',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white))),
               ],
             ),
             const SizedBox(height: 4),
@@ -148,5 +188,8 @@ class _SpotComparison {
   final String id;
   final bool firstCorrect;
   final bool secondCorrect;
-  _SpotComparison({required this.id, required this.firstCorrect, required this.secondCorrect});
+  _SpotComparison(
+      {required this.id,
+      required this.firstCorrect,
+      required this.secondCorrect});
 }

@@ -44,8 +44,9 @@ class ChipWidget extends StatelessWidget {
                 child: Container(
                   width: size * 2,
                   height: size,
-                  alignment:
-                      i == chipCount - 1 ? Alignment.center : Alignment.bottomCenter,
+                  alignment: i == chipCount - 1
+                      ? Alignment.center
+                      : Alignment.bottomCenter,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: LinearGradient(

@@ -120,8 +120,12 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(context, controller.text), child: const Text('Save')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, controller.text),
+              child: const Text('Save')),
         ],
       ),
     );
@@ -170,16 +174,14 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
                 onPressed: () => Navigator.pop(context),
                 child: const Text('Cancel')),
             TextButton(
-                onPressed: () =>
-                    Navigator.pop(context, selected.toList()),
+                onPressed: () => Navigator.pop(context, selected.toList()),
                 child: const Text('Save')),
           ],
         ),
       ),
     );
     if (result != null) {
-      final updated =
-          spot.copyWith(tags: result, editedAt: DateTime.now());
+      final updated = spot.copyWith(tags: result, editedAt: DateTime.now());
       await context.read<TrainingSessionService>().updateSpot(updated);
       if (!mounted) return;
       setState(() => spot = updated);
@@ -219,7 +221,8 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
         color: Colors.grey.shade800,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: rows),
+      child:
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: rows),
     );
   }
 
@@ -256,7 +259,8 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
               ),
             ],
             const SizedBox(height: 8),
-            ActionHistoryWidget(actions: _actions(), playerPositions: _posMap()),
+            ActionHistoryWidget(
+                actions: _actions(), playerPositions: _posMap()),
             _evCard(),
             if (_lesson != null) ...[
               const SizedBox(height: 8),
@@ -277,18 +281,14 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          _lesson!.content
-                              .trim()
-                              .split(RegExp(r'\n\n+'))
-                              .first,
+                          _lesson!.content.trim().split(RegExp(r'\n\n+')).first,
                           style: const TextStyle(color: Colors.white70),
                         ),
                         Align(
                           alignment: Alignment.centerRight,
                           child: TextButton(
-                            onPressed: () =>
-                                TheoryMiniLessonNavigator.instance
-                                    .openLessonById(_lesson!.id, context),
+                            onPressed: () => TheoryMiniLessonNavigator.instance
+                                .openLessonById(_lesson!.id, context),
                             child: const Text('Read full'),
                           ),
                         ),

@@ -56,8 +56,7 @@ class OverlayDecayBoosterOrchestrator {
     final messenger = ScaffoldMessenger.of(context);
     final controller = messenger.showSnackBar(
       SnackBar(
-        content:
-            const Text('This concept might be fading — want to refresh?'),
+        content: const Text('This concept might be fading — want to refresh?'),
         action: SnackBarAction(
           label: 'Review now',
           onPressed: () async {
@@ -94,9 +93,7 @@ class OverlayDecayBoosterOrchestrator {
   /// Finds a lesson for the most decayed tag above [threshold].
   Future<TheoryMiniLessonNode?> findCandidateLesson({DateTime? now}) async {
     final scores = await decay.computeDecayScores(now: now);
-    final entries = scores.entries
-        .where((e) => e.value > threshold)
-        .toList()
+    final entries = scores.entries.where((e) => e.value > threshold).toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     if (entries.isEmpty) return null;
 
@@ -114,4 +111,3 @@ class OverlayDecayBoosterOrchestrator {
     return null;
   }
 }
-

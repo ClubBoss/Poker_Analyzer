@@ -18,14 +18,14 @@ class DailyHandScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Ежедневная раздача'),
         centerTitle: true,
-        actions: [SyncStatusIcon.of(context), 
+        actions: [
+          SyncStatusIcon.of(context),
           IconButton(
             icon: const Icon(Icons.history),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (_) => const PastDailyHandsScreen()),
+                MaterialPageRoute(builder: (_) => const PastDailyHandsScreen()),
               );
             },
           ),

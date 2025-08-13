@@ -49,7 +49,8 @@ class _GoalCardState extends State<GoalCard>
 
   @override
   Widget build(BuildContext context) {
-    final progress = (widget.goal.currentXP / widget.goal.targetXP).clamp(0.0, 1.0);
+    final progress =
+        (widget.goal.currentXP / widget.goal.targetXP).clamp(0.0, 1.0);
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {

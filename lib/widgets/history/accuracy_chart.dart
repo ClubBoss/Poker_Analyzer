@@ -16,7 +16,8 @@ class AccuracyChart extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final sortedSessions = [...sessions]..sort((a, b) => a.date.compareTo(b.date));
+    final sortedSessions = [...sessions]
+      ..sort((a, b) => a.date.compareTo(b.date));
     final spots = <FlSpot>[];
     for (var i = 0; i < sortedSessions.length; i++) {
       spots.add(FlSpot(i.toDouble(), sortedSessions[i].accuracy));
@@ -52,8 +53,10 @@ class AccuracyChart extends StatelessWidget {
                   const FlLine(color: Colors.white24, strokeWidth: 1),
             ),
             titlesData: FlTitlesData(
-              rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              rightTitles:
+                  const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              topTitles:
+                  const AxisTitles(sideTitles: SideTitles(showTitles: false)),
               leftTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
@@ -74,7 +77,8 @@ class AccuracyChart extends StatelessWidget {
                     if (index < 0 || index >= sortedSessions.length) {
                       return const SizedBox.shrink();
                     }
-                    if (index % step != 0 && index != sortedSessions.length - 1) {
+                    if (index % step != 0 &&
+                        index != sortedSessions.length - 1) {
                       return const SizedBox.shrink();
                     }
                     final d = sortedSessions[index].date;

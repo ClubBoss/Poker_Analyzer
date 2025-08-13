@@ -106,4 +106,3 @@ class BoosterPackDiffReporter {
     return parts.join(' ');
   }
 }
-

@@ -34,7 +34,8 @@ class BoosterVariationInjector {
     final newSpots = <TrainingPackSpot>[];
 
     for (final cluster in clusters) {
-      final originals = cluster.spots.where((s) => idSet.contains(s.id)).toList();
+      final originals =
+          cluster.spots.where((s) => idSet.contains(s.id)).toList();
       if (originals.length <= 1) continue;
       for (final orig in originals) {
         var counter = 1;
@@ -77,10 +78,10 @@ class BoosterVariationInjector {
     final map = pack.toJson();
     map['spots'] = [for (final s in updated) s.toJson()];
     map['spotCount'] = updated.length;
-    final result = TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+    final result =
+        TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
     result.isGeneratedPack = pack.isGeneratedPack;
     result.isSampledPack = pack.isSampledPack;
     return result;
   }
 }
-

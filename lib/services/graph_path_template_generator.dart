@@ -17,10 +17,7 @@ class GraphPathTemplateGenerator {
           'type': 'branch',
           'id': 'format',
           'prompt': 'Choose format',
-          'branches': {
-            'Cash': 'cash_intro',
-            'MTT': 'mtt_intro'
-          }
+          'branches': {'Cash': 'cash_intro', 'MTT': 'mtt_intro'}
         },
         {
           'type': 'stage',
@@ -32,10 +29,7 @@ class GraphPathTemplateGenerator {
           'id': 'mtt_intro',
           'next': ['end']
         },
-        {
-          'type': 'stage',
-          'id': 'end'
-        }
+        {'type': 'stage', 'id': 'end'}
       ]
     };
     return const YamlEncoder().convert(map);
@@ -54,10 +48,7 @@ class GraphPathTemplateGenerator {
           'type': 'branch',
           'id': 'environment',
           'prompt': 'Choose environment',
-          'branches': {
-            'Live': 'live_intro',
-            'Online': 'online_intro'
-          }
+          'branches': {'Live': 'live_intro', 'Online': 'online_intro'}
         },
         {
           'type': 'stage',
@@ -69,10 +60,7 @@ class GraphPathTemplateGenerator {
           'id': 'online_intro',
           'next': ['end']
         },
-        {
-          'type': 'stage',
-          'id': 'end'
-        }
+        {'type': 'stage', 'id': 'end'}
       ]
     };
     return const YamlEncoder().convert(map);
@@ -91,10 +79,7 @@ class GraphPathTemplateGenerator {
           'type': 'branch',
           'id': 'knowledge',
           'prompt': 'ICM experience',
-          'branches': {
-            'Beginner': 'icm_basics',
-            'Advanced': 'icm_advanced'
-          }
+          'branches': {'Beginner': 'icm_basics', 'Advanced': 'icm_advanced'}
         },
         {
           'type': 'stage',
@@ -106,10 +91,7 @@ class GraphPathTemplateGenerator {
           'id': 'icm_advanced',
           'next': ['end']
         },
-        {
-          'type': 'stage',
-          'id': 'end'
-        }
+        {'type': 'stage', 'id': 'end'}
       ]
     };
     return const YamlEncoder().convert(map);
@@ -128,10 +110,7 @@ class GraphPathTemplateGenerator {
           'type': 'branch',
           'id': 'experience',
           'prompt': 'Heads-Up experience',
-          'branches': {
-            'New': 'hu_basics',
-            'Grinder': 'hu_strategy'
-          }
+          'branches': {'New': 'hu_basics', 'Grinder': 'hu_strategy'}
         },
         {
           'type': 'stage',
@@ -143,10 +122,7 @@ class GraphPathTemplateGenerator {
           'id': 'hu_strategy',
           'next': ['end']
         },
-        {
-          'type': 'stage',
-          'id': 'end'
-        }
+        {'type': 'stage', 'id': 'end'}
       ]
     };
     return const YamlEncoder().convert(map);

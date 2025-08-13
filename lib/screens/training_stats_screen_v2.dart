@@ -131,9 +131,12 @@ class _TrainingStatsScreenV2State extends State<TrainingStatsScreenV2> {
           minY: 0,
           barGroups: groups,
           titlesData: FlTitlesData(
-            leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -241,8 +244,7 @@ class _TrainingStatsScreenV2State extends State<TrainingStatsScreenV2> {
         tag: _tag,
       );
       final data = await file.readAsString();
-      await FileSaverService.instance
-          .saveCsv('training_stats', data);
+      await FileSaverService.instance.saveCsv('training_stats', data);
     } else if (result == 'save_pdf') {
       final file = await exporter.exportPdf(
         logs: logs,

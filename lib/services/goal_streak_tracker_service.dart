@@ -60,7 +60,8 @@ class GoalStreakTrackerService {
     final logs = await GoalProgressPersistenceService.instance.getAllLogs();
     final days = <DateTime>[];
     for (final l in logs) {
-      final d = DateTime(l.completedAt.year, l.completedAt.month, l.completedAt.day);
+      final d =
+          DateTime(l.completedAt.year, l.completedAt.month, l.completedAt.day);
       if (days.isEmpty || days.last != d) {
         days.add(d);
       }
@@ -89,9 +90,8 @@ class GoalStreakTrackerService {
 
     final lastDay = days.last;
     final today = DateTime.now();
-    final diff = DateTime(today.year, today.month, today.day)
-        .difference(lastDay)
-        .inDays;
+    final diff =
+        DateTime(today.year, today.month, today.day).difference(lastDay).inDays;
     final current = diff > 1 ? 0 : count;
     return (current: current, longest: best, lastDay: lastDay);
   }

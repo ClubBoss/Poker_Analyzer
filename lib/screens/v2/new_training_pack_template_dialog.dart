@@ -16,10 +16,12 @@ class NewTrainingPackTemplateDialog extends StatefulWidget {
   }
 
   @override
-  State<NewTrainingPackTemplateDialog> createState() => _NewTrainingPackTemplateDialogState();
+  State<NewTrainingPackTemplateDialog> createState() =>
+      _NewTrainingPackTemplateDialogState();
 }
 
-class _NewTrainingPackTemplateDialogState extends State<NewTrainingPackTemplateDialog> {
+class _NewTrainingPackTemplateDialogState
+    extends State<NewTrainingPackTemplateDialog> {
   final _nameCtrl = TextEditingController();
   final _streetCtrl = TextEditingController();
   final _rangeCtrl = TextEditingController();
@@ -71,10 +73,12 @@ class _NewTrainingPackTemplateDialogState extends State<NewTrainingPackTemplateD
               value: _type,
               decoration: const InputDecoration(labelText: 'Game Type'),
               items: const [
-                DropdownMenuItem(value: GameType.tournament, child: Text('Tournament')),
+                DropdownMenuItem(
+                    value: GameType.tournament, child: Text('Tournament')),
                 DropdownMenuItem(value: GameType.cash, child: Text('Cash')),
               ],
-              onChanged: (v) => setState(() => _type = v ?? GameType.tournament),
+              onChanged: (v) =>
+                  setState(() => _type = v ?? GameType.tournament),
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
@@ -107,10 +111,12 @@ class _NewTrainingPackTemplateDialogState extends State<NewTrainingPackTemplateD
                   value: _varType,
                   decoration: const InputDecoration(labelText: 'Game Type'),
                   items: const [
-                    DropdownMenuItem(value: GameType.tournament, child: Text('Tournament')),
+                    DropdownMenuItem(
+                        value: GameType.tournament, child: Text('Tournament')),
                     DropdownMenuItem(value: GameType.cash, child: Text('Cash')),
                   ],
-                  onChanged: (v) => setState(() => _varType = v ?? GameType.tournament),
+                  onChanged: (v) =>
+                      setState(() => _varType = v ?? GameType.tournament),
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<HeroPosition>(
@@ -119,10 +125,12 @@ class _NewTrainingPackTemplateDialogState extends State<NewTrainingPackTemplateD
                   items: const [
                     DropdownMenuItem(value: HeroPosition.sb, child: Text('SB')),
                     DropdownMenuItem(value: HeroPosition.bb, child: Text('BB')),
-                    DropdownMenuItem(value: HeroPosition.btn, child: Text('BTN')),
+                    DropdownMenuItem(
+                        value: HeroPosition.btn, child: Text('BTN')),
                     DropdownMenuItem(value: HeroPosition.co, child: Text('CO')),
                     DropdownMenuItem(value: HeroPosition.mp, child: Text('MP')),
-                    DropdownMenuItem(value: HeroPosition.utg, child: Text('UTG')),
+                    DropdownMenuItem(
+                        value: HeroPosition.utg, child: Text('UTG')),
                   ],
                   onChanged: (v) => setState(() => _pos = v ?? HeroPosition.sb),
                 ),

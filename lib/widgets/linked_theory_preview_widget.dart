@@ -16,7 +16,8 @@ class LinkedTheoryPreviewWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ids = (spot.meta['linkedTheoryLessonIds'] as List?)?.cast<String>() ?? [];
+    final ids =
+        (spot.meta['linkedTheoryLessonIds'] as List?)?.cast<String>() ?? [];
     if (ids.isEmpty) return const SizedBox.shrink();
     return Card(
       child: ListTile(
@@ -32,4 +33,3 @@ class LinkedTheoryPreviewWidget extends StatelessWidget {
     );
   }
 }
-

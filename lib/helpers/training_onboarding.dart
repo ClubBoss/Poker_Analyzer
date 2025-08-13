@@ -9,9 +9,8 @@ Future<void> openTrainingTemplates(BuildContext context) async {
   await Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (_) => seen
-          ? const ReadyToTrainScreen()
-          : const TrainingOnboardingScreen(),
+      builder: (_) =>
+          seen ? const ReadyToTrainScreen() : const TrainingOnboardingScreen(),
     ),
   );
 }

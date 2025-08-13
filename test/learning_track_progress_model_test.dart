@@ -22,7 +22,7 @@ class _FakeLogService extends SessionLogService {
 class _FakeMasteryService extends TagMasteryService {
   final Map<String, double> _map;
   _FakeMasteryService(this._map)
-    : super(logs: SessionLogService(sessions: TrainingSessionService()));
+      : super(logs: SessionLogService(sessions: TrainingSessionService()));
 
   @override
   Future<Map<String, double>> computeMastery({bool force = false}) async =>
@@ -39,7 +39,8 @@ void main() {
 
   test('progress model marks completed and unlocked stages', () async {
     final logs = [
-      SessionLog(tags: const [], 
+      SessionLog(
+        tags: const [],
         sessionId: '1',
         templateId: 'pack1',
         startedAt: DateTime.now(),
@@ -69,7 +70,8 @@ void main() {
 
   test('advanceToNextStage marks stage completed', () async {
     final logs = [
-      SessionLog(tags: const [], 
+      SessionLog(
+        tags: const [],
         sessionId: '1',
         templateId: 'pack1',
         startedAt: DateTime.now(),

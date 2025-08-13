@@ -100,4 +100,3 @@ class _DecayReviewRecapBannerState extends State<DecayReviewRecapBanner> {
     );
   }
 }
-

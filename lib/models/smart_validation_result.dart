@@ -1,4 +1,5 @@
 import 'yaml_pack_validation_report.dart';
+
 class SmartValidationResult {
   final YamlPackValidationReport before;
   final YamlPackValidationReport after;

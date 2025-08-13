@@ -25,9 +25,7 @@ class TagInsightHeader extends StatelessWidget {
     final up = !trend.trim().startsWith('-');
     final trendIcon = up ? Icons.trending_up : Icons.trending_down;
     final trendColor = up ? Colors.green : Colors.red;
-    final name = tag.isNotEmpty
-        ? tag[0].toUpperCase() + tag.substring(1)
-        : tag;
+    final name = tag.isNotEmpty ? tag[0].toUpperCase() + tag.substring(1) : tag;
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(

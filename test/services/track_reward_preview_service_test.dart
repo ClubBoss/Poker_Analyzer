@@ -74,4 +74,3 @@ void main() {
     expect(find.byIcon(Icons.star), findsOneWidget);
   });
 }
-

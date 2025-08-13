@@ -24,11 +24,16 @@ void main() {
       CardModel(rank: '3', suit: '♠'),
     ];
     expect(
-      svc.isMatch(board, {'suitPattern': 'monotone', 'excludedRanks': ['K']}),
+      svc.isMatch(board, {
+        'suitPattern': 'monotone',
+        'excludedRanks': ['K']
+      }),
       true,
     );
     expect(
-      svc.isMatch(board, {'requiredRanks': ['K']}),
+      svc.isMatch(board, {
+        'requiredRanks': ['K']
+      }),
       false,
     );
   });

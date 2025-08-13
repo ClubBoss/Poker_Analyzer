@@ -83,7 +83,10 @@ class MistakeTagHistoryService {
     int limit = 20,
   }) async {
     final list = await _history();
-    final filtered = [for (final e in list) if (e.tags.contains(tag)) e];
+    final filtered = [
+      for (final e in list)
+        if (e.tags.contains(tag)) e
+    ];
     return filtered.take(limit).toList();
   }
 
@@ -133,7 +136,8 @@ class MistakeTagHistoryService {
   }
 
   /// Returns the most recent mistake history entries.
-  static Future<List<MistakeTagHistoryEntry>> getRecentHistory({int limit = 20}) async {
+  static Future<List<MistakeTagHistoryEntry>> getRecentHistory(
+      {int limit = 20}) async {
     final list = await _history();
     return list.take(limit).toList();
   }

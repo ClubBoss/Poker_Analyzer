@@ -32,7 +32,8 @@ void main() {
       ],
     );
     final map = const YamlReader().read(yaml);
-    final stage = LearningPathStageModel.fromJson(Map<String, dynamic>.from(map));
+    final stage =
+        LearningPathStageModel.fromJson(Map<String, dynamic>.from(map));
     expect(stage.id, 's1');
     expect(stage.subStages.length, 2);
     expect(stage.subStages.first.packId, 'a');

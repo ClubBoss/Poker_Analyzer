@@ -19,7 +19,10 @@ class RangeImportExportService {
       final content = await file.readAsString();
       final decoded = jsonDecode(content);
       if (decoded is List) {
-        return [for (final e in decoded) if (e is String) e];
+        return [
+          for (final e in decoded)
+            if (e is String) e
+        ];
       }
     } catch (_) {}
     return null;

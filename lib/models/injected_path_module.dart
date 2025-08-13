@@ -74,11 +74,10 @@ class InjectedPathModule {
         triggerReason: json['triggerReason'] as String,
         status: json['status'] as String? ?? 'pending',
         metrics: (json['metrics'] as Map?)?.cast<String, dynamic>() ?? const {},
-        itemsDurations:
-            (json['itemsDurations'] as Map?)?.map((k, v) => MapEntry(k, (v as num).toInt())),
+        itemsDurations: (json['itemsDurations'] as Map?)
+            ?.map((k, v) => MapEntry(k, (v as num).toInt())),
       );
 
   @override
   String toString() => jsonEncode(toJson());
 }
-

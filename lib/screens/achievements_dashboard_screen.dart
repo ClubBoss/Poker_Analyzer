@@ -35,7 +35,7 @@ class _AchievementsDashboardScreenState
         title: const Text('История достижений'),
         centerTitle: true,
       ),
-      body: FutureBuilder<List<GoalCompletionEvent>>( 
+      body: FutureBuilder<List<GoalCompletionEvent>>(
         future: _future,
         builder: (context, snapshot) {
           if (!snapshot.hasData) {

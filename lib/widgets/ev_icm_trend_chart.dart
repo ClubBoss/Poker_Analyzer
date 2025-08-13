@@ -24,8 +24,10 @@ class EvIcmTrendChart extends StatelessWidget {
       return '${d.month.toString().padLeft(2, '0')}.${d.year % 100}';
     }
     final end = d.add(const Duration(days: 6));
-    final s = '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
-    final e = '${end.day.toString().padLeft(2, '0')}.${end.month.toString().padLeft(2, '0')}';
+    final s =
+        '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
+    final e =
+        '${end.day.toString().padLeft(2, '0')}.${end.month.toString().padLeft(2, '0')}';
     return '$s-$e';
   }
 
@@ -39,10 +41,7 @@ class EvIcmTrendChart extends StatelessWidget {
     final icm = mode == EvIcmTrendMode.weekly
         ? stats.icmWeekly(hands)
         : stats.icmMonthly(hands);
-    final dates = {
-      ...ev.map((e) => e.key),
-      ...icm.map((e) => e.key)
-    }.toList()
+    final dates = {...ev.map((e) => e.key), ...icm.map((e) => e.key)}.toList()
       ..sort();
     if (dates.length < 2) return SizedBox(height: responsiveSize(context, 200));
     final evMap = {for (final e in ev) e.key: e.value};
@@ -112,8 +111,10 @@ class EvIcmTrendChart extends StatelessWidget {
               const FlLine(color: Colors.white24, strokeWidth: 1),
         ),
         titlesData: FlTitlesData(
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,

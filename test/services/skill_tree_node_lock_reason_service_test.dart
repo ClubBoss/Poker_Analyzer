@@ -28,8 +28,7 @@ void main() {
 
   const builder = SkillTreeBuilderService();
 
-  SkillTreeNodeModel node(String id,
-          {List<String>? prereqs, int level = 0}) =>
+  SkillTreeNodeModel node(String id, {List<String>? prereqs, int level = 0}) =>
       SkillTreeNodeModel(
           id: id,
           title: id,
@@ -42,7 +41,10 @@ void main() {
   });
 
   test('returns null when node is unlocked', () async {
-    final nodes = [node('n1'), node('n2', prereqs: ['n1'])];
+    final nodes = [
+      node('n1'),
+      node('n2', prereqs: ['n1'])
+    ];
     final tree = builder.build(nodes).tree;
     final lib = _FakeLibraryService(SkillTreeBuildResult(tree: tree));
     final tracker = SkillTreeNodeProgressTracker.instance;
@@ -59,7 +61,10 @@ void main() {
   });
 
   test('reports missing prerequisite node', () async {
-    final nodes = [node('n1'), node('n2', prereqs: ['n1'])];
+    final nodes = [
+      node('n1'),
+      node('n2', prereqs: ['n1'])
+    ];
     final tree = builder.build(nodes).tree;
     final lib = _FakeLibraryService(SkillTreeBuildResult(tree: tree));
     final tracker = SkillTreeNodeProgressTracker.instance;

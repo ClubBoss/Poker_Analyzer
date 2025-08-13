@@ -255,8 +255,8 @@ class InlineTheoryLinkAutoInjector {
     if (spotClusters.isNotEmpty && entry.clusterIds.isNotEmpty) {
       final intersection =
           spotClusters.intersection(entry.clusterIds.toSet()).length.toDouble();
-      clusterSim = intersection /
-          sqrt(spotClusters.length * entry.clusterIds.length);
+      clusterSim =
+          intersection / sqrt(spotClusters.length * entry.clusterIds.length);
     }
 
     return wTag * jaccard + wTex * textureMatch + wCluster * clusterSim;

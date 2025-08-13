@@ -23,14 +23,16 @@ class SpotOfDayHistoryEntry {
 
   factory SpotOfDayHistoryEntry.fromJson(Map<String, dynamic> json) =>
       SpotOfDayHistoryEntry(
-        date: DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now(),
+        date:
+            DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now(),
         spotIndex: json['spotIndex'] as int? ?? 0,
         userAction: json['userAction'] as String?,
         recommendedAction: json['recommendedAction'] as String?,
         correct: json['correct'] as bool?,
       );
 
-  SpotOfDayHistoryEntry copyWith({String? userAction, String? recommendedAction, bool? correct}) =>
+  SpotOfDayHistoryEntry copyWith(
+          {String? userAction, String? recommendedAction, bool? correct}) =>
       SpotOfDayHistoryEntry(
         date: date,
         spotIndex: spotIndex,

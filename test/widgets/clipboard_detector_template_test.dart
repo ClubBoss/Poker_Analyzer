@@ -23,7 +23,8 @@ void main() {
       home: TrainingPackTemplateEditorScreen(template: tpl, templates: [tpl]),
     ));
     await tester.pumpAndSettle();
-    final state = tester.state(find.byType(TrainingPackTemplateEditorScreen)) as dynamic;
+    final state =
+        tester.state(find.byType(TrainingPackTemplateEditorScreen)) as dynamic;
     await state._checkClipboard();
     await tester.pump();
     expect(find.text('Paste Hands'), findsOneWidget);

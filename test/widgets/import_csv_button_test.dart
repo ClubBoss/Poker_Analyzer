@@ -30,7 +30,8 @@ class _FakeFilePicker extends FilePicker {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-  }) async => null;
+  }) async =>
+      null;
 
   @override
   Future<bool?> clearTemporaryFiles() async => true;
@@ -40,7 +41,8 @@ class _FakeFilePicker extends FilePicker {
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
-  }) async => null;
+  }) async =>
+      null;
 
   @override
   Future<String?> saveFile({
@@ -51,7 +53,8 @@ class _FakeFilePicker extends FilePicker {
     List<String>? allowedExtensions,
     Uint8List? bytes,
     bool lockParentWindow = false,
-  }) async => null;
+  }) async =>
+      null;
 }
 
 void main() {
@@ -60,9 +63,13 @@ void main() {
   testWidgets('import csv adds template', (tester) async {
     const csv =
         'Title,HeroPosition,HeroHand,StackBB,StacksBB,HeroIndex,CallsMask,EV_BB,ICM_EV,Tags\nA,SB,AA,10,,0,,0.1,,\n';
-    final file = PlatformFile(name: 'test.csv', size: csv.length, bytes: Uint8List.fromList(csv.codeUnits));
+    final file = PlatformFile(
+        name: 'test.csv',
+        size: csv.length,
+        bytes: Uint8List.fromList(csv.codeUnits));
     FilePicker.platform = _FakeFilePicker(FilePickerResult([file]));
-    await tester.pumpWidget(const MaterialApp(home: TrainingPackTemplateListScreen()));
+    await tester
+        .pumpWidget(const MaterialApp(home: TrainingPackTemplateListScreen()));
     await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.upload_file));
     await tester.pumpAndSettle();

@@ -40,9 +40,8 @@ class TheoryMiniLessonLinker {
     final map = <String, List<String>>{};
     for (final lesson in library.all) {
       final stage = lesson.stage ?? _extractStage(lesson.tags);
-      final lessonTags = {
-        for (final t in lesson.tags) t.toLowerCase().trim()
-      }..removeWhere(_isStageTag);
+      final lessonTags = {for (final t in lesson.tags) t.toLowerCase().trim()}
+        ..removeWhere(_isStageTag);
 
       final links = <String>[];
       for (final pack in packs) {
@@ -50,9 +49,8 @@ class TheoryMiniLessonLinker {
         if (stage != null && packStage != null && stage != packStage) {
           continue;
         }
-        final packTags = {
-          for (final t in pack.tags) t.toLowerCase().trim()
-        }..removeWhere(_isStageTag);
+        final packTags = {for (final t in pack.tags) t.toLowerCase().trim()}
+          ..removeWhere(_isStageTag);
         if (packTags.intersection(lessonTags).isNotEmpty) {
           links.add(pack.id);
         }

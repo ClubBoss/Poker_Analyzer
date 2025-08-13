@@ -11,4 +11,3 @@ class GoalRecommendation {
     required this.type,
   });
 }
-

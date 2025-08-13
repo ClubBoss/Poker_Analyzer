@@ -22,8 +22,7 @@ class DecaySessionTagImpactRecorder {
       if (data is List) {
         return [
           for (final e in data.whereType<Map>())
-            DecayTagReinforcementEvent.fromJson(
-                Map<String, dynamic>.from(e)),
+            DecayTagReinforcementEvent.fromJson(Map<String, dynamic>.from(e)),
         ];
       }
     } catch (_) {}
@@ -33,8 +32,7 @@ class DecaySessionTagImpactRecorder {
   Future<void> _save(String tag, List<DecayTagReinforcementEvent> list) async {
     final prefs = await SharedPreferences.getInstance();
     final key = '$_prefix${tag.toLowerCase()}';
-    await prefs.setString(
-        key, jsonEncode([for (final e in list) e.toJson()]));
+    await prefs.setString(key, jsonEncode([for (final e in list) e.toJson()]));
   }
 
   Future<List<DecayTagReinforcementEvent>> _loadAll() async {
@@ -46,8 +44,7 @@ class DecaySessionTagImpactRecorder {
       if (data is List) {
         return [
           for (final e in data.whereType<Map>())
-            DecayTagReinforcementEvent.fromJson(
-                Map<String, dynamic>.from(e)),
+            DecayTagReinforcementEvent.fromJson(Map<String, dynamic>.from(e)),
         ];
       }
     } catch (_) {}

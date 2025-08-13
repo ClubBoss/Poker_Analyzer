@@ -17,7 +17,8 @@ class BoosterSuggestionCache {
     final cacheId = prefs.getString(_cacheKey);
     if (cacheTimeStr == null || cacheId == null) return null;
     final ts = DateTime.tryParse(cacheTimeStr);
-    if (ts == null || DateTime.now().difference(ts) >= const Duration(hours: 24)) {
+    if (ts == null ||
+        DateTime.now().difference(ts) >= const Duration(hours: 24)) {
       return null;
     }
     await TrainingPackLibraryV2.instance.loadFromFolder();
@@ -31,4 +32,3 @@ class BoosterSuggestionCache {
     await prefs.setString(_cacheTimeKey, DateTime.now().toIso8601String());
   }
 }
-

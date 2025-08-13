@@ -180,8 +180,8 @@ class _ActionLabelOverlayState extends State<ActionLabelOverlay>
       ),
       const TweenSequenceItem(tween: ConstantTween(1.0), weight: 60),
       TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 0.0)
-            .chain(CurveTween(curve: Curves.easeIn)),
+        tween:
+            Tween(begin: 1.0, end: 0.0).chain(CurveTween(curve: Curves.easeIn)),
         weight: 20,
       ),
     ]).animate(_controller);
@@ -193,8 +193,8 @@ class _ActionLabelOverlayState extends State<ActionLabelOverlay>
         weight: 50,
       ),
       TweenSequenceItem(
-        tween: Tween(begin: 1.1, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeIn)),
+        tween:
+            Tween(begin: 1.1, end: 1.0).chain(CurveTween(curve: Curves.easeIn)),
         weight: 50,
       ),
     ]).animate(_controller);
@@ -231,7 +231,9 @@ class _ActionLabelOverlayState extends State<ActionLabelOverlay>
             decoration: BoxDecoration(
               color: widget.color.withValues(alpha: 0.9),
               borderRadius: BorderRadius.circular(8 * widget.scale),
-              boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 4)],
+              boxShadow: const [
+                BoxShadow(color: Colors.black45, blurRadius: 4)
+              ],
             ),
             child: Text(
               widget.text,
@@ -276,7 +278,7 @@ class _BetAmountOverlayState extends State<BetAmountOverlay>
       ),
     ]).animate(_controller);
 
-  _controller.addStatusListener((status) {
+    _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         widget.onCompleted?.call();
       }

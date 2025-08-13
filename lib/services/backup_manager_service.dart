@@ -66,7 +66,8 @@ class BackupManagerService {
   static const String snapshotsFolder = BackupFileManager.snapshotsFolder;
   static const String exportsFolder = BackupFileManager.exportsFolder;
 
-  Future<void> startAutoBackupTimer() => autoBackupService.startAutoBackupTimer();
+  Future<void> startAutoBackupTimer() =>
+      autoBackupService.startAutoBackupTimer();
   void dispose() => autoBackupService.dispose();
 
   Future<void> exportEvaluationQueue(BuildContext context) =>
@@ -116,7 +117,8 @@ class BackupManagerService {
       snapshotService.cleanupOldEvaluationSnapshots();
 
   Future<void> saveQueueSnapshot(Map<String, dynamic> state,
-          {bool showNotification = true, bool snapshotRetentionEnabled = true}) =>
+          {bool showNotification = true,
+          bool snapshotRetentionEnabled = true}) =>
       snapshotService.saveQueueSnapshot(state,
           showNotification: showNotification,
           snapshotRetentionEnabled: snapshotRetentionEnabled);
@@ -133,4 +135,3 @@ class BackupManagerService {
   Future<void> bulkImportEvaluationSnapshots(BuildContext context) =>
       snapshotService.bulkImportEvaluationSnapshots(context);
 }
-

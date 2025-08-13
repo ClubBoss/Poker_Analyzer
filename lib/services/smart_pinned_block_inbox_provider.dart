@@ -1,4 +1,3 @@
-
 import '../models/inbox_card_model.dart';
 import '../services/pinned_block_tracker_service.dart';
 import '../services/theory_block_library_service.dart';
@@ -37,4 +36,3 @@ class SmartPinnedBlockInboxProvider {
     return cards;
   }
 }
-

@@ -79,7 +79,8 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.goal == null ? 'Новая цель' : 'Редактирование цели'),
-        actions: [SyncStatusIcon.of(context), 
+        actions: [
+          SyncStatusIcon.of(context),
           IconButton(onPressed: _save, icon: const Icon(Icons.check))
         ],
       ),
@@ -98,9 +99,11 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
                   child: DropdownButtonFormField<String>(
                     value: _type,
                     items: const [
-                      DropdownMenuItem(value: 'mistakes', child: Text('Ошибки')),
+                      DropdownMenuItem(
+                          value: 'mistakes', child: Text('Ошибки')),
                       DropdownMenuItem(value: 'hands', child: Text('Раздачи')),
-                      DropdownMenuItem(value: 'sessions', child: Text('Сессии')),
+                      DropdownMenuItem(
+                          value: 'sessions', child: Text('Сессии')),
                     ],
                     onChanged: (v) => setState(() => _type = v ?? _type),
                     decoration: const InputDecoration(labelText: 'Тип'),

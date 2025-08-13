@@ -39,10 +39,8 @@ class TrainingRunABComparatorService {
     String? variantA,
     String? variantB,
   }) {
-    final listA =
-        repository.getLogs(packId: packIdA, variant: variantA);
-    final listB =
-        repository.getLogs(packId: packIdB, variant: variantB);
+    final listA = repository.getLogs(packId: packIdA, variant: variantA);
+    final listB = repository.getLogs(packId: packIdB, variant: variantB);
     return compareLogs(listA, listB);
   }
 

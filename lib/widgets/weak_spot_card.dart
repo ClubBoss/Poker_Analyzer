@@ -45,8 +45,7 @@ class WeakSpotCard extends StatelessWidget {
                   const SizedBox(width: 8),
                   ElevatedButton(
                     onPressed: () async {
-                      final tpl =
-                          await service.buildPack(r.position);
+                      final tpl = await service.buildPack(r.position);
                       if (tpl == null) return;
                       await context
                           .read<TrainingSessionService>()

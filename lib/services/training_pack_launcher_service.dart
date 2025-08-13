@@ -14,8 +14,7 @@ class TrainingPackLauncherService {
   /// [LearningPathNodeV2.dynamicMeta] if present.
   Future<void> launch(LearningPathNodeV2 node) async {
     if (node.type != LearningPathNodeType.training) return;
-    final String? packId =
-        node.trainingPackTemplateId ?? node.dynamicPackId;
+    final String? packId = node.trainingPackTemplateId ?? node.dynamicPackId;
     if (packId == null) return;
 
     await TrainingPackLibraryV2.instance.loadFromFolder();

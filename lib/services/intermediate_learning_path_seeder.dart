@@ -25,11 +25,12 @@ class IntermediateLearningPathSeeder {
     }
 
     const writer = YamlWriter();
-    await writer.write({'packs': unique},
-        'assets/learning_paths/intermediate_path.yaml');
+    await writer.write(
+        {'packs': unique}, 'assets/learning_paths/intermediate_path.yaml');
   }
 
-  List<TrainingPackTemplateV2> _selectPacks(List<TrainingPackTemplateV2> packs) {
+  List<TrainingPackTemplateV2> _selectPacks(
+      List<TrainingPackTemplateV2> packs) {
     final list = <TrainingPackTemplateV2>[];
     for (final p in packs) {
       final aud = p.audience?.toLowerCase();
@@ -57,8 +58,14 @@ class IntermediateLearningPathSeeder {
     final tags = p.tags.map((t) => t.toLowerCase()).toList();
     if (name.contains('trap') || tags.contains('trap')) return 0;
     if (name.contains('resteal') || tags.contains('resteal')) return 1;
-    if (name.contains('3bet') || name.contains('3-bet') || tags.contains('3bet') || tags.contains('3bet-push')) return 2;
-    if (name.contains('float') || name.contains('call') || tags.contains('float') || tags.contains('call')) return 3;
+    if (name.contains('3bet') ||
+        name.contains('3-bet') ||
+        tags.contains('3bet') ||
+        tags.contains('3bet-push')) return 2;
+    if (name.contains('float') ||
+        name.contains('call') ||
+        tags.contains('float') ||
+        tags.contains('call')) return 3;
     if (name.contains('delayed') || tags.contains('delayed')) return 4;
     return 5;
   }

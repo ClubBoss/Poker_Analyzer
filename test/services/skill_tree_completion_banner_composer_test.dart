@@ -62,7 +62,8 @@ void main() {
       summaryBuilder: const _FakeSummaryBuilder(summary),
       bannerService: const _FakeBannerService(visual),
       progressService: _FakeProgressService(
-        TrackProgressEntry(tree: nextTree, completionRate: 0.0, isCompleted: false),
+        TrackProgressEntry(
+            tree: nextTree, completionRate: 0.0, isCompleted: false),
       ),
     ).compose(tree);
     expect(model.summary.title, 'A');

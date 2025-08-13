@@ -25,8 +25,7 @@ class TagCoverageTile extends StatelessWidget {
       onTap: onTap ??
           () => Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (_) => TagInsightScreen(tag: tag)),
+                MaterialPageRoute(builder: (_) => TagInsightScreen(tag: tag)),
               ),
       child: Container(
         decoration: BoxDecoration(

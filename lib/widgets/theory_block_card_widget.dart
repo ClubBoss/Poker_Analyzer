@@ -35,14 +35,12 @@ class _TheoryBlockCardWidgetState extends State<TheoryBlockCardWidget> {
   void initState() {
     super.initState();
     _load();
-    _pinned =
-        PinnedLearningService.instance.isPinned('block', widget.block.id);
+    _pinned = PinnedLearningService.instance.isPinned('block', widget.block.id);
     PinnedLearningService.instance.addListener(_updatePinned);
   }
 
   Future<void> _load() async {
-    final pct =
-        await widget.evaluator.getBlockCompletionPercent(widget.block);
+    final pct = await widget.evaluator.getBlockCompletionPercent(widget.block);
     final status = await widget.evaluator.getBlockStatus(widget.block);
     if (mounted) {
       setState(() {
@@ -196,8 +194,7 @@ class _TheoryBlockCardWidgetState extends State<TheoryBlockCardWidget> {
               top: 0,
               right: 0,
               child: IconButton(
-                icon: Icon(
-                    _pinned ? Icons.push_pin : Icons.push_pin_outlined),
+                icon: Icon(_pinned ? Icons.push_pin : Icons.push_pin_outlined),
                 onPressed: _togglePinned,
               ),
             ),
@@ -213,4 +210,3 @@ class _TheoryBlockCardWidgetState extends State<TheoryBlockCardWidget> {
     super.dispose();
   }
 }
-

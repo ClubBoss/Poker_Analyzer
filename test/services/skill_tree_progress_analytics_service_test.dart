@@ -12,7 +12,12 @@ void main() {
   final analytics = SkillTreeProgressAnalyticsService();
 
   SkillTreeNodeModel node(String id, {List<String>? prereqs, int level = 0}) =>
-      SkillTreeNodeModel(id: id, title: id, category: 'Push/Fold', prerequisites: prereqs, level: level);
+      SkillTreeNodeModel(
+          id: id,
+          title: id,
+          category: 'Push/Fold',
+          prerequisites: prereqs,
+          level: level);
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});

@@ -11,7 +11,8 @@ class TheoryLessonPreviewScreen extends StatefulWidget {
   const TheoryLessonPreviewScreen({super.key, required this.lessonId});
 
   @override
-  State<TheoryLessonPreviewScreen> createState() => _TheoryLessonPreviewScreenState();
+  State<TheoryLessonPreviewScreen> createState() =>
+      _TheoryLessonPreviewScreenState();
 }
 
 class _TheoryLessonPreviewScreenState extends State<TheoryLessonPreviewScreen> {

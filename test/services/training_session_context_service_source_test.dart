@@ -4,7 +4,8 @@ import 'package:test/test.dart';
 void main() {
   test('uses provided source', () {
     final svc = TrainingSessionContextService();
-    final fp = svc.start(packId: 'p1', trainingType: 'standard', source: 'starter_banner');
+    final fp = svc.start(
+        packId: 'p1', trainingType: 'standard', source: 'starter_banner');
     expect(fp.source, 'starter_banner');
   });
 

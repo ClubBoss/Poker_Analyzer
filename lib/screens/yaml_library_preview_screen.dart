@@ -183,8 +183,8 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
       final md = await const YamlPackChangelogService().loadChangeLog(tpl.id);
       if (!mounted) return;
       if (md == null) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('История изменений отсутствует')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('История изменений отсутствует')));
       } else {
         await showMarkdownPreviewDialog(context, md);
       }
@@ -215,7 +215,8 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
       ),
     );
     if (format == null) return;
-    final fileOut = await const YamlPackExporterService().exportToTextFile(file, format);
+    final fileOut =
+        await const YamlPackExporterService().exportToTextFile(file, format);
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

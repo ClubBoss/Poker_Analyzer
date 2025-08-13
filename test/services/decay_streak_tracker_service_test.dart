@@ -36,7 +36,8 @@ void main() {
 
     final prefs = await SharedPreferences.getInstance();
     final yesterday = DateTime.now().subtract(const Duration(days: 1));
-    await prefs.setString('decay_streak_last_check', yesterday.toIso8601String());
+    await prefs.setString(
+        'decay_streak_last_check', yesterday.toIso8601String());
     await prefs.setInt('decay_streak_count', 1);
 
     await service.evaluateToday();
@@ -76,7 +77,8 @@ void main() {
 
     final prefs = await SharedPreferences.getInstance();
     final threeAgo = DateTime.now().subtract(const Duration(days: 3));
-    await prefs.setString('decay_streak_last_check', threeAgo.toIso8601String());
+    await prefs.setString(
+        'decay_streak_last_check', threeAgo.toIso8601String());
     await prefs.setInt('decay_streak_count', 5);
 
     await service.evaluateToday();

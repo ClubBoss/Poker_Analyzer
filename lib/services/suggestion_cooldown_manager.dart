@@ -17,7 +17,8 @@ class SuggestionCooldownManager {
       if (data is Map) {
         return {
           for (final e in data.entries)
-            if (e.value is String && DateTime.tryParse(e.value as String) != null)
+            if (e.value is String &&
+                DateTime.tryParse(e.value as String) != null)
               e.key.toString(): DateTime.parse(e.value as String)
         };
       }
@@ -29,7 +30,8 @@ class SuggestionCooldownManager {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
       _prefsKey,
-      jsonEncode({for (final e in data.entries) e.key: e.value.toIso8601String()}),
+      jsonEncode(
+          {for (final e in data.entries) e.key: e.value.toIso8601String()}),
     );
   }
 
@@ -57,7 +59,8 @@ class SuggestionCooldownManager {
   }
 
   /// Removes entries older than [maxAge].
-  static void _cleanup(Map<String, DateTime> map, {Duration maxAge = const Duration(days: 60)}) {
+  static void _cleanup(Map<String, DateTime> map,
+      {Duration maxAge = const Duration(days: 60)}) {
     final cutoff = DateTime.now().subtract(maxAge);
     map.removeWhere((_, ts) => ts.isBefore(cutoff));
   }

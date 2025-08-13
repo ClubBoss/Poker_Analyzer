@@ -23,8 +23,7 @@ class TrainingGenerator {
           hand.playerPositions[i] ?? '',
       ],
       stacks: [
-        for (int i = 0; i < hand.numberOfPlayers; i++)
-          hand.stackSizes[i] ?? 0,
+        for (int i = 0; i < hand.numberOfPlayers; i++) hand.stackSizes[i] ?? 0,
       ],
       equities: null,
       tournamentId: hand.tournamentId,
@@ -41,4 +40,3 @@ class TrainingGenerator {
     );
   }
 }
-

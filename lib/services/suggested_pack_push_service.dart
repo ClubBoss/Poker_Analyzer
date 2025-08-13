@@ -61,7 +61,8 @@ class SuggestedPackPushService {
         iOS: DarwinNotificationDetails(),
       ),
     );
-    await DailyReminderScheduler.instance.scheduleDailyReminder(packName: tpl.name);
+    await DailyReminderScheduler.instance
+        .scheduleDailyReminder(packName: tpl.name);
     await prefs.setString(_lastPushKey, DateTime.now().toIso8601String());
   }
 }

@@ -247,7 +247,8 @@ class _PackGenerationSectionState extends State<PackGenerationSection> {
           decoration: const InputDecoration(labelText: 'Audience'),
           items: const [
             DropdownMenuItem(value: 'Beginner', child: Text('Beginner')),
-            DropdownMenuItem(value: 'Intermediate', child: Text('Intermediate')),
+            DropdownMenuItem(
+                value: 'Intermediate', child: Text('Intermediate')),
             DropdownMenuItem(value: 'Advanced', child: Text('Advanced')),
           ],
           onChanged: (v) => setState(() => _audience = v ?? _audience),

@@ -20,7 +20,8 @@ class ShareDialog extends StatelessWidget {
       content: SizedBox(
         width: double.maxFinite,
         child: SingleChildScrollView(
-          child: SelectableText(text, style: const TextStyle(color: Colors.white)),
+          child:
+              SelectableText(text, style: const TextStyle(color: Colors.white)),
         ),
       ),
       actions: [

@@ -41,7 +41,8 @@ void main() {
     await tester.pumpWidget(
       MultiProvider(
         providers: [
-          ChangeNotifierProvider<TrainingSpotStorageService>.value(value: service),
+          ChangeNotifierProvider<TrainingSpotStorageService>.value(
+              value: service),
           ChangeNotifierProvider(create: (_) => TrainingSessionService()),
         ],
         child: const MaterialApp(home: TrainingPackTemplateListScreen()),

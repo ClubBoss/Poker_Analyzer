@@ -12,7 +12,8 @@ class HandAnalysisHistoryScreen extends StatefulWidget {
   const HandAnalysisHistoryScreen({super.key});
 
   @override
-  State<HandAnalysisHistoryScreen> createState() => _HandAnalysisHistoryScreenState();
+  State<HandAnalysisHistoryScreen> createState() =>
+      _HandAnalysisHistoryScreenState();
 }
 
 class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
@@ -72,6 +73,7 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
       }
       return _desc ? -r : r;
     }
+
     list.sort(compare);
     return list;
   }
@@ -104,7 +106,8 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
         itemBuilder: (context, index) {
           final r = data[index];
           final d = r.date;
-          final label = '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
+          final label =
+              '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
           return Container(
             margin: const EdgeInsets.only(bottom: 12),
             decoration: BoxDecoration(
@@ -134,7 +137,8 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => QuickHandAnalysisScreen(record: r)),
+                  MaterialPageRoute(
+                      builder: (_) => QuickHandAnalysisScreen(record: r)),
                 );
               },
             ),
@@ -193,7 +197,8 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
             },
             itemBuilder: (_) => const [
               PopupMenuItem(value: _SortField.date, child: Text('По дате')),
-              PopupMenuItem(value: _SortField.result, child: Text('По результату')),
+              PopupMenuItem(
+                  value: _SortField.result, child: Text('По результату')),
             ],
           ),
           IconButton(
@@ -210,54 +215,58 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
         valueListenable: _filtered,
         builder: (context, data, _) {
           return _service.records.isEmpty
-              ? const Center(child: Text('История пуста', style: TextStyle(color: Colors.white70)))
+              ? const Center(
+                  child: Text('История пуста',
+                      style: TextStyle(color: Colors.white70)))
               : Column(
                   children: [
                     _overallSummary(_service.records),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Wrap(
-                        spacing: 8,
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          for (final p in ['Все', '7 дней', '30 дней'])
-                            ChoiceChip(
-                              label: Text(p),
-                              selected: _period == p,
-                              onSelected: (_) {
-                                setState(() => _period = p);
-                                _update();
-                              },
-                            ),
+                          Wrap(
+                            spacing: 8,
+                            children: [
+                              for (final p in ['Все', '7 дней', '30 дней'])
+                                ChoiceChip(
+                                  label: Text(p),
+                                  selected: _period == p,
+                                  onSelected: (_) {
+                                    setState(() => _period = p);
+                                    _update();
+                                  },
+                                ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 8,
+                            children: [
+                              for (final r in ['Все', 'Push', 'Fold'])
+                                ChoiceChip(
+                                  label: Text(r),
+                                  selected: _result == r,
+                                  onSelected: (_) {
+                                    setState(() => _result = r);
+                                    _update();
+                                  },
+                                ),
+                            ],
+                          ),
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        children: [
-                          for (final r in ['Все', 'Push', 'Fold'])
-                            ChoiceChip(
-                              label: Text(r),
-                              selected: _result == r,
-                              onSelected: (_) {
-                                setState(() => _result = r);
-                                _update();
-                              },
-                            ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                _summary(data),
-                Expanded(
-                  child: data.isEmpty
-                      ? const Center(child: Text('Нет результатов', style: TextStyle(color: Colors.white70)))
-                      : _list(data),
-                ),
-              ],
+                    ),
+                    _summary(data),
+                    Expanded(
+                      child: data.isEmpty
+                          ? const Center(
+                              child: Text('Нет результатов',
+                                  style: TextStyle(color: Colors.white70)))
+                          : _list(data),
+                    ),
+                  ],
                 );
         },
       ),

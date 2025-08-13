@@ -77,4 +77,3 @@ void main() {
     expect(find.byType(SnackBar), findsNothing);
   });
 }
-

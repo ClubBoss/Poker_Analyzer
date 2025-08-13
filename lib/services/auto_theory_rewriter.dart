@@ -38,10 +38,12 @@ class AutoTheoryRewriter {
     return res;
   }
 
-  String _rewriteContent(String content, List<String> words, List<String> examples) {
+  String _rewriteContent(
+      String content, List<String> words, List<String> examples) {
     final lines = content.split(RegExp('[\n\r]+'));
     final kept = <String>[];
-    final exampleReg = RegExp(r'^(?:Example|Пример|Например)[:\-]\s*(.+)', caseSensitive: false);
+    final exampleReg = RegExp(r'^(?:Example|Пример|Например)[:\-]\s*(.+)',
+        caseSensitive: false);
     for (final line in lines) {
       final match = exampleReg.firstMatch(line.trim());
       if (match != null) {

@@ -4,8 +4,7 @@ import 'copy_with_mixin.dart';
 part 'training_pack_template_model.g.dart';
 
 @JsonSerializable(explicitToJson: true)
-class TrainingPackTemplateModel
-    with CopyWithMixin<TrainingPackTemplateModel> {
+class TrainingPackTemplateModel with CopyWithMixin<TrainingPackTemplateModel> {
   final String id;
   final String name;
   final String description;
@@ -45,4 +44,3 @@ class TrainingPackTemplateModel
   TrainingPackTemplateModel Function(Map<String, dynamic> json) get fromJson =>
       TrainingPackTemplateModel.fromJson;
 }
-

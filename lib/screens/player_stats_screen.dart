@@ -39,7 +39,8 @@ class _PlayerStatsScreenState extends State<PlayerStatsScreen> {
         children: [
           Consumer<RewardSystemService>(
             builder: (context, rewards, _) => ListTile(
-              leading: const Text('\uD83E\uDDE0', style: TextStyle(fontSize: 20)),
+              leading:
+                  const Text('\uD83E\uDDE0', style: TextStyle(fontSize: 20)),
               title: Text('Уровень: ${rewards.currentLevel}'),
               subtitle: LinearProgressIndicator(value: rewards.progress),
               trailing:
@@ -49,7 +50,8 @@ class _PlayerStatsScreenState extends State<PlayerStatsScreen> {
           const SizedBox(height: 8),
           Consumer<StreakCounterService>(
             builder: (context, streak, _) => ListTile(
-              leading: const Text('\uD83D\uDD25', style: TextStyle(fontSize: 20)),
+              leading:
+                  const Text('\uD83D\uDD25', style: TextStyle(fontSize: 20)),
               title: const Text('Максимальный стрик'),
               trailing: Text('${streak.max}'),
             ),

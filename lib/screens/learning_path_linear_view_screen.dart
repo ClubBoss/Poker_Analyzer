@@ -126,8 +126,8 @@ class _LearningPathLinearViewScreenState
                     isBlocked: isBlocked,
                     onTap: () async {
                       if (isBlocked) {
-                        final hint = await const
-                            SkillTreeNodeDetailUnlockHintService()
+                        final hint =
+                            await const SkillTreeNodeDetailUnlockHintService()
                                 .getHint(node.id);
                         if (hint != null) {
                           PathNodeUnlockHintOverlay.show(
@@ -166,4 +166,3 @@ class _LearningPathLinearViewScreenState
     );
   }
 }
-

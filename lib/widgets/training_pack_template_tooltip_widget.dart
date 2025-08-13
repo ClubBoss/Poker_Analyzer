@@ -23,12 +23,12 @@ class TrainingPackTemplateTooltipWidget extends StatelessWidget {
     final buffer = StringBuffer(template.name);
     final meta = template.meta;
 
-    final level =
-        _tryParse<TrainingPackLevel>(meta['level'], (v) => TrainingPackLevel.values.byName(v));
-    final topic =
-        _tryParse<TrainingPackTopic>(meta['topic'], (v) => TrainingPackTopic.values.byName(v));
-    final format = _tryParse<TrainingPackFormat>(meta['format'], (v) =>
-        TrainingPackFormat.values.byName(v));
+    final level = _tryParse<TrainingPackLevel>(
+        meta['level'], (v) => TrainingPackLevel.values.byName(v));
+    final topic = _tryParse<TrainingPackTopic>(
+        meta['topic'], (v) => TrainingPackTopic.values.byName(v));
+    final format = _tryParse<TrainingPackFormat>(
+        meta['format'], (v) => TrainingPackFormat.values.byName(v));
 
     if (level != null || topic != null || format != null) {
       buffer.writeln();
@@ -96,4 +96,3 @@ class TrainingPackTemplateTooltipWidget extends StatelessWidget {
     }
   }
 }
-

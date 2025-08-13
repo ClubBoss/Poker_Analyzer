@@ -30,13 +30,12 @@ class _RecallHotspotExamplesScreenState
       _mode = 'tag';
       _id = '';
     }
-    _future = RecallFailureLogService.instance
-        .getSpottingsForHotspot(_mode, _id);
+    _future =
+        RecallFailureLogService.instance.getSpottingsForHotspot(_mode, _id);
   }
 
   void _openAnalyzer(String spotId) {
-    Navigator.of(context)
-        .pushNamed('/analyzer', arguments: {'spotId': spotId});
+    Navigator.of(context).pushNamed('/analyzer', arguments: {'spotId': spotId});
   }
 
   @override
@@ -60,8 +59,7 @@ class _RecallHotspotExamplesScreenState
               final s = data[index];
               return ListTile(
                 title: Text(s.spotId),
-                subtitle:
-                    Text('${_formatDate(s.timestamp)} • ${s.decayStage}'),
+                subtitle: Text('${_formatDate(s.timestamp)} • ${s.decayStage}'),
                 trailing: TextButton(
                   onPressed: () => _openAnalyzer(s.spotId),
                   child: const Text('Open in Analyzer'),

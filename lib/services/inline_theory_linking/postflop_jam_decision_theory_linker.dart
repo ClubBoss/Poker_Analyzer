@@ -28,7 +28,8 @@ class PostflopJamDecisionTheoryLinker {
 
     for (final pack in packs) {
       final topic = pack.meta['topic']?.toString().toLowerCase();
-      final hasTag = pack.tags.map((t) => t.toLowerCase()).contains('jamdecision');
+      final hasTag =
+          pack.tags.map((t) => t.toLowerCase()).contains('jamdecision');
       if (topic != 'river jam' && !hasTag) continue;
 
       for (final spot in pack.spots) {
@@ -41,4 +42,3 @@ class PostflopJamDecisionTheoryLinker {
     }
   }
 }
-

@@ -6,7 +6,8 @@ import 'session_storage_service.dart';
 class LearningPathPlannerEngine {
   LearningPathPlannerEngine._();
 
-  static final LearningPathPlannerEngine instance = LearningPathPlannerEngine._();
+  static final LearningPathPlannerEngine instance =
+      LearningPathPlannerEngine._();
 
   List<String>? _cache;
   DateTime _cacheTime = DateTime.fromMillisecondsSinceEpoch(0);

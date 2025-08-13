@@ -59,26 +59,26 @@ class _TrainingPackLoaderState extends State<TrainingPackLoader> {
     final playTpl = tpl.copyWith(spots: spots);
     ScaffoldMessenger.of(rootCtx).showSnackBar(
       SnackBar(
-        content: Text('Stack ${tpl.heroBbStack}bb • Range ${tpl.heroRange?.length ?? 0}'),
+        content: Text(
+            'Stack ${tpl.heroBbStack}bb • Range ${tpl.heroRange?.length ?? 0}'),
       ),
     );
     Navigator.pushReplacement(
       rootCtx,
       MaterialPageRoute(
-        builder: (_) =>
-            (AppSettingsService.instance.useNewTrainerUi
-                ? TrainingPackPlayScreenV2(
-                    template: playTpl,
-                    original: widget.template,
-                    variant: widget.variant,
-                    spots: spots,
-                  )
-                : TrainingPackPlayScreen(
-                    template: playTpl,
-                    original: widget.template,
-                    variant: widget.variant,
-                    spots: spots,
-                  )),
+        builder: (_) => (AppSettingsService.instance.useNewTrainerUi
+            ? TrainingPackPlayScreenV2(
+                template: playTpl,
+                original: widget.template,
+                variant: widget.variant,
+                spots: spots,
+              )
+            : TrainingPackPlayScreen(
+                template: playTpl,
+                original: widget.template,
+                variant: widget.variant,
+                spots: spots,
+              )),
       ),
     );
   }

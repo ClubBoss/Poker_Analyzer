@@ -32,7 +32,8 @@ class ClusterNodeNavigator {
   }
 
   /// Returns true if the lesson is reachable based on [profile] progress.
-  static Future<bool> _isUnlocked(String lessonId, PlayerProfile profile) async {
+  static Future<bool> _isUnlocked(
+      String lessonId, PlayerProfile profile) async {
     await MiniLessonLibraryService.instance.loadAll();
     final lessons = MiniLessonLibraryService.instance.all;
     if (lessons.isEmpty) return false;

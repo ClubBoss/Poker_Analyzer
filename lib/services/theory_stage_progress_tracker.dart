@@ -2,7 +2,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class TheoryStageProgressTracker {
   TheoryStageProgressTracker._();
-  static final TheoryStageProgressTracker instance = TheoryStageProgressTracker._();
+  static final TheoryStageProgressTracker instance =
+      TheoryStageProgressTracker._();
 
   static const _completedPrefix = 'theory_stage_completed_';
   static const _masteryPrefix = 'theory_stage_mastery_';

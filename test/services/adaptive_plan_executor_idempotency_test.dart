@@ -46,7 +46,8 @@ class _FakeFormatSelector extends AutoFormatSelector {
 class _PassGatekeeper extends PackQualityGatekeeperService {
   const _PassGatekeeper();
   @override
-  bool isQualityAcceptable(pack, {double minScore = 0.7, seedIssues = const {}}) {
+  bool isQualityAcceptable(pack,
+      {double minScore = 0.7, seedIssues = const {}}) {
     return true;
   }
 }
@@ -108,7 +109,8 @@ void main() {
       tagWeights: const {'a': 1.0},
       mix: const {'theory': 0, 'booster': 1, 'assessment': 1},
     );
-    await exec.execute(userId: 'u1', plan: plan, budgetMinutes: 20, sig: 'sig1');
+    await exec.execute(
+        userId: 'u1', plan: plan, budgetMinutes: 20, sig: 'sig1');
     final changed = AdaptivePlan(
       clusters: [
         SkillTagCluster(tags: ['a', 'b'], clusterId: 'c1', themeName: 'T')

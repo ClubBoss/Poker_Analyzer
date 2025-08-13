@@ -7,7 +7,8 @@ class OutcomeStats {
   final int n;
   final double meanDelta;
   final double varDelta;
-  const OutcomeStats({required this.n, required this.meanDelta, required this.varDelta});
+  const OutcomeStats(
+      {required this.n, required this.meanDelta, required this.varDelta});
 }
 
 class AdaptiveOutcomeTracker {
@@ -36,7 +37,8 @@ class AdaptiveOutcomeTracker {
     final prefs = await SharedPreferences.getInstance();
     final window = prefs.getInt('adaptive.baseline.window') ?? 5;
     final data = await _load(userId);
-    final tags = (m.metrics['clusterTags'] as List?)?.cast<String>() ?? const [];
+    final tags =
+        (m.metrics['clusterTags'] as List?)?.cast<String>() ?? const [];
     final baseline = _estimateBaseline(data, tags, window);
     data[m.moduleId] = {
       'startedAt': DateTime.now().toIso8601String(),
@@ -125,9 +127,9 @@ class AdaptiveOutcomeTracker {
       final pass = (rec['passRate'] as num?)?.toDouble();
       final base = (rec['baselinePass'] as num?)?.toDouble();
       if (pass == null || base == null) continue;
-      final delta = (pass.clamp(0.0, 1.0) - base.clamp(0.0, 1.0))
-          .clamp(-1.0, 1.0) /
-          tags.length;
+      final delta =
+          (pass.clamp(0.0, 1.0) - base.clamp(0.0, 1.0)).clamp(-1.0, 1.0) /
+              tags.length;
       n++;
       final diff = delta - mean;
       mean += diff / n;

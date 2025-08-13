@@ -170,4 +170,3 @@ abstract class TrainingPackPlayBaseState<T extends TrainingPackPlayBase>
   @override
   set feedbackTimer(Timer? value) => _feedbackTimer = value;
 }
-

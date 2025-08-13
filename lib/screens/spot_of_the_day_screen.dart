@@ -55,7 +55,8 @@ class _SpotOfTheDayScreenState extends State<SpotOfTheDayScreen> {
         appBar: AppBar(
           title: const Text('Спот дня'),
           centerTitle: true,
-          actions: [SyncStatusIcon.of(context), 
+          actions: [
+            SyncStatusIcon.of(context),
             IconButton(
               icon: const Icon(Icons.history),
               onPressed: () {
@@ -75,7 +76,8 @@ class _SpotOfTheDayScreenState extends State<SpotOfTheDayScreen> {
       appBar: AppBar(
         title: const Text('Спот дня'),
         centerTitle: true,
-        actions: [SyncStatusIcon.of(context), 
+        actions: [
+          SyncStatusIcon.of(context),
           IconButton(
             icon: const Icon(Icons.history),
             onPressed: () {
@@ -127,7 +129,9 @@ class _SpotOfTheDayScreenState extends State<SpotOfTheDayScreen> {
                 i, spot.numberOfPlayers, tableWidth, tableHeight);
             final offsetX = centerX + pos.dx - 55 * scale;
             final offsetY = centerY + pos.dy - 55 * scale;
-            final cards = spot.playerCards.length > i ? spot.playerCards[i] : <CardModel>[];
+            final cards = spot.playerCards.length > i
+                ? spot.playerCards[i]
+                : <CardModel>[];
             children.add(Positioned(
               left: offsetX,
               top: offsetY,
@@ -169,50 +173,51 @@ class _SpotOfTheDayScreenState extends State<SpotOfTheDayScreen> {
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (service.result != null || spot.recommendedAction != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Text(
-                    'Ваш ответ: ${service.result ?? '-'} • Реком.: ${spot.recommendedAction ?? '-'}',
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                ),
-              if (service.correct != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Text(
-                    service.correct! ? 'Верно' : 'Ошибка',
-                    style: TextStyle(
-                      color: service.correct! ? Colors.green : Colors.red,
-                      fontWeight: FontWeight.bold,
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (service.result != null || spot.recommendedAction != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Text(
+                      'Ваш ответ: ${service.result ?? '-'} • Реком.: ${spot.recommendedAction ?? '-'}',
+                      style: const TextStyle(color: Colors.white),
                     ),
                   ),
-                ),
-              ElevatedButton(
-                onPressed: () => _chooseAction(service),
-                child: Text(service.result == null ? 'Ваше решение' : 'Изменить ответ'),
-              ),
-              if (service.history.any((e) => e.correct == false))
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const SpotOfTheDayRetryScreen()),
-                      );
-                    },
-                    child: const Text('Повторить ошибки'),
+                if (service.correct != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Text(
+                      service.correct! ? 'Верно' : 'Ошибка',
+                      style: TextStyle(
+                        color: service.correct! ? Colors.green : Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
+                ElevatedButton(
+                  onPressed: () => _chooseAction(service),
+                  child: Text(service.result == null
+                      ? 'Ваше решение'
+                      : 'Изменить ответ'),
                 ),
-            ],
-          )
-        ),
+                if (service.history.any((e) => e.correct == false))
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const SpotOfTheDayRetryScreen()),
+                        );
+                      },
+                      child: const Text('Повторить ошибки'),
+                    ),
+                  ),
+              ],
+            )),
       ),
     );
   }

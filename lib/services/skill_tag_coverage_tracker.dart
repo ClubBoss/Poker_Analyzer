@@ -15,10 +15,8 @@ class SkillTagCoverageTracker {
   final Map<String, int> skillTagCounts = <String, int>{};
   final Map<String, String> tagCategoryMap;
   final Map<String, int> categoryCounts = <String, int>{};
-  final Map<String, Set<String>> _seenTagsByCategory =
-      <String, Set<String>>{};
-  final Map<String, Set<String>> _allTagsByCategory =
-      <String, Set<String>>{};
+  final Map<String, Set<String>> _seenTagsByCategory = <String, Set<String>>{};
+  final Map<String, Set<String>> _allTagsByCategory = <String, Set<String>>{};
   final Map<String, Set<String>> _tagPacks = <String, Set<String>>{};
   final Map<String, DateTime> _tagLastUpdated = <String, DateTime>{};
   int _totalTags = 0;
@@ -28,8 +26,7 @@ class SkillTagCoverageTracker {
     this.overloadThreshold = 50,
     Map<String, String>? tagCategoryMap,
     String categoryFile = 'assets/skill_tag_categories.json',
-  })  : tagCategoryMap =
-            tagCategoryMap ?? _loadCategoryMap(categoryFile) {
+  }) : tagCategoryMap = tagCategoryMap ?? _loadCategoryMap(categoryFile) {
     _initCategories();
   }
 
@@ -39,7 +36,8 @@ class SkillTagCoverageTracker {
       if (!file.existsSync()) return {};
       final data = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
       return data.map(
-        (key, value) => MapEntry(key.toString().toLowerCase(), value.toString()),
+        (key, value) =>
+            MapEntry(key.toString().toLowerCase(), value.toString()),
       );
     } catch (_) {
       return {};
@@ -85,7 +83,8 @@ class SkillTagCoverageTracker {
       }
     }
     _totalTags += total;
-    final unused = allTags.where((t) => (counts[_normalize(t)] ?? 0) == 0).toList();
+    final unused =
+        allTags.where((t) => (counts[_normalize(t)] ?? 0) == 0).toList();
     final overloaded = counts.entries
         .where((e) => e.value > overloadThreshold)
         .map((e) => e.key)
@@ -144,9 +143,7 @@ class SkillTagCoverageTracker {
     final coverage = <String, double>{};
     _allTagsByCategory.forEach((cat, tags) {
       final seen = _seenTagsByCategory[cat]?.length ?? 0;
-      coverage[cat] = tags.isEmpty
-          ? 0
-          : seen / tags.length.toDouble();
+      coverage[cat] = tags.isEmpty ? 0 : seen / tags.length.toDouble();
     });
     return SkillTagStats(
       tagCounts: Map<String, int>.from(skillTagCounts),

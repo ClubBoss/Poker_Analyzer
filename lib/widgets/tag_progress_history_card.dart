@@ -48,7 +48,8 @@ class TagProgressHistoryCard extends StatelessWidget {
           final spots = <FlSpot>[];
           var i = 0;
           if (data.logs.isNotEmpty) {
-            spots.add(FlSpot(i.toDouble(), data.logs.first.accuracyBefore * 100));
+            spots.add(
+                FlSpot(i.toDouble(), data.logs.first.accuracyBefore * 100));
             for (final log in data.logs) {
               i++;
               spots.add(FlSpot(i.toDouble(), log.accuracyAfter * 100));
@@ -130,4 +131,3 @@ class _TagHistory {
   final List<SkillBoostLogEntry> logs;
   _TagHistory({required this.tag, required this.mastery, required this.logs});
 }
-

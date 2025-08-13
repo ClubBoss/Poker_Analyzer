@@ -76,9 +76,7 @@ void main() {
   });
 
   test('invalid data returns null', () async {
-    SharedPreferences.setMockInitialValues({
-      'learning_plan_cache': 'oops'
-    });
+    SharedPreferences.setMockInitialValues({'learning_plan_cache': 'oops'});
     const cache = LearningPlanCache();
     final result = await cache.load();
     expect(result, isNull);

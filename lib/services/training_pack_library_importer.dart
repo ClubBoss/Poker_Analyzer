@@ -80,4 +80,3 @@ class TrainingPackLibraryImporter {
     return packs;
   }
 }
-

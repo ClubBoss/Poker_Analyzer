@@ -15,7 +15,8 @@ import 'training_import_export_service.dart';
 class TrainingSpotFileService {
   final TrainingImportExportService _importExport;
 
-  const TrainingSpotFileService([this._importExport = const TrainingImportExportService()]);
+  const TrainingSpotFileService(
+      [this._importExport = const TrainingImportExportService()]);
 
   Future<List<TrainingSpot>> importSpotsCsv(BuildContext context) async {
     final result = await FilePicker.platform.pickFiles(
@@ -52,7 +53,8 @@ class TrainingSpotFileService {
     }
   }
 
-  Future<String?> exportSpotsMarkdown(BuildContext context, List<TrainingSpot> spots) async {
+  Future<String?> exportSpotsMarkdown(
+      BuildContext context, List<TrainingSpot> spots) async {
     if (spots.isEmpty) return null;
     final markdown = _importExport.exportAllSpotsMarkdown(spots);
     if (markdown.isEmpty) return null;
@@ -101,8 +103,8 @@ class TrainingSpotFileService {
         mimeType: MimeType.csv,
       );
       if (context.mounted) {
-        final msg = successMessage ??
-            'Экспортировано ${spots.length} спотов в CSV';
+        final msg =
+            successMessage ?? 'Экспортировано ${spots.length} спотов в CSV';
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(msg)));
       }
@@ -122,8 +124,8 @@ class TrainingSpotFileService {
       final data = jsonDecode(content);
       if (data is! List) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Неверный формат файла')));
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Неверный формат файла')));
         }
         return [];
       }
@@ -137,15 +139,14 @@ class TrainingSpotFileService {
       }
       if (spots.isEmpty) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Неверный формат файла')));
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Неверный формат файла')));
         }
         return [];
       }
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(
-                SnackBar(content: Text('Импортировано спотов: ${spots.length}')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Импортировано спотов: ${spots.length}')));
       }
       return spots;
     } catch (_) {
@@ -191,7 +192,8 @@ class TrainingSpotFileService {
     await Share.shareXFiles([XFile(file.path)], text: '$safe.json');
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Пакет "$name" создан, спотов: ${spots.length}')),
+        SnackBar(
+            content: Text('Пакет "$name" создан, спотов: ${spots.length}')),
       );
     }
   }
@@ -222,7 +224,8 @@ class TrainingSpotFileService {
     }
     final csv = const ListToCsvConverter().convert(rows);
     final dir = await getApplicationDocumentsDirectory();
-    final file = File('${dir.path}/spots_${DateTime.now().millisecondsSinceEpoch}.csv');
+    final file =
+        File('${dir.path}/spots_${DateTime.now().millisecondsSinceEpoch}.csv');
     await file.writeAsString(csv);
     await Share.shareXFiles([XFile(file.path)]);
   }

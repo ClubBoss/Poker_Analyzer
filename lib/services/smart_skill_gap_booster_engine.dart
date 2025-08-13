@@ -23,9 +23,8 @@ class SmartSkillGapBoosterEngine {
     final tags = await detector.getMissingTags();
     if (tags.isEmpty) return [];
 
-    final tagSet = {
-      for (final t in tags) t.trim().toLowerCase()
-    }..removeWhere((t) => t.isEmpty);
+    final tagSet = {for (final t in tags) t.trim().toLowerCase()}
+      ..removeWhere((t) => t.isEmpty);
     if (tagSet.isEmpty) return [];
 
     await library.loadAll();
@@ -34,9 +33,7 @@ class SmartSkillGapBoosterEngine {
 
     final scored = <_Entry>[];
     for (final l in lessons) {
-      final lessonTags = {
-        for (final t in l.tags) t.trim().toLowerCase()
-      };
+      final lessonTags = {for (final t in l.tags) t.trim().toLowerCase()};
       final overlap = lessonTags.intersection(tagSet);
       if (overlap.isEmpty) continue;
       final views = await progress.viewCount(l.id);

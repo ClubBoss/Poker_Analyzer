@@ -69,7 +69,8 @@ class AdaptiveTrainingPlanner {
     for (final tag in allTags) {
       final mastery = skills[tag]?.mastery ?? 0.0;
       final decay = decays[tag] ?? 1.0;
-      final rawImpact = await BanditWeightLearner.instance.getImpact(userId, tag);
+      final rawImpact =
+          await BanditWeightLearner.instance.getImpact(userId, tag);
       final impact = (rawImpact.isNaN
               ? (prefs.getDouble('planner.impact.$tag') ?? 1.0)
               : rawImpact)
@@ -107,8 +108,7 @@ class AdaptiveTrainingPlanner {
     }
     final boosterAvg =
         boosterCount > 0 ? (boosterSum / boosterCount).round() : 10;
-    final assessAvg =
-        assessCount > 0 ? (assessSum / assessCount).round() : 8;
+    final assessAvg = assessCount > 0 ? (assessSum / assessCount).round() : 8;
     final theoryAvg = theoryCount > 0
         ? (theorySum / theoryCount).round()
         : (prefs.getInt('path.inject.theoryMins') ?? 5);
@@ -123,7 +123,9 @@ class AdaptiveTrainingPlanner {
     }
 
     Map<String, int> mix = mixFor(selected.length, audience, format);
-    int estMins = mix['theory']! * theoryAvg + mix['booster']! * boosterAvg + mix['assessment']! * assessAvg;
+    int estMins = mix['theory']! * theoryAvg +
+        mix['booster']! * boosterAvg +
+        mix['assessment']! * assessAvg;
     while (estMins > budget && selected.isNotEmpty) {
       selected.removeLast();
       mix = mixFor(selected.length, audience, format);
@@ -206,4 +208,3 @@ class AdaptiveTrainingPlanner {
     return result;
   }
 }
-

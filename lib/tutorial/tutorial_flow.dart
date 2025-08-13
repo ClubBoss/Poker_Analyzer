@@ -45,7 +45,8 @@ class TutorialFlow {
   void _show(BuildContext context) {
     final step = steps[_index];
     final overlay = Overlay.of(context);
-    final renderBox = step.targetKey.currentContext?.findRenderObject() as RenderBox?;
+    final renderBox =
+        step.targetKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
     final offset = renderBox.localToGlobal(Offset.zero);
     final size = renderBox.size;

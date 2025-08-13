@@ -25,4 +25,3 @@ void main() {
     expect(clusters.last.spots.length, 1);
   });
 }
-

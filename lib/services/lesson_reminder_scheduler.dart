@@ -8,7 +8,8 @@ class LessonReminderScheduler {
   LessonReminderScheduler._();
   static final LessonReminderScheduler instance = LessonReminderScheduler._();
 
-  final FlutterLocalNotificationsPlugin _plugin = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _plugin =
+      FlutterLocalNotificationsPlugin();
   bool _initialized = false;
 
   static const _hourKey = 'lesson_reminder_hour';
@@ -20,7 +21,8 @@ class LessonReminderScheduler {
     if (_initialized) return;
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
-    await _plugin.initialize(const InitializationSettings(android: android, iOS: ios));
+    await _plugin
+        .initialize(const InitializationSettings(android: android, iOS: ios));
     tz.initializeTimeZones();
     _initialized = true;
   }
@@ -42,7 +44,8 @@ class LessonReminderScheduler {
     await prefs.setBool(_enabledKey, true);
 
     final now = tz.TZDateTime.now(tz.local);
-    var when = tz.TZDateTime(tz.local, now.year, now.month, now.day, time.hour, time.minute);
+    var when = tz.TZDateTime(
+        tz.local, now.year, now.month, now.day, time.hour, time.minute);
     if (!when.isAfter(now)) {
       when = when.add(const Duration(days: 1));
     }
@@ -53,11 +56,13 @@ class LessonReminderScheduler {
       'Complete your 5 hands and keep your streak alive \uD83D\uDD25',
       when,
       const NotificationDetails(
-        android: AndroidNotificationDetails('lesson_reminder', 'Lesson Reminder'),
+        android:
+            AndroidNotificationDetails('lesson_reminder', 'Lesson Reminder'),
         iOS: DarwinNotificationDetails(),
       ),
       androidAllowWhileIdle: true,
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
     );
   }

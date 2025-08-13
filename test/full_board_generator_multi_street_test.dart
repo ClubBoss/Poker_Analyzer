@@ -22,9 +22,10 @@ void main() {
     expect(board.turn, isNotNull);
     expect(board.river, isNotNull);
     bool isLow(String rank) {
-      const order = ['2','3','4','5','6','7','8'];
+      const order = ['2', '3', '4', '5', '6', '7', '8'];
       return order.contains(rank);
     }
+
     expect(board.cards.every((c) => isLow(c.rank)), isTrue);
   });
 
@@ -32,11 +33,11 @@ void main() {
     final generator = FullBoardGenerator(random: Random(3));
     final board = generator.generate(
       boardConstraints: {
-        'requiredRanks': ['A','K','Q'],
+        'requiredRanks': ['A', 'K', 'Q'],
       },
     );
     expect(generator.lastAttempts, greaterThan(1));
     final ranks = board.flop.map((c) => c.rank.toUpperCase()).toSet();
-    expect(ranks.containsAll(['A','K','Q']), isTrue);
+    expect(ranks.containsAll(['A', 'K', 'Q']), isTrue);
   });
 }

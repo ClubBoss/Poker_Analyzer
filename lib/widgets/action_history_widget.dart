@@ -13,9 +13,8 @@ class ActionHistoryWidget extends StatelessWidget {
     this.onExpand,
   }) : super(key: key);
 
-  String _capitalize(String s) => s.isNotEmpty
-      ? s[0].toUpperCase() + s.substring(1)
-      : s;
+  String _capitalize(String s) =>
+      s.isNotEmpty ? s[0].toUpperCase() + s.substring(1) : s;
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +29,8 @@ class ActionHistoryWidget extends StatelessWidget {
   }
 
   Widget _buildStreetTile(BuildContext context, int street, String title) {
-    final streetActions = actions
-        .where((a) => a.street == street && !a.generated)
-        .toList();
+    final streetActions =
+        actions.where((a) => a.street == street && !a.generated).toList();
     if (streetActions.isEmpty) return const SizedBox.shrink();
 
     final last = streetActions.last;

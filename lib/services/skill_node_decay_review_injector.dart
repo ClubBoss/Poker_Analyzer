@@ -71,4 +71,3 @@ class SkillNodeDecayReviewInjector {
     return entries;
   }
 }
-

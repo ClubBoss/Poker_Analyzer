@@ -61,4 +61,3 @@ spots:
     await dir.delete(recursive: true);
   });
 }
-

@@ -14,7 +14,8 @@ class _FakeTagMasteryService extends TagMasteryService {
       : super(logs: SessionLogService(sessions: TrainingSessionService()));
 
   @override
-  Future<Map<String, double>> computeMastery({bool force = false}) async => _data;
+  Future<Map<String, double>> computeMastery({bool force = false}) async =>
+      _data;
 }
 
 void main() {

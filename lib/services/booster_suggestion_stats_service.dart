@@ -38,7 +38,8 @@ class BoosterSuggestionStatsService {
       final metric = parts[2];
       final count = prefs.getInt(key) ?? 0;
       final record = result[type] ??
-          BoosterStatRecord(type: type, suggested: 0, accepted: 0, dismissed: 0);
+          BoosterStatRecord(
+              type: type, suggested: 0, accepted: 0, dismissed: 0);
       switch (metric) {
         case 'suggested':
           result[type] = record.copyWith(suggested: record.suggested + count);
@@ -57,7 +58,10 @@ class BoosterSuggestionStatsService {
   /// Removes all stored statistics.
   Future<void> reset() async {
     final prefs = await SharedPreferences.getInstance();
-    final keys = [for (final k in prefs.getKeys()) if (k.startsWith(_prefix)) k];
+    final keys = [
+      for (final k in prefs.getKeys())
+        if (k.startsWith(_prefix)) k
+    ];
     for (final k in keys) {
       await prefs.remove(k);
     }

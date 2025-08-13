@@ -17,7 +17,8 @@ class WeeklyProgressScreen extends StatelessWidget {
     if (h.playerCards.length <= h.heroIndex) return null;
     final cards = h.playerCards[h.heroIndex];
     if (cards.length < 2) return null;
-    return handCode('${cards[0].rank}${cards[0].suit} ${cards[1].rank}${cards[1].suit}');
+    return handCode(
+        '${cards[0].rank}${cards[0].suit} ${cards[1].rank}${cards[1].suit}');
   }
 
   double? _ev(SavedHand h) {
@@ -46,7 +47,9 @@ class WeeklyProgressScreen extends StatelessWidget {
     if (icm == null && act.action.toLowerCase() == 'push') {
       final code = _handCode(h);
       if (code != null && ev != null) {
-        final stacks = [for (int i = 0; i < h.numberOfPlayers; i++) h.stackSizes[i] ?? 0];
+        final stacks = [
+          for (int i = 0; i < h.numberOfPlayers; i++) h.stackSizes[i] ?? 0
+        ];
         icm = computeIcmPushEV(
           chipStacksBb: stacks,
           heroIndex: h.heroIndex,
@@ -62,7 +65,8 @@ class WeeklyProgressScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final hands = context.watch<SavedHandManagerService>().hands;
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day).subtract(const Duration(days: 6));
+    final start = DateTime(now.year, now.month, now.day)
+        .subtract(const Duration(days: 6));
     final days = [for (int i = 0; i < 7; i++) start.add(Duration(days: i))];
     final Map<DateTime, List<SavedHand>> map = {for (final d in days) d: []};
     for (final h in hands) {
@@ -152,8 +156,10 @@ class WeeklyProgressScreen extends StatelessWidget {
                       const FlLine(color: Colors.white24, strokeWidth: 1),
                 ),
                 titlesData: FlTitlesData(
-                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
@@ -161,7 +167,8 @@ class WeeklyProgressScreen extends StatelessWidget {
                       reservedSize: 30,
                       getTitlesWidget: (value, meta) => Text(
                         value.toStringAsFixed(0),
-                        style: const TextStyle(color: Colors.white, fontSize: 10),
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 10),
                       ),
                     ),
                   ),
@@ -171,14 +178,16 @@ class WeeklyProgressScreen extends StatelessWidget {
                       interval: 1,
                       getTitlesWidget: (value, meta) {
                         final index = value.toInt();
-                        if (index < 0 || index >= stats.length) return const SizedBox.shrink();
+                        if (index < 0 || index >= stats.length)
+                          return const SizedBox.shrink();
                         if (index % step != 0 && index != stats.length - 1) {
                           return const SizedBox.shrink();
                         }
                         final d = stats[index].date;
                         return Text(
                           '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}',
-                          style: const TextStyle(color: Colors.white, fontSize: 10),
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 10),
                         );
                       },
                     ),

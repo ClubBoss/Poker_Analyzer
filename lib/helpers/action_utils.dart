@@ -16,4 +16,3 @@ extension ActionEntryListX on List<ActionEntry> {
   List<ActionEntry> againstHero(int heroIndex) =>
       where((a) => a.isOpponent(heroIndex)).toList();
 }
-

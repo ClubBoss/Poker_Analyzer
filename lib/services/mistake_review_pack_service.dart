@@ -30,7 +30,8 @@ class MistakeReviewPackService extends ChangeNotifier {
 
   static TrainingPackTemplate? get cachedTemplate => _latestTemplate;
 
-  static Future<TrainingPackTemplate?> latestTemplate(BuildContext context) async {
+  static Future<TrainingPackTemplate?> latestTemplate(
+      BuildContext context) async {
     if (_latestTemplate != null) return _latestTemplate;
     final service = context.read<MistakeReviewPackService>();
     if (service.packs.isEmpty) return null;
@@ -73,7 +74,8 @@ class MistakeReviewPackService extends ChangeNotifier {
     final seen = <String>{};
     final result = <MistakePack>[];
     for (final p in _packs) {
-      final key = '${p.templateId}_${(p.spotIds.toSet().toList()..sort()).join(',')}';
+      final key =
+          '${p.templateId}_${(p.spotIds.toSet().toList()..sort()).join(',')}';
       if (seen.add(key)) {
         result.add(p);
         if (result.length >= 50) break;
@@ -115,8 +117,8 @@ class MistakeReviewPackService extends ChangeNotifier {
     final list = prefs.getStringList(_packsKey) ?? [];
     _packs
       ..clear()
-      ..addAll(list.map((e) =>
-          MistakePack.fromJson(jsonDecode(e) as Map<String, dynamic>)));
+      ..addAll(list.map(
+          (e) => MistakePack.fromJson(jsonDecode(e) as Map<String, dynamic>)));
     _packSpots.clear();
     for (final p in _packs) {
       final set = _packSpots.putIfAbsent(p.templateId, () => <String>{});
@@ -182,7 +184,8 @@ class MistakeReviewPackService extends ChangeNotifier {
   Future<void> addPack(List<String> spotIds,
       {required String templateId, String note = ''}) async {
     (_packSpots[templateId] ??= <String>{}).addAll(spotIds);
-    _packs.add(MistakePack(templateId: templateId, spotIds: spotIds, note: note));
+    _packs
+        .add(MistakePack(templateId: templateId, spotIds: spotIds, note: note));
     await _save();
     await syncUp();
     _generate();
@@ -236,7 +239,10 @@ class MistakeReviewPackService extends ChangeNotifier {
     final now = DateTime.now();
     _packs
       ..clear()
-      ..addAll([for (final p in remote) if (now.difference(p.createdAt).inDays <= 30) p]);
+      ..addAll([
+        for (final p in remote)
+          if (now.difference(p.createdAt).inDays <= 30) p
+      ]);
     _trim();
     await _save();
     _generate();

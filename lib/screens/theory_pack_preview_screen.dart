@@ -154,8 +154,8 @@ class _TheoryPackPreviewScreenState extends State<TheoryPackPreviewScreen> {
   }
 
   void _start(BuildContext context) {
-    final pack = TrainingPackV2.fromTemplate(
-        widget.template, widget.template.id);
+    final pack =
+        TrainingPackV2.fromTemplate(widget.template, widget.template.id);
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => TrainingSessionScreen(pack: pack)),

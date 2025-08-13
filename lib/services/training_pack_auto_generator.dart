@@ -129,7 +129,8 @@ class TrainingPackAutoGenerator {
         return filtered;
       }
 
-      final deduped = _dedup.deduplicateSpots(filtered, source: set.baseSpot.id);
+      final deduped =
+          _dedup.deduplicateSpots(filtered, source: set.baseSpot.id);
       if (filtered.isNotEmpty && deduped.isEmpty) {
         final pack = _buildPack(set, spots);
         final type = _errorClassifier.classify(
@@ -241,8 +242,7 @@ class TrainingPackAutoGenerator {
           );
           spots = _applyTextureFilters(spots);
           if (deduplicate) {
-            spots =
-                _dedup.deduplicateSpots(spots, source: set.baseSpot.id);
+            spots = _dedup.deduplicateSpots(spots, source: set.baseSpot.id);
           }
           final tag = 'VARIANT:${entry.key.toUpperCase()}';
           for (final s in spots) {

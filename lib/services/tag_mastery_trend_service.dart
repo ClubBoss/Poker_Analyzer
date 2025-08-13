@@ -56,9 +56,8 @@ class TagMasteryTrendService {
       final sumX = xs.reduce((a, b) => a + b);
       final sumX2 = xs.map((e) => e * e).reduce((a, b) => a + b);
       final sumY = smoothed.reduce((a, b) => a + b);
-      final sumXY = [
-        for (var i = 0; i < n; i++) xs[i] * smoothed[i]
-      ].reduce((a, b) => a + b);
+      final sumXY = [for (var i = 0; i < n; i++) xs[i] * smoothed[i]]
+          .reduce((a, b) => a + b);
       final denom = n * sumX2 - sumX * sumX;
       double slope = 0;
       if (denom != 0) {

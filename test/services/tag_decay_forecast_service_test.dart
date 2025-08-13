@@ -30,7 +30,8 @@ class _FakeTuner extends InboxBoosterTunerService {
   final Map<String, double> map;
   const _FakeTuner(this.map);
   @override
-  Future<Map<String, double>> computeTagBoostScores({DateTime? now, int recencyDays = 3}) async {
+  Future<Map<String, double>> computeTagBoostScores(
+      {DateTime? now, int recencyDays = 3}) async {
     return map;
   }
 }

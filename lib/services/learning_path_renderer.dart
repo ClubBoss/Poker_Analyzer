@@ -7,7 +7,8 @@ class LearningPathRenderer {
 
   const LearningPathRenderer({
     MistakeBoosterPathNodeDecorator? boosterDecorator,
-  }) : boosterDecorator = boosterDecorator ?? const MistakeBoosterPathNodeDecorator();
+  }) : boosterDecorator =
+            boosterDecorator ?? const MistakeBoosterPathNodeDecorator();
 
   /// Applies decorators to [nodes] and returns the updated list.
   Future<List<LearningPathNode>> render(List<LearningPathNode> nodes) async {

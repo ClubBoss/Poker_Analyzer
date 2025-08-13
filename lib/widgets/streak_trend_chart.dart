@@ -16,8 +16,12 @@ class StreakTrendChart extends StatelessWidget {
     if (data.length < 2) {
       return SizedBox(height: responsiveSize(context, 200));
     }
-    final spots = <FlSpot>[for (var i = 0; i < data.length; i++) FlSpot(i.toDouble(), data[i].value.toDouble())];
-    final maxY = data.map((e) => e.value).reduce((a, b) => a > b ? a : b).toDouble();
+    final spots = <FlSpot>[
+      for (var i = 0; i < data.length; i++)
+        FlSpot(i.toDouble(), data[i].value.toDouble())
+    ];
+    final maxY =
+        data.map((e) => e.value).reduce((a, b) => a > b ? a : b).toDouble();
     final interval = maxY <= 5 ? 1.0 : (maxY / 5).ceilToDouble();
     final step = (data.length / 6).ceil();
     return Container(
@@ -35,11 +39,14 @@ class StreakTrendChart extends StatelessWidget {
             show: true,
             drawVerticalLine: false,
             horizontalInterval: interval,
-            getDrawingHorizontalLine: (value) => const FlLine(color: Colors.white24, strokeWidth: 1),
+            getDrawingHorizontalLine: (value) =>
+                const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -58,7 +65,8 @@ class StreakTrendChart extends StatelessWidget {
                 getTitlesWidget: (value, meta) {
                   final i = value.toInt();
                   if (i < 0 || i >= data.length) return const SizedBox.shrink();
-                  if (i % step != 0 && i != data.length - 1) return const SizedBox.shrink();
+                  if (i % step != 0 && i != data.length - 1)
+                    return const SizedBox.shrink();
                   final d = data[i].key;
                   return Text(
                     '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}',

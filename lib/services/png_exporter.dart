@@ -4,7 +4,12 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart'
-    show PipelineOwner, RenderObjectToWidgetAdapter, RenderPositionedBox, RenderRepaintBoundary, RenderView;
+    show
+        PipelineOwner,
+        RenderObjectToWidgetAdapter,
+        RenderPositionedBox,
+        RenderRepaintBoundary,
+        RenderView;
 import '../models/v2/training_pack_template.dart';
 import '../widgets/hero_range_grid_widget.dart';
 
@@ -68,11 +73,13 @@ class PngExporter {
     );
   }
 
-  static Future<Uint8List?> exportTemplatePreview(TrainingPackTemplate template) {
+  static Future<Uint8List?> exportTemplatePreview(
+      TrainingPackTemplate template) {
     return _capture(_TemplatePreview(template));
   }
 
-  static Future<Uint8List?> captureBoundary(RenderRepaintBoundary boundary) async {
+  static Future<Uint8List?> captureBoundary(
+      RenderRepaintBoundary boundary) async {
     final view = WidgetsBinding.instance.platformDispatcher.implicitView!;
     final image = await boundary.toImage(pixelRatio: view.devicePixelRatio);
     final data = await image.toByteData(format: ui.ImageByteFormat.png);
@@ -98,7 +105,21 @@ class _TemplatePreview extends StatelessWidget {
   final TrainingPackTemplate template;
   const _TemplatePreview(this.template);
 
-  static const _ranks = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'];
+  static const _ranks = [
+    'A',
+    'K',
+    'Q',
+    'J',
+    'T',
+    '9',
+    '8',
+    '7',
+    '6',
+    '5',
+    '4',
+    '3',
+    '2'
+  ];
 
   List<List<double>> _matrix() {
     final idx = {for (var i = 0; i < _ranks.length; i++) _ranks[i]: i};
@@ -140,7 +161,9 @@ class _TemplatePreview extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(template.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                Text(template.name,
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.bold)),
                 Text('ID: ${template.id}'),
                 Text('Spots: ${template.spots.length}'),
                 Text('Position: ${template.heroPos.label}'),

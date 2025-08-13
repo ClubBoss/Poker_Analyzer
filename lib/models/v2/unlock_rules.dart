@@ -16,11 +16,14 @@ class UnlockRules {
   });
 
   factory UnlockRules.fromJson(Map<String, dynamic> j) => UnlockRules(
-        requiredPacks: [for (final p in (j['requiredPacks'] as List? ?? [])) p.toString()],
+        requiredPacks: [
+          for (final p in (j['requiredPacks'] as List? ?? [])) p.toString()
+        ],
         minAccuracy: (j['minAccuracy'] as num?)?.toDouble(),
         minEV: (j['minEV'] as num?)?.toDouble(),
         minIcm: (j['minIcm'] as num?)?.toDouble(),
-        requiresStarterPathCompleted: j['requiresStarterPathCompleted'] as bool?,
+        requiresStarterPathCompleted:
+            j['requiresStarterPathCompleted'] as bool?,
         unlockHint: j['unlockHint'] as String?,
       );
 
@@ -31,6 +34,7 @@ class UnlockRules {
         if (minIcm != null) 'minIcm': minIcm,
         if (requiresStarterPathCompleted != null)
           'requiresStarterPathCompleted': requiresStarterPathCompleted,
-        if (unlockHint != null && unlockHint!.isNotEmpty) 'unlockHint': unlockHint,
+        if (unlockHint != null && unlockHint!.isNotEmpty)
+          'unlockHint': unlockHint,
       };
 }

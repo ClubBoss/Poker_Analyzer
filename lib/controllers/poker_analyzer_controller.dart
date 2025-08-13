@@ -89,14 +89,11 @@ class PokerAnalyzerController extends ChangeNotifier {
       _numberOfPlayers = playerCount;
       _playerPositions
         ..clear()
-        ..addAll({
-          for (var i = 0; i < playerCount; i++) i: spot.positions[i]
-        });
+        ..addAll({for (var i = 0; i < playerCount; i++) i: spot.positions[i]});
       _playerTypes
         ..clear()
-        ..addAll({
-          for (var i = 0; i < playerCount; i++) i: spot.playerTypes[i]
-        });
+        ..addAll(
+            {for (var i = 0; i < playerCount; i++) i: spot.playerTypes[i]});
       _players
         ..clear()
         ..addAll([

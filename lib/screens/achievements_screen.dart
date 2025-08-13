@@ -84,8 +84,7 @@ class _Item extends StatelessWidget {
                     value: (ach.progressInLevel / ach.targetInLevel)
                         .clamp(0.0, 1.0),
                     backgroundColor: Colors.white24,
-                    valueColor:
-                        AlwaysStoppedAnimation<Color>(ach.level.color),
+                    valueColor: AlwaysStoppedAnimation<Color>(ach.level.color),
                     minHeight: 6,
                   ),
                 ),

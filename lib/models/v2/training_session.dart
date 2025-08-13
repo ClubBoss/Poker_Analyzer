@@ -25,8 +25,8 @@ class TrainingSession {
   factory TrainingSession.fromJson(Map<String, dynamic> j) => TrainingSession(
         id: j['id'] as String? ?? '',
         templateId: j['templateId'] as String? ?? '',
-        startedAt:
-            DateTime.tryParse(j['startedAt'] as String? ?? '') ?? DateTime.now(),
+        startedAt: DateTime.tryParse(j['startedAt'] as String? ?? '') ??
+            DateTime.now(),
         completedAt: j['completedAt'] != null
             ? DateTime.tryParse(j['completedAt'])
             : null,

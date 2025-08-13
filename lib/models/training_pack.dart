@@ -70,8 +70,9 @@ class TrainingPack {
 
   int get solved => history.isNotEmpty ? history.last.correct : 0;
   int get lastAttempted => history.isNotEmpty ? history.last.total : 0;
-  DateTime get lastAttemptDate =>
-      history.isNotEmpty ? history.last.date : DateTime.fromMillisecondsSinceEpoch(0);
+  DateTime get lastAttemptDate => history.isNotEmpty
+      ? history.last.date
+      : DateTime.fromMillisecondsSinceEpoch(0);
 
   factory TrainingPack.fromJson(Map<String, dynamic> json) =>
       _$TrainingPackFromJson(json);

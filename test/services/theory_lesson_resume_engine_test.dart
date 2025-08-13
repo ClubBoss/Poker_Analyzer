@@ -59,8 +59,10 @@ void main() {
 
   test('falls back to first incomplete in cluster', () async {
     final lessons = [
-      const TheoryMiniLessonNode(id: 'l1', title: 'A', content: '', tags: ['x'], nextIds: ['l2']),
-      const TheoryMiniLessonNode(id: 'l2', title: 'B', content: '', tags: ['x']),
+      const TheoryMiniLessonNode(
+          id: 'l1', title: 'A', content: '', tags: ['x'], nextIds: ['l2']),
+      const TheoryMiniLessonNode(
+          id: 'l2', title: 'B', content: '', tags: ['x']),
     ];
     final tracker = TheoryLessonTrailTracker.instance;
     await tracker.recordVisit('l1');

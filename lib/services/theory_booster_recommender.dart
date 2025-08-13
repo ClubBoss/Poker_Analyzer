@@ -21,7 +21,8 @@ class BoosterRecommendationResult {
 class TheoryBoosterRecommender {
   final BoosterLibraryService library;
 
-  const TheoryBoosterRecommender({this.library = BoosterLibraryService.instance});
+  const TheoryBoosterRecommender(
+      {this.library = BoosterLibraryService.instance});
 
   Future<BoosterRecommendationResult?> recommend(
     TheoryMiniLessonNode lesson, {

@@ -95,7 +95,8 @@ class TagMasteryHistoryService {
   }
 
   /// Returns a normalized cumulative mastery timeline for [tag].
-  Future<List<MapEntry<DateTime, double>>> getMasteryTimeline(String tag) async {
+  Future<List<MapEntry<DateTime, double>>> getMasteryTimeline(
+      String tag) async {
     final hist = await getHistory();
     final list = hist[tag.toLowerCase()] ?? <TagXpHistoryEntry>[];
     if (list.isEmpty) return <MapEntry<DateTime, double>>[];

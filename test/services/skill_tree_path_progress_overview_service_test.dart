@@ -40,7 +40,6 @@ void main() {
     expect(overview.totalTracks, 3);
     expect(overview.completedTracks, 2);
     expect(
-        overview.averageCompletionRate,
-        closeTo((1.0 + 0.5 + 0.75) / 3, 1e-6));
+        overview.averageCompletionRate, closeTo((1.0 + 0.5 + 0.75) / 3, 1e-6));
   });
 }

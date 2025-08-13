@@ -36,10 +36,12 @@ class SessionAnalysisImportScreen extends StatefulWidget {
   const SessionAnalysisImportScreen({super.key});
 
   @override
-  State<SessionAnalysisImportScreen> createState() => _SessionAnalysisImportScreenState();
+  State<SessionAnalysisImportScreen> createState() =>
+      _SessionAnalysisImportScreenState();
 }
 
-class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScreen> {
+class _SessionAnalysisImportScreenState
+    extends State<SessionAnalysisImportScreen> {
   final TextEditingController _controller = TextEditingController();
   final List<SavedHand> _hands = [];
   SummaryResult? _summary;
@@ -80,8 +82,8 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
     if (plugin == null) {
       if (mounted) {
         setState(() => _loading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Unsupported format')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Unsupported format')));
       }
       return;
     }
@@ -118,10 +120,15 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
     if (act == null) return null;
     var ev = act.ev;
     if (ev == null && act.action.toLowerCase() == 'push') {
-      final code = handCode('${h.playerCards[h.heroIndex][0].rank}${h.playerCards[h.heroIndex][0].suit} ${h.playerCards[h.heroIndex][1].rank}${h.playerCards[h.heroIndex][1].suit}');
+      final code = handCode(
+          '${h.playerCards[h.heroIndex][0].rank}${h.playerCards[h.heroIndex][0].suit} ${h.playerCards[h.heroIndex][1].rank}${h.playerCards[h.heroIndex][1].suit}');
       final stack = h.stackSizes[h.heroIndex];
       if (code != null && stack != null) {
-        ev = computePushEV(heroBbStack: stack, bbCount: h.numberOfPlayers - 1, heroHand: code, anteBb: h.anteBb);
+        ev = computePushEV(
+            heroBbStack: stack,
+            bbCount: h.numberOfPlayers - 1,
+            heroHand: code,
+            anteBb: h.anteBb);
       }
     }
     return ev;
@@ -132,10 +139,17 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
     if (act == null) return null;
     var icm = act.icmEv;
     if (icm == null && act.action.toLowerCase() == 'push') {
-      final code = handCode('${h.playerCards[h.heroIndex][0].rank}${h.playerCards[h.heroIndex][0].suit} ${h.playerCards[h.heroIndex][1].rank}${h.playerCards[h.heroIndex][1].suit}');
+      final code = handCode(
+          '${h.playerCards[h.heroIndex][0].rank}${h.playerCards[h.heroIndex][0].suit} ${h.playerCards[h.heroIndex][1].rank}${h.playerCards[h.heroIndex][1].suit}');
       if (code != null && ev != null) {
-        final stacks = [for (int i = 0; i < h.numberOfPlayers; i++) h.stackSizes[i] ?? 0];
-        icm = computeIcmPushEV(chipStacksBb: stacks, heroIndex: h.heroIndex, heroHand: code, chipPushEv: ev);
+        final stacks = [
+          for (int i = 0; i < h.numberOfPlayers; i++) h.stackSizes[i] ?? 0
+        ];
+        icm = computeIcmPushEV(
+            chipStacksBb: stacks,
+            heroIndex: h.heroIndex,
+            heroHand: code,
+            chipPushEv: ev);
       }
     }
     return icm;
@@ -144,12 +158,15 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
   Future<void> _createPack(List<SavedHand> mistakes) async {
     final spots = <TrainingPackSpot>[];
     for (final h in mistakes) {
-      final actions = <int, List<ActionEntry>>{for (var s = 0; s < 4; s++) s: []};
+      final actions = <int, List<ActionEntry>>{
+        for (var s = 0; s < 4; s++) s: []
+      };
       for (final a in h.actions) {
         actions[a.street] = [...(actions[a.street] ?? []), a];
       }
-      final hero =
-          h.playerCards.length > h.heroIndex ? h.playerCards[h.heroIndex] : <CardModel>[];
+      final hero = h.playerCards.length > h.heroIndex
+          ? h.playerCards[h.heroIndex]
+          : <CardModel>[];
       final hc = hero.length >= 2 ? '${hero[0]} ${hero[1]}' : '';
       final handData = HandData(
         heroCards: hc,
@@ -157,15 +174,17 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
         heroIndex: h.heroIndex,
         playerCount: h.numberOfPlayers,
         board: [for (final c in h.boardCards) c.toString()],
-        stacks: {for (final e in h.stackSizes.entries) '${e.key}': e.value.toDouble()},
+        stacks: {
+          for (final e in h.stackSizes.entries) '${e.key}': e.value.toDouble()
+        },
         actions: actions,
         anteBb: h.anteBb,
       );
       spots.add(TrainingPackSpot(id: const Uuid().v4(), hand: handData));
     }
     if (spots.isEmpty) return;
-    final template =
-        TrainingPackTemplate(id: const Uuid().v4(), name: 'Review Imported', spots: spots);
+    final template = TrainingPackTemplate(
+        id: const Uuid().v4(), name: 'Review Imported', spots: spots);
     context.read<TemplateStorageService>().addTemplate(template);
     MistakeReviewPackService.setLatestTemplate(template);
     await context
@@ -175,12 +194,17 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.cardBackground,
-        title: const Text('Review mistakes', style: TextStyle(color: Colors.white)),
+        title: const Text('Review mistakes',
+            style: TextStyle(color: Colors.white)),
         content: Text('Start ${spots.length} mistakes now?',
             style: const TextStyle(color: Colors.white70)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(_, false), child: const Text('No')),
-          TextButton(onPressed: () => Navigator.pop(_, true), child: const Text('Yes')),
+          TextButton(
+              onPressed: () => Navigator.pop(_, false),
+              child: const Text('No')),
+          TextButton(
+              onPressed: () => Navigator.pop(_, true),
+              child: const Text('Yes')),
         ],
       ),
     );
@@ -291,9 +315,11 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          FloatingActionButton.extended(onPressed: _paste, label: const Text('📋 Paste')),
+          FloatingActionButton.extended(
+              onPressed: _paste, label: const Text('📋 Paste')),
           const SizedBox(height: 8),
-          FloatingActionButton.extended(onPressed: _pickFile, label: const Text('📂 File')),
+          FloatingActionButton.extended(
+              onPressed: _pickFile, label: const Text('📂 File')),
         ],
       ),
       body: Padding(
@@ -308,30 +334,48 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
             ),
             const SizedBox(height: 8),
             const SizedBox(height: 8),
-            ElevatedButton(onPressed: _parse, child: const Text('Parse & Analyze')),
+            ElevatedButton(
+                onPressed: _parse, child: const Text('Parse & Analyze')),
             const SizedBox(height: 16),
             if (_loading) const CircularProgressIndicator(),
             if (_summary != null) ...[
-              Text('Hands: ${_summary!.totalHands}', style: const TextStyle(color: Colors.white)),
+              Text('Hands: ${_summary!.totalHands}',
+                  style: const TextStyle(color: Colors.white)),
               const SizedBox(height: 4),
-              Text('Accuracy: ${_summary!.accuracy.toStringAsFixed(1)}%', style: const TextStyle(color: Colors.white)),
+              Text('Accuracy: ${_summary!.accuracy.toStringAsFixed(1)}%',
+                  style: const TextStyle(color: Colors.white)),
               const SizedBox(height: 16),
               EvIcmChart(hands: _hands),
               const SizedBox(height: 16),
-              ElevatedButton(onPressed: _replay, child: const Text('Replay Session')),
+              ElevatedButton(
+                  onPressed: _replay, child: const Text('Replay Session')),
               const SizedBox(height: 16),
-              ElevatedButton(onPressed: _saveHands, child: const Text('💾 Save to My Hands')),
+              ElevatedButton(
+                  onPressed: _saveHands,
+                  child: const Text('💾 Save to My Hands')),
               const SizedBox(height: 16),
               Row(
                 children: [
-                  Expanded(child: ElevatedButton(onPressed: _exportPdf, child: const Text('Export PDF'))),
+                  Expanded(
+                      child: ElevatedButton(
+                          onPressed: _exportPdf,
+                          child: const Text('Export PDF'))),
                   const SizedBox(width: 8),
-                  Expanded(child: ElevatedButton(onPressed: _exportCsv, child: const Text('Export CSV'))),
+                  Expanded(
+                      child: ElevatedButton(
+                          onPressed: _exportCsv,
+                          child: const Text('Export CSV'))),
                 ],
               ),
               const SizedBox(height: 16),
-              if (_hands.any((h) => h.expectedAction != null && h.gtoAction != null && h.expectedAction!.toLowerCase() != h.gtoAction!.toLowerCase()))
-                ElevatedButton(onPressed: _review, child: const Text('🔥 Review mistakes')),
+              if (_hands.any((h) =>
+                  h.expectedAction != null &&
+                  h.gtoAction != null &&
+                  h.expectedAction!.toLowerCase() !=
+                      h.gtoAction!.toLowerCase()))
+                ElevatedButton(
+                    onPressed: _review,
+                    child: const Text('🔥 Review mistakes')),
             ],
             const SizedBox(height: 16),
             Expanded(
@@ -345,13 +389,19 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
                         final gto = h.gtoAction ?? '';
                         final ev = _ev(h);
                         final icm = _icm(h, ev);
-                        final diff = ev != null && icm != null ? '${ev.toStringAsFixed(2)} / ${icm.toStringAsFixed(2)}' : '--';
+                        final diff = ev != null && icm != null
+                            ? '${ev.toStringAsFixed(2)} / ${icm.toStringAsFixed(2)}'
+                            : '--';
                         final mistake = act.toLowerCase() != gto.toLowerCase();
                         return Card(
-                          color: mistake ? AppColors.errorBg : AppColors.cardBackground,
+                          color: mistake
+                              ? AppColors.errorBg
+                              : AppColors.cardBackground,
                           child: ListTile(
-                            title: Text(h.name, style: const TextStyle(color: Colors.white)),
-                            subtitle: Text('You: $act • GTO: $gto • $diff', style: const TextStyle(color: Colors.white70)),
+                            title: Text(h.name,
+                                style: const TextStyle(color: Colors.white)),
+                            subtitle: Text('You: $act • GTO: $gto • $diff',
+                                style: const TextStyle(color: Colors.white70)),
                             onTap: () => showSavedHandViewerDialog(context, h),
                           ),
                         );
@@ -364,4 +414,3 @@ class _SessionAnalysisImportScreenState extends State<SessionAnalysisImportScree
     );
   }
 }
-

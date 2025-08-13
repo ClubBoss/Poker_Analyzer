@@ -33,9 +33,7 @@ class WeeklySummaryCard extends StatelessWidget {
     final acc = hands > 0 ? correct * 100 / hands : 0.0;
 
     final delta = await mastery.computeDelta(fromLastWeek: true);
-    final improved = delta.entries
-        .where((e) => e.value > 0)
-        .toList()
+    final improved = delta.entries.where((e) => e.value > 0).toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     final top = improved.take(3).toList();
 
@@ -73,7 +71,8 @@ class WeeklySummaryCard extends StatelessWidget {
                     SizedBox(width: 8),
                     Text(
                       'Weekly Summary',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -97,7 +96,8 @@ class WeeklySummaryCard extends StatelessWidget {
                   for (final e in data.tags)
                     Text(
                       '${_capitalize(e.key)} +${(e.value * 100).toStringAsFixed(1)}%',
-                      style: const TextStyle(color: Colors.white70, fontSize: 12),
+                      style:
+                          const TextStyle(color: Colors.white70, fontSize: 12),
                     ),
                 ],
                 const SizedBox(height: 8),

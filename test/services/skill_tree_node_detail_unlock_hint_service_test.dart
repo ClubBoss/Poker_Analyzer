@@ -66,4 +66,3 @@ void main() {
     expect(hint, 'Complete n2 to unlock this node');
   });
 }
-

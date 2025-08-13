@@ -69,8 +69,7 @@ class GoalCompletionEventService {
     final list = [
       for (final e in _events.entries)
         GoalCompletionEvent(tag: e.key, timestamp: e.value)
-    ]
-      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    ]..sort((a, b) => b.timestamp.compareTo(a.timestamp));
     return list;
   }
 }

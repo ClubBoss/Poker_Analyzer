@@ -45,20 +45,16 @@ class TheoryLessonAutoLinker {
       }
       if (scored.isEmpty) continue;
       scored.sort((a, b) => b.score.compareTo(a.score));
-      result[lesson.id] =
-          [for (final s in scored.take(maxNext)) s.lesson.id];
+      result[lesson.id] = [for (final s in scored.take(maxNext)) s.lesson.id];
     }
     return result;
   }
 
-  int _wordCount(String text) =>
-      RegExp(r'\w+').allMatches(text).length;
+  int _wordCount(String text) => RegExp(r'\w+').allMatches(text).length;
 
   int _tagOverlap(TheoryMiniLessonNode a, TheoryMiniLessonNode b) {
     final setB = {for (final t in b.tags) t.trim().toLowerCase()};
-    return a.tags
-        .where((t) => setB.contains(t.trim().toLowerCase()))
-        .length;
+    return a.tags.where((t) => setB.contains(t.trim().toLowerCase())).length;
   }
 }
 

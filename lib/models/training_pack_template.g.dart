@@ -1,6 +1,7 @@
 part of 'training_pack_template.dart';
 
-TrainingPackTemplate _$TrainingPackTemplateFromJson(Map<String, dynamic> json) =>
+TrainingPackTemplate _$TrainingPackTemplateFromJson(
+        Map<String, dynamic> json) =>
     TrainingPackTemplate(
       id: json['id'] as String,
       name: json['name'] as String,
@@ -20,7 +21,8 @@ TrainingPackTemplate _$TrainingPackTemplateFromJson(Map<String, dynamic> json) =
     );
 
 Map<String, dynamic> _$TrainingPackTemplateToJson(
-        TrainingPackTemplate instance) => <String, dynamic>{
+        TrainingPackTemplate instance) =>
+    <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
       'gameType': instance.gameType,

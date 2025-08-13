@@ -16,12 +16,9 @@ class _DailyGoalStreakScreenState extends State<DailyGoalStreakScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final list =
-          context.read<DailyLearningGoalService>().getCompletedDays();
+      final list = context.read<DailyLearningGoalService>().getCompletedDays();
       setState(() {
-        _completed = {
-          for (final d in list) DateTime(d.year, d.month, d.day)
-        };
+        _completed = {for (final d in list) DateTime(d.year, d.month, d.day)};
       });
     });
   }
@@ -62,13 +59,12 @@ class _DailyGoalStreakScreenState extends State<DailyGoalStreakScreen> {
               ),
               itemBuilder: (context, index) {
                 final d = days[index];
-                final completed = _completed
-                    .contains(DateTime(d.year, d.month, d.day));
+                final completed =
+                    _completed.contains(DateTime(d.year, d.month, d.day));
                 return Container(
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color:
-                        completed ? Colors.blue : Colors.transparent,
+                    color: completed ? Colors.blue : Colors.transparent,
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: completed ? Colors.blue : Colors.white38,
@@ -76,8 +72,7 @@ class _DailyGoalStreakScreenState extends State<DailyGoalStreakScreen> {
                   ),
                   child: Text(
                     '${d.day}',
-                    style:
-                        const TextStyle(color: Colors.white, fontSize: 12),
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
                   ),
                 );
               },

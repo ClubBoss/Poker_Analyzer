@@ -111,8 +111,7 @@ class _TrainingProgressChartWidgetState
                             ? 1
                             : volumeIntervalScaled.toDouble(),
                         getTitlesWidget: (value, meta) {
-                          final count =
-                              (value / 100 * maxVolume).round();
+                          final count = (value / 100 * maxVolume).round();
                           return Text(
                             count.toString(),
                             style: const TextStyle(fontSize: 10),
@@ -120,8 +119,8 @@ class _TrainingProgressChartWidgetState
                         },
                       ),
                     ),
-                    topTitles:
-                        const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    topTitles: const AxisTitles(
+                        sideTitles: SideTitles(showTitles: false)),
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,

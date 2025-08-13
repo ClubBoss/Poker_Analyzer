@@ -40,7 +40,9 @@ class TheoryLessonTrailTracker {
 
   /// Returns up to [limit] recent lesson ids in the stored order.
   List<String> getTrail({int limit = 10}) {
-    final l = limit <= 0 || limit >= _trail.length ? _trail : _trail.sublist(0, limit);
+    final l = limit <= 0 || limit >= _trail.length
+        ? _trail
+        : _trail.sublist(0, limit);
     return List<String>.from(l);
   }
 

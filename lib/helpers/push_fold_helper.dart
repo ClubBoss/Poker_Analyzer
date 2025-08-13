@@ -1,7 +1,21 @@
 const Map<String, int> kPushFoldThresholds = _buildPushFoldThresholds();
 
 Map<String, int> _buildPushFoldThresholds() {
-  const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'];
+  const ranks = [
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    'T',
+    'J',
+    'Q',
+    'K',
+    'A'
+  ];
   final map = <String, int>{};
   int val(String r) => ranks.indexOf(r);
   void addPair(String r) {

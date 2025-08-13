@@ -13,10 +13,12 @@ class AutoMistakeDrillBannerWidget extends StatefulWidget {
   const AutoMistakeDrillBannerWidget({super.key});
 
   @override
-  State<AutoMistakeDrillBannerWidget> createState() => _AutoMistakeDrillBannerWidgetState();
+  State<AutoMistakeDrillBannerWidget> createState() =>
+      _AutoMistakeDrillBannerWidgetState();
 }
 
-class _AutoMistakeDrillBannerWidgetState extends State<AutoMistakeDrillBannerWidget> {
+class _AutoMistakeDrillBannerWidgetState
+    extends State<AutoMistakeDrillBannerWidget> {
   bool _show = false;
   late final MistakeDrillLauncherService _service;
 

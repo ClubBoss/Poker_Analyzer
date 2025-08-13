@@ -25,10 +25,10 @@ class YamlDuplicateDetectorService {
         }
       });
     }
+
     add(nameMap, 'name');
     add(idMap, 'id');
     add(hashMap, 'hash');
     return groups;
   }
 }
-

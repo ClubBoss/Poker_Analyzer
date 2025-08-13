@@ -68,7 +68,8 @@ class StreetMistakeOverviewScreen extends StatelessWidget {
                     children: [
                       SizedBox(
                         width: 80,
-                        child: Text(s, style: const TextStyle(color: Colors.white)),
+                        child: Text(s,
+                            style: const TextStyle(color: Colors.white)),
                       ),
                       Expanded(
                         child: Stack(

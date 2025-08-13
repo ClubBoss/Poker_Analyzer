@@ -38,8 +38,8 @@ class TrainingProgressOverviewScreen extends StatelessWidget {
                     : 'Последняя синхр.: ${formatDateTime(value.toLocal())}';
                 return Align(
                   alignment: Alignment.centerRight,
-                  child: Text(text,
-                      style: const TextStyle(color: Colors.white70)),
+                  child:
+                      Text(text, style: const TextStyle(color: Colors.white70)),
                 );
               },
             ),
@@ -50,51 +50,51 @@ class TrainingProgressOverviewScreen extends StatelessWidget {
               itemCount: packs.length,
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
-          final p = packs[index];
-          final progress = p.pctComplete;
-          final color = progress < 0.5
-              ? Colors.redAccent
-              : progress < 0.8
-                  ? AppColors.accent
-                  : Colors.greenAccent;
-          return Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.cardBackground,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(p.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Text('Решено: ${p.solved}/${p.hands.length}'),
-                    const Spacer(),
-                    Text(formatDate(p.lastAttemptDate),
-                        style: const TextStyle(color: Colors.white70)),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    backgroundColor: Colors.white24,
-                    valueColor: AlwaysStoppedAnimation<Color>(color),
-                    minHeight: 6,
+                final p = packs[index];
+                final progress = p.pctComplete;
+                final color = progress < 0.5
+                    ? Colors.redAccent
+                    : progress < 0.8
+                        ? AppColors.accent
+                        : Colors.greenAccent;
+                return Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.cardBackground,
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                ),
-              ],
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(p.name,
+                          style: const TextStyle(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Text('Решено: ${p.solved}/${p.hands.length}'),
+                          const Spacer(),
+                          Text(formatDate(p.lastAttemptDate),
+                              style: const TextStyle(color: Colors.white70)),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: progress,
+                          backgroundColor: Colors.white24,
+                          valueColor: AlwaysStoppedAnimation<Color>(color),
+                          minHeight: 6,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
-          );
-        },
+          ),
+        ],
       ),
-    ),
-          ],
-        ),
-      );
+    );
   }
 }
-

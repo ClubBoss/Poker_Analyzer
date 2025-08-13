@@ -1,4 +1,3 @@
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -238,8 +237,7 @@ class _AutogenPipelineDebugControlPanelState
                     child: Text(set.baseSpot.id),
                   ),
               ],
-              onChanged:
-                  _busy ? null : (v) => setState(() => _selectedSet = v),
+              onChanged: _busy ? null : (v) => setState(() => _selectedSet = v),
             ),
             const SizedBox(height: 12),
             Wrap(
@@ -247,23 +245,19 @@ class _AutogenPipelineDebugControlPanelState
               runSpacing: 8,
               children: [
                 ElevatedButton(
-                  onPressed:
-                      _busy ? null : () => _guard(_runGenerator),
+                  onPressed: _busy ? null : () => _guard(_runGenerator),
                   child: const Text('Run Generator'),
                 ),
                 ElevatedButton(
-                  onPressed:
-                      _busy ? null : () => _guard(_runEnricher),
+                  onPressed: _busy ? null : () => _guard(_runEnricher),
                   child: const Text('Run Enricher'),
                 ),
                 ElevatedButton(
-                  onPressed:
-                      _busy ? null : () => _guard(_runExporter),
+                  onPressed: _busy ? null : () => _guard(_runExporter),
                   child: const Text('Run Exporter'),
                 ),
                 ElevatedButton(
-                  onPressed:
-                      _busy ? null : () => _guard(_runFullPipeline),
+                  onPressed: _busy ? null : () => _guard(_runFullPipeline),
                   child: const Text('Run Full Pipeline'),
                 ),
               ],

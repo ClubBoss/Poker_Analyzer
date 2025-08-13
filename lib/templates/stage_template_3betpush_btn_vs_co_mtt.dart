@@ -1,7 +1,8 @@
 import '../models/learning_path_stage_model.dart';
 
 /// Stage template for BTN 3bet push versus CO opens at 25bb.
-const LearningPathStageModel threeBetPushBtnVsCoMttStageTemplate = LearningPathStageModel(
+const LearningPathStageModel threeBetPushBtnVsCoMttStageTemplate =
+    LearningPathStageModel(
   id: '3bet_push_btn_vs_co_stage',
   title: 'BTN 3bet Push vs CO 25bb',
   description: 'Decide to shove or fold from BTN facing a CO open at 25bb',

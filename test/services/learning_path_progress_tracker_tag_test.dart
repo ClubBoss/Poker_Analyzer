@@ -15,14 +15,18 @@ void main() {
     name: 'P1',
     trainingType: TrainingType.pushFold,
     tags: ['btn'],
-    spots: [TrainingPackSpot(id: 's1', hand: HandData(), tags: ['btn', 'icm'])],
+    spots: [
+      TrainingPackSpot(id: 's1', hand: HandData(), tags: ['btn', 'icm'])
+    ],
   );
   final tpl2 = TrainingPackTemplateV2(
     id: 'p2',
     name: 'P2',
     trainingType: TrainingType.pushFold,
     tags: ['sb'],
-    spots: [TrainingPackSpot(id: 's2', hand: HandData(), tags: ['sb'])],
+    spots: [
+      TrainingPackSpot(id: 's2', hand: HandData(), tags: ['sb'])
+    ],
   );
 
   final path = LearningPathTemplateV2(
@@ -67,4 +71,3 @@ void main() {
     expect(map['s2']?['sb'], 0.2);
   });
 }
-

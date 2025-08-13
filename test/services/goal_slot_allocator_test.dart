@@ -14,7 +14,9 @@ class _FakeInsights extends MistakeTagInsightsService {
   final List<MistakeInsight> list;
   const _FakeInsights(this.list);
   @override
-  Future<List<MistakeInsight>> buildInsights({bool sortByEvLoss = false}) async => list;
+  Future<List<MistakeInsight>> buildInsights(
+          {bool sortByEvLoss = false}) async =>
+      list;
 }
 
 class _FakeLibrary implements MiniLessonLibraryService {
@@ -44,7 +46,8 @@ class _FakeLibrary implements MiniLessonLibraryService {
   }
 
   @override
-  List<TheoryMiniLessonNode> getByTags(Set<String> tags) => findByTags(tags.toList());
+  List<TheoryMiniLessonNode> getByTags(Set<String> tags) =>
+      findByTags(tags.toList());
 }
 
 void main() {

@@ -78,8 +78,7 @@ class BoosterSimilarityEngine {
     final actions = s.hand.actions.values.expand((e) => e).toList();
     if (actions.isEmpty) return '';
     return actions
-        .map((a) =>
-            '${a.playerIndex}:${a.action}${a.amount ?? ''}')
+        .map((a) => '${a.playerIndex}:${a.action}${a.amount ?? ''}')
         .join('|');
   }
 }

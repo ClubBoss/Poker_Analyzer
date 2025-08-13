@@ -67,11 +67,13 @@ class _MistakeReviewScreenState extends State<MistakeReviewScreen> {
     );
   }
 
-  Widget _clusterCard(MistakeTagCluster cluster, List<MistakeInsight> insights) {
+  Widget _clusterCard(
+      MistakeTagCluster cluster, List<MistakeInsight> insights) {
     final tags = insights.take(2).toList();
     final count = insights.fold<int>(0, (a, b) => a + b.count);
     final evLoss = insights.fold<double>(0, (a, b) => a + b.evLoss);
-    final example = tags.first.examples.isNotEmpty ? tags.first.examples.first : null;
+    final example =
+        tags.first.examples.isNotEmpty ? tags.first.examples.first : null;
     return Card(
       color: AppColors.cardBackground,
       child: Padding(

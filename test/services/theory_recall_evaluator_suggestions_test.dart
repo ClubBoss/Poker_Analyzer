@@ -24,13 +24,19 @@ class _FakeMiniLibrary implements MiniLessonLibraryService {
   @override
   List<TheoryMiniLessonNode> findByTags(List<String> tags) {
     final set = tags.map((e) => e.toLowerCase()).toSet();
-    return [for (final l in lessons) if (l.tags.any((t) => set.contains(t)) ) l];
+    return [
+      for (final l in lessons)
+        if (l.tags.any((t) => set.contains(t))) l
+    ];
   }
+
   @override
-  List<TheoryMiniLessonNode> getByTags(Set<String> tags) => findByTags(tags.toList());
+  List<TheoryMiniLessonNode> getByTags(Set<String> tags) =>
+      findByTags(tags.toList());
 }
 
-TrainingPackTemplateV2 _booster(String id, String tag) => TrainingPackTemplateV2(
+TrainingPackTemplateV2 _booster(String id, String tag) =>
+    TrainingPackTemplateV2(
       id: id,
       name: id,
       trainingType: TrainingType.pushFold,
@@ -40,7 +46,10 @@ TrainingPackTemplateV2 _booster(String id, String tag) => TrainingPackTemplateV2
       created: DateTime.now(),
       gameType: GameType.tournament,
       positions: const [],
-      meta: {'type': 'booster', 'tags': [tag]},
+      meta: {
+        'type': 'booster',
+        'tags': [tag]
+      },
     );
 
 void main() {
@@ -52,12 +61,16 @@ void main() {
       'completed_boosters': ['b1'],
       'completed_at_tpl_b1': now.toIso8601String(),
       'last_accuracy_tpl_b1_0': 50.0,
-      'mini_lesson_progress_l1': '{"viewCount":1,"lastViewed":"${now.subtract(const Duration(days: 5)).toIso8601String()}","completed":false}',
+      'mini_lesson_progress_l1':
+          '{"viewCount":1,"lastViewed":"${now.subtract(const Duration(days: 5)).toIso8601String()}","completed":false}',
     });
     BoosterCompletionTracker.instance.resetForTest();
 
     final boosters = [_booster('b1', 'push')];
-    final lessons = [const TheoryMiniLessonNode(id: 'l1', title: 'Push', content: '', tags: ['push'])];
+    final lessons = [
+      const TheoryMiniLessonNode(
+          id: 'l1', title: 'Push', content: '', tags: ['push'])
+    ];
     final lib = _FakeMiniLibrary(lessons);
     final eval = const TheoryRecallEvaluator();
     final result = await eval.recallSuggestions(

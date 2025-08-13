@@ -21,7 +21,8 @@ class BustedLabel extends StatelessWidget {
         child: FadeTransition(
           opacity: opacity,
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 6 * scale, vertical: 2 * scale),
+            padding: EdgeInsets.symmetric(
+                horizontal: 6 * scale, vertical: 2 * scale),
             decoration: BoxDecoration(
               color: Colors.black54,
               borderRadius: BorderRadius.circular(8 * scale),

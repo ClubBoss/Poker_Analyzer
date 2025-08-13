@@ -157,7 +157,8 @@ class SettingsPlaceholderScreen extends StatelessWidget {
           ),
           ListTile(
             title: const Text('Time', style: TextStyle(color: Colors.white)),
-            subtitle: Text(drInfo, style: const TextStyle(color: Colors.white70)),
+            subtitle:
+                Text(drInfo, style: const TextStyle(color: Colors.white70)),
             onTap: () async {
               final picked = await showTimePicker(
                 context: context,
@@ -169,12 +170,14 @@ class SettingsPlaceholderScreen extends StatelessWidget {
             },
           ),
           ListTile(
-            title: const Text('Push Reminder', style: TextStyle(color: Colors.white)),
+            title: const Text('Push Reminder',
+                style: TextStyle(color: Colors.white)),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const NotificationSettingsScreen()),
+                MaterialPageRoute(
+                    builder: (_) => const NotificationSettingsScreen()),
               );
             },
           ),

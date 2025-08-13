@@ -25,7 +25,8 @@ class StreakRewardEngine {
   Future<void> checkAndTriggerRewards() async {
     final prefs = await SharedPreferences.getInstance();
     final unlocked = prefs.getStringList(_rewardKey) ?? <String>[];
-    final current = await TrainingStreakTrackerService.instance.getCurrentStreak();
+    final current =
+        await TrainingStreakTrackerService.instance.getCurrentStreak();
     bool updated = false;
     for (final entry in _rewards.entries) {
       final level = entry.key;
@@ -33,7 +34,8 @@ class StreakRewardEngine {
         final xp = entry.value;
         unlocked.add(level.toString());
         updated = true;
-        DevConsoleLogService.instance.log('Streak reward unlocked: $level days');
+        DevConsoleLogService.instance
+            .log('Streak reward unlocked: $level days');
         await XPRewardEngine.instance.addXp(xp);
         final ctx = navigatorKey.currentContext;
         if (ctx != null) {

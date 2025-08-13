@@ -11,11 +11,22 @@ void main() {
 
   test('returns sorted recommendations based on mistakes and mastery', () {
     final clusters = [
-      const WeaknessCluster(tag: 'btn push', reason: 'many mistakes', severity: 0.5),
+      const WeaknessCluster(
+          tag: 'btn push', reason: 'many mistakes', severity: 0.5),
     ];
     final history = [
-      TrainingResult(date: DateTime.now(), total: 10, correct: 7, accuracy: 70, tags: const ['btn push']),
-      TrainingResult(date: DateTime.now(), total: 8, correct: 8, accuracy: 100, tags: const ['sb vs bb']),
+      TrainingResult(
+          date: DateTime.now(),
+          total: 10,
+          correct: 7,
+          accuracy: 70,
+          tags: const ['btn push']),
+      TrainingResult(
+          date: DateTime.now(),
+          total: 8,
+          correct: 8,
+          accuracy: 100,
+          tags: const ['sb vs bb']),
     ];
     final mastery = {'btn push': 0.4, 'sb vs bb': 0.7};
 

@@ -52,8 +52,7 @@ class _TheoryQuickAccessBannerWidgetState
         _isReview = false;
         break;
       }
-      final due =
-          await ReviewSchedulerService.instance.isDueForReview(l.id);
+      final due = await ReviewSchedulerService.instance.isDueForReview(l.id);
       if (due) {
         _lesson = l;
         _isReview = true;
@@ -122,4 +121,3 @@ class _TheoryQuickAccessBannerWidgetState
     );
   }
 }
-

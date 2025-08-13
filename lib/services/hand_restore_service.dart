@@ -67,43 +67,42 @@ class HandRestoreService {
   final ActionHistoryService actionHistory;
   final BoardRevealService boardReveal;
 
-
   StackManagerService restoreHand(SavedHand hand) {
     lockService.lock();
     try {
-    handContext.restoreFromHand(hand);
-    playerManager.restoreFromHand(hand);
-    boardManager.setBoardCards(hand.boardCards);
-    final stackService = StackManagerService(
-      Map<int, int>.from(playerManager.initialStacks),
-      potSync: potSync,
-      remainingStacks: hand.remainingStacks,
-    );
-    actionSync.attachStackManager(stackService);
-    playbackManager.stackService = stackService;
-    potSync.stackService = stackService;
-    setActivePlayerIndex(hand.activePlayerIndex);
-    actionSync.setAnalyzerActions(hand.actions);
-    potSync.restoreFromHand(hand);
-    actionHistory.updateHistory(actionSync.analyzerActions,
-        visibleCount: playbackManager.playbackIndex);
-    actionTags.restoreFromHand(hand);
-    unawaited(queueService.setPending(hand.pendingEvaluations ?? []));
-    foldedPlayers.restoreFromHand(hand);
-    allInPlayers.restoreFromHand(hand);
-    actionHistory.restoreFromCollapsed(hand.collapsedHistoryStreets);
-    _autoCollapseStreets();
-    actionHistory.updateHistory(actionSync.analyzerActions,
-        visibleCount: playbackManager.playbackIndex);
-    boardManager.boardStreet = hand.boardStreet;
-    boardManager.currentStreet = hand.boardStreet;
-    boardReveal.restoreFromHand(hand);
-    playbackManager.restoreFromHand(hand);
-    // foldedPlayers recomputes automatically when actions change
-    queueService.persist();
-    backupManager.startAutoBackupTimer();
-    unawaited(debugPrefs.setEvaluationQueueResumed(false));
-    return stackService;
+      handContext.restoreFromHand(hand);
+      playerManager.restoreFromHand(hand);
+      boardManager.setBoardCards(hand.boardCards);
+      final stackService = StackManagerService(
+        Map<int, int>.from(playerManager.initialStacks),
+        potSync: potSync,
+        remainingStacks: hand.remainingStacks,
+      );
+      actionSync.attachStackManager(stackService);
+      playbackManager.stackService = stackService;
+      potSync.stackService = stackService;
+      setActivePlayerIndex(hand.activePlayerIndex);
+      actionSync.setAnalyzerActions(hand.actions);
+      potSync.restoreFromHand(hand);
+      actionHistory.updateHistory(actionSync.analyzerActions,
+          visibleCount: playbackManager.playbackIndex);
+      actionTags.restoreFromHand(hand);
+      unawaited(queueService.setPending(hand.pendingEvaluations ?? []));
+      foldedPlayers.restoreFromHand(hand);
+      allInPlayers.restoreFromHand(hand);
+      actionHistory.restoreFromCollapsed(hand.collapsedHistoryStreets);
+      _autoCollapseStreets();
+      actionHistory.updateHistory(actionSync.analyzerActions,
+          visibleCount: playbackManager.playbackIndex);
+      boardManager.boardStreet = hand.boardStreet;
+      boardManager.currentStreet = hand.boardStreet;
+      boardReveal.restoreFromHand(hand);
+      playbackManager.restoreFromHand(hand);
+      // foldedPlayers recomputes automatically when actions change
+      queueService.persist();
+      backupManager.startAutoBackupTimer();
+      unawaited(debugPrefs.setEvaluationQueueResumed(false));
+      return stackService;
     } finally {
       lockService.unlock();
     }
@@ -119,4 +118,3 @@ class HandRestoreService {
 
   // Board state synchronization handled by [boardManager].
 }
-

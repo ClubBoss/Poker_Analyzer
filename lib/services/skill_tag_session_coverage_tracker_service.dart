@@ -68,7 +68,8 @@ class SkillTagSessionCoverageTrackerService {
   }
 
   /// Returns tags occurring less than [threshold] times.
-  Future<List<String>> lowFrequencyTags(int threshold, [
+  Future<List<String>> lowFrequencyTags(
+    int threshold, [
     List<TrainingSessionFingerprint>? sessions,
   ]) async {
     final coverage = await computeCoverage(sessions);

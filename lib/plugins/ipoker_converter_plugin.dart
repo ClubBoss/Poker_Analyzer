@@ -3,7 +3,8 @@ import 'package:poker_analyzer/plugins/plugin.dart';
 import 'package:poker_analyzer/plugins/converter_registry.dart';
 import 'package:poker_analyzer/services/service_registry.dart';
 
-class IpokerConverterPlugin extends IpokerHandHistoryConverter implements Plugin {
+class IpokerConverterPlugin extends IpokerHandHistoryConverter
+    implements Plugin {
   @override
   void register(ServiceRegistry registry) {
     registry.registerIfAbsent<ConverterRegistry>(ConverterRegistry());

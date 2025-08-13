@@ -26,7 +26,8 @@ void main() {
 
   test('summary computes progress for sample path', () async {
     final logs = [
-      SessionLog(tags: const [], 
+      SessionLog(
+        tags: const [],
         sessionId: '1',
         templateId: 'pack1',
         startedAt: DateTime.now(),
@@ -35,8 +36,7 @@ void main() {
         mistakeCount: 2,
       ),
     ];
-    final progress =
-        TrainingPathProgressServiceV2(logs: _FakeLogService(logs));
+    final progress = TrainingPathProgressServiceV2(logs: _FakeLogService(logs));
     await progress.loadProgress('sample');
     await progress.markStageCompleted('s1', 80);
 

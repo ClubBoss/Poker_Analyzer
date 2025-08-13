@@ -67,7 +67,8 @@ void main() {
       ])
     });
     final engine = SmartBoosterSummaryEngine();
-    final list = await engine.summarizeAll(['b1', 'b2'], sortByEffectiveness: true);
+    final list =
+        await engine.summarizeAll(['b1', 'b2'], sortByEffectiveness: true);
     expect(list.first.id, 'b1');
     expect(list.last.id, 'b2');
   });

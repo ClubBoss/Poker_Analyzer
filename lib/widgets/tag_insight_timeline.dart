@@ -23,9 +23,13 @@ class TagInsightTimeline extends StatelessWidget {
       );
     }
 
-    List<ProgressEntry> data = [...series]..sort((a, b) => a.date.compareTo(b.date));
+    List<ProgressEntry> data = [...series]
+      ..sort((a, b) => a.date.compareTo(b.date));
     final cutoff = DateTime.now().subtract(const Duration(days: 60));
-    data = [for (final e in data) if (e.date.isAfter(cutoff)) e];
+    data = [
+      for (final e in data)
+        if (e.date.isAfter(cutoff)) e
+    ];
     if (data.length < 2) {
       data = [...series];
     }
@@ -130,8 +134,10 @@ class TagInsightTimeline extends StatelessWidget {
                 const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -149,7 +155,8 @@ class TagInsightTimeline extends StatelessWidget {
                 interval: 1,
                 getTitlesWidget: (value, meta) {
                   final i = value.toInt();
-                  if (i < 0 || i >= dates.length) return const SizedBox.shrink();
+                  if (i < 0 || i >= dates.length)
+                    return const SizedBox.shrink();
                   if (i % step != 0 && i != dates.length - 1) {
                     return const SizedBox.shrink();
                   }

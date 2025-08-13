@@ -39,4 +39,3 @@ class TrashFlyingChips extends StatelessWidget {
     );
   }
 }
-

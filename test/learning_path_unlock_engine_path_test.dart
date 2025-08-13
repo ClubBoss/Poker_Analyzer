@@ -7,7 +7,8 @@ void main() {
 
   final engine = LearningPathUnlockEngine.instance;
 
-  LearningPathTemplateV2 path0({List<String>? prereq}) => LearningPathTemplateV2(
+  LearningPathTemplateV2 path0({List<String>? prereq}) =>
+      LearningPathTemplateV2(
         id: 'p',
         title: 'Path',
         description: '',

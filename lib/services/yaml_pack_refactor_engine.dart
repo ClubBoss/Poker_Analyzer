@@ -33,4 +33,3 @@ class YamlPackRefactorEngine {
     return v.trim();
   }
 }
-

@@ -89,7 +89,8 @@ class TheoryRecallImpactEntry {
   final String lessonId;
   final DateTime timestamp;
 
-  factory TheoryRecallImpactEntry.fromEntry(_Entry e) => TheoryRecallImpactEntry(
+  factory TheoryRecallImpactEntry.fromEntry(_Entry e) =>
+      TheoryRecallImpactEntry(
         tag: e.tag,
         lessonId: e.lessonId,
         timestamp: e.timestamp,

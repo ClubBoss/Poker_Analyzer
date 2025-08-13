@@ -6,8 +6,9 @@ class ActionHistoryService {
   final Set<int> expandedStreets = {0, 1, 2, 3};
 
   /// Internal map of actions per street. Indexes correspond to street numbers.
-  final Map<int, List<ActionEntry>> _actionsByStreet =
-      {for (var i = 0; i < 4; i++) i: <ActionEntry>[]};
+  final Map<int, List<ActionEntry>> _actionsByStreet = {
+    for (var i = 0; i < 4; i++) i: <ActionEntry>[]
+  };
 
   /// Complete list of actions in their original order.
   List<ActionEntry> _allActions = [];
@@ -88,7 +89,10 @@ class ActionHistoryService {
   /// Restores expanded streets based on [collapsed] list from a saved hand.
   void restoreFromCollapsed(List<int>? collapsed) {
     setExpandedStreets(
-      [for (int i = 0; i < 4; i++) if (collapsed == null || !collapsed.contains(i)) i],
+      [
+        for (int i = 0; i < 4; i++)
+          if (collapsed == null || !collapsed.contains(i)) i
+      ],
     );
   }
 
@@ -104,7 +108,10 @@ class ActionHistoryService {
 
   /// Returns list of collapsed street indices.
   List<int> collapsedStreets({int count = 4}) {
-    return [for (int i = 0; i < count; i++) if (!expandedStreets.contains(i)) i];
+    return [
+      for (int i = 0; i < count; i++)
+        if (!expandedStreets.contains(i)) i
+    ];
   }
 
   /// Builds a short summary for the last action on [street].

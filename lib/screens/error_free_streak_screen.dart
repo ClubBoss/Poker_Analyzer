@@ -21,7 +21,8 @@ class ErrorFreeStreakScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Серия без ошибок'),
         centerTitle: true,
-        actions: [SyncStatusIcon.of(context), 
+        actions: [
+          SyncStatusIcon.of(context),
           IconButton(
             icon: const Icon(Icons.history),
             onPressed: () {
@@ -47,4 +48,3 @@ class ErrorFreeStreakScreen extends StatelessWidget {
     );
   }
 }
-

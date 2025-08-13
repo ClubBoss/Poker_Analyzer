@@ -18,7 +18,8 @@ class TrainingSpotLibraryScreen extends StatefulWidget {
   const TrainingSpotLibraryScreen({super.key});
 
   @override
-  State<TrainingSpotLibraryScreen> createState() => _TrainingSpotLibraryScreenState();
+  State<TrainingSpotLibraryScreen> createState() =>
+      _TrainingSpotLibraryScreenState();
 }
 
 class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
@@ -37,7 +38,8 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
     }
     final pos = f['positions'];
     if (pos is List && pos.isNotEmpty) {
-      final hero = spot.positions.isNotEmpty ? spot.positions[spot.heroIndex] : '';
+      final hero =
+          spot.positions.isNotEmpty ? spot.positions[spot.heroIndex] : '';
       if (!pos.contains(hero)) return false;
     }
     final minDiff = f['minDifficulty'];
@@ -75,8 +77,12 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
       builder: (context) => AlertDialog(
         title: const Text('Delete spot?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Delete')),
         ],
       ),
     );
@@ -141,12 +147,18 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
           title: const Text('Remove Tag'),
           content: DropdownButton<String>(
             value: selected,
-            items: [for (final t in tags) DropdownMenuItem(value: t, child: Text(t))],
+            items: [
+              for (final t in tags) DropdownMenuItem(value: t, child: Text(t))
+            ],
             onChanged: (v) => setState(() => selected = v),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-            TextButton(onPressed: () => Navigator.pop(context, selected), child: const Text('OK')),
+            TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel')),
+            TextButton(
+                onPressed: () => Navigator.pop(context, selected),
+                child: const Text('OK')),
           ],
         ),
       ),
@@ -196,36 +208,57 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
   @override
   Widget build(BuildContext context) {
     final tags = <String>{for (final s in _spots) ...s.tags};
-    final positions = <String>{for (final s in _spots) if (s.positions.isNotEmpty) s.positions[s.heroIndex]};
+    final positions = <String>{
+      for (final s in _spots)
+        if (s.positions.isNotEmpty) s.positions[s.heroIndex]
+    };
     List<TrainingSpot> visible = [..._spots];
     final filters = context.watch<TrainingSpotStorageService>().activeFilters;
     if (filters.isNotEmpty) {
-      visible = [for (final s in visible) if (_matchesFilters(s, filters)) s];
+      visible = [
+        for (final s in visible)
+          if (_matchesFilters(s, filters)) s
+      ];
     }
     if (_positionFilter != 'All') {
-      visible = [for (final s in visible) if (s.positions.isNotEmpty && s.positions[s.heroIndex] == _positionFilter) s];
+      visible = [
+        for (final s in visible)
+          if (s.positions.isNotEmpty &&
+              s.positions[s.heroIndex] == _positionFilter)
+            s
+      ];
     }
     if (_tagFilter != 'All') {
-      visible = [for (final s in visible) if (s.tags.contains(_tagFilter)) s];
+      visible = [
+        for (final s in visible)
+          if (s.tags.contains(_tagFilter)) s
+      ];
     }
     final query = _searchController.text.toLowerCase();
     if (query.isNotEmpty) {
-      visible = [for (final s in visible) if (s.tags.any((t) => t.toLowerCase().contains(query))) s];
+      visible = [
+        for (final s in visible)
+          if (s.tags.any((t) => t.toLowerCase().contains(query))) s
+      ];
     }
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Spots'),
-        actions: [SyncStatusIcon.of(context), 
-          if (context.watch<TrainingSpotStorageService>().activeFilters.isNotEmpty)
+        actions: [
+          SyncStatusIcon.of(context),
+          if (context
+              .watch<TrainingSpotStorageService>()
+              .activeFilters
+              .isNotEmpty)
             IconButton(
               icon: const Icon(Icons.filter_alt_off),
               onPressed: () {
                 final service = context.read<TrainingSpotStorageService>();
                 service.activeFilters.clear();
                 service.notifyListeners();
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(const SnackBar(content: Text('Фильтр сброшен')));
+                ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Фильтр сброшен')));
               },
             ),
         ],
@@ -241,7 +274,8 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
             positions: positions,
             positionValue: _positionFilter,
             tagValue: _tagFilter,
-            onPositionChanged: (v) => setState(() => _positionFilter = v ?? 'All'),
+            onPositionChanged: (v) =>
+                setState(() => _positionFilter = v ?? 'All'),
             onTagChanged: (v) => setState(() => _tagFilter = v ?? 'All'),
           ),
           if (filters.isNotEmpty)

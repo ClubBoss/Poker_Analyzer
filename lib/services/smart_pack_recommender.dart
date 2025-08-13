@@ -100,7 +100,8 @@ class SmartPackRecommender {
           false;
       final decayed = stat != null && current.difference(stat.last).inDays >= 7;
 
-      double score = clusterScore * 2 + (stat == null ? 1.0 : 1 - stat.accuracy);
+      double score =
+          clusterScore * 2 + (stat == null ? 1.0 : 1 - stat.accuracy);
       if (recentMistake || decayed) score += 1.5;
       String reason = 'Next Stage';
 
@@ -128,6 +129,6 @@ class _PackScore {
   final String packId;
   final double score;
   final String reason;
-  const _PackScore({required this.packId, required this.score, required this.reason});
+  const _PackScore(
+      {required this.packId, required this.score, required this.reason});
 }
-

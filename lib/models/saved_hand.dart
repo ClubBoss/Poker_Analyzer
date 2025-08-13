@@ -16,37 +16,51 @@ class SavedHand {
   final int numberOfPlayers;
   final List<List<CardModel>> playerCards;
   final List<CardModel> boardCards;
+
   /// Revealed cards for each player. Empty lists if unknown.
   final List<List<CardModel>> revealedCards;
   final int? opponentIndex;
   final int? activePlayerIndex;
   final List<ActionEntry> actions;
+
   /// Street the board was showing when the hand was saved.
   final int boardStreet;
+
   /// Tournament identifier if the hand comes from a tournament.
   final String? tournamentId;
+
   /// Buy-in amount in whole currency units if available.
   final int? buyIn;
+
   /// Total prize pool in whole currency units if available.
   final int? totalPrizePool;
+
   /// Number of entrants in the tournament if known.
   final int? numberOfEntrants;
+
   /// Game type description such as "Hold'em No Limit".
   final String? gameType;
   final int anteBb;
+
   /// Custom category label for this hand.
   final String? category;
   @JsonKey(fromJson: _intIntMapFromJson, toJson: _intIntMapToJson)
   final Map<int, int> stackSizes;
-  @JsonKey(fromJson: _intIntMapFromJsonNullable, toJson: _intIntMapToJsonNullable)
+  @JsonKey(
+      fromJson: _intIntMapFromJsonNullable, toJson: _intIntMapToJsonNullable)
   final Map<int, int>? currentBets;
-  @JsonKey(fromJson: _intIntMapFromJsonNullable, toJson: _intIntMapToJsonNullable)
+  @JsonKey(
+      fromJson: _intIntMapFromJsonNullable, toJson: _intIntMapToJsonNullable)
   final Map<int, int>? remainingStacks;
+
   /// Winnings collected by each player in chips or big blinds.
-  @JsonKey(fromJson: _intIntMapFromJsonNullable, toJson: _intIntMapToJsonNullable)
+  @JsonKey(
+      fromJson: _intIntMapFromJsonNullable, toJson: _intIntMapToJsonNullable)
   final Map<int, int>? winnings;
+
   /// Total pot size in chips or big blinds.
   final int? totalPot;
+
   /// Rake taken from the pot in chips or big blinds.
   final int? rake;
   @JsonKey(fromJson: _intStringMapFromJson, toJson: _intStringMapToJson)
@@ -55,10 +69,13 @@ class SavedHand {
   final Map<int, PlayerType>? playerTypes;
   final String? comment;
   final List<String> tags;
+
   /// Rating given to this spot, from 1 to 5. 0 means unrated.
   final int rating;
+
   /// Cursor offset within the comment field when the hand was saved.
   final int? commentCursor;
+
   /// Cursor offset within the tags field when the hand was saved.
   final int? tagsCursor;
   final bool isFavorite;
@@ -68,8 +85,10 @@ class SavedHand {
   final DateTime savedAt;
   final DateTime date;
   final String? expectedAction;
+
   /// Recommended action from GTO solver.
   final String? gtoAction;
+
   /// Predefined group label for hero hand range.
   final String? rangeGroup;
   final String? feedbackText;
@@ -82,20 +101,31 @@ class SavedHand {
   final List<int>? firstActionTaken;
   final List<int>? foldedPlayers;
   final List<int>? allInPlayers;
-  @JsonKey(fromJson: _intNullableStringMapFromJson, toJson: _intNullableStringMapToJson)
+  @JsonKey(
+      fromJson: _intNullableStringMapFromJson,
+      toJson: _intNullableStringMapToJson)
   final Map<int, String?>? actionTags;
+
   /// Descriptions shown at showdown for each player.
-  @JsonKey(fromJson: _intStringMapFromJsonNullable, toJson: _intStringMapToJsonNullable)
+  @JsonKey(
+      fromJson: _intStringMapFromJsonNullable,
+      toJson: _intStringMapToJsonNullable)
   final Map<int, String>? showdownDescriptions;
+
   /// Finishing positions for players eliminated from a tournament.
-  @JsonKey(fromJson: _intIntMapFromJsonNullable, toJson: _intIntMapToJsonNullable)
+  @JsonKey(
+      fromJson: _intIntMapFromJsonNullable, toJson: _intIntMapToJsonNullable)
   final Map<int, int>? eliminatedPositions;
+
   /// Pending action evaluation requests queued when the hand was saved.
   final List<ActionEvaluationRequest>? pendingEvaluations;
+
   /// Index in the action list used when the hand was last viewed.
   final int playbackIndex;
+
   /// Whether all board cards were revealed when the hand was saved.
   final bool showFullBoard;
+
   /// Street that was visible when the hand was saved.
   final int revealStreet;
 
@@ -242,7 +272,9 @@ class SavedHand {
       actions: actions ?? List<ActionEntry>.from(this.actions),
       stackSizes: stackSizes ?? Map<int, int>.from(this.stackSizes),
       currentBets: currentBets ??
-          (this.currentBets == null ? null : Map<int, int>.from(this.currentBets!)),
+          (this.currentBets == null
+              ? null
+              : Map<int, int>.from(this.currentBets!)),
       remainingStacks: remainingStacks ??
           (this.remainingStacks == null
               ? null
@@ -258,7 +290,8 @@ class SavedHand {
       gameType: gameType ?? this.gameType,
       anteBb: anteBb ?? this.anteBb,
       category: category ?? this.category,
-      playerPositions: playerPositions ?? Map<int, String>.from(this.playerPositions),
+      playerPositions:
+          playerPositions ?? Map<int, String>.from(this.playerPositions),
       playerTypes: playerTypes ?? this.playerTypes,
       comment: comment ?? this.comment,
       tags: tags ?? List<String>.from(this.tags),
@@ -304,24 +337,23 @@ class SavedHand {
           (this.eliminatedPositions == null
               ? null
               : Map<int, int>.from(this.eliminatedPositions!)),
-      pendingEvaluations:
-          pendingEvaluations ??
-              (this.pendingEvaluations == null
-                  ? null
-                  : [
-                      for (final e in this.pendingEvaluations!)
-                        ActionEvaluationRequest(
-                          id: e.id,
-                          street: e.street,
-                          playerIndex: e.playerIndex,
-                          action: e.action,
-                          amount: e.amount,
-                          metadata: e.metadata == null
-                              ? null
-                              : Map<String, dynamic>.from(e.metadata!),
-                          attempts: e.attempts,
-                        )
-                    ]),
+      pendingEvaluations: pendingEvaluations ??
+          (this.pendingEvaluations == null
+              ? null
+              : [
+                  for (final e in this.pendingEvaluations!)
+                    ActionEvaluationRequest(
+                      id: e.id,
+                      street: e.street,
+                      playerIndex: e.playerIndex,
+                      action: e.action,
+                      amount: e.amount,
+                      metadata: e.metadata == null
+                          ? null
+                          : Map<String, dynamic>.from(e.metadata!),
+                      attempts: e.attempts,
+                    )
+                ]),
       playbackIndex: playbackIndex ?? this.playbackIndex,
       showFullBoard: showFullBoard ?? this.showFullBoard,
       revealStreet: revealStreet ?? this.revealStreet,
@@ -358,4 +390,3 @@ class SavedHand {
     );
   }
 }
-

@@ -37,4 +37,3 @@ class TrainingSessionContextService {
 
   TrainingSessionFingerprint? getCurrentSessionFingerprint() => _current;
 }
-

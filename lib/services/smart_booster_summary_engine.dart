@@ -4,13 +4,16 @@ import 'theory_booster_effectiveness_service.dart';
 class SmartBoosterSummaryEngine {
   final TheoryBoosterEffectivenessService _effectiveness;
 
-  const SmartBoosterSummaryEngine({TheoryBoosterEffectivenessService? effectiveness})
-      : _effectiveness = effectiveness ?? TheoryBoosterEffectivenessService.instance;
+  const SmartBoosterSummaryEngine(
+      {TheoryBoosterEffectivenessService? effectiveness})
+      : _effectiveness =
+            effectiveness ?? TheoryBoosterEffectivenessService.instance;
 
   Future<BoosterSummary> summarize(String boosterId) async {
     final logs = await _effectiveness.getImpactStats(boosterId);
     if (logs.isEmpty) {
-      return BoosterSummary(id: boosterId, avgDeltaEV: 0.0, totalSpots: 0, injections: 0);
+      return BoosterSummary(
+          id: boosterId, avgDeltaEV: 0.0, totalSpots: 0, injections: 0);
     }
     double deltaSum = 0.0;
     int spotSum = 0;

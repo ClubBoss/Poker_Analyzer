@@ -14,8 +14,10 @@ void main() {
     final hand = HandData(heroCards: 'Ah Kh', position: HeroPosition.sb);
     final dup1 = TrainingPackSpot(id: 'a', hand: hand);
     final dup2 = TrainingPackSpot(id: 'b', hand: hand);
-    final unique = TrainingPackSpot(id: 'c', hand: HandData(heroCards: '2c 2d'));
-    final tpl = TrainingPackTemplate(id: 't', name: 't', spots: [dup1, dup2, unique]);
+    final unique =
+        TrainingPackSpot(id: 'c', hand: HandData(heroCards: '2c 2d'));
+    final tpl =
+        TrainingPackTemplate(id: 't', name: 't', spots: [dup1, dup2, unique]);
     await tester.pumpWidget(MaterialApp(
       home: TrainingPackTemplateEditorScreen(template: tpl, templates: [tpl]),
     ));

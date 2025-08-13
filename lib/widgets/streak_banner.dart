@@ -64,8 +64,7 @@ class _StreakBannerState extends State<StreakBanner>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content:
-                  Text('🔥 5 раздач без ошибок! Отличная серия!'),
+              content: Text('🔥 5 раздач без ошибок! Отличная серия!'),
               duration: Duration(seconds: 3),
             ),
           );
@@ -89,8 +88,7 @@ class _StreakBannerState extends State<StreakBanner>
                 );
               },
               child: Container(
-                margin:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(

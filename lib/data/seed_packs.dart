@@ -335,14 +335,7 @@ final List<TrainingPackTemplate> seedPacks = [
           position: HeroPosition.mp,
           heroIndex: 0,
           playerCount: 6,
-          stacks: {
-            '0': 8,
-            '1': 8,
-            '2': 8,
-            '3': 8,
-            '4': 8,
-            '5': 8
-          },
+          stacks: {'0': 8, '1': 8, '2': 8, '3': 8, '4': 8, '5': 8},
           actions: {
             0: [
               ActionEntry(0, 0, 'push', amount: 8),
@@ -363,14 +356,7 @@ final List<TrainingPackTemplate> seedPacks = [
           position: HeroPosition.mp,
           heroIndex: 0,
           playerCount: 6,
-          stacks: {
-            '0': 8,
-            '1': 8,
-            '2': 8,
-            '3': 8,
-            '4': 8,
-            '5': 8
-          },
+          stacks: {'0': 8, '1': 8, '2': 8, '3': 8, '4': 8, '5': 8},
           actions: {
             0: [
               ActionEntry(0, 0, 'push', amount: 8),
@@ -391,14 +377,7 @@ final List<TrainingPackTemplate> seedPacks = [
           position: HeroPosition.mp,
           heroIndex: 0,
           playerCount: 6,
-          stacks: {
-            '0': 8,
-            '1': 8,
-            '2': 8,
-            '3': 8,
-            '4': 8,
-            '5': 8
-          },
+          stacks: {'0': 8, '1': 8, '2': 8, '3': 8, '4': 8, '5': 8},
           actions: {
             0: [
               ActionEntry(0, 0, 'push', amount: 8),
@@ -419,14 +398,7 @@ final List<TrainingPackTemplate> seedPacks = [
           position: HeroPosition.mp,
           heroIndex: 0,
           playerCount: 6,
-          stacks: {
-            '0': 8,
-            '1': 8,
-            '2': 8,
-            '3': 8,
-            '4': 8,
-            '5': 8
-          },
+          stacks: {'0': 8, '1': 8, '2': 8, '3': 8, '4': 8, '5': 8},
           actions: {
             0: [ActionEntry(0, 0, 'fold')]
           },

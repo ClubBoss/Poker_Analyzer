@@ -33,7 +33,8 @@ class WeeklyDrillStatsCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text('Weekly Drill Stats',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
                 Text(
                   '${stats.accuracy.toStringAsFixed(1)}% • ${stats.total} spots • streak ${stats.streak}',

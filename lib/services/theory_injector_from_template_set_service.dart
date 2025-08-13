@@ -56,4 +56,3 @@ class TheoryInjectorFromTemplateSetService {
     return lessons;
   }
 }
-

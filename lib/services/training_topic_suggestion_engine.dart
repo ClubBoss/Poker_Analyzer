@@ -5,7 +5,8 @@ import 'training_stats_service.dart';
 class TrainingTopicSuggestionEngine {
   const TrainingTopicSuggestionEngine();
 
-  Future<String?> suggestNextTag({Duration recent = const Duration(days: 3)}) async {
+  Future<String?> suggestNextTag(
+      {Duration recent = const Duration(days: 3)}) async {
     final stats = TrainingStatsService.instance;
     if (stats == null) return null;
 

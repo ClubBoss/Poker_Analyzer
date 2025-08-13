@@ -1,4 +1,3 @@
-
 import '../helpers/hand_utils.dart';
 import '../models/v2/hero_position.dart';
 import '../models/v2/training_pack_template_v2.dart';

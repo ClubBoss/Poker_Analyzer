@@ -116,7 +116,8 @@ class _LearningPathWeekPlannerScreenState
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => LearningPathStagePreviewScreen(path: path, stage: stage),
+        builder: (_) =>
+            LearningPathStagePreviewScreen(path: path, stage: stage),
       ),
     );
     await _load();
@@ -171,7 +172,8 @@ class _LearningPathWeekPlannerScreenState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         TweenAnimationBuilder<double>(
-                          tween: Tween<double>(begin: 0, end: value.clamp(0.0, 1.0)),
+                          tween: Tween<double>(
+                              begin: 0, end: value.clamp(0.0, 1.0)),
                           duration: AppConstants.fadeDuration,
                           builder: (context, val, __) {
                             return ClipRRect(
@@ -179,7 +181,8 @@ class _LearningPathWeekPlannerScreenState
                               child: LinearProgressIndicator(
                                 value: val,
                                 backgroundColor: Colors.white24,
-                                valueColor: AlwaysStoppedAnimation<Color>(accent),
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(accent),
                                 minHeight: 6,
                               ),
                             );
@@ -188,7 +191,8 @@ class _LearningPathWeekPlannerScreenState
                         const SizedBox(height: 4),
                         Text(
                           '$pct% завершено',
-                          style: const TextStyle(color: Colors.white70, fontSize: 12),
+                          style: const TextStyle(
+                              color: Colors.white70, fontSize: 12),
                         ),
                         const SizedBox(height: 16),
                       ],
@@ -224,7 +228,8 @@ class _LearningPathWeekPlannerScreenState
                           tagProgress: _tagProgress?[info.stage.id],
                           onTap: () => _open(info.stage),
                         ),
-                        ValueListenableBuilder<Map<String, List<BoosterSuggestion>>>(
+                        ValueListenableBuilder<
+                            Map<String, List<BoosterSuggestion>>>(
                           valueListenable: _boosterFeed.boosters,
                           builder: (_, map, __) {
                             final list = map[info.stage.id] ?? const [];
@@ -236,7 +241,8 @@ class _LearningPathWeekPlannerScreenState
                                 runSpacing: -4,
                                 children: [
                                   for (final b in list)
-                                    TagBadge(b.tag, onTap: () => _openBooster(b.packId)),
+                                    TagBadge(b.tag,
+                                        onTap: () => _openBooster(b.packId)),
                                 ],
                               ),
                             );

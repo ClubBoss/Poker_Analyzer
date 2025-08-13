@@ -26,8 +26,8 @@ class _NextUpWidgetState extends State<NextUpWidget>
   @override
   void initState() {
     super.initState();
-    _controller =
-        AnimationController(vsync: this, duration: const Duration(milliseconds: 400));
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 400));
     _future = _load();
     _future.whenComplete(() => _controller.forward());
   }
@@ -48,7 +48,8 @@ class _NextUpWidgetState extends State<NextUpWidget>
     for (final t in tracks) {
       reasons[t.id] = await engine.getRecommendationReason(t);
     }
-    final progress = await LessonPathProgressService.instance.computeTrackProgress();
+    final progress =
+        await LessonPathProgressService.instance.computeTrackProgress();
     return {
       'tracks': tracks,
       'reasons': reasons,
@@ -59,9 +60,8 @@ class _NextUpWidgetState extends State<NextUpWidget>
   Future<void> _startTrack(LessonTrack track) async {
     final steps = await LessonLoaderService.instance.loadAllLessons();
     final stepId = track.stepIds.isNotEmpty ? track.stepIds.first : null;
-    final step = stepId == null
-        ? null
-        : steps.firstWhereOrNull((s) => s.id == stepId);
+    final step =
+        stepId == null ? null : steps.firstWhereOrNull((s) => s.id == stepId);
     if (!mounted || step == null) return;
     await Navigator.push(
       context,
@@ -132,9 +132,10 @@ class _NextUpWidgetState extends State<NextUpWidget>
                           ),
                         ),
                         ElevatedButton(
-                          onPressed: progress[t.id] != null && progress[t.id]! > 0
-                              ? null
-                              : () => _startTrack(t),
+                          onPressed:
+                              progress[t.id] != null && progress[t.id]! > 0
+                                  ? null
+                                  : () => _startTrack(t),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: accent,
                           ),
@@ -151,4 +152,3 @@ class _NextUpWidgetState extends State<NextUpWidget>
     );
   }
 }
-

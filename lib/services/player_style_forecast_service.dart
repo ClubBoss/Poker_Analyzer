@@ -19,7 +19,8 @@ class PlayerStyleForecastService extends ChangeNotifier {
       final day = DateTime(h.date.year, h.date.month, h.date.day);
       map.putIfAbsent(day, () => []).add(h);
     }
-    final entries = map.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
+    final entries = map.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
     final ratios = <double>[];
     for (final e in entries) {
       var aggr = 0;
@@ -28,7 +29,11 @@ class PlayerStyleForecastService extends ChangeNotifier {
         for (final a in h.actions) {
           if (a.playerIndex != h.heroIndex) continue;
           final act = a.action.toLowerCase();
-          if (act == 'bet' || act == 'raise' || act == 'push' || act == 'allin' || act == 'all-in') {
+          if (act == 'bet' ||
+              act == 'raise' ||
+              act == 'push' ||
+              act == 'allin' ||
+              act == 'all-in') {
             aggr++;
           } else if (act == 'call' || act == 'check' || act == 'fold') {
             pass++;

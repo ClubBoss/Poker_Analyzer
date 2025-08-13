@@ -36,4 +36,3 @@ class SmartPushSchedulerService {
     await prefs.setString(key, DateTime.now().toIso8601String());
   }
 }
-

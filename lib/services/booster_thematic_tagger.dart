@@ -34,7 +34,8 @@ class BoosterThematicTagger {
         addTag('Limped Pot');
       }
 
-      if (villainAct.contains('3bet') || villainAct.contains('3-bet') ||
+      if (villainAct.contains('3bet') ||
+          villainAct.contains('3-bet') ||
           heroOpts.any((o) => o.contains('3bet'))) {
         addTag('3bet Spot');
       }
@@ -47,10 +48,10 @@ class BoosterThematicTagger {
     final isIcm = pack.tags.any((t) => t.toLowerCase().contains('icm')) ||
         pack.name.toLowerCase().contains('icm') ||
         pack.description.toLowerCase().contains('icm');
-    final players = {
-      for (final s in pack.spots) s.hand.playerCount
-    };
-    if (isIcm && players.isNotEmpty && players.reduce((a, b) => a < b ? a : b) <= 3) {
+    final players = {for (final s in pack.spots) s.hand.playerCount};
+    if (isIcm &&
+        players.isNotEmpty &&
+        players.reduce((a, b) => a < b ? a : b) <= 3) {
       addTag('ICM Final 3');
     }
 

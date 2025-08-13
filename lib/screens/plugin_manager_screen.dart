@@ -40,7 +40,8 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
     final config = await loader.loadConfig();
     final manager = PluginManager();
     final status = await manager.loadStatus();
-    final dir = Directory(p.join((await getApplicationSupportDirectory()).path, 'plugins'));
+    final dir = Directory(
+        p.join((await getApplicationSupportDirectory()).path, 'plugins'));
     final files = <String>[];
     if (await dir.exists()) {
       await for (final entity in dir.list()) {
@@ -67,7 +68,8 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
   }
 
   Future<void> _save() async {
-    final dir = Directory(p.join((await getApplicationSupportDirectory()).path, 'plugins'));
+    final dir = Directory(
+        p.join((await getApplicationSupportDirectory()).path, 'plugins'));
     await dir.create(recursive: true);
     final file = File(p.join(dir.path, 'plugin_config.json'));
     await file.writeAsString(jsonEncode(_config));
@@ -84,7 +86,8 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
     final loader = PluginLoader();
     await loader.loadAll(registry, manager, context: context);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Plugins reloaded')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Plugins reloaded')));
     }
     await _load();
   }
@@ -96,7 +99,8 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
     if (await config.exists()) await config.delete();
     if (await cache.exists()) await cache.delete();
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Plugin config reset')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Plugin config reset')));
     }
     await _load();
   }
@@ -121,7 +125,9 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
       final downloaded = await PluginLoader().downloadFromUrl(url);
       if (mounted) {
         messenger.showSnackBar(
-          SnackBar(content: Text(downloaded ? 'Plugin downloaded' : 'Plugin up to date')),
+          SnackBar(
+              content:
+                  Text(downloaded ? 'Plugin downloaded' : 'Plugin up to date')),
         );
       }
       _urlCtr.clear();
@@ -138,7 +144,8 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
   Future<void> _retry(String file) async {
     final loader = PluginLoader();
     final manager = PluginManager();
-    final support = Directory(p.join((await getApplicationSupportDirectory()).path, 'plugins'));
+    final support = Directory(
+        p.join((await getApplicationSupportDirectory()).path, 'plugins'));
     File f = File(p.join(support.path, file));
     if (!await f.exists()) {
       f = File(p.join('plugins', file));
@@ -149,11 +156,13 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
       manager.load(plugin);
       manager.initializeAll(registry);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Plugin loaded')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Plugin loaded')));
       }
     } else {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Plugin failed')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Plugin failed')));
       }
     }
     await _load();
@@ -244,7 +253,8 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
                     Expanded(
                       child: TextField(
                         controller: _urlCtr,
-                        decoration: const InputDecoration(hintText: 'Plugin URL'),
+                        decoration:
+                            const InputDecoration(hintText: 'Plugin URL'),
                       ),
                     ),
                     const SizedBox(width: 12),

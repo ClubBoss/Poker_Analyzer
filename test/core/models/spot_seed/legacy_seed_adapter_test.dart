@@ -25,4 +25,3 @@ void main() {
     expect(issues.where((i) => i.severity == 'error'), isEmpty);
   });
 }
-

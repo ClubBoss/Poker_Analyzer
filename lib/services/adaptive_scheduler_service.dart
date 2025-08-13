@@ -14,7 +14,8 @@ class AdaptiveSchedulerService {
   }) {
     final List<TrainingRecommendation> recs = [];
 
-    final mistakeScore = history.fold<int>(0, (p, r) => p + (r.total - r.correct));
+    final mistakeScore =
+        history.fold<int>(0, (p, r) => p + (r.total - r.correct));
     if (mistakeScore > 0) {
       recs.add(
         TrainingRecommendation(
@@ -28,7 +29,8 @@ class AdaptiveSchedulerService {
     final allTags = <String>{...tagMastery.keys, ...clusters.map((c) => c.tag)};
     for (final tag in allTags) {
       final mastery = tagMastery[tag] ?? 1.0;
-      final severity = clusters.firstWhereOrNull((c) => c.tag == tag)?.severity ?? 0.0;
+      final severity =
+          clusters.firstWhereOrNull((c) => c.tag == tag)?.severity ?? 0.0;
       if (mastery < 0.6) {
         final score = (0.6 - mastery) + severity;
         recs.add(

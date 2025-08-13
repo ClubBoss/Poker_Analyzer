@@ -14,7 +14,6 @@ class RoomHandHistoryImporter {
     return RoomHandHistoryImporter();
   }
 
-
   List<SavedHand> parse(String text) {
     final parts = _split(text);
     final stars = PokerStarsHandHistoryConverter();
@@ -46,9 +45,10 @@ class RoomHandHistoryImporter {
     bool isFirst = true;
     for (final line in lines) {
       final trimmed = line.trim();
-      if (!isFirst && (trimmed.startsWith('PokerStars Hand #') ||
-          trimmed.startsWith('Hand #') ||
-          trimmed.startsWith('GGPoker Hand #'))) {
+      if (!isFirst &&
+          (trimmed.startsWith('PokerStars Hand #') ||
+              trimmed.startsWith('Hand #') ||
+              trimmed.startsWith('GGPoker Hand #'))) {
         hands.add(buffer.toString().trim());
         buffer.clear();
       }
@@ -69,14 +69,17 @@ class RoomHandHistoryImporter {
     final seatEntries = <Map<String, dynamic>>[];
     final seatRegex = RegExp(r'^Seat (\d+):\s*(.+?)\s*\(([^)]+)\)');
     for (final line in lines) {
-      final tm = RegExp(r"^Table '([^']+)'", caseSensitive: false).firstMatch(line);
+      final tm =
+          RegExp(r"^Table '([^']+)'", caseSensitive: false).firstMatch(line);
       if (tm != null) tableName = tm.group(1)!.trim();
       final sm = seatRegex.firstMatch(line);
       if (sm != null) {
         seatEntries.add({
           'seat': int.parse(sm.group(1)!),
           'name': sm.group(2)!.trim(),
-          'stack': double.tryParse(sm.group(3)!.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0,
+          'stack': double.tryParse(
+                  sm.group(3)!.replaceAll(RegExp(r'[^0-9.]'), '')) ??
+              0,
         });
       }
     }
@@ -178,7 +181,9 @@ class RoomHandHistoryImporter {
       stackSizes: stackSizes,
       playerPositions: positions,
       comment: tableName,
-      playerTypes: {for (var i = 0; i < playerCount; i++) i: PlayerType.unknown},
+      playerTypes: {
+        for (var i = 0; i < playerCount; i++) i: PlayerType.unknown
+      },
     );
   }
 }

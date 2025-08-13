@@ -95,7 +95,8 @@ class _LearningStageTileState extends State<LearningStageTile> {
             children: [
               if (stage.description.isNotEmpty)
                 Text(stage.description, style: TextStyle(color: grey)),
-              Text(widget.subtitle, style: TextStyle(color: grey, fontSize: 12)),
+              Text(widget.subtitle,
+                  style: TextStyle(color: grey, fontSize: 12)),
               if (stage.tags.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
@@ -171,8 +172,9 @@ class _LearningStageTileState extends State<LearningStageTile> {
     return ListTile(
       tileColor: highlight ? Colors.blue.withValues(alpha: 0.1) : null,
       title: Text(sub.title, style: TextStyle(color: grey)),
-      subtitle:
-          sub.description.isNotEmpty ? Text(sub.description, style: TextStyle(color: grey)) : null,
+      subtitle: sub.description.isNotEmpty
+          ? Text(sub.description, style: TextStyle(color: grey))
+          : null,
       trailing: trailing,
       onTap: !unlocked
           ? null
@@ -199,4 +201,3 @@ class _LearningStageTileState extends State<LearningStageTile> {
     );
   }
 }
-

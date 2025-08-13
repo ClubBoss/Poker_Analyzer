@@ -18,7 +18,8 @@ void main() {
     final fp = all.first;
     expect(fp.packId, 'pack1');
     expect(fp.tagsCovered, containsAll(['tag1', 'tag2']));
-    expect(fp.endTime.isAfter(fp.startTime) || fp.endTime == fp.startTime, isTrue);
+    expect(
+        fp.endTime.isAfter(fp.startTime) || fp.endTime == fp.startTime, isTrue);
   });
 
   test('clear removes all fingerprints', () async {

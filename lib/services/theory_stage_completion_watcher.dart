@@ -83,4 +83,3 @@ class TheoryStageCompletionWatcher {
     _completed = false;
   }
 }
-

@@ -115,7 +115,8 @@ class LearningPathRegistryService {
         }
         for (final ua in s.unlockAfter) {
           if (!stageIds.contains(ua)) {
-            errors.add('Path ${t.id} stage ${s.id} unlockAfter missing stage $ua');
+            errors.add(
+                'Path ${t.id} stage ${s.id} unlockAfter missing stage $ua');
           }
         }
       }

@@ -97,7 +97,9 @@ class _PlayerInfoOverlayState extends State<PlayerInfoOverlay>
             decoration: BoxDecoration(
               color: AppColors.overlay,
               borderRadius: BorderRadius.circular(8),
-              boxShadow: const [BoxShadow(color: AppColors.shadow, blurRadius: 4)],
+              boxShadow: const [
+                BoxShadow(color: AppColors.shadow, blurRadius: 4)
+              ],
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,

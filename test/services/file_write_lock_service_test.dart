@@ -10,7 +10,8 @@ import 'package:poker_analyzer/services/file_write_lock_service.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('second process times out while first holds the lock (cross-platform)', () async {
+  test('second process times out while first holds the lock (cross-platform)',
+      () async {
     SharedPreferences.setMockInitialValues({'theory.lock.timeoutSec': 1});
 
     // Write a tiny Dart script that grabs the lock for ~2s
@@ -34,7 +35,8 @@ Future<void> main() async {
     await Future.delayed(const Duration(milliseconds: 150));
 
     final sw = Stopwatch()..start();
-    await expectLater(() => FileWriteLockService.instance.acquire(), throwsA(isA<TimeoutException>()));
+    await expectLater(() => FileWriteLockService.instance.acquire(),
+        throwsA(isA<TimeoutException>()));
     sw.stop();
     expect(sw.elapsedMilliseconds, greaterThanOrEqualTo(900));
 

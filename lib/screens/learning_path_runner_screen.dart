@@ -18,7 +18,8 @@ class LearningPathRunnerScreen extends StatefulWidget {
   const LearningPathRunnerScreen({super.key});
 
   @override
-  State<LearningPathRunnerScreen> createState() => _LearningPathRunnerScreenState();
+  State<LearningPathRunnerScreen> createState() =>
+      _LearningPathRunnerScreenState();
 }
 
 class _LearningPathRunnerScreenState extends State<LearningPathRunnerScreen> {

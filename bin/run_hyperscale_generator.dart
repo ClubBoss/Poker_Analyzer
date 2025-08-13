@@ -12,7 +12,8 @@ class _AssetPackExporter extends TrainingPackExporterV2 {
   const _AssetPackExporter(this.outDir);
 
   @override
-  Future<File> exportToFile(TrainingPackTemplateV2 pack, {String? fileName}) async {
+  Future<File> exportToFile(TrainingPackTemplateV2 pack,
+      {String? fileName}) async {
     final dir = Directory(outDir);
     await dir.create(recursive: true);
     final safeName = (fileName ?? pack.name)
@@ -65,4 +66,3 @@ Future<void> main(List<String> args) async {
   stdout.writeln(
       'Generated $generatedSpots spots, skipped $skippedCount duplicates, created ${files.length} YAML files');
 }
-

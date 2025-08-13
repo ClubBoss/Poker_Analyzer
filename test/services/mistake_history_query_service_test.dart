@@ -97,4 +97,3 @@ void main() {
     expect(res[1].spotId, 'c');
   });
 }
-

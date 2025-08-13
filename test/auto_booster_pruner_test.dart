@@ -36,6 +36,7 @@ class _FakeProgress extends TrainingPathProgressServiceV2 {
   Future<void> markStageCompleted(String stageId, double accuracy) async {
     completed.add(stageId);
   }
+
   @override
   List<String> unlockedStageIds() => [];
 }
@@ -53,13 +54,15 @@ void main() {
   test('pruneLowImpactBoosters removes boosters', () async {
     SharedPreferences.setMockInitialValues({});
     final start = TrainingStageNode(id: 'start', nextIds: ['b1']);
-    final booster = TheoryLessonNode(id: 'b1', title: 'B1', content: '', nextIds: ['end']);
+    final booster =
+        TheoryLessonNode(id: 'b1', title: 'B1', content: '', nextIds: ['end']);
     final end = TrainingStageNode(id: 'end');
 
     final orch = _FakeOrchestrator([start, booster, end]);
     final progress = _FakeProgress({'start'});
     final engine = LearningPathEngine(orchestrator: orch, progress: progress);
-    final pruner = AutoBoosterPruner(engine: engine, policy: _FakePolicy(false));
+    final pruner =
+        AutoBoosterPruner(engine: engine, policy: _FakePolicy(false));
 
     await engine.initialize();
     final count = await pruner.pruneLowImpactBoosters(['b1']);
@@ -67,14 +70,16 @@ void main() {
     expect(count, 1);
     final nodes = engine.engine!.allNodes;
     expect(nodes.any((n) => n.id == 'b1'), isFalse);
-    final startNode = nodes.whereType<StageNode>().firstWhere((n) => n.id == 'start');
+    final startNode =
+        nodes.whereType<StageNode>().firstWhere((n) => n.id == 'start');
     expect(startNode.nextIds.first, 'end');
   });
 
   test('pruneLowImpactBoosters keeps effective boosters', () async {
     SharedPreferences.setMockInitialValues({});
     final start = TrainingStageNode(id: 'start', nextIds: ['b2']);
-    final booster = TheoryLessonNode(id: 'b2', title: 'B2', content: '', nextIds: ['end']);
+    final booster =
+        TheoryLessonNode(id: 'b2', title: 'B2', content: '', nextIds: ['end']);
     final end = TrainingStageNode(id: 'end');
 
     final orch = _FakeOrchestrator([start, booster, end]);

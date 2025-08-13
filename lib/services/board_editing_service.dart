@@ -129,7 +129,6 @@ class BoardEditingService {
   bool canEditBoard(BuildContext context, int index) =>
       isBoardEditAllowed(context, index);
 
-
   /// Select or add a board card at [index]. Duplicate and stage order checks
   /// are enforced. Returns true if the card was applied.
   bool selectBoardCard(BuildContext context, int index, CardModel card,

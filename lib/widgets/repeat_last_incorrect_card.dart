@@ -17,7 +17,11 @@ class RepeatLastIncorrectCard extends StatelessWidget {
       final ev = h.evLoss ?? 0.0;
       final exp = h.expectedAction?.trim().toLowerCase();
       final gto = h.gtoAction?.trim().toLowerCase();
-      return ev.abs() >= 1.0 && !h.corrected && exp != null && gto != null && exp != gto;
+      return ev.abs() >= 1.0 &&
+          !h.corrected &&
+          exp != null &&
+          gto != null &&
+          exp != gto;
     });
     if (hand == null) return const SizedBox.shrink();
     final accent = Theme.of(context).colorScheme.secondary;
@@ -39,7 +43,8 @@ class RepeatLastIncorrectCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text('Повторить раздачу',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
                 Text(cat, style: const TextStyle(color: Colors.white)),
                 const SizedBox(height: 4),
@@ -51,13 +56,15 @@ class RepeatLastIncorrectCard extends StatelessWidget {
           const SizedBox(width: 8),
           ElevatedButton(
             onPressed: () async {
-              final tpl = await TrainingPackService.createRepeatForIncorrect(context);
+              final tpl =
+                  await TrainingPackService.createRepeatForIncorrect(context);
               if (tpl == null) return;
               await context.read<TrainingSessionService>().startSession(tpl);
               if (context.mounted) {
                 await Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+                  MaterialPageRoute(
+                      builder: (_) => const TrainingSessionScreen()),
                 );
               }
             },

@@ -17,7 +17,8 @@ class CollapsibleActionHistory extends StatefulWidget {
   });
 
   @override
-  State<CollapsibleActionHistory> createState() => _CollapsibleActionHistoryState();
+  State<CollapsibleActionHistory> createState() =>
+      _CollapsibleActionHistoryState();
 }
 
 class _CollapsibleActionHistoryState extends State<CollapsibleActionHistory>
@@ -113,8 +114,10 @@ class _CollapsibleActionHistoryState extends State<CollapsibleActionHistory>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Action History', style: TextStyle(color: Colors.white)),
-                Icon(_open ? Icons.expand_less : Icons.expand_more, color: Colors.white),
+                const Text('Action History',
+                    style: TextStyle(color: Colors.white)),
+                Icon(_open ? Icons.expand_less : Icons.expand_more,
+                    color: Colors.white),
               ],
             ),
           ),

@@ -1,6 +1,7 @@
 part of 'training_result.dart';
 
-TrainingResult _$TrainingResultFromJson(Map<String, dynamic> json) => TrainingResult(
+TrainingResult _$TrainingResultFromJson(Map<String, dynamic> json) =>
+    TrainingResult(
       date: DateTime.parse(json['date'] as String),
       total: json['total'] as int? ?? 0,
       correct: json['correct'] as int? ?? 0,
@@ -12,4 +13,5 @@ TrainingResult _$TrainingResultFromJson(Map<String, dynamic> json) => TrainingRe
       icmDiff: (json['icmDiff'] as num?)?.toDouble(),
     );
 
-Map<String, dynamic> _$TrainingResultToJson(TrainingResult instance) => <String, dynamic>{};
+Map<String, dynamic> _$TrainingResultToJson(TrainingResult instance) =>
+    <String, dynamic>{};

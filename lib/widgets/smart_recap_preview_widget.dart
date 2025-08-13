@@ -10,7 +10,8 @@ class SmartRecapPreviewWidget extends StatefulWidget {
   const SmartRecapPreviewWidget({super.key});
 
   @override
-  State<SmartRecapPreviewWidget> createState() => _SmartRecapPreviewWidgetState();
+  State<SmartRecapPreviewWidget> createState() =>
+      _SmartRecapPreviewWidgetState();
 }
 
 class _SmartRecapPreviewWidgetState extends State<SmartRecapPreviewWidget>
@@ -22,8 +23,8 @@ class _SmartRecapPreviewWidgetState extends State<SmartRecapPreviewWidget>
   @override
   void initState() {
     super.initState();
-    _controller =
-        AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 300));
     WidgetsBinding.instance.addPostFrameCallback((_) => _setup());
   }
 

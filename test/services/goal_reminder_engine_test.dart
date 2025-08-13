@@ -58,11 +58,14 @@ class _FakeMasteryService extends TagMasteryService {
 
 class _FakeSuggestionService extends GoalSuggestionService {
   final List<TrainingGoal> goals;
-  _FakeSuggestionService({required TagMasteryService mastery, required this.goals})
+  _FakeSuggestionService(
+      {required TagMasteryService mastery, required this.goals})
       : super(mastery: mastery);
 
   @override
-  Future<List<TrainingGoal>> suggestGoals({required UserProgress progress}) async => goals;
+  Future<List<TrainingGoal>> suggestGoals(
+          {required UserProgress progress}) async =>
+      goals;
 }
 
 void main() {
@@ -75,7 +78,8 @@ void main() {
   test('getStaleGoals returns goals inactive for more than 3 days', () async {
     final now = DateTime.now();
     final logs = _FakeLogService([
-      SessionLog(tags: const [], 
+      SessionLog(
+        tags: const [],
         sessionId: '1',
         templateId: 'cbet_ip',
         startedAt: now.subtract(const Duration(days: 5)),
@@ -83,7 +87,8 @@ void main() {
         correctCount: 1,
         mistakeCount: 0,
       ),
-      SessionLog(tags: const [], 
+      SessionLog(
+        tags: const [],
         sessionId: '2',
         templateId: 'open_fold_lj_mtt',
         startedAt: now.subtract(const Duration(days: 1)),

@@ -23,7 +23,8 @@ class AssessmentPackSynthesizer {
     var currentSize = size;
     TrainingPackTemplateV2? pack;
     for (var attempt = 0; attempt < 2; attempt++) {
-      final seed = md5.convert(utf8.encode('$clusterId|$currentSize')).toString();
+      final seed =
+          md5.convert(utf8.encode('$clusterId|$currentSize')).toString();
       final spots = <TrainingPackSpot>[];
       for (var i = 0; i < currentSize; i++) {
         spots.add(TrainingPackSpot(
@@ -58,4 +59,3 @@ class AssessmentPackSynthesizer {
     return pack!;
   }
 }
-

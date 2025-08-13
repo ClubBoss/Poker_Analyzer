@@ -73,8 +73,8 @@ class BoosterProgressCard extends StatelessWidget {
                   Icon(Icons.trending_up, color: Colors.amberAccent),
                   SizedBox(width: 8),
                   Text('Booster Progress',
-                      style: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold)),
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ],
               ),
               const SizedBox(height: 8),

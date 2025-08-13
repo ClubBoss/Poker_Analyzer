@@ -26,10 +26,12 @@ class GoalProgressBar extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Цель месяца: 10 сессий с точностью > 90%',
-                      style: TextStyle(color: Colors.white70, fontSize: 14 * scale)),
+                      style: TextStyle(
+                          color: Colors.white70, fontSize: 14 * scale)),
                   SizedBox(height: 4 * scale),
                   Text('$good из 10',
-                      style: TextStyle(color: Colors.white, fontSize: 14 * scale)),
+                      style:
+                          TextStyle(color: Colors.white, fontSize: 14 * scale)),
                 ],
               );
             }
@@ -38,10 +40,12 @@ class GoalProgressBar extends StatelessWidget {
               children: [
                 Flexible(
                   child: Text('Цель месяца: 10 сессий с точностью > 90%',
-                      style: TextStyle(color: Colors.white70, fontSize: 14 * scale)),
+                      style: TextStyle(
+                          color: Colors.white70, fontSize: 14 * scale)),
                 ),
                 Text('$good из 10',
-                    style: TextStyle(color: Colors.white, fontSize: 14 * scale)),
+                    style:
+                        TextStyle(color: Colors.white, fontSize: 14 * scale)),
               ],
             );
           }),

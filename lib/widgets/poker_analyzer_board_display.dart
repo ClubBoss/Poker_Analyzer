@@ -17,4 +17,3 @@ class PokerAnalyzerBoardDisplay extends StatelessWidget {
     );
   }
 }
-

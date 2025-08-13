@@ -35,11 +35,13 @@ void main() {
     await file.writeAsString(tpl.toYamlString());
 
     final count = await const BoosterRefinerEngine().refineAll(dir: dir.path);
-    final refined = TrainingPackTemplateV2.fromYamlString(await file.readAsString());
+    final refined =
+        TrainingPackTemplateV2.fromYamlString(await file.readAsString());
 
     expect(count, 1);
     expect(refined.spots.length, 1);
-    expect(refined.spots.first.explanation, 'Рекомендовано для изучения темы: cbet');
+    expect(refined.spots.first.explanation,
+        'Рекомендовано для изучения темы: cbet');
     expect(refined.meta['tag'], 'cbet');
     expect(refined.meta['version'], '1');
     expect(refined.meta['generatedBy'], 'BoosterSuggestionEngine v1');

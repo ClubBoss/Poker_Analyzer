@@ -19,7 +19,8 @@ class _FakeTheory extends SmartTheoryInjectionEngine {
   const _FakeTheory(this.lesson);
 
   @override
-  Future<TheoryMiniLessonNode?> getInjectionCandidate(String stageId) async => lesson;
+  Future<TheoryMiniLessonNode?> getInjectionCandidate(String stageId) async =>
+      lesson;
 }
 
 class _FakeOrch extends BoosterInjectionOrchestrator {
@@ -33,7 +34,9 @@ class _FakeOrch extends BoosterInjectionOrchestrator {
         );
 
   @override
-  Future<List<LearningPathBlock>> getInjectableBoosters(StageNode stage) async => blocks;
+  Future<List<LearningPathBlock>> getInjectableBoosters(
+          StageNode stage) async =>
+      blocks;
 }
 
 LearningPathBlock _booster(String id) {
@@ -76,7 +79,8 @@ void main() {
       ]),
       assembler: const InjectionBlockAssembler(),
     );
-    final blocks = await composer.buildStageFlow(const TrainingStageNode(id: 's1'));
+    final blocks =
+        await composer.buildStageFlow(const TrainingStageNode(id: 's1'));
     expect(blocks.length, 3);
     expect(blocks.first.id, 't1');
     expect(blocks[1].id, 'b1');
@@ -93,7 +97,8 @@ void main() {
       ]),
       assembler: const InjectionBlockAssembler(),
     );
-    final blocks = await composer.buildStageFlow(const TrainingStageNode(id: 's1'));
+    final blocks =
+        await composer.buildStageFlow(const TrainingStageNode(id: 's1'));
     expect(blocks.length, 2);
     expect(blocks[0].id, 'b1');
     expect(blocks[1].id, 'b2');
@@ -105,8 +110,8 @@ void main() {
       boosterOrchestrator: _FakeOrch([]),
       assembler: const InjectionBlockAssembler(),
     );
-    final blocks = await composer.buildStageFlow(const TrainingStageNode(id: 's1'));
+    final blocks =
+        await composer.buildStageFlow(const TrainingStageNode(id: 's1'));
     expect(blocks, isEmpty);
   });
 }
-

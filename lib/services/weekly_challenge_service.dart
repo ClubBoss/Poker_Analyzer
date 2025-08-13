@@ -28,7 +28,8 @@ class WeeklyChallengeService extends ChangeNotifier {
 
   static const _rewardXp = 50;
 
-  WeeklyChallengeService({required this.stats, required this.xp, required this.packs});
+  WeeklyChallengeService(
+      {required this.stats, required this.xp, required this.packs});
 
   static const _challenges = [
     WeeklyChallenge('Tag 5 mistakes', 'mistakes', 5),
@@ -49,7 +50,9 @@ class WeeklyChallengeService extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     _index = prefs.getInt(_indexKey) ?? 0;
     final startStr = prefs.getString(_startKey);
-    _start = startStr != null ? DateTime.tryParse(startStr) ?? DateTime.now() : DateTime.now();
+    _start = startStr != null
+        ? DateTime.tryParse(startStr) ?? DateTime.now()
+        : DateTime.now();
     _baseHands = prefs.getInt(_handsKey) ?? stats.handsReviewed;
     _baseMistakes = prefs.getInt(_mistakesKey) ?? stats.mistakesFixed;
     _rotate();
@@ -75,17 +78,16 @@ class WeeklyChallengeService extends ChangeNotifier {
   int get daysLeft =>
       (7 - DateTime.now().difference(_start).inDays).clamp(0, 7);
 
-  TrainingPack get currentPack =>
-      packs.packs.isNotEmpty
-          ? packs.packs.first
-          : TrainingPack(
-              name: current.title,
-              description: '',
-              tags: const [],
-              hands: [],
-              spots: const [],
-              difficulty: 1,
-            );
+  TrainingPack get currentPack => packs.packs.isNotEmpty
+      ? packs.packs.first
+      : TrainingPack(
+          name: current.title,
+          description: '',
+          tags: const [],
+          hands: [],
+          spots: const [],
+          difficulty: 1,
+        );
 
   Future<void> _onStats() async {
     if (progressValue >= current.target) {

@@ -27,7 +27,8 @@ void main() {
       reportFile.path,
     ]);
     expect(run.exitCode, 0, reason: run.stderr.toString());
-    final report = json.decode(reportFile.readAsStringSync()) as Map<String, dynamic>;
+    final report =
+        json.decode(reportFile.readAsStringSync()) as Map<String, dynamic>;
     final spots = report['spots'] as List<dynamic>;
     expect(spots, isNotEmpty);
     for (final spot in spots) {

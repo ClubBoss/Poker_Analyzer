@@ -76,4 +76,3 @@ class TheoryReinforcementScheduler {
     return result;
   }
 }
-

@@ -15,7 +15,8 @@ class FakeTagMasteryService extends TagMasteryService {
       : super(logs: SessionLogService(sessions: TrainingSessionService()));
 
   @override
-  Future<Map<String, double>> computeMastery({bool force = false}) async => _map;
+  Future<Map<String, double>> computeMastery({bool force = false}) async =>
+      _map;
 }
 
 class FakeTrackMasteryService extends TrackMasteryService {
@@ -24,7 +25,8 @@ class FakeTrackMasteryService extends TrackMasteryService {
       : super(mastery: FakeTagMasteryService(const {}));
 
   @override
-  Future<Map<String, double>> computeTrackMastery({bool force = false}) async => _map;
+  Future<Map<String, double>> computeTrackMastery({bool force = false}) async =>
+      _map;
 }
 
 void main() {
@@ -40,7 +42,9 @@ void main() {
     final engine = LearningPathUnlockEngine(
       masteryService: mastery,
       streakRequirements: {'live_exploit': 2},
-      prereq: {'live_exploit': ['mtt_pro']},
+      prereq: {
+        'live_exploit': ['mtt_pro']
+      },
       goalRequirements: const {},
       masteryRequirements: {
         'live_exploit': {'mtt_pro': 0.5},
@@ -69,4 +73,3 @@ void main() {
     expect(await engine.canUnlockTrack('live_exploit'), isTrue);
   });
 }
-

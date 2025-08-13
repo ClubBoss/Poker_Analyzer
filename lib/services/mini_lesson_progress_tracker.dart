@@ -8,7 +8,8 @@ import '../models/lesson_failure.dart';
 /// Tracks view and completion stats for theory mini lessons.
 class MiniLessonProgressTracker {
   MiniLessonProgressTracker._();
-  static final MiniLessonProgressTracker instance = MiniLessonProgressTracker._();
+  static final MiniLessonProgressTracker instance =
+      MiniLessonProgressTracker._();
 
   static const String _prefix = 'mini_lesson_progress_';
   static const String _failurePrefix = 'mini_lesson_failure_';
@@ -119,15 +120,14 @@ class MiniLessonProgressTracker {
   Future<void> _saveFailures(String id) async {
     final prefs = await SharedPreferences.getInstance();
     final list = _failureCache[id] ?? <LessonFailure>[];
-    await prefs.setString('$_failurePrefix$id',
-        jsonEncode([for (final f in list) f.toJson()]));
+    await prefs.setString(
+        '$_failurePrefix$id', jsonEncode([for (final f in list) f.toJson()]));
   }
 
   /// Records a failure for [id] with optional [evLoss].
   Future<void> markFailure(String id, {double evLoss = 0}) async {
     final list = await _loadFailures(id);
-    list.insert(0,
-        LessonFailure(timestamp: DateTime.now(), evLoss: evLoss));
+    list.insert(0, LessonFailure(timestamp: DateTime.now(), evLoss: evLoss));
     if (list.length > 50) list.removeRange(50, list.length);
     await _saveFailures(id);
   }
@@ -162,4 +162,3 @@ class _MiniProgress {
         'completed': completed,
       };
 }
-

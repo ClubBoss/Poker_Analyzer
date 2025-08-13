@@ -24,8 +24,7 @@ class InlineTheoryRecallBanner extends StatelessWidget {
         final lesson = snapshot.data;
         if (lesson == null) return const SizedBox.shrink();
         return GestureDetector(
-          onTap: () =>
-              TheoryMiniLessonNavigator.instance.openLessonById(id),
+          onTap: () => TheoryMiniLessonNavigator.instance.openLessonById(id),
           child: Container(
             margin: const EdgeInsets.symmetric(vertical: 8),
             padding: const EdgeInsets.all(12),
@@ -43,4 +42,3 @@ class InlineTheoryRecallBanner extends StatelessWidget {
     );
   }
 }
-

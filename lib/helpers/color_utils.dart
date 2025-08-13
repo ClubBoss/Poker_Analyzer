@@ -11,4 +11,3 @@ Color colorFromHex(String hex) {
   if (h.length != 6) return const Color(0xFF2196F3);
   return Color(int.parse('FF$h', radix: 16));
 }
-

@@ -98,18 +98,21 @@ class _StarterPacksOnboardingBannerState
     if (existing == null) _handsFetches[id] = fut;
 
     unawaited(
-      fut.then((v) async {
-        if (v >= 0) {
-          await prefs.setInt(_kPrefProgress(id), v);
-        }
-        if (onValue != null) {
-          onValue(v);
-        } else if (mounted && _pack?.id == id) {
-          setState(() => _handsCompleted = v);
-        }
-      }).catchError((_) {}).whenComplete(() {
-        if (_handsFetches[id] == fut) _handsFetches.remove(id);
-      }),
+      fut
+          .then((v) async {
+            if (v >= 0) {
+              await prefs.setInt(_kPrefProgress(id), v);
+            }
+            if (onValue != null) {
+              onValue(v);
+            } else if (mounted && _pack?.id == id) {
+              setState(() => _handsCompleted = v);
+            }
+          })
+          .catchError((_) {})
+          .whenComplete(() {
+            if (_handsFetches[id] == fut) _handsFetches.remove(id);
+          }),
     );
   }
 
@@ -222,8 +225,7 @@ class _StarterPacksOnboardingBannerState
     setState(() => _launching = true);
     try {
       final cached = _packCache[p.id];
-      final full =
-          cached ??
+      final full = cached ??
           await (PackLibraryService.instance.getById(p.id) ?? Future.value(p));
       _cachePut(full.id, full);
       final count = _totalHands(full);
@@ -285,8 +287,8 @@ class _StarterPacksOnboardingBannerState
       final prefs = await _getPrefs();
       final selectedId = prefs.getString(_kPrefSelectedId);
 
-      final recommended = await PackLibraryService.instance
-          .recommendedStarter();
+      final recommended =
+          await PackLibraryService.instance.recommendedStarter();
 
       List<TrainingPackTemplateV2> list = const [];
       try {
@@ -338,7 +340,8 @@ class _StarterPacksOnboardingBannerState
 
                 final totals = <String, int>{
                   for (final p in items) p.id: _totalHands(p),
-                  if (recommended != null) recommended.id: _totalHands(recommended),
+                  if (recommended != null)
+                    recommended.id: _totalHands(recommended),
                 };
 
                 final nameLower = <String, String>{
@@ -379,8 +382,8 @@ class _StarterPacksOnboardingBannerState
                   }
                 }
 
-                final maxH =
-                    MediaQuery.of(context).size.height * _kChooserMaxHeightFactor;
+                final maxH = MediaQuery.of(context).size.height *
+                    _kChooserMaxHeightFactor;
                 final headerCount = recommended != null ? 1 : 0;
                 final totalCount = headerCount + items.length;
                 return ConstrainedBox(
@@ -400,9 +403,10 @@ class _StarterPacksOnboardingBannerState
                           subtitle: Text(_progressText(done, total, t)),
                           selected:
                               selectedId == null && _pack?.id == recommended.id,
-                          trailing: selectedId == null && _pack?.id == recommended.id
-                              ? const Icon(Icons.check)
-                              : null,
+                          trailing:
+                              selectedId == null && _pack?.id == recommended.id
+                                  ? const Icon(Icons.check)
+                                  : null,
                           onTap: () => Navigator.of(context).pop(recommended),
                         );
                       }
@@ -421,9 +425,7 @@ class _StarterPacksOnboardingBannerState
                       );
                     },
                     separatorBuilder: (context, i) {
-                      if (recommended != null &&
-                          items.isNotEmpty &&
-                          i == 0) {
+                      if (recommended != null && items.isNotEmpty && i == 0) {
                         return const Divider(height: 0);
                       }
                       if (i == headerCount + dividerIndex - 1 &&

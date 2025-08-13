@@ -48,4 +48,3 @@ class RewardCardStyleTunerService {
     return _trackStyles[trackId] ?? _defaultStyle;
   }
 }
-

@@ -5,8 +5,8 @@ class UnlockConditionEvaluator {
   const UnlockConditionEvaluator();
 
   /// Returns `true` if [condition] is satisfied given [progress] and [accuracy].
-  bool isUnlocked(UnlockCondition? condition,
-      Map<String, double> progress, Map<String, double> accuracy) {
+  bool isUnlocked(UnlockCondition? condition, Map<String, double> progress,
+      Map<String, double> accuracy) {
     if (condition == null) return true;
     final dep = condition.dependsOn;
     if (dep == null) return true;

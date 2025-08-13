@@ -147,4 +147,3 @@ class InlineReportViewerWidget extends StatelessWidget {
     );
   }
 }
-

@@ -59,8 +59,7 @@ class InlinePackTheoryClusterViewer extends StatelessWidget {
               itemBuilder: (context, index) {
                 final cluster = relevant[index];
                 final clusterTags = cluster.sharedTags.map(_norm).toSet();
-                final matched =
-                    clusterTags.where(normPackTags.contains).length;
+                final matched = clusterTags.where(normPackTags.contains).length;
                 return ExpansionTile(
                   title: Text(
                       '${_tagSummary(cluster)} • $matched/${cluster.sharedTags.length}'),

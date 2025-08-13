@@ -36,7 +36,8 @@ void main() {
   });
 
   test('cooldown prevents repeated messages', () async {
-    final engine = SkillTreeMotivationalHintEngine(cooldown: Duration(seconds: 5));
+    final engine =
+        SkillTreeMotivationalHintEngine(cooldown: Duration(seconds: 5));
     await engine.resetForTest();
     final first = await engine.getMotivationalMessage(stats(rate: 0.8));
     expect(first, isNotNull);
@@ -44,4 +45,3 @@ void main() {
     expect(second, isNull);
   });
 }
-

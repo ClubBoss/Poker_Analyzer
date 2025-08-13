@@ -10,7 +10,8 @@ import '../models/v2/training_pack_template_v2.dart';
 class PackLibraryConflictScanner {
   const PackLibraryConflictScanner();
 
-  Future<List<(String, String)>> scanConflicts({String path = 'training_packs/library'}) async {
+  Future<List<(String, String)>> scanConflicts(
+      {String path = 'training_packs/library'}) async {
     if (!kDebugMode) return [];
     final docs = await getApplicationDocumentsDirectory();
     final dir = Directory('${docs.path}/$path');
@@ -37,8 +38,10 @@ class PackLibraryConflictScanner {
         final meta = tpl.meta;
         if (meta.isEmpty) invalid.add(f.path);
         final aud = tpl.audience ?? 'Unknown';
-        final ev = (map['evScore'] as num?)?.toDouble() ?? (meta['evScore'] as num?)?.toDouble();
-        final icm = (map['icmScore'] as num?)?.toDouble() ?? (meta['icmScore'] as num?)?.toDouble();
+        final ev = (map['evScore'] as num?)?.toDouble() ??
+            (meta['evScore'] as num?)?.toDouble();
+        final icm = (map['icmScore'] as num?)?.toDouble() ??
+            (meta['icmScore'] as num?)?.toDouble();
         for (final t in tpl.tags) {
           final key = '$aud|$t';
           if (ev != null) {
@@ -73,6 +76,7 @@ class PackLibraryConflictScanner {
         }
       }
     }
+
     check(evGroups, 'ev_dispersion');
     check(icmGroups, 'icm_dispersion');
     return conflicts;

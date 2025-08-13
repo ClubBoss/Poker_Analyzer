@@ -11,12 +11,15 @@ void main() {
     await tester.pumpWidget(MaterialApp(
       home: Column(
         children: [
-          for (final s in tpl.spots.take(10)) TrainingPackSpotPreviewCard(spot: s),
+          for (final s in tpl.spots.take(10))
+            TrainingPackSpotPreviewCard(spot: s),
         ],
       ),
     ));
     await tester.pump();
-    final icmBadges = tester.widgetList<Container>(find.byKey(const ValueKey('icmBadge'))).toList();
+    final icmBadges = tester
+        .widgetList<Container>(find.byKey(const ValueKey('icmBadge')))
+        .toList();
     expect(icmBadges.isNotEmpty, true);
     final first = (icmBadges.first.decoration as BoxDecoration).color;
     final last = (icmBadges.last.decoration as BoxDecoration).color;

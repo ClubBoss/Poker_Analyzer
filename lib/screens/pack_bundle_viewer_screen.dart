@@ -27,7 +27,8 @@ class _PackBundleViewerScreenState extends State<PackBundleViewerScreen> {
   final List<PackBundleInfo> _bundles = [];
 
   Future<void> _pick() async {
-    final result = await FilePicker.platform.pickFiles(allowMultiple: true, type: FileType.custom, allowedExtensions: ['pka']);
+    final result = await FilePicker.platform.pickFiles(
+        allowMultiple: true, type: FileType.custom, allowedExtensions: ['pka']);
     if (result == null) return;
     final items = <PackBundleInfo>[];
     for (final f in result.files) {
@@ -36,15 +37,19 @@ class _PackBundleViewerScreenState extends State<PackBundleViewerScreen> {
       try {
         final data = await File(path).readAsBytes();
         final archive = ZipDecoder().decodeBytes(data);
-        final tplFile = archive.files.firstWhere((e) => e.name == 'template.json');
-        final json = jsonDecode(utf8.decode(tplFile.content)) as Map<String, dynamic>;
+        final tplFile =
+            archive.files.firstWhere((e) => e.name == 'template.json');
+        final json =
+            jsonDecode(utf8.decode(tplFile.content)) as Map<String, dynamic>;
         final tpl = TrainingPackTemplate.fromJson(json);
         items.add(PackBundleInfo(path, tpl));
       } catch (_) {}
     }
     items.sort((a, b) {
-      final ad = a.template.lastGeneratedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
-      final bd = b.template.lastGeneratedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+      final ad =
+          a.template.lastGeneratedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+      final bd =
+          b.template.lastGeneratedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
       final cmp = bd.compareTo(ad);
       if (cmp != 0) return cmp;
       final aa = (a.template.evCovered + a.template.icmCovered) / 2;
@@ -59,11 +64,10 @@ class _PackBundleViewerScreenState extends State<PackBundleViewerScreen> {
   }
 
   Future<void> _install(PackBundleInfo info) async {
-    final listState =
-        TrainingPackTemplateListScreen.maybeOf(context);
-    final messenger =
-        ScaffoldMessenger.maybeOf(listState?.context ?? context);
-    final List<TrainingPackTemplate> templates = await TrainingPackStorage.load();
+    final listState = TrainingPackTemplateListScreen.maybeOf(context);
+    final messenger = ScaffoldMessenger.maybeOf(listState?.context ?? context);
+    final List<TrainingPackTemplate> templates =
+        await TrainingPackStorage.load();
     final idx = templates.indexWhere((t) => t.id == info.template.id);
     final identical =
         idx != -1 && templates[idx].createdAt == info.template.createdAt;
@@ -105,8 +109,8 @@ class _PackBundleViewerScreenState extends State<PackBundleViewerScreen> {
     final templates = await TrainingPackStorage.load();
     final existing =
         templates.firstWhereOrNull((e) => e.id == info.template.id);
-    final identical = existing != null &&
-        existing.createdAt == info.template.createdAt;
+    final identical =
+        existing != null && existing.createdAt == info.template.createdAt;
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.grey[900],
@@ -116,12 +120,13 @@ class _PackBundleViewerScreenState extends State<PackBundleViewerScreen> {
       builder: (_) {
         final t = info.template;
         final total = t.spots.length;
-        final evPct =
-            total == 0 ? 0 : (t.evCovered * 100 / total).round();
-        final icmPct =
-            total == 0 ? 0 : (t.icmCovered * 100 / total).round();
-        Color color(int v) =>
-            v < 70 ? Colors.red : v < 90 ? Colors.yellow[700]! : Colors.green;
+        final evPct = total == 0 ? 0 : (t.evCovered * 100 / total).round();
+        final icmPct = total == 0 ? 0 : (t.icmCovered * 100 / total).round();
+        Color color(int v) => v < 70
+            ? Colors.red
+            : v < 90
+                ? Colors.yellow[700]!
+                : Colors.green;
         return Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -191,7 +196,8 @@ class _PackBundleViewerScreenState extends State<PackBundleViewerScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
-            child: ElevatedButton(onPressed: _pick, child: const Text('Select Bundles')),
+            child: ElevatedButton(
+                onPressed: _pick, child: const Text('Select Bundles')),
           ),
           Expanded(
             child: ListView.builder(
@@ -204,7 +210,8 @@ class _PackBundleViewerScreenState extends State<PackBundleViewerScreen> {
                 return ListTile(
                   title: Text(tpl.name),
                   subtitle: Text([
-                    if (date != null) date.toLocal().toString().split('.').first,
+                    if (date != null)
+                      date.toLocal().toString().split('.').first,
                     '${coverage.round()}%'
                   ].join(' · ')),
                   onTap: () => _showBundleInfo(b),

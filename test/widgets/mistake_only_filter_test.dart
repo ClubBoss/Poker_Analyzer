@@ -16,13 +16,21 @@ void main() {
           id: 's1',
           title: 'Spot 1',
           hand: HandData(),
-          evalResult: EvaluationResult(correct: true, expectedAction: '-', userEquity: 0, expectedEquity: 0),
+          evalResult: EvaluationResult(
+              correct: true,
+              expectedAction: '-',
+              userEquity: 0,
+              expectedEquity: 0),
         ),
         TrainingPackSpot(
           id: 's2',
           title: 'Spot 2',
           hand: HandData(),
-          evalResult: EvaluationResult(correct: false, expectedAction: '-', userEquity: 0, expectedEquity: 0),
+          evalResult: EvaluationResult(
+              correct: false,
+              expectedAction: '-',
+              userEquity: 0,
+              expectedEquity: 0),
         ),
       ],
       createdAt: DateTime.now(),
@@ -39,4 +47,3 @@ void main() {
     expect(find.text('Spot 2'), findsOneWidget);
   });
 }
-

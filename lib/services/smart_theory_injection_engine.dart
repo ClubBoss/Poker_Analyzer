@@ -30,15 +30,13 @@ class SmartTheoryInjectionEngine {
     final stage = LearningPathStageLibrary.instance.getById(stageId);
     if (stage == null) return null;
 
-    final stageTags = {
-      for (final t in stage.tags) t.trim().toLowerCase()
-    }..removeWhere((t) => t.isEmpty);
+    final stageTags = {for (final t in stage.tags) t.trim().toLowerCase()}
+      ..removeWhere((t) => t.isEmpty);
     if (stageTags.isEmpty) return null;
 
     final gaps = await detector.getMissingTags();
-    final gapSet = {
-      for (final t in gaps) t.trim().toLowerCase()
-    }..removeWhere((t) => t.isEmpty);
+    final gapSet = {for (final t in gaps) t.trim().toLowerCase()}
+      ..removeWhere((t) => t.isEmpty);
 
     final history = await MistakeTagHistoryService.getRecentHistory(limit: 50);
     final mistakeTags = <String>{};

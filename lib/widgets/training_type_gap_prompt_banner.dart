@@ -29,10 +29,12 @@ class TrainingTypeGapPromptBanner extends StatefulWidget {
   });
 
   @override
-  State<TrainingTypeGapPromptBanner> createState() => _TrainingTypeGapPromptBannerState();
+  State<TrainingTypeGapPromptBanner> createState() =>
+      _TrainingTypeGapPromptBannerState();
 }
 
-class _TrainingTypeGapPromptBannerState extends State<TrainingTypeGapPromptBanner> {
+class _TrainingTypeGapPromptBannerState
+    extends State<TrainingTypeGapPromptBanner> {
   static const _hideKey = 'hideWeakTypeUntil';
 
   bool _loading = true;
@@ -103,7 +105,8 @@ class _TrainingTypeGapPromptBannerState extends State<TrainingTypeGapPromptBanne
 
   @override
   Widget build(BuildContext context) {
-    if (_loading || _pack == null || _type == null) return const SizedBox.shrink();
+    if (_loading || _pack == null || _type == null)
+      return const SizedBox.shrink();
     if (widget.selectedTags.isNotEmpty || widget.activeFilter != null) {
       return const SizedBox.shrink();
     }

@@ -36,7 +36,8 @@ class EvaluationResult {
         if (streets != null && streets!.isNotEmpty) 'streets': streets,
       };
 
-  factory EvaluationResult.fromJson(Map<String, dynamic> json) => EvaluationResult(
+  factory EvaluationResult.fromJson(Map<String, dynamic> json) =>
+      EvaluationResult(
         correct: json['correct'] as bool? ?? false,
         expectedAction: json['expectedAction'] as String? ?? '',
         userEquity: (json['userEquity'] as num?)?.toDouble() ?? 0.0,

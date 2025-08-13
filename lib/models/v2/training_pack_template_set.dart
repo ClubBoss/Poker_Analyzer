@@ -25,9 +25,9 @@ class TrainingPackTemplateSet {
     List<Map<String, dynamic>>? variants,
     List<TemplateSetEntry>? entries,
     List<LinePattern>? linePatterns,
-  }) : variants = variants ?? [],
-       entries = entries ?? [],
-       linePatterns = linePatterns ?? [];
+  })  : variants = variants ?? [],
+        entries = entries ?? [],
+        linePatterns = linePatterns ?? [];
 
   factory TrainingPackTemplateSet.fromJson(Map<String, dynamic> json) {
     // Support multiple input structures:
@@ -116,7 +116,8 @@ class TemplateSetEntry {
   final ConstraintSet constraints;
   final List<String> tags;
 
-  TemplateSetEntry({required this.name, required this.constraints, List<String>? tags})
+  TemplateSetEntry(
+      {required this.name, required this.constraints, List<String>? tags})
       : tags = tags ?? [];
 
   factory TemplateSetEntry.fromJson(Map<String, dynamic> json) {

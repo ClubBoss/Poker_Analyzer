@@ -27,7 +27,8 @@ void main() {
 
   test('stage unlocks after completion', () async {
     final logs = [
-      SessionLog(tags: const [], 
+      SessionLog(
+        tags: const [],
         sessionId: '1',
         templateId: 'pack1',
         startedAt: DateTime.now(),
@@ -48,7 +49,8 @@ void main() {
 
   test('stage remains locked when requirements unmet', () async {
     final logs = [
-      SessionLog(tags: const [], 
+      SessionLog(
+        tags: const [],
         sessionId: '1',
         templateId: 'pack1',
         startedAt: DateTime.now(),

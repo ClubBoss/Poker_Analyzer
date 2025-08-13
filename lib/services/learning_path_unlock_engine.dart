@@ -35,18 +35,21 @@ class LearningPathUnlockEngine {
         metaService = metaService ?? LessonTrackMetaService.instance,
         trackEngine = trackEngine,
         yamlLoader = yamlLoader ?? YamlLessonTrackLoader.instance,
-        _prereq = prereq ?? const {
-          'live_exploit': ['mtt_pro'],
-          'leak_fixer': ['live_exploit'],
-        },
-        _streakReq = streakRequirements ?? const {
-          'leak_fixer': 3,
-        },
+        _prereq = prereq ??
+            const {
+              'live_exploit': ['mtt_pro'],
+              'leak_fixer': ['live_exploit'],
+            },
+        _streakReq = streakRequirements ??
+            const {
+              'leak_fixer': 3,
+            },
         _goalReq = goalRequirements ?? const {},
-        _masteryReq = masteryRequirements ?? const {
-          'live_exploit': {'mtt_pro': 0.5},
-          'leak_fixer': {'live_exploit': 0.6},
-        };
+        _masteryReq = masteryRequirements ??
+            const {
+              'live_exploit': {'mtt_pro': 0.5},
+              'leak_fixer': {'live_exploit': 0.6},
+            };
 
   LearningPathUnlockEngine._default()
       : masteryService = TrackMasteryService(
@@ -149,7 +152,8 @@ class LearningPathUnlockEngine {
 
   Future<List<LessonTrack>> getUnlockableTracks() async {
     final now = DateTime.now();
-    if (_cachedList != null && now.difference(_cacheTime) < const Duration(minutes: 5)) {
+    if (_cachedList != null &&
+        now.difference(_cacheTime) < const Duration(minutes: 5)) {
       return _cachedList!;
     }
     final builtIn = trackEngine.getTracks();
@@ -174,8 +178,10 @@ class LearningPathUnlockEngine {
     final yaml = await yamlLoader.loadTracksFromAssets();
     final all = <LessonTrack>[...builtIn, ...yaml];
     String titleFor(String id) {
-      return all.firstWhere((e) => e.id == id, orElse: () => LessonTrack(
-              id: id, title: id, description: '', stepIds: const []))
+      return all
+          .firstWhere((e) => e.id == id,
+              orElse: () => LessonTrack(
+                  id: id, title: id, description: '', stepIds: const []))
           .title;
     }
 
@@ -233,4 +239,3 @@ class LearningPathUnlockEngine {
     return true;
   }
 }
-

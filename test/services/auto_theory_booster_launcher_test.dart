@@ -13,8 +13,7 @@ import 'package:poker_analyzer/services/training_session_service.dart';
 
 class _FakeTrigger extends TheoryBoostTriggerService {
   final TheoryMiniLessonNode? lesson;
-  _FakeTrigger(this.lesson)
-      : super(tracker: RecapCompletionTracker.instance);
+  _FakeTrigger(this.lesson) : super(tracker: RecapCompletionTracker.instance);
   @override
   Future<TheoryMiniLessonNode?> getBoostCandidate(String tag) async => lesson;
 }
@@ -27,7 +26,8 @@ void main() {
   });
 
   testWidgets('launches booster when candidate available', (tester) async {
-    final lesson = const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
+    final lesson =
+        const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
     final service = AutoTheoryBoosterLauncher(
       trigger: _FakeTrigger(lesson),
       cooldown: Duration.zero,
@@ -51,7 +51,8 @@ void main() {
   });
 
   testWidgets('respects cooldown', (tester) async {
-    final lesson = const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
+    final lesson =
+        const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
     final service = AutoTheoryBoosterLauncher(
       trigger: _FakeTrigger(lesson),
       cooldown: const Duration(seconds: 30),

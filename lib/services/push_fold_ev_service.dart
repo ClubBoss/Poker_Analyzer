@@ -80,12 +80,13 @@ class PushFoldEvService {
     for (var i = 0; i < acts.length; i++) {
       final a = acts[i];
       if (a.playerIndex == hero && a.action == 'push') {
-        final chipEv = a.ev ?? computePushEV(
-          heroBbStack: stack,
-          bbCount: spot.hand.playerCount - 1,
-          heroHand: hand,
-          anteBb: anteBb,
-        );
+        final chipEv = a.ev ??
+            computePushEV(
+              heroBbStack: stack,
+              bbCount: spot.hand.playerCount - 1,
+              heroHand: hand,
+              anteBb: anteBb,
+            );
         acts[i] = a.copyWith(
           ev: a.ev ?? chipEv,
           icmEv: computeIcmPushEV(

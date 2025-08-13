@@ -35,9 +35,8 @@ class _AdaptiveTheoryReminderBannerState
       }
     }
     await MiniLessonLibraryService.instance.loadAll();
-    final found = MiniLessonLibraryService.instance.findByTags(tags)
-        .take(2)
-        .toList();
+    final found =
+        MiniLessonLibraryService.instance.findByTags(tags).take(2).toList();
     if (mounted) {
       setState(() {
         _lessons = found;
@@ -110,4 +109,3 @@ class _AdaptiveTheoryReminderBannerState
     );
   }
 }
-

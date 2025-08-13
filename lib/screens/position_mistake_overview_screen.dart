@@ -34,19 +34,20 @@ class PositionMistakeOverviewScreen extends StatefulWidget {
   const PositionMistakeOverviewScreen({super.key, required this.dateFilter});
 
   @override
-  State<PositionMistakeOverviewScreen> createState() => _PositionMistakeOverviewScreenState();
+  State<PositionMistakeOverviewScreen> createState() =>
+      _PositionMistakeOverviewScreenState();
 }
 
-class _PositionMistakeOverviewScreenState extends State<PositionMistakeOverviewScreen> {
+class _PositionMistakeOverviewScreenState
+    extends State<PositionMistakeOverviewScreen> {
   MistakeSortOption _sort = MistakeSortOption.count;
 
   bool _sameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
-  Future<void> _exportPdf(
-      BuildContext context, SummaryResult summary, List<MapEntry<String, int>> entries) async {
-
+  Future<void> _exportPdf(BuildContext context, SummaryResult summary,
+      List<MapEntry<String, int>> entries) async {
     final regularFont = await pw.PdfGoogleFonts.robotoRegular();
     final boldFont = await pw.PdfGoogleFonts.robotoBold();
 
@@ -95,7 +96,8 @@ class _PositionMistakeOverviewScreenState extends State<PositionMistakeOverviewS
             pw.Text('Средняя точность: ${accuracy.toStringAsFixed(1)}%',
                 style: pw.TextStyle(font: regularFont)),
             pw.SizedBox(height: 4),
-            pw.Text('Доля рук с ошибками: ${mistakePercent.toStringAsFixed(1)}%',
+            pw.Text(
+                'Доля рук с ошибками: ${mistakePercent.toStringAsFixed(1)}%',
                 style: pw.TextStyle(font: regularFont)),
             pw.SizedBox(height: 16),
             pw.Table.fromTextArray(
@@ -109,8 +111,7 @@ class _PositionMistakeOverviewScreenState extends State<PositionMistakeOverviewS
 
     final bytes = await pdf.save();
     final dir = await getTemporaryDirectory();
-    final file =
-        File('${dir.path}/position_summary.pdf');
+    final file = File('${dir.path}/position_summary.pdf');
     await file.writeAsBytes(bytes);
 
     await Share.shareXFiles([XFile(file.path)], text: 'position_summary.pdf');
@@ -280,7 +281,8 @@ class _PositionMistakeOverviewScreenState extends State<PositionMistakeOverviewS
 class _PositionMistakeHandsScreen extends StatelessWidget {
   final String position;
   final String dateFilter;
-  const _PositionMistakeHandsScreen({required this.position, required this.dateFilter});
+  const _PositionMistakeHandsScreen(
+      {required this.position, required this.dateFilter});
 
   bool _sameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;

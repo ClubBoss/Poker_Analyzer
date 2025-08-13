@@ -24,7 +24,8 @@ class PackLibraryReviewEngine {
         if (!seen.add(v.toLowerCase())) warnings.add('duplicate_tag:$t');
       }
     }
-    final total = (pack.meta['totalWeight'] as num?)?.toDouble() ?? pack.spotCount.toDouble();
+    final total = (pack.meta['totalWeight'] as num?)?.toDouble() ??
+        pack.spotCount.toDouble();
     if (total > 0) {
       final ev = (pack.meta['evCovered'] as num?)?.toDouble() ?? 0;
       final icm = (pack.meta['icmCovered'] as num?)?.toDouble() ?? 0;
@@ -36,11 +37,15 @@ class PackLibraryReviewEngine {
     }
     final evScore = (pack.meta['evScore'] as num?)?.toDouble();
     final icmScore = (pack.meta['icmScore'] as num?)?.toDouble();
-    if (evScore != null && (evScore < 0 || evScore > 100)) warnings.add('bad_evScore:$evScore');
-    if (icmScore != null && (icmScore < 0 || icmScore > 100)) warnings.add('bad_icmScore:$icmScore');
+    if (evScore != null && (evScore < 0 || evScore > 100))
+      warnings.add('bad_evScore:$evScore');
+    if (icmScore != null && (icmScore < 0 || icmScore > 100))
+      warnings.add('bad_icmScore:$icmScore');
     if (pack.positions.isEmpty) suggestions.add('Specify positions');
-    if (pack.audience == null || pack.audience!.trim().isEmpty) suggestions.add('Specify audience');
-    if (pack.category == null || pack.category!.trim().isEmpty) suggestions.add('Specify category');
+    if (pack.audience == null || pack.audience!.trim().isEmpty)
+      suggestions.add('Specify audience');
+    if (pack.category == null || pack.category!.trim().isEmpty)
+      suggestions.add('Specify category');
     return YamlPackReviewReport(warnings: warnings, suggestions: suggestions);
   }
 

@@ -17,13 +17,19 @@ void main() {
     final t1 = TrainingPackTemplate(
       id: 't1',
       name: 'One',
-      spots: [for (int i = 0; i < 5; i++) TrainingPackSpot(id: 's1_\$i', hand: HandData())],
+      spots: [
+        for (int i = 0; i < 5; i++)
+          TrainingPackSpot(id: 's1_\$i', hand: HandData())
+      ],
       createdAt: DateTime.now(),
     );
     final t2 = TrainingPackTemplate(
       id: 't2',
       name: 'Two',
-      spots: [for (int i = 0; i < 5; i++) TrainingPackSpot(id: 's2_\$i', hand: HandData())],
+      spots: [
+        for (int i = 0; i < 5; i++)
+          TrainingPackSpot(id: 's2_\$i', hand: HandData())
+      ],
       createdAt: DateTime.now(),
     );
     SharedPreferences.setMockInitialValues({
@@ -43,7 +49,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(TrainingSessionScreen), findsOneWidget);
     final state = tester.state(find.byType(TrainingSessionScreen));
-    final service = Provider.of<TrainingSessionService>(state.context, listen: false);
+    final service =
+        Provider.of<TrainingSessionService>(state.context, listen: false);
     expect(service.spots.length, 3);
   });
 }

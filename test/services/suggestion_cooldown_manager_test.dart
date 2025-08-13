@@ -16,17 +16,18 @@ void main() {
 
   test('cooldown expires', () async {
     final past = DateTime.now().subtract(const Duration(hours: 50));
-    SharedPreferences.setMockInitialValues({
-      'suggestion_cooldowns': '{"a":"${past.toIso8601String()}"}'
-    });
-    expect(await SuggestionCooldownManager.isUnderCooldown('a', cooldown: const Duration(hours: 48)), isFalse);
+    SharedPreferences.setMockInitialValues(
+        {'suggestion_cooldowns': '{"a":"${past.toIso8601String()}"}'});
+    expect(
+        await SuggestionCooldownManager.isUnderCooldown('a',
+            cooldown: const Duration(hours: 48)),
+        isFalse);
   });
 
   test('old entries cleaned up', () async {
     final old = DateTime.now().subtract(const Duration(days: 61));
-    SharedPreferences.setMockInitialValues({
-      'suggestion_cooldowns': '{"old":"${old.toIso8601String()}"}'
-    });
+    SharedPreferences.setMockInitialValues(
+        {'suggestion_cooldowns': '{"old":"${old.toIso8601String()}"}'});
     await SuggestionCooldownManager.markSuggested('new');
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString('suggestion_cooldowns');

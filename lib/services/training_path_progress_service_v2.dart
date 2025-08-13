@@ -1,4 +1,3 @@
-
 import 'package:collection/collection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -123,21 +122,19 @@ class TrainingPathProgressServiceV2 {
       bool done = false;
       if (prog != null) {
         if (stage.subStages.isEmpty) {
-          done =
-              prog.hands >= stage.minHands &&
+          done = prog.hands >= stage.minHands &&
               prog.accuracy >= stage.requiredAccuracy;
         } else {
           done = true;
           for (final sub in stage.subStages) {
-            final stats = _computeStats(
-                LearningPathStageModel(
-                  id: '',
-                  title: '',
-                  description: '',
-                  packId: sub.packId,
-                  requiredAccuracy: sub.requiredAccuracy,
-                  minHands: sub.minHands,
-                ));
+            final stats = _computeStats(LearningPathStageModel(
+              id: '',
+              title: '',
+              description: '',
+              packId: sub.packId,
+              requiredAccuracy: sub.requiredAccuracy,
+              minHands: sub.minHands,
+            ));
             if (stats.hands < sub.minHands ||
                 stats.accuracy < sub.requiredAccuracy) {
               done = false;

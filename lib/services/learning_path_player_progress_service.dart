@@ -38,4 +38,3 @@ class LearningPathProgressService {
     await prefs.remove('$_prefsPrefix$pathId');
   }
 }
-

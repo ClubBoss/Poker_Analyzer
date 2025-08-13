@@ -57,14 +57,16 @@ class _FakeLibrary implements TrainingPackLibraryV2 {
     GameType? gameType,
     TrainingType? type,
     List<String>? tags,
-  }) => throw UnimplementedError();
+  }) =>
+      throw UnimplementedError();
 
   @override
-  TrainingPackTemplateV2? getById(String id) =>
-      _packs.firstWhere((p) => p.id == id, orElse: () => throw UnimplementedError());
+  TrainingPackTemplateV2? getById(String id) => _packs
+      .firstWhere((p) => p.id == id, orElse: () => throw UnimplementedError());
 
   @override
-  Future<void> loadFromFolder([String path = TrainingPackLibraryV2.packsDir]) async {}
+  Future<void> loadFromFolder(
+      [String path = TrainingPackLibraryV2.packsDir]) async {}
 
   @override
   Future<void> reload() async {}
@@ -125,4 +127,3 @@ void main() {
     controller.close();
   });
 }
-

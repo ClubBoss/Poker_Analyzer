@@ -12,10 +12,12 @@ class _FakeMasteryService extends TagMasteryService {
       : super(logs: SessionLogService(sessions: TrainingSessionService()));
 
   @override
-  Future<Map<String, double>> computeMastery({bool force = false}) async => _map;
+  Future<Map<String, double>> computeMastery({bool force = false}) async =>
+      _map;
 }
 
-TrainingPackTemplateV2 tpl({required String id, required List<String> tags, double score = 1.0}) {
+TrainingPackTemplateV2 tpl(
+    {required String id, required List<String> tags, double score = 1.0}) {
   return TrainingPackTemplateV2(
     id: id,
     name: id,

@@ -42,4 +42,3 @@ class TrainingPackLibraryExporter {
         'spots': [for (final s in pack.spots) s.toYaml()],
       };
 }
-

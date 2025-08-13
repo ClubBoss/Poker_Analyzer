@@ -131,10 +131,7 @@ class TrainingProgressService {
       final spotCount = p.spots.isNotEmpty ? p.spots.length : p.spotCount;
       if (map == null || spotCount == 0) continue;
       if (map.length < spotCount) continue;
-      final avg = map.values
-              .map((a) => a.accuracy)
-              .sum /
-          spotCount;
+      final avg = map.values.map((a) => a.accuracy).sum / spotCount;
       if (avg >= 0.9) completed += 1;
     }
     final completionRate = completed / allPacks.length;
@@ -180,11 +177,13 @@ class TrainingProgressService {
 
     // Compute streak based on attempts per day.
     final days = attempts
-        .map((a) => DateTime(a.timestamp.year, a.timestamp.month, a.timestamp.day))
+        .map((a) =>
+            DateTime(a.timestamp.year, a.timestamp.month, a.timestamp.day))
         .toSet();
     var streak = 0;
-    for (var i = 0; ; i++) {
-      final day = DateTime(now.year, now.month, now.day).subtract(Duration(days: i));
+    for (var i = 0;; i++) {
+      final day =
+          DateTime(now.year, now.month, now.day).subtract(Duration(days: i));
       if (days.contains(day)) {
         streak += 1;
       } else {

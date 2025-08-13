@@ -32,11 +32,13 @@ class MistakeCategorizationEngine {
     } else if ((a == PlayerAction.check || a == PlayerAction.call) &&
         (exp == 'raise' || exp == 'bet' || exp == 'push')) {
       r = 'Missed Value';
-    } else if ((a == PlayerAction.check || a == PlayerAction.fold) && exp == 'call') {
+    } else if ((a == PlayerAction.check || a == PlayerAction.fold) &&
+        exp == 'call') {
       r = 'Too Passive';
     } else if ((a == PlayerAction.raise || a == PlayerAction.push) &&
         (exp == 'check' || exp == 'call' || exp == 'fold')) {
-      if (exp == 'call' && (pos == HeroPosition.utg || pos == HeroPosition.mp)) {
+      if (exp == 'call' &&
+          (pos == HeroPosition.utg || pos == HeroPosition.mp)) {
         r = 'Wrong Push';
       } else {
         r = 'Too Aggro';

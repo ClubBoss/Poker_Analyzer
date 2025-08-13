@@ -36,8 +36,7 @@ void main() {
     final engine = TrainingPackGeneratorEngineV2();
     final spots = engine.generate(set);
     expect(spots.length, 2);
-    final lineSpot =
-        spots.firstWhere((s) => s.tags.contains('flopVillainBet'));
+    final lineSpot = spots.firstWhere((s) => s.tags.contains('flopVillainBet'));
     expect(lineSpot.templateSourceId, 'base');
     expect(lineSpot.hand.position, HeroPosition.sb);
     expect(lineSpot.villainAction, 'villainBet');

@@ -13,9 +13,7 @@ class SessionAccuracyBarChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cutoff = DateTime.now().subtract(const Duration(days: 7));
-    final recent = sessions
-        .where((s) => s.date.isAfter(cutoff))
-        .toList()
+    final recent = sessions.where((s) => s.date.isAfter(cutoff)).toList()
       ..sort((a, b) => a.date.compareTo(b.date));
 
     if (recent.isEmpty) {
@@ -68,8 +66,10 @@ class SessionAccuracyBarChart extends StatelessWidget {
                   const FlLine(color: Colors.white24, strokeWidth: 1),
             ),
             titlesData: FlTitlesData(
-              rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              rightTitles:
+                  const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              topTitles:
+                  const AxisTitles(sideTitles: SideTitles(showTitles: false)),
               leftTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,

@@ -25,7 +25,8 @@ class TheoryLinkPolicyEngine {
       final raw = _prefs.getString(key);
       if (raw == null) continue;
       final last = DateTime.tryParse(raw);
-      if (last != null && now.difference(last) < Duration(hours: cfg.perTagCooldownHours)) {
+      if (last != null &&
+          now.difference(last) < Duration(hours: cfg.perTagCooldownHours)) {
         return false;
       }
     }

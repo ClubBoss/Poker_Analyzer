@@ -15,8 +15,8 @@ class PlayerZoneAnimations {
       ),
       const TweenSequenceItem(tween: ConstantTween(1.0), weight: 60),
       TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 0.0)
-            .chain(CurveTween(curve: Curves.easeIn)),
+        tween:
+            Tween(begin: 1.0, end: 0.0).chain(CurveTween(curve: Curves.easeIn)),
         weight: 20,
       ),
     ]).animate(winnerGlowController);
@@ -44,8 +44,8 @@ class PlayerZoneAnimations {
         weight: 50,
       ),
       TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 0.0)
-            .chain(CurveTween(curve: Curves.easeIn)),
+        tween:
+            Tween(begin: 1.0, end: 0.0).chain(CurveTween(curve: Curves.easeIn)),
         weight: 50,
       ),
     ]).animate(winnerHighlightController);
@@ -61,8 +61,8 @@ class PlayerZoneAnimations {
         weight: 50,
       ),
       TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 0.0)
-            .chain(CurveTween(curve: Curves.easeIn)),
+        tween:
+            Tween(begin: 1.0, end: 0.0).chain(CurveTween(curve: Curves.easeIn)),
         weight: 50,
       ),
     ]).animate(allInWinGlowController);
@@ -78,11 +78,9 @@ class PlayerZoneAnimations {
 
   void playWinnerGlow() => winnerGlowController.forward(from: 0.0);
   void resetWinnerGlow() => winnerGlowController.reset();
-  void playWinnerHighlight() =>
-      winnerHighlightController.forward(from: 0.0);
+  void playWinnerHighlight() => winnerHighlightController.forward(from: 0.0);
   void resetWinnerHighlight() => winnerHighlightController.reset();
-  void playAllInWinGlow() =>
-      allInWinGlowController.forward(from: 0.0);
+  void playAllInWinGlow() => allInWinGlowController.forward(from: 0.0);
 
   void dispose() {
     winnerGlowController.dispose();

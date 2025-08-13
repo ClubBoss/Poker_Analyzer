@@ -33,7 +33,8 @@ class SkillBoostLogService extends ChangeNotifier {
 
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_key, jsonEncode([for (final l in _logs) l.toJson()]));
+    await prefs.setString(
+        _key, jsonEncode([for (final l in _logs) l.toJson()]));
   }
 
   Future<void> add(SkillBoostLogEntry entry) async {

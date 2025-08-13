@@ -1,4 +1,5 @@
 import 'evaluation_result.dart';
+
 class ResultEntry {
   final String name;
   final String userAction;
@@ -23,7 +24,7 @@ class ResultEntry {
   factory ResultEntry.fromJson(Map<String, dynamic> json) => ResultEntry(
         name: json['name'] as String? ?? '',
         userAction: json['userAction'] as String? ?? '-',
-        evaluation:
-            EvaluationResult.fromJson(Map<String, dynamic>.from(json['evaluation'] as Map)),
+        evaluation: EvaluationResult.fromJson(
+            Map<String, dynamic>.from(json['evaluation'] as Map)),
       );
 }

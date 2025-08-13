@@ -63,8 +63,7 @@ class HistoryListItem extends StatelessWidget {
                       Consumer<TagService>(
                         builder: (context, service, _) => Chip(
                           label: Text(t),
-                          backgroundColor:
-                              colorFromHex(service.colorOf(t)),
+                          backgroundColor: colorFromHex(service.colorOf(t)),
                         ),
                       )
                   ],

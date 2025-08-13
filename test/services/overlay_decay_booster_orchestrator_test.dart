@@ -14,7 +14,8 @@ class _FakeDecay extends TheoryTagDecayTracker {
   _FakeDecay(this.scores);
 
   @override
-  Future<Map<String, double>> computeDecayScores({DateTime? now}) async => scores;
+  Future<Map<String, double>> computeDecayScores({DateTime? now}) async =>
+      scores;
 }
 
 class _FakeLibrary implements MiniLessonLibraryService {
@@ -44,7 +45,8 @@ class _FakeLibrary implements MiniLessonLibraryService {
   }
 
   @override
-  List<TheoryMiniLessonNode> getByTags(Set<String> tags) => findByTags(tags.toList());
+  List<TheoryMiniLessonNode> getByTags(Set<String> tags) =>
+      findByTags(tags.toList());
 }
 
 void main() {
@@ -56,8 +58,10 @@ void main() {
 
   test('findCandidateLesson returns decayed lesson', () async {
     final lessons = [
-      const TheoryMiniLessonNode(id: 'l1', title: 'A', content: '', tags: ['a']),
-      const TheoryMiniLessonNode(id: 'l2', title: 'B', content: '', tags: ['b']),
+      const TheoryMiniLessonNode(
+          id: 'l1', title: 'A', content: '', tags: ['a']),
+      const TheoryMiniLessonNode(
+          id: 'l2', title: 'B', content: '', tags: ['b']),
     ];
     final service = OverlayDecayBoosterOrchestrator(
       decay: _FakeDecay({'a': 60, 'b': 20}),
@@ -72,10 +76,12 @@ void main() {
   test('recently viewed lesson skipped', () async {
     final now = DateTime.now();
     SharedPreferences.setMockInitialValues({
-      'mini_lesson_progress_l1': jsonEncode({'lastViewed': now.toIso8601String()}),
+      'mini_lesson_progress_l1':
+          jsonEncode({'lastViewed': now.toIso8601String()}),
     });
     final lessons = [
-      const TheoryMiniLessonNode(id: 'l1', title: 'A', content: '', tags: ['a']),
+      const TheoryMiniLessonNode(
+          id: 'l1', title: 'A', content: '', tags: ['a']),
     ];
     final service = OverlayDecayBoosterOrchestrator(
       decay: _FakeDecay({'a': 60}),
@@ -83,8 +89,8 @@ void main() {
       progress: MiniLessonProgressTracker.instance,
       inbox: InboxBoosterService(),
     );
-    final lesson = await service.findCandidateLesson(now: now.add(const Duration(days: 1)));
+    final lesson = await service.findCandidateLesson(
+        now: now.add(const Duration(days: 1)));
     expect(lesson, isNull);
   });
 }
-

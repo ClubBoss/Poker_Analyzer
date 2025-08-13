@@ -15,7 +15,8 @@ class EvStatsChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final hands = context.watch<SavedHandManagerService>().hands;
     final now = DateTime.now().toLocal();
-    final start = DateTime(now.year, now.month, now.day).subtract(Duration(days: days - 1));
+    final start = DateTime(now.year, now.month, now.day)
+        .subtract(Duration(days: days - 1));
     final dates = [for (int i = 0; i < days; i++) start.add(Duration(days: i))];
     final map = <DateTime, _DayStat>{};
     for (final h in hands) {
@@ -64,11 +65,14 @@ class EvStatsChart extends StatelessWidget {
             show: true,
             drawVerticalLine: false,
             horizontalInterval: interval,
-            getDrawingHorizontalLine: (v) => const FlLine(color: Colors.white24, strokeWidth: 1),
+            getDrawingHorizontalLine: (v) =>
+                const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -86,7 +90,8 @@ class EvStatsChart extends StatelessWidget {
                 interval: 1,
                 getTitlesWidget: (value, meta) {
                   final i = value.toInt();
-                  if (i < 0 || i >= dates.length) return const SizedBox.shrink();
+                  if (i < 0 || i >= dates.length)
+                    return const SizedBox.shrink();
                   if (i % step != 0 && i != dates.length - 1) {
                     return const SizedBox.shrink();
                   }

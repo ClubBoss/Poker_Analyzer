@@ -37,52 +37,59 @@ void main() {
   }
 
   test('btn overfold classified', () {
-    final a = attempt(user: 'fold', correct: 'push', pos: HeroPosition.btn, ev: 1);
+    final a =
+        attempt(user: 'fold', correct: 'push', pos: HeroPosition.btn, ev: 1);
     final tags = engine.tag(a);
     expect(tags, contains(MistakeTag.overfoldBtn));
     expect(tags, contains(MistakeTag.missedEvPush));
   });
 
   test('loose call bb classified', () {
-    final a = attempt(user: 'call', correct: 'fold', pos: HeroPosition.bb, ev: -1);
+    final a =
+        attempt(user: 'call', correct: 'fold', pos: HeroPosition.bb, ev: -1);
     final tags = engine.tag(a);
     expect(tags, contains(MistakeTag.looseCallBb));
   });
 
   test('loose call sb classified', () {
-    final a = attempt(user: 'call', correct: 'fold', pos: HeroPosition.sb, ev: -1);
+    final a =
+        attempt(user: 'call', correct: 'fold', pos: HeroPosition.sb, ev: -1);
     final tags = engine.tag(a);
     expect(tags, contains(MistakeTag.looseCallSb));
   });
 
   test('loose call co classified', () {
-    final a = attempt(user: 'call', correct: 'fold', pos: HeroPosition.co, ev: -1);
+    final a =
+        attempt(user: 'call', correct: 'fold', pos: HeroPosition.co, ev: -1);
     final tags = engine.tag(a);
     expect(tags, contains(MistakeTag.looseCallCo));
   });
 
   test('overpush classified', () {
-    final a = attempt(user: 'push', correct: 'fold', pos: HeroPosition.utg, ev: -1);
+    final a =
+        attempt(user: 'push', correct: 'fold', pos: HeroPosition.utg, ev: -1);
     final tags = engine.tag(a);
     expect(tags, contains(MistakeTag.overpush));
   });
 
   test('missed call classified', () {
-    final a = attempt(user: 'fold', correct: 'call', pos: HeroPosition.bb, ev: 1);
+    final a =
+        attempt(user: 'fold', correct: 'call', pos: HeroPosition.bb, ev: 1);
     final tags = engine.tag(a);
     expect(tags, contains(MistakeTag.missedEvCall));
   });
 
   test('missed raise classified', () {
-    final a = attempt(user: 'call', correct: 'raise', pos: HeroPosition.co, ev: 2);
+    final a =
+        attempt(user: 'call', correct: 'raise', pos: HeroPosition.co, ev: 2);
     final tags = engine.tag(a);
     expect(tags, contains(MistakeTag.missedEvRaise));
   });
 
   test('short stack overfold classified', () {
-    final a = attempt(user: 'fold', correct: 'push', pos: HeroPosition.sb, stack: 8, ev: 1);
+    final a = attempt(
+        user: 'fold', correct: 'push', pos: HeroPosition.sb, stack: 8, ev: 1);
     final tags = engine.tag(a);
     expect(tags, contains(MistakeTag.overfoldShortStack));
   });
 }
-

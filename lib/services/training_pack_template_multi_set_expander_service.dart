@@ -30,4 +30,3 @@ class TrainingPackTemplateMultiSetExpanderService {
     return results;
   }
 }
-

@@ -30,7 +30,8 @@ double computeIcmPushEV({
 
   final stacks = [for (final s in chipStacksBb) s.toDouble()];
   final pre = icmValue(stacks, heroIndex);
-  stacks[heroIndex] = (stacks[heroIndex] + chipPushEv).clamp(0, double.infinity);
+  stacks[heroIndex] =
+      (stacks[heroIndex] + chipPushEv).clamp(0, double.infinity);
   final post = icmValue(stacks, heroIndex);
   return post - pre;
 }
@@ -88,7 +89,8 @@ double computeMultiwayIcmEV({
   final stacks = [for (final s in chipStacksBb) s.toDouble()];
   final pre = icmValue(stacks, heroIndex);
   final delta = chipPushEv / callerIndices.length;
-  stacks[heroIndex] = (stacks[heroIndex] + chipPushEv).clamp(0, double.infinity);
+  stacks[heroIndex] =
+      (stacks[heroIndex] + chipPushEv).clamp(0, double.infinity);
   for (final i in callerIndices) {
     if (i != heroIndex) {
       stacks[i] = (stacks[i] - delta).clamp(0, double.infinity);
@@ -97,4 +99,3 @@ double computeMultiwayIcmEV({
   final post = icmValue(stacks, heroIndex);
   return post - pre;
 }
-

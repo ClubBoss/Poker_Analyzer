@@ -80,11 +80,9 @@ class TrainingPackLibraryV2 {
             (themeSet == null || _themeMatches(p, themeSet)) &&
             (level == null || p.meta['level']?.toString() == level.name) &&
             (goalStr == null ||
-                ((p.goal.isNotEmpty
-                        ? p.goal
-                        : p.meta['goal']?.toString() ?? '')
-                    .trim()
-                    .toLowerCase() ==
+                ((p.goal.isNotEmpty ? p.goal : p.meta['goal']?.toString() ?? '')
+                        .trim()
+                        .toLowerCase() ==
                     goalStr)))
           p
     ];

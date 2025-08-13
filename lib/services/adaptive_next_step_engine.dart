@@ -30,8 +30,9 @@ class AdaptiveNextStepEngine {
         trackEngine = trackEngine,
         loader = loader ?? LessonLoaderService.instance,
         tagProvider = tagProvider ?? LessonStepTagService.instance,
-        coverageService =
-            coverage ?? TagCoverageService(provider: tagProvider ?? LessonStepTagService.instance),
+        coverageService = coverage ??
+            TagCoverageService(
+                provider: tagProvider ?? LessonStepTagService.instance),
         _stepsOverride = steps,
         _tracksOverride = tracks;
 
@@ -94,4 +95,3 @@ class AdaptiveNextStepEngine {
     return bestId;
   }
 }
-

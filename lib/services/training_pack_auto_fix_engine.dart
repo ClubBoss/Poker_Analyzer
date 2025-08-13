@@ -32,7 +32,8 @@ class TrainingPackAutoFixEngine {
     if (icmScore == null || icmScore < 0 || icmScore > 100) {
       pack.meta['icmScore'] = 0;
     }
-    if (pack.meta['totalWeight'] is! num || (pack.meta['totalWeight'] as num) <= 0) {
+    if (pack.meta['totalWeight'] is! num ||
+        (pack.meta['totalWeight'] as num) <= 0) {
       pack.meta['totalWeight'] = pack.spotCount;
     }
     pack.spotCount = pack.spots.length;

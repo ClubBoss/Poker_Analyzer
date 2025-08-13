@@ -8,7 +8,8 @@ class LibraryPackBadgeRenderer extends StatefulWidget {
   const LibraryPackBadgeRenderer({super.key, required this.packId});
 
   @override
-  State<LibraryPackBadgeRenderer> createState() => _LibraryPackBadgeRendererState();
+  State<LibraryPackBadgeRenderer> createState() =>
+      _LibraryPackBadgeRendererState();
 }
 
 class _LibraryPackBadgeRendererState extends State<LibraryPackBadgeRenderer> {

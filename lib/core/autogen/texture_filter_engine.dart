@@ -81,4 +81,3 @@ class TextureFilterEngine {
     return result;
   }
 }
-

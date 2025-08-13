@@ -26,7 +26,8 @@ class BoardRevealService {
 
   bool get showFullBoard => _showFullBoard;
 
-  int get revealStreet => _showFullBoard ? boardSync.boardStreet : _revealStreet;
+  int get revealStreet =>
+      _showFullBoard ? boardSync.boardStreet : _revealStreet;
 
   /// Visible board cards after applying the reveal state.
   List<CardModel> get revealedBoardCards => boardSync.revealedBoardCards;
@@ -46,7 +47,8 @@ class BoardRevealService {
     }
     _controllers.clear();
     _controllers.addAll(
-      List.generate(5, (_) => AnimationController(vsync: vsync, duration: revealDuration)),
+      List.generate(5,
+          (_) => AnimationController(vsync: vsync, duration: revealDuration)),
     );
     animations = _controllers
         .map((c) => CurvedAnimation(parent: c, curve: Curves.easeIn))
@@ -83,11 +85,14 @@ class BoardRevealService {
   /// [onComplete] is called when the transition finishes and the lock is
   /// released.
   void startBoardTransition([VoidCallback? onComplete]) {
-    final targetVisible = BoardSyncService.stageCardCounts[boardSync.currentStreet];
-    final revealCount = max(0, targetVisible - boardSync.revealedBoardCards.length);
+    final targetVisible =
+        BoardSyncService.stageCardCounts[boardSync.currentStreet];
+    final revealCount =
+        max(0, targetVisible - boardSync.revealedBoardCards.length);
     final duration = Duration(
       milliseconds: revealDuration.inMilliseconds +
-          revealStagger.inMilliseconds * (revealCount > 1 ? revealCount - 1 : 0),
+          revealStagger.inMilliseconds *
+              (revealCount > 1 ? revealCount - 1 : 0),
     );
     lockService.startBoardTransition(duration, onComplete);
   }
@@ -100,8 +105,9 @@ class BoardRevealService {
     final currentSeq = _sequenceId;
     for (int i = 0; i < 5; i++) {
       final oldCard = i < _prevCards.length ? _prevCards[i] : null;
-      final newCard =
-          i < boardSync.revealedBoardCards.length ? boardSync.revealedBoardCards[i] : null;
+      final newCard = i < boardSync.revealedBoardCards.length
+          ? boardSync.revealedBoardCards[i]
+          : null;
       final shouldShow = i < visible && newCard != null;
       if (shouldShow && oldCard == null) {
         _controllers[i].value = 0;
@@ -183,4 +189,3 @@ class BoardRevealService {
     });
   }
 }
-

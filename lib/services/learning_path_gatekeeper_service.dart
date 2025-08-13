@@ -1,4 +1,3 @@
-
 import '../models/learning_path_stage_model.dart';
 import '../services/learning_path_registry_service.dart';
 import '../services/training_path_progress_service_v2.dart';
@@ -67,8 +66,7 @@ class LearningPathGatekeeperService {
         var allow = true;
         if (i > 0) {
           final prev = template.sections[i - 1];
-          allow = prev.stageIds
-              .every((id) => progress.getStageCompletion(id));
+          allow = prev.stageIds.every((id) => progress.getStageCompletion(id));
         }
         if (!allow) continue;
         for (final id in section.stageIds) {
@@ -142,4 +140,3 @@ class LearningPathGatekeeperService {
     return progress.logs.logs.length >= minSessions;
   }
 }
-

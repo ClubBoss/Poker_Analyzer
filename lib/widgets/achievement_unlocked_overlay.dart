@@ -14,7 +14,8 @@ class AchievementUnlockedOverlay extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<AchievementUnlockedOverlay> createState() => _AchievementUnlockedOverlayState();
+  State<AchievementUnlockedOverlay> createState() =>
+      _AchievementUnlockedOverlayState();
 }
 
 class _AchievementUnlockedOverlayState extends State<AchievementUnlockedOverlay>
@@ -106,7 +107,8 @@ class _AchievementUnlockedOverlayState extends State<AchievementUnlockedOverlay>
   }
 }
 
-void showAchievementUnlockedOverlay(BuildContext context, IconData icon, String title) {
+void showAchievementUnlockedOverlay(
+    BuildContext context, IconData icon, String title) {
   final overlay = Overlay.of(context);
   late OverlayEntry entry;
   entry = OverlayEntry(
@@ -118,4 +120,3 @@ void showAchievementUnlockedOverlay(BuildContext context, IconData icon, String 
   );
   overlay.insert(entry);
 }
-

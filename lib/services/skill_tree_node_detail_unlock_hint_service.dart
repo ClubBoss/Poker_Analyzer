@@ -29,8 +29,7 @@ class SkillTreeNodeDetailUnlockHintService {
     await progress.isCompleted('');
     final completed = progress.completedNodeIds.value;
 
-    final unlockedEval =
-        SkillTreeUnlockEvaluator(progress: progress);
+    final unlockedEval = SkillTreeUnlockEvaluator(progress: progress);
     final unlocked =
         unlockedEval.getUnlockedNodes(track).map((n) => n.id).toSet();
 
@@ -60,7 +59,8 @@ class SkillTreeNodeDetailUnlockHintService {
 
     // Stage gating: check if the node's stage is unlocked.
     if (!stageEvaluator.isStageUnlocked(track, node.level, completed)) {
-      final blockers = stageEvaluator.getBlockingNodes(track, node.level, completed);
+      final blockers =
+          stageEvaluator.getBlockingNodes(track, node.level, completed);
       if (blockers.isNotEmpty) {
         final names = _formatNames(blockers.map((n) => n.title).toList());
         return 'Complete $names to unlock this node';
@@ -95,4 +95,3 @@ class SkillTreeNodeDetailUnlockHintService {
     return titles.first;
   }
 }
-

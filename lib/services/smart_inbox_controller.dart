@@ -23,10 +23,8 @@ class SmartInboxController {
         inboxLimiter = inboxLimiter ?? SmartBoosterInboxLimiterService(),
         diversityScheduler =
             diversityScheduler ?? SmartBoosterDiversitySchedulerService(),
-        deduplicator =
-            deduplicator ?? SmartInboxItemDeduplicationService(),
-        priorityScorer =
-            priorityScorer ?? SmartInboxPriorityScorerService(),
+        deduplicator = deduplicator ?? SmartInboxItemDeduplicationService(),
+        priorityScorer = priorityScorer ?? SmartInboxPriorityScorerService(),
         decayBooster = decayBooster ?? const SmartDecayInboxBoosterService();
 
   final SmartPinnedBlockBoosterProvider boosterProvider;

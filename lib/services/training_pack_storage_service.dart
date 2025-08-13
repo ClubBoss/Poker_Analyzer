@@ -77,8 +77,10 @@ class TrainingPackStorageService extends ChangeNotifier {
     }
     _hotCache
       ..clear()
-      ..addAll([for (final p in _packs) if (count[p.id] != null) p]
-        ..sort((a, b) {
+      ..addAll([
+        for (final p in _packs)
+          if (count[p.id] != null) p
+      ]..sort((a, b) {
           final r = (count[b.id] ?? 0).compareTo(count[a.id] ?? 0);
           if (r != 0) return r;
           return b.lastAttemptDate.compareTo(a.lastAttemptDate);
@@ -105,8 +107,7 @@ class TrainingPackStorageService extends ChangeNotifier {
       ..addAll([
         for (final p in _packs)
           if (count[p.id] != null) (p, count[p.id]!)
-      ]
-        ..sort((a, b) {
+      ]..sort((a, b) {
           final r = b.$2.compareTo(a.$2);
           if (r != 0) return r;
           return b.$1.lastAttemptDate.compareTo(a.$1.lastAttemptDate);
@@ -157,8 +158,7 @@ class TrainingPackStorageService extends ChangeNotifier {
     final list = [
       for (final p in _packs)
         if (count[p.id] != null) (p, count[p.id]!)
-    ]
-      ..sort((a, b) {
+    ]..sort((a, b) {
         final r = b.$2.compareTo(a.$2);
         if (r != 0) return r;
         return b.$1.lastAttemptDate.compareTo(a.$1.lastAttemptDate);
@@ -169,7 +169,6 @@ class TrainingPackStorageService extends ChangeNotifier {
   final Map<String, List<PackSnapshot>> _snapshots = {};
   List<PackSnapshot> snapshotsOf(TrainingPack pack) =>
       List.unmodifiable(_snapshots[pack.id] ?? const []);
-
 
   Future<File> _getStorageFile() async {
     final dir = await getApplicationDocumentsDirectory();
@@ -185,15 +184,15 @@ class TrainingPackStorageService extends ChangeNotifier {
         if (data is List) {
           _packs
             ..clear()
-            ..addAll(data.whereType<Map>().map((e) =>
-                TrainingPack.fromJson(Map<String, dynamic>.from(e))));
+            ..addAll(data.whereType<Map>().map(
+                (e) => TrainingPack.fromJson(Map<String, dynamic>.from(e))));
         } else if (data is Map) {
           final packsJson = data['packs'];
           if (packsJson is List) {
             _packs
               ..clear()
-              ..addAll(packsJson.whereType<Map>().map((e) =>
-                  TrainingPack.fromJson(Map<String, dynamic>.from(e))));
+              ..addAll(packsJson.whereType<Map>().map(
+                  (e) => TrainingPack.fromJson(Map<String, dynamic>.from(e))));
           }
           final snapsJson = data['snapshots'];
           if (snapsJson is Map) {
@@ -202,8 +201,7 @@ class TrainingPackStorageService extends ChangeNotifier {
               if (value is List) {
                 _snapshots[key] = [
                   for (final s in value.whereType<Map>())
-                    PackSnapshot.fromJson(
-                        Map<String, dynamic>.from(s))
+                    PackSnapshot.fromJson(Map<String, dynamic>.from(s))
                 ];
               }
             });
@@ -246,8 +244,8 @@ class TrainingPackStorageService extends ChangeNotifier {
   Future<void> loadBuiltInPacks() async {
     try {
       final manifest = await _manifestFuture;
-      final paths = manifest.keys
-          .where((e) => e.startsWith('assets/training_packs/') && e.endsWith('.json'));
+      final paths = manifest.keys.where(
+          (e) => e.startsWith('assets/training_packs/') && e.endsWith('.json'));
       for (final p in paths) {
         final data = jsonDecode(await rootBundle.loadString(p));
         if (data is Map<String, dynamic>) {
@@ -305,8 +303,8 @@ class TrainingPackStorageService extends ChangeNotifier {
 
   Future<File?> exportPack(TrainingPack pack) async {
     if (pack.isBuiltIn) return null;
-    final dir =
-        await getDownloadsDirectory() ?? await getApplicationDocumentsDirectory();
+    final dir = await getDownloadsDirectory() ??
+        await getApplicationDocumentsDirectory();
     final safeName = pack.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
     final file = File('${dir.path}/$safeName.json');
     await file.writeAsString(jsonEncode(pack.toJson()));
@@ -396,7 +394,8 @@ class TrainingPackStorageService extends ChangeNotifier {
   Future<void> clearProgress(TrainingPack pack) async {
     final index = _packs.indexOf(pack);
     if (index == -1 || pack.history.isEmpty) return;
-    final history = List<TrainingSessionResult>.from(pack.history)..removeLast();
+    final history = List<TrainingSessionResult>.from(pack.history)
+      ..removeLast();
     final updated = pack.copyWith(history: history);
     _packs[index] = updated;
     final prefs = await SharedPreferences.getInstance();

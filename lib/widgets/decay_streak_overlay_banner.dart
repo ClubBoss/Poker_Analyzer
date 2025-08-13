@@ -14,7 +14,8 @@ class DecayStreakOverlayBanner extends StatefulWidget {
   });
 
   @override
-  State<DecayStreakOverlayBanner> createState() => _DecayStreakOverlayBannerState();
+  State<DecayStreakOverlayBanner> createState() =>
+      _DecayStreakOverlayBannerState();
 }
 
 class _DecayStreakOverlayBannerState extends State<DecayStreakOverlayBanner>

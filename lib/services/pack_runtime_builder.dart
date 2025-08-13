@@ -68,8 +68,7 @@ class PackRuntimeBuilder {
       range = await RangeLibraryService.instance.getRange(variant.rangeId!);
     }
     if (range.isEmpty) {
-      range = tpl.heroRange ??
-          PackGeneratorService.topNHands(25).toList();
+      range = tpl.heroRange ?? PackGeneratorService.topNHands(25).toList();
     }
     if (range.isEmpty) {
       ErrorLogger.instance.logError('No range for ${variant.rangeId}');

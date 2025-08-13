@@ -103,8 +103,9 @@ class _PackCompletionBarChartState extends State<PackCompletionBarChart>
     final groups = <BarChartGroupData>[];
     for (var i = 0; i < filtered.length; i++) {
       final stat = filtered[i];
-      final percent =
-          stat.total > 0 ? (stat.total - stat.mistakes) * 100 / stat.total : 0.0;
+      final percent = stat.total > 0
+          ? (stat.total - stat.mistakes) * 100 / stat.total
+          : 0.0;
       groups.add(
         BarChartGroupData(
           x: i,
@@ -150,8 +151,10 @@ class _PackCompletionBarChartState extends State<PackCompletionBarChart>
                 },
               ),
               titlesData: FlTitlesData(
-                leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                leftTitles:
+                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                topTitles:
+                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                 bottomTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
@@ -171,7 +174,8 @@ class _PackCompletionBarChartState extends State<PackCompletionBarChart>
                     },
                   ),
                 ),
-                rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                rightTitles:
+                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
               ),
             ),
           ),
@@ -211,9 +215,8 @@ class _BarTooltipState extends State<_BarTooltip> {
     final completed = s.total - s.mistakes;
     final percent = s.total > 0 ? completed * 100 / s.total : 0.0;
     final remain = s.total - completed;
-    final last = s.lastSession != null
-        ? formatDate(s.lastSession!)
-        : 'нет данных';
+    final last =
+        s.lastSession != null ? formatDate(s.lastSession!) : 'нет данных';
     return Positioned(
       left: widget.position.dx,
       top: widget.position.dy,
@@ -257,4 +260,3 @@ class _BarTooltipState extends State<_BarTooltip> {
     );
   }
 }
-

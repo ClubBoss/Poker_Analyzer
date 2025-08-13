@@ -7,10 +7,12 @@ class DailyChallengeHistoryScreen extends StatefulWidget {
   const DailyChallengeHistoryScreen({super.key});
 
   @override
-  State<DailyChallengeHistoryScreen> createState() => _DailyChallengeHistoryScreenState();
+  State<DailyChallengeHistoryScreen> createState() =>
+      _DailyChallengeHistoryScreenState();
 }
 
-class _DailyChallengeHistoryScreenState extends State<DailyChallengeHistoryScreen> {
+class _DailyChallengeHistoryScreenState
+    extends State<DailyChallengeHistoryScreen> {
   DateTime _focusedMonth = DateTime(DateTime.now().year, DateTime.now().month);
   Set<DateTime> _history = {};
 
@@ -26,7 +28,8 @@ class _DailyChallengeHistoryScreenState extends State<DailyChallengeHistoryScree
 
   List<DateTime> _daysForGrid() {
     final firstOfMonth = DateTime(_focusedMonth.year, _focusedMonth.month, 1);
-    final startOffset = firstOfMonth.weekday % 7; // Monday=1 ... Sunday=7 -> 0..6
+    final startOffset =
+        firstOfMonth.weekday % 7; // Monday=1 ... Sunday=7 -> 0..6
     final start = firstOfMonth.subtract(Duration(days: startOffset));
     return [for (int i = 0; i < 42; i++) start.add(Duration(days: i))];
   }
@@ -54,7 +57,8 @@ class _DailyChallengeHistoryScreenState extends State<DailyChallengeHistoryScree
                   icon: const Icon(Icons.chevron_left),
                   onPressed: () {
                     setState(() {
-                      _focusedMonth = DateTime(_focusedMonth.year, _focusedMonth.month - 1);
+                      _focusedMonth =
+                          DateTime(_focusedMonth.year, _focusedMonth.month - 1);
                     });
                   },
                 ),
@@ -66,7 +70,8 @@ class _DailyChallengeHistoryScreenState extends State<DailyChallengeHistoryScree
                   icon: const Icon(Icons.chevron_right),
                   onPressed: () {
                     setState(() {
-                      _focusedMonth = DateTime(_focusedMonth.year, _focusedMonth.month + 1);
+                      _focusedMonth =
+                          DateTime(_focusedMonth.year, _focusedMonth.month + 1);
                     });
                   },
                 ),
@@ -104,7 +109,8 @@ class _DailyChallengeHistoryScreenState extends State<DailyChallengeHistoryScree
                     color: bgColor,
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  child: Text('${d.day}', style: TextStyle(color: textColor, fontSize: 12)),
+                  child: Text('${d.day}',
+                      style: TextStyle(color: textColor, fontSize: 12)),
                 );
               },
             ),

@@ -41,9 +41,12 @@ void main() {
 
   test('recommend returns lessons covering missing tags', () async {
     final lessons = [
-      const TheoryMiniLessonNode(id: 'l1', title: 'A', content: '', tags: ['push']),
-      const TheoryMiniLessonNode(id: 'l2', title: 'B', content: '', tags: ['call']),
-      const TheoryMiniLessonNode(id: 'l3', title: 'C', content: '', tags: ['push', 'call']),
+      const TheoryMiniLessonNode(
+          id: 'l1', title: 'A', content: '', tags: ['push']),
+      const TheoryMiniLessonNode(
+          id: 'l2', title: 'B', content: '', tags: ['call']),
+      const TheoryMiniLessonNode(
+          id: 'l3', title: 'C', content: '', tags: ['push', 'call']),
     ];
     final engine = SmartSkillGapBoosterEngine(
       detector: _FakeDetector(['push', 'call']),
@@ -57,9 +60,12 @@ void main() {
 
   test('deduplicates by tag and prefers less viewed lessons', () async {
     final lessons = [
-      const TheoryMiniLessonNode(id: 'l1', title: 'A', content: '', tags: ['push']),
-      const TheoryMiniLessonNode(id: 'l2', title: 'B', content: '', tags: ['call']),
-      const TheoryMiniLessonNode(id: 'l3', title: 'C', content: '', tags: ['push']),
+      const TheoryMiniLessonNode(
+          id: 'l1', title: 'A', content: '', tags: ['push']),
+      const TheoryMiniLessonNode(
+          id: 'l2', title: 'B', content: '', tags: ['call']),
+      const TheoryMiniLessonNode(
+          id: 'l3', title: 'C', content: '', tags: ['push']),
     ];
     await MiniLessonProgressTracker.instance.markViewed('l1');
 

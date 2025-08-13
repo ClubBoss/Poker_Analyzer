@@ -123,4 +123,3 @@ class BoosterAnalyticsPanel extends StatelessWidget {
     );
   }
 }
-

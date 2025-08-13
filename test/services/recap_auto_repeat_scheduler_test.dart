@@ -25,7 +25,9 @@ void main() {
   test('getPendingRecapIds yields due id and clears', () async {
     final sched = RecapAutoRepeatScheduler.instance;
     await sched.scheduleRepeat('l2', Duration.zero);
-    final ids = await sched.getPendingRecapIds(interval: const Duration(seconds: 1)).first;
+    final ids = await sched
+        .getPendingRecapIds(interval: const Duration(seconds: 1))
+        .first;
     expect(ids, ['l2']);
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString('recap_auto_repeat_schedule');

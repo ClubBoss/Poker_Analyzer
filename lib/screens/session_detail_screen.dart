@@ -21,7 +21,6 @@ class SessionDetailScreen extends StatelessWidget {
     required this.result,
   });
 
-
   Future<TrainingPack?> _loadPack() async {
     final dir = await getApplicationDocumentsDirectory();
     final file = File('${dir.path}/training_packs.json');
@@ -32,8 +31,7 @@ class SessionDetailScreen extends StatelessWidget {
       if (data is List) {
         for (final item in data) {
           if (item is Map<String, dynamic>) {
-            final p =
-                TrainingPack.fromJson(Map<String, dynamic>.from(item));
+            final p = TrainingPack.fromJson(Map<String, dynamic>.from(item));
             if (p.name == packName) return p;
           }
         }

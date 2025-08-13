@@ -54,4 +54,3 @@ class LearningPathLoader {
     throw Exception('Invalid learning path yaml in ' + file.path);
   }
 }
-

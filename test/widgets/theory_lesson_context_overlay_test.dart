@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -64,7 +63,8 @@ void main() {
   testWidgets('shows cluster progress', (tester) async {
     const l1 = TheoryMiniLessonNode(id: 'l1', title: 'L1', content: '');
     const l2 = TheoryMiniLessonNode(id: 'l2', title: 'L2', content: '');
-    final cluster = TheoryLessonCluster(lessons: const [l1, l2], tags: const {});
+    final cluster =
+        TheoryLessonCluster(lessons: const [l1, l2], tags: const {});
     final lib = _FakeLibrary(const [l1, l2]);
     await MiniLessonProgressTracker.instance.markCompleted('l1');
 

@@ -37,7 +37,8 @@ class StreakHistoryCalendar extends StatelessWidget {
               decoration: BoxDecoration(
                 color: _color(active),
                 borderRadius: BorderRadius.circular(2),
-                border: today ? Border.all(color: Colors.black, width: 2) : null,
+                border:
+                    today ? Border.all(color: Colors.black, width: 2) : null,
               ),
             );
           }),
@@ -57,7 +58,7 @@ class StreakHistoryCalendar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Map<DateTime, bool>>( 
+    return FutureBuilder<Map<DateTime, bool>>(
       future: _load(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {

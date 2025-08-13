@@ -46,8 +46,7 @@ void main() {
     );
     expect(templates.length, inInclusiveRange(5, 10));
     final tpl = templates.first;
-    expect(tpl.tags,
-        containsAll(['turn', 'jam', 'delayCbet', 'call', 'fold']));
+    expect(tpl.tags, containsAll(['turn', 'jam', 'delayCbet', 'call', 'fold']));
     expect(tpl.meta['goal'], 'turnDecision');
     final spot = tpl.spots.first;
     expect(spot.hand.board.length, 4);

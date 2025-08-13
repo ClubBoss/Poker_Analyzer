@@ -58,6 +58,9 @@ class BoosterAutoRetrySuggester {
         },
       ),
     );
-    messenger.showSnackBar(snackBar).closed.then((_) => _markDismissed(booster.id));
+    messenger
+        .showSnackBar(snackBar)
+        .closed
+        .then((_) => _markDismissed(booster.id));
   }
 }

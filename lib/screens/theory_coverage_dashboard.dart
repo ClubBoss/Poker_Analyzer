@@ -9,7 +9,8 @@ class TheoryCoverageDashboard extends StatefulWidget {
   const TheoryCoverageDashboard({super.key});
 
   @override
-  State<TheoryCoverageDashboard> createState() => _TheoryCoverageDashboardState();
+  State<TheoryCoverageDashboard> createState() =>
+      _TheoryCoverageDashboardState();
 }
 
 class _TheoryCoverageDashboardState extends State<TheoryCoverageDashboard> {
@@ -143,7 +144,9 @@ class _TheoryCoverageDashboardState extends State<TheoryCoverageDashboard> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Theory Coverage'),
-        actions: [IconButton(onPressed: _load, icon: const Icon(Icons.refresh))],
+        actions: [
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh))
+        ],
       ),
       backgroundColor: AppColors.background,
       body: _loading

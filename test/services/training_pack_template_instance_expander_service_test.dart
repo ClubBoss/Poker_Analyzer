@@ -52,4 +52,3 @@ void main() {
     expect(first.spots, hasLength(1));
   });
 }
-

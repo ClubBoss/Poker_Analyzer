@@ -12,7 +12,8 @@ class ConverterRegistry {
   /// Registers [plugin] if its [formatId] is not already used.
   void register(ConverterPlugin plugin) {
     if (findByFormatId(plugin.formatId) != null) {
-      throw StateError('Converter with id \'${plugin.formatId}\' is already registered');
+      throw StateError(
+          'Converter with id \'${plugin.formatId}\' is already registered');
     }
     _plugins.add(plugin);
   }
@@ -66,13 +67,15 @@ class ConverterRegistry {
       List<String>.unmodifiable(<String>[for (final p in _plugins) p.formatId]);
 
   /// Returns metadata about all registered converters.
-  List<ConverterInfo> dumpConverters() => List<ConverterInfo>.unmodifiable(
-      <ConverterInfo>[for (final p in _plugins)
-        ConverterInfo(
-          formatId: p.formatId,
-          description: p.description,
-          capabilities: p.capabilities,
-        )]);
+  List<ConverterInfo> dumpConverters() =>
+      List<ConverterInfo>.unmodifiable(<ConverterInfo>[
+        for (final p in _plugins)
+          ConverterInfo(
+            formatId: p.formatId,
+            description: p.description,
+            capabilities: p.capabilities,
+          )
+      ]);
 
   /// Returns converter metadata filtered by capability flags.
   ///

@@ -10,22 +10,26 @@ class BoardTextureFilterService {
       switch (f) {
         case 'low':
         case 'lowBoards':
-          if (!_isLow(board.map((c) => CardModel(rank: c[0], suit: c[1])).toList())) {
+          if (!_isLow(
+              board.map((c) => CardModel(rank: c[0], suit: c[1])).toList())) {
             return false;
           }
           break;
         case 'aceHigh':
-          if (!_isAceHigh(board.map((c) => CardModel(rank: c[0], suit: c[1])).toList())) {
+          if (!_isAceHigh(
+              board.map((c) => CardModel(rank: c[0], suit: c[1])).toList())) {
             return false;
           }
           break;
         case 'highCard':
-          if (!_isHighCard(board.map((c) => CardModel(rank: c[0], suit: c[1])).toList())) {
+          if (!_isHighCard(
+              board.map((c) => CardModel(rank: c[0], suit: c[1])).toList())) {
             return false;
           }
           break;
         case 'paired':
-          if (!_isPaired(board.map((c) => CardModel(rank: c[0], suit: c[1])).toList())) {
+          if (!_isPaired(
+              board.map((c) => CardModel(rank: c[0], suit: c[1])).toList())) {
             return false;
           }
           break;
@@ -49,17 +53,16 @@ class BoardTextureFilterService {
     };
     if (ranks.any(excluded.contains)) return false;
 
-    final requiredRanks = <String>[...
-      (filter['requiredRanks'] as List? ?? [])
+    final requiredRanks = <String>[
+      ...(filter['requiredRanks'] as List? ?? [])
           .map((e) => e.toString().toUpperCase())
     ];
     for (final r in requiredRanks) {
       if (!ranks.contains(r)) return false;
     }
 
-    final requiredSuits = <String>[...
-      (filter['requiredSuits'] as List? ?? [])
-          .map((e) => e.toString())
+    final requiredSuits = <String>[
+      ...(filter['requiredSuits'] as List? ?? []).map((e) => e.toString())
     ];
     for (final s in requiredSuits) {
       if (!suits.contains(s)) return false;
@@ -150,8 +153,7 @@ class BoardTextureFilterService {
       board.map((c) => c.suit).toSet().length == 1;
 
   bool _isStraightDrawHeavy(List<CardModel> board) {
-    final values = board.map((c) => _rankValue(c.rank)).toList()
-      ..sort();
+    final values = board.map((c) => _rankValue(c.rank)).toList()..sort();
     return values.last - values.first <= 4;
   }
 

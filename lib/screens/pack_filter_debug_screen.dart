@@ -64,15 +64,31 @@ class _PackFilterDebugScreenState extends State<PackFilterDebugScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(controller: _evCtr, decoration: const InputDecoration(labelText: 'min EV')),
-            TextField(controller: _icmCtr, decoration: const InputDecoration(labelText: 'min ICM')),
-            TextField(controller: _diffCtr, decoration: const InputDecoration(labelText: 'max difficulty')),
-            TextField(controller: _minSpotsCtr, decoration: const InputDecoration(labelText: 'min spots')),
-            TextField(controller: _maxSpotsCtr, decoration: const InputDecoration(labelText: 'max spots')),
-            TextField(controller: _rarityCtr, decoration: const InputDecoration(labelText: 'min rarity')),
-            TextField(controller: _matchCtr, decoration: const InputDecoration(labelText: 'min tag match')),
+            TextField(
+                controller: _evCtr,
+                decoration: const InputDecoration(labelText: 'min EV')),
+            TextField(
+                controller: _icmCtr,
+                decoration: const InputDecoration(labelText: 'min ICM')),
+            TextField(
+                controller: _diffCtr,
+                decoration: const InputDecoration(labelText: 'max difficulty')),
+            TextField(
+                controller: _minSpotsCtr,
+                decoration: const InputDecoration(labelText: 'min spots')),
+            TextField(
+                controller: _maxSpotsCtr,
+                decoration: const InputDecoration(labelText: 'max spots')),
+            TextField(
+                controller: _rarityCtr,
+                decoration: const InputDecoration(labelText: 'min rarity')),
+            TextField(
+                controller: _matchCtr,
+                decoration: const InputDecoration(labelText: 'min tag match')),
             const SizedBox(height: 12),
-            ElevatedButton(onPressed: _loading ? null : _apply, child: const Text('Apply')),
+            ElevatedButton(
+                onPressed: _loading ? null : _apply,
+                child: const Text('Apply')),
             const SizedBox(height: 12),
             _loading
                 ? const Center(child: CircularProgressIndicator())

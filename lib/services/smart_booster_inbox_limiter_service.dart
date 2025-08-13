@@ -32,8 +32,7 @@ class SmartBoosterInboxLimiterService {
       return false;
     }
 
-    final lastMillis =
-        prefs.getInt(SharedPrefsKeys.boosterInboxLast(tag));
+    final lastMillis = prefs.getInt(SharedPrefsKeys.boosterInboxLast(tag));
     if (lastMillis != null) {
       final last = DateTime.fromMillisecondsSinceEpoch(lastMillis);
       if (now.difference(last) < tagCooldown) {

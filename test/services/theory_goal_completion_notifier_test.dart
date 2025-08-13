@@ -18,7 +18,9 @@ import 'package:poker_analyzer/models/theory_lesson_cluster.dart';
 class _FakeRecommender extends TheoryGoalRecommender {
   final List<TheoryGoal> goals;
   _FakeRecommender(this.goals)
-      : super(mastery: TagMasteryService(logs: SessionLogService(sessions: TrainingSessionService())));
+      : super(
+            mastery: TagMasteryService(
+                logs: SessionLogService(sessions: TrainingSessionService())));
 
   @override
   Future<List<TheoryGoal>> recommend({
@@ -56,7 +58,8 @@ void main() {
   test('notifies when goal is completed', () async {
     SharedPreferences.setMockInitialValues({});
     final library = _StubLibrary([
-      const TheoryMiniLessonNode(id: 'l1', title: 'L1', content: '', tags: ['t']),
+      const TheoryMiniLessonNode(
+          id: 'l1', title: 'L1', content: '', tags: ['t']),
     ]);
     final goal = const TheoryGoal(
       title: 'G',

@@ -6,7 +6,13 @@ class StreetHudBar extends StatelessWidget {
   final List<double?> potOdds;
   final List<double?> ev;
   final int currentStreet;
-  const StreetHudBar({super.key, required this.spr, required this.eff, required this.potOdds, required this.ev, required this.currentStreet});
+  const StreetHudBar(
+      {super.key,
+      required this.spr,
+      required this.eff,
+      required this.potOdds,
+      required this.ev,
+      required this.currentStreet});
 
   @override
   Widget build(BuildContext ctx) => Row(
@@ -18,7 +24,9 @@ class StreetHudBar extends StatelessWidget {
           final po = potOdds[i];
           final poText = po == null ? '–' : '${po.toStringAsFixed(1)} %';
           final evVal = ev[i];
-          final evText = evVal == null ? '–' : (evVal >= 0 ? '+' : '') + evVal.toStringAsFixed(2);
+          final evText = evVal == null
+              ? '–'
+              : (evVal >= 0 ? '+' : '') + evVal.toStringAsFixed(2);
           return Column(children: [
             Text(label, style: TextStyle(color: color)),
             Text('SPR: $sprText', style: TextStyle(color: color, fontSize: 12)),

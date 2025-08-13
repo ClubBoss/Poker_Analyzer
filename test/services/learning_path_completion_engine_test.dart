@@ -34,7 +34,8 @@ void main() {
       );
 
   Map<String, SessionLog> logs0(int c1, int m1, int c2, int m2) => {
-        'pack1': SessionLog(tags: const [], 
+        'pack1': SessionLog(
+          tags: const [],
           sessionId: 'l1',
           templateId: 'pack1',
           startedAt: DateTime.now(),
@@ -42,7 +43,8 @@ void main() {
           correctCount: c1,
           mistakeCount: m1,
         ),
-        'pack2': SessionLog(tags: const [], 
+        'pack2': SessionLog(
+          tags: const [],
           sessionId: 'l2',
           templateId: 'pack2',
           startedAt: DateTime.now(),

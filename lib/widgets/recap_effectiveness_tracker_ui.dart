@@ -41,8 +41,9 @@ class _RecapEffectivenessTrackerUIState
     final logs = context.read<SessionLogService>();
     await logs.load();
     await RecapEffectivenessAnalyzer.instance.refresh();
-    final improvements =
-        await context.read<RecapTagAnalyticsService>().computeRecapTagImprovements();
+    final improvements = await context
+        .read<RecapTagAnalyticsService>()
+        .computeRecapTagImprovements();
     final list = <_TagInfo>[];
     for (final raw in widget.tags) {
       final tag = raw.trim().toLowerCase();
@@ -134,4 +135,3 @@ class _RecapEffectivenessTrackerUIState
     );
   }
 }
-

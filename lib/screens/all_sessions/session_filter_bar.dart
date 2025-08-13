@@ -45,14 +45,13 @@ class SessionFilterBar extends StatelessWidget {
                 value: 'fail',
                 child: Text('Только неуспешные (<70%)'),
               ),
-              if (packNames.length > 1)
-                ...[
-                  for (final name in packNames)
-                    DropdownMenuItem(
-                      value: 'pack:$name',
-                      child: Text('Пакет: $name'),
-                    )
-                ],
+              if (packNames.length > 1) ...[
+                for (final name in packNames)
+                  DropdownMenuItem(
+                    value: 'pack:$name',
+                    child: Text('Пакет: $name'),
+                  )
+              ],
             ],
           ),
         ),
@@ -97,4 +96,3 @@ class SessionFilterBar extends StatelessWidget {
     );
   }
 }
-

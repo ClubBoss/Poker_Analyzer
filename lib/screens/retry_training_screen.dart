@@ -27,9 +27,8 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
   int _totalAnswered = 0;
 
   Future<void> _saveResult() async {
-    final accuracy = _totalAnswered > 0
-        ? _correctCount * 100 / _totalAnswered
-        : 0.0;
+    final accuracy =
+        _totalAnswered > 0 ? _correctCount * 100 / _totalAnswered : 0.0;
     final result = TrainingResult(
       date: DateTime.now(),
       total: _totalAnswered,
@@ -147,8 +146,10 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
                   items: const [
                     DropdownMenuItem(value: 'Fold', child: Text('Fold')),
                     DropdownMenuItem(value: 'Call', child: Text('Call')),
-                    DropdownMenuItem(value: 'Raise small', child: Text('Raise small')),
-                    DropdownMenuItem(value: 'Raise big', child: Text('Raise big')),
+                    DropdownMenuItem(
+                        value: 'Raise small', child: Text('Raise small')),
+                    DropdownMenuItem(
+                        value: 'Raise big', child: Text('Raise big')),
                     DropdownMenuItem(value: 'All-in', child: Text('All-in')),
                   ],
                   onChanged: (value) {

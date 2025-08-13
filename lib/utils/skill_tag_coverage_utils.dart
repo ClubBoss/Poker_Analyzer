@@ -41,4 +41,3 @@ Map<String, CategorySummary> computeCategorySummary(
   });
   return result;
 }
-

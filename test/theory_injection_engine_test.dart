@@ -38,7 +38,8 @@ void main() {
     expect(res.spotCount, 6);
     expect(res.id, base.id);
     expect(res.trainingType, base.trainingType);
-    expect(res.spots.map((s) => s.id).toList(), ['t1', 'a', 'b', 't2', 'c', 'd']);
+    expect(
+        res.spots.map((s) => s.id).toList(), ['t1', 'a', 'b', 't2', 'c', 'd']);
   });
 
   test('interval 1 alternates theory and practice', () {

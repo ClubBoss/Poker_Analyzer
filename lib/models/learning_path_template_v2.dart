@@ -1,6 +1,7 @@
 import 'learning_path_stage_model.dart';
 import 'learning_track_section_model.dart';
 import 'path_difficulty.dart';
+
 class LearningPathTemplateV2 {
   final String id;
   final String title;
@@ -36,7 +37,10 @@ class LearningPathTemplateV2 {
     for (final s in stages) {
       unlockedIds.addAll(s.unlocks);
     }
-    return [for (final s in stages) if (!unlockedIds.contains(s.id)) s];
+    return [
+      for (final s in stages)
+        if (!unlockedIds.contains(s.id)) s
+    ];
   }
 
   int get packCount => {for (final s in stages) s.packId}.length;

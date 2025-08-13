@@ -46,9 +46,8 @@ class BoosterSessionTracker {
     final prefs = await SharedPreferences.getInstance();
     final counts = await _loadCounts();
     final date = now ?? DateTime.now();
-    final tags = <String>{
-      for (final t in booster.tags) t.trim().toLowerCase()
-    }..removeWhere((t) => t.isEmpty);
+    final tags = <String>{for (final t in booster.tags) t.trim().toLowerCase()}
+      ..removeWhere((t) => t.isEmpty);
 
     for (final t in tags) {
       counts.update(t, (v) => v + 1, ifAbsent: () => 1);

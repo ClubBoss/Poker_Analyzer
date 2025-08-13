@@ -14,7 +14,8 @@ class TheoryRecallOverlayBanner extends StatefulWidget {
   });
 
   @override
-  State<TheoryRecallOverlayBanner> createState() => _TheoryRecallOverlayBannerState();
+  State<TheoryRecallOverlayBanner> createState() =>
+      _TheoryRecallOverlayBannerState();
 }
 
 class _TheoryRecallOverlayBannerState extends State<TheoryRecallOverlayBanner>

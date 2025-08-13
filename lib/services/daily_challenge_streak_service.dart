@@ -3,7 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 class DailyChallengeStreakService {
   DailyChallengeStreakService._();
 
-  static final DailyChallengeStreakService instance = DailyChallengeStreakService._();
+  static final DailyChallengeStreakService instance =
+      DailyChallengeStreakService._();
 
   static const String _dateKey = 'lastChallengeDate';
   static const String _streakKey = 'currentStreak';

@@ -79,8 +79,8 @@ class AchievementsEngine extends ChangeNotifier {
         title: 'Первая повтор ошибок',
         description: 'Используйте повтор ошибок',
         isUnlocked: prefs.getBool('${_pref}first_mistake_review') ?? false,
-        unlockDate: _parse(
-            prefs.getString('${_pref}first_mistake_review_date')),
+        unlockDate:
+            _parse(prefs.getString('${_pref}first_mistake_review_date')),
         rewardXp: XPTrackerService.achievementXp,
       ),
     ]);

@@ -28,7 +28,9 @@ class _TestPathProvider extends PathProviderPlatform {
   @override
   Future<List<String>?> getExternalCachePaths() async => [path];
   @override
-  Future<List<String>?> getExternalStoragePaths({StorageDirectory? type}) async => [path];
+  Future<List<String>?> getExternalStoragePaths(
+          {StorageDirectory? type}) async =>
+      [path];
   @override
   Future<String?> getDownloadsPath() async => path;
 }
@@ -50,12 +52,24 @@ void main() {
     PathProviderPlatform.instance = _TestPathProvider(dir.path);
     await Hive.initFlutter();
     final box = await Hive.openBox('pack_review_stats_box');
-    await box.add({'tagBreakdown': {'A': {'total': 3, 'correct': 1}}});
-    await box.add({'tagBreakdown': {'B': {'total': 3, 'correct': 1}}});
+    await box.add({
+      'tagBreakdown': {
+        'A': {'total': 3, 'correct': 1}
+      }
+    });
+    await box.add({
+      'tagBreakdown': {
+        'B': {'total': 3, 'correct': 1}
+      }
+    });
 
     final repo = _FakeRepo({
-      'A': [for (var i = 0; i < 5; i++) TrainingPackSpot(id: 'A$i', tags: ['A'])],
-      'B': [for (var i = 0; i < 5; i++) TrainingPackSpot(id: 'B$i', tags: ['B'])],
+      'A': [
+        for (var i = 0; i < 5; i++) TrainingPackSpot(id: 'A$i', tags: ['A'])
+      ],
+      'B': [
+        for (var i = 0; i < 5; i++) TrainingPackSpot(id: 'B$i', tags: ['B'])
+      ],
     });
 
     final service = WeakTagBoosterGeneratorService(

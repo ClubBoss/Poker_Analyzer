@@ -41,7 +41,11 @@ class _LastMistakeDrillCardState extends State<LastMistakeDrillCard> {
       final ev = h.evLoss ?? 0.0;
       final exp = h.expectedAction?.trim().toLowerCase();
       final gto = h.gtoAction?.trim().toLowerCase();
-      return ev.abs() >= 1.0 && !h.corrected && exp != null && gto != null && exp != gto;
+      return ev.abs() >= 1.0 &&
+          !h.corrected &&
+          exp != null &&
+          gto != null &&
+          exp != gto;
     });
     if (hand == null) return const SizedBox.shrink();
     final ts = hand.savedAt.millisecondsSinceEpoch;
@@ -65,7 +69,8 @@ class _LastMistakeDrillCardState extends State<LastMistakeDrillCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text('Последняя ошибка',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
                 Text(cat, style: const TextStyle(color: Colors.white)),
                 const SizedBox(height: 4),
@@ -83,7 +88,8 @@ class _LastMistakeDrillCardState extends State<LastMistakeDrillCard> {
               await context.ifMounted(() async {
                 await Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
+                  MaterialPageRoute(
+                      builder: (_) => const TrainingSessionScreen()),
                 );
               });
             },

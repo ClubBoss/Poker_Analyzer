@@ -26,13 +26,12 @@ class TrainingPackAuditEntry {
   factory TrainingPackAuditEntry.fromJson(Map<String, dynamic> json) {
     return TrainingPackAuditEntry(
       packId: json['packId']?.toString() ?? '',
-      timestamp:
-          DateTime.tryParse(json['timestamp']?.toString() ?? '') ?? DateTime.now(),
+      timestamp: DateTime.tryParse(json['timestamp']?.toString() ?? '') ??
+          DateTime.now(),
       userId: json['userId']?.toString() ?? '',
-      changedFields: (json['changedFields'] as List?)
-              ?.map((e) => e.toString())
-              .toList() ??
-          <String>[],
+      changedFields:
+          (json['changedFields'] as List?)?.map((e) => e.toString()).toList() ??
+              <String>[],
       diffSnapshot: json['diffSnapshot'] is Map
           ? Map<String, dynamic>.from(json['diffSnapshot'] as Map)
           : <String, dynamic>{},

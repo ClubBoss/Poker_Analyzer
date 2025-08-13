@@ -66,7 +66,8 @@ class _AchievementCard extends StatelessWidget {
               const Spacer(),
               if (date != null)
                 Text(
-                  DateFormat('dd.MM.yyyy', Intl.getCurrentLocale()).format(date),
+                  DateFormat('dd.MM.yyyy', Intl.getCurrentLocale())
+                      .format(date),
                   style: const TextStyle(color: Colors.white70, fontSize: 12),
                 ),
             ],

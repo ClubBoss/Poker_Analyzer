@@ -1,4 +1,3 @@
-
 /// Basic achievement model used by [AchievementsEngine].
 class AchievementBasic {
   final String id;

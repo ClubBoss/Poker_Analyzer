@@ -38,14 +38,12 @@ class LearningPathEngine {
     required List<TrainingPackTemplateV2> allPacks,
     required List<TrainingAttempt> attempts,
   }) async {
-    final defaultPack =
-        allPacks.firstWhereOrNull((p) => p.id == stage.packId);
+    final defaultPack = allPacks.firstWhereOrNull((p) => p.id == stage.packId);
 
     if (stage.type == StageType.theory) {
       final ids = MiniLessonLibraryService.instance.linkedPacksFor(stage.id);
       final linked = [
-        for (final id in ids)
-          allPacks.firstWhereOrNull((p) => p.id == id)
+        for (final id in ids) allPacks.firstWhereOrNull((p) => p.id == id)
       ].whereType<TrainingPackTemplateV2>().toList();
       if (linked.isEmpty) return defaultPack;
       if (linked.length == 1) return linked.first;

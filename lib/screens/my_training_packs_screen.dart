@@ -15,7 +15,8 @@ class MyTrainingPacksScreen extends StatefulWidget {
 class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
   String _filter = 'All';
 
-  List<TrainingPackTemplateModel> _sorted(List<TrainingPackTemplateModel> list) {
+  List<TrainingPackTemplateModel> _sorted(
+      List<TrainingPackTemplateModel> list) {
     list.sort((a, b) {
       final ad = a.lastGeneratedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
       final bd = b.lastGeneratedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
@@ -74,7 +75,8 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
                     },
                   ),
                   onTap: () async {
-                    final model = await Navigator.push<TrainingPackTemplateModel>(
+                    final model =
+                        await Navigator.push<TrainingPackTemplateModel>(
                       context,
                       MaterialPageRoute(
                         builder: (_) =>

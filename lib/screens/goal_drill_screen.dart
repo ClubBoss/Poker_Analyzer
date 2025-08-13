@@ -117,8 +117,8 @@ class _GoalDrillScreenState extends State<GoalDrillScreen> {
               ),
               ElevatedButton(
                 onPressed: _next,
-                child: Text(
-                    _index + 1 >= _hands.length ? 'Завершить' : 'Далее'),
+                child:
+                    Text(_index + 1 >= _hands.length ? 'Завершить' : 'Далее'),
               ),
             ],
           ),

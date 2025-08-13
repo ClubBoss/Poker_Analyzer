@@ -129,4 +129,3 @@ void main() {
     expect(tpl.heroRange, preset.heroRange);
   });
 }
-

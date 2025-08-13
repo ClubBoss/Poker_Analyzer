@@ -35,9 +35,8 @@ class BoosterInjectionEngine {
 
     final scored = <_ScoredBooster>[];
     for (final b in boosters) {
-      final tags = {
-        for (final t in b.tags) t.trim().toLowerCase()
-      }..removeWhere((t) => t.isEmpty);
+      final tags = {for (final t in b.tags) t.trim().toLowerCase()}
+        ..removeWhere((t) => t.isEmpty);
       if (tags.isEmpty) continue;
       if (tags.every((t) => mastered[t] == true || recent.contains(t))) {
         continue;

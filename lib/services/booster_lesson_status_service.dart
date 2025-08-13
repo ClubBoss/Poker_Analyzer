@@ -29,7 +29,9 @@ class BoosterLessonStatusService {
       tag = lesson.tags.first.trim().toLowerCase();
       if (tag.isEmpty) tag = null;
     }
-    final logs = tag != null ? await history.getHistory(tag: tag) : <BoosterPathLogEntry>[];
+    final logs = tag != null
+        ? await history.getHistory(tag: tag)
+        : <BoosterPathLogEntry>[];
     final completed = logs.where((e) => e.completedAt != null).length;
     final hasProgress = logs.isNotEmpty;
 

@@ -54,4 +54,3 @@ class _TagStats {
   int total = 0;
   int correct = 0;
 }
-

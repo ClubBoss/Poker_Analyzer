@@ -24,27 +24,17 @@ void main() {
     final scheduler = SmartBoosterDiversitySchedulerService();
     final suggestions = [
       const PinnedBlockBoosterSuggestion(
-          blockId: '1',
-          blockTitle: 'b1',
-          tag: 'a',
-          action: 'reviewTheory'),
+          blockId: '1', blockTitle: 'b1', tag: 'a', action: 'reviewTheory'),
       const PinnedBlockBoosterSuggestion(
-          blockId: '2',
-          blockTitle: 'b2',
-          tag: 'a',
-          action: 'reviewTheory'),
+          blockId: '2', blockTitle: 'b2', tag: 'a', action: 'reviewTheory'),
       const PinnedBlockBoosterSuggestion(
-          blockId: '3',
-          blockTitle: 'b3',
-          tag: 'b',
-          action: 'reviewTheory'),
+          blockId: '3', blockTitle: 'b3', tag: 'b', action: 'reviewTheory'),
     ];
 
     final scheduled = await scheduler.schedule(suggestions);
     expect(scheduled.map((s) => s.tag).toList(), ['a', 'b']);
 
-    final log =
-        await SmartBoosterExclusionTrackerService().exportLog();
+    final log = await SmartBoosterExclusionTrackerService().exportLog();
     expect(log.length, 1);
     expect(log.first['tag'], 'a');
     expect(log.first['reason'], 'filteredByType');

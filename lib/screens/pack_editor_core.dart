@@ -71,4 +71,3 @@ class PackEditorScreen extends StatelessWidget {
     );
   }
 }
-

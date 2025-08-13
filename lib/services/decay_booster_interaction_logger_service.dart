@@ -48,27 +48,21 @@ class DecayBoosterInteractionLoggerService {
   Future<DateTime?> getOpenedAt(String tag) async {
     final prefs = await SharedPreferences.getInstance();
     final millis = prefs.getInt(_openedKey(tag));
-    return millis == null
-        ? null
-        : DateTime.fromMillisecondsSinceEpoch(millis);
+    return millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis);
   }
 
   /// Returns the last time a decay booster with [tag] was dismissed.
   Future<DateTime?> getDismissedAt(String tag) async {
     final prefs = await SharedPreferences.getInstance();
     final millis = prefs.getInt(_dismissedKey(tag));
-    return millis == null
-        ? null
-        : DateTime.fromMillisecondsSinceEpoch(millis);
+    return millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis);
   }
 
   /// Returns the last time a decay booster with [tag] was completed.
   Future<DateTime?> getCompletedAt(String tag) async {
     final prefs = await SharedPreferences.getInstance();
     final millis = prefs.getInt(_completedKey(tag));
-    return millis == null
-        ? null
-        : DateTime.fromMillisecondsSinceEpoch(millis);
+    return millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis);
   }
 
   /// Returns a summary map of event type to timestamp for [tag].
@@ -107,4 +101,3 @@ class DecayBoosterInteractionLoggerService {
     return result;
   }
 }
-

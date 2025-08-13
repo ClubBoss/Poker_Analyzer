@@ -71,4 +71,3 @@ class PackRegistryService {
     return null;
   }
 }
-

@@ -31,140 +31,136 @@ class _SnapshotManagerScreenState extends State<SnapshotManagerScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Snapshots'),
-          leading: BackButton(onPressed: () => Navigator.pop(context, _changed)),
+          leading:
+              BackButton(onPressed: () => Navigator.pop(context, _changed)),
         ),
-      body: ListView.builder(
-        itemCount: snaps.length,
-        itemBuilder: (context, index) {
-          final s = snaps[index];
-          final title = s.comment.isEmpty
-              ? DateFormat('dd.MM HH:mm').format(s.date)
-              : s.comment;
-          return Dismissible(
-            key: ValueKey(s.id),
-            background: Container(
-              color: Colors.green,
-              alignment: Alignment.centerLeft,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: const Icon(Icons.restore, color: Colors.white),
-            ),
-            secondaryBackground: Container(
-              color: Colors.red,
-              alignment: Alignment.centerRight,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: const Icon(Icons.delete, color: Colors.white),
-            ),
-            confirmDismiss: (dir) async {
-              if (dir == DismissDirection.startToEnd) {
-                final prefs = await SharedPreferences.getInstance();
-                final last =
-                    prefs.getString('pack_editor_last_snapshot_restored');
-                if (last == s.id) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Already restored')),
-                  );
-                  return false;
-                }
-                final ok = await showDialog<bool>(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: const Text('Restore Snapshot?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, true),
-                        child: const Text('Restore'),
-                      ),
-                    ],
-                  ),
-                );
-                if (ok == true) Navigator.pop(context, s);
-                return false;
-              } else {
-                final removed = s;
-                await context
-                    .read<TrainingPackStorageService>()
-                    .deleteSnapshot(widget.pack, s);
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Snapshot deleted'),
-                      action: SnackBarAction(
-                        label: 'Undo',
-                        onPressed: () {
-                          context
-                              .read<TrainingPackStorageService>()
-                              .saveSnapshot(
-                                  widget.pack,
-                                  removed.hands,
-                                  removed.tags,
-                                  removed.comment);
-                        },
-                      ),
+        body: ListView.builder(
+          itemCount: snaps.length,
+          itemBuilder: (context, index) {
+            final s = snaps[index];
+            final title = s.comment.isEmpty
+                ? DateFormat('dd.MM HH:mm').format(s.date)
+                : s.comment;
+            return Dismissible(
+              key: ValueKey(s.id),
+              background: Container(
+                color: Colors.green,
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: const Icon(Icons.restore, color: Colors.white),
+              ),
+              secondaryBackground: Container(
+                color: Colors.red,
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: const Icon(Icons.delete, color: Colors.white),
+              ),
+              confirmDismiss: (dir) async {
+                if (dir == DismissDirection.startToEnd) {
+                  final prefs = await SharedPreferences.getInstance();
+                  final last =
+                      prefs.getString('pack_editor_last_snapshot_restored');
+                  if (last == s.id) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Already restored')),
+                    );
+                    return false;
+                  }
+                  final ok = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('Restore Snapshot?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, false),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, true),
+                          child: const Text('Restore'),
+                        ),
+                      ],
                     ),
                   );
-                }
-                return false;
-              }
-            },
-            child: ListTile(
-              title: Text(title),
-              subtitle:
-                  Text(DateFormat('yyyy-MM-dd HH:mm').format(s.date)),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.compare),
-                    onPressed: () async {
-                      final result = await Navigator.push<bool>(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => SnapshotDiffScreen(
-                            pack: widget.pack,
-                            snapshot: s,
-                          ),
-                        ),
-                      );
-                      if (result == true) setState(() => _changed = true);
-                    },
-                  ),
-                  Text('${s.hands.length}'),
-                ],
-              ),
-              onTap: () async {
-                final c = TextEditingController(text: s.comment);
-                final result = await showDialog<String>(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: const Text('Rename Snapshot'),
-                    content: TextField(controller: c, autofocus: true),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () =>
-                            Navigator.pop(ctx, c.text.trim()),
-                        child: const Text('Save'),
-                      ),
-                    ],
-                  ),
-                );
-                if (result != null) {
+                  if (ok == true) Navigator.pop(context, s);
+                  return false;
+                } else {
+                  final removed = s;
                   await context
                       .read<TrainingPackStorageService>()
-                      .renameSnapshot(widget.pack, s, result);
+                      .deleteSnapshot(widget.pack, s);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('Snapshot deleted'),
+                        action: SnackBarAction(
+                          label: 'Undo',
+                          onPressed: () {
+                            context
+                                .read<TrainingPackStorageService>()
+                                .saveSnapshot(widget.pack, removed.hands,
+                                    removed.tags, removed.comment);
+                          },
+                        ),
+                      ),
+                    );
+                  }
+                  return false;
                 }
               },
-            ),
-          );
-        },
-      ),
+              child: ListTile(
+                title: Text(title),
+                subtitle: Text(DateFormat('yyyy-MM-dd HH:mm').format(s.date)),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.compare),
+                      onPressed: () async {
+                        final result = await Navigator.push<bool>(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => SnapshotDiffScreen(
+                              pack: widget.pack,
+                              snapshot: s,
+                            ),
+                          ),
+                        );
+                        if (result == true) setState(() => _changed = true);
+                      },
+                    ),
+                    Text('${s.hands.length}'),
+                  ],
+                ),
+                onTap: () async {
+                  final c = TextEditingController(text: s.comment);
+                  final result = await showDialog<String>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('Rename Snapshot'),
+                      content: TextField(controller: c, autofocus: true),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, c.text.trim()),
+                          child: const Text('Save'),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (result != null) {
+                    await context
+                        .read<TrainingPackStorageService>()
+                        .renameSnapshot(widget.pack, s, result);
+                  }
+                },
+              ),
+            );
+          },
+        ),
       ),
     );
   }

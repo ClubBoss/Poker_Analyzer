@@ -9,5 +9,8 @@ List<List<int>> duplicateSpotGroupsStatic(List<TrainingPackSpot> spots) {
     final key = '${h.position.name}-$hero-$board';
     map.putIfAbsent(key, () => []).add(i);
   }
-  return [for (final g in map.values) if (g.length > 1) g];
+  return [
+    for (final g in map.values)
+      if (g.length > 1) g
+  ];
 }

@@ -28,7 +28,8 @@ class _DecayHeatmapScreenState extends State<DecayHeatmapScreen> {
 
   Future<void> _load() async {
     setState(() => _loading = true);
-    final scores = await const DecayTagRetentionTrackerService().getAllDecayScores();
+    final scores =
+        await const DecayTagRetentionTrackerService().getAllDecayScores();
     final boosterStats = await BoosterPathHistoryService.instance.getTagStats();
     final list = <TagDecayEntry>[];
     scores.forEach((tag, score) {

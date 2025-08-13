@@ -37,6 +37,7 @@ class _FakeProgress extends TrainingPathProgressServiceV2 {
   Future<void> markStageCompleted(String stageId, double accuracy) async {
     completed.add(stageId);
   }
+
   @override
   List<String> unlockedStageIds() => [];
 }
@@ -61,6 +62,7 @@ class _FakeLibrary implements MiniLessonLibraryService {
     }
     return result;
   }
+
   @override
   List<TheoryMiniLessonNode> getByTags(Set<String> tags) =>
       findByTags(tags.toList());
@@ -70,7 +72,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('inject inserts lessons after matching stage', () async {
-    final branch = LearningBranchNode(id: 'b1', prompt: '', branches: {'a': 's1'});
+    final branch =
+        LearningBranchNode(id: 'b1', prompt: '', branches: {'a': 's1'});
     final stage = TrainingStageNode(id: 's1', nextIds: ['end']);
     final end = TrainingStageNode(id: 'end');
 
@@ -114,4 +117,3 @@ void main() {
     expect(s1.nextIds.first, 'm1');
   });
 }
-

@@ -33,8 +33,10 @@ class _FakeInventory extends BoosterInventoryService {
   Future<void> loadAll({int limit = 500}) async {}
 
   @override
-  List<TrainingPackTemplateV2> findByTag(String tag) =>
-      [for (final b in items) if (b.tags.contains(tag)) b];
+  List<TrainingPackTemplateV2> findByTag(String tag) => [
+        for (final b in items)
+          if (b.tags.contains(tag)) b
+      ];
 
   @override
   TrainingPackTemplateV2? getById(String id) =>
@@ -104,7 +106,8 @@ void main() {
       gaps: _FakeGapDetector([]),
       recall: _FakeRecall([]),
     );
-    final blocks = await orch.getInjectableBoosters(const TrainingStageNode(id: 's1'));
+    final blocks =
+        await orch.getInjectableBoosters(const TrainingStageNode(id: 's1'));
     expect(blocks.length, 1);
     expect(blocks.first.id, 'b1');
   });
@@ -119,7 +122,8 @@ void main() {
       gaps: _FakeGapDetector([]),
       recall: _FakeRecall(['call']),
     );
-    final blocks = await orch.getInjectableBoosters(const TrainingStageNode(id: 's1'));
+    final blocks =
+        await orch.getInjectableBoosters(const TrainingStageNode(id: 's1'));
     expect(blocks.length, 1);
     expect(blocks.first.id, 'b2');
   });
@@ -133,8 +137,10 @@ void main() {
       gaps: _FakeGapDetector([]),
       recall: _FakeRecall([]),
     );
-    final first = await orch.getInjectableBoosters(const TrainingStageNode(id: 's1'));
-    final second = await orch.getInjectableBoosters(const TrainingStageNode(id: 's1'));
+    final first =
+        await orch.getInjectableBoosters(const TrainingStageNode(id: 's1'));
+    final second =
+        await orch.getInjectableBoosters(const TrainingStageNode(id: 's1'));
     expect(first.length, 1);
     expect(second, isEmpty);
   });
@@ -149,7 +155,8 @@ void main() {
       recall: _FakeRecall([]),
     );
     await BoosterCompletionTracker.instance.markBoosterCompleted('b1');
-    final blocks = await orch.getInjectableBoosters(const TrainingStageNode(id: 's1'));
+    final blocks =
+        await orch.getInjectableBoosters(const TrainingStageNode(id: 's1'));
     expect(blocks, isEmpty);
   });
 }

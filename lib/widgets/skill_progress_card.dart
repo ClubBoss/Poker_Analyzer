@@ -8,7 +8,8 @@ class SkillProgressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final stats = context.watch<TrainingStatsService>().skillStats.values.toList();
+    final stats =
+        context.watch<TrainingStatsService>().skillStats.values.toList();
     if (stats.isEmpty) return const SizedBox.shrink();
     stats.sort((a, b) => b.evAvg.compareTo(a.evAvg));
     final top = stats.take(3).toList();

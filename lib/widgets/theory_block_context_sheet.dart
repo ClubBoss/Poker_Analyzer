@@ -42,8 +42,7 @@ Future<void> showTheoryBlockContextSheet(
           shrinkWrap: true,
           children: [
             ListTile(
-              leading: Icon(
-                  pinned ? Icons.push_pin : Icons.push_pin_outlined),
+              leading: Icon(pinned ? Icons.push_pin : Icons.push_pin_outlined),
               title: Text(pinned ? 'Unpin Block' : 'Pin Block'),
               onTap: () async {
                 Navigator.pop(ctx);
@@ -55,8 +54,7 @@ Future<void> showTheoryBlockContextSheet(
                 );
               },
             ),
-            if (lessons.isNotEmpty)
-              const ListTile(title: Text('Lessons')),
+            if (lessons.isNotEmpty) const ListTile(title: Text('Lessons')),
             for (final e in lessons)
               ListTile(
                 leading: const Icon(Icons.menu_book),
@@ -112,4 +110,3 @@ class _PackEntry {
   final bool done;
   _PackEntry(this.pack, this.done);
 }
-

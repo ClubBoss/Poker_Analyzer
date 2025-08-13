@@ -106,8 +106,7 @@ class TheoryGoalEngine with SingletonMixin<TheoryGoalEngine> {
   /// Removes the goal for [tagOrCluster] if present.
   Future<void> markCompleted(String tagOrCluster) async {
     final key = tagOrCluster.trim().toLowerCase();
-    _activeGoals
-        .removeWhere((g) => g.tagOrCluster.trim().toLowerCase() == key);
+    _activeGoals.removeWhere((g) => g.tagOrCluster.trim().toLowerCase() == key);
     await _save();
   }
 

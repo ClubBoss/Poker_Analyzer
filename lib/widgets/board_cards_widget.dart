@@ -57,10 +57,10 @@ class BoardCardsWidget extends StatelessWidget {
               final card = index < boardCards.length ? boardCards[index] : null;
               final isRed = card?.suit == '♥' || card?.suit == '♦';
 
-              final animation = revealAnimations != null &&
-                      index < revealAnimations!.length
-                  ? revealAnimations![index]
-                  : const AlwaysStoppedAnimation(1.0);
+              final animation =
+                  revealAnimations != null && index < revealAnimations!.length
+                      ? revealAnimations![index]
+                      : const AlwaysStoppedAnimation(1.0);
               return FadeTransition(
                 opacity: animation,
                 child: GestureDetector(
@@ -68,11 +68,13 @@ class BoardCardsWidget extends StatelessWidget {
                   onTap: editingDisabled
                       ? null
                       : () async {
-                          if (canEditBoard != null && !canEditBoard!(index)) return;
+                          if (canEditBoard != null && !canEditBoard!(index))
+                            return;
                           final disabled = Set<String>.from(usedCards);
-                          if (card != null) disabled.remove('${card.rank}${card.suit}');
-                          final selected =
-                              await showCardSelector(context, disabledCards: disabled);
+                          if (card != null)
+                            disabled.remove('${card.rank}${card.suit}');
+                          final selected = await showCardSelector(context,
+                              disabledCards: disabled);
                           if (selected != null) {
                             onCardSelected(index, selected);
                           }
@@ -80,7 +82,8 @@ class BoardCardsWidget extends StatelessWidget {
                   onLongPress: editingDisabled
                       ? null
                       : () {
-                          if (onCardLongPress != null && index < boardCards.length) {
+                          if (onCardLongPress != null &&
+                              index < boardCards.length) {
                             onCardLongPress!(index);
                           }
                         },
@@ -89,7 +92,8 @@ class BoardCardsWidget extends StatelessWidget {
                     width: 36 * scale,
                     height: 52 * scale,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: card == null ? 0.3 : 1),
+                      color: Colors.white
+                          .withValues(alpha: card == null ? 0.3 : 1),
                       borderRadius: BorderRadius.circular(6),
                       boxShadow: [
                         BoxShadow(

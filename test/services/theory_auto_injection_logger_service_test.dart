@@ -66,8 +66,8 @@ void main() {
       lessonId: 'l2',
       timestamp: now.subtract(const Duration(minutes: 1)),
     );
-    final count =
-        await TheoryAutoInjectionLoggerService.instance.getTotalInjectionCount();
+    final count = await TheoryAutoInjectionLoggerService.instance
+        .getTotalInjectionCount();
     expect(count, 2);
   });
 

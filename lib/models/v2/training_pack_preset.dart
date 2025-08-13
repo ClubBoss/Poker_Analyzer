@@ -37,7 +37,8 @@ class TrainingPackPreset {
         createdAt = createdAt ?? DateTime.now(),
         spots = spots ?? const [];
 
-  factory TrainingPackPreset.fromJson(Map<String, dynamic> j) => TrainingPackPreset(
+  factory TrainingPackPreset.fromJson(Map<String, dynamic> j) =>
+      TrainingPackPreset(
         id: j['id'] as String? ?? '',
         name: j['name'] as String? ?? '',
         description: j['description'] as String? ?? '',
@@ -47,7 +48,8 @@ class TrainingPackPreset {
         ),
         heroBbStack: j['heroBbStack'] as int? ?? 10,
         playerStacksBb: [
-          for (final v in (j['playerStacksBb'] as List? ?? [10, 10])) (v as num).toInt()
+          for (final v in (j['playerStacksBb'] as List? ?? [10, 10]))
+            (v as num).toInt()
         ],
         heroPos: HeroPosition.values.firstWhere(
           (e) => e.name == j['heroPos'],
@@ -57,7 +59,8 @@ class TrainingPackPreset {
         bbCallPct: j['bbCallPct'] as int? ?? 20,
         anteBb: j['anteBb'] as int? ?? 0,
         heroRange: (j['heroRange'] as List?)?.map((e) => e as String).toList(),
-        createdAt: DateTime.tryParse(j['createdAt'] as String? ?? '') ?? DateTime.now(),
+        createdAt: DateTime.tryParse(j['createdAt'] as String? ?? '') ??
+            DateTime.now(),
         category: j['category'] as String? ?? '',
         spots: [
           for (final s in (j['spots'] as List? ?? []))

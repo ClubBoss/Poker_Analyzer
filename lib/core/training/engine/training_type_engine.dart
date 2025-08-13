@@ -88,10 +88,9 @@ class TrainingTypeEngine {
     if (hasPostflop) return TrainingType.postflop;
     final allPfNoActions = pack.spots.isNotEmpty &&
         pack.spots.every((s) {
-          final noActions =
-              s.hand.actions.values.every((l) => l.isEmpty);
-          final preflopOnly = s.hand.board.isEmpty &&
-              s.hand.actions.keys.every((k) => k == 0);
+          final noActions = s.hand.actions.values.every((l) => l.isEmpty);
+          final preflopOnly =
+              s.hand.board.isEmpty && s.hand.actions.keys.every((k) => k == 0);
           return preflopOnly && noActions;
         });
     if (allPfNoActions) return TrainingType.pushFold;

@@ -97,7 +97,8 @@ void main() {
     final launcher = _FakeLauncher();
 
     final key = GlobalKey();
-    await tester.pumpWidget(MaterialApp(home: Scaffold(body: Container(key: key))));
+    await tester
+        .pumpWidget(MaterialApp(home: Scaffold(body: Container(key: key))));
     final ctx = key.currentContext!;
 
     final service = LearningPathLauncherService(
@@ -125,7 +126,8 @@ void main() {
     final launcher = _FakeLauncher();
 
     final key = GlobalKey();
-    await tester.pumpWidget(MaterialApp(home: Scaffold(body: Container(key: key))));
+    await tester
+        .pumpWidget(MaterialApp(home: Scaffold(body: Container(key: key))));
     final ctx = key.currentContext!;
 
     final service = LearningPathLauncherService(

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 /// Groups animation controllers related to player labels and textual overlays.
 class PlayerZoneLabelAnimations {
-  PlayerZoneLabelAnimations({required TickerProvider vsync, required bool isHero}) {
+  PlayerZoneLabelAnimations(
+      {required TickerProvider vsync, required bool isHero}) {
     showdownLabelController = AnimationController(
       vsync: vsync,
       duration: const Duration(milliseconds: 300),
@@ -16,9 +17,10 @@ class PlayerZoneLabelAnimations {
     );
     finalStackOpacity =
         CurvedAnimation(parent: finalStackController, curve: Curves.easeIn);
-    finalStackOffset = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero)
-        .animate(
-            CurvedAnimation(parent: finalStackController, curve: Curves.easeOut));
+    finalStackOffset =
+        Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+            CurvedAnimation(
+                parent: finalStackController, curve: Curves.easeOut));
 
     winnerLabelController = AnimationController(
       vsync: vsync,
@@ -32,8 +34,8 @@ class PlayerZoneLabelAnimations {
       ),
       const TweenSequenceItem(tween: ConstantTween(1.0), weight: 60),
       TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 0.0)
-            .chain(CurveTween(curve: Curves.easeIn)),
+        tween:
+            Tween(begin: 1.0, end: 0.0).chain(CurveTween(curve: Curves.easeIn)),
         weight: 20,
       ),
     ]).animate(winnerLabelController);
@@ -56,8 +58,8 @@ class PlayerZoneLabelAnimations {
     );
     heroLabelOpacity =
         CurvedAnimation(parent: heroLabelController, curve: Curves.easeIn);
-    heroLabelScale = Tween<double>(begin: 0.8, end: 1.0)
-        .animate(CurvedAnimation(parent: heroLabelController, curve: Curves.easeOut));
+    heroLabelScale = Tween<double>(begin: 0.8, end: 1.0).animate(
+        CurvedAnimation(parent: heroLabelController, curve: Curves.easeOut));
     if (isHero) {
       heroLabelController.forward();
     }
@@ -74,8 +76,8 @@ class PlayerZoneLabelAnimations {
       ),
       const TweenSequenceItem(tween: ConstantTween(1.0), weight: 60),
       TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 0.0)
-            .chain(CurveTween(curve: Curves.easeIn)),
+        tween:
+            Tween(begin: 1.0, end: 0.0).chain(CurveTween(curve: Curves.easeIn)),
         weight: 20,
       ),
     ]).animate(victoryController);
@@ -103,4 +105,3 @@ class PlayerZoneLabelAnimations {
     victoryController.dispose();
   }
 }
-

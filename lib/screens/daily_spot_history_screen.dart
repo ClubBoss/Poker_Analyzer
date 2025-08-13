@@ -23,9 +23,7 @@ class _DailySpotHistoryScreenState extends State<DailySpotHistoryScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final list = await context.read<GoalsService>().getDailySpotHistory();
       setState(() {
-        _history = {
-          for (final d in list) DateTime(d.year, d.month, d.day)
-        };
+        _history = {for (final d in list) DateTime(d.year, d.month, d.day)};
       });
     });
   }
@@ -89,8 +87,8 @@ class _DailySpotHistoryScreenState extends State<DailySpotHistoryScreen> {
           Text(
             _selectedDay == null
                 ? '—'
-                : _history.contains(
-                        DateTime(_selectedDay!.year, _selectedDay!.month, _selectedDay!.day))
+                : _history.contains(DateTime(_selectedDay!.year,
+                        _selectedDay!.month, _selectedDay!.day))
                     ? '✅ Выполнено'
                     : '—',
             style: const TextStyle(color: Colors.white),

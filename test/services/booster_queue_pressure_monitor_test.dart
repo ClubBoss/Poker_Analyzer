@@ -32,7 +32,8 @@ void main() {
 
   test('pressure score accounts for queue sizes', () async {
     await RecapBoosterQueue.instance.add('a1');
-    GoalQueue.instance.push(const TheoryMiniLessonNode(id: 'g1', title: 't', content: '', tags: []));
+    GoalQueue.instance.push(const TheoryMiniLessonNode(
+        id: 'g1', title: 't', content: '', tags: []));
     await InboxBoosterTrackerService.instance.addToInbox('i1');
 
     final monitor = BoosterQueuePressureMonitor(

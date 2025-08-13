@@ -33,11 +33,8 @@ class _AchievementDashboardScreenState
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(
-                _unlockedOnly ? Icons.lock_open : Icons.lock_outline),
-            tooltip: _unlockedOnly
-                ? 'Все'
-                : 'Показать только разблокированные',
+            icon: Icon(_unlockedOnly ? Icons.lock_open : Icons.lock_outline),
+            tooltip: _unlockedOnly ? 'Все' : 'Показать только разблокированные',
             onPressed: () => setState(() => _unlockedOnly = !_unlockedOnly),
           ),
         ],

@@ -18,7 +18,8 @@ class RunMetricsEntry {
     this.format,
   });
 
-  factory RunMetricsEntry.fromJson(Map<String, dynamic> json) => RunMetricsEntry(
+  factory RunMetricsEntry.fromJson(Map<String, dynamic> json) =>
+      RunMetricsEntry(
         timestamp: DateTime.parse(json['timestamp'] as String),
         generated: json['generated'] as int,
         rejected: json['rejected'] as int,

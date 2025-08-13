@@ -42,10 +42,10 @@ class _LeakInsightBannerState extends State<LeakInsightBanner> {
     final pack = await PackLibraryLoaderService.instance
         .loadLibrary()
         .then((_) => PackLibraryLoaderService.instance.library)
-        .then((list) => list
-            .firstWhere((p) => p.id == leak.suggestedPackId, orElse: () => null));
+        .then((list) => list.firstWhere((p) => p.id == leak.suggestedPackId,
+            orElse: () => null));
     await const TrainingSessionLauncher().launch(pack);
-    }
+  }
 
   @override
   Widget build(BuildContext context) {

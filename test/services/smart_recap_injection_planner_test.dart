@@ -62,7 +62,8 @@ void main() {
         repeatRate: 0.1,
       ),
     });
-    final planner = SmartRecapInjectionPlanner(history: hist, analyzer: analyzer);
+    final planner =
+        SmartRecapInjectionPlanner(history: hist, analyzer: analyzer);
     final plan = await planner.computePlan();
     expect(plan, isNotNull);
     expect(plan!.tagIds.first, 'icm');
@@ -86,7 +87,8 @@ void main() {
         repeatRate: 0.1,
       ),
     });
-    final planner = SmartRecapInjectionPlanner(history: hist, analyzer: analyzer);
+    final planner =
+        SmartRecapInjectionPlanner(history: hist, analyzer: analyzer);
     final plan = await planner.computePlan();
     expect(plan, isNull);
   });

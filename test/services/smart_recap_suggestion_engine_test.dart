@@ -37,8 +37,9 @@ class _FakeRepeater extends TheoryWeaknessRepeater {
   const _FakeRepeater(this.lessons);
 
   @override
-  Future<List<TheoryMiniLessonNode>> recommend({int limit = 5, int minDays = 3})
-      async => lessons;
+  Future<List<TheoryMiniLessonNode>> recommend(
+          {int limit = 5, int minDays = 3}) async =>
+      lessons;
 }
 
 void main() {
@@ -65,8 +66,14 @@ void main() {
     final now = DateTime.now();
     SharedPreferences.setMockInitialValues({
       'theory_reinforcement_schedule': jsonEncode({
-        'l1': {'level': 0, 'next': now.subtract(const Duration(hours: 2)).toIso8601String()},
-        'l2': {'level': 0, 'next': now.subtract(const Duration(hours: 1)).toIso8601String()},
+        'l1': {
+          'level': 0,
+          'next': now.subtract(const Duration(hours: 2)).toIso8601String()
+        },
+        'l2': {
+          'level': 0,
+          'next': now.subtract(const Duration(hours: 1)).toIso8601String()
+        },
       })
     });
     final lessons = [
@@ -82,7 +89,8 @@ void main() {
   });
 
   test('falls back to weakness repeater', () async {
-    final lesson = const TheoryMiniLessonNode(id: 'w1', title: 'W1', content: '');
+    final lesson =
+        const TheoryMiniLessonNode(id: 'w1', title: 'W1', content: '');
     final engine = SmartRecapSuggestionEngine(
       library: _FakeLibrary([lesson]),
       repeater: _FakeRepeater([lesson]),
@@ -91,4 +99,3 @@ void main() {
     expect(result?.id, 'w1');
   });
 }
-

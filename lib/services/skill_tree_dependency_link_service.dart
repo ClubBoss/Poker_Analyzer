@@ -22,7 +22,8 @@ class SkillTreeDependencyLinkService {
     SkillTreeTrackResolver? resolver,
   })  : _library = library ?? SkillTreeLibraryService.instance,
         _graph = graph ?? const SkillTreeGraphService(),
-        _hintService = hintService ?? const SkillTreeNodeDetailUnlockHintService(),
+        _hintService =
+            hintService ?? const SkillTreeNodeDetailUnlockHintService(),
         _progress = progress ?? SkillTreeNodeProgressTracker.instance,
         _resolver = resolver ?? SkillTreeTrackResolver.instance;
 

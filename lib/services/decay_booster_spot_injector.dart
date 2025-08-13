@@ -13,7 +13,8 @@ class DecayBoosterSpotInjector {
   final MiniLessonLibraryService lessons;
   final BoosterQueueService queue;
   final TrainingPackLibraryV2 library;
-  final Future<List<TrainingHistoryEntryV2>> Function({int limit}) _historyLoader;
+  final Future<List<TrainingHistoryEntryV2>> Function({int limit})
+      _historyLoader;
 
   DecayBoosterSpotInjector({
     TheoryTagDecayTracker? decay,
@@ -32,9 +33,7 @@ class DecayBoosterSpotInjector {
   /// Schedules spots for decayed tags into the booster queue.
   Future<void> inject({DateTime? now}) async {
     final scores = await decay.computeDecayScores(now: now);
-    final entries = scores.entries
-        .where((e) => e.value > 50)
-        .toList()
+    final entries = scores.entries.where((e) => e.value > 50).toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     if (entries.isEmpty) return;
 

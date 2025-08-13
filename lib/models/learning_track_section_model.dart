@@ -16,7 +16,9 @@ class LearningTrackSectionModel {
       id: json['id'] as String? ?? '',
       title: json['title'] as String? ?? '',
       description: json['description'] as String? ?? '',
-      stageIds: [for (final s in (json['stageIds'] as List? ?? [])) s.toString()],
+      stageIds: [
+        for (final s in (json['stageIds'] as List? ?? [])) s.toString()
+      ],
     );
   }
 

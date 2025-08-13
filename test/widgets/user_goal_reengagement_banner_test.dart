@@ -46,9 +46,8 @@ void main() {
     );
     final historyEvent = jsonEncode({
       'goalId': 'g1',
-      'timestamp': DateTime.now()
-          .subtract(const Duration(days: 4))
-          .toIso8601String(),
+      'timestamp':
+          DateTime.now().subtract(const Duration(days: 4)).toIso8601String(),
     });
     SharedPreferences.setMockInitialValues({
       'user_goals': UserGoal.encode([goal]),

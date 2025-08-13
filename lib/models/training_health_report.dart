@@ -8,7 +8,9 @@ class TrainingHealthReport {
     required this.warnings,
   });
   Map<String, dynamic> toJson() => {
-        'issues': [for (final e in issues) [e.$1, e.$2]],
+        'issues': [
+          for (final e in issues) [e.$1, e.$2]
+        ],
         'errors': errors,
         'warnings': warnings,
       };
@@ -26,4 +28,3 @@ class TrainingHealthReport {
     );
   }
 }
-

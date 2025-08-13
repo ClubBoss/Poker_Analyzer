@@ -81,7 +81,8 @@ class _TheoryAutoInjectionAnalyticsPanelState
   }
 
   Widget _buildDailyChart(BuildContext context) {
-    final maxY = _daily.map((e) => e.count).fold<int>(0, (a, b) => a > b ? a : b);
+    final maxY =
+        _daily.map((e) => e.count).fold<int>(0, (a, b) => a > b ? a : b);
     final spots = [
       for (int i = 0; i < _daily.length; i++)
         FlSpot(i.toDouble(), _daily[i].count.toDouble())
@@ -136,7 +137,8 @@ class _TheoryAutoInjectionAnalyticsPanelState
                       reservedSize: 28,
                       getTitlesWidget: (value, meta) => Text(
                         value.toInt().toString(),
-                        style: const TextStyle(color: Colors.white70, fontSize: 10),
+                        style: const TextStyle(
+                            color: Colors.white70, fontSize: 10),
                       ),
                     ),
                   ),
@@ -152,15 +154,16 @@ class _TheoryAutoInjectionAnalyticsPanelState
                         final d = _daily[index].date;
                         return Text(
                           '${d.month}/${d.day}',
-                          style: const TextStyle(color: Colors.white70, fontSize: 10),
+                          style: const TextStyle(
+                              color: Colors.white70, fontSize: 10),
                         );
                       },
                     ),
                   ),
-                  rightTitles:
-                      const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles:
-                      const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
                 ),
                 borderData: FlBorderData(show: false),
                 lineBarsData: [
@@ -181,7 +184,8 @@ class _TheoryAutoInjectionAnalyticsPanelState
   }
 
   Widget _buildTopLessonsChart(BuildContext context) {
-    final maxY = _topLessons.map((e) => e.count).fold<int>(0, (a, b) => a > b ? a : b);
+    final maxY =
+        _topLessons.map((e) => e.count).fold<int>(0, (a, b) => a > b ? a : b);
     final groups = <BarChartGroupData>[];
     for (var i = 0; i < _topLessons.length; i++) {
       groups.add(
@@ -194,7 +198,10 @@ class _TheoryAutoInjectionAnalyticsPanelState
               borderRadius: BorderRadius.circular(4),
               gradient: LinearGradient(
                 colors: [
-                  Theme.of(context).colorScheme.secondary.withValues(alpha: 0.7),
+                  Theme.of(context)
+                      .colorScheme
+                      .secondary
+                      .withValues(alpha: 0.7),
                   Theme.of(context).colorScheme.secondary,
                 ],
                 begin: Alignment.bottomCenter,
@@ -236,7 +243,8 @@ class _TheoryAutoInjectionAnalyticsPanelState
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (_) =>
-                                DrillDownAutoInjectionLogScreen.lesson(lessonId),
+                                DrillDownAutoInjectionLogScreen.lesson(
+                                    lessonId),
                           ),
                         );
                       }
@@ -253,7 +261,8 @@ class _TheoryAutoInjectionAnalyticsPanelState
                       reservedSize: 28,
                       getTitlesWidget: (value, meta) => Text(
                         value.toInt().toString(),
-                        style: const TextStyle(color: Colors.white70, fontSize: 10),
+                        style: const TextStyle(
+                            color: Colors.white70, fontSize: 10),
                       ),
                     ),
                   ),
@@ -270,18 +279,21 @@ class _TheoryAutoInjectionAnalyticsPanelState
                         return Padding(
                           padding: const EdgeInsets.only(top: 4),
                           child: Text(
-                            title.length > 10 ? '${title.substring(0, 10)}…' : title,
-                            style: const TextStyle(color: Colors.white70, fontSize: 10),
+                            title.length > 10
+                                ? '${title.substring(0, 10)}…'
+                                : title,
+                            style: const TextStyle(
+                                color: Colors.white70, fontSize: 10),
                             textAlign: TextAlign.center,
                           ),
                         );
                       },
                     ),
                   ),
-                  rightTitles:
-                      const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles:
-                      const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
                 ),
                 borderData: FlBorderData(show: false),
                 alignment: BarChartAlignment.spaceAround,
@@ -311,4 +323,3 @@ class _LessonCount {
     required this.title,
   });
 }
-

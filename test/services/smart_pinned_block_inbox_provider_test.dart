@@ -51,4 +51,3 @@ class _FakeBlockLibrary implements TheoryBlockLibraryService {
   @override
   Future<void> reload() async {}
 }
-

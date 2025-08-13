@@ -23,9 +23,8 @@ class MistakeTagClassifier {
     const engine = MistakeCategorizationEngine();
     final strength = engine.computeHandStrength(attempt.spot.hand.heroCards);
     final diff = attempt.evDiff.abs().clamp(0, 5);
-    final severity = ((strength * 0.7) + (diff / 5 * 0.3))
-        .clamp(0, 1)
-        .toDouble();
+    final severity =
+        ((strength * 0.7) + (diff / 5 * 0.3)).clamp(0, 1).toDouble();
 
     return MistakeTagClassification(tag: tag, severity: severity);
   }
@@ -58,8 +57,7 @@ class MistakeTagClassifier {
       if (evDiff <= -2) tags.add('overfold');
     } else if (user == 'call' && correct == 'fold') {
       tags.add('callRange');
-    } else if (
-        (user == 'bet' || user == 'push' || user == 'raise') &&
+    } else if ((user == 'bet' || user == 'push' || user == 'raise') &&
         correct == 'fold') {
       tags.add('overbluff');
     } else if (user == 'check' && (correct == 'bet' || correct == 'push')) {

@@ -73,7 +73,10 @@ class MiniLessonLibraryBuilder {
     bool autoPriority = false,
     bool deduplicate = true,
   }) {
-    final map = {'lessons': _buildList(entries, autoPriority: autoPriority, deduplicate: deduplicate)};
+    final map = {
+      'lessons': _buildList(entries,
+          autoPriority: autoPriority, deduplicate: deduplicate)
+    };
     return const YamlEncoder().convert(map);
   }
 
@@ -84,7 +87,10 @@ class MiniLessonLibraryBuilder {
     bool autoPriority = false,
     bool deduplicate = true,
   }) async {
-    final map = {'lessons': _buildList(entries, autoPriority: autoPriority, deduplicate: deduplicate)};
+    final map = {
+      'lessons': _buildList(entries,
+          autoPriority: autoPriority, deduplicate: deduplicate)
+    };
     await writer.write(map, path);
     return File(path);
   }

@@ -31,7 +31,8 @@ class HandHistoryReviewScreen extends StatefulWidget {
   const HandHistoryReviewScreen({super.key, required this.hand});
 
   @override
-  State<HandHistoryReviewScreen> createState() => _HandHistoryReviewScreenState();
+  State<HandHistoryReviewScreen> createState() =>
+      _HandHistoryReviewScreenState();
 }
 
 class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
@@ -170,13 +171,11 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
               pw.SizedBox(height: 16),
               pw.Text('Позиция: ${hand.heroPosition}',
                   style: pw.TextStyle(font: regularFont)),
-              pw.Text('Стек: $stack',
-                  style: pw.TextStyle(font: regularFont)),
+              pw.Text('Стек: $stack', style: pw.TextStyle(font: regularFont)),
               pw.Text('Карты: $heroCards',
                   style: pw.TextStyle(font: regularFont)),
               if (board.isNotEmpty)
-                pw.Text('Борд: $board',
-                    style: pw.TextStyle(font: regularFont)),
+                pw.Text('Борд: $board', style: pw.TextStyle(font: regularFont)),
               if (_selectedAction != null)
                 pw.Text('Действие: $_selectedAction',
                     style: pw.TextStyle(font: regularFont)),
@@ -239,8 +238,8 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
                 if (advice != null) ...[
                   const SizedBox(height: 4),
                   Text(advice,
-                      style: const TextStyle(
-                          color: Colors.white70, fontSize: 12)),
+                      style:
+                          const TextStyle(color: Colors.white70, fontSize: 12)),
                 ],
               ],
             ),
@@ -265,9 +264,13 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
     final heroCards = hand.playerCards[hand.heroIndex]
         .map((c) => '${c.rank}${c.suit}')
         .join(' ');
-    final actions = <ActionEntry>[for (final a in hand.actions) if (a.street == 0) a];
+    final actions = <ActionEntry>[
+      for (final a in hand.actions)
+        if (a.street == 0) a
+    ];
     final stacks = <String, double>{
-      for (int i = 0; i < hand.numberOfPlayers; i++) '$i': (hand.stackSizes[i] ?? 0).toDouble()
+      for (int i = 0; i < hand.numberOfPlayers; i++)
+        '$i': (hand.stackSizes[i] ?? 0).toDouble()
     };
     return TrainingPackSpot(
       id: const Uuid().v4(),
@@ -388,41 +391,38 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-          _buildGoalProgress(context),
-          if (_playerAction() != null &&
-              gto != null &&
-              _playerAction()!.trim().toLowerCase() !=
-                  gto.trim().toLowerCase()) ...[
-            _buildMistakeCard(
-              _hand.feedbackText ??
-                  'Ваше действие отличается от GTO',
-              advice: _deriveAdvice(),
+            _buildGoalProgress(context),
+            if (_playerAction() != null &&
+                gto != null &&
+                _playerAction()!.trim().toLowerCase() !=
+                    gto.trim().toLowerCase()) ...[
+              _buildMistakeCard(
+                _hand.feedbackText ?? 'Ваше действие отличается от GTO',
+                advice: _deriveAdvice(),
+              ),
+              const SizedBox(height: 12),
+            ],
+            Row(
+              children: [
+                const Text('Позиция:', style: TextStyle(color: Colors.white70)),
+                const SizedBox(width: 8),
+                Chip(
+                  label: Text(_hand.heroPosition),
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  labelStyle: const TextStyle(
+                      color: Colors.black, fontWeight: FontWeight.bold),
+                ),
+              ],
             ),
             const SizedBox(height: 12),
-          ],
-          Row(
-            children: [
-              const Text('Позиция:',
-                  style: TextStyle(color: Colors.white70)),
-              const SizedBox(width: 8),
-              Chip(
-                label: Text(_hand.heroPosition),
-                backgroundColor:
-                    Theme.of(context).colorScheme.secondary,
-                labelStyle: const TextStyle(
-                    color: Colors.black, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          ReplaySpotWidget(
-            spot: spot,
-            expectedAction: _hand.expectedAction,
-            gtoAction: _hand.gtoAction,
-            evLoss: _hand.evLoss,
-            feedbackText: _hand.feedbackText,
-          ),
-          const SizedBox(height: 12),
+            ReplaySpotWidget(
+              spot: spot,
+              expectedAction: _hand.expectedAction,
+              gtoAction: _hand.gtoAction,
+              evLoss: _hand.evLoss,
+              feedbackText: _hand.feedbackText,
+            ),
+            const SizedBox(height: 12),
             if ((gto != null && gto.isNotEmpty) ||
                 (group != null && group.isNotEmpty))
               Column(
@@ -482,10 +482,10 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
                 'Вы выбрали: $_selectedAction. GTO рекомендует: ${gto ?? '-'}',
                 style: const TextStyle(color: Colors.white),
               ),
-            ],
-          ),
+          ],
         ),
-      );
+      ),
+    );
   }
 
   Widget _actionButton(String label) {

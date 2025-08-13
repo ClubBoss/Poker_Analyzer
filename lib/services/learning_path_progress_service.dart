@@ -70,7 +70,8 @@ class LearningPathProgressService {
       return;
     }
     final prefs = await SharedPreferences.getInstance();
-    final keys = prefs.getKeys()
+    final keys = prefs
+        .getKeys()
         .where((k) => k.startsWith('learning_completed_'))
         .toList();
     for (final k in keys) {
@@ -232,28 +233,28 @@ class LearningPathProgressService {
           tip:
               "Попробуй сначала сыграть пак 'Push/Fold Basics', чтобы освоиться с концепцией",
           items: [
-        LearningStageItem(
-          title: 'Push/Fold Basics',
-          icon: Icons.play_circle_fill,
-          progress: 0.0,
-          status: LearningItemStatus.locked,
-          templateId: 'starter_pushfold_10bb',
-        ),
-        LearningStageItem(
-          title: '10bb Ranges',
-          icon: Icons.school,
-          progress: 0.0,
-          status: LearningItemStatus.locked,
-          templateId: 'starter_pushfold_10bb',
-        ),
-        LearningStageItem(
-          title: '15bb Ranges',
-          icon: Icons.school,
-          progress: 0.0,
-          status: LearningItemStatus.locked,
-          templateId: 'starter_pushfold_15bb',
-        ),
-      ]),
+            LearningStageItem(
+              title: 'Push/Fold Basics',
+              icon: Icons.play_circle_fill,
+              progress: 0.0,
+              status: LearningItemStatus.locked,
+              templateId: 'starter_pushfold_10bb',
+            ),
+            LearningStageItem(
+              title: '10bb Ranges',
+              icon: Icons.school,
+              progress: 0.0,
+              status: LearningItemStatus.locked,
+              templateId: 'starter_pushfold_10bb',
+            ),
+            LearningStageItem(
+              title: '15bb Ranges',
+              icon: Icons.school,
+              progress: 0.0,
+              status: LearningItemStatus.locked,
+              templateId: 'starter_pushfold_15bb',
+            ),
+          ]),
       const LearningStageState(
           levelIndex: 2,
           title: 'Intermediate',
@@ -261,21 +262,21 @@ class LearningPathProgressService {
           goalHint: 'Пройди этап без ошибок',
           tip: 'Закрепи навыки прошлого уровня и изучи влияние ICM.',
           items: [
-        LearningStageItem(
-          title: 'ICM Concepts',
-          icon: Icons.insights,
-          progress: 0.0,
-          status: LearningItemStatus.locked,
-          templateId: 'starter_pushfold_12bb',
-        ),
-        LearningStageItem(
-          title: 'Shoving Charts 20bb',
-          icon: Icons.table_chart,
-          progress: 0.0,
-          status: LearningItemStatus.locked,
-          templateId: 'starter_pushfold_20bb',
-        ),
-      ]),
+            LearningStageItem(
+              title: 'ICM Concepts',
+              icon: Icons.insights,
+              progress: 0.0,
+              status: LearningItemStatus.locked,
+              templateId: 'starter_pushfold_12bb',
+            ),
+            LearningStageItem(
+              title: 'Shoving Charts 20bb',
+              icon: Icons.table_chart,
+              progress: 0.0,
+              status: LearningItemStatus.locked,
+              templateId: 'starter_pushfold_20bb',
+            ),
+          ]),
       const LearningStageState(
           levelIndex: 3,
           title: 'Advanced',
@@ -283,13 +284,13 @@ class LearningPathProgressService {
           goalHint: 'Отточить эксплойтные решения',
           tip: 'Ищи возможности для эксплойта соперников.',
           items: [
-        LearningStageItem(
-          title: 'Exploit Spots',
-          icon: Icons.lightbulb_outline,
-          progress: 0.0,
-          status: LearningItemStatus.locked,
-        ),
-      ]),
+            LearningStageItem(
+              title: 'Exploit Spots',
+              icon: Icons.lightbulb_outline,
+              progress: 0.0,
+              status: LearningItemStatus.locked,
+            ),
+          ]),
     ];
 
     final result = <LearningStageState>[];
@@ -376,13 +377,12 @@ class LearningPathProgressService {
     final prefs = await SharedPreferences.getInstance();
     final completed = prefs
         .getKeys()
-        .where((k) => k.startsWith('learning_completed_') &&
-            (prefs.getBool(k) ?? false))
+        .where((k) =>
+            k.startsWith('learning_completed_') && (prefs.getBool(k) ?? false))
         .map((k) => k.substring('learning_completed_'.length))
         .toList();
     final stages = await getCurrentStageState();
-    final current = stages.firstWhereOrNull(
-        (s) => !isStageCompleted(s.items));
+    final current = stages.firstWhereOrNull((s) => !isStageCompleted(s.items));
     final data = <String, dynamic>{
       'completedPackIds': completed,
       'introSeen': prefs.getBool(_introKey) ?? false,
@@ -395,7 +395,8 @@ class LearningPathProgressService {
     if (last != null) data['lastCompletedAt'] = last;
     final unlocked = prefs.getStringList(_unlockedKey);
     if (unlocked != null) data['unlockedPackIds'] = unlocked;
-    final unlockedStages = await SmartStageUnlockEngine.instance.getUnlockedStages();
+    final unlockedStages =
+        await SmartStageUnlockEngine.instance.getUnlockedStages();
     if (unlockedStages.isNotEmpty) data['unlockedStages'] = unlockedStages;
     if (current != null) data['currentStageId'] = current.title;
     return data;
@@ -412,7 +413,9 @@ class LearningPathProgressService {
       _mockIntroSeen = data['introSeen'] == true;
       _mockCustomPathStarted = data['customPathStarted'] == true;
       _mockCustomPathCompleted = data['customPathCompleted'] == true;
-      final stages = (data['unlockedStages'] as List?)?.whereType<String>().toList() ?? const [];
+      final stages =
+          (data['unlockedStages'] as List?)?.whereType<String>().toList() ??
+              const [];
       await SmartStageUnlockEngine.instance.setUnlockedStages(stages);
       return;
     }
@@ -460,15 +463,15 @@ class LearningPathProgressService {
       }
     }
     if (data.containsKey('unlockedPackIds')) {
-      final list = (data['unlockedPackIds'] as List?)
-          ?.whereType<String>()
-          .toList();
+      final list =
+          (data['unlockedPackIds'] as List?)?.whereType<String>().toList();
       if (list != null) {
         await prefs.setStringList(_unlockedKey, list);
       }
     }
     if (data.containsKey('unlockedStages')) {
-      final stages = (data['unlockedStages'] as List?)?.whereType<String>().toList();
+      final stages =
+          (data['unlockedStages'] as List?)?.whereType<String>().toList();
       if (stages != null) {
         await SmartStageUnlockEngine.instance.setUnlockedStages(stages);
       }

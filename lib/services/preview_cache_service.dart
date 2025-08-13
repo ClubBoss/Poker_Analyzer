@@ -29,8 +29,9 @@ class PreviewCacheService {
       final dir = await getApplicationSupportDirectory();
       final file = File(p.join(dir.path, 'asset_cache', 'preview', safe));
       if (await file.exists()) return file.path;
-      final data =
-          await FirebaseStorage.instance.ref('${kAssetPrefix}preview/$safe').getData();
+      final data = await FirebaseStorage.instance
+          .ref('${kAssetPrefix}preview/$safe')
+          .getData();
       if (data == null) return null;
       await file.parent.create(recursive: true);
       await file.writeAsBytes(data, flush: true);

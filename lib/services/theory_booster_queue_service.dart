@@ -3,7 +3,8 @@ import 'dart:collection';
 /// Simple queue of theory tags scheduled for boosters.
 class TheoryBoosterQueueService {
   TheoryBoosterQueueService._();
-  static final TheoryBoosterQueueService instance = TheoryBoosterQueueService._();
+  static final TheoryBoosterQueueService instance =
+      TheoryBoosterQueueService._();
 
   final Queue<String> _queue = Queue<String>();
 

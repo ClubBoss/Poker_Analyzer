@@ -46,8 +46,8 @@ void main() {
   });
 
   testWidgets('opens lesson using provided context', (tester) async {
-    const lesson =
-        TheoryMiniLessonNode(id: 'l1', title: 'Intro', content: '', tags: ['t']);
+    const lesson = TheoryMiniLessonNode(
+        id: 'l1', title: 'Intro', content: '', tags: ['t']);
     final library = _FakeLibrary({'t': lesson});
     final nav = TheoryMiniLessonNavigator(library: library);
 
@@ -65,9 +65,10 @@ void main() {
     expect(find.byType(MiniLessonScreen), findsOneWidget);
   });
 
-  testWidgets('opens lesson using global navigator when no context', (tester) async {
-    const lesson =
-        TheoryMiniLessonNode(id: 'l1', title: 'Intro', content: '', tags: ['t']);
+  testWidgets('opens lesson using global navigator when no context',
+      (tester) async {
+    const lesson = TheoryMiniLessonNode(
+        id: 'l1', title: 'Intro', content: '', tags: ['t']);
     final library = _FakeLibrary({'t': lesson});
     final nav = TheoryMiniLessonNavigator(library: library);
 
@@ -95,4 +96,3 @@ void main() {
     expect(find.byType(MiniLessonScreen), findsNothing);
   });
 }
-

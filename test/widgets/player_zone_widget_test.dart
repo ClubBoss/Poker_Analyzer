@@ -8,28 +8,35 @@ void main() {
 
   testWidgets('PlayerAvatar shows player name', (WidgetTester tester) async {
     final player = PlayerModel(name: 'Alice', stack: 100, bet: 0);
-    await tester.pumpWidget(MaterialApp(home: PlayerZoneWidget(player: player)));
+    await tester
+        .pumpWidget(MaterialApp(home: PlayerZoneWidget(player: player)));
     expect(find.text('A'), findsOneWidget);
   });
 
-  testWidgets('PlayerStackDisplay shows stack and bet', (WidgetTester tester) async {
+  testWidgets('PlayerStackDisplay shows stack and bet',
+      (WidgetTester tester) async {
     final player = PlayerModel(name: 'Bob', stack: 50, bet: 20);
-    await tester.pumpWidget(MaterialApp(home: PlayerZoneWidget(player: player)));
+    await tester
+        .pumpWidget(MaterialApp(home: PlayerZoneWidget(player: player)));
     expect(find.text('50 BB'), findsOneWidget);
     expect(find.text('Bet 20'), findsOneWidget);
   });
 
-  testWidgets('PlayerStatusIndicator shows folded and all-in', (WidgetTester tester) async {
+  testWidgets('PlayerStatusIndicator shows folded and all-in',
+      (WidgetTester tester) async {
     final player = PlayerModel(name: 'Chris', stack: 100, bet: 0);
-    await tester.pumpWidget(MaterialApp(home: PlayerZoneWidget(player: player, isFolded: true)));
+    await tester.pumpWidget(
+        MaterialApp(home: PlayerZoneWidget(player: player, isFolded: true)));
     expect(find.text('FOLDED'), findsOneWidget);
 
-    await tester.pumpWidget(MaterialApp(home: PlayerZoneWidget(player: player, isAllIn: true)));
+    await tester.pumpWidget(
+        MaterialApp(home: PlayerZoneWidget(player: player, isAllIn: true)));
     await tester.pump();
     expect(find.text('ALL-IN'), findsOneWidget);
   });
 
-  testWidgets('onEdit and onRemove callbacks fire', (WidgetTester tester) async {
+  testWidgets('onEdit and onRemove callbacks fire',
+      (WidgetTester tester) async {
     final player = PlayerModel(name: 'Dave', stack: 100, bet: 0);
     var editCalled = false;
     var removeCalled = false;

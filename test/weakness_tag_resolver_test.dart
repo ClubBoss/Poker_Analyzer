@@ -11,7 +11,8 @@ void main() {
     expect(sbStages.map((e) => e.id), contains('push_fold_cash_stage'));
 
     final threeBetStages = resolver.resolveRelevantStages('3betPot');
-    expect(threeBetStages.map((e) => e.id), contains('3bet_push_sb_vs_btn_stage'));
+    expect(
+        threeBetStages.map((e) => e.id), contains('3bet_push_sb_vs_btn_stage'));
 
     final openStages = resolver.resolveRelevantStages('openfold');
     expect(openStages.map((e) => e.id), contains('open_fold_lj_mtt_stage'));

@@ -63,4 +63,3 @@ class BoardSimilarityEngine {
     return order.indexOf(r) + 2;
   }
 }
-

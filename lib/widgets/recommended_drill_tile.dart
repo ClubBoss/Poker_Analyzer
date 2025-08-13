@@ -52,7 +52,8 @@ class _RecommendedDrillTileState extends State<RecommendedDrillTile> {
         p.meta['tag']?.toString().toLowerCase() == tag);
     double? progress;
     if (pack != null) {
-      final idx = await BoosterProgressTrackerService.instance.getLastIndex(pack.id);
+      final idx =
+          await BoosterProgressTrackerService.instance.getLastIndex(pack.id);
       if (idx != null && pack.spotCount > 0) {
         progress = (idx + 1) / pack.spotCount;
       }
@@ -79,8 +80,12 @@ class _RecommendedDrillTileState extends State<RecommendedDrillTile> {
           title: const Text('Resume?'),
           content: Text('Continue from spot ${idx + 1}?'),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Restart')),
-            TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Continue')),
+            TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Restart')),
+            TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Continue')),
           ],
         ),
       );

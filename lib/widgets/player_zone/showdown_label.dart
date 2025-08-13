@@ -19,7 +19,8 @@ class ShowdownLabel extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.only(bottom: 4 * scale),
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 6 * scale, vertical: 2 * scale),
+          padding:
+              EdgeInsets.symmetric(horizontal: 6 * scale, vertical: 2 * scale),
           decoration: BoxDecoration(
             color: Colors.black54,
             borderRadius: BorderRadius.circular(8 * scale),

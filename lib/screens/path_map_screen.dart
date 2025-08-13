@@ -183,14 +183,14 @@ class _PathMapScreenState extends State<PathMapScreen> {
                           const SizedBox(height: 4),
                           LinearProgressIndicator(value: value),
                           const SizedBox(height: 4),
-                          Text('$pct%',
-                              style: const TextStyle(fontSize: 12)),
+                          Text('$pct%', style: const TextStyle(fontSize: 12)),
                           const Spacer(),
                           Align(
                             alignment: Alignment.centerRight,
                             child: ElevatedButton(
-                              onPressed:
-                                  info.path == null ? null : () => _openTag(info),
+                              onPressed: info.path == null
+                                  ? null
+                                  : () => _openTag(info),
                               child: const Text('Перейти'),
                             ),
                           ),

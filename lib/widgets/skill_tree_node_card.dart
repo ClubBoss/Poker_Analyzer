@@ -26,7 +26,9 @@ class SkillTreeNodeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final overlay = const SkillTreeLessonStateOverlayBuilder().build(
       const NodeGateStatus(isVisible: true, isEnabled: true),
-      completed ? NodeCompletionStatus.completed : NodeCompletionStatus.notStarted,
+      completed
+          ? NodeCompletionStatus.completed
+          : NodeCompletionStatus.notStarted,
     );
     Color borderColor;
     if (completed) {

@@ -181,10 +181,10 @@ class _DetailedActionSheetState extends State<_DetailedActionSheet> {
                 ),
               ),
               onPressed: () => _onActionSelected(actions[i]['value'] as String),
-              icon:
-                  Text(actions[i]['icon'] as String, style: const TextStyle(fontSize: 24)),
-              label:
-                  Text(actions[i]['label'] as String, style: const TextStyle(fontSize: 20)),
+              icon: Text(actions[i]['icon'] as String,
+                  style: const TextStyle(fontSize: 24)),
+              label: Text(actions[i]['label'] as String,
+                  style: const TextStyle(fontSize: 20)),
             ),
             if (i != actions.length - 1) const SizedBox(height: 12),
           ],
@@ -204,7 +204,8 @@ class _DetailedActionSheetState extends State<_DetailedActionSheet> {
                 _quickSizeButton('1/3 pot', 1 / 3),
                 _quickSizeButton('1/2 pot', 1 / 2),
                 _quickSizeButton('pot', 1),
-                _quickSizeButton('All-in', widget.stackSizeBB / widget.potSizeBB),
+                _quickSizeButton(
+                    'All-in', widget.stackSizeBB / widget.potSizeBB),
               ],
             ),
             const SizedBox(height: 12),

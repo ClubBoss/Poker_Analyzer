@@ -52,7 +52,8 @@ class _TrainingStatsScreenState extends State<TrainingStatsScreen> {
           actions: [
             IconButton(
               icon: const Icon(Icons.share),
-              onPressed: () => context.read<TrainingStatsService>().shareProgress(),
+              onPressed: () =>
+                  context.read<TrainingStatsService>().shareProgress(),
             )
           ],
         ),
@@ -66,7 +67,8 @@ class _TrainingStatsScreenState extends State<TrainingStatsScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.share),
-            onPressed: () => context.read<TrainingStatsService>().shareProgress(),
+            onPressed: () =>
+                context.read<TrainingStatsService>().shareProgress(),
           )
         ],
       ),
@@ -81,7 +83,8 @@ class _TrainingStatsScreenState extends State<TrainingStatsScreen> {
                 children: [
                   Text('Total Spots: ${s.totalSpots}'),
                   const SizedBox(height: 4),
-                  Text('Average Accuracy: ${(s.avgAccuracy * 100).toStringAsFixed(1)}%'),
+                  Text(
+                      'Average Accuracy: ${(s.avgAccuracy * 100).toStringAsFixed(1)}%'),
                   const SizedBox(height: 4),
                   Text('Streak: ${s.streakDays} days'),
                 ],

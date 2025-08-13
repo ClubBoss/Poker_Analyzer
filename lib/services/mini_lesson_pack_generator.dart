@@ -43,7 +43,8 @@ class MiniLessonPackGenerator {
     for (final key in groups.keys) {
       final list = groups[key]!;
       final title = titles[key] ?? key;
-      final packId = 'mini_lessons_${key.replaceAll(RegExp(r'[^a-z0-9]+'), '_')}';
+      final packId =
+          'mini_lessons_${key.replaceAll(RegExp(r'[^a-z0-9]+'), '_')}';
 
       final existing = <MiniLessonEntry>[];
       final mergePath = merge[key];

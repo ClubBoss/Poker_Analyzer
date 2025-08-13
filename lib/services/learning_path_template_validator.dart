@@ -16,27 +16,33 @@ class LearningPathTemplateValidator {
     for (final stage in path.stages) {
       final sid = stage.id.trim();
       if (sid.isEmpty) {
-        issues.add(const ValidationIssue(type: 'error', message: 'empty_stage_id'));
+        issues.add(
+            const ValidationIssue(type: 'error', message: 'empty_stage_id'));
         continue;
       }
       if (!ids.add(sid)) {
-        issues.add(ValidationIssue(type: 'error', message: 'duplicate_id:$sid'));
+        issues
+            .add(ValidationIssue(type: 'error', message: 'duplicate_id:$sid'));
       }
       if (stage.tags.isEmpty) {
-        issues.add(ValidationIssue(type: 'error', message: 'missing_tags:$sid'));
+        issues
+            .add(ValidationIssue(type: 'error', message: 'missing_tags:$sid'));
       }
 
       final pack = _findPack(stage.packId);
       if (pack == null) {
-        issues.add(ValidationIssue(type: 'error', message: 'missing_pack:${stage.packId}'));
+        issues.add(ValidationIssue(
+            type: 'error', message: 'missing_pack:${stage.packId}'));
         continue;
       }
       if (pack.trainingType == TrainingType.theory) {
         final id = stage.theoryPackId?.trim() ?? '';
         if (id.isEmpty) {
-          issues.add(ValidationIssue(type: 'error', message: 'missing_theory_pack_id:$sid'));
+          issues.add(ValidationIssue(
+              type: 'error', message: 'missing_theory_pack_id:$sid'));
         } else if (_findPack(id) == null) {
-          issues.add(ValidationIssue(type: 'error', message: 'bad_theory_pack:$id'));
+          issues.add(
+              ValidationIssue(type: 'error', message: 'bad_theory_pack:$id'));
         }
       }
     }

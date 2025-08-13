@@ -14,10 +14,14 @@ void main() {
 
   test('emits events when thresholds reached', () async {
     final lessons = <String, TheoryMiniLessonNode>{
-      'l1': const TheoryMiniLessonNode(id: 'l1', title: 'L1', content: '', tags: ['a']),
-      'l2': const TheoryMiniLessonNode(id: 'l2', title: 'L2', content: '', tags: ['a']),
-      'l3': const TheoryMiniLessonNode(id: 'l3', title: 'L3', content: '', tags: ['a']),
-      'l4': const TheoryMiniLessonNode(id: 'l4', title: 'L4', content: '', tags: ['a']),
+      'l1': const TheoryMiniLessonNode(
+          id: 'l1', title: 'L1', content: '', tags: ['a']),
+      'l2': const TheoryMiniLessonNode(
+          id: 'l2', title: 'L2', content: '', tags: ['a']),
+      'l3': const TheoryMiniLessonNode(
+          id: 'l3', title: 'L3', content: '', tags: ['a']),
+      'l4': const TheoryMiniLessonNode(
+          id: 'l4', title: 'L4', content: '', tags: ['a']),
     };
     const summary = TheoryClusterSummary(
       size: 4,

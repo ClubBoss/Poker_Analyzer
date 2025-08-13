@@ -31,7 +31,8 @@ class CardPickerWidget extends StatelessWidget {
               for (final c in cards) '${c.rank}${c.suit}'
             };
             if (card != null) disabled.remove('${card.rank}${card.suit}');
-            final selected = await showCardSelector(context, disabledCards: disabled);
+            final selected =
+                await showCardSelector(context, disabledCards: disabled);
             if (selected != null) onChanged(i, selected);
           },
           child: Container(

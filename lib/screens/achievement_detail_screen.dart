@@ -44,9 +44,8 @@ class AchievementDetailScreen extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
-                value:
-                    (achievement.progressInLevel / achievement.targetInLevel)
-                        .clamp(0.0, 1.0),
+                value: (achievement.progressInLevel / achievement.targetInLevel)
+                    .clamp(0.0, 1.0),
                 backgroundColor: Colors.white24,
                 valueColor: AlwaysStoppedAnimation<Color>(color),
                 minHeight: 6,

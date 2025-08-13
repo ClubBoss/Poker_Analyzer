@@ -44,8 +44,7 @@ class TagCacheService extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<String> getPopularTags({int limit = 10}) =>
-      _sortedTags(limit: limit);
+  List<String> getPopularTags({int limit = 10}) => _sortedTags(limit: limit);
 
   List<String> getPopularCategories({int limit = 5}) =>
       topCategories.keys.take(limit).toList();

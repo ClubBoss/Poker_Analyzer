@@ -74,8 +74,7 @@ class _LearningPathDashboardState extends State<LearningPathDashboard> {
       _streak = streak;
       _loading = false;
     });
-    unawaited(
-        OverlayDecayBoosterOrchestrator.instance.maybeShow(context));
+    unawaited(OverlayDecayBoosterOrchestrator.instance.maybeShow(context));
   }
 
   Future<void> _continueTraining() async {

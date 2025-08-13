@@ -197,9 +197,8 @@ class _LearningPathStageDetailedScreenState
     }
     final copy = TrainingPackTemplateV2.fromJson(template.toJson())
       ..name = sub.title
-      ..description = sub.description.isNotEmpty
-          ? sub.description
-          : template.description;
+      ..description =
+          sub.description.isNotEmpty ? sub.description : template.description;
     await const TrainingSessionLauncher().launch(copy);
     if (mounted) _load();
   }

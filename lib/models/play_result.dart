@@ -1,4 +1,5 @@
 import 'v2/training_pack_spot.dart';
+
 class PlayResult {
   final String spotId;
   final bool isCorrect;

@@ -217,7 +217,8 @@ class LearningPathEngine {
     LearningPathNode clone(LearningPathNode node) {
       if (node is LearningBranchNode) {
         final branches = Map<String, String>.from(node.branches);
-        branches.updateAll((key, value) => value == nodeId ? (replacement ?? value) : value);
+        branches.updateAll(
+            (key, value) => value == nodeId ? (replacement ?? value) : value);
         branches.removeWhere((key, value) => value.isEmpty);
         return LearningBranchNode(
           id: node.id,
@@ -226,7 +227,10 @@ class LearningPathEngine {
           recoveredFromMistake: node.recoveredFromMistake,
         );
       } else if (node is TrainingStageNode) {
-        final next = [for (final n in node.nextIds) if (n != nodeId) n];
+        final next = [
+          for (final n in node.nextIds)
+            if (n != nodeId) n
+        ];
         if (replacement != null) {
           for (var i = 0; i < node.nextIds.length; i++) {
             if (node.nextIds[i] == nodeId) next.insert(i, replacement);
@@ -239,7 +243,10 @@ class LearningPathEngine {
           recoveredFromMistake: node.recoveredFromMistake,
         );
       } else if (node is TheoryStageNode) {
-        final next = [for (final n in node.nextIds) if (n != nodeId) n];
+        final next = [
+          for (final n in node.nextIds)
+            if (n != nodeId) n
+        ];
         if (replacement != null) {
           for (var i = 0; i < node.nextIds.length; i++) {
             if (node.nextIds[i] == nodeId) next.insert(i, replacement);
@@ -252,7 +259,10 @@ class LearningPathEngine {
           recoveredFromMistake: node.recoveredFromMistake,
         );
       } else if (node is TheoryLessonNode) {
-        final next = [for (final n in node.nextIds) if (n != nodeId) n];
+        final next = [
+          for (final n in node.nextIds)
+            if (n != nodeId) n
+        ];
         if (replacement != null) {
           for (var i = 0; i < node.nextIds.length; i++) {
             if (node.nextIds[i] == nodeId) next.insert(i, replacement);
@@ -267,7 +277,10 @@ class LearningPathEngine {
           recoveredFromMistake: node.recoveredFromMistake,
         );
       } else if (node is TheoryMiniLessonNode) {
-        final next = [for (final n in node.nextIds) if (n != nodeId) n];
+        final next = [
+          for (final n in node.nextIds)
+            if (n != nodeId) n
+        ];
         if (replacement != null) {
           for (var i = 0; i < node.nextIds.length; i++) {
             if (node.nextIds[i] == nodeId) next.insert(i, replacement);
@@ -286,13 +299,18 @@ class LearningPathEngine {
       return node;
     }
 
-    final updated = <LearningPathNode>[for (final n in nodes) if (n.id != nodeId) clone(n)];
+    final updated = <LearningPathNode>[
+      for (final n in nodes)
+        if (n.id != nodeId) clone(n)
+    ];
 
     final state = mapEngine.getState();
     final branchChoices = Map<String, String>.from(state.branchChoices)
       ..remove(nodeId);
     final completed = Set<String>.from(state.completedStageIds)..remove(nodeId);
-    final current = state.currentNodeId == nodeId ? (replacement ?? '') : state.currentNodeId;
+    final current = state.currentNodeId == nodeId
+        ? (replacement ?? '')
+        : state.currentNodeId;
     final newState = LearningPathSessionState(
       currentNodeId: current,
       branchChoices: branchChoices,

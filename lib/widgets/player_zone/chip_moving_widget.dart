@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 class ChipMovingWidget extends StatefulWidget {
   /// Number of ChipMovingWidget instances currently animating.
   static int activeCount = 0;
+
   /// Global start position of the chip.
   final Offset start;
 
@@ -87,14 +88,15 @@ class _ChipMovingWidgetState extends State<ChipMovingWidget>
             u * u * p0.dy + 2 * u * t * p1.dy + t * t * p2.dy,
           );
         }
+
         final control = widget.control ??
             Offset(
               (widget.start.dx + widget.end.dx) / 2,
               (widget.start.dy + widget.end.dy) / 2 -
                   (40 + ChipMovingWidget.activeCount * 8) * widget.scale,
             );
-        final pos = bezier(
-            widget.start, control, widget.end, _controller.value);
+        final pos =
+            bezier(widget.start, control, widget.end, _controller.value);
         final sizeFactor = _scaleAnim.value * widget.scale;
         return Positioned(
           left: pos.dx - 12 * sizeFactor,

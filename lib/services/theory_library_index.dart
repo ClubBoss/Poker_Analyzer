@@ -29,7 +29,11 @@ class TheoryLibraryIndex {
           final title = e['title'] as String?;
           final uri = e['uri'] as String?;
           final tags = (e['tags'] as List?)?.cast<String>();
-          if (id != null && title != null && uri != null && tags != null && tags.isNotEmpty) {
+          if (id != null &&
+              title != null &&
+              uri != null &&
+              tags != null &&
+              tags.isNotEmpty) {
             items.add(
               TheoryResource(id: id, title: title, uri: uri, tags: tags),
             );

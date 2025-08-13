@@ -84,7 +84,8 @@ class _DecayDashboardScreenState extends State<DecayDashboardScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('План на сегодня',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Text(tags, style: const TextStyle(color: Colors.white70)),
         ],

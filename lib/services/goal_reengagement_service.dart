@@ -76,8 +76,8 @@ class GoalReengagementService {
       if ((_dismissed[tag] ?? 0) >= 3) continue;
       final progress = allGoals.firstWhere((g) => g.tag == tag);
       if (GoalCompletionEngine.instance.isGoalCompleted(progress)) continue;
-      final score =
-          (3 - progress.stagesCompleted).toDouble() + (100 - progress.averageAccuracy) / 100;
+      final score = (3 - progress.stagesCompleted).toDouble() +
+          (100 - progress.averageAccuracy) / 100;
       if (score > bestScore) {
         bestScore = score;
         best = TrainingGoal('Продолжи цель: $tag', tag: tag);
@@ -92,8 +92,7 @@ class GoalReengagementService {
     await _load();
     _dismissed[key] = (_dismissed[key] ?? 0) + 1;
     await _save();
-    await GoalEngagementTracker.instance
-        .log(GoalEngagement(tag: key, action: 'dismiss', timestamp: DateTime.now()));
+    await GoalEngagementTracker.instance.log(
+        GoalEngagement(tag: key, action: 'dismiss', timestamp: DateTime.now()));
   }
 }
-

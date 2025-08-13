@@ -26,7 +26,9 @@ class AdaptiveTheoryScheduler {
     final byId = {for (final l in lessons) l.id: l};
 
     // Build incoming edge map to check prerequisites.
-    final incoming = <String, Set<String>>{for (final l in lessons) l.id: <String>{}};
+    final incoming = <String, Set<String>>{
+      for (final l in lessons) l.id: <String>{}
+    };
     for (final l in lessons) {
       for (final next in l.nextIds) {
         if (incoming.containsKey(next)) incoming[next]!.add(l.id);
@@ -39,7 +41,10 @@ class AdaptiveTheoryScheduler {
       if (incoming[l.id]!.isEmpty) roots.add(l.id);
     }
     final queue = <String>[
-      if (profile.completedLessonIds.isEmpty) ...roots else ...profile.completedLessonIds,
+      if (profile.completedLessonIds.isEmpty)
+        ...roots
+      else
+        ...profile.completedLessonIds,
     ];
     final reachable = <String>{};
     while (queue.isNotEmpty) {
@@ -58,7 +63,8 @@ class AdaptiveTheoryScheduler {
       if (node == null) continue;
       if (profile.completedLessonIds.contains(id)) continue;
       final prereq = incoming[id]!;
-      if (prereq.isNotEmpty && !prereq.every(profile.completedLessonIds.contains)) {
+      if (prereq.isNotEmpty &&
+          !prereq.every(profile.completedLessonIds.contains)) {
         continue;
       }
       candidates.add(node);

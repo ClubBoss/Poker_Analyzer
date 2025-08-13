@@ -53,12 +53,12 @@ class SavedHandDetailSheet extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             if ([
-                  hand.tournamentId,
-                  hand.buyIn,
-                  hand.totalPrizePool,
-                  hand.numberOfEntrants,
-                  hand.gameType
-                ].any((e) => e != null && e.toString().isNotEmpty)) ...[
+              hand.tournamentId,
+              hand.buyIn,
+              hand.totalPrizePool,
+              hand.numberOfEntrants,
+              hand.gameType
+            ].any((e) => e != null && e.toString().isNotEmpty)) ...[
               const Text('Tournament Info',
                   style: TextStyle(
                     color: Colors.white,
@@ -89,9 +89,9 @@ class SavedHandDetailSheet extends StatelessWidget {
                 style: const TextStyle(color: Colors.white70)),
             if (hand.comment != null) ...[
               const SizedBox(height: 12),
-              const Text('Комментарий:',
-                  style: TextStyle(color: Colors.white)),
-              Text(hand.comment!, style: const TextStyle(color: Colors.white70)),
+              const Text('Комментарий:', style: TextStyle(color: Colors.white)),
+              Text(hand.comment!,
+                  style: const TextStyle(color: Colors.white70)),
             ],
             if (hand.tags.isNotEmpty) ...[
               const SizedBox(height: 12),
@@ -109,8 +109,7 @@ class SavedHandDetailSheet extends StatelessWidget {
             ],
             if (hand.actions.isNotEmpty) ...[
               const SizedBox(height: 12),
-              const Text('Действия:',
-                  style: TextStyle(color: Colors.white)),
+              const Text('Действия:', style: TextStyle(color: Colors.white)),
               const SizedBox(height: 4),
               for (final a in hand.actions)
                 Text(

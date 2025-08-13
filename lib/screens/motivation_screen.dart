@@ -28,7 +28,8 @@ class MotivationScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(g.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(g.title,
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
@@ -66,9 +67,11 @@ class MotivationScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(a.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(a.title,
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
-                Text(a.description, style: const TextStyle(color: Colors.white70)),
+                Text(a.description,
+                    style: const TextStyle(color: Colors.white70)),
                 const SizedBox(height: 8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
@@ -122,10 +125,12 @@ class MotivationScreen extends StatelessWidget {
               children: [
                 Text(
                   '${stage.label} Level ${xp.level}',
-                  style: TextStyle(color: stage.color, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      color: stage.color, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
-                Text('${xp.xp} / ${xp.nextLevelXp} XP', style: const TextStyle(color: Colors.white)),
+                Text('${xp.xp} / ${xp.nextLevelXp} XP',
+                    style: const TextStyle(color: Colors.white)),
                 const SizedBox(height: 8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
@@ -149,7 +154,8 @@ class MotivationScreen extends StatelessWidget {
             const SizedBox(height: 16),
           ],
           if (achievements.isNotEmpty) ...[
-            const Text('Achievements', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('Achievements',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             for (final a in achievements) _achievement(a, accent),
           ],

@@ -578,4 +578,3 @@ List<SingleChildWidget> buildTrainingProviders() {
     ),
   ];
 }
-

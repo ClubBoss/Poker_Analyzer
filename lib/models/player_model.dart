@@ -27,6 +27,7 @@ enum PlayerType {
 class PlayerModel with CopyWithMixin<PlayerModel> {
   final String name;
   final List<String> cards;
+
   /// Cards that this player has revealed. Two slots that may be null.
   final List<CardModel?> revealedCards;
   final Map<PokerStreet, List<PlayerActionModel>> actions;
@@ -83,10 +84,12 @@ class PlayerModel with CopyWithMixin<PlayerModel> {
         for (final item in (json['revealedCards'] as List? ?? [null, null]))
           item == null
               ? null
-              : CardModel(rank: item['rank'] as String, suit: item['suit'] as String)
+              : CardModel(
+                  rank: item['rank'] as String, suit: item['suit'] as String)
       ],
     );
-    model.cards.addAll([for (final c in (json['cards'] as List? ?? [])) c as String]);
+    model.cards
+        .addAll([for (final c in (json['cards'] as List? ?? [])) c as String]);
     final acts = json['actions'] as Map? ?? {};
     acts.forEach((key, value) {
       final street = pokerStreetFromString(key as String);

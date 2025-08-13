@@ -45,8 +45,7 @@ class TheoryMilestoneUnlocker {
     required TheoryClusterSummary summary,
     required Map<String, TheoryMiniLessonNode> allLessons,
   }) async {
-    final progress =
-        await tracker.progressForCluster(summary, allLessons);
+    final progress = await tracker.progressForCluster(summary, allLessons);
     final prevIndex = await _loadIndex(clusterName);
     var newIndex = prevIndex;
     for (var i = thresholds.length - 1; i >= 0; i--) {

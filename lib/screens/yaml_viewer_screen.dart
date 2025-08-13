@@ -5,7 +5,8 @@ import '../theme/app_colors.dart';
 class YamlViewerScreen extends StatelessWidget {
   final String yamlText;
   final String title;
-  const YamlViewerScreen({super.key, required this.yamlText, required this.title});
+  const YamlViewerScreen(
+      {super.key, required this.yamlText, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +18,8 @@ class YamlViewerScreen extends StatelessWidget {
             icon: const Icon(Icons.copy),
             onPressed: () {
               Clipboard.setData(ClipboardData(text: yamlText));
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied')));
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(const SnackBar(content: Text('Copied')));
             },
           ),
         ],
@@ -26,7 +28,8 @@ class YamlViewerScreen extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: SingleChildScrollView(
-          child: SelectableText(yamlText, style: const TextStyle(color: Colors.white)),
+          child: SelectableText(yamlText,
+              style: const TextStyle(color: Colors.white)),
         ),
       ),
     );

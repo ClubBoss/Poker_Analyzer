@@ -31,8 +31,7 @@ void main() {
             tree: treeA, completionRate: 0.1, isCompleted: false),
         TrackProgressEntry(
             tree: treeB, completionRate: 0.2, isCompleted: false),
-        TrackProgressEntry(
-            tree: treeC, completionRate: 0.3, isCompleted: true),
+        TrackProgressEntry(tree: treeC, completionRate: 0.3, isCompleted: true),
       ]),
     );
 

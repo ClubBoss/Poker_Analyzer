@@ -102,8 +102,7 @@ class _TrainingPackPlayScreenV2State
   Future<void> _prepare() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _autoAdvance =
-          widget.template.targetStreet == null &&
+      _autoAdvance = widget.template.targetStreet == null &&
           (prefs.getBool('auto_adv_${widget.template.id}') ?? false);
       _adaptiveMode = prefs.getBool('adaptive_mode_enabled') ?? true;
       _srEnabled = prefs.getBool('interleave_sr_enabled') ?? true;
@@ -403,8 +402,7 @@ class _TrainingPackPlayScreenV2State
     final streets = spot.evalResult?.streets;
     if (streets != null && _currentStreet < streets.length) {
       final data = streets[_currentStreet];
-      final val =
-          data['${action.toLowerCase()}Icm'] ??
+      final val = data['${action.toLowerCase()}Icm'] ??
           data['${action.toLowerCase()}_icm'];
       if (val is num) return val.toDouble();
       if (val is Map && val['icmEv'] is num)
@@ -545,9 +543,8 @@ class _TrainingPackPlayScreenV2State
     bool repeated,
   ) {
     _feedbackTimer?.cancel();
-    final advice = spot.tags.isNotEmpty
-        ? kMistakeAdvice[spot.tags.first]
-        : null;
+    final advice =
+        spot.tags.isNotEmpty ? kMistakeAdvice[spot.tags.first] : null;
     setState(() {
       _feedback = SpotFeedback(
         action,
@@ -619,9 +616,9 @@ class _TrainingPackPlayScreenV2State
 
   Future<void> _saveCurrentSpot() async {
     await context.read<MistakeReviewPackService>().addSpot(
-      widget.original,
-      _spots[_index],
-    );
+          widget.original,
+          _spots[_index],
+        );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Сохранено в Повторы ошибок')),
@@ -702,9 +699,9 @@ class _TrainingPackPlayScreenV2State
       );
       MistakeReviewPackService.setLatestTemplate(template);
       await context.read<MistakeReviewPackService>().addPack(
-        ids,
-        templateId: widget.original.id,
-      );
+            ids,
+            templateId: widget.original.id,
+          );
       final start = await showDialog<bool>(
         context: context,
         builder: (_) => AlertDialog(
@@ -760,18 +757,17 @@ class _TrainingPackPlayScreenV2State
 
       final evalSpot = _toSpot(spot);
       final evaluation = context.read<EvaluationExecutorService>().evaluateSpot(
-        context,
-        evalSpot,
-        act,
-      );
+            context,
+            evalSpot,
+            act,
+          );
       final heroEv = _actionEv(spot, act);
       final bestEv = _bestEv(spot);
       final heroIcm = _actionIcmEv(spot, act);
       final bestIcm = _bestIcmEv(spot);
       final evDiff = heroEv != null && bestEv != null ? heroEv - bestEv : null;
-      final icmDiff = heroIcm != null && bestIcm != null
-          ? heroIcm - bestIcm
-          : null;
+      final icmDiff =
+          heroIcm != null && bestIcm != null ? heroIcm - bestIcm : null;
       final goodEv = evDiff == null || evDiff >= 0;
       final goodIcm = icmDiff == null || icmDiff >= 0;
       if (goodEv && goodIcm) {
@@ -781,8 +777,7 @@ class _TrainingPackPlayScreenV2State
       } else {
         HapticFeedback.mediumImpact();
       }
-      final incorrect =
-          (evDiff != null && evDiff < 0) ||
+      final incorrect = (evDiff != null && evDiff < 0) ||
           (icmDiff != null && icmDiff < 0) ||
           !evaluation.correct;
       String? category;
@@ -796,12 +791,11 @@ class _TrainingPackPlayScreenV2State
         );
         category = engine.categorize(m);
       }
-      final repeated =
-          !isSr &&
+      final repeated = !isSr &&
           incorrect &&
           context.read<MistakeReviewPackService>().packs.any(
-            (p) => p.spotIds.contains(spot.id),
-          );
+                (p) => p.spotIds.contains(spot.id),
+              );
       await UserErrorRateService.instance.recordAttempt(
         packId: isSr ? _srCurrent!.packId : widget.template.id,
         tags: spot.tags.toSet(),
@@ -810,13 +804,13 @@ class _TrainingPackPlayScreenV2State
       );
       if (!isSr && incorrect && first) {
         await context.read<MistakeReviewPackService>().addSpot(
-          widget.original,
-          spot,
-        );
+              widget.original,
+              spot,
+            );
         await context.read<SpacedReviewService>().recordMistake(
-          spot.id,
-          widget.template.id,
-        );
+              spot.id,
+              widget.template.id,
+            );
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Сохранено в Повторы ошибок')),
@@ -824,10 +818,10 @@ class _TrainingPackPlayScreenV2State
         }
       }
       await context.read<SpacedReviewService>().recordReviewOutcome(
-        spot.id,
-        isSr ? _srCurrent!.packId : widget.template.id,
-        !incorrect,
-      );
+            spot.id,
+            isSr ? _srCurrent!.packId : widget.template.id,
+            !incorrect,
+          );
       if (_autoAdvance && !incorrect && !isSr) {
         _srCounter++;
         if (_srEnabled &&
@@ -874,13 +868,13 @@ class _TrainingPackPlayScreenV2State
                   onPressed: () async {
                     final tpl =
                         await TrainingPackService.createDrillFromCategory(
-                          context,
-                          category!,
-                        );
+                      context,
+                      category!,
+                    );
                     if (tpl == null) return;
                     await context.read<TrainingSessionService>().startSession(
-                      tpl,
-                    );
+                          tpl,
+                        );
                     if (context.mounted) {
                       Navigator.pop(ctx);
                       await Navigator.push(

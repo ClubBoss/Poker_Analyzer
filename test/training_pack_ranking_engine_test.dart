@@ -19,7 +19,11 @@ TrainingPackSpot spot(int bb) {
         0: [ActionEntry(0, 0, 'push')]
       },
     ),
-    evalResult: EvaluationResult(correct: true, expectedAction: 'push', userEquity: 0, expectedEquity: 0),
+    evalResult: EvaluationResult(
+        correct: true,
+        expectedAction: 'push',
+        userEquity: 0,
+        expectedEquity: 0),
   );
 }
 
@@ -44,8 +48,10 @@ void main() {
   });
 
   test('rankAll returns map by id', () {
-    final a = TrainingPackTemplateV2(id: 'a', name: 'A', trainingType: TrainingType.pushFold);
-    final b = TrainingPackTemplateV2(id: 'b', name: 'B', trainingType: TrainingType.pushFold);
+    final a = TrainingPackTemplateV2(
+        id: 'a', name: 'A', trainingType: TrainingType.pushFold);
+    final b = TrainingPackTemplateV2(
+        id: 'b', name: 'B', trainingType: TrainingType.pushFold);
     final res = const TrainingPackRankingEngine().rankAll([a, b]);
     expect(res.keys, containsAll(['a', 'b']));
   });

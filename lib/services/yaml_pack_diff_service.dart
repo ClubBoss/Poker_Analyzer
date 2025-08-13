@@ -83,10 +83,18 @@ class YamlPackDiffService {
       } else {
         final ma = Map<String, dynamic>.from(sa.toJson())
           ..removeWhere((k, _) =>
-              k == 'id' || k == 'createdAt' || k == 'updatedAt' || k == 'editedAt' || k == 'explanation');
+              k == 'id' ||
+              k == 'createdAt' ||
+              k == 'updatedAt' ||
+              k == 'editedAt' ||
+              k == 'explanation');
         final mb = Map<String, dynamic>.from(sb.toJson())
           ..removeWhere((k, _) =>
-              k == 'id' || k == 'createdAt' || k == 'updatedAt' || k == 'editedAt' || k == 'explanation');
+              k == 'id' ||
+              k == 'createdAt' ||
+              k == 'updatedAt' ||
+              k == 'editedAt' ||
+              k == 'explanation');
         if (!eq.equals(ma, mb)) out.add('- 🟨 $id');
       }
     }

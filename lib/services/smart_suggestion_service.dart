@@ -39,8 +39,10 @@ class SmartSuggestionService {
       ];
     }
     list.sort((a, b) {
-      final ascore = (1 - a.pctComplete) * 100 + now.difference(a.lastAttemptDate).inDays;
-      final bscore = (1 - b.pctComplete) * 100 + now.difference(b.lastAttemptDate).inDays;
+      final ascore =
+          (1 - a.pctComplete) * 100 + now.difference(a.lastAttemptDate).inDays;
+      final bscore =
+          (1 - b.pctComplete) * 100 + now.difference(b.lastAttemptDate).inDays;
       return bscore.compareTo(ascore);
     });
     return list.take(3).toList();
@@ -57,14 +59,12 @@ class SmartSuggestionService {
     List<TrainingPack> almost = [
       for (final p in packs)
         if (p.pctComplete >= 0.6 && p.pctComplete < 1) p
-    ]
-      ..sort((a, b) => b.pctComplete.compareTo(a.pctComplete));
+    ]..sort((a, b) => b.pctComplete.compareTo(a.pctComplete));
 
     List<TrainingPack> stale = [
       for (final p in packs)
         if (now.difference(p.lastAttemptDate).inDays > 7) p
-    ]
-      ..sort((a, b) => a.lastAttemptDate.compareTo(b.lastAttemptDate));
+    ]..sort((a, b) => a.lastAttemptDate.compareTo(b.lastAttemptDate));
 
     final goal = goals.currentGoal;
     List<TrainingPack> goalPacks = [];
@@ -99,7 +99,8 @@ class SmartSuggestionService {
     final prefs = await SharedPreferences.getInstance();
     final completed = prefs
         .getKeys()
-        .where((k) => k.startsWith('completed_tpl_') && prefs.getBool(k) == true)
+        .where(
+            (k) => k.startsWith('completed_tpl_') && prefs.getBool(k) == true)
         .map((k) => k.substring('completed_tpl_'.length))
         .toSet();
     final docs = await getApplicationDocumentsDirectory();

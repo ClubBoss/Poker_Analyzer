@@ -22,8 +22,8 @@ class TrainingSpotAnalysisScreen extends StatefulWidget {
       _TrainingSpotAnalysisScreenState();
 }
 
-class _TrainingSpotAnalysisScreenState extends State<TrainingSpotAnalysisScreen> {
-
+class _TrainingSpotAnalysisScreenState
+    extends State<TrainingSpotAnalysisScreen> {
   String _evaluateActionQuality(ActionEntry entry) {
     switch (entry.action) {
       case 'raise':
@@ -51,7 +51,8 @@ class _TrainingSpotAnalysisScreenState extends State<TrainingSpotAnalysisScreen>
 
   Map<int, int> _computeStacks() {
     final initial = {
-      for (int i = 0; i < widget.spot.numberOfPlayers; i++) i: widget.spot.stacks[i]
+      for (int i = 0; i < widget.spot.numberOfPlayers; i++)
+        i: widget.spot.stacks[i]
     };
     final manager = StackManager(initial);
     manager.applyActions(widget.spot.actions);
@@ -59,7 +60,8 @@ class _TrainingSpotAnalysisScreenState extends State<TrainingSpotAnalysisScreen>
   }
 
   Map<int, String> _posMap() => {
-        for (int i = 0; i < widget.spot.numberOfPlayers; i++) i: widget.spot.positions[i]
+        for (int i = 0; i < widget.spot.numberOfPlayers; i++)
+          i: widget.spot.positions[i]
       };
 
   String _overrideQuality(ActionEntry entry) {
@@ -70,8 +72,7 @@ class _TrainingSpotAnalysisScreenState extends State<TrainingSpotAnalysisScreen>
     setState(() {
       final idx = widget.spot.actions.indexOf(entry);
       if (idx != -1) {
-        widget.spot.actions[idx] =
-            entry.copyWith(manualEvaluation: value);
+        widget.spot.actions[idx] = entry.copyWith(manualEvaluation: value);
       }
     });
   }
@@ -96,7 +97,8 @@ class _TrainingSpotAnalysisScreenState extends State<TrainingSpotAnalysisScreen>
           collapsedIconColor: Colors.white,
           iconColor: Colors.white,
           textColor: Colors.white,
-          childrenPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          childrenPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           children: [
             SizedBox(
               height: 180,

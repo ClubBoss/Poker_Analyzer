@@ -18,7 +18,8 @@ class ProgressExportService {
     final csvStr = const ListToCsvConverter().convert(rows, eol: '\r\n');
     final dir = await getTemporaryDirectory();
     final mode = weekly ? 'weekly' : 'daily';
-    final file = File('${dir.path}/progress_\${mode}_\${DateTime.now().millisecondsSinceEpoch}.csv');
+    final file = File(
+        '${dir.path}/progress_\${mode}_\${DateTime.now().millisecondsSinceEpoch}.csv');
     await file.writeAsString(csvStr, encoding: utf8);
     return file;
   }
@@ -39,7 +40,8 @@ class ProgressExportService {
     final bytes = await pdf.save();
     final dir = await getTemporaryDirectory();
     final mode = weekly ? 'weekly' : 'daily';
-    final file = File('${dir.path}/progress_\${mode}_\${DateTime.now().millisecondsSinceEpoch}.pdf');
+    final file = File(
+        '${dir.path}/progress_\${mode}_\${DateTime.now().millisecondsSinceEpoch}.pdf');
     await file.writeAsBytes(bytes);
     return file;
   }
@@ -69,17 +71,20 @@ class ProgressExportService {
     ];
   }
 
-  Future<File> exportEvIcmCsv(List<SavedHand> hands, {bool weekly = false}) async {
+  Future<File> exportEvIcmCsv(List<SavedHand> hands,
+      {bool weekly = false}) async {
     final rows = _evIcmRows(hands, weekly);
     final csvStr = const ListToCsvConverter().convert(rows, eol: '\r\n');
     final dir = await getTemporaryDirectory();
     final mode = weekly ? 'weekly' : 'daily';
-    final file = File('${dir.path}/ev_icm_\${mode}_\${DateTime.now().millisecondsSinceEpoch}.csv');
+    final file = File(
+        '${dir.path}/ev_icm_\${mode}_\${DateTime.now().millisecondsSinceEpoch}.csv');
     await file.writeAsString(csvStr, encoding: utf8);
     return file;
   }
 
-  Future<File> exportEvIcmPdf(List<SavedHand> hands, {bool weekly = false}) async {
+  Future<File> exportEvIcmPdf(List<SavedHand> hands,
+      {bool weekly = false}) async {
     final rows = _evIcmRows(hands, weekly);
     final header = rows.first.cast<String>();
     final data = rows.skip(1).toList();
@@ -95,7 +100,8 @@ class ProgressExportService {
     final bytes = await pdf.save();
     final dir = await getTemporaryDirectory();
     final mode = weekly ? 'weekly' : 'daily';
-    final file = File('${dir.path}/ev_icm_\${mode}_\${DateTime.now().millisecondsSinceEpoch}.pdf');
+    final file = File(
+        '${dir.path}/ev_icm_\${mode}_\${DateTime.now().millisecondsSinceEpoch}.pdf');
     await file.writeAsBytes(bytes);
     return file;
   }

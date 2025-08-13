@@ -17,8 +17,12 @@ class UserProfilePreferenceService {
     final prefs = await SharedPreferences.getInstance();
     _preferredTags = prefs.getStringList(_tagsKey)?.toSet() ?? {};
     _preferredAudiences = prefs.getStringList(_audKey)?.toSet() ?? {};
-    _preferredDifficulties =
-        prefs.getStringList(_diffKey)?.map(int.tryParse).whereType<int>().toSet() ?? {};
+    _preferredDifficulties = prefs
+            .getStringList(_diffKey)
+            ?.map(int.tryParse)
+            .whereType<int>()
+            .toSet() ??
+        {};
   }
 
   Set<String> get preferredTags => Set.unmodifiable(_preferredTags);
@@ -35,7 +39,8 @@ class UserProfilePreferenceService {
     await prefs.setStringList(_audKey, _preferredAudiences.toList());
   }
 
-  Set<int> get preferredDifficulties => Set.unmodifiable(_preferredDifficulties);
+  Set<int> get preferredDifficulties =>
+      Set.unmodifiable(_preferredDifficulties);
   Future<void> setPreferredDifficulties(Set<int> difficulties) async {
     _preferredDifficulties = difficulties.toSet();
     final prefs = await SharedPreferences.getInstance();

@@ -74,7 +74,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _toggleWinnerCelebration(bool value) async {
     setState(() => _showWinnerCelebration = value);
-    await context.read<UserPreferencesService>().setShowWinnerCelebration(value);
+    await context
+        .read<UserPreferencesService>()
+        .setShowWinnerCelebration(value);
   }
 
   Future<void> _toggleActionHints(bool value) async {
@@ -274,8 +276,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             SwitchListTile(
               value: _hideCompletedPrereqs,
               title: const Text('Hide completed prerequisites'),
-              subtitle: const Text(
-                  "Only show requirements you haven't finished yet"),
+              subtitle:
+                  const Text("Only show requirements you haven't finished yet"),
               onChanged: _toggleHideCompletedPrereqs,
               activeColor: Colors.orange,
             ),

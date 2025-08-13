@@ -52,7 +52,8 @@ class _SuggestedTipBannerState extends State<SuggestedTipBanner>
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => TrainingPackPlayScreen(template: tpl, original: tpl),
+            builder: (_) =>
+                TrainingPackPlayScreen(template: tpl, original: tpl),
           ),
         );
         break;

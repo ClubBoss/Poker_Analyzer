@@ -36,8 +36,7 @@ class XPLevelBar extends StatelessWidget {
                       fontWeight: FontWeight.bold)),
               const Spacer(),
               Text('$currentXp / $levelXp XP',
-                  style:
-                      const TextStyle(color: AppColors.textSecondaryDark)),
+                  style: const TextStyle(color: AppColors.textSecondaryDark)),
             ],
           ),
           const SizedBox(height: 4),

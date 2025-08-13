@@ -17,8 +17,7 @@ class TheoryPackReaderScreen extends StatefulWidget {
   });
 
   @override
-  State<TheoryPackReaderScreen> createState() =>
-      _TheoryPackReaderScreenState();
+  State<TheoryPackReaderScreen> createState() => _TheoryPackReaderScreenState();
 }
 
 class _TheoryPackReaderScreenState extends State<TheoryPackReaderScreen> {

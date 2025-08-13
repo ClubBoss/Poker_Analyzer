@@ -65,11 +65,10 @@ class SmartTheoryRecapEngine {
       link = await linker.linkForLesson(lessonId);
     }
     if (link == null && tags != null && tags.isNotEmpty) {
-      final scores = await weighting
-          .computeScores([for (final t in tags) 'tag:$t']);
-      final sorted = [...tags]
-        ..sort((a, b) =>
-            (scores['tag:$b'] ?? 0).compareTo(scores['tag:$a'] ?? 0));
+      final scores =
+          await weighting.computeScores([for (final t in tags) 'tag:$t']);
+      final sorted = [...tags]..sort(
+          (a, b) => (scores['tag:$b'] ?? 0).compareTo(scores['tag:$a'] ?? 0));
       link = await linker.linkForTags(sorted);
     }
     link ??= await linker.linkForTags(tags ?? const []);

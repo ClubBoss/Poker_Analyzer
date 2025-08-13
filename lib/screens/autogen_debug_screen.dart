@@ -282,10 +282,16 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Save Preset'),
-        content: TextField(controller: controller, decoration: const InputDecoration(labelText: 'Name')),
+        content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(labelText: 'Name')),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(context, controller.text), child: const Text('Save')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, controller.text),
+              child: const Text('Save')),
         ],
       ),
     );
@@ -334,7 +340,9 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
         title: const Text('Export Presets'),
         content: SingleChildScrollView(child: SelectableText(json)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close')),
         ],
       ),
     );
@@ -352,8 +360,12 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
           maxLines: 8,
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Import')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Import')),
         ],
       ),
     );
@@ -504,7 +516,8 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
                               },
                             ),
                           ),
-                          Text('${((_targetMix[t] ?? 0) * 100).toStringAsFixed(0)}%'),
+                          Text(
+                              '${((_targetMix[t] ?? 0) * 100).toStringAsFixed(0)}%'),
                         ],
                       ),
                   ],
@@ -562,8 +575,7 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
                           labelText: 'w_tag',
                         ),
                         keyboardType: TextInputType.number,
-                        onChanged: (v) =>
-                            _wTag = double.tryParse(v) ?? _wTag,
+                        onChanged: (v) => _wTag = double.tryParse(v) ?? _wTag,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -574,8 +586,7 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
                           labelText: 'w_tex',
                         ),
                         keyboardType: TextInputType.number,
-                        onChanged: (v) =>
-                            _wTex = double.tryParse(v) ?? _wTex,
+                        onChanged: (v) => _wTex = double.tryParse(v) ?? _wTex,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -614,9 +625,8 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
                   child: const Text('Start Autogen'),
                 ),
                 OutlinedButton(
-                  onPressed: _status == _AutogenStatus.running
-                      ? _stopAutogen
-                      : null,
+                  onPressed:
+                      _status == _AutogenStatus.running ? _stopAutogen : null,
                   child: const Text('Stop'),
                 ),
                 ElevatedButton(
@@ -641,8 +651,7 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    final dashboard =
-                        AutogenStatsDashboardService.instance;
+                    final dashboard = AutogenStatsDashboardService.instance;
                     showDialog(
                       context: context,
                       builder: (_) => AlertDialog(

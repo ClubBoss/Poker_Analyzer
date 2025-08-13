@@ -52,4 +52,3 @@ void main() {
     expect(prefs.getInt('daily_streak_count'), 0);
   });
 }
-

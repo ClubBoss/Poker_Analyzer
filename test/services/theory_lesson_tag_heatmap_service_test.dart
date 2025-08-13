@@ -52,7 +52,8 @@ void main() {
       tags: const ['icm'],
       nextIds: const [],
     );
-    final service = TheoryLessonTagHeatmapService(library: _FakeLibrary([a, b, c]));
+    final service =
+        TheoryLessonTagHeatmapService(library: _FakeLibrary([a, b, c]));
 
     final result = await service.computeHeatmap();
 
@@ -66,8 +67,10 @@ void main() {
 
   test('deadTags lists tags with no links', () {
     final stats = {
-      'x': const TheoryTagStats(tag: 'x', count: 1, incomingLinks: 0, outgoingLinks: 0),
-      'y': const TheoryTagStats(tag: 'y', count: 2, incomingLinks: 1, outgoingLinks: 1),
+      'x': const TheoryTagStats(
+          tag: 'x', count: 1, incomingLinks: 0, outgoingLinks: 0),
+      'y': const TheoryTagStats(
+          tag: 'y', count: 2, incomingLinks: 1, outgoingLinks: 1),
     };
     final service = TheoryLessonTagHeatmapService(library: _FakeLibrary([]));
     final dead = service.deadTags(stats);

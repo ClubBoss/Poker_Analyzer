@@ -15,14 +15,16 @@ void main() {
 
   test('computeTrends detects rising, flat and falling', () async {
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day).subtract(const Duration(days: 13));
+    final start = DateTime(now.year, now.month, now.day)
+        .subtract(const Duration(days: 13));
     final rising = [
       for (int i = 0; i < 14; i++)
         TagXpHistoryEntry(date: start.add(Duration(days: i)), xp: i, source: '')
     ];
     final falling = [
       for (int i = 0; i < 14; i++)
-        TagXpHistoryEntry(date: start.add(Duration(days: i)), xp: 13 - i, source: '')
+        TagXpHistoryEntry(
+            date: start.add(Duration(days: i)), xp: 13 - i, source: '')
     ];
     final flat = [
       for (int i = 0; i < 14; i++)

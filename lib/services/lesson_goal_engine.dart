@@ -39,8 +39,7 @@ class LessonGoalEngine with SingletonMixin<LessonGoalEngine> {
       completed: count >= _dailyTarget,
     );
     if (progress.completed) {
-      unawaited(
-          LessonGoalStreakEngine.instance.updateStreakOnGoalCompletion());
+      unawaited(LessonGoalStreakEngine.instance.updateStreakOnGoalCompletion());
     }
     return progress;
   }
@@ -63,11 +62,10 @@ class LessonGoalEngine with SingletonMixin<LessonGoalEngine> {
     final prevDaily = prefs.getInt(_dailyCountKey) ?? 0;
     final newDaily = prevDaily + 1;
     await prefs.setInt(_dailyCountKey, newDaily);
-    await prefs
-        .setInt(_weeklyCountKey, (prefs.getInt(_weeklyCountKey) ?? 0) + 1);
+    await prefs.setInt(
+        _weeklyCountKey, (prefs.getInt(_weeklyCountKey) ?? 0) + 1);
     if (prevDaily < _dailyTarget && newDaily >= _dailyTarget) {
-      unawaited(
-          LessonGoalStreakEngine.instance.updateStreakOnGoalCompletion());
+      unawaited(LessonGoalStreakEngine.instance.updateStreakOnGoalCompletion());
     }
   }
 

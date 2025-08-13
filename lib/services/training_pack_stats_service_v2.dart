@@ -41,8 +41,8 @@ class PackResultEntry {
         completion: (j['completion'] as num?)?.toDouble() ?? 0,
         evLoss: (j['evLoss'] as num?)?.toDouble() ?? 0,
         accuracy: (j['accuracy'] as num?)?.toDouble() ?? 0,
-        timestamp:
-            DateTime.tryParse(j['timestamp'] as String? ?? '') ?? DateTime.now(),
+        timestamp: DateTime.tryParse(j['timestamp'] as String? ?? '') ??
+            DateTime.now(),
         type: j['type'] as String? ?? 'regular',
         tag: j['tag'] as String?,
         cluster: j['cluster'] as String?,
@@ -61,8 +61,7 @@ class TrainingPackStatsServiceV2 {
       if (data is List) {
         return [
           for (final e in data)
-            if (e is Map)
-              PackResultEntry.fromJson(Map<String, dynamic>.from(e))
+            if (e is Map) PackResultEntry.fromJson(Map<String, dynamic>.from(e))
         ];
       }
     } catch (_) {}
@@ -115,7 +114,8 @@ class TrainingPackStatsServiceV2 {
     }
     final result = <String, double>{};
     for (final entry in byTag.entries) {
-      final records = entry.value..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+      final records = entry.value
+        ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
       if (records.length < 2) continue;
       final first = records.first.accuracy;
       final last = records.last.accuracy;

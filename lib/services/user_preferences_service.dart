@@ -100,8 +100,10 @@ class UserPreferencesService extends ChangeNotifier {
         'simpleNavigation': _simpleNavigation,
         'showTagGoalBanner': _showTagGoalBanner,
         'showQuickAccess': _showQuickAccess,
-        if (_weakRange != null) 'weakRangeStart': _weakRange!.start.toIso8601String(),
-        if (_weakRange != null) 'weakRangeEnd': _weakRange!.end.toIso8601String(),
+        if (_weakRange != null)
+          'weakRangeStart': _weakRange!.start.toIso8601String(),
+        if (_weakRange != null)
+          'weakRangeEnd': _weakRange!.end.toIso8601String(),
         'evRangeStart': _evRange.start,
         'evRangeEnd': _evRange.end,
         'weakCatCount': _weakCatCount,
@@ -126,21 +128,20 @@ class UserPreferencesService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setShowPotAnimation(bool value) =>
-      _setBool(_potAnimationKey, _showPotAnimation, value,
-          (v) => _showPotAnimation = v);
+  Future<void> setShowPotAnimation(bool value) => _setBool(
+      _potAnimationKey, _showPotAnimation, value, (v) => _showPotAnimation = v);
 
-  Future<void> setShowCardReveal(bool value) =>
-      _setBool(_cardRevealKey, _showCardReveal, value,
-          (v) => _showCardReveal = v);
+  Future<void> setShowCardReveal(bool value) => _setBool(
+      _cardRevealKey, _showCardReveal, value, (v) => _showCardReveal = v);
 
-  Future<void> setShowWinnerCelebration(bool value) =>
-      _setBool(_winnerCelebrationKey, _showWinnerCelebration, value,
-          (v) => _showWinnerCelebration = v);
+  Future<void> setShowWinnerCelebration(bool value) => _setBool(
+      _winnerCelebrationKey,
+      _showWinnerCelebration,
+      value,
+      (v) => _showWinnerCelebration = v);
 
-  Future<void> setShowActionHints(bool value) =>
-      _setBool(_actionHintsKey, _showActionHints, value,
-          (v) => _showActionHints = v);
+  Future<void> setShowActionHints(bool value) => _setBool(
+      _actionHintsKey, _showActionHints, value, (v) => _showActionHints = v);
 
   Future<void> setCoachMode(bool value) =>
       _setBool(_coachModeKey, _coachMode, value, (v) => _coachMode = v);
@@ -148,13 +149,14 @@ class UserPreferencesService extends ChangeNotifier {
   Future<void> setDemoMode(bool value) =>
       _setBool(_demoModeKey, _demoMode, value, (v) => _demoMode = v);
 
-  Future<void> setSimpleNavigation(bool value) =>
-      _setBool(_simpleNavKey, _simpleNavigation, value,
-          (v) => _simpleNavigation = v);
+  Future<void> setSimpleNavigation(bool value) => _setBool(
+      _simpleNavKey, _simpleNavigation, value, (v) => _simpleNavigation = v);
 
-  Future<void> setTutorialCompleted(bool value) =>
-      _setBool(_tutorialCompletedKey, _tutorialCompleted, value,
-          (v) => _tutorialCompleted = v);
+  Future<void> setTutorialCompleted(bool value) => _setBool(
+      _tutorialCompletedKey,
+      _tutorialCompleted,
+      value,
+      (v) => _tutorialCompleted = v);
 
   Future<void> setWeaknessRange(DateTimeRange? value) async {
     _weakRange = value;
@@ -199,13 +201,11 @@ class UserPreferencesService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setShowTagGoalBanner(bool value) =>
-      _setBool(_tagGoalBannerKey, _showTagGoalBanner, value,
-          (v) => _showTagGoalBanner = v);
+  Future<void> setShowTagGoalBanner(bool value) => _setBool(_tagGoalBannerKey,
+      _showTagGoalBanner, value, (v) => _showTagGoalBanner = v);
 
-  Future<void> setShowQuickAccess(bool value) =>
-      _setBool(_quickAccessKey, _showQuickAccess, value,
-          (v) => _showQuickAccess = v);
+  Future<void> setShowQuickAccess(bool value) => _setBool(
+      _quickAccessKey, _showQuickAccess, value, (v) => _showQuickAccess = v);
 
   Future<void> setAccentColor(Color value) => theme.setAccentColor(value);
 }

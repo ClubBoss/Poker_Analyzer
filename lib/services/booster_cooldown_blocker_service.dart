@@ -30,8 +30,8 @@ class BoosterCooldownBlockerService {
           _cache = {
             for (final e in data.entries)
               if (e.value is Map)
-                e.key.toString(): _Record.fromJson(
-                    Map<String, dynamic>.from(e.value as Map))
+                e.key.toString():
+                    _Record.fromJson(Map<String, dynamic>.from(e.value as Map))
           };
         }
       } catch (_) {}
@@ -82,10 +82,12 @@ class BoosterCooldownBlockerService {
     if (entry == null) return false;
     final cooldown = _cooldownFor(type);
     final now = DateTime.now();
-    if (entry.dismissed != null && now.difference(entry.dismissed!) < cooldown) {
+    if (entry.dismissed != null &&
+        now.difference(entry.dismissed!) < cooldown) {
       return true;
     }
-    if (entry.completed != null && now.difference(entry.completed!) < cooldown) {
+    if (entry.completed != null &&
+        now.difference(entry.completed!) < cooldown) {
       return true;
     }
     return false;

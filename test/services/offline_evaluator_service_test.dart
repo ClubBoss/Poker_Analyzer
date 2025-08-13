@@ -27,7 +27,9 @@ class _TestPathProvider extends PathProviderPlatform {
   @override
   Future<List<String>?> getExternalCachePaths() async => [path];
   @override
-  Future<List<String>?> getExternalStoragePaths({StorageDirectory? type}) async => [path];
+  Future<List<String>?> getExternalStoragePaths(
+          {StorageDirectory? type}) async =>
+      [path];
   @override
   Future<String?> getDownloadsPath() async => path;
 }
@@ -80,7 +82,8 @@ void main() {
     final service = OfflineEvaluatorService(remote: remote);
     final spot = _spot('a');
     await service.evaluate(spot);
-    final ev = computePushEV(heroBbStack: 10, bbCount: 1, heroHand: 'AA', anteBb: 0);
+    final ev =
+        computePushEV(heroBbStack: 10, bbCount: 1, heroHand: 'AA', anteBb: 0);
     expect(spot.heroEv, ev);
     expect(remote.evalCalls, 0);
     await dir.delete(recursive: true);
@@ -95,8 +98,10 @@ void main() {
     final service = OfflineEvaluatorService(remote: remote);
     final spot = _spot('b');
     await service.evaluateIcm(spot);
-    final ev = computePushEV(heroBbStack: 10, bbCount: 1, heroHand: 'AA', anteBb: 0);
-    final icm = computeIcmPushEV(chipStacksBb: [10, 10], heroIndex: 0, heroHand: 'AA', chipPushEv: ev);
+    final ev =
+        computePushEV(heroBbStack: 10, bbCount: 1, heroHand: 'AA', anteBb: 0);
+    final icm = computeIcmPushEV(
+        chipStacksBb: [10, 10], heroIndex: 0, heroHand: 'AA', chipPushEv: ev);
     expect(spot.heroEv, ev);
     expect(spot.heroIcmEv, icm);
     expect(remote.icmCalls, 0);

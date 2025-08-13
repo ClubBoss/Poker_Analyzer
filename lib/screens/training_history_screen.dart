@@ -70,4 +70,3 @@ class _TrainingHistoryView extends StatelessWidget {
     );
   }
 }
-

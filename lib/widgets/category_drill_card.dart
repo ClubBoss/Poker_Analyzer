@@ -72,7 +72,8 @@ class _CategoryDrillCardState extends State<CategoryDrillCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text('Проработка категории',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
                 Text(name, style: const TextStyle(color: Colors.white)),
               ],
@@ -86,8 +87,7 @@ class _CategoryDrillCardState extends State<CategoryDrillCard> {
               if (tpl == null) return;
               await context.read<TrainingSessionService>().startSession(tpl);
               final p = await SharedPreferences.getInstance();
-              await p.setInt(
-                  _tsKey, DateTime.now().millisecondsSinceEpoch);
+              await p.setInt(_tsKey, DateTime.now().millisecondsSinceEpoch);
               if (mounted) setState(() => _done = false);
               await context.ifMounted(() async {
                 await Navigator.push(

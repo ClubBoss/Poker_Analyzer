@@ -38,7 +38,8 @@ class _TheoryLessonFeedbackBarState extends State<TheoryLessonFeedbackBar> {
     }
   }
 
-  Widget _button(TheoryLessonFeedbackChoice choice, String label, IconData icon) {
+  Widget _button(
+      TheoryLessonFeedbackChoice choice, String label, IconData icon) {
     final accent = Theme.of(context).colorScheme.secondary;
     final selected = _choice == choice;
     return Expanded(
@@ -67,8 +68,7 @@ class _TheoryLessonFeedbackBarState extends State<TheoryLessonFeedbackBar> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Оцените урок:',
-              style: TextStyle(color: Colors.white)),
+          const Text('Оцените урок:', style: TextStyle(color: Colors.white)),
           const SizedBox(height: 8),
           Row(
             children: [

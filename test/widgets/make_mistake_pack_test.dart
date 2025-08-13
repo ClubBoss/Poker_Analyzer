@@ -11,7 +11,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('make mistake pack button', (tester) async {
-    final spot1 = TrainingPackSpot(id: 'a', hand: HandData(), tags: ['Mistake']);
+    final spot1 =
+        TrainingPackSpot(id: 'a', hand: HandData(), tags: ['Mistake']);
     final spot2 = TrainingPackSpot(id: 'b', hand: HandData());
     final tpl = TrainingPackTemplate(
       id: 't',
@@ -24,7 +25,8 @@ void main() {
       Provider<TemplateStorageService>.value(
         value: service,
         child: MaterialApp(
-          home: TrainingPackTemplateEditorScreen(template: tpl, templates: [tpl]),
+          home:
+              TrainingPackTemplateEditorScreen(template: tpl, templates: [tpl]),
         ),
       ),
     );

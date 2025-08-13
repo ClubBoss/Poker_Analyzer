@@ -29,7 +29,8 @@ class SpotSeedFormat {
     List<String>? tags,
     double? heroStack,
     String? opponentPosition,
-  }) => SpotSeedFormat(
+  }) =>
+      SpotSeedFormat(
         player: player,
         handGroup: handGroup,
         position: position,

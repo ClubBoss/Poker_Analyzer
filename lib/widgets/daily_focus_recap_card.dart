@@ -21,8 +21,7 @@ class DailyFocusRecapCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(service.summary,
-              style: const TextStyle(color: Colors.white)),
+          Text(service.summary, style: const TextStyle(color: Colors.white)),
           const SizedBox(height: 8),
           Row(
             children: [

@@ -21,7 +21,8 @@ class PackEditorToolbar extends StatelessWidget {
 class PackEditorShortcuts extends StatelessWidget {
   final PackEditorCore core;
   final Widget child;
-  const PackEditorShortcuts({super.key, required this.core, required this.child});
+  const PackEditorShortcuts(
+      {super.key, required this.core, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -32,8 +33,8 @@ class PackEditorShortcuts extends StatelessWidget {
     final actions = <Type, Action<Intent>>{
       _CommandIntent: CallbackAction<_CommandIntent>(
         onInvoke: (intent) {
-          final cmd = core.commands
-              .firstWhere((c) => c.id == intent.id, orElse: () => throw ArgumentError('Unknown command'));
+          final cmd = core.commands.firstWhere((c) => c.id == intent.id,
+              orElse: () => throw ArgumentError('Unknown command'));
           cmd.action();
           return null;
         },
@@ -50,4 +51,3 @@ class _CommandIntent extends Intent {
   final String id;
   const _CommandIntent(this.id);
 }
-

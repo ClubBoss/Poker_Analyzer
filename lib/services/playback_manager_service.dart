@@ -29,7 +29,7 @@ class PlaybackManagerService extends ChangeNotifier {
     required this.stackService,
     required this.potSync,
     required this.actionSync,
-  })  : _playbackService = playbackService ?? PlaybackService() {
+  }) : _playbackService = playbackService ?? PlaybackService() {
     _playbackService.addListener(_onPlaybackChanged);
     actionSync.attachPlaybackManager(this);
   }
@@ -109,8 +109,7 @@ class PlaybackManagerService extends ChangeNotifier {
     for (int i = 0; i < pots.length; i++) {
       pots[i] = potSync.pots[i];
     }
-    lastActionPlayerIndex =
-        subset.isNotEmpty ? subset.last.playerIndex : null;
+    lastActionPlayerIndex = subset.isNotEmpty ? subset.last.playerIndex : null;
     notifyListeners();
   }
 

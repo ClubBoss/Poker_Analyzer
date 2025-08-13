@@ -97,4 +97,3 @@ class SessionListItem extends StatelessWidget {
     );
   }
 }
-

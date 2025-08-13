@@ -96,8 +96,9 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
     }
 
     final totalDecisions = correct + incorrect;
-    final winrate =
-        totalDecisions > 0 ? (correct / totalDecisions * 100).toStringAsFixed(1) : null;
+    final winrate = totalDecisions > 0
+        ? (correct / totalDecisions * 100).toStringAsFixed(1)
+        : null;
     final ev = correct - incorrect;
 
     return Padding(
@@ -170,13 +171,15 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
   Future<void> _exportMarkdown(BuildContext context) async {
     final exporter = context.read<SavedHandExportService>();
     final note = context.read<SessionNoteService>().noteFor(widget.sessionId);
-    final path = await exporter.exportSessionHandsMarkdown(widget.sessionId,
-        note: note);
+    final path =
+        await exporter.exportSessionHandsMarkdown(widget.sessionId, note: note);
     if (path == null) return;
-    await Share.shareXFiles([XFile(path)], text: 'session_${widget.sessionId}.md');
+    await Share.shareXFiles([XFile(path)],
+        text: 'session_${widget.sessionId}.md');
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Файл сохранён: session_${widget.sessionId}.md')),
+        SnackBar(
+            content: Text('Файл сохранён: session_${widget.sessionId}.md')),
       );
     }
   }
@@ -187,10 +190,12 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
     final path =
         await exporter.exportSessionHandsPdf(widget.sessionId, note: note);
     if (path == null) return;
-    await Share.shareXFiles([XFile(path)], text: 'session_${widget.sessionId}.pdf');
+    await Share.shareXFiles([XFile(path)],
+        text: 'session_${widget.sessionId}.pdf');
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Файл сохранён: session_${widget.sessionId}.pdf')),
+        SnackBar(
+            content: Text('Файл сохранён: session_${widget.sessionId}.pdf')),
       );
     }
   }
@@ -206,8 +211,7 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
 
     final sessionIds = stats.handsBySession().keys.toList()..sort();
     final currentIndex = sessionIds.indexOf(widget.sessionId);
-    final previousId =
-        currentIndex > 0 ? sessionIds[currentIndex - 1] : null;
+    final previousId = currentIndex > 0 ? sessionIds[currentIndex - 1] : null;
     final nextId = currentIndex < sessionIds.length - 1
         ? sessionIds[currentIndex + 1]
         : null;
@@ -279,51 +283,51 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
           actions: [SyncStatusIcon.of(context)],
         ),
         body: hands.isEmpty
-          ? const Center(
-              child: Text(
-                'Нет раздач в этой сессии',
-                style: TextStyle(color: Colors.white70),
-              ),
-            )
-          : Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => _exportMarkdown(context),
-                          child: const Text('Экспорт в Markdown'),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => _exportPdf(context),
-                          child: const Text('Экспорт в PDF'),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            await context
-                                .read<SessionManager>()
-                                .reset(widget.sessionId);
-                            if (context.mounted) Navigator.pop(context);
-                          },
-                          child: const Text('Reset Session'),
-                        ),
-                      ),
-                    ],
-                  ),
+            ? const Center(
+                child: Text(
+                  'Нет раздач в этой сессии',
+                  style: TextStyle(color: Colors.white70),
                 ),
-                _buildSummary(hands),
-                _buildNoteField(),
-                Expanded(child: buildGroupedList()),
-              ],
-            ),
+              )
+            : Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () => _exportMarkdown(context),
+                            child: const Text('Экспорт в Markdown'),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () => _exportPdf(context),
+                            child: const Text('Экспорт в PDF'),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              await context
+                                  .read<SessionManager>()
+                                  .reset(widget.sessionId);
+                              if (context.mounted) Navigator.pop(context);
+                            },
+                            child: const Text('Reset Session'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  _buildSummary(hands),
+                  _buildNoteField(),
+                  Expanded(child: buildGroupedList()),
+                ],
+              ),
       ),
     );
   }

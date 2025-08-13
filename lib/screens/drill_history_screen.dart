@@ -47,8 +47,8 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
       return SizedBox(
         height: responsiveSize(context, 200),
         child: const Center(
-          child:
-              Text('Недостаточно данных', style: TextStyle(color: Colors.white70)),
+          child: Text('Недостаточно данных',
+              style: TextStyle(color: Colors.white70)),
         ),
       );
     }
@@ -79,8 +79,10 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
                 const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -211,7 +213,10 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
         builder: (_) => TrainingScreen.drill(
           hands: pack.hands.isNotEmpty
               ? pack.hands
-              : [for (final s in pack.spots) handFromPackSpot(s as TrainingPackSpot, anteBb: pack.anteBb)],
+              : [
+                  for (final s in pack.spots)
+                    handFromPackSpot(s as TrainingPackSpot, anteBb: pack.anteBb)
+                ],
           templateId: pack.id,
           templateName: pack.name,
           anteBb: pack.anteBb,
@@ -221,13 +226,12 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
   }
 
   Widget _empty() => const Center(
-        child: Text('История пока пуста',
-            style: TextStyle(color: Colors.white70)),
+        child:
+            Text('История пока пуста', style: TextStyle(color: Colors.white70)),
       );
 
   Widget _noResults() => const Center(
-        child: Text('Нет результатов',
-            style: TextStyle(color: Colors.white70)),
+        child: Text('Нет результатов', style: TextStyle(color: Colors.white70)),
       );
 
   Widget _list(List<DrillResult> data) => ListView.builder(
@@ -292,7 +296,6 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     final results = context.watch<DrillHistoryService>().results;
@@ -345,15 +348,15 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
                       dropdownColor: AppColors.cardBackground,
                       style: const TextStyle(color: Colors.white),
                       items: const ['Все', '7 дней', '30 дней']
-                          .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+                          .map(
+                              (p) => DropdownMenuItem(value: p, child: Text(p)))
                           .toList(),
                       onChanged: (v) => setState(() => _period = v ?? 'Все'),
                     ),
                   ),
                 ),
                 Expanded(
-                  child:
-                      filtered.isEmpty ? _noResults() : _list(filtered),
+                  child: filtered.isEmpty ? _noResults() : _list(filtered),
                 ),
               ],
             ),

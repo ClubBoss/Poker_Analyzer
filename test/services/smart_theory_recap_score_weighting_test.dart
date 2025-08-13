@@ -79,13 +79,12 @@ void main() {
       cacheDuration: Duration.zero,
     );
 
-    final scores = await service.computeScores([
-      'tag:overfoldBtn',
-      'tag:looseCallBb',
-      'lesson:l1'
-    ]);
+    final scores = await service
+        .computeScores(['tag:overfoldBtn', 'tag:looseCallBb', 'lesson:l1']);
     expect(scores['tag:overfoldBtn']! > scores['tag:looseCallBb']!, isTrue);
-    expect(scores['lesson:l1'],
-        closeTo((scores['tag:overfoldBtn']! + scores['tag:looseCallBb']!), 0.001));
+    expect(
+        scores['lesson:l1'],
+        closeTo(
+            (scores['tag:overfoldBtn']! + scores['tag:looseCallBb']!), 0.001));
   });
 }

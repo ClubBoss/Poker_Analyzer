@@ -44,10 +44,8 @@ class TagManagementScreen extends StatelessWidget {
             child: const Text('Отмена'),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(
-                context,
-                MapEntry(
-                    controller.text.trim(), colorToHex(pickerColor))),
+            onPressed: () => Navigator.pop(context,
+                MapEntry(controller.text.trim(), colorToHex(pickerColor))),
             child: const Text('OK'),
           ),
         ],
@@ -58,9 +56,7 @@ class TagManagementScreen extends StatelessWidget {
   Future<void> _addTag(BuildContext context) async {
     final result = await _showTagDialog(context, 'Новый тег');
     if (result != null && result.key.isNotEmpty) {
-      await context
-          .read<TagService>()
-          .addTag(result.key, color: result.value);
+      await context.read<TagService>().addTag(result.key, color: result.value);
     }
   }
 
@@ -82,18 +78,17 @@ class TagManagementScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Теги'),
-        actions: [SyncStatusIcon.of(context), 
+        actions: [
+          SyncStatusIcon.of(context),
           IconButton(
             icon: const Icon(Icons.download),
             tooltip: 'Экспорт',
-            onPressed: () =>
-                context.read<TagService>().exportToFile(context),
+            onPressed: () => context.read<TagService>().exportToFile(context),
           ),
           IconButton(
             icon: const Icon(Icons.upload),
             tooltip: 'Импорт',
-            onPressed: () =>
-                context.read<TagService>().importFromFile(context),
+            onPressed: () => context.read<TagService>().importFromFile(context),
           ),
         ],
       ),

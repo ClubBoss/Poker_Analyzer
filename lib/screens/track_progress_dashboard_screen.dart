@@ -141,7 +141,8 @@ class _TrackProgressDashboardScreenState
 
   Future<void> _toggleReminder(bool value) async {
     if (value) {
-      await LessonPathReminderScheduler.instance.scheduleReminder(time: _reminderTime);
+      await LessonPathReminderScheduler.instance
+          .scheduleReminder(time: _reminderTime);
     } else {
       await LessonPathReminderScheduler.instance.cancelReminder();
     }

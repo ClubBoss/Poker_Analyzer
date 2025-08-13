@@ -66,7 +66,8 @@ class SessionLogService extends ChangeNotifier {
   }
 
   /// Returns aggregated stats along with recent session history for [templateId].
-  StageStatsWithHistory getStatsWithHistory(String templateId, [int recent = 7]) {
+  StageStatsWithHistory getStatsWithHistory(String templateId,
+      [int recent = 7]) {
     int hands = 0;
     int correct = 0;
     final history = <StageTrendPoint>[];

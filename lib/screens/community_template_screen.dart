@@ -9,7 +9,8 @@ class CommunityTemplateScreen extends StatefulWidget {
   const CommunityTemplateScreen({super.key});
 
   @override
-  State<CommunityTemplateScreen> createState() => _CommunityTemplateScreenState();
+  State<CommunityTemplateScreen> createState() =>
+      _CommunityTemplateScreenState();
 }
 
 class _CommunityTemplateScreenState extends State<CommunityTemplateScreen> {
@@ -67,7 +68,7 @@ class _CommunityTemplateScreenState extends State<CommunityTemplateScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Community')), 
+      appBar: AppBar(title: const Text('Community')),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(

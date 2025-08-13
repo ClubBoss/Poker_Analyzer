@@ -14,7 +14,8 @@ class PackLibraryExporter {
     await dir.create(recursive: true);
     final paths = <String>[];
     for (final t in templates) {
-      final fileName = _sanitizeFileName(t.name.replaceAll(' ', '_').toLowerCase());
+      final fileName =
+          _sanitizeFileName(t.name.replaceAll(' ', '_').toLowerCase());
       final path = '${dir.path}/$fileName.yaml';
       await writer.write(_templateMap(t), path);
       paths.add(path);

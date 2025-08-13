@@ -84,4 +84,3 @@ class TrainingPackTemplateSetExpander {
   String _slug(String name) =>
       name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '_');
 }
-

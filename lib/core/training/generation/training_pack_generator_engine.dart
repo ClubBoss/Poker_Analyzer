@@ -10,8 +10,8 @@ class TrainingPackGeneratorEngine {
   const TrainingPackGeneratorEngine({
     OfflineEvaluatorService? evaluator,
     Uuid? uuid,
-  }) : evaluator = evaluator ?? OfflineEvaluatorService(),
-       _uuid = uuid ?? const Uuid();
+  })  : evaluator = evaluator ?? OfflineEvaluatorService(),
+        _uuid = uuid ?? const Uuid();
 
   Future<TrainingPackV2> generateFromTemplate(
     TrainingPackTemplateV2 template,

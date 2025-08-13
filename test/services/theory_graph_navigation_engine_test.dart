@@ -49,7 +49,8 @@ void main() {
       title: 'C',
       content: '',
     );
-    final engine = TheoryGraphNavigationEngine(library: _FakeLibrary([a, b, c]));
+    final engine =
+        TheoryGraphNavigationEngine(library: _FakeLibrary([a, b, c]));
     await engine.initialize();
 
     expect(engine.getNext('a')?.id, 'b');

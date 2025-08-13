@@ -125,8 +125,7 @@ class _SkillTreeBlockedSummaryBannerState
               child: ListView(
                 controller: _scrollController,
                 scrollDirection: Axis.horizontal,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 children: [
                   _LockedCountBadge(count: items.length),
                   for (final item in items)
@@ -219,8 +218,8 @@ class _BlockedNodeCardState extends State<_BlockedNodeCard>
         vsync: this,
         duration: const Duration(milliseconds: 200),
       );
-      _scale = Tween<double>(begin: 1, end: 1.05)
-          .animate(CurvedAnimation(parent: _pulseController!, curve: Curves.easeOut));
+      _scale = Tween<double>(begin: 1, end: 1.05).animate(
+          CurvedAnimation(parent: _pulseController!, curve: Curves.easeOut));
       _pulseController!.forward().then((_) => _pulseController!.reverse());
     } else {
       _scale = const AlwaysStoppedAnimation(1);

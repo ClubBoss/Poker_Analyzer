@@ -23,7 +23,8 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
   @override
   void initState() {
     super.initState();
-    _repository = TemplateLibraryRepository(context.read<TemplateStorageService>());
+    _repository =
+        TemplateLibraryRepository(context.read<TemplateStorageService>());
     _load();
   }
 

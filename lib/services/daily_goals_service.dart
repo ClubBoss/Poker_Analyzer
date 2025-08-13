@@ -57,8 +57,12 @@ class DailyGoalsService extends ChangeNotifier {
 
   List<SavedHand> _recentHands(int days) {
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day).subtract(Duration(days: days));
-    return [for (final h in hands.hands) if (!h.date.isBefore(start)) h];
+    final start =
+        DateTime(now.year, now.month, now.day).subtract(Duration(days: days));
+    return [
+      for (final h in hands.hands)
+        if (!h.date.isBefore(start)) h
+    ];
   }
 
   double _calcAccuracy(List<SavedHand> list) {
@@ -75,13 +79,19 @@ class DailyGoalsService extends ChangeNotifier {
   }
 
   double _calcEv(List<SavedHand> list) {
-    final vals = [for (final h in list) if (h.heroEv != null) h.heroEv!];
+    final vals = [
+      for (final h in list)
+        if (h.heroEv != null) h.heroEv!
+    ];
     if (vals.isEmpty) return 0;
     return vals.reduce((a, b) => a + b) / vals.length;
   }
 
   double _calcIcm(List<SavedHand> list) {
-    final vals = [for (final h in list) if (h.heroIcmEv != null) h.heroIcmEv!];
+    final vals = [
+      for (final h in list)
+        if (h.heroIcmEv != null) h.heroIcmEv!
+    ];
     if (vals.isEmpty) return 0;
     return vals.reduce((a, b) => a + b) / vals.length;
   }
@@ -131,9 +141,12 @@ class DailyGoalsService extends ChangeNotifier {
   }
 
   int get progressSessions => stats.sessionsCompleted - _baseSessions;
-  double get progressAccuracy => _calcAccuracy(_handsSince(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)));
-  double get progressEv => _calcEv(_handsSince(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)));
-  double get progressIcm => _calcIcm(_handsSince(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)));
+  double get progressAccuracy => _calcAccuracy(_handsSince(
+      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)));
+  double get progressEv => _calcEv(_handsSince(
+      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)));
+  double get progressIcm => _calcIcm(_handsSince(
+      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)));
 
   bool get anyIncomplete =>
       progressSessions < targetSessions ||
@@ -148,4 +161,3 @@ class DailyGoalsService extends ChangeNotifier {
     super.dispose();
   }
 }
-

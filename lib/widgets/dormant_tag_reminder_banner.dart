@@ -12,7 +12,8 @@ class DormantTagReminderBanner extends StatefulWidget {
   const DormantTagReminderBanner({super.key});
 
   @override
-  State<DormantTagReminderBanner> createState() => _DormantTagReminderBannerState();
+  State<DormantTagReminderBanner> createState() =>
+      _DormantTagReminderBannerState();
 }
 
 class _DormantTagReminderBannerState extends State<DormantTagReminderBanner> {
@@ -85,7 +86,8 @@ class _DormantTagReminderBannerState extends State<DormantTagReminderBanner> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loading || _pack == null || _tag == null) return const SizedBox.shrink();
+    if (_loading || _pack == null || _tag == null)
+      return const SizedBox.shrink();
     final accent = Theme.of(context).colorScheme.secondary;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -127,4 +129,3 @@ class _DormantTagReminderBannerState extends State<DormantTagReminderBanner> {
     );
   }
 }
-

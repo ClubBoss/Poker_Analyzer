@@ -6,7 +6,8 @@ import 'package:poker_analyzer/services/theory_recap_analytics_summarizer.dart';
 
 class _StubSummarizer extends TheoryRecapAnalyticsSummarizer {
   final RecapAnalyticsSummary _summary;
-  _StubSummarizer(this._summary) : super(loader: ({int limit = 50}) async => []);
+  _StubSummarizer(this._summary)
+      : super(loader: ({int limit = 50}) async => []);
   @override
   Future<RecapAnalyticsSummary> summarize({int limit = 50}) async => _summary;
 }
@@ -27,8 +28,8 @@ void main() {
       ),
     );
     final engine = TheoryRecapSuppressionEngine(summarizer: summarizer);
-    final reason = await engine.getSuppressionReason(
-        lessonId: 'l1', trigger: 'weakness');
+    final reason =
+        await engine.getSuppressionReason(lessonId: 'l1', trigger: 'weakness');
     expect(reason, 'lowAcceptance');
   });
 
@@ -42,8 +43,8 @@ void main() {
     );
     final engine = TheoryRecapSuppressionEngine(summarizer: summarizer);
     await engine.shouldSuppress(lessonId: 'l1', trigger: 'weakness');
-    final reason = await engine.getSuppressionReason(
-        lessonId: 'l1', trigger: 'weakness');
+    final reason =
+        await engine.getSuppressionReason(lessonId: 'l1', trigger: 'weakness');
     expect(reason, 'triggerCooldown');
   });
 }

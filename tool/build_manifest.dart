@@ -16,9 +16,7 @@ void main(List<String> args) {
     stderr.writeln('Directory not found: ${args[0]}');
     exit(1);
   }
-  final outPath = args.length > 1
-      ? args[1]
-      : p.join(dir.path, 'manifest.json');
+  final outPath = args.length > 1 ? args[1] : p.join(dir.path, 'manifest.json');
   final files = dir
       .listSync(recursive: true)
       .whereType<File>()
@@ -50,7 +48,8 @@ void main(List<String> args) {
         if (hasPng) 'png': pngName,
         'pka': p.basename(file.path),
       });
-      stdout.writeln('[OK] ${p.basename(file.path)}${hasPng ? '' : ' (preview missing)'}');
+      stdout.writeln(
+          '[OK] ${p.basename(file.path)}${hasPng ? '' : ' (preview missing)'}');
     } catch (_) {
       stdout.writeln('[ERROR] ${p.basename(file.path)}');
     }
@@ -69,5 +68,6 @@ void main(List<String> args) {
   final outFile = File(outPath)..createSync(recursive: true);
   outFile.writeAsStringSync(const JsonEncoder.withIndent('  ').convert(items));
   final size = (outFile.lengthSync() / 1024).toStringAsFixed(1);
-  stdout.writeln('Saved ${p.basename(outFile.path)}  (${items.length} items, $size KB)');
+  stdout.writeln(
+      'Saved ${p.basename(outFile.path)}  (${items.length} items, $size KB)');
 }

@@ -22,4 +22,3 @@ class GoalEngagement {
             DateTime.now(),
       );
 }
-

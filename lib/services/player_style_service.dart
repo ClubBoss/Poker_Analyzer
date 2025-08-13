@@ -21,7 +21,11 @@ class PlayerStyleService extends ChangeNotifier {
       for (final a in h.actions) {
         if (a.playerIndex != h.heroIndex) continue;
         final act = a.action.toLowerCase();
-        if (act == 'bet' || act == 'raise' || act == 'push' || act == 'allin' || act == 'all-in') {
+        if (act == 'bet' ||
+            act == 'raise' ||
+            act == 'push' ||
+            act == 'allin' ||
+            act == 'all-in') {
           aggr++;
         } else if (act == 'call' || act == 'check' || act == 'fold') {
           pass++;

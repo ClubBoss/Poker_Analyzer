@@ -10,7 +10,8 @@ void main() {
   });
 
   test('fallback uses shared block when title or content empty', () {
-    const node = TheoryLessonNode(id: 't1', refId: 'welcome', title: '', content: '');
+    const node =
+        TheoryLessonNode(id: 't1', refId: 'welcome', title: '', content: '');
     expect(node.resolvedTitle, 'Welcome');
     expect(node.resolvedContent, 'Welcome to the Poker Analyzer.');
   });

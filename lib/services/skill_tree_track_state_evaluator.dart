@@ -29,8 +29,7 @@ class SkillTreeTrackStateEvaluator {
     if (list.isEmpty) return [];
 
     final completedCats = <String>{};
-    String catOf(TrackProgressEntry e) =>
-        e.tree.nodes.values.first.category;
+    String catOf(TrackProgressEntry e) => e.tree.nodes.values.first.category;
 
     for (final e in list) {
       if (e.isCompleted) completedCats.add(catOf(e));

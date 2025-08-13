@@ -115,15 +115,8 @@ class TrainingHistoryExportService {
       }
       rows.add([]);
     }
-    rows.add([
-      'Date',
-      'Total',
-      'Correct',
-      'Accuracy',
-      'Tags',
-      'Comment',
-      'Notes'
-    ]);
+    rows.add(
+        ['Date', 'Total', 'Correct', 'Accuracy', 'Tags', 'Comment', 'Notes']);
     for (final r in sessions) {
       rows.add([
         formatDateTime(r.date),
@@ -255,15 +248,8 @@ class TrainingHistoryExportService {
 
   Future<File> exportVisibleCsv(List<TrainingResult> sessions) async {
     final rows = <List<dynamic>>[];
-    rows.add([
-      'Date',
-      'Accuracy',
-      'Total',
-      'Correct',
-      'Tags',
-      'Comment',
-      'Notes'
-    ]);
+    rows.add(
+        ['Date', 'Accuracy', 'Total', 'Correct', 'Tags', 'Comment', 'Notes']);
     for (final r in sessions) {
       rows.add([
         formatDateTime(r.date),
@@ -386,4 +372,3 @@ class TrainingHistoryExportService {
     return deleted;
   }
 }
-

@@ -28,7 +28,8 @@ class TheoryRecapSuppressionEngine {
         if (data is Map) {
           _cache = {
             for (final e in data.entries)
-              if (e.value is String && DateTime.tryParse(e.value as String) != null)
+              if (e.value is String &&
+                  DateTime.tryParse(e.value as String) != null)
                 e.key.toString(): DateTime.parse(e.value as String)
           };
           return _cache!;
@@ -44,7 +45,8 @@ class TheoryRecapSuppressionEngine {
     final map = _cache ?? <String, DateTime>{};
     await prefs.setString(
       _prefsKey,
-      jsonEncode({for (final e in map.entries) e.key: e.value.toIso8601String()}),
+      jsonEncode(
+          {for (final e in map.entries) e.key: e.value.toIso8601String()}),
     );
   }
 

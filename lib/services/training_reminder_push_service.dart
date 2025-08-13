@@ -24,7 +24,8 @@ class TrainingReminderPushService {
     if (_initialized) return;
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
-    await _plugin.initialize(const InitializationSettings(android: android, iOS: ios));
+    await _plugin
+        .initialize(const InitializationSettings(android: android, iOS: ios));
     tz.initializeTimeZones();
     _initialized = true;
   }
@@ -74,7 +75,8 @@ class TrainingReminderPushService {
       body,
       when,
       const NotificationDetails(
-        android: AndroidNotificationDetails('training_goal_reminder', 'Training Goal Reminder'),
+        android: AndroidNotificationDetails(
+            'training_goal_reminder', 'Training Goal Reminder'),
         iOS: DarwinNotificationDetails(),
       ),
       androidAllowWhileIdle: true,
@@ -86,4 +88,3 @@ class TrainingReminderPushService {
     await prefs.setString(_lastKey, DateTime.now().toIso8601String());
   }
 }
-

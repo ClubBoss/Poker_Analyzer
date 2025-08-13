@@ -39,8 +39,7 @@ void main() {
     const trials = 200;
     for (int i = 0; i < trials; i++) {
       final sched = AdaptiveSpotScheduler(seed: i);
-      final pick = await sched.next(
-          packId: 'p', pool: pool, recentSpotIds: []);
+      final pick = await sched.next(packId: 'p', pool: pool, recentSpotIds: []);
       if (pick.id == 's1') hi++;
     }
     expect(hi, greaterThan(trials / 2));
@@ -50,9 +49,11 @@ void main() {
     final pool = [_spot('a', 'x'), _spot('b', 'y'), _spot('c', 'z')];
     final sched = AdaptiveSpotScheduler(seed: 1);
     final recent = <String>[];
-    final first = await sched.next(packId: 'p', pool: pool, recentSpotIds: recent);
+    final first =
+        await sched.next(packId: 'p', pool: pool, recentSpotIds: recent);
     recent.add(first.id);
-    final second = await sched.next(packId: 'p', pool: pool, recentSpotIds: recent);
+    final second =
+        await sched.next(packId: 'p', pool: pool, recentSpotIds: recent);
     expect(second.id, isNot(first.id));
   });
 

@@ -35,8 +35,8 @@ class _AutogenEventLogViewerWidgetState
 
   @override
   Widget build(BuildContext context) {
-    final events =
-        List<AutogenPipelineEvent>.from(AutogenPipelineEventLoggerService.getLog());
+    final events = List<AutogenPipelineEvent>.from(
+        AutogenPipelineEventLoggerService.getLog());
     events.sort((a, b) => b.timestamp.compareTo(a.timestamp));
     final types = events.map((e) => e.type).toSet().toList()..sort();
     final filteredEvents = _filters.isEmpty
@@ -91,7 +91,8 @@ class _AutogenEventLogViewerWidgetState
               final item = items[index];
               if (item is String) {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                   child: Text(
                     item,
                     style: const TextStyle(fontWeight: FontWeight.bold),
@@ -112,4 +113,3 @@ class _AutogenEventLogViewerWidgetState
     );
   }
 }
-

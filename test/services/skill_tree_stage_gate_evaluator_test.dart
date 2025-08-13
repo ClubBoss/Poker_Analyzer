@@ -9,8 +9,8 @@ void main() {
   const builder = SkillTreeBuilderService();
   const evaluator = SkillTreeStageGateEvaluator();
 
-  SkillTreeNodeModel node(String id, int level) =>
-      SkillTreeNodeModel(id: id, title: id, category: 'Push/Fold', level: level);
+  SkillTreeNodeModel node(String id, int level) => SkillTreeNodeModel(
+      id: id, title: id, category: 'Push/Fold', level: level);
 
   test('stage 0 always unlocked', () {
     final tree = builder.build([node('n1', 0)]).tree;

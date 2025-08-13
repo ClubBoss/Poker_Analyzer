@@ -175,7 +175,8 @@ class TargetedPackBoosterEngine {
     final status = AutogenStatusDashboardService.instance;
     status.update(
       'booster',
-      const AutogenStatus(isRunning: true, currentStage: 'decaySync', progress: 0),
+      const AutogenStatus(
+          isRunning: true, currentStage: 'decaySync', progress: 0),
     );
     await generateBoosterPacks(
       count: unique.length,
@@ -184,7 +185,8 @@ class TargetedPackBoosterEngine {
     );
     status.update(
       'booster',
-      const AutogenStatus(isRunning: false, currentStage: 'decaySync', progress: 1),
+      const AutogenStatus(
+          isRunning: false, currentStage: 'decaySync', progress: 1),
     );
   }
 
@@ -265,8 +267,7 @@ class TargetedPackBoosterEngine {
       final addCount = (tagged.length * (req.ratio - 1)).round();
       final extra = <TrainingPackSpot>[];
       for (var j = 0; j < addCount; j++) {
-        final clone = tagged[j % tagged.length]
-            .copyWith(id: const Uuid().v4());
+        final clone = tagged[j % tagged.length].copyWith(id: const Uuid().v4());
         extra.add(clone);
       }
       final spots = [

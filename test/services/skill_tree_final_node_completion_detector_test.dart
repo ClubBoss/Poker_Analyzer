@@ -23,7 +23,8 @@ void main() {
   const builder = SkillTreeBuilderService();
   final detector = SkillTreeFinalNodeCompletionDetector();
 
-  SkillTreeNodeModel node(String id, {List<String>? prereqs}) => SkillTreeNodeModel(
+  SkillTreeNodeModel node(String id, {List<String>? prereqs}) =>
+      SkillTreeNodeModel(
         id: id,
         title: id,
         category: 'Push/Fold',

@@ -15,10 +15,12 @@ class CreatePackFromTemplateScreen extends StatefulWidget {
   const CreatePackFromTemplateScreen({super.key, required this.template});
 
   @override
-  State<CreatePackFromTemplateScreen> createState() => _CreatePackFromTemplateScreenState();
+  State<CreatePackFromTemplateScreen> createState() =>
+      _CreatePackFromTemplateScreenState();
 }
 
-class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScreen> {
+class _CreatePackFromTemplateScreenState
+    extends State<CreatePackFromTemplateScreen> {
   late TextEditingController _name;
   bool _addTags = true;
   Color _color = Colors.blue;
@@ -74,7 +76,8 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _prefs = prefs;
-      _color = colorFromHex(prefs.getString(_colorKey) ?? widget.template.defaultColor);
+      _color = colorFromHex(
+          prefs.getString(_colorKey) ?? widget.template.defaultColor);
       _addTags = prefs.getBool(_tagsKey) ?? true;
       final cat = prefs.getString(_lastCategoryKey);
       if (cat != null && cat.isNotEmpty) _categoryController.text = cat;
@@ -244,10 +247,12 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
       appBar: AppBar(title: Text(widget.template.name)),
       body: Padding(
         padding: const EdgeInsets.all(16),
-      actions: [SyncStatusIcon.of(context)],
+        actions: [SyncStatusIcon.of(context)],
         child: Column(
           children: [
-            TextField(controller: _name, decoration: const InputDecoration(labelText: 'Название')),
+            TextField(
+                controller: _name,
+                decoration: const InputDecoration(labelText: 'Название')),
             const SizedBox(height: 16),
             TextField(
               controller: _categoryController,
@@ -257,7 +262,8 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
             ListTile(
               leading: CircleAvatar(backgroundColor: _color),
               title: const Text('Цвет'),
-              trailing: IconButton(icon: const Icon(Icons.color_lens), onPressed: _pickColor),
+              trailing: IconButton(
+                  icon: const Icon(Icons.color_lens), onPressed: _pickColor),
             ),
             CheckboxListTile(
               value: _addTags,
@@ -278,8 +284,8 @@ class _CreatePackFromTemplateScreenState extends State<CreatePackFromTemplateScr
                         selected: _positionFilter == p,
                         onSelected: (s) async {
                           if (!s) return;
-                          final prefs = _prefs ??
-                              await SharedPreferences.getInstance();
+                          final prefs =
+                              _prefs ?? await SharedPreferences.getInstance();
                           await prefs.setString(_lastPositionKey, p);
                           setState(() => _positionFilter = p);
                         },

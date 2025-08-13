@@ -54,9 +54,8 @@ class _TheoryRecallStatsDashboardScreenState
         ..addAll(sortMap(lessonCounts));
       _tagLessonCounts
         ..clear()
-        ..addAll({
-          for (final t in tagLessonCounts.entries) t.key: sortMap(t.value)
-        });
+        ..addAll(
+            {for (final t in tagLessonCounts.entries) t.key: sortMap(t.value)});
     });
   }
 
@@ -104,7 +103,8 @@ class _TheoryRecallStatsDashboardScreenState
           const SizedBox(height: 16),
           for (final entry in _tagLessonCounts.entries)
             ExpansionTile(
-              title: Text('${entry.key} (${_tagCounts.firstWhere((t) => t.$1 == entry.key).$2})'),
+              title: Text(
+                  '${entry.key} (${_tagCounts.firstWhere((t) => t.$1 == entry.key).$2})'),
               children: [
                 for (final lesson in entry.value.take(5))
                   ListTile(
@@ -118,4 +118,3 @@ class _TheoryRecallStatsDashboardScreenState
     );
   }
 }
-

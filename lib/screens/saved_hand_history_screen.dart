@@ -163,7 +163,8 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
                       onChanged: (v) =>
                           setState(() => _gameTypeFilter = v ?? 'Все'),
                       items: ['Все', ...gameTypes]
-                          .map((g) => DropdownMenuItem(value: g, child: Text(g)))
+                          .map(
+                              (g) => DropdownMenuItem(value: g, child: Text(g)))
                           .toList(),
                     ),
                   if (gameTypes.isNotEmpty && categories.isNotEmpty)
@@ -175,7 +176,8 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
                       onChanged: (v) =>
                           setState(() => _categoryFilter = v ?? 'Все'),
                       items: ['Все', ...categories]
-                          .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                          .map(
+                              (c) => DropdownMenuItem(value: c, child: Text(c)))
                           .toList(),
                     ),
                   const SizedBox(width: 12),
@@ -193,7 +195,8 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
                             ? null
                             : DateTimeRange(
                                 start: _fromDate ??
-                                    DateTime.now().subtract(const Duration(days: 30)),
+                                    DateTime.now()
+                                        .subtract(const Duration(days: 30)),
                                 end: _toDate ?? DateTime.now(),
                               ),
                       );

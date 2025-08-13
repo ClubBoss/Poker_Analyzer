@@ -53,9 +53,9 @@ class ShowdownTab extends StatelessWidget {
             final win = winnings[i];
             final partsText = parts[i].isNotEmpty
                 ? ' = ${List.generate(parts[i].length, (j) {
-                      final label = j == 0 ? 'main' : 'side';
-                      return '${parts[i][j].toStringAsFixed(1)} $label';
-                    }).join(' + ')}'
+                    final label = j == 0 ? 'main' : 'side';
+                    return '${parts[i][j].toStringAsFixed(1)} $label';
+                  }).join(' + ')}'
                 : '';
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 2),

@@ -13,7 +13,8 @@ class RecommendedNextPackCard extends StatefulWidget {
   const RecommendedNextPackCard({super.key});
 
   @override
-  State<RecommendedNextPackCard> createState() => _RecommendedNextPackCardState();
+  State<RecommendedNextPackCard> createState() =>
+      _RecommendedNextPackCardState();
 }
 
 class _RecommendedNextPackCardState extends State<RecommendedNextPackCard> {
@@ -41,8 +42,7 @@ class _RecommendedNextPackCardState extends State<RecommendedNextPackCard> {
     final pack = _pack;
     if (pack == null) return;
     await const TrainingSessionLauncher().launch(pack);
-    await UserActionLogger.instance
-        .log('adaptive_recommendation_launched');
+    await UserActionLogger.instance.log('adaptive_recommendation_launched');
   }
 
   @override

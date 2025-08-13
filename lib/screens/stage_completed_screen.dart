@@ -60,9 +60,9 @@ class _StageCompletedScreenState extends State<StageCompletedScreen> {
       tags: weak,
       onStart: () async {
         await context.read<TrainingSessionService>().startSession(
-          pack,
-          persist: false,
-        );
+              pack,
+              persist: false,
+            );
         if (!context.mounted) return;
         Navigator.pushReplacement(
           context,
@@ -80,11 +80,10 @@ class _StageCompletedScreenState extends State<StageCompletedScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder:
-              (_) => LearningPathScreen(
-                template: template,
-                highlightedStageId: null,
-              ),
+          builder: (_) => LearningPathScreen(
+            template: template,
+            highlightedStageId: null,
+          ),
         ),
       );
     } else {
@@ -94,8 +93,8 @@ class _StageCompletedScreenState extends State<StageCompletedScreen> {
 
   Future<void> _startRemedial() async {
     setState(() => _running = true);
-    LearningPathTelemetry.instance
-        .log('remedial_requested', {'pathId': widget.pathId, 'stageId': widget.stageId});
+    LearningPathTelemetry.instance.log('remedial_requested',
+        {'pathId': widget.pathId, 'stageId': widget.stageId});
     try {
       final uri = await _remedial.createRemedialPack(
         pathId: widget.pathId,

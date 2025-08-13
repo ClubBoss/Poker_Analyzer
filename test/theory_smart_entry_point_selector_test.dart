@@ -47,8 +47,10 @@ void main() {
 
   test('prefers unfinished lesson matching focus tag', () async {
     final lessons = [
-      const TheoryMiniLessonNode(id: 'l1', title: 'A', content: '', tags: ['a']),
-      const TheoryMiniLessonNode(id: 'l2', title: 'B', content: '', tags: ['b']),
+      const TheoryMiniLessonNode(
+          id: 'l1', title: 'A', content: '', tags: ['a']),
+      const TheoryMiniLessonNode(
+          id: 'l2', title: 'B', content: '', tags: ['b']),
     ];
     final selector = TheorySmartEntryPointSelector(
       library: _FakeLibrary(lessons),
@@ -62,11 +64,17 @@ void main() {
   test('falls back to review queue when no unfinished match', () async {
     final now = DateTime.now();
     SharedPreferences.setMockInitialValues({
-      'mini_lesson_progress_l2': jsonEncode({'completed': true, 'viewCount': 1, 'lastViewed': now.toIso8601String()}),
+      'mini_lesson_progress_l2': jsonEncode({
+        'completed': true,
+        'viewCount': 1,
+        'lastViewed': now.toIso8601String()
+      }),
     });
     final lessons = [
-      const TheoryMiniLessonNode(id: 'l1', title: 'A', content: '', tags: ['a']),
-      const TheoryMiniLessonNode(id: 'l2', title: 'B', content: '', tags: ['b']),
+      const TheoryMiniLessonNode(
+          id: 'l1', title: 'A', content: '', tags: ['a']),
+      const TheoryMiniLessonNode(
+          id: 'l2', title: 'B', content: '', tags: ['b']),
     ];
     final selector = TheorySmartEntryPointSelector(
       library: _FakeLibrary(lessons),
@@ -79,8 +87,10 @@ void main() {
 
   test('returns random unfinished lesson when no data', () async {
     final lessons = [
-      const TheoryMiniLessonNode(id: 'l1', title: 'A', content: '', tags: ['a']),
-      const TheoryMiniLessonNode(id: 'l2', title: 'B', content: '', tags: ['b']),
+      const TheoryMiniLessonNode(
+          id: 'l1', title: 'A', content: '', tags: ['a']),
+      const TheoryMiniLessonNode(
+          id: 'l2', title: 'B', content: '', tags: ['b']),
     ];
     final selector = TheorySmartEntryPointSelector(
       library: _FakeLibrary(lessons),

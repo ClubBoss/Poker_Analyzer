@@ -71,4 +71,3 @@ class _DailyStreakBadgeWidgetState extends State<DailyStreakBadgeWidget> {
     );
   }
 }
-

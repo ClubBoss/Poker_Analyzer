@@ -42,8 +42,7 @@ class TheoryYamlSafeWriter {
       String backupPath,
       String newHash,
       String? prevHash,
-    )?
-        onBackup,
+    )? onBackup,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final dryRun = prefs.getBool('theory.safeWriter.dryRun') ?? false;
@@ -215,4 +214,3 @@ class TheoryYamlSafeWriter {
 extension on List<String> {
   String? get firstOrNull => isEmpty ? null : first;
 }
-

@@ -30,8 +30,8 @@ class SkillTreeLessonGatingService {
         result[id] = status;
         return status;
       }
-      final visible = tree.ancestorsOf(id)
-          .every((a) => computeStatus(a.id).isVisible);
+      final visible =
+          tree.ancestorsOf(id).every((a) => computeStatus(a.id).isVisible);
       final enabled = node.prerequisites.every(completed.contains);
       final status = NodeGateStatus(isVisible: visible, isEnabled: enabled);
       result[id] = status;

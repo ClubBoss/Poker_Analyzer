@@ -15,4 +15,3 @@ class AutoInjectionAnalyticsScreen extends StatelessWidget {
     );
   }
 }
-

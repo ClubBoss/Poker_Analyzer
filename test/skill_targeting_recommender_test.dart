@@ -14,21 +14,27 @@ void main() {
         name: 'Pack 1',
         trainingType: TrainingType.pushFold,
         tags: const ['a'],
-        spots: [TrainingPackSpot(id: 's1', hand: HandData(), tags: ['a'])],
+        spots: [
+          TrainingPackSpot(id: 's1', hand: HandData(), tags: ['a'])
+        ],
       ),
       TrainingPackTemplateV2(
         id: 'p2',
         name: 'Pack 2',
         trainingType: TrainingType.pushFold,
         tags: const ['b'],
-        spots: [TrainingPackSpot(id: 's2', hand: HandData(), tags: ['b'])],
+        spots: [
+          TrainingPackSpot(id: 's2', hand: HandData(), tags: ['b'])
+        ],
       ),
       TrainingPackTemplateV2(
         id: 'p3',
         name: 'Pack 3',
         trainingType: TrainingType.pushFold,
         tags: const ['a', 'b'],
-        spots: [TrainingPackSpot(id: 's3', hand: HandData(), tags: ['a', 'b'])],
+        spots: [
+          TrainingPackSpot(id: 's3', hand: HandData(), tags: ['a', 'b'])
+        ],
       ),
     ];
 
@@ -63,4 +69,3 @@ void main() {
     expect(result.last.id, 'p1');
   });
 }
-

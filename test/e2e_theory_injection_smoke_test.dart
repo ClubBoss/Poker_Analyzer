@@ -25,7 +25,9 @@ void main() {
       assessmentPackId: 'a1',
       createdAt: DateTime.now(),
       triggerReason: 'test',
-      metrics: const {'clusterTags': ['math']},
+      metrics: const {
+        'clusterTags': ['math']
+      },
     );
     await store.upsertModule('u1', module);
 

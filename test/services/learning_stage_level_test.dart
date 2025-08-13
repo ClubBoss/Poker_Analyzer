@@ -7,13 +7,13 @@ void main() {
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
-    LearningPathProgressService.instance
-      .mock = true;
+    LearningPathProgressService.instance.mock = true;
     await LearningPathProgressService.instance.resetProgress();
   });
 
   test('level indexes sequential', () async {
-    final stages = await LearningPathProgressService.instance.getCurrentStageState();
+    final stages =
+        await LearningPathProgressService.instance.getCurrentStageState();
     for (var i = 0; i < stages.length; i++) {
       expect(stages[i].levelIndex, i + 1);
     }

@@ -15,4 +15,3 @@ dynamic yamlToDart(dynamic node) {
   }
   return node;
 }
-

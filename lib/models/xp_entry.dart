@@ -25,10 +25,10 @@ class XPEntry {
 
   factory XPEntry.fromJson(Map<String, dynamic> json) => XPEntry(
         id: json['id'] as String?,
-        date: DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now(),
+        date:
+            DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now(),
         xp: json['xp'] as int? ?? 0,
         source: json['source'] as String? ?? '',
         streak: json['streak'] as int? ?? 0,
       );
 }
-

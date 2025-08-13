@@ -15,7 +15,8 @@ WeakClusterInfo _cluster(String id, Set<String> tags) => WeakClusterInfo(
       score: 1.0,
     );
 
-TrainingPackTemplateV2 _booster(String tag, {String? clusterId}) => TrainingPackTemplateV2(
+TrainingPackTemplateV2 _booster(String tag, {String? clusterId}) =>
+    TrainingPackTemplateV2(
       id: 'b',
       name: 'b',
       trainingType: TrainingType.theory,
@@ -29,7 +30,9 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('links booster by cluster id', () {
-    final clusters = [_cluster('c1', {'push'})];
+    final clusters = [
+      _cluster('c1', {'push'})
+    ];
     final booster = _booster('push', clusterId: 'c1');
 
     const engine = BoosterMistakeBacklinkEngine();
@@ -41,7 +44,10 @@ void main() {
   });
 
   test('links booster by tag overlap', () {
-    final clusters = [_cluster('c1', {'push'}), _cluster('c2', {'call'})];
+    final clusters = [
+      _cluster('c1', {'push'}),
+      _cluster('c2', {'call'})
+    ];
     final booster = _booster('call');
 
     const engine = BoosterMistakeBacklinkEngine();

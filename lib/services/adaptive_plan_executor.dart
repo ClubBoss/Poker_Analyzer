@@ -103,8 +103,8 @@ class AdaptivePlanExecutor {
       final boosterInfos = <_PackInfo>[];
       for (final b in boosters) {
         final mins = (b.spotCount * boosterPerSpot).ceil();
-        final ev = b.tags.fold<double>(0,
-            (prev, t) => prev + (plan.tagWeights[t] ?? 0.0));
+        final ev = b.tags
+            .fold<double>(0, (prev, t) => prev + (plan.tagWeights[t] ?? 0.0));
         boosterInfos.add(_PackInfo(b, mins, ev));
       }
       boosterInfos.sort((a, b) {
@@ -112,8 +112,7 @@ class AdaptivePlanExecutor {
         if (cmp != 0) return cmp;
         return a.template.id.compareTo(b.template.id);
       });
-      var boosterMins =
-          boosterInfos.fold<int>(0, (s, b) => s + b.mins);
+      var boosterMins = boosterInfos.fold<int>(0, (s, b) => s + b.mins);
       var moduleMins = boosterMins + assessMins;
       while (boosterInfos.isNotEmpty && used + moduleMins > budget) {
         final removed = boosterInfos.removeAt(0);

@@ -85,7 +85,9 @@ class TheoryLessonPreviewTile extends StatelessWidget {
                       child: Wrap(
                         spacing: 4,
                         runSpacing: -4,
-                        children: [for (final t in node.tags.take(3)) TagBadge(t)],
+                        children: [
+                          for (final t in node.tags.take(3)) TagBadge(t)
+                        ],
                       ),
                     ),
                   if (node.resolvedContent.isNotEmpty)

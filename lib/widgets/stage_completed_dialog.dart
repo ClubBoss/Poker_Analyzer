@@ -19,9 +19,9 @@ class _StageCompletedDialogState extends State<StageCompletedDialog>
   @override
   void initState() {
     super.initState();
-    _anim =
-        AnimationController(vsync: this, duration: const Duration(milliseconds: 800))
-          ..forward();
+    _anim = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 800))
+      ..forward();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showConfettiOverlay(context);
     });
@@ -80,4 +80,3 @@ class _StageCompletedDialogState extends State<StageCompletedDialog>
     );
   }
 }
-

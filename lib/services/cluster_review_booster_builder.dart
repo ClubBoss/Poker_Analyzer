@@ -37,9 +37,8 @@ class ClusterReviewBoosterBuilder {
         .toSet();
 
     final relevant = allLessons.values.where((l) {
-      final lessonTags = l.tags
-          .map((t) => t.trim().toLowerCase())
-          .where((t) => t.isNotEmpty);
+      final lessonTags =
+          l.tags.map((t) => t.trim().toLowerCase()).where((t) => t.isNotEmpty);
       return lessonTags.any(tags.contains);
     }).where((l) {
       if (!completedLessons.contains(l.id)) return true;
@@ -50,15 +49,16 @@ class ClusterReviewBoosterBuilder {
       return false;
     }).toList();
 
-    final spots = <TrainingPackSpot>[for (final l in relevant)
-      TrainingPackSpot(
-        id: l.id,
-        type: 'theory',
-        title: l.resolvedTitle,
-        note: l.resolvedContent,
-        tags: List<String>.from(l.tags),
-        meta: {'lessonId': l.id},
-      )
+    final spots = <TrainingPackSpot>[
+      for (final l in relevant)
+        TrainingPackSpot(
+          id: l.id,
+          type: 'theory',
+          title: l.resolvedTitle,
+          note: l.resolvedContent,
+          tags: List<String>.from(l.tags),
+          meta: {'lessonId': l.id},
+        )
     ];
 
     final tpl = TrainingPackTemplateV2(
@@ -79,4 +79,3 @@ class ClusterReviewBoosterBuilder {
     return tpl;
   }
 }
-

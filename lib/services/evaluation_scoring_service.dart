@@ -47,12 +47,12 @@ class EvaluationScoringService {
         }
         final meta = Map<String, dynamic>.from(map['meta'] as Map? ?? {});
         if (evCount > 0) {
-          meta['evScore'] = double.parse((100 - (evSum / evCount) * 100)
-              .toStringAsFixed(2));
+          meta['evScore'] =
+              double.parse((100 - (evSum / evCount) * 100).toStringAsFixed(2));
         }
         if (icmCount > 0) {
-          meta['icmScore'] = double.parse((100 - (icmSum / icmCount) * 100)
-              .toStringAsFixed(2));
+          meta['icmScore'] = double.parse(
+              (100 - (icmSum / icmCount) * 100).toStringAsFixed(2));
         }
         map['meta'] = meta;
         await writer.write(map, file.path);

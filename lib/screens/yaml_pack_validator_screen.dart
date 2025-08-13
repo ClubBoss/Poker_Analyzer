@@ -15,14 +15,16 @@ import '../models/v2/training_pack_template_v2.dart';
 class YamlPackValidatorScreen extends StatefulWidget {
   const YamlPackValidatorScreen({super.key});
   @override
-  State<YamlPackValidatorScreen> createState() => _YamlPackValidatorScreenState();
+  State<YamlPackValidatorScreen> createState() =>
+      _YamlPackValidatorScreenState();
 }
 
 class _PackIssues {
   final String path;
   final String id;
   final List<ValidationIssue> issues;
-  const _PackIssues({required this.path, required this.id, required this.issues});
+  const _PackIssues(
+      {required this.path, required this.id, required this.issues});
 }
 
 class _YamlPackValidatorScreenState extends State<YamlPackValidatorScreen> {
@@ -83,7 +85,9 @@ class _YamlPackValidatorScreenState extends State<YamlPackValidatorScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('YAML Pack Validator'),
-        actions: [IconButton(onPressed: _load, icon: const Icon(Icons.refresh))],
+        actions: [
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh))
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
           child: Row(
@@ -93,17 +97,14 @@ class _YamlPackValidatorScreenState extends State<YamlPackValidatorScreen> {
                 onPressed: () => setState(() => _filter = 'all'),
                 child: Text('All',
                     style: TextStyle(
-                        color: _filter == 'all'
-                            ? Colors.amber
-                            : Colors.white)),
+                        color: _filter == 'all' ? Colors.amber : Colors.white)),
               ),
               TextButton(
                 onPressed: () => setState(() => _filter = 'error'),
                 child: Text('Errors',
                     style: TextStyle(
-                        color: _filter == 'error'
-                            ? Colors.amber
-                            : Colors.white)),
+                        color:
+                            _filter == 'error' ? Colors.amber : Colors.white)),
               ),
               TextButton(
                 onPressed: () => setState(() => _filter = 'warning'),
@@ -142,8 +143,7 @@ class _YamlPackValidatorScreenState extends State<YamlPackValidatorScreen> {
                       ],
                     ),
                   ),
-                if (_items.isEmpty)
-                  const Center(child: Text('Нет проблем')),
+                if (_items.isEmpty) const Center(child: Text('Нет проблем')),
               ],
             ),
     );
@@ -183,15 +183,20 @@ Future<List<Map<String, dynamic>>> _validateTask(String _) async {
             final bad = s.hand.actions.values
                 .any((l) => l.any((a) => (a.amount ?? 0) > tpl.bb));
             if (bad) {
-              issues.add(ValidationIssue(
-                  type: 'error', message: 'bad_bet:${s.id}'));
+              issues.add(
+                  ValidationIssue(type: 'error', message: 'bad_bet:${s.id}'));
             }
           }
         }
       } catch (e) {
-        issues.add(ValidationIssue(type: 'error', message: e.runtimeType.toString()));
+        issues.add(
+            ValidationIssue(type: 'error', message: e.runtimeType.toString()));
       }
-      list.add({'path': f.path, 'id': id, 'issues': [for (final i in issues) i.toJson()]});
+      list.add({
+        'path': f.path,
+        'id': id,
+        'issues': [for (final i in issues) i.toJson()]
+      });
     }
   }
   final count = <String, int>{};

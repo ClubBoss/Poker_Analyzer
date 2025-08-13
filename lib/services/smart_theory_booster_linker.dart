@@ -50,4 +50,3 @@ class SmartTheoryBoosterLinker {
     return link;
   }
 }
-

@@ -23,4 +23,3 @@ class DecayHotspotStats {
     required this.topSpotIds,
   });
 }
-

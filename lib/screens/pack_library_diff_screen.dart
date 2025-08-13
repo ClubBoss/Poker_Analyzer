@@ -81,7 +81,8 @@ class _PackLibraryDiffScreenState extends State<PackLibraryDiffScreen> {
         title: const Text('Pack Diff Viewer'),
         actions: [
           IconButton(
-            onPressed: _packA != null && _packB != null ? _exportMarkdown : null,
+            onPressed:
+                _packA != null && _packB != null ? _exportMarkdown : null,
             icon: const Icon(Icons.share),
           ),
         ],
@@ -108,7 +109,8 @@ class _PackLibraryDiffScreenState extends State<PackLibraryDiffScreen> {
               [for (final s in _packA!.spots) s.toJson()],
               [for (final s in _packB!.spots) s.toJson()],
             ),
-            if (_packA!.meta['config'] != null || _packB!.meta['config'] != null)
+            if (_packA!.meta['config'] != null ||
+                _packB!.meta['config'] != null)
               _mapDiff(
                 'Config',
                 (_packA!.meta['config'] as Map?)?.cast<String, dynamic>(),
@@ -122,7 +124,8 @@ class _PackLibraryDiffScreenState extends State<PackLibraryDiffScreen> {
 
   final _eq = const DeepCollectionEquality();
 
-  Widget _mapDiff(String title, Map<String, dynamic>? a, Map<String, dynamic>? b) {
+  Widget _mapDiff(
+      String title, Map<String, dynamic>? a, Map<String, dynamic>? b) {
     final keys = {...?a?.keys, ...?b?.keys};
     final children = <Widget>[];
     for (final k in keys) {
@@ -166,7 +169,8 @@ class _PackLibraryDiffScreenState extends State<PackLibraryDiffScreen> {
 
   Widget _buildDiff(String key, dynamic a, dynamic b) {
     if (a is Map || b is Map) {
-      return _mapDiff(key, a as Map<String, dynamic>?, b as Map<String, dynamic>?);
+      return _mapDiff(
+          key, a as Map<String, dynamic>?, b as Map<String, dynamic>?);
     }
     if (a is List || b is List) {
       return _listDiff(key, a as List<dynamic>?, b as List<dynamic>?);

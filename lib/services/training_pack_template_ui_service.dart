@@ -32,11 +32,10 @@ class TrainingPackTemplateUiService {
               Future.microtask(() async {
                 final isHu = template.playerStacksBb.length == 2;
                 const idxBB = 1;
-                final callCutoff =
-                    (PackGeneratorService.handRanking.length *
-                            template.bbCallPct /
-                            100)
-                        .round();
+                final callCutoff = (PackGeneratorService.handRanking.length *
+                        template.bbCallPct /
+                        100)
+                    .round();
                 for (var i = 0;
                     i < range.length && generated.length < total;
                     i++) {
@@ -70,16 +69,14 @@ class TrainingPackTemplateUiService {
                     heroHand: hand,
                     chipPushEv: ev,
                   );
-                  actions[0]![0] =
-                      actions[0]![0].copyWith(ev: ev, icmEv: icm);
+                  actions[0]![0] = actions[0]![0].copyWith(ev: ev, icmEv: icm);
                   final stacks = {
                     for (var j = 0; j < template.playerStacksBb.length; j++)
                       '$j': template.playerStacksBb[j].toDouble()
                   };
                   generated.add(
                     TrainingPackSpot(
-                      id:
-                          '${template.id}_${template.spots.length + generated.length + 1}',
+                      id: '${template.id}_${template.spots.length + generated.length + 1}',
                       title: '$hand push',
                       hand: HandData(
                         heroCards: heroCards,
@@ -125,10 +122,10 @@ class TrainingPackTemplateUiService {
         if (handCode(s.hand.heroCards) != null) handCode(s.hand.heroCards)!
     };
     if (existing.length >= template.spotCount) return [];
-    final range = (template.heroRange ??
-            PackGeneratorService.topNHands(25).toList())
-        .where((h) => !existing.contains(h))
-        .toList();
+    final range =
+        (template.heroRange ?? PackGeneratorService.topNHands(25).toList())
+            .where((h) => !existing.contains(h))
+            .toList();
     final total = template.spotCount - existing.length;
     final generated = <TrainingPackSpot>[];
     var cancel = false;
@@ -145,11 +142,10 @@ class TrainingPackTemplateUiService {
               Future.microtask(() async {
                 final isHu = template.playerStacksBb.length == 2;
                 const idxBB = 1;
-                final callCutoff =
-                    (PackGeneratorService.handRanking.length *
-                            template.bbCallPct /
-                            100)
-                        .round();
+                final callCutoff = (PackGeneratorService.handRanking.length *
+                        template.bbCallPct /
+                        100)
+                    .round();
                 for (var i = 0;
                     i < range.length && generated.length < total;
                     i++) {
@@ -183,16 +179,14 @@ class TrainingPackTemplateUiService {
                     heroHand: hand,
                     chipPushEv: ev,
                   );
-                  actions[0]![0] =
-                      actions[0]![0].copyWith(ev: ev, icmEv: icm);
+                  actions[0]![0] = actions[0]![0].copyWith(ev: ev, icmEv: icm);
                   final stacks = {
                     for (var j = 0; j < template.playerStacksBb.length; j++)
                       '$j': template.playerStacksBb[j].toDouble()
                   };
                   generated.add(
                     TrainingPackSpot(
-                      id:
-                          '${template.id}_${template.spots.length + generated.length + 1}',
+                      id: '${template.id}_${template.spots.length + generated.length + 1}',
                       title: '$hand push',
                       hand: HandData(
                         heroCards: heroCards,

@@ -31,8 +31,8 @@ class WeeklyChallengeCard extends StatelessWidget {
               children: [
                 Text(
                   challenge.title,
-                  style:
-                      const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
                 ClipRRect(
@@ -48,12 +48,12 @@ class WeeklyChallengeCard extends StatelessWidget {
                 Row(
                   children: [
                     Text('$progressValue/$target',
-                        style:
-                            const TextStyle(color: Colors.white70, fontSize: 12)),
+                        style: const TextStyle(
+                            color: Colors.white70, fontSize: 12)),
                     const Spacer(),
                     Text('${service.daysLeft} days left',
-                        style:
-                            const TextStyle(color: Colors.white70, fontSize: 12)),
+                        style: const TextStyle(
+                            color: Colors.white70, fontSize: 12)),
                   ],
                 ),
               ],

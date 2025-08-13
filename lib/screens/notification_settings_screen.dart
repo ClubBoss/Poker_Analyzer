@@ -7,10 +7,12 @@ class NotificationSettingsScreen extends StatefulWidget {
   const NotificationSettingsScreen({super.key});
 
   @override
-  State<NotificationSettingsScreen> createState() => _NotificationSettingsScreenState();
+  State<NotificationSettingsScreen> createState() =>
+      _NotificationSettingsScreenState();
 }
 
-class _NotificationSettingsScreenState extends State<NotificationSettingsScreen> {
+class _NotificationSettingsScreenState
+    extends State<NotificationSettingsScreen> {
   TimeOfDay _time = const TimeOfDay(hour: 20, minute: 0);
 
   @override
@@ -40,8 +42,10 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       body: ListView(
         children: [
           ListTile(
-            title: const Text('Reminder Time', style: TextStyle(color: Colors.white)),
-            subtitle: Text(timeText, style: const TextStyle(color: Colors.white70)),
+            title: const Text('Reminder Time',
+                style: TextStyle(color: Colors.white)),
+            subtitle:
+                Text(timeText, style: const TextStyle(color: Colors.white70)),
             onTap: _pick,
           ),
           const StreakReminderSettingsWidget(),

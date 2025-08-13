@@ -14,16 +14,46 @@ class GoalsTrackerService extends ChangeNotifier {
 
   final Map<String, List<Goal>> _all = {
     'daily': [
-      Goal(id: 'd1', title: 'Play 10 hands', type: 'daily', target: 10, reward: 5),
-      Goal(id: 'd2', title: 'Play 20 hands', type: 'daily', target: 20, reward: 10),
+      Goal(
+          id: 'd1',
+          title: 'Play 10 hands',
+          type: 'daily',
+          target: 10,
+          reward: 5),
+      Goal(
+          id: 'd2',
+          title: 'Play 20 hands',
+          type: 'daily',
+          target: 20,
+          reward: 10),
     ],
     'weekly': [
-      Goal(id: 'w1', title: 'Finish 3 packs', type: 'weekly', target: 3, reward: 20),
-      Goal(id: 'w2', title: 'Finish 5 packs', type: 'weekly', target: 5, reward: 40),
+      Goal(
+          id: 'w1',
+          title: 'Finish 3 packs',
+          type: 'weekly',
+          target: 3,
+          reward: 20),
+      Goal(
+          id: 'w2',
+          title: 'Finish 5 packs',
+          type: 'weekly',
+          target: 5,
+          reward: 40),
     ],
     'progressive': [
-      Goal(id: 'p1', title: 'Play 1000 hands', type: 'progressive', target: 1000, reward: 50),
-      Goal(id: 'p2', title: 'Play 5000 hands', type: 'progressive', target: 5000, reward: 200),
+      Goal(
+          id: 'p1',
+          title: 'Play 1000 hands',
+          type: 'progressive',
+          target: 1000,
+          reward: 50),
+      Goal(
+          id: 'p2',
+          title: 'Play 5000 hands',
+          type: 'progressive',
+          target: 5000,
+          reward: 200),
     ],
   };
 

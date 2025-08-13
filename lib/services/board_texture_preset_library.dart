@@ -47,8 +47,7 @@ class BoardTexturePresetLibrary {
     final preset = get(presetName);
 
     final textures = <String>[
-      for (final t in (preset['requiredTextures'] as List? ?? []))
-        t.toString(),
+      for (final t in (preset['requiredTextures'] as List? ?? [])) t.toString(),
     ];
     final filter = BoardFilteringParamsBuilder.build(textures);
     if (!_textureFilter.isMatch(board, filter)) {
@@ -58,12 +57,10 @@ class BoardTexturePresetLibrary {
     final requiredTags = <String>{
       for (final t in (filter['boardTexture'] as List? ?? []))
         t == 'broadway' ? 'broadwayHeavy' : t.toString(),
-      for (final t in (preset['requiredTags'] as List? ?? []))
-        t.toString(),
+      for (final t in (preset['requiredTags'] as List? ?? [])) t.toString(),
     };
     final excludedTags = <String>{
-      for (final t in (preset['excludedTags'] as List? ?? []))
-        t.toString(),
+      for (final t in (preset['excludedTags'] as List? ?? [])) t.toString(),
     };
 
     final stages = _toBoardStages(board);

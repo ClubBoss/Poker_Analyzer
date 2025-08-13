@@ -42,4 +42,3 @@ class TheoryRecallEfficiencyEvaluatorService {
     return scores;
   }
 }
-

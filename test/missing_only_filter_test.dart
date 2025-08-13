@@ -10,10 +10,12 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('toggle missing-only filter', (tester) async {
-    final spot1 = TrainingPackSpot(id: 'a', hand: HandData(), heroEv: 1, heroIcmEv: 1);
+    final spot1 =
+        TrainingPackSpot(id: 'a', hand: HandData(), heroEv: 1, heroIcmEv: 1);
     final spot2 = TrainingPackSpot(id: 'b', hand: HandData());
     final spot3 = TrainingPackSpot(id: 'c', hand: HandData(), heroEv: 1);
-    final tpl = TrainingPackTemplate(id: 't', name: 't', spots: [spot1, spot2, spot3]);
+    final tpl =
+        TrainingPackTemplate(id: 't', name: 't', spots: [spot1, spot2, spot3]);
     await tester.pumpWidget(MaterialApp(
       home: TrainingPackTemplateEditorScreen(template: tpl, templates: [tpl]),
     ));

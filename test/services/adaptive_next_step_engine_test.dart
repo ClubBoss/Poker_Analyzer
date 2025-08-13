@@ -23,14 +23,20 @@ void main() {
       title: 'one',
       introText: '',
       linkedPackId: 'p',
-      meta: const {'schemaVersion': '3.0.0', 'tags': ['a']},
+      meta: const {
+        'schemaVersion': '3.0.0',
+        'tags': ['a']
+      },
     ),
     LessonStep(
       id: 's2',
       title: 'two',
       introText: '',
       linkedPackId: 'p',
-      meta: const {'schemaVersion': '3.0.0', 'tags': ['b']},
+      meta: const {
+        'schemaVersion': '3.0.0',
+        'tags': ['b']
+      },
     ),
     LessonStep(
       id: 's3',
@@ -89,4 +95,3 @@ void main() {
     expect(next, 's1');
   });
 }
-

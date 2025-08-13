@@ -57,7 +57,8 @@ class DebugSnapshotService {
     }
   }
 
-  String _timestamp() => DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now());
+  String _timestamp() =>
+      DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now());
 
   Future<void> _cleanupOldFiles(String subfolder, int limit) async {
     try {
@@ -183,16 +184,16 @@ class DebugSnapshotService {
       final dir = await _getDir(snapshotsFolder);
       if (!await dir.exists()) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('No snapshot files found')));
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('No snapshot files found')));
         }
         return;
       }
       final files = await dir.list(recursive: true).whereType<File>().toList();
       if (files.isEmpty) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('No snapshot files found')));
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('No snapshot files found')));
         }
         return;
       }
@@ -220,10 +221,9 @@ class DebugSnapshotService {
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Failed to export snapshots')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to export snapshots')));
       }
     }
   }
 }
-

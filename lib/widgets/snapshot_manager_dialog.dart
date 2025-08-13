@@ -17,7 +17,10 @@ class _SnapshotManagerDialogState extends State<SnapshotManagerDialog> {
   @override
   void initState() {
     super.initState();
-    _snaps = [for (final s in widget.snapshots) if (!s.isAuto) s];
+    _snaps = [
+      for (final s in widget.snapshots)
+        if (!s.isAuto) s
+    ];
   }
 
   Future<void> _rename(int index) async {
@@ -28,8 +31,11 @@ class _SnapshotManagerDialogState extends State<SnapshotManagerDialog> {
         title: const Text('Rename Snapshot'),
         content: TextField(controller: c, autofocus: true),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(ctx, c.text.trim()), child: const Text('Save')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, c.text.trim()),
+              child: const Text('Save')),
         ],
       ),
     );
@@ -53,13 +59,18 @@ class _SnapshotManagerDialogState extends State<SnapshotManagerDialog> {
             final s = _snaps[i];
             return ListTile(
               title: Text(s.name),
-              subtitle: Text(DateFormat('yyyy-MM-dd HH:mm').format(s.timestamp)),
+              subtitle:
+                  Text(DateFormat('yyyy-MM-dd HH:mm').format(s.timestamp)),
               onTap: () => _rename(i),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  IconButton(icon: const Icon(Icons.restore), onPressed: () => Navigator.pop(context, s)),
-                  IconButton(icon: const Icon(Icons.delete), onPressed: () => _delete(i)),
+                  IconButton(
+                      icon: const Icon(Icons.restore),
+                      onPressed: () => Navigator.pop(context, s)),
+                  IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () => _delete(i)),
                 ],
               ),
             );
@@ -67,7 +78,9 @@ class _SnapshotManagerDialogState extends State<SnapshotManagerDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context, _snaps), child: const Text('Close')),
+        TextButton(
+            onPressed: () => Navigator.pop(context, _snaps),
+            child: const Text('Close')),
       ],
     );
   }

@@ -44,4 +44,3 @@ void main() {
     expect(pack.meta['themeName'], 'Theme');
   });
 }
-

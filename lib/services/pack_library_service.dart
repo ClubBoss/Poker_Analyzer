@@ -20,7 +20,9 @@ class PackLibraryService {
   /// If the [id] is unknown, an empty list is returned.
   List<TrainingPackSpot> getPack(String id) {
     final spots = packLibrary[id];
-    return spots == null ? const [] : List<TrainingPackSpot>.unmodifiable(spots);
+    return spots == null
+        ? const []
+        : List<TrainingPackSpot>.unmodifiable(spots);
   }
 
   /// Lists all pack ids available in the precompiled [packLibrary].
@@ -56,7 +58,8 @@ class PackLibraryService {
   /// Returns the first pack containing [tag] or `null` if none found.
   Future<TrainingPackTemplateV2?> findByTag(String tag) async {
     await TrainingPackLibraryV2.instance.loadFromFolder();
-    final list = TrainingPackLibraryV2.instance.filterBy(type: TrainingType.pushFold);
+    final list =
+        TrainingPackLibraryV2.instance.filterBy(type: TrainingType.pushFold);
     return list.firstWhereOrNull((p) => p.tags.contains(tag));
   }
 

@@ -72,11 +72,14 @@ class HandHistoryFileService {
     if (context.mounted) {
       final analyzer = Provider.of<HandAnalyzerService>(context, listen: false);
       final xp = Provider.of<XPTrackerService>(context, listen: false);
-      final history = Provider.of<HandAnalysisHistoryService>(context, listen: false);
+      final history =
+          Provider.of<HandAnalysisHistoryService>(context, listen: false);
       int correct = 0;
       final mistakes = <ImportMistake>[];
       for (final h in imported) {
-        final hero = h.playerCards.length > h.heroIndex ? h.playerCards[h.heroIndex] : <CardModel>[];
+        final hero = h.playerCards.length > h.heroIndex
+            ? h.playerCards[h.heroIndex]
+            : <CardModel>[];
         if (hero.length < 2) continue;
         final stack = h.stackSizes[h.heroIndex] ?? 0;
         final record = analyzer.analyzePush(

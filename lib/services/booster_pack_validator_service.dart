@@ -66,9 +66,8 @@ class BoosterPackValidatorService {
     if (spot.hand.position == HeroPosition.unknown) {
       errors.add('bad_heroPosition:${spot.id}');
     } else if (packPositions.isNotEmpty) {
-      final matches = packPositions
-          .map(parseHeroPosition)
-          .contains(spot.hand.position);
+      final matches =
+          packPositions.map(parseHeroPosition).contains(spot.hand.position);
       if (!matches) warnings.add('position_mismatch:${spot.id}');
     }
 

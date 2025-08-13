@@ -86,8 +86,8 @@ class LearningPathCard extends StatelessWidget {
                         ),
                         Text(
                           '${(progress!.percentComplete * 100).round()}%',
-                          style:
-                              const TextStyle(color: Colors.white70, fontSize: 12),
+                          style: const TextStyle(
+                              color: Colors.white70, fontSize: 12),
                         ),
                         if (progress!.finished)
                           const Padding(

@@ -6,15 +6,19 @@ class TheoryBoosterReinjectionPolicy {
   final TheoryBoosterEffectivenessService _effectiveness;
   final Set<String> _blocked = <String>{};
 
-  TheoryBoosterReinjectionPolicy({TheoryBoosterEffectivenessService? effectiveness})
-      : _effectiveness = effectiveness ?? TheoryBoosterEffectivenessService.instance;
+  TheoryBoosterReinjectionPolicy(
+      {TheoryBoosterEffectivenessService? effectiveness})
+      : _effectiveness =
+            effectiveness ?? TheoryBoosterEffectivenessService.instance;
 
-  static final TheoryBoosterReinjectionPolicy instance = TheoryBoosterReinjectionPolicy();
+  static final TheoryBoosterReinjectionPolicy instance =
+      TheoryBoosterReinjectionPolicy();
 
   /// Returns `true` if [boosterId] should be reinjected.
   Future<bool> shouldReinject(String boosterId) async {
     if (_blocked.contains(boosterId)) return false;
-    final List<BoosterEffectLog> stats = await _effectiveness.getImpactStats(boosterId);
+    final List<BoosterEffectLog> stats =
+        await _effectiveness.getImpactStats(boosterId);
     if (stats.isNotEmpty) {
       final BoosterEffectLog last = stats.first;
       if (last.deltaEV < 0.01 || last.spotsTracked < 5) {

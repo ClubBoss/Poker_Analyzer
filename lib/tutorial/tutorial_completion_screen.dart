@@ -8,7 +8,8 @@ class TutorialCompletionScreen extends StatefulWidget {
   const TutorialCompletionScreen({super.key, required this.onRepeat});
 
   @override
-  State<TutorialCompletionScreen> createState() => _TutorialCompletionScreenState();
+  State<TutorialCompletionScreen> createState() =>
+      _TutorialCompletionScreenState();
 }
 
 class _TutorialCompletionScreenState extends State<TutorialCompletionScreen> {

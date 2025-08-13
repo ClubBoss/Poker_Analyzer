@@ -26,7 +26,9 @@ class _TestPathProvider extends PathProviderPlatform {
   @override
   Future<List<String>?> getExternalCachePaths() async => [path];
   @override
-  Future<List<String>?> getExternalStoragePaths({StorageDirectory? type}) async => [path];
+  Future<List<String>?> getExternalStoragePaths(
+          {StorageDirectory? type}) async =>
+      [path];
   @override
   Future<String?> getDownloadsPath() async => path;
 }
@@ -52,11 +54,20 @@ void main() {
       total: 2,
       correct: 1,
       tasks: [
-        SessionTaskResult(question: 's1', selectedAnswer: 'a', correctAnswer: 'a', correct: true),
-        SessionTaskResult(question: 's2', selectedAnswer: 'a', correctAnswer: 'b', correct: false),
+        SessionTaskResult(
+            question: 's1',
+            selectedAnswer: 'a',
+            correctAnswer: 'a',
+            correct: true),
+        SessionTaskResult(
+            question: 's2',
+            selectedAnswer: 'a',
+            correctAnswer: 'b',
+            correct: false),
       ],
     );
-    await exporter.exportSessionStats(template, result, const Duration(seconds: 30));
+    await exporter.exportSessionStats(
+        template, result, const Duration(seconds: 30));
 
     final box = Hive.box('pack_review_stats_box');
     expect(box.length, 1);
@@ -74,4 +85,3 @@ void main() {
     expect(tagB['correct'], 0);
   });
 }
-

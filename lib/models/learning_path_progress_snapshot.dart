@@ -26,7 +26,8 @@ class LearningPathProgressSnapshot {
       pathId: json['pathId'] as String? ?? '',
       stageId: json['stageId'] as String? ?? '',
       subProgress: json['subProgress'] is Map
-          ? (json['subProgress'] as Map).map((k, v) => MapEntry(k.toString(), (v as num).toDouble()))
+          ? (json['subProgress'] as Map)
+              .map((k, v) => MapEntry(k.toString(), (v as num).toDouble()))
           : const <String, double>{},
       handsPlayed: (json['handsPlayed'] as num?)?.toInt() ?? 0,
       accuracy: (json['accuracy'] as num?)?.toDouble() ?? 0.0,

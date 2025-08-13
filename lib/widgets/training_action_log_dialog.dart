@@ -19,16 +19,24 @@ class TrainingActionLogDialog extends StatelessWidget {
         width: double.maxFinite,
         height: 400,
         child: actions.isEmpty
-            ? const Center(child: Text('No actions', style: TextStyle(color: Colors.white70)))
+            ? const Center(
+                child:
+                    Text('No actions', style: TextStyle(color: Colors.white70)))
             : ListView.builder(
                 itemCount: actions.length,
                 itemBuilder: (context, index) {
                   final a = actions[index];
-                  final color = a.isCorrect ? AppColors.cardBackground : AppColors.errorBg;
-                  final time = DateFormat('HH:mm:ss', Intl.getCurrentLocale()).format(a.timestamp);
+                  final color = a.isCorrect
+                      ? AppColors.cardBackground
+                      : AppColors.errorBg;
+                  final time = DateFormat('HH:mm:ss', Intl.getCurrentLocale())
+                      .format(a.timestamp);
                   TrainingPackSpot? spot;
                   try {
-                    spot = context.read<TrainingSessionService>().spots.firstWhere((s) => s.id == a.spotId);
+                    spot = context
+                        .read<TrainingSessionService>()
+                        .spots
+                        .firstWhere((s) => s.id == a.spotId);
                   } catch (_) {}
                   if (spot == null) return const SizedBox.shrink();
                   return Container(
@@ -40,17 +48,22 @@ class TrainingActionLogDialog extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        Text('${index + 1}', style: const TextStyle(color: Colors.white)),
+                        Text('${index + 1}',
+                            style: const TextStyle(color: Colors.white)),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(a.chosenAction,
-                              style: TextStyle(color: a.isCorrect ? Colors.white : Colors.red)),
+                              style: TextStyle(
+                                  color:
+                                      a.isCorrect ? Colors.white : Colors.red)),
                         ),
                         const SizedBox(width: 8),
                         Icon(a.isCorrect ? Icons.check : Icons.close,
-                            color: a.isCorrect ? Colors.green : Colors.red, size: 16),
+                            color: a.isCorrect ? Colors.green : Colors.red,
+                            size: 16),
                         const SizedBox(width: 8),
-                        Text(time, style: const TextStyle(color: Colors.white70)),
+                        Text(time,
+                            style: const TextStyle(color: Colors.white70)),
                         const SizedBox(width: 8),
                         PlayerNoteButton(
                           note: spot.note,
@@ -58,10 +71,13 @@ class TrainingActionLogDialog extends StatelessWidget {
                             final res = await showDialog<String>(
                               context: context,
                               builder: (ctx) {
-                                final c = TextEditingController(text: spot!.note);
+                                final c =
+                                    TextEditingController(text: spot!.note);
                                 return AlertDialog(
-                                  backgroundColor: Colors.black.withValues(alpha: 0.8),
-                                  title: const Text('Note', style: TextStyle(color: Colors.white)),
+                                  backgroundColor:
+                                      Colors.black.withValues(alpha: 0.8),
+                                  title: const Text('Note',
+                                      style: TextStyle(color: Colors.white)),
                                   content: TextField(
                                     controller: c,
                                     autofocus: true,
@@ -71,21 +87,31 @@ class TrainingActionLogDialog extends StatelessWidget {
                                       filled: true,
                                       fillColor: Colors.white10,
                                       hintText: 'Enter notes',
-                                      hintStyle: const TextStyle(color: Colors.white54),
-                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                                      hintStyle: const TextStyle(
+                                          color: Colors.white54),
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8)),
                                     ),
                                   ),
                                   actions: [
-                                    TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-                                    TextButton(onPressed: () => Navigator.pop(ctx, c.text), child: const Text('Save')),
+                                    TextButton(
+                                        onPressed: () => Navigator.pop(ctx),
+                                        child: const Text('Cancel')),
+                                    TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(ctx, c.text),
+                                        child: const Text('Save')),
                                   ],
                                 );
                               },
                             );
                             if (res != null) {
-                              final updated = spot!
-                                  .copyWith(note: res.trim(), editedAt: DateTime.now());
-                              await context.read<TrainingSessionService>().updateSpot(updated);
+                              final updated = spot!.copyWith(
+                                  note: res.trim(), editedAt: DateTime.now());
+                              await context
+                                  .read<TrainingSessionService>()
+                                  .updateSpot(updated);
                             }
                           },
                         ),
@@ -96,13 +122,16 @@ class TrainingActionLogDialog extends StatelessWidget {
               ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close')),
+        TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close')),
       ],
     );
   }
 }
 
-Future<void> showTrainingActionLogDialog(BuildContext context, List<TrainingAction> actions) {
+Future<void> showTrainingActionLogDialog(
+    BuildContext context, List<TrainingAction> actions) {
   return showDialog(
     context: context,
     builder: (_) => TrainingActionLogDialog(actions: actions),

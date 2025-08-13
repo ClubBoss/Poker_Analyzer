@@ -43,7 +43,8 @@ class SmartMistakeReviewStrategy {
     List<TrainingHistoryEntryV2>? history,
   }) async {
     final ins = insights ?? await insightsService.buildInsights();
-    final hist = history ?? await TrainingHistoryServiceV2.getHistory(limit: 20);
+    final hist =
+        history ?? await TrainingHistoryServiceV2.getHistory(limit: 20);
     final skillFeed = feed ?? await _loadFeed();
 
     final lastTrained = <String, DateTime>{};
@@ -114,4 +115,3 @@ class SmartMistakeReviewStrategy {
     );
   }
 }
-

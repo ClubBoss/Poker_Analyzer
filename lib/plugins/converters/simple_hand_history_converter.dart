@@ -75,8 +75,9 @@ class SimpleHandHistoryConverter extends ConverterPlugin {
       stackSizes: {for (var i = 0; i < playerCount; i++) i: 0},
       playerPositions: {for (var i = 0; i < playerCount; i++) i: ''},
       comment: tableName,
-      playerTypes: {for (var i = 0; i < playerCount; i++) i: PlayerType.unknown},
+      playerTypes: {
+        for (var i = 0; i < playerCount; i++) i: PlayerType.unknown
+      },
     );
   }
 }
-

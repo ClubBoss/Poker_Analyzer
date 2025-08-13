@@ -25,9 +25,7 @@ class GoalSuggestionEngine {
 
     final goals = <UserGoal>[];
     final masteryMap = await mastery.computeMastery();
-    final weakEntries = masteryMap.entries
-        .where((e) => e.value < 0.8)
-        .toList()
+    final weakEntries = masteryMap.entries.where((e) => e.value < 0.8).toList()
       ..sort((a, b) => a.value.compareTo(b.value));
 
     final used = <String>{};

@@ -43,7 +43,8 @@ class ProgressForecastService extends ChangeNotifier {
   List<ProgressEntry> _history = const [];
   Map<String, List<ProgressEntry>> _positionHistory = {};
   Map<String, List<ProgressEntry>> _tagHistory = {};
-  ProgressForecast _forecast = const ProgressForecast(accuracy: 0, ev: 0, icm: 0);
+  ProgressForecast _forecast =
+      const ProgressForecast(accuracy: 0, ev: 0, icm: 0);
 
   List<ProgressEntry> get history => List.unmodifiable(_history);
   Iterable<String> get positions => _positionHistory.keys;
@@ -91,13 +92,12 @@ class ProgressForecastService extends ChangeNotifier {
     for (final h in hands.hands) {
       final day = DateTime(h.date.year, h.date.month, h.date.day);
       map.putIfAbsent(day, () => []).add(h);
-      posMap.putIfAbsent(h.heroPosition, () => {})
+      posMap
+          .putIfAbsent(h.heroPosition, () => {})
           .putIfAbsent(day, () => [])
           .add(h);
       for (final t in h.tags) {
-        tagMap.putIfAbsent(t, () => {})
-            .putIfAbsent(day, () => [])
-            .add(h);
+        tagMap.putIfAbsent(t, () => {}).putIfAbsent(day, () => []).add(h);
       }
     }
 
@@ -176,9 +176,7 @@ class ProgressForecastService extends ChangeNotifier {
     if (data.isEmpty) return const ProgressForecast(accuracy: 0, ev: 0, icm: 0);
     if (data.length == 1) {
       return ProgressForecast(
-        accuracy: data.last.accuracy,
-        ev: data.last.ev,
-        icm: data.last.icm);
+          accuracy: data.last.accuracy, ev: data.last.ev, icm: data.last.icm);
     }
     final n = data.length;
     final xs = [for (var i = 0; i < n; i++) i + 1];

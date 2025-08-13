@@ -49,7 +49,8 @@ void main() {
     );
     await service.inject(spot);
     expect(spot.meta['linkedTheoryId'], 'l1');
-    final logs = await TheoryAutoInjectionLoggerService.instance.getRecentLogs();
+    final logs =
+        await TheoryAutoInjectionLoggerService.instance.getRecentLogs();
     expect(logs.length, 1);
     expect(logs.first.lessonId, 'l1');
     expect(logs.first.spotId, 's1');

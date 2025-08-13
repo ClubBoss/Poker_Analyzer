@@ -3,7 +3,6 @@ import 'package:poker_analyzer/services/review_path_recommender.dart';
 import 'package:poker_analyzer/services/skill_loss_detector.dart';
 
 void main() {
-
   test('suggestRecoveryPath ranks tags by urgency', () {
     final losses = [
       SkillLoss(tag: 'a', drop: 0.2, trend: ''),

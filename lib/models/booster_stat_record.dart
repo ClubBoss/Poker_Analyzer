@@ -27,7 +27,8 @@ class BoosterStatRecord {
         'dismissed': dismissed,
       };
 
-  factory BoosterStatRecord.fromJson(Map<String, dynamic> json) => BoosterStatRecord(
+  factory BoosterStatRecord.fromJson(Map<String, dynamic> json) =>
+      BoosterStatRecord(
         type: json['type'] as String? ?? '',
         suggested: (json['suggested'] as num?)?.toInt() ?? 0,
         accepted: (json['accepted'] as num?)?.toInt() ?? 0,

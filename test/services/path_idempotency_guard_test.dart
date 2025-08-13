@@ -19,8 +19,9 @@ void main() {
     expect(await guard.shouldInject(user, sig), isFalse);
     final prefs = await SharedPreferences.getInstance();
     final key = 'planner.injected.$user.$sig';
-    final past =
-        DateTime.now().subtract(const Duration(hours: 25)).millisecondsSinceEpoch;
+    final past = DateTime.now()
+        .subtract(const Duration(hours: 25))
+        .millisecondsSinceEpoch;
     await prefs.setInt(key, past);
     expect(await guard.shouldInject(user, sig), isTrue);
   });

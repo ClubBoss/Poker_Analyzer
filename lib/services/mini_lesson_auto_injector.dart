@@ -46,9 +46,8 @@ class MiniLessonAutoInjector {
     final current = engine.getCurrentNode();
     if (current == null) return;
 
-    final tagSet = {
-      for (final t in weakTags) t.trim().toLowerCase()
-    }..removeWhere((e) => e.isEmpty);
+    final tagSet = {for (final t in weakTags) t.trim().toLowerCase()}
+      ..removeWhere((e) => e.isEmpty);
     if (tagSet.isEmpty) return;
 
     await library.loadAll();
@@ -60,7 +59,10 @@ class MiniLessonAutoInjector {
     final nodes = engine.engine?.allNodes ?? [];
     final existing = {for (final n in nodes) n.id};
     final recent = await logService.getRecent(within: cooldown);
-    final recentIds = {for (final l in recent) if (l.type == 'mini') l.id};
+    final recentIds = {
+      for (final l in recent)
+        if (l.type == 'mini') l.id
+    };
 
     int overlap(TheoryMiniLessonNode l) =>
         l.tags.where((t) => tagSet.contains(t.toLowerCase())).length;
@@ -98,4 +100,3 @@ class MiniLessonAutoInjector {
     }
   }
 }
-

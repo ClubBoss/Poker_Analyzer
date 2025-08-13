@@ -9,8 +9,10 @@ void main() {
 
   Future<List<TrainingPackSpot>> spotLoader(String tag) async {
     return [
-      TrainingPackSpot(id: '$tag-1', tags: [tag], createdAt: DateTime(2023, 1, 1)),
-      TrainingPackSpot(id: '$tag-2', tags: [tag], createdAt: DateTime(2023, 1, 2)),
+      TrainingPackSpot(
+          id: '$tag-1', tags: [tag], createdAt: DateTime(2023, 1, 1)),
+      TrainingPackSpot(
+          id: '$tag-2', tags: [tag], createdAt: DateTime(2023, 1, 2)),
     ];
   }
 

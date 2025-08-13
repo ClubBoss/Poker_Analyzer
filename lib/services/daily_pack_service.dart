@@ -46,12 +46,18 @@ class DailyPackService extends ChangeNotifier {
     final others = <TrainingPackTemplateV2>[];
     for (final t in templates.templates) {
       final stat = await TrainingPackStatsService.getStats(t.id);
-      final ev = stat == null ? 0.0 : (stat.postEvPct > 0 ? stat.postEvPct : stat.preEvPct);
-      final icm = stat == null ? 0.0 : (stat.postIcmPct > 0 ? stat.postIcmPct : stat.preIcmPct);
-      final completed = stat != null && stat.accuracy >= .9 && ev >= 80 && icm >= 80;
+      final ev = stat == null
+          ? 0.0
+          : (stat.postEvPct > 0 ? stat.postEvPct : stat.preEvPct);
+      final icm = stat == null
+          ? 0.0
+          : (stat.postIcmPct > 0 ? stat.postIcmPct : stat.preIcmPct);
+      final completed =
+          stat != null && stat.accuracy >= .9 && ev >= 80 && icm >= 80;
       if (completed || (ev >= 90 && icm >= 90)) continue;
-      final target = (t.recommended || t.tags.contains('starter') ||
-          now.difference(t.created).inDays < 7)
+      final target = (t.recommended ||
+              t.tags.contains('starter') ||
+              now.difference(t.created).inDays < 7)
           ? preferred
           : others;
       target.add(t);

@@ -48,7 +48,8 @@ class TagDecayForecastService {
       final last = times.isNotEmpty ? times.last : null;
       final intervals = <double>[];
       for (var i = 1; i < times.length; i++) {
-        intervals.add(times[i].difference(times[i - 1]).inMilliseconds / 86400000);
+        intervals
+            .add(times[i].difference(times[i - 1]).inMilliseconds / 86400000);
       }
       final avg = intervals.isEmpty
           ? 0.0
@@ -95,9 +96,7 @@ class TagDecayForecastService {
   /// Returns tags with normalized decay above [threshold], sorted by severity.
   Future<List<String>> getCriticalTags({double threshold = 0.8}) async {
     final forecasts = await getAllForecasts();
-    final entries = forecasts.entries
-        .where((e) => e.value > threshold)
-        .toList()
+    final entries = forecasts.entries.where((e) => e.value > threshold).toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     return [for (final e in entries) e.key];
   }

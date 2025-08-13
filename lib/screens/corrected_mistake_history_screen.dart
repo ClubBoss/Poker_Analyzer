@@ -23,7 +23,9 @@ class _CorrectedMistakeHistoryScreenState
     final hands = context.watch<SavedHandManagerService>().hands;
     final all = [
       for (final h in hands)
-        if (h.corrected && (widget.category == null || h.category == widget.category)) h
+        if (h.corrected &&
+            (widget.category == null || h.category == widget.category))
+          h
     ]..sort((a, b) => b.savedAt.compareTo(a.savedAt));
     final filtered = _evOnly
         ? [
@@ -33,9 +35,7 @@ class _CorrectedMistakeHistoryScreenState
         : all;
     final title = widget.category == null
         ? 'Исправленные ошибки'
-        : 'Исправленные ошибки: ${translateCategory(widget.category).isEmpty
-                ? 'Без категории'
-                : translateCategory(widget.category)}';
+        : 'Исправленные ошибки: ${translateCategory(widget.category).isEmpty ? 'Без категории' : translateCategory(widget.category)}';
     return Scaffold(
       appBar: AppBar(
         title: Text(title),

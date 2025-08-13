@@ -9,7 +9,8 @@ class _FakeEngine extends DecayForecastEngine {
   const _FakeEngine(this.forecasts);
 
   @override
-  Future<List<TagDecayForecast>> forecast(List<String> tags, {int horizonDays = 30}) async {
+  Future<List<TagDecayForecast>> forecast(List<String> tags,
+      {int horizonDays = 30}) async {
     return forecasts;
   }
 }
@@ -20,9 +21,12 @@ void main() {
   test('detects upcoming critical tags', () async {
     final service = DecayForecastAlertService(
       engine: _FakeEngine([
-        const TagDecayForecast(tag: 'a', current: 50, in7days: 70, in14days: 80, in30days: 90),
-        const TagDecayForecast(tag: 'b', current: 40, in7days: 50, in14days: 65, in30days: 70),
-        const TagDecayForecast(tag: 'c', current: 10, in7days: 20, in14days: 30, in30days: 40),
+        const TagDecayForecast(
+            tag: 'a', current: 50, in7days: 70, in14days: 80, in30days: 90),
+        const TagDecayForecast(
+            tag: 'b', current: 40, in7days: 50, in14days: 65, in30days: 70),
+        const TagDecayForecast(
+            tag: 'c', current: 10, in7days: 20, in14days: 30, in30days: 40),
       ]),
     );
 
@@ -38,4 +42,3 @@ void main() {
     expect(b.projectedDecay, 65);
   });
 }
-

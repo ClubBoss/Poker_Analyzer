@@ -5,7 +5,8 @@ class PackSearchIndexService {
   static final instance = PackSearchIndexService._();
 
   final Map<String, Set<String>> _index = <String, Set<String>>{};
-  final Map<String, TrainingPackTemplateV2> _templates = <String, TrainingPackTemplateV2>{};
+  final Map<String, TrainingPackTemplateV2> _templates =
+      <String, TrainingPackTemplateV2>{};
 
   Future<void> buildIndex(List<TrainingPackTemplateV2> templates) async {
     _index.clear();
@@ -48,4 +49,3 @@ class PackSearchIndexService {
 
   String _normalize(String text) => text.trim().toLowerCase();
 }
-

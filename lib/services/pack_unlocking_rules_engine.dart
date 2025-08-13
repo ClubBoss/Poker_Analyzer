@@ -49,31 +49,30 @@ class PackUnlockingRulesEngine {
         : UnlockRule(
             id: pack.id,
             unlockHint: pack.unlockRules!.unlockHint,
-            requiresPackCompleted:
-                pack.unlockRules!.requiredPacks.isNotEmpty
-                    ? pack.unlockRules!.requiredPacks.first
-                    : null,
-            requiresEV: pack.unlockRules!.minEV,
-            requiresStageCompleted: pack.unlockRules!.requiresStarterPathCompleted == true
-                ? 'starter'
+            requiresPackCompleted: pack.unlockRules!.requiredPacks.isNotEmpty
+                ? pack.unlockRules!.requiredPacks.first
                 : null,
+            requiresEV: pack.unlockRules!.minEV,
+            requiresStageCompleted:
+                pack.unlockRules!.requiresStarterPathCompleted == true
+                    ? 'starter'
+                    : null,
           );
     if (rules == null) return const UnlockCheckResult(true);
     final String? hint = rules.unlockHint;
 
     if (rules.requiresPackCompleted != null) {
       final id = rules.requiresPackCompleted!;
-        final done = mock
-            ? _mockCompleted.contains(id)
-            : await LearningPathProgressService.instance.isCompleted(id);
+      final done = mock
+          ? _mockCompleted.contains(id)
+          : await LearningPathProgressService.instance.isCompleted(id);
       if (!done) return UnlockCheckResult(false, hint ?? 'Завершите пак $id');
     }
 
     if (rules.requiresStageCompleted != null &&
         rules.requiresStageCompleted == 'starter') {
-      final completed = mock
-          ? _mockStarterCompleted
-          : await _isStarterPathCompleted();
+      final completed =
+          mock ? _mockStarterCompleted : await _isStarterPathCompleted();
       if (!completed) {
         return UnlockCheckResult(false, hint ?? 'Завершите starter path');
       }
@@ -84,8 +83,7 @@ class PackUnlockingRulesEngine {
           ? _mockAverageEV
           : (await TrainingPackStatsService.getGlobalStats()).averageEV;
       if (ev < rules.requiresEV!) {
-        return UnlockCheckResult(
-            false,
+        return UnlockCheckResult(false,
             hint ?? 'Средний EV < ${rules.requiresEV!.toStringAsFixed(2)}');
       }
     }
@@ -112,7 +110,8 @@ class PackUnlockingRulesEngine {
   }
 
   Future<bool> _isStarterPathCompleted() async {
-    final progress = await LearningPathService.instance.getStarterPathProgress();
+    final progress =
+        await LearningPathService.instance.getStarterPathProgress();
     final total = LearningPathService.instance.buildStarterPath().length;
     return progress >= total;
   }

@@ -43,8 +43,10 @@ class SmartReviewService {
       ..addAll(prefs.getStringList(_prefsKey) ?? <String>[]);
     _results
       ..clear()
-      ..addAll([for (final r in prefs.getStringList(_resultsKey) ?? <String>[]) _parseResult(r)]
-          .whereType<List<double>>());
+      ..addAll([
+        for (final r in prefs.getStringList(_resultsKey) ?? <String>[])
+          _parseResult(r)
+      ].whereType<List<double>>());
   }
 
   /// Records a mistake for the given [spot].
@@ -194,8 +196,7 @@ class SmartReviewService {
     }
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(
-        _resultsKey,
-        [for (final r in _results) '${r[0]},${r[1]},${r[2]}']);
+        _resultsKey, [for (final r in _results) '${r[0]},${r[1]},${r[2]}']);
 
     final ready = _results.length >= 3 &&
         _results.every((r) => r[0] >= 0.9 && r[1] >= 0.85 && r[2] >= 0.85);

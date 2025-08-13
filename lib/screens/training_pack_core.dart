@@ -70,4 +70,3 @@ class TrainingPackCoreState extends State<TrainingPackCore> {
     );
   }
 }
-

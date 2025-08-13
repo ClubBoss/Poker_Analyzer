@@ -59,20 +59,20 @@ class JamFoldOutcome {
   });
 
   Map<String, dynamic> toJson() => {
-    'jamEV': jamEV,
-    'foldEV': foldEV,
-    'decision': decision,
-    if (sprBucket != null) 'sprBucket': sprBucket,
-    if (tagsUsed != null) 'tagsUsed': tagsUsed,
-    if (contrib != null) 'contrib': contrib,
-  };
+        'jamEV': jamEV,
+        'foldEV': foldEV,
+        'decision': decision,
+        if (sprBucket != null) 'sprBucket': sprBucket,
+        if (tagsUsed != null) 'tagsUsed': tagsUsed,
+        if (contrib != null) 'contrib': contrib,
+      };
 }
 
 class JamFoldEvaluator {
   final Map<String, double> weights;
 
   JamFoldEvaluator({Map<String, double>? weights})
-    : weights = weights ?? _defaultWeights;
+      : weights = weights ?? _defaultWeights;
 
   factory JamFoldEvaluator.fromWeights(Map<String, double> w) {
     return JamFoldEvaluator(weights: {..._defaultWeights, ...w});
@@ -92,8 +92,8 @@ class JamFoldEvaluator {
     final bucket = spr < 1
         ? 'spr_low'
         : spr < 2
-        ? 'spr_mid'
-        : 'spr_high';
+            ? 'spr_mid'
+            : 'spr_high';
 
     final tags = List<String>.from(board.tags)..sort();
     final contrib = <String, double>{};

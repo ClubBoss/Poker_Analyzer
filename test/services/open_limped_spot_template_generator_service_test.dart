@@ -6,8 +6,7 @@ import 'package:poker_analyzer/models/v2/hero_position.dart';
 
 void main() {
   test('generates limp spot template sets with metadata', () {
-    final service =
-        OpenLimpedSpotTemplateGeneratorService(random: Random(1));
+    final service = OpenLimpedSpotTemplateGeneratorService(random: Random(1));
     final sets = service.generate(
       effectiveStack: 20,
       heroRange: 'pockets',
@@ -25,4 +24,3 @@ void main() {
     expect(spot.hand.stacks['0'], 20);
   });
 }
-

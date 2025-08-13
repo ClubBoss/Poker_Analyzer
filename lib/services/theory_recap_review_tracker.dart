@@ -22,8 +22,8 @@ class TheoryRecapReviewTracker {
       try {
         final data = jsonDecode(raw);
         if (data is List) {
-          _history.addAll(data.whereType<Map>().map(
-              (e) => TheoryRecapReviewEntry.fromJson(Map<String, dynamic>.from(e))));
+          _history.addAll(data.whereType<Map>().map((e) =>
+              TheoryRecapReviewEntry.fromJson(Map<String, dynamic>.from(e))));
         }
       } catch (_) {}
     }

@@ -41,7 +41,8 @@ class _SelectableCardsState extends State<SelectableCards> {
   void addCard() {
     if (selectedRank != null && selectedSuit != null) {
       final newCard = CardModel(rank: selectedRank!, suit: selectedSuit!);
-      if (!widget.selectedCards.contains(newCard) && widget.selectedCards.length < 2) {
+      if (!widget.selectedCards.contains(newCard) &&
+          widget.selectedCards.length < 2) {
         widget.onCardTap(newCard);
       }
       setState(() {
@@ -72,7 +73,9 @@ class _SelectableCardsState extends State<SelectableCards> {
                             child: Text(rank),
                           ))
                       .toList(),
-                  onChanged: alreadyTwoCards ? null : (value) => setState(() => selectedRank = value),
+                  onChanged: alreadyTwoCards
+                      ? null
+                      : (value) => setState(() => selectedRank = value),
                 ),
               ),
               const SizedBox(width: 12),
@@ -86,13 +89,16 @@ class _SelectableCardsState extends State<SelectableCards> {
                             child: Text(suit),
                           ))
                       .toList(),
-                  onChanged: alreadyTwoCards ? null : (value) => setState(() => selectedSuit = value),
+                  onChanged: alreadyTwoCards
+                      ? null
+                      : (value) => setState(() => selectedSuit = value),
                 ),
               ),
               const SizedBox(width: 12),
               ElevatedButton(
                 onPressed: alreadyTwoCards ? null : addCard,
-                style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(16)),
+                style:
+                    ElevatedButton.styleFrom(padding: const EdgeInsets.all(16)),
                 child: const Text('Добавить'),
               ),
             ],

@@ -45,7 +45,8 @@ class _DecayAnalyticsScreenState extends State<DecayAnalyticsScreen> {
   }
 
   void _sort(List<DecayAnalyticsExport> list) {
-    int compare<num>(num a, num b) => _ascending ? a.compareTo(b) : b.compareTo(a);
+    int compare<num>(num a, num b) =>
+        _ascending ? a.compareTo(b) : b.compareTo(a);
     switch (_sortColumnIndex) {
       case 1:
         list.sort((a, b) => compare(a.decay, b.decay));
@@ -57,13 +58,12 @@ class _DecayAnalyticsScreenState extends State<DecayAnalyticsScreen> {
             ));
         break;
       case 4:
-        list.sort((a, b) =>
-            compare(a.recommendedDaysUntilReview, b.recommendedDaysUntilReview));
+        list.sort((a, b) => compare(
+            a.recommendedDaysUntilReview, b.recommendedDaysUntilReview));
         break;
       default:
-        list.sort((a, b) => _ascending
-            ? a.tag.compareTo(b.tag)
-            : b.tag.compareTo(a.tag));
+        list.sort((a, b) =>
+            _ascending ? a.tag.compareTo(b.tag) : b.tag.compareTo(a.tag));
     }
   }
 
@@ -96,9 +96,7 @@ class _DecayAnalyticsScreenState extends State<DecayAnalyticsScreen> {
       columns: [
         DataColumn(label: const Text('Tag'), onSort: _onSort),
         DataColumn(
-            label: const Text('Decay %'),
-            numeric: true,
-            onSort: _onSort),
+            label: const Text('Decay %'), numeric: true, onSort: _onSort),
         const DataColumn(label: Text('Adaptation')),
         DataColumn(label: const Text('Last Interaction'), onSort: _onSort),
         DataColumn(
@@ -126,7 +124,9 @@ class _DecayAnalyticsScreenState extends State<DecayAnalyticsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Decay Analytics'),
-        actions: [IconButton(onPressed: _load, icon: const Icon(Icons.refresh))],
+        actions: [
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh))
+        ],
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -138,7 +138,8 @@ class _DecayAnalyticsScreenState extends State<DecayAnalyticsScreen> {
                     Expanded(
                       child: TextField(
                         controller: _searchController,
-                        decoration: const InputDecoration(hintText: 'Filter tag'),
+                        decoration:
+                            const InputDecoration(hintText: 'Filter tag'),
                         onChanged: (_) => setState(() {}),
                       ),
                     ),

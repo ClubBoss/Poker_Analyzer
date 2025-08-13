@@ -41,7 +41,8 @@ class TrainingPackStorage {
     final templates = [for (final m in list) TrainingPackTemplate.fromJson(m)];
     bool changed = false;
     for (final t in templates) {
-      if (!t.meta.containsKey('evCovered') || !t.meta.containsKey('icmCovered')) {
+      if (!t.meta.containsKey('evCovered') ||
+          !t.meta.containsKey('icmCovered')) {
         TemplateCoverageUtils.recountAll(t).applyTo(t.meta);
         changed = true;
       }

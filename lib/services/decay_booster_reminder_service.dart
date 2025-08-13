@@ -39,9 +39,7 @@ class DecayBoosterReminderService {
     if (last != null && now.difference(last) < rotation) return;
 
     final scores = await decay.computeDecayScores(now: now);
-    final entries = scores.entries
-        .where((e) => e.value > threshold)
-        .toList()
+    final entries = scores.entries.where((e) => e.value > threshold).toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
     int added = 0;

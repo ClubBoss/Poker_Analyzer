@@ -38,7 +38,8 @@ class ShopScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           Text('Монеты: $balance',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              style:
+                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
           for (final item in shopItems)
             Card(

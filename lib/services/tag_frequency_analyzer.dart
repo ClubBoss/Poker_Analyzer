@@ -51,16 +51,16 @@ class TagFrequencyAnalyzer {
             for (final t in tpl.tags) {
               addTag(t);
             }
-            final c = tpl.category ??
-                (tpl.tags.isNotEmpty ? tpl.tags.first : null);
+            final c =
+                tpl.category ?? (tpl.tags.isNotEmpty ? tpl.tags.first : null);
             if (c != null && c.isNotEmpty) addCategory(c);
             processed = true;
           } catch (_) {}
         }
       }
     }
-    final sortedTags = Map.fromEntries(tagCounts.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value)));
+    final sortedTags = Map.fromEntries(
+        tagCounts.entries.toList()..sort((a, b) => b.value.compareTo(a.value)));
     final sortedCategories = Map.fromEntries(categoryCounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value)));
     final file = File(out)..createSync(recursive: true);

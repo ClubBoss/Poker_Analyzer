@@ -154,9 +154,8 @@ class _DrillDownAutoInjectionLogScreenState
                     ),
                     const Divider(height: 1),
                     Expanded(
-                      child: _groupByLesson
-                          ? _buildGroupedList()
-                          : _buildList(),
+                      child:
+                          _groupByLesson ? _buildGroupedList() : _buildList(),
                     ),
                   ],
                 ),
@@ -205,8 +204,7 @@ class _DrillDownAutoInjectionLogScreenState
                       allowFromNow: true,
                       locale: 'en_short',
                     ),
-                    style:
-                        const TextStyle(fontSize: 12, color: Colors.white70),
+                    style: const TextStyle(fontSize: 12, color: Colors.white70),
                   ),
                 ),
             ],
@@ -215,4 +213,3 @@ class _DrillDownAutoInjectionLogScreenState
     );
   }
 }
-

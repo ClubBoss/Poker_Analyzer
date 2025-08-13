@@ -10,8 +10,10 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('generate builds pack from recent mistakes', () {
-    final spot1 = TrainingPackSpot(id: 'a', hand: HandData(position: HeroPosition.btn));
-    final spot2 = TrainingPackSpot(id: 'b', hand: HandData(position: HeroPosition.sb));
+    final spot1 =
+        TrainingPackSpot(id: 'a', hand: HandData(position: HeroPosition.btn));
+    final spot2 =
+        TrainingPackSpot(id: 'b', hand: HandData(position: HeroPosition.sb));
     final history = [
       TrackPlayHistory(
         goalId: 'g',

@@ -61,9 +61,8 @@ class LineGraphEngine {
 
   /// Links [spot] to the graph by matching tags and target street.
   void linkSpot(TrainingPackSpot spot) {
-    final street =
-        spot.meta['targetStreet']?.toString().toLowerCase() ??
-            _streetFromIndex(spot.street);
+    final street = spot.meta['targetStreet']?.toString().toLowerCase() ??
+        _streetFromIndex(spot.street);
     for (final tag in spot.tags) {
       final parsed = _parseTag(tag);
       if (parsed == null) continue;
@@ -137,8 +136,8 @@ class LineGraphEngine {
   }
 
   MapEntry<String, String>? _parseTag(String tag) {
-    final match =
-        RegExp(r'^(flop|turn|river)([A-Z].+)', caseSensitive: false).firstMatch(tag);
+    final match = RegExp(r'^(flop|turn|river)([A-Z].+)', caseSensitive: false)
+        .firstMatch(tag);
     if (match == null) return null;
     final street = match.group(1)!.toLowerCase();
     final action = match
@@ -221,9 +220,8 @@ class LineGraphEngine {
     }
     for (var i = 0; i < streets.length; i++) {
       final street = streets[i];
-      final tags = grouped[i]
-          .map((act) => '$street${_capitalize(act)}')
-          .toList();
+      final tags =
+          grouped[i].map((act) => '$street${_capitalize(act)}').toList();
       accumulatedTags.addAll(tags);
       seeds.add(
         SpotSeed(
@@ -244,11 +242,9 @@ class LineGraphEngine {
     final groups = <List<String>>[];
     var index = 0;
     var remaining = actions.length;
-    for (
-      var remainingStreets = streetCount;
-      remainingStreets > 0;
-      remainingStreets--
-    ) {
+    for (var remainingStreets = streetCount;
+        remainingStreets > 0;
+        remainingStreets--) {
       final minForRest = remainingStreets - 1;
       var size = remaining - minForRest;
       if (size < 0) size = 0;

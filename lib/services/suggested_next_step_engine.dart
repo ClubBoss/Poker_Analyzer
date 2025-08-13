@@ -75,7 +75,10 @@ class SuggestedNextStepEngine {
       final completed = _completedCache?[entry.key] ?? {};
       if (!previousCompleted) break;
 
-      final incomplete = [for (final id in packs) if (!completed.contains(id)) id];
+      final incomplete = [
+        for (final id in packs)
+          if (!completed.contains(id)) id
+      ];
       if (incomplete.isEmpty) {
         previousCompleted = true;
         continue;
@@ -83,14 +86,14 @@ class SuggestedNextStepEngine {
 
       final candidates = <(TrainingPackTemplateV2, double)>[];
       for (final id in incomplete) {
-        final tpl = storage.templates
-            .firstWhereOrNull((t) => t.id == id);
+        final tpl = storage.templates.firstWhereOrNull((t) => t.id == id);
         if (tpl == null) continue;
         final tplV2 = TrainingPackTemplateV2.fromTemplate(
           tpl,
           type: TrainingType.pushFold,
         );
-        tplV2.trainingType = const TrainingTypeEngine().detectTrainingType(tplV2);
+        tplV2.trainingType =
+            const TrainingTypeEngine().detectTrainingType(tplV2);
         if (!await PackUnlockingRulesEngine.instance.isUnlocked(tplV2)) {
           continue;
         }

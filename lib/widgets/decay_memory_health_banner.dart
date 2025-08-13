@@ -10,7 +10,8 @@ class DecayMemoryHealthBanner extends StatefulWidget {
   const DecayMemoryHealthBanner({super.key, this.service});
 
   @override
-  State<DecayMemoryHealthBanner> createState() => _DecayMemoryHealthBannerState();
+  State<DecayMemoryHealthBanner> createState() =>
+      _DecayMemoryHealthBannerState();
 }
 
 class _DecayMemoryHealthBannerState extends State<DecayMemoryHealthBanner> {
