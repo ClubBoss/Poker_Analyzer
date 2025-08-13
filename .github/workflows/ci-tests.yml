@@ -26,6 +26,7 @@ jobs:
               - 'assets/packs/l3/**'
               - 'assets/packs/l3/demo/**'
               - 'assets/theory/**'
+              - 'tool/config/weights/**'
               - 'tool/validators/**'
               - 'tool/validators/l3_demo_validator.dart'
               - 'tool/metrics/**'
@@ -104,6 +105,18 @@ jobs:
         run: dart test test/l3_demo_*
       - name: PackRun L3 (seed 111)
         run: dart run tool/l3/pack_run_cli.dart --dir build/tmp/l3/111 --out build/reports/l3_packrun_111.json
+      - name: PackRun L3 aggro (seed 111)
+        run: dart run tool/l3/pack_run_cli.dart --dir build/tmp/l3/111 --out build/reports/l3_packrun_aggro.json --weightsPreset aggro
+      - name: L3 A/B diff 111
+        run: dart run tool/metrics/l3_ab_diff.dart --base build/reports/l3_packrun_111.json --challenger build/reports/l3_packrun_aggro.json --out build/reports/l3_ab_111.md
+      - run: |
+          echo "::group::L3 A/B diff 111"
+          cat build/reports/l3_ab_111.md
+          echo "::endgroup::"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: l3_ab_111.md
+          path: build/reports/l3_ab_111.md
       - name: PackRun L3 (seed 222)
         run: dart run tool/l3/pack_run_cli.dart --dir build/tmp/l3/222 --out build/reports/l3_packrun_222.json
       - name: PackRun L3 (seed 333)
