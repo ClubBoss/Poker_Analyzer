@@ -1,0 +1,51 @@
+13-18bb:
+  title: '13-18bb'
+  body: 'Guidelines for playing a 13-18bb stack.'
+19-25bb:
+  title: '19-25bb'
+  body: 'Guidelines for playing a 19-25bb stack.'
+26-32bb:
+  title: '26-32bb'
+  body: 'Guidelines for playing a 26-32bb stack.'
+33-40bb:
+  title: '33-40bb'
+  body: 'Guidelines for playing a 33-40bb stack.'
+3bet-push:
+  title: '3bet Push'
+  body: 'When to 3-bet shove effectively.'
+41-50bb:
+  title: '41-50bb'
+  body: 'Guidelines for playing a 41-50bb stack.'
+8-12bb:
+  title: '8-12bb'
+  body: 'Guidelines for playing an 8-12bb stack.'
+bb:
+  title: 'Big Blind'
+  body: 'Concepts specific to the big blind.'
+btn:
+  title: 'Button'
+  body: 'Concepts specific to the button position.'
+co:
+  title: 'Cutoff'
+  body: 'Concepts specific to the cutoff position.'
+ep:
+  title: 'Early Position'
+  body: 'Playing from early position.'
+limped:
+  title: 'Limped Pot'
+  body: 'Strategy for limped pots.'
+mp:
+  title: 'Middle Position'
+  body: 'Concepts specific to middle position.'
+open-fold:
+  title: 'Open or Fold'
+  body: 'Deciding when to open-raise or fold.'
+pushfold:
+  title: 'Push/Fold'
+  body: 'General push/fold strategy.'
+sb:
+  title: 'Small Blind'
+  body: 'Concepts specific to the small blind.'
+vs-open:
+  title: 'Versus Open'
+  body: 'Adjustments against an open raise.'
