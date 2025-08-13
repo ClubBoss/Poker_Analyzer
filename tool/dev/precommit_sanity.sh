@@ -55,12 +55,15 @@ else
   say_ok "no stray ternary tails in CLI"
 fi
 
-# 3b) Не более одного объявления sprBucket
-if [[ $(grep -nE '^[[:space:]]*final[[:space:]]+sprBucket[[:space:]]*=' tool/l3/pack_run_cli.dart | wc -l) -gt 1 ]]; then
-  say_bad "multiple 'final sprBucket =' initializations in CLI"
-  grep -nE '^[[:space:]]*final[[:space:]]+sprBucket[[:space:]]*=' tool/l3/pack_run_cli.dart || true
+# 3b) Не более одного объявления sprBucket (поддерживаем оба стиля)
+count_eq=$(grep -nE '^[[:space:]]*final[[:space:]]+sprBucket[[:space:]]*=' tool/l3/pack_run_cli.dart | wc -l || true)
+count_late=$(grep -nE '^[[:space:]]*late[[:space:]]+final[[:space:]]+String[[:space:]]+sprBucket[[:space:]]*;' tool/l3/pack_run_cli.dart | wc -l || true)
+total=$((count_eq + count_late))
+if [[ $total -gt 1 ]]; then
+  say_bad "multiple sprBucket declarations in CLI (found $total)"
+  grep -nE '^[[:space:]]*(final[[:space:]]+sprBucket[[:space:]]*=|late[[:space:]]+final[[:space:]]+String[[:space:]]+sprBucket[[:space:]]*;)' tool/l3/pack_run_cli.dart || true
 else
-  say_ok "single sprBucket initialization"
+  say_ok "sprBucket declared once or less"
 fi
 
 # 4) Инициализация evaluator по дефолту не должна повторяться
