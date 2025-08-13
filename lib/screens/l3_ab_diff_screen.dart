@@ -70,6 +70,13 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
     });
   }
 
+  String _f(num? v, {bool signed = false}) {
+    if (v == null) return '-';
+    final fmt =
+        NumberFormat(signed ? '+#,##0.####;-#,##0.####;0' : '#,##0.####');
+    return fmt.format(v);
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
@@ -189,9 +196,9 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
                 : k;
         rows.add(DataRow(cells: [
           DataCell(Text(label)),
-          DataCell(Text(a?.toString() ?? '-')),
-          DataCell(Text(b?.toString() ?? '-')),
-          DataCell(Text(delta?.toString() ?? '-')),
+          DataCell(Text(_f(a))),
+          DataCell(Text(_f(b))),
+          DataCell(Text(_f(delta, signed: true))),
         ]));
     }
     return rows;

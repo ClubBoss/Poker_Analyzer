@@ -159,19 +159,29 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
   }
 
   Future<void> _viewLogsFile(String path) async {
+    final navigator = Navigator.of(context);
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (_) => const Center(child: CircularProgressIndicator()),
     );
-    final text = await File(path).readAsString();
+    String? text;
+    Object? error;
+    try {
+      text = await File(path).readAsString();
+    } catch (e) {
+      error = e;
+    } finally {
+      if (navigator.mounted) navigator.pop();
+    }
     if (!mounted) return;
-    Navigator.pop(context);
     await showDialog(
       context: context,
       builder: (_) => AlertDialog(
         title: Text(AppLocalizations.of(context).viewLogs),
-        content: SingleChildScrollView(child: SelectableText(text)),
+        content: error == null
+            ? SingleChildScrollView(child: SelectableText(text!))
+            : SelectableText(error.toString()),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
