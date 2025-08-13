@@ -15,6 +15,14 @@ else
   say_ok "weightsPreset parser deduped"
 fi
 
+# 1b) Не должно быть дублей addOption('out')
+if [[ $(grep -RFn "addOption('out'" tool/l3/pack_run_cli.dart | wc -l) -gt 1 ]]; then
+  say_bad "duplicate addOption('out') in tool/l3/pack_run_cli.dart"
+  grep -n "addOption('out'" tool/l3/pack_run_cli.dart || true
+else
+  say_ok "single addOption('out')"
+fi
+
 # 2) Не более одного определения _renderSection в A/B диффе (fixed string)
 if [[ $(grep -RFn "void _renderSection(" tool/metrics/l3_ab_diff.dart | wc -l) -gt 1 ]]; then
   say_bad "duplicate void _renderSection(...) in tool/metrics/l3_ab_diff.dart"
@@ -29,6 +37,14 @@ if grep -nE "^[[:space:]]*[\?:][[:space:]]*'spr_(low|mid|high)'" tool/l3/pack_ru
   grep -nE "^[[:space:]]*[\?:][[:space:]]*'spr_(low|mid|high)'" tool/l3/pack_run_cli.dart || true
 else
   say_ok "no stray ternary tails in CLI"
+fi
+
+# 3b) Не более одного объявления sprBucket
+if [[ $(grep -nE '^[[:space:]]*final[[:space:]]+sprBucket[[:space:]]*=' tool/l3/pack_run_cli.dart | wc -l) -gt 1 ]]; then
+  say_bad "multiple 'final sprBucket =' initializations in CLI"
+  grep -nE '^[[:space:]]*final[[:space:]]+sprBucket[[:space:]]*=' tool/l3/pack_run_cli.dart || true
+else
+  say_ok "single sprBucket initialization"
 fi
 
 # 4) Инициализация evaluator по дефолту не должна повторяться
