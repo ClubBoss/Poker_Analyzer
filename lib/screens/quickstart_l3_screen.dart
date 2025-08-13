@@ -44,6 +44,10 @@ class _OpenLastLogsIntent extends Intent {
   const _OpenLastLogsIntent();
 }
 
+class _RevealLastIntent extends Intent {
+  const _RevealLastIntent();
+}
+
 class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
   final _weightsController = TextEditingController();
   String? _weightsPreset;
@@ -792,6 +796,13 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
             const _OpenLastLogsIntent(),
         const SingleActivator(LogicalKeyboardKey.keyL, meta: true):
             const _OpenLastLogsIntent(),
+        // Reveal last report in folder
+        const SingleActivator(LogicalKeyboardKey.keyR,
+                control: true, shift: true):
+            const _RevealLastIntent(),
+        const SingleActivator(LogicalKeyboardKey.keyR,
+                meta: true, shift: true):
+            const _RevealLastIntent(),
       },
       child: Actions(
         actions: {
@@ -829,6 +840,13 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
             onInvoke: (_) {
               if (!(_isDesktop && _lastReportPath != null)) return null;
               _openLastLogs();
+              return null;
+            },
+          ),
+          _RevealLastIntent: CallbackAction<_RevealLastIntent>(
+            onInvoke: (_) {
+              if (!(_isDesktop && _lastReportPath != null)) return null;
+              L3CliRunner.revealInFolder(_lastReportPath!);
               return null;
             },
           ),
