@@ -9,12 +9,7 @@ import 'package:intl/intl.dart';
 import '../l10n/app_localizations.dart';
 import '../models/l3_run_history_entry.dart';
 import '../services/l3_cli_runner.dart';
-
-void _toast(BuildContext ctx, String msg, {Duration d = const Duration(seconds: 2)}) {
-  final m = ScaffoldMessenger.of(ctx);
-  m.clearSnackBars();
-  m.showSnackBar(SnackBar(content: Text(msg), duration: d));
-}
+import '../utils/toast.dart';
 
 class L3AbDiffScreen extends StatefulWidget {
   const L3AbDiffScreen({super.key});
@@ -241,7 +236,7 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
             TextButton(
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: file.path));
-                _toast(context, loc.copied);
+                showToast(context, loc.copied);
               },
               child: Text(loc.copyPath),
             ),

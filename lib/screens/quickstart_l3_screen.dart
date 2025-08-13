@@ -10,13 +10,8 @@ import '../l10n/app_localizations.dart';
 import '../services/l3_cli_runner.dart';
 import '../utils/shared_prefs_keys.dart';
 import '../models/l3_run_history_entry.dart';
+import '../utils/toast.dart';
 import 'l3_report_viewer_screen.dart';
-
-void _toast(BuildContext ctx, String msg, {Duration d = const Duration(seconds: 2)}) {
-  final m = ScaffoldMessenger.of(ctx);
-  m.clearSnackBars();
-  m.showSnackBar(SnackBar(content: Text(msg), duration: d));
-}
 
 class QuickstartL3Screen extends StatefulWidget {
   const QuickstartL3Screen({super.key});
@@ -127,7 +122,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
         if (decoded is! Map) throw const FormatException();
       } catch (_) {
         if (mounted) {
-          _toast(context, AppLocalizations.of(context).invalidJson);
+          showToast(context, AppLocalizations.of(context).invalidJson);
         }
         setState(() {
           _running = false;
@@ -202,7 +197,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
     if (!exists || (await file.readAsString()).trim().isEmpty) {
       if (mounted) {
         final loc = AppLocalizations.of(context);
-        _toast(context, loc.reportEmpty);
+        showToast(context, loc.reportEmpty);
       }
       return;
     }
@@ -309,7 +304,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
         _lastReportPath = null;
       });
       if (mounted) {
-        _toast(context, loc.deleted);
+        showToast(context, loc.deleted);
       }
     }
   }
@@ -487,7 +482,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                                 }
                                 setState(() {});
                                 if (mounted) {
-                                  _toast(context, loc.deleted);
+                                  showToast(context, loc.deleted);
                                 }
                               },
                               child: ListTile(
@@ -509,7 +504,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                                     onPressed: () {
                                       Clipboard.setData(
                                           ClipboardData(text: e.outPath));
-                                      _toast(context, loc.copied);
+                                      showToast(context, loc.copied);
                                     },
                                     child: Text(loc.copyPath),
                                   ),
