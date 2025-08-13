@@ -28,8 +28,9 @@ void main(List<String> args) {
     final jsonStr = weightsOpt.trim().startsWith('{')
         ? weightsOpt
         : File(weightsOpt).readAsStringSync();
-    final decoded = (json.decode(jsonStr) as Map<String, dynamic>)
-        .map((k, v) => MapEntry(k, (v as num).toDouble()));
+    final decoded = (json.decode(jsonStr) as Map<String, dynamic>).map(
+      (k, v) => MapEntry(k, (v as num).toDouble()),
+    );
     evaluator = JamFoldEvaluator.fromWeights(decoded);
   } else {
     evaluator = JamFoldEvaluator();
@@ -38,8 +39,12 @@ void main(List<String> args) {
   Map<String, double>? priors;
   final priorsOpt = res['priors'] as String?;
   if (priorsOpt != null) {
-    final decoded = (json.decode(priorsOpt) as Map<String, dynamic>)
-        .map((k, v) => MapEntry(k, (v as num).toDouble()));
+    final jsonStr = priorsOpt.trim().startsWith('{')
+        ? priorsOpt
+        : File(priorsOpt).readAsStringSync();
+    final decoded = (json.decode(jsonStr) as Map<String, dynamic>).map(
+      (k, v) => MapEntry(k, (v as num).toDouble()),
+    );
     priors = decoded;
   }
 
@@ -47,11 +52,7 @@ void main(List<String> args) {
   final outSpots = <Map<String, dynamic>>[];
   final textureCounts = <String, int>{};
   final presetCounts = <String, int>{};
-  final sprHistogram = <String, int>{
-    'spr_low': 0,
-    'spr_mid': 0,
-    'spr_high': 0,
-  };
+  final sprHistogram = <String, int>{'spr_low': 0, 'spr_mid': 0, 'spr_high': 0};
   int jamCount = 0;
 
   try {
@@ -89,8 +90,8 @@ void main(List<String> args) {
         final sprBucket = spr < 1.0
             ? 'spr_low'
             : spr < 2.0
-                ? 'spr_mid'
-                : 'spr_high';
+            ? 'spr_mid'
+            : 'spr_high';
         sprHistogram[sprBucket] = (sprHistogram[sprBucket] ?? 0) + 1;
         final outcome = evaluator.evaluate(
           board: FlopBoard.fromString(boardStr),
