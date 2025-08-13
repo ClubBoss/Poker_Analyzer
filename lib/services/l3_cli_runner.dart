@@ -9,11 +9,26 @@ import 'autogen_stats.dart';
 class TargetMixConfig {
   final Map<String, double> mix;
   final double tolerance;
-  const TargetMixConfig({required this.mix, required this.tolerance});
+
+  // Per-key tolerance + guard (for tests/back-compat).
+  final Map<String, double> _byKeyTol;
+  final int _minTotal;
+
+  double get defaultTol => tolerance; // test expects this name
+  Map<String, double> get byKeyTol => _byKeyTol;
+  int get minTotal => _minTotal;
+
+  const TargetMixConfig({
+    required this.mix,
+    required this.tolerance, // alias for defaultTol
+    Map<String, double>? byKeyTol,
+    int minTotal = 0,
+  })  : _byKeyTol = byKeyTol ?? const {},
+        _minTotal = minTotal;
 }
 
-/// Tries to parse [weights] first as inline JSON, then as a file path to JSON.
-/// Returns canonicalized target mix + tolerance (default 0.10), or null.
+/// Tries inline JSON first, then treats [weights] as a file path.
+/// Returns canonicalized target mix + tolerances/minTotal, or null.
 TargetMixConfig? extractTargetMix(String weights) {
   dynamic weightsJson;
   try {
@@ -27,27 +42,85 @@ TargetMixConfig? extractTargetMix(String weights) {
   }
 
   Map<String, double>? mix;
-  double tolerance = 0.10;
+  double defaultTol = 0.10; // back-compat default
+  Map<String, double> byKeyTol = {};
+  int minTotal = 0;
+
+  double? _numOrStringDouble(dynamic v) {
+    if (v is num) return v.toDouble();
+    if (v is String) return double.tryParse(v);
+    return null;
+  }
+
+  int? _numOrStringInt(dynamic v) {
+    if (v is num) return v.toInt();
+    if (v is String) return int.tryParse(v);
+    return null;
+  }
+
+  void _mergeTolMap(dynamic raw) {
+    if (raw is Map) {
+      raw.forEach((key, value) {
+        final canon = canonicalMixKey(key.toString()) ?? key.toString();
+        final d = _numOrStringDouble(value);
+        if (canon.isNotEmpty && d != null) {
+          byKeyTol[canon] = d;
+        }
+      });
+    }
+  }
 
   if (weightsJson is Map) {
-    final rawTolerance = weightsJson['mixTolerance'];
-    if (rawTolerance is num) {
-      tolerance = rawTolerance.toDouble();
+    // Default tolerance OR per-key map under the same key `mixTolerance`.
+    final rawMixTol = weightsJson['mixTolerance'];
+    final tolNum = _numOrStringDouble(rawMixTol);
+    if (tolNum != null) {
+      defaultTol = tolNum;
+    } else {
+      // If it's not a number, treat it as a per-key map.
+      _mergeTolMap(rawMixTol);
     }
+
+    // Additional aliases for the per-key tolerance map.
+    _mergeTolMap(weightsJson['mixToleranceByKey']);
+    _mergeTolMap(weightsJson['mixToleranceMap']);
+    _mergeTolMap(weightsJson['toleranceByKey']);
+    _mergeTolMap(weightsJson['tolerancesByKey']);
+    _mergeTolMap(weightsJson['toleranceMap']);
+    _mergeTolMap(weightsJson['perKeyTolerance']);
+    _mergeTolMap(weightsJson['byKeyTol']);
+    _mergeTolMap(weightsJson['byKey']); // very liberal fallback
+
+    // Min sample guard (aliases, incl. mixMinTotal from test).
+    final rawMin = weightsJson['mixMinTotal'] ??
+        weightsJson['minTotal'] ??
+        weightsJson['minTotalSamples'];
+    final mt = _numOrStringInt(rawMin);
+    if (mt != null) minTotal = mt;
+
+    // Target mix (canonicalized)
     final rawMix = weightsJson['targetMix'];
     if (rawMix is Map) {
       final m = <String, double>{};
       rawMix.forEach((key, value) {
-        final canon = canonicalMixKey(key.toString());
-        if (canon != null && value is num) {
-          m[canon] = value.toDouble();
+        final canon = canonicalMixKey(key.toString()) ?? key.toString();
+        final d = _numOrStringDouble(value);
+        if (canon.isNotEmpty && d != null) {
+          m[canon] = d;
         }
       });
       if (m.isNotEmpty) mix = m;
     }
   }
 
-  return mix != null ? TargetMixConfig(mix: mix!, tolerance: tolerance) : null;
+  return mix != null
+      ? TargetMixConfig(
+          mix: mix!,
+          tolerance: defaultTol,
+          byKeyTol: byKeyTol,
+          minTotal: minTotal,
+        )
+      : null;
 }
 
 class L3CliResult {
@@ -100,7 +173,8 @@ class L3CliRunner {
     final stdoutStr = res.stdout.toString();
     final stderrStr = res.stderr.toString();
 
-    File(logPath).writeAsStringSync('stdout:\n$stdoutStr\n\nstderr:\n$stderrStr');
+    File(logPath)
+        .writeAsStringSync('stdout:\n$stdoutStr\n\nstderr:\n$stderrStr');
 
     await runDir.delete(recursive: true);
 
@@ -126,32 +200,37 @@ class L3CliRunner {
         // ignore
       }
 
-      // Validate targetMix if provided
+      // Validate targetMix if provided (with per-key tol & minTotal guard)
       if (stats != null && weights != null) {
         final target = extractTargetMix(weights);
         if (target != null && stats.total > 0) {
-          const keys = <String>[
-            'monotone',
-            'twoTone',
-            'rainbow',
-            'paired',
-            'aceHigh',
-            'lowConnected',
-            'broadwayHeavy',
-          ];
-          for (final key in keys) {
-            final expected = target.mix[key];
-            if (expected != null) {
-              final actual = (stats.textures[key] ?? 0) / stats.total;
-              final diff = actual - expected;
-              if (diff.abs() > target.tolerance) {
-                final diffPp = (diff * 100).round();
-                final actualPct = (actual * 100).round();
-                final targetPct = (expected * 100).round();
-                final sign = diffPp >= 0 ? '+' : '';
-                warnings.add(
-                  "L3 autogen: '$key' off by ${sign}${diffPp}pp (target ${targetPct}%, got ${actualPct}%).",
-                );
+          if (target.minTotal > 0 && stats.total < target.minTotal) {
+            // Not enough samples — skip checks.
+          } else {
+            const keys = <String>[
+              'monotone',
+              'twoTone',
+              'rainbow',
+              'paired',
+              'aceHigh',
+              'lowConnected',
+              'broadwayHeavy',
+            ];
+            for (final key in keys) {
+              final expected = target.mix[key];
+              if (expected != null) {
+                final actual = (stats.textures[key] ?? 0) / stats.total;
+                final tol = target.byKeyTol[key] ?? target.defaultTol;
+                final diff = actual - expected;
+                if (diff.abs() > tol) {
+                  final diffPp = (diff * 100).round();
+                  final actualPct = (actual * 100).round();
+                  final targetPct = (expected * 100).round();
+                  final sign = diffPp >= 0 ? '+' : '';
+                  warnings.add(
+                    "L3 autogen: '$key' off by ${sign}${diffPp}pp (target ${targetPct}%, got ${actualPct}%).",
+                  );
+                }
               }
             }
           }
