@@ -102,9 +102,9 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
     if (!exists || (await file.readAsString()).trim().isEmpty) {
       if (mounted) {
         final loc = AppLocalizations.of(context);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(loc.reportEmpty)));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(loc.reportEmpty)),
+        );
       }
       return;
     }
