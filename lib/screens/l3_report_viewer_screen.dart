@@ -83,11 +83,11 @@ class L3ReportViewerScreen extends StatelessWidget {
         }
       }
       final dir = await Directory(
-              '${Directory.systemTemp.path}/l3_report_${DateTime.now().millisecondsSinceEpoch}')
-          .create(recursive: true);
+        '${Directory.systemTemp.path}/l3_report_${DateTime.now().millisecondsSinceEpoch}',
+      ).create(recursive: true);
       final out = File('${dir.path}/report.csv');
       await out.writeAsString(buffer.toString());
-      HapticFeedback.selectionClick();
+      if (!_isDesktop) HapticFeedback.selectionClick();
       if (!context.mounted) return;
       final messenger = ScaffoldMessenger.of(context);
       messenger.clearSnackBars();
@@ -99,7 +99,7 @@ class L3ReportViewerScreen extends StatelessWidget {
               TextButton(
                 onPressed: () {
                   Clipboard.setData(ClipboardData(text: out.path));
-                  HapticFeedback.selectionClick();
+                  if (!_isDesktop) HapticFeedback.selectionClick();
                   messenger.clearSnackBars();
                   showToast(context, loc.copied);
                 },
@@ -165,9 +165,7 @@ class L3ReportViewerScreen extends StatelessWidget {
                   children: warnings.map((w) => Text(w)).toList(),
                 ),
               ),
-            Expanded(
-              child: SingleChildScrollView(child: SelectableText(text)),
-            ),
+            Expanded(child: SingleChildScrollView(child: SelectableText(text))),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -194,17 +192,21 @@ class L3ReportViewerScreen extends StatelessWidget {
       },
       child: Actions(
         actions: {
-          _ExportIntent: CallbackAction<_ExportIntent>(onInvoke: (intent) {
-            if (!_isDesktop) return null;
-            _exportCsv(context);
-            return null;
-          }),
-          _CopyPathIntent: CallbackAction<_CopyPathIntent>(onInvoke: (intent) {
-            if (!_isDesktop) return null;
-            Clipboard.setData(ClipboardData(text: path));
-            showToast(context, loc.copied);
-            return null;
-          }),
+          _ExportIntent: CallbackAction<_ExportIntent>(
+            onInvoke: (intent) {
+              if (!_isDesktop) return null;
+              _exportCsv(context);
+              return null;
+            },
+          ),
+          _CopyPathIntent: CallbackAction<_CopyPathIntent>(
+            onInvoke: (intent) {
+              if (!_isDesktop) return null;
+              Clipboard.setData(ClipboardData(text: path));
+              showToast(context, loc.copied);
+              return null;
+            },
+          ),
         },
         child: body,
       ),
@@ -264,9 +266,7 @@ class L3ReportViewerScreen extends StatelessWidget {
                     builder: (_) => AlertDialog(
                       title: Text(loc.viewLogs),
                       content: error == null
-                          ? SingleChildScrollView(
-                              child: SelectableText(text!),
-                            )
+                          ? SingleChildScrollView(child: SelectableText(text!))
                           : SelectableText(error.toString()),
                       actions: [
                         TextButton(

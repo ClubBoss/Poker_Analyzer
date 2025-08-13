@@ -77,8 +77,9 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
 
   String _f(num? v, {bool signed = false}) {
     if (v == null) return '-';
-    final fmt =
-        NumberFormat(signed ? '+#,##0.####;-#,##0.####;0' : '#,##0.####');
+    final fmt = NumberFormat(
+      signed ? '+#,##0.####;-#,##0.####;0' : '#,##0.####',
+    );
     return fmt.format(v);
   }
 
@@ -96,8 +97,7 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
               itemCount: _history.length,
               itemBuilder: (context, index) {
                 final e = _history[index];
-                final ts =
-                    DateFormat('yyyy-MM-dd HH:mm').format(e.timestamp);
+                final ts = DateFormat('yyyy-MM-dd HH:mm').format(e.timestamp);
                 final selected = e == _a || e == _b;
                 return ListTile(
                   selected: selected,
@@ -148,8 +148,9 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
               ),
               const SizedBox(width: 8),
               ElevatedButton(
-                onPressed:
-                    _statsA != null && _statsB != null ? _exportCsv : null,
+                onPressed: _statsA != null && _statsB != null
+                    ? _exportCsv
+                    : null,
                 child: Text(loc.exportCsv),
               ),
             ],
@@ -183,11 +184,13 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
       },
       child: Actions(
         actions: {
-          _ExportIntent: CallbackAction<_ExportIntent>(onInvoke: (intent) {
-            if (!(_isDesktop && mounted)) return null;
-            _exportCsv();
-            return null;
-          }),
+          _ExportIntent: CallbackAction<_ExportIntent>(
+            onInvoke: (intent) {
+              if (!(_isDesktop && mounted)) return null;
+              _exportCsv();
+              return null;
+            },
+          ),
         },
         child: body,
       ),
@@ -199,31 +202,37 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
   }
 
   List<DataRow> _buildRows(AppLocalizations loc) {
-    final keys =
-        <String>{...?_statsA?.keys, ...?_statsB?.keys}.toList()..sort();
+    final keys = <String>{...?_statsA?.keys, ...?_statsB?.keys}.toList()
+      ..sort();
     final rows = <DataRow>[
-      DataRow(cells: [
-        DataCell(Text(loc.args)),
-        DataCell(Text(_a?.argsSummary ?? '-')),
-        DataCell(Text(_b?.argsSummary ?? '-')),
-        const DataCell(Text('-')),
-      ]),
+      DataRow(
+        cells: [
+          DataCell(Text(loc.args)),
+          DataCell(Text(_a?.argsSummary ?? '-')),
+          DataCell(Text(_b?.argsSummary ?? '-')),
+          const DataCell(Text('-')),
+        ],
+      ),
     ];
     for (final k in keys) {
       final a = _statsA?[k];
       final b = _statsB?[k];
       final delta = b != null && a != null ? b - a : null;
-        final label = k == 'rootKeys'
-            ? loc.rootKeys
-            : k.startsWith('array:')
-                ? '${loc.arrayLengths} ${k.substring(6)}'
-                : k;
-        rows.add(DataRow(cells: [
-          DataCell(Text(label)),
-          DataCell(Text(_f(a))),
-          DataCell(Text(_f(b))),
-          DataCell(Text(_f(delta, signed: true))),
-        ]));
+      final label = k == 'rootKeys'
+          ? loc.rootKeys
+          : k.startsWith('array:')
+          ? '${loc.arrayLengths} ${k.substring(6)}'
+          : k;
+      rows.add(
+        DataRow(
+          cells: [
+            DataCell(Text(label)),
+            DataCell(Text(_f(a))),
+            DataCell(Text(_f(b))),
+            DataCell(Text(_f(delta, signed: true))),
+          ],
+        ),
+      );
     }
     return rows;
   }
@@ -238,7 +247,8 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
     final buffer = StringBuffer();
     buffer.writeln('metric,a,b,delta');
     buffer.writeln(
-        '${_csv('args')},${_csv(_a?.argsSummary ?? '-')},${_csv(_b?.argsSummary ?? '-')},');
+      '${_csv('args')},${_csv(_a?.argsSummary ?? '-')},${_csv(_b?.argsSummary ?? '-')},',
+    );
     for (final k in keys) {
       final a = statsA[k];
       final b = statsB[k];
@@ -248,6 +258,7 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
     final dir = await Directory.systemTemp.createTemp('l3_ab');
     final file = File('${dir.path}/ab_diff.csv');
     await file.writeAsString(buffer.toString());
+    if (!_isDesktop) HapticFeedback.selectionClick();
     if (!mounted) return;
     final messenger = ScaffoldMessenger.of(context);
     messenger.clearSnackBars();
@@ -259,10 +270,35 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
             TextButton(
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: file.path));
+                if (!_isDesktop) HapticFeedback.selectionClick();
+                messenger.clearSnackBars();
                 showToast(context, loc.copied);
               },
               child: Text(loc.copyPath),
             ),
+            if (!_isDesktop)
+              TextButton(
+                onPressed: () async {
+                  final text = await file.readAsString();
+                  if (!mounted) return;
+                  messenger.clearSnackBars();
+                  await showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      content: SingleChildScrollView(
+                        child: SelectableText(text),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: Text(loc.ok),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                child: Text(loc.open),
+              ),
             if (_isDesktop)
               TextButton(
                 onPressed: () => L3CliRunner.revealInFolder(file.path),
@@ -274,4 +310,3 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
     );
   }
 }
-
