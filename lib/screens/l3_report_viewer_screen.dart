@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show compute, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -10,6 +10,32 @@ import '../services/l3_cli_runner.dart';
 import '../utils/toast.dart';
 import '../utils/csv_io.dart';
 import 'l3_ab_diff_screen.dart';
+
+// top-level
+String? buildReportCsv(String content) {
+  content = content.trim();
+  if (content.isEmpty) return null;
+  dynamic decoded;
+  try {
+    decoded = jsonDecode(content);
+  } catch (_) {
+    return null;
+  }
+  if (decoded is! Map) return null;
+  final buffer = StringBuffer()
+    ..writeln('metric,value')
+    ..writeln('"rootKeys",${decoded.length}');
+  final keys = decoded.keys.map((e) => e.toString()).toList()..sort();
+  for (final k in keys) {
+    final v = decoded[k];
+    if (v is num) {
+      buffer.writeln('"${k.replaceAll('"', '""')}",$v');
+    } else if (v is List) {
+      buffer.writeln('"array:${k.replaceAll('"', '""')}",${v.length}');
+    }
+  }
+  return buffer.toString();
+}
 
 class _ExportIntent extends Intent {
   const _ExportIntent();
@@ -45,8 +71,6 @@ class L3ReportViewerScreen extends StatelessWidget {
     }
   }
 
-  String _csv(String v) => '"${v.replaceAll('"', '""')}"';
-
   Future<void> _exportCsv(BuildContext context) async {
     final loc = AppLocalizations.of(context);
     try {
@@ -60,34 +84,23 @@ class L3ReportViewerScreen extends StatelessWidget {
         showToast(context, loc.reportEmpty);
         return;
       }
-      dynamic decoded;
-      try {
-        decoded = jsonDecode(content);
-      } catch (_) {
+      final navigator = Navigator.of(context);
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const Center(child: CircularProgressIndicator()),
+      );
+      final csv = await compute(buildReportCsv, content);
+      if (navigator.mounted) navigator.pop();
+      if (csv == null) {
         showToast(context, loc.invalidJson);
         return;
-      }
-      if (decoded is! Map) {
-        showToast(context, loc.invalidJson);
-        return;
-      }
-      final buffer = StringBuffer()
-        ..writeln('metric,value')
-        ..writeln('${_csv('rootKeys')},${decoded.length}');
-      final keys = decoded.keys.map((e) => e.toString()).toList()..sort();
-      for (final k in keys) {
-        final v = decoded[k];
-        if (v is num) {
-          buffer.writeln('${_csv(k)},$v');
-        } else if (v is List) {
-          buffer.writeln('${_csv('array:$k')},${v.length}');
-        }
       }
       final dir = await Directory(
         '${Directory.systemTemp.path}/l3_report_${DateTime.now().millisecondsSinceEpoch}',
       ).create(recursive: true);
       final out = File('${dir.path}/report.csv');
-      await writeCsv(out, buffer);
+      await writeCsv(out, StringBuffer()..write(csv));
       if (!_isDesktop) HapticFeedback.selectionClick();
       if (!context.mounted) return;
       final messenger = ScaffoldMessenger.of(context);
