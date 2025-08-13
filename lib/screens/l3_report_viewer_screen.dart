@@ -20,6 +20,10 @@ class _CopyPathIntent extends Intent {
   const _CopyPathIntent();
 }
 
+class _OpenLogsIntent extends Intent {
+  const _OpenLogsIntent();
+}
+
 class L3ReportViewerScreen extends StatelessWidget {
   final String path;
   final String? logPath;
@@ -178,6 +182,12 @@ class L3ReportViewerScreen extends StatelessWidget {
             const _CopyPathIntent(),
         const SingleActivator(LogicalKeyboardKey.keyC, meta: true):
             const _CopyPathIntent(),
+        if (logPath != null)
+          const SingleActivator(LogicalKeyboardKey.keyL, control: true):
+              const _OpenLogsIntent(),
+        if (logPath != null)
+          const SingleActivator(LogicalKeyboardKey.keyL, meta: true):
+              const _OpenLogsIntent(),
       },
       child: Actions(
         actions: {
@@ -193,6 +203,43 @@ class L3ReportViewerScreen extends StatelessWidget {
               if (!_isDesktop) return null;
               Clipboard.setData(ClipboardData(text: path));
               showToast(context, loc.copied);
+              return null;
+            },
+          ),
+          _OpenLogsIntent: CallbackAction<_OpenLogsIntent>(
+            onInvoke: (_) async {
+              if (!_isDesktop || logPath == null) return null;
+              final navigator = Navigator.of(context);
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (_) =>
+                    const Center(child: CircularProgressIndicator()),
+              );
+              String? text;
+              Object? error;
+              try {
+                text = await File(logPath!).readAsString();
+              } catch (e) {
+                error = e;
+              }
+              if (navigator.mounted) navigator.pop();
+              if (!context.mounted) return null;
+              await showDialog(
+                context: context,
+                builder: (_) => AlertDialog(
+                  title: Text(loc.viewLogs),
+                  content: error == null
+                      ? SingleChildScrollView(child: SelectableText(text!))
+                      : SelectableText(error.toString()),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: Text(loc.ok),
+                    ),
+                  ],
+                ),
+              );
               return null;
             },
           ),
