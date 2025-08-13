@@ -197,6 +197,8 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
     return rows;
   }
 
+  String _csv(String v) => '"${v.replaceAll('"', '""')}"';
+
   Future<void> _exportCsv() async {
     final statsA = _statsA;
     final statsB = _statsB;
@@ -204,12 +206,13 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
     final keys = <String>{...statsA.keys, ...statsB.keys}.toList()..sort();
     final buffer = StringBuffer();
     buffer.writeln('metric,a,b,delta');
-    buffer.writeln('args,"${_a?.argsSummary}","${_b?.argsSummary}",');
+    buffer.writeln(
+        '${_csv('args')},${_csv(_a?.argsSummary ?? '-')},${_csv(_b?.argsSummary ?? '-')},');
     for (final k in keys) {
       final a = statsA[k];
       final b = statsB[k];
       final delta = (b ?? 0) - (a ?? 0);
-      buffer.writeln('$k,$a,$b,$delta');
+      buffer.writeln('${_csv(k)},$a,$b,$delta');
     }
     final dir = await Directory.systemTemp.createTemp('l3_ab');
     final file = File('${dir.path}/ab_diff.csv');
