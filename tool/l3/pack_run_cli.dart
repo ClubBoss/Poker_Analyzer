@@ -16,6 +16,10 @@ void main(List<String> args) {
     ..addOption('dir', defaultsTo: 'build/tmp/l3/111')
     ..addOption('out', defaultsTo: 'build/reports/l3_packrun.json')
     ..addOption('weights')
+    ..addOption(
+      'weightsPreset',
+      allowed: ['aggro', 'nitty', 'default'],
+    )
     ..addOption('priors')
     ..addFlag('explain', negatable: false);
   final res = parser.parse(args);
@@ -33,7 +37,21 @@ void main(List<String> args) {
     );
     evaluator = JamFoldEvaluator.fromWeights(decoded);
   } else {
-    evaluator = JamFoldEvaluator();
+    final presetOpt = res['weightsPreset'] as String?;
+    if (presetOpt != null) {
+      final presetPath = {
+        'aggro': 'tool/config/weights/aggro.json',
+        'nitty': 'tool/config/weights/nitty.json',
+        'default': 'tool/config/weights/default.json',
+      }[presetOpt]!;
+      final jsonStr = File(presetPath).readAsStringSync();
+      final decoded = (json.decode(jsonStr) as Map<String, dynamic>).map(
+        (k, v) => MapEntry(k, (v as num).toDouble()),
+      );
+      evaluator = JamFoldEvaluator.fromWeights(decoded);
+    } else {
+      evaluator = JamFoldEvaluator();
+    }
   }
 
   Map<String, double>? priors;
@@ -90,8 +108,8 @@ void main(List<String> args) {
         final sprBucket = spr < 1.0
             ? 'spr_low'
             : spr < 2.0
-            ? 'spr_mid'
-            : 'spr_high';
+                ? 'spr_mid'
+                : 'spr_high';
         sprHistogram[sprBucket] = (sprHistogram[sprBucket] ?? 0) + 1;
         final outcome = evaluator.evaluate(
           board: FlopBoard.fromString(boardStr),
