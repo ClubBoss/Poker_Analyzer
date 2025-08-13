@@ -15,27 +15,27 @@ else
   say_ok "weightsPreset parser deduped"
 fi
 
-# 2) Не более одного определения _renderSection в A/B диффе
-if [[ $(grep -R "void _renderSection\\(" tool/metrics/l3_ab_diff.dart | wc -l) -gt 1 ]]; then
+# 2) Не более одного определения _renderSection в A/B диффе (fixed string)
+if [[ $(grep -RFn "void _renderSection(" tool/metrics/l3_ab_diff.dart | wc -l) -gt 1 ]]; then
   say_bad "duplicate void _renderSection(...) in tool/metrics/l3_ab_diff.dart"
-  grep -n "void _renderSection\\(" tool/metrics/l3_ab_diff.dart || true
+  grep -n "void _renderSection(" tool/metrics/l3_ab_diff.dart || true
 else
   say_ok "_renderSection defined once"
 fi
 
 # 3) Не должно быть «голых» строк тернарника (мусор '? spr_*' или ': spr_*')
-if grep -nE "^[[:space:]]*[?:].*'spr_(low|mid|high)'" tool/l3/pack_run_cli.dart >/dev/null; then
+if grep -nE "^[[:space:]]*[\?:][[:space:]]*'spr_(low|mid|high)'" tool/l3/pack_run_cli.dart >/dev/null; then
   say_bad "stray ternary tail in tool/l3/pack_run_cli.dart"
-  grep -nE "^[[:space:]]*[?:].*'spr_(low|mid|high)'" tool/l3/pack_run_cli.dart || true
+  grep -nE "^[[:space:]]*[\?:][[:space:]]*'spr_(low|mid|high)'" tool/l3/pack_run_cli.dart || true
 else
   say_ok "no stray ternary tails in CLI"
 fi
 
-# 4) Инициализация evaluator не должна повторяться «по дефолту»
-# (больше одного 'evaluator = JamFoldEvaluator();' подозрительно)
-if [[ $(grep -n "evaluator[[:space:]]*=[[:space:]]*JamFoldEvaluator\\(\\);" tool/l3/pack_run_cli.dart | wc -l) -gt 1 ]]; then
+# 4) Инициализация evaluator по дефолту не должна повторяться
+# (ищем точные строки с присваиванием; используем ERE + одинарные кавычки)
+if [[ $(grep -nE '^[[:space:]]*evaluator[[:space:]]*=[[:space:]]*JamFoldEvaluator\(\);' tool/l3/pack_run_cli.dart | wc -l) -gt 1 ]]; then
   say_bad "multiple default evaluator initializations in CLI"
-  grep -n "evaluator[[:space:]]*=[[:space:]]*JamFoldEvaluator\\(\\);" tool/l3/pack_run_cli.dart || true
+  grep -nE '^[[:space:]]*evaluator[[:space:]]*=[[:space:]]*JamFoldEvaluator\(\);' tool/l3/pack_run_cli.dart || true
 else
   say_ok "single default evaluator init"
 fi
