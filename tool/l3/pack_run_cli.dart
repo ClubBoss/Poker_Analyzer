@@ -102,9 +102,7 @@ void main(List<String> args) {
         presetCounts[preset] = (presetCounts[preset] ?? 0) + 1;
         final sprBucket = spr < 1.0
             ? 'spr_low'
-            : spr < 2.0
-            ? 'spr_mid'
-            : 'spr_high';
+            : (spr < 2.0 ? 'spr_mid' : 'spr_high');
         sprHistogram[sprBucket] = (sprHistogram[sprBucket] ?? 0) + 1;
         final outcome = evaluator.evaluate(
           board: FlopBoard.fromString(boardStr),
