@@ -42,7 +42,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: const Text('OK'),
-              )
+              ),
             ],
           ),
         ).then((_) => Navigator.pop(context));
@@ -89,8 +89,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
     warnings.addAll(res.warnings);
     if (warnings.isNotEmpty && mounted) {
       for (final w in warnings) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(w)));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(w)));
       }
     }
   }
@@ -103,8 +102,9 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
     if (!exists || (await file.readAsString()).trim().isEmpty) {
       if (mounted) {
         final loc = AppLocalizations.of(context);
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(loc.reportEmpty)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(loc.reportEmpty)));
       }
       return;
     }
@@ -128,7 +128,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('OK'),
-          )
+          ),
         ],
       ),
     );
@@ -159,24 +159,15 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  _error!,
-                  style: const TextStyle(color: Colors.red),
-                ),
+                Text(_error!, style: const TextStyle(color: Colors.red)),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    TextButton(
-                      onPressed: _viewLogs,
-                      child: Text(loc.viewLogs),
-                    ),
-                    TextButton(
-                      onPressed: _retry,
-                      child: Text(loc.retry),
-                    ),
+                    TextButton(onPressed: _viewLogs, child: Text(loc.viewLogs)),
+                    TextButton(onPressed: _retry, child: Text(loc.retry)),
                   ],
-                )
+                ),
               ],
             ),
           ),
