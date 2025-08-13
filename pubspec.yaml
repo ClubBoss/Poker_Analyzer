@@ -135,6 +135,7 @@ flutter:
     - assets/theory_tracks/
     - assets/mini_lessons/
     - assets/theory_mini_lessons/
+    - assets/theory/l2/
     - assets/theory_lessons/level1/
     - assets/theory_lessons/level2/
     - assets/theory_lessons/level3/

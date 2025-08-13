@@ -22,6 +22,7 @@ import '../services/mistake_tag_classifier.dart';
 import '../services/user_error_rate_service.dart';
 import '../services/spaced_review_service.dart';
 import '../services/inline_recall_metrics.dart';
+import '../services/recall_cooldown_service.dart';
 
 class TrainingPlayScreen extends StatefulWidget {
   final LessonMatchProvider? lessonMatchProvider;
@@ -186,9 +187,17 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
       res.correct,
       tags.toList(),
     );
+    RecallSnippetResult? gated;
+    if (snippet != null) {
+      final cooldown = await RecallCooldownService.instance;
+      if (cooldown.canShow(snippet.tagId)) {
+        await cooldown.markShown(snippet.tagId);
+        gated = snippet;
+      }
+    }
     setState(() {
       _result = res;
-      _recall = snippet;
+      _recall = gated;
       _lastAttempt = attempt;
     });
     if (_retesting) {
