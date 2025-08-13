@@ -100,9 +100,8 @@ void main(List<String> args) {
         textureCounts[texture] = (textureCounts[texture] ?? 0) + 1;
         final spr = _sprFromBoard(boardStr);
         presetCounts[preset] = (presetCounts[preset] ?? 0) + 1;
-        final sprBucket = spr < 1.0
-            ? 'spr_low'
-            : (spr < 2.0 ? 'spr_mid' : 'spr_high');
+        final sprBucket =
+            spr < 1.0 ? 'spr_low' : (spr < 2.0 ? 'spr_mid' : 'spr_high');
         sprHistogram[sprBucket] = (sprHistogram[sprBucket] ?? 0) + 1;
         final outcome = evaluator.evaluate(
           board: FlopBoard.fromString(boardStr),

@@ -23,10 +23,10 @@ else
   say_ok "_renderSection defined once"
 fi
 
-# 3) Не должно быть «голых» строк тернарника (мусор типа '?  spr_mid')
-if grep -nE "^[[:space:]]*\\?[[:space:]]*'spr_(low|mid|high)'" tool/l3/pack_run_cli.dart >/dev/null; then
+# 3) Не должно быть «голых» строк тернарника (мусор '? spr_*' или ': spr_*')
+if grep -nE "^[[:space:]]*[?:].*'spr_(low|mid|high)'" tool/l3/pack_run_cli.dart >/dev/null; then
   say_bad "stray ternary tail in tool/l3/pack_run_cli.dart"
-  grep -nE "^[[:space:]]*\\?[[:space:]]*'spr_(low|mid|high)'" tool/l3/pack_run_cli.dart || true
+  grep -nE "^[[:space:]]*[?:].*'spr_(low|mid|high)'" tool/l3/pack_run_cli.dart || true
 else
   say_ok "no stray ternary tails in CLI"
 fi
