@@ -20,6 +20,10 @@ void main() {
           seed,
           '--out',
           outDir,
+          '--maxAttemptsPerSpot',
+          '5000',
+          '--timeoutSec',
+          '90',
         ]);
         expect(gen.exitCode, 0, reason: gen.stderr.toString());
         final val = await Process.run('dart', [

@@ -30,11 +30,13 @@ void main(List<String> args) {
   final parser = ArgParser()
     ..addOption('dir', defaultsTo: 'build/tmp/l3')
     ..addOption('targetMix')
-    ..addOption('tolerance', defaultsTo: '0.1');
+    ..addOption('tolerance', defaultsTo: '0.1')
+    ..addOption('dedupe', defaultsTo: 'flop', allowed: ['flop', 'board']);
   final res = parser.parse(args);
   final rootDir = res['dir'] as String;
   final tol = double.parse(res['tolerance'] as String);
   final targetMixArg = res['targetMix'] as String?;
+  final dedupe = res['dedupe'] as String;
 
   final dir = Directory(rootDir);
   if (!dir.existsSync()) {
@@ -68,15 +70,32 @@ void main(List<String> args) {
       hasError = true;
     }
     final counts = <String, int>{};
+    final seenFlops = <String>{};
+    final seenBoards = <String>{};
     for (final s in spots) {
       final board = s['board'] as String?;
       if (board == null) continue;
+      final flop = board.substring(0, 6);
+      if (dedupe == 'flop') {
+        if (!seenFlops.add(flop)) {
+          stderr.writeln('Duplicate flop $flop in ${file.path}');
+          hasError = true;
+        }
+      } else {
+        if (!seenBoards.add(board)) {
+          stderr.writeln('Duplicate board $board in ${file.path}');
+          hasError = true;
+        }
+      }
       final t = _texture(board);
       counts[t] = (counts[t] ?? 0) + 1;
     }
     final total = spots.length;
     for (final entry in mix.entries) {
       final actual = (counts[entry.key] ?? 0) / total;
+      stdout.writeln(
+        '::notice::${preset} ${entry.key} ${actual.toStringAsFixed(2)}',
+      );
       final diff = (actual - entry.value).abs();
       if (diff > tol) {
         stderr.writeln(
