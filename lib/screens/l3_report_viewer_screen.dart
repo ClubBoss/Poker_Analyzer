@@ -39,27 +39,47 @@ class L3ReportViewerScreen extends StatelessWidget {
   String _csv(String v) => '"${v.replaceAll('"', '""')}"';
 
   Future<void> _exportCsv(BuildContext context) async {
+    final loc = AppLocalizations.of(context);
     try {
       final file = File(path);
-      if (!await file.exists()) return;
+      if (!await file.exists()) {
+        showToast(context, loc.reportEmpty);
+        return;
+      }
       final content = await file.readAsString();
-      final decoded = jsonDecode(content);
-      if (decoded is! Map<String, dynamic>) return;
-      final buffer = StringBuffer();
-      decoded.forEach((k, v) {
+      if (content.trim().isEmpty) {
+        showToast(context, loc.reportEmpty);
+        return;
+      }
+      dynamic decoded;
+      try {
+        decoded = jsonDecode(content);
+      } catch (_) {
+        showToast(context, loc.invalidJson);
+        return;
+      }
+      if (decoded is! Map) {
+        showToast(context, loc.invalidJson);
+        return;
+      }
+      final buffer = StringBuffer()
+        ..writeln('metric,value')
+        ..writeln('${_csv('rootKeys')},${decoded.length}');
+      final keys = decoded.keys.map((e) => e.toString()).toList()..sort();
+      for (final k in keys) {
+        final v = decoded[k];
         if (v is num) {
           buffer.writeln('${_csv(k)},$v');
         } else if (v is List) {
           buffer.writeln('${_csv('array:$k')},${v.length}');
         }
-      });
+      }
       final dir = await Directory(
               '${Directory.systemTemp.path}/l3_report_${DateTime.now().millisecondsSinceEpoch}')
           .create(recursive: true);
       final out = File('${dir.path}/report.csv');
       await out.writeAsString(buffer.toString());
       if (!context.mounted) return;
-      final loc = AppLocalizations.of(context);
       final messenger = ScaffoldMessenger.of(context);
       messenger.clearSnackBars();
       messenger.showSnackBar(
