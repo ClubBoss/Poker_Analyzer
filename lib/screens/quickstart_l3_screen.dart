@@ -13,6 +13,7 @@ import '../utils/shared_prefs_keys.dart';
 import '../models/l3_run_history_entry.dart';
 import '../utils/toast.dart';
 import '../utils/csv_io.dart';
+import '../utils/history_csv.dart';
 import '../utils/report_csv.dart';
 import 'l3_report_viewer_screen.dart';
 
@@ -249,6 +250,85 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
       '${Directory.systemTemp.path}/l3_report_${DateTime.now().millisecondsSinceEpoch}',
     ).create(recursive: true);
     final out = File('${dir.path}/report.csv');
+    await writeCsv(out, StringBuffer()..write(csv));
+    if (!_isDesktop) HapticFeedback.selectionClick();
+    if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.clearSnackBars();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Expanded(child: Text(loc.csvSaved)),
+            TextButton(
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: out.path));
+                if (!_isDesktop) HapticFeedback.selectionClick();
+                messenger.clearSnackBars();
+                showToast(context, loc.copied);
+              },
+              child: Text(loc.copyPath),
+            ),
+            if (!_isDesktop)
+              TextButton(
+                onPressed: () async {
+                  final text = await out.readAsString();
+                  if (!mounted) return;
+                  messenger.clearSnackBars();
+                  await showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      content: SingleChildScrollView(
+                        child: SelectableText(text),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: Text(loc.ok),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                child: Text(loc.open),
+              ),
+            if (_isDesktop)
+              TextButton(
+                onPressed: () => L3CliRunner.revealInFolder(out.path),
+                child: Text(loc.reveal),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _exportHistoryCsv() async {
+    final loc = AppLocalizations.of(context);
+    if (_history.isEmpty) {
+      showToast(context, loc.reportEmpty);
+      return;
+    }
+    final navigator = Navigator.of(context);
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+    final payload = _history
+        .map((e) => {
+              'ts': e.timestamp.toIso8601String(),
+              'args': e.argsSummary,
+              'out': e.outPath,
+              'log': e.logPath,
+            })
+        .toList();
+    final csv = await compute(buildHistoryCsv, payload);
+    if (navigator.mounted) navigator.pop();
+    final dir = await Directory(
+      '${Directory.systemTemp.path}/l3_history_${DateTime.now().millisecondsSinceEpoch}',
+    ).create(recursive: true);
+    final out = File('${dir.path}/history.csv');
     await writeCsv(out, StringBuffer()..write(csv));
     if (!_isDesktop) HapticFeedback.selectionClick();
     if (!mounted) return;
@@ -547,7 +627,15 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(loc.recentRuns),
+                    Row(
+                      children: [
+                        Expanded(child: Text(loc.recentRuns)),
+                        TextButton(
+                          onPressed: _exportHistoryCsv,
+                          child: Text(loc.exportCsv),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 8),
                     Expanded(
                       child: ListView.builder(
