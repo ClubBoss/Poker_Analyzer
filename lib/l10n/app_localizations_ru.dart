@@ -504,4 +504,32 @@ class AppLocalizationsRu extends AppLocalizations {
   String get rootKeys => 'Корневые ключи';
 
   String get arrayLengths => 'Длины массивов';
+
+  @override
+  String get clearHistory => 'Очистить историю';
+
+  @override
+  String get confirmClear =>
+      'Очистить все запуски? Это действие нельзя отменить.';
+
+  @override
+  String get deleted => 'Удалено';
+
+  @override
+  String get copied => 'Скопировано';
+
+  @override
+  String get exportCsv => 'Экспорт CSV';
+
+  @override
+  String get reveal => 'Показать в папке';
+
+  @override
+  String get csvSaved => 'CSV сохранён';
+
+  @override
+  String get delta => 'Δ';
+
+  @override
+  String get args => 'Аргументы';
 }

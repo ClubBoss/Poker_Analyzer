@@ -1041,6 +1041,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Array lengths'**
   String get arrayLengths;
+
+  /// No description provided for @clearHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear history'**
+  String get clearHistory;
+
+  /// No description provided for @confirmClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all runs? This action cannot be undone.'**
+  String get confirmClear;
+
+  /// No description provided for @deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted'**
+  String get deleted;
+
+  /// No description provided for @copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get copied;
+
+  /// No description provided for @exportCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'Export CSV'**
+  String get exportCsv;
+
+  /// No description provided for @reveal.
+  ///
+  /// In en, this message translates to:
+  /// **'Reveal'**
+  String get reveal;
+
+  /// No description provided for @csvSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'CSV saved'**
+  String get csvSaved;
+
+  /// No description provided for @delta.
+  ///
+  /// In en, this message translates to:
+  /// **'Δ'**
+  String get delta;
+
+  /// No description provided for @args.
+  ///
+  /// In en, this message translates to:
+  /// **'Args'**
+  String get args;
 }
 
 class _AppLocalizationsDelegate

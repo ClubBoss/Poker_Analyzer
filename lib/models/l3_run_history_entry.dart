@@ -44,6 +44,9 @@ class L3RunHistoryEntry {
         weights: json['weights'] as String?,
         preset: json['preset'] as String?,
       );
+
+  bool sameAs(L3RunHistoryEntry other) =>
+      outPath == other.outPath && argsSummary == other.argsSummary;
 }
 
 class L3RunHistoryService {
@@ -65,11 +68,17 @@ class L3RunHistoryService {
     if (history.length > _max) {
       history.removeRange(_max, history.length);
     }
+    await save(history);
+  }
+
+  Future<void> save(List<L3RunHistoryEntry> history) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
       SharedPrefsKeys.l3RunHistory,
       jsonEncode(history.map((e) => e.toJson()).toList()),
     );
   }
+
+  Future<void> clear() => save([]);
 }
 

@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/l3_run_history_entry.dart';
+import '../services/l3_cli_runner.dart';
 
 class L3AbDiffScreen extends StatefulWidget {
   const L3AbDiffScreen({super.key});
@@ -19,8 +22,11 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
   List<L3RunHistoryEntry> _history = [];
   L3RunHistoryEntry? _a;
   L3RunHistoryEntry? _b;
-  Map<String, int>? _statsA;
-  Map<String, int>? _statsB;
+  Map<String, num>? _statsA;
+  Map<String, num>? _statsB;
+
+  bool get _isDesktop =>
+      !kIsWeb && (Platform.isMacOS || Platform.isWindows || Platform.isLinux);
 
   @override
   void initState() {
@@ -33,17 +39,18 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
     setState(() => _history = h);
   }
 
-  Future<Map<String, int>> _stats(String path) async {
+  Future<Map<String, num>> _stats(String path) async {
     final file = File(path);
     if (!await file.exists()) return {};
     final content = await file.readAsString();
     final decoded = jsonDecode(content);
-    final result = <String, int>{};
+    final result = <String, num>{};
     if (decoded is Map) {
-      result['rootKeys'] = decoded.length;
       decoded.forEach((key, value) {
-        if (value is List) {
-          result['array:$key'] = value.length;
+        if (value is num) {
+          result[key] = value;
+        } else if (value is List) {
+          result[key] = value.length;
         }
       });
     }
@@ -129,7 +136,11 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
                   child: Text(loc.compare),
                 ),
                 const SizedBox(width: 8),
-                ElevatedButton(onPressed: null, child: Text(loc.export)),
+                ElevatedButton(
+                  onPressed:
+                      _statsA != null && _statsB != null ? _exportCsv : null,
+                  child: Text(loc.exportCsv),
+                ),
               ],
             ),
             const SizedBox(height: 16),
@@ -141,6 +152,7 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
                       const DataColumn(label: Text('')),
                       DataColumn(label: Text('A')),
                       DataColumn(label: Text('B')),
+                      DataColumn(label: Text(loc.delta)),
                     ],
                     rows: _buildRows(loc),
                   ),
@@ -155,24 +167,71 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
   }
 
   List<DataRow> _buildRows(AppLocalizations loc) {
-    final keys = <String>{...?_statsA?.keys, ...?_statsB?.keys};
-    final rows = <DataRow>[];
+    final keys =
+        <String>{...?_statsA?.keys, ...?_statsB?.keys}.toList()..sort();
+    final rows = <DataRow>[
+      DataRow(cells: [
+        DataCell(Text(loc.args)),
+        DataCell(Text(_a?.argsSummary ?? '-')),
+        DataCell(Text(_b?.argsSummary ?? '-')),
+        const DataCell(Text('-')),
+      ]),
+    ];
     for (final k in keys) {
-      String label;
-      if (k == 'rootKeys') {
-        label = loc.rootKeys;
-      } else if (k.startsWith('array:')) {
-        label = '${loc.arrayLengths} ${k.substring(6)}';
-      } else {
-        label = k;
-      }
+      final a = _statsA?[k];
+      final b = _statsB?[k];
+      final delta = b != null && a != null ? b - a : null;
       rows.add(DataRow(cells: [
-        DataCell(Text(label)),
-        DataCell(Text(_statsA?[k]?.toString() ?? '-')),
-        DataCell(Text(_statsB?[k]?.toString() ?? '-')),
+        DataCell(Text(k)),
+        DataCell(Text(a?.toString() ?? '-')),
+        DataCell(Text(b?.toString() ?? '-')),
+        DataCell(Text(delta?.toString() ?? '-')),
       ]));
     }
     return rows;
+  }
+
+  Future<void> _exportCsv() async {
+    final statsA = _statsA;
+    final statsB = _statsB;
+    if (statsA == null || statsB == null) return;
+    final keys = <String>{...statsA.keys, ...statsB.keys}.toList()..sort();
+    final buffer = StringBuffer();
+    buffer.writeln('metric,a,b,delta');
+    buffer.writeln('args,"${_a?.argsSummary}","${_b?.argsSummary}",');
+    for (final k in keys) {
+      final a = statsA[k];
+      final b = statsB[k];
+      final delta = (b ?? 0) - (a ?? 0);
+      buffer.writeln('$k,$a,$b,$delta');
+    }
+    final dir = await Directory.systemTemp.createTemp('l3_ab');
+    final file = File('${dir.path}/ab_diff.csv');
+    await file.writeAsString(buffer.toString());
+    if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Expanded(child: Text(loc.csvSaved)),
+            TextButton(
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: file.path));
+                messenger
+                    .showSnackBar(SnackBar(content: Text(loc.copied)));
+              },
+              child: Text(loc.copyPath),
+            ),
+            if (_isDesktop)
+              TextButton(
+                onPressed: () => L3CliRunner.revealInFolder(file.path),
+                child: Text(loc.reveal),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
