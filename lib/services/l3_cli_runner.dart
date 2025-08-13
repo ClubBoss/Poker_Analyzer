@@ -3,9 +3,12 @@ import 'dart:io';
 
 import 'package:path/path.dart' as p;
 
+import '../utils/mix_keys.dart';
 import 'autogen_stats.dart';
 
-Map<String, dynamic>? extractTargetMix(String weights) {
+({Map<String, double> mix, double tolerance})? extractTargetMix(
+  String weights,
+) {
   dynamic weightsJson;
   try {
     weightsJson = json.decode(weights);
@@ -16,8 +19,26 @@ Map<String, dynamic>? extractTargetMix(String weights) {
       /* ignore */
     }
   }
-  final mix = (weightsJson is Map) ? weightsJson['targetMix'] : null;
-  return (mix is Map) ? mix.cast<String, dynamic>() : null;
+
+  Map<String, double>? mix;
+  double tolerance = 0.10;
+  if (weightsJson is Map) {
+    final rawTolerance = weightsJson['mixTolerance'];
+    if (rawTolerance is num) {
+      tolerance = rawTolerance.toDouble();
+    }
+    final rawMix = weightsJson['targetMix'];
+    if (rawMix is Map) {
+      mix = {};
+      rawMix.forEach((key, value) {
+        final canon = canonicalMixKey(key.toString());
+        if (canon != null && value is num) {
+          mix![canon] = value.toDouble();
+        }
+      });
+    }
+  }
+  return mix != null ? (mix: mix, tolerance: tolerance) : null;
 }
 
 class L3CliResult {
@@ -94,8 +115,8 @@ class L3CliRunner {
       } catch (_) {}
 
       if (stats != null && weights != null) {
-        final targetMix = extractTargetMix(weights);
-        if (targetMix != null && stats.total > 0) {
+        final target = extractTargetMix(weights);
+        if (target != null && stats.total > 0) {
           const keys = [
             'monotone',
             'twoTone',
@@ -106,14 +127,14 @@ class L3CliRunner {
             'broadwayHeavy',
           ];
           for (final key in keys) {
-            final target = targetMix[key];
-            if (target is num) {
+            final expected = target.mix[key];
+            if (expected != null) {
               final actual = (stats.textures[key] ?? 0) / stats.total;
-              final diff = actual - target.toDouble();
-              if (diff.abs() > 0.10) {
+              final diff = actual - expected;
+              if (diff.abs() > target.tolerance) {
                 final diffPp = (diff * 100).round();
                 final actualPct = (actual * 100).round();
-                final targetPct = (target * 100).round();
+                final targetPct = (expected * 100).round();
                 final sign = diffPp >= 0 ? '+' : '';
                 warnings.add(
                   "L3 autogen: '$key' off by ${sign}${diffPp}pp (target ${targetPct}%, got ${actualPct}%).",
