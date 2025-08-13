@@ -86,7 +86,11 @@ class L3ReportViewerScreen extends StatelessWidget {
         '${Directory.systemTemp.path}/l3_report_${DateTime.now().millisecondsSinceEpoch}',
       ).create(recursive: true);
       final out = File('${dir.path}/report.csv');
-      await out.writeAsString(buffer.toString());
+      var csv = buffer.toString();
+      if (Platform.isWindows) {
+        csv = '\uFEFF' + csv.replaceAll('\n', '\r\n');
+      }
+      await out.writeAsString(csv);
       if (!_isDesktop) HapticFeedback.selectionClick();
       if (!context.mounted) return;
       final messenger = ScaffoldMessenger.of(context);
