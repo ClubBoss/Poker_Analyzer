@@ -6,9 +6,12 @@ import 'package:path/path.dart' as p;
 import '../utils/mix_keys.dart';
 import 'autogen_stats.dart';
 
-({Map<String, double> mix, double tolerance})? extractTargetMix(
-  String weights,
-) {
+({
+  Map<String, double> mix,
+  double defaultTol,
+  Map<String, double> byKeyTol,
+  int minTotal,
+})? extractTargetMix(String weights) {
   dynamic weightsJson;
   try {
     weightsJson = json.decode(weights);
@@ -21,11 +24,24 @@ import 'autogen_stats.dart';
   }
 
   Map<String, double>? mix;
-  double tolerance = 0.10;
+  double defaultTol = 0.10;
+  final byKeyTol = <String, double>{};
+  int minTotal = 50;
   if (weightsJson is Map) {
     final rawTolerance = weightsJson['mixTolerance'];
     if (rawTolerance is num) {
-      tolerance = rawTolerance.toDouble();
+      defaultTol = rawTolerance.toDouble();
+    } else if (rawTolerance is Map) {
+      rawTolerance.forEach((key, value) {
+        final canon = canonicalMixKey(key.toString());
+        if (canon != null && value is num) {
+          byKeyTol[canon] = value.toDouble();
+        }
+      });
+    }
+    final rawMinTotal = weightsJson['mixMinTotal'];
+    if (rawMinTotal is int) {
+      minTotal = rawMinTotal;
     }
     final rawMix = weightsJson['targetMix'];
     if (rawMix is Map) {
@@ -38,7 +54,9 @@ import 'autogen_stats.dart';
       });
     }
   }
-  return mix != null ? (mix: mix, tolerance: tolerance) : null;
+  return mix != null
+      ? (mix: mix, defaultTol: defaultTol, byKeyTol: byKeyTol, minTotal: minTotal)
+      : null;
 }
 
 class L3CliResult {
@@ -117,30 +135,38 @@ class L3CliRunner {
       if (stats != null && weights != null) {
         final target = extractTargetMix(weights);
         if (target != null && stats.total > 0) {
-          const keys = [
-            'monotone',
-            'twoTone',
-            'rainbow',
-            'paired',
-            'aceHigh',
-            'lowConnected',
-            'broadwayHeavy',
-          ];
-          for (final key in keys) {
-            final expected = target.mix[key];
-            if (expected != null) {
-              final actual = (stats.textures[key] ?? 0) / stats.total;
-              final diff = actual - expected;
-              if (diff.abs() > target.tolerance) {
-                final diffPp = (diff * 100).round();
-                final actualPct = (actual * 100).round();
-                final targetPct = (expected * 100).round();
-                final sign = diffPp >= 0 ? '+' : '';
-                warnings.add(
-                  "L3 autogen: '$key' off by ${sign}${diffPp}pp (target ${targetPct}%, got ${actualPct}%).",
-                );
+          if (stats.total >= target.minTotal) {
+            const keys = [
+              'monotone',
+              'twoTone',
+              'rainbow',
+              'paired',
+              'aceHigh',
+              'lowConnected',
+              'broadwayHeavy',
+            ];
+            final warnPairs = <({double diffAbs, String msg})>[];
+            for (final key in keys) {
+              final expected = target.mix[key];
+              if (expected != null) {
+                final actual = (stats.textures[key] ?? 0) / stats.total;
+                final diff = actual - expected;
+                final tol = target.byKeyTol[key] ?? target.defaultTol;
+                if (diff.abs() > tol) {
+                  final diffPp = (diff * 100).round();
+                  final actualPct = (actual * 100).round();
+                  final targetPct = (expected * 100).round();
+                  final sign = diffPp >= 0 ? '+' : '';
+                  warnPairs.add((
+                    diffAbs: diff.abs(),
+                    msg:
+                        "L3 autogen: '$key' off by ${sign}${diffPp}pp (target ${targetPct}%, got ${actualPct}%).",
+                  ));
+                }
               }
             }
+            warnPairs.sort((a, b) => b.diffAbs.compareTo(a.diffAbs));
+            warnings.addAll(warnPairs.map((w) => w.msg));
           }
         }
       }

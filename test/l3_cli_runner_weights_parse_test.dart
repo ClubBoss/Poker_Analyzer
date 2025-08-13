@@ -4,31 +4,30 @@ import 'package:test/test.dart';
 import 'package:poker_analyzer/services/l3_cli_runner.dart';
 
 void main() {
-  test('extractTargetMix parses inline json', () {
-    final res = extractTargetMix('{"targetMix":{"rainbow":0.2}}');
+  test('extractTargetMix parses inline json with per-key tolerance and minTotal', () {
+    final res = extractTargetMix(
+      '{"targetMix":{"two_tone":0.3,"broadway":0.25},"mixTolerance":{"two_tone":0.04},"mixMinTotal":75}',
+    );
     expect(res, isNotNull);
-    expect(res!.mix['rainbow'], 0.2);
-    expect(res.tolerance, 0.10);
+    expect(res!.mix['twoTone'], 0.3);
+    expect(res.mix['broadwayHeavy'], 0.25);
+    expect(res.defaultTol, 0.10);
+    expect(res.byKeyTol['twoTone'], 0.04);
+    expect(res.minTotal, 75);
   });
 
-  test('extractTargetMix parses file path with tolerance', () {
+  test('extractTargetMix parses file path with per-key tolerance and minTotal', () {
     final file = File('${Directory.systemTemp.path}/weights.json');
     file.writeAsStringSync(
-      '{"targetMix":{"monotone":0.3},"mixTolerance":0.05}',
+      '{"targetMix":{"two_tone":0.3,"broadway":0.25},"mixTolerance":{"two_tone":0.04},"mixMinTotal":75}',
     );
     final res = extractTargetMix(file.path);
     expect(res, isNotNull);
-    expect(res!.mix['monotone'], 0.3);
-    expect(res.tolerance, 0.05);
+    expect(res!.mix['twoTone'], 0.3);
+    expect(res.mix['broadwayHeavy'], 0.25);
+    expect(res.defaultTol, 0.10);
+    expect(res.byKeyTol['twoTone'], 0.04);
+    expect(res.minTotal, 75);
     file.deleteSync();
-  });
-
-  test('extractTargetMix normalizes keys', () {
-    final res = extractTargetMix(
-      '{"targetMix":{"two_tone":0.3,"broadway":0.25}}',
-    );
-    expect(res, isNotNull);
-    expect(res!.mix.containsKey('twoTone'), isTrue);
-    expect(res.mix.containsKey('broadwayHeavy'), isTrue);
   });
 }
