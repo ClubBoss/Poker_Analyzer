@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show kIsWeb, compute;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -11,6 +11,26 @@ import '../models/l3_run_history_entry.dart';
 import '../services/l3_cli_runner.dart';
 import '../utils/toast.dart';
 import '../utils/csv_io.dart';
+
+String buildAbCsv(Map<String, dynamic> payload) {
+  final Map<String, num> a = (payload['a'] as Map).cast<String, num>();
+  final Map<String, num> b = (payload['b'] as Map).cast<String, num>();
+  final String argsA = payload['argsA'] as String? ?? '-';
+  final String argsB = payload['argsB'] as String? ?? '-';
+  String _csv(String v) => '"${v.replaceAll('"', '""')}"';
+
+  final keys = <String>{...a.keys, ...b.keys}.toList()..sort();
+  final buffer = StringBuffer()
+    ..writeln('metric,a,b,delta')
+    ..writeln('${_csv('args')},${_csv(argsA)},${_csv(argsB)},');
+  for (final k in keys) {
+    final av = a[k];
+    final bv = b[k];
+    final delta = (bv ?? 0) - (av ?? 0);
+    buffer.writeln('${_csv(k)},$av,$bv,$delta');
+  }
+  return buffer.toString();
+}
 
 class _ExportIntent extends Intent {
   const _ExportIntent();
@@ -238,27 +258,27 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
     return rows;
   }
 
-  String _csv(String v) => '"${v.replaceAll('"', '""')}"';
-
   Future<void> _exportCsv() async {
     final statsA = _statsA;
     final statsB = _statsB;
     if (statsA == null || statsB == null) return;
-    final keys = <String>{...statsA.keys, ...statsB.keys}.toList()..sort();
-    final buffer = StringBuffer();
-    buffer.writeln('metric,a,b,delta');
-    buffer.writeln(
-      '${_csv('args')},${_csv(_a?.argsSummary ?? '-')},${_csv(_b?.argsSummary ?? '-')},',
+    final navigator = Navigator.of(context);
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
     );
-    for (final k in keys) {
-      final a = statsA[k];
-      final b = statsB[k];
-      final delta = (b ?? 0) - (a ?? 0);
-      buffer.writeln('${_csv(k)},$a,$b,$delta');
-    }
+    final payload = {
+      'a': statsA,
+      'b': statsB,
+      'argsA': _a?.argsSummary,
+      'argsB': _b?.argsSummary,
+    };
+    final csv = await compute(buildAbCsv, payload);
+    if (navigator.mounted) navigator.pop();
     final dir = await Directory.systemTemp.createTemp('l3_ab');
     final file = File('${dir.path}/ab_diff.csv');
-    await writeCsv(file, buffer);
+    await writeCsv(file, StringBuffer()..write(csv));
     if (!_isDesktop) HapticFeedback.selectionClick();
     if (!mounted) return;
     final messenger = ScaffoldMessenger.of(context);
