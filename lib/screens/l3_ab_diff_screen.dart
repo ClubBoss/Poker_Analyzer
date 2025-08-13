@@ -257,7 +257,11 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
     }
     final dir = await Directory.systemTemp.createTemp('l3_ab');
     final file = File('${dir.path}/ab_diff.csv');
-    await file.writeAsString(buffer.toString());
+    var csv = buffer.toString();
+    if (Platform.isWindows) {
+      csv = '\uFEFF' + csv.replaceAll('\n', '\r\n');
+    }
+    await file.writeAsString(csv);
     if (!_isDesktop) HapticFeedback.selectionClick();
     if (!mounted) return;
     final messenger = ScaffoldMessenger.of(context);
