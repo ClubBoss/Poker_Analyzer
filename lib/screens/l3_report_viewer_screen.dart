@@ -50,7 +50,11 @@ class L3ReportViewerScreen extends StatelessWidget {
                 Clipboard.setData(ClipboardData(text: path));
                 ScaffoldMessenger.of(
                   context,
-                ).showSnackBar(const SnackBar(content: Text('Copied')));
+                ).showSnackBar(
+                  SnackBar(
+                    content: Text(loc.copied),
+                  ),
+                );
               } else {
                 showDialog(
                   context: context,
