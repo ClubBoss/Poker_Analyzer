@@ -18,7 +18,8 @@ bool _aceHigh(List<String> flop) => flop.any((c) => c[0] == 'A');
 const Map<String, L3Preset> l3Presets = {
   'paired': L3Preset(
     name: 'paired',
-    targetMix: {'monotone': 0.2, 'twoTone': 0.3, 'rainbow': 0.5},
+    // paired∧monotone impossible because a pair requires two suits
+    targetMix: {'monotone': 0.0, 'twoTone': 0.50, 'rainbow': 0.50},
     filter: _paired,
   ),
   'unpaired': L3Preset(
