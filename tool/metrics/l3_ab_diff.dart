@@ -12,16 +12,19 @@ Map<String, String> _parseArgs(List<String> args) {
   return map;
 }
 
-void _renderSection(StringBuffer buf, String title, Map<String, dynamic> base,
-    Map<String, dynamic> challenger) {
+void _renderSection(
+  StringBuffer buf,
+  String title,
+  Map<String, dynamic> base,
+  Map<String, dynamic> challenger,
+) {
   buf.writeln('\n### $title');
   buf.writeln('| key | base | challenger | Δ |');
   buf.writeln('| --- | --- | --- | --- |');
   final keys = {
     ...base.keys.cast<String>(),
     ...challenger.keys.cast<String>(),
-  }.toList()
-    ..sort();
+  }.toList()..sort();
   for (final k in keys) {
     final b = (base[k] as num? ?? 0).toInt();
     final c = (challenger[k] as num? ?? 0).toInt();
@@ -38,10 +41,14 @@ void main(List<String> args) async {
   final outPath = argMap['out'];
   final buffer = StringBuffer();
   try {
-    final baseJson = jsonDecode(await File(basePath ?? '').readAsString())
-        as Map<String, dynamic>;
-    final challJson = jsonDecode(await File(challPath ?? '').readAsString())
-        as Map<String, dynamic>;
+    buffer.writeln('# L3 A/B diff');
+    buffer.writeln();
+    final baseJson =
+        jsonDecode(await File(basePath ?? '').readAsString())
+            as Map<String, dynamic>;
+    final challJson =
+        jsonDecode(await File(challPath ?? '').readAsString())
+            as Map<String, dynamic>;
     final baseSummary =
         (baseJson['summary'] as Map<String, dynamic>?) ?? <String, dynamic>{};
     final challSummary =
@@ -52,23 +59,27 @@ void main(List<String> args) async {
     buffer.writeln('| metric | base | challenger | Δ |');
     buffer.writeln('| --- | --- | --- | --- |');
     buffer.writeln(
-        '| jamRate | ${baseJam.toStringAsFixed(3)} | ${challJam.toStringAsFixed(3)} | ${(challJam - baseJam).toStringAsFixed(3)} |');
+      '| jamRate | ${baseJam.toStringAsFixed(3)} | ${challJam.toStringAsFixed(3)} | ${(challJam - baseJam).toStringAsFixed(3)} |',
+    );
 
     _renderSection(
-        buffer,
-        'Textures',
-        (baseSummary['textureCounts'] as Map<String, dynamic>?) ?? {},
-        (challSummary['textureCounts'] as Map<String, dynamic>?) ?? {});
+      buffer,
+      'Textures',
+      (baseSummary['textureCounts'] as Map<String, dynamic>?) ?? {},
+      (challSummary['textureCounts'] as Map<String, dynamic>?) ?? {},
+    );
     _renderSection(
-        buffer,
-        'Presets',
-        (baseSummary['presetCounts'] as Map<String, dynamic>?) ?? {},
-        (challSummary['presetCounts'] as Map<String, dynamic>?) ?? {});
+      buffer,
+      'Presets',
+      (baseSummary['presetCounts'] as Map<String, dynamic>?) ?? {},
+      (challSummary['presetCounts'] as Map<String, dynamic>?) ?? {},
+    );
     _renderSection(
-        buffer,
-        'SPR',
-        (baseSummary['sprHistogram'] as Map<String, dynamic>?) ?? {},
-        (challSummary['sprHistogram'] as Map<String, dynamic>?) ?? {});
+      buffer,
+      'SPR',
+      (baseSummary['sprHistogram'] as Map<String, dynamic>?) ?? {},
+      (challSummary['sprHistogram'] as Map<String, dynamic>?) ?? {},
+    );
 
     if (outPath != null) {
       final outFile = File(outPath);
