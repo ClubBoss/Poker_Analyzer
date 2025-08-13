@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:poker_analyzer/core/plugin_runtime.dart';
 import 'package:poker_analyzer/theme/app_colors.dart';
+import 'package:poker_analyzer/l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:poker_analyzer/screens/poker_analyzer_screen.dart';
 import 'package:poker_analyzer/services/action_sync_service.dart';
@@ -192,6 +194,20 @@ class _PokerAnalyzerDemoAppState extends State<PokerAnalyzerDemoApp>
                       displayColor: AppColors.textPrimaryDark,
                     ),
               ),
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [
+                Locale('en'),
+                Locale('es'),
+                Locale('fr'),
+                Locale('ru'),
+                Locale('pt'),
+                Locale('de'),
+              ],
               builder: (context, child) {
                 return Stack(
                   children: [

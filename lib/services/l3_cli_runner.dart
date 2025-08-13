@@ -31,6 +31,7 @@ class L3CliRunner {
     final logPath = p.join(outDir.path, 'out.log');
 
     final args = [
+      'run',
       'tool/l3/pack_run_cli.dart',
       '--dir',
       runDir.path,
@@ -57,7 +58,9 @@ class L3CliRunner {
     if (res.exitCode == 0) {
       for (final line in const LineSplitter().convert(stderrStr)) {
         final lower = line.toLowerCase();
-        if (lower.contains('warning') || lower.contains('monotone')) {
+        if (lower.contains('warning') ||
+            lower.contains('monotone') ||
+            lower.contains('both --weights and --weightspreset')) {
           warnings.add(line);
         }
       }

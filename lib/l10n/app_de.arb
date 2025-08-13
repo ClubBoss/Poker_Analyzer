@@ -132,4 +132,5 @@
   ,"resume": "Resume"
   ,"mistakeBoosterReinforced": "Reinforced: {count} tags"
   ,"mistakeBoosterRecovered": "Recovered: {count} tags"
+  ,"desktopOnly": "Nur Desktop"
 }

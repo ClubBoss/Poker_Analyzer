@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -23,10 +24,30 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
   String? _inlineWarning;
   String? _error;
 
+  bool get _isDesktop =>
+      !kIsWeb && (Platform.isMacOS || Platform.isWindows || Platform.isLinux);
+
   @override
   void initState() {
     super.initState();
     _loadLast();
+    if (!_isDesktop) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final loc = AppLocalizations.of(context);
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            content: Text(loc.desktopOnly),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              )
+            ],
+          ),
+        ).then((_) => Navigator.pop(context));
+      });
+    }
   }
 
   Future<void> _loadLast() async {
@@ -74,9 +95,20 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
     }
   }
 
-  void _openReport() {
+  Future<void> _openReport() async {
     final path = _lastReportPath;
     if (path == null) return;
+    final file = File(path);
+    final exists = await file.exists();
+    if (!exists || (await file.readAsString()).trim().isEmpty) {
+      if (mounted) {
+        final loc = AppLocalizations.of(context);
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(loc.reportEmpty)));
+      }
+      return;
+    }
+    if (!mounted) return;
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => L3ReportViewerScreen(path: path)),
