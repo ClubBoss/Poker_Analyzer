@@ -105,6 +105,8 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
 
   Future<void> _run() async {
     await _formatWeightsJson();
+    FocusScope.of(context).unfocus();
+    final messenger = ScaffoldMessenger.of(context);
     setState(() {
       _running = true;
       _error = null;
@@ -119,7 +121,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
         if (decoded is! Map) throw const FormatException();
       } catch (_) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          messenger.showSnackBar(
             SnackBar(content: Text(AppLocalizations.of(context).invalidJson)),
           );
         }
@@ -169,8 +171,14 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
       }
     });
     if (collectedWarnings.isNotEmpty && mounted) {
+      messenger.clearSnackBars();
       for (final w in collectedWarnings) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(w)));
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(w),
+            duration: const Duration(seconds: 2),
+          ),
+        );
       }
     }
   }
@@ -502,8 +510,10 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                                     onPressed: () {
                                       Clipboard.setData(
                                           ClipboardData(text: e.outPath));
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
+                                      final messenger =
+                                          ScaffoldMessenger.of(context);
+                                      messenger.clearSnackBars();
+                                      messenger.showSnackBar(
                                         SnackBar(
                                           content: Text(loc.copied),
                                         ),
