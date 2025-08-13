@@ -156,4 +156,13 @@
   ,"noSelection": "No selection"
   ,"rootKeys": "Root keys"
   ,"arrayLengths": "Array lengths"
+  ,"clearHistory": "Clear history"
+  ,"confirmClear": "Clear all runs? This action cannot be undone."
+  ,"deleted": "Deleted"
+  ,"copied": "Copied"
+  ,"exportCsv": "Export CSV"
+  ,"reveal": "Reveal"
+  ,"csvSaved": "CSV saved"
+  ,"delta": "Δ"
+  ,"args": "Args"
 }

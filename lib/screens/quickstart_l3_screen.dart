@@ -96,8 +96,10 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
         weights: weightsArg,
         preset: preset,
       );
-      await _historyService.push(entry);
-      _history = await _historyService.load();
+      if (_history.isEmpty || !_history.first.sameAs(entry)) {
+        await _historyService.push(entry);
+        _history = await _historyService.load();
+      }
     }
     setState(() {
       _running = false;
@@ -193,6 +195,39 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
     _run();
   }
 
+  Future<void> _clearHistory() async {
+    final loc = AppLocalizations.of(context);
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        content: Text(loc.confirmClear),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(loc.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(loc.clear),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      await _historyService.clear();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(SharedPrefsKeys.lastL3ReportPath);
+      setState(() {
+        _history = [];
+        _lastReportPath = null;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(loc.deleted)));
+      }
+    }
+  }
+
   void _retry() {
     _run();
   }
@@ -278,29 +313,51 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                           final ts = DateFormat(
                             'yyyy-MM-dd HH:mm',
                           ).format(e.timestamp);
-                          return ListTile(
-                            title: Text('$ts ${e.argsSummary}'),
-                            trailing: Wrap(
-                              spacing: 4,
-                              children: [
-                                TextButton(
-                                  onPressed: () => _openEntry(e),
-                                  child: Text(loc.open),
-                                ),
-                                TextButton(
-                                  onPressed: () => _viewLogsFile(e.logPath),
-                                  child: Text(loc.logs),
-                                ),
-                                if (_isDesktop)
+                          return Dismissible(
+                            key: ValueKey('${e.outPath}${e.argsSummary}'),
+                            direction: DismissDirection.endToStart,
+                            background: Container(
+                              color: Colors.red,
+                              alignment: Alignment.centerRight,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
+                              child:
+                                  const Icon(Icons.delete, color: Colors.white),
+                            ),
+                            onDismissed: (_) async {
+                              setState(() => _history.removeAt(index));
+                              await _historyService.save(_history);
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(loc.deleted)),
+                                );
+                              }
+                            },
+                            child: ListTile(
+                              title: Text('$ts ${e.argsSummary}'),
+                              trailing: Wrap(
+                                spacing: 4,
+                                children: [
                                   TextButton(
-                                    onPressed: () => _openFolder(e),
-                                    child: Text(loc.folder),
+                                    onPressed: () => _openEntry(e),
+                                    child: Text(loc.open),
                                   ),
-                                TextButton(
-                                  onPressed: () => _reRun(e),
-                                  child: Text(loc.reRun),
-                                ),
-                              ],
+                                  TextButton(
+                                    onPressed: () => _viewLogsFile(e.logPath),
+                                    child: Text(loc.logs),
+                                  ),
+                                  if (_isDesktop)
+                                    TextButton(
+                                      onPressed: () => _openFolder(e),
+                                      child: Text(loc.folder),
+                                    ),
+                                  TextButton(
+                                    onPressed:
+                                        _running ? null : () => _reRun(e),
+                                    child: Text(loc.reRun),
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         },
@@ -314,7 +371,17 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
       );
     }
     return Scaffold(
-      appBar: AppBar(title: Text(loc.quickstartL3)),
+      appBar: AppBar(
+        title: Text(loc.quickstartL3),
+        actions: [
+          if (_history.isNotEmpty)
+            IconButton(
+              tooltip: loc.clearHistory,
+              onPressed: _clearHistory,
+              icon: const Icon(Icons.delete_forever),
+            ),
+        ],
+      ),
       body: body,
     );
   }

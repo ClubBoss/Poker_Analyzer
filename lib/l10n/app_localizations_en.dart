@@ -504,4 +504,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rootKeys => 'Root keys';
 
   String get arrayLengths => 'Array lengths';
+
+  @override
+  String get clearHistory => 'Clear history';
+
+  @override
+  String get confirmClear => 'Clear all runs? This action cannot be undone.';
+
+  @override
+  String get deleted => 'Deleted';
+
+  @override
+  String get copied => 'Copied';
+
+  @override
+  String get exportCsv => 'Export CSV';
+
+  @override
+  String get reveal => 'Reveal';
+
+  @override
+  String get csvSaved => 'CSV saved';
+
+  @override
+  String get delta => 'Δ';
+
+  @override
+  String get args => 'Args';
 }
