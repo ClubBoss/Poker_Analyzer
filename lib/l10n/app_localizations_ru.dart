@@ -278,7 +278,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get resetStage => 'Сбросить стадию';
 
   @override
-  String get cancel => 'Cancel';
+  String get cancel => 'Отмена';
 
   @override
   String get reset => 'Reset';
@@ -308,7 +308,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get confirm => 'Confirm';
 
   @override
-  String get clear => 'Clear';
+  String get clear => 'Очистить';
 
   @override
   String get ok => 'OK';
