@@ -36,6 +36,56 @@ class L3ReportViewerScreen extends StatelessWidget {
     }
   }
 
+  String _csv(String v) => '"${v.replaceAll('"', '""')}"';
+
+  Future<void> _exportCsv(BuildContext context) async {
+    try {
+      final file = File(path);
+      if (!await file.exists()) return;
+      final content = await file.readAsString();
+      final decoded = jsonDecode(content);
+      if (decoded is! Map<String, dynamic>) return;
+      final buffer = StringBuffer();
+      decoded.forEach((k, v) {
+        if (v is num) {
+          buffer.writeln('${_csv(k)},$v');
+        } else if (v is List) {
+          buffer.writeln('${_csv('array:$k')},${v.length}');
+        }
+      });
+      final dir = await Directory(
+              '${Directory.systemTemp.path}/l3_report_${DateTime.now().millisecondsSinceEpoch}')
+          .create(recursive: true);
+      final out = File('${dir.path}/report.csv');
+      await out.writeAsString(buffer.toString());
+      if (!context.mounted) return;
+      final loc = AppLocalizations.of(context);
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.clearSnackBars();
+      messenger.showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Expanded(child: Text(loc.csvSaved)),
+              TextButton(
+                onPressed: () {
+                  Clipboard.setData(ClipboardData(text: out.path));
+                  showToast(context, loc.copied);
+                },
+                child: Text(loc.copyPath),
+              ),
+              if (_isDesktop)
+                TextButton(
+                  onPressed: () => L3CliRunner.revealInFolder(out.path),
+                  child: Text(loc.reveal),
+                ),
+            ],
+          ),
+        ),
+      );
+    } catch (_) {}
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
@@ -183,7 +233,10 @@ class L3ReportViewerScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  TextButton(onPressed: null, child: Text(loc.export)),
+                  TextButton(
+                    onPressed: () => _exportCsv(context),
+                    child: Text(loc.exportCsv),
+                  ),
                 ],
               ),
             ],
