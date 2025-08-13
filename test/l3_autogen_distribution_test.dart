@@ -31,6 +31,8 @@ void main() {
           'tool/validators/l3_distribution_validator.dart',
           '--dir',
           outDir,
+          '--dedupe',
+          'flop',
         ]);
         expect(val.exitCode, 0, reason: val.stderr.toString());
       }

@@ -66,16 +66,16 @@ jobs:
         run: dart test test/l2_*
       - name: Generate L3 boards (seed 111)
         timeout-minutes: 5
-        run: dart run tool/autogen/l3_board_generator.dart --preset all --seed 111 --out build/tmp/l3/111
+        run: dart run tool/autogen/l3_board_generator.dart --preset all --seed 111 --out build/tmp/l3/111 --maxAttemptsPerSpot 5000 --timeoutSec 90
       - name: Generate L3 boards (seed 222)
         timeout-minutes: 5
-        run: dart run tool/autogen/l3_board_generator.dart --preset all --seed 222 --out build/tmp/l3/222
+        run: dart run tool/autogen/l3_board_generator.dart --preset all --seed 222 --out build/tmp/l3/222 --maxAttemptsPerSpot 5000 --timeoutSec 90
       - name: Generate L3 boards (seed 333)
         timeout-minutes: 5
-        run: dart run tool/autogen/l3_board_generator.dart --preset all --seed 333 --out build/tmp/l3/333
+        run: dart run tool/autogen/l3_board_generator.dart --preset all --seed 333 --out build/tmp/l3/333 --maxAttemptsPerSpot 5000 --timeoutSec 90
       - name: Validate L3 distribution
         timeout-minutes: 5
-        run: dart run tool/validators/l3_distribution_validator.dart --dir build/tmp/l3
+        run: dart run tool/validators/l3_distribution_validator.dart --dir build/tmp/l3 --dedupe flop
       - name: PackRun L3 (seed 111)
         run: dart run tool/l3/pack_run_cli.dart --dir build/tmp/l3/111 --out build/reports/l3_packrun_111.json
       - name: PackRun L3 (seed 222)
