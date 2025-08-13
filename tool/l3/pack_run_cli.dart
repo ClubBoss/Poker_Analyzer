@@ -26,6 +26,11 @@ void main(List<String> args) {
   JamFoldEvaluator evaluator;
   final weightsOpt = res['weights'] as String?;
   final presetOpt = res['weightsPreset'] as String?;
+  if (weightsOpt != null && presetOpt != null) {
+    stderr.writeln(
+      "[pack_run_cli] both --weights and --weightsPreset provided; using --weights",
+    );
+  }
   if (weightsOpt != null) {
     final jsonStr = weightsOpt.trim().startsWith('{')
         ? weightsOpt
@@ -100,7 +105,14 @@ void main(List<String> args) {
         textureCounts[texture] = (textureCounts[texture] ?? 0) + 1;
         final spr = _sprFromBoard(boardStr);
         presetCounts[preset] = (presetCounts[preset] ?? 0) + 1;
-        final sprBucket = spr < 1.0 ? 'spr_low' : (spr < 2.0 ? 'spr_mid' : 'spr_high');
+        final sprBucket;
+        if (spr < 1.0) {
+          sprBucket = 'spr_low';
+        } else if (spr < 2.0) {
+          sprBucket = 'spr_mid';
+        } else {
+          sprBucket = 'spr_high';
+        }
         sprHistogram[sprBucket] = (sprHistogram[sprBucket] ?? 0) + 1;
         final outcome = evaluator.evaluate(
           board: FlopBoard.fromString(boardStr),

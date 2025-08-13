@@ -23,6 +23,22 @@ else
   say_ok "single addOption('out')"
 fi
 
+# 1c) Не должно быть дублей addOption('weights')
+if [[ $(grep -RFn "addOption('weights'" tool/l3/pack_run_cli.dart | wc -l) -gt 1 ]]; then
+  say_bad "duplicate addOption('weights') in tool/l3/pack_run_cli.dart"
+  grep -n "addOption('weights'" tool/l3/pack_run_cli.dart || true
+else
+  say_ok "single addOption('weights')"
+fi
+
+# 1d) Не должно быть дублей addOption('priors')
+if [[ $(grep -RFn "addOption('priors'" tool/l3/pack_run_cli.dart | wc -l) -gt 1 ]]; then
+  say_bad "duplicate addOption('priors') in tool/l3/pack_run_cli.dart"
+  grep -n "addOption('priors'" tool/l3/pack_run_cli.dart || true
+else
+  say_ok "single addOption('priors')"
+fi
+
 # 2) Не более одного определения _renderSection в A/B диффе (fixed string)
 if [[ $(grep -RFn "void _renderSection(" tool/metrics/l3_ab_diff.dart | wc -l) -gt 1 ]]; then
   say_bad "duplicate void _renderSection(...) in tool/metrics/l3_ab_diff.dart"
