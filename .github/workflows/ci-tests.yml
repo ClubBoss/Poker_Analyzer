@@ -62,3 +62,12 @@ jobs:
         run: dart run tool/validators/preset_validator.dart --dir build/tmp/l2
       - name: Run L2 tests
         run: dart test test/l2_*
+      - run: dart run tool/metrics/l2_metrics_report.dart --packs assets/packs/l2 --snippets assets/theory/l2/snippets.yaml --out build/reports/l2_report.md
+      - run: |
+          echo "::group::L2 Metrics"
+          cat build/reports/l2_report.md
+          echo "::endgroup::"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: l2_report.md
+          path: build/reports/l2_report.md
