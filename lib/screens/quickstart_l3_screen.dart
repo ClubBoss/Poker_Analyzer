@@ -36,6 +36,14 @@ class _ExportHistoryIntent extends Intent {
   const _ExportHistoryIntent();
 }
 
+class _OpenLastReportIntent extends Intent {
+  const _OpenLastReportIntent();
+}
+
+class _OpenLastLogsIntent extends Intent {
+  const _OpenLastLogsIntent();
+}
+
 class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
   final _weightsController = TextEditingController();
   String? _weightsPreset;
@@ -223,6 +231,21 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
         ),
       ),
     );
+  }
+
+  Future<void> _openLastLogs() async {
+    final path = _lastReportPath;
+    if (path == null) return;
+    L3RunHistoryEntry? entry;
+    for (final e in _history) {
+      if (e.outPath == path) {
+        entry = e;
+        break;
+      }
+    }
+    final logPath = entry?.logPath;
+    if (logPath == null) return;
+    await _viewLogsFile(logPath);
   }
 
   Future<void> _exportLastCsv() async {
@@ -759,6 +782,16 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
             const _ExportHistoryIntent(),
         const SingleActivator(LogicalKeyboardKey.keyE, meta: true, shift: true):
             const _ExportHistoryIntent(),
+        // Open last report
+        const SingleActivator(LogicalKeyboardKey.keyO, control: true):
+            const _OpenLastReportIntent(),
+        const SingleActivator(LogicalKeyboardKey.keyO, meta: true):
+            const _OpenLastReportIntent(),
+        // Open last logs
+        const SingleActivator(LogicalKeyboardKey.keyL, control: true):
+            const _OpenLastLogsIntent(),
+        const SingleActivator(LogicalKeyboardKey.keyL, meta: true):
+            const _OpenLastLogsIntent(),
       },
       child: Actions(
         actions: {
@@ -782,6 +815,20 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
             onInvoke: (_) {
               if (!(_isDesktop && _history.isNotEmpty)) return null;
               _exportHistoryCsv();
+              return null;
+            },
+          ),
+          _OpenLastReportIntent: CallbackAction<_OpenLastReportIntent>(
+            onInvoke: (_) {
+              if (!(_isDesktop && _lastReportPath != null)) return null;
+              _openReport();
+              return null;
+            },
+          ),
+          _OpenLastLogsIntent: CallbackAction<_OpenLastLogsIntent>(
+            onInvoke: (_) {
+              if (!(_isDesktop && _lastReportPath != null)) return null;
+              _openLastLogs();
               return null;
             },
           ),
