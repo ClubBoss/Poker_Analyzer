@@ -28,6 +28,14 @@ class _RunIntent extends Intent {
   const _RunIntent();
 }
 
+class _ExportLastIntent extends Intent {
+  const _ExportLastIntent();
+}
+
+class _ExportHistoryIntent extends Intent {
+  const _ExportHistoryIntent();
+}
+
 class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
   final _weightsController = TextEditingController();
   String? _weightsPreset;
@@ -740,6 +748,17 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
             const _RunIntent(),
         const SingleActivator(LogicalKeyboardKey.enter, meta: true):
             const _RunIntent(),
+        // Export last report CSV
+        const SingleActivator(LogicalKeyboardKey.keyE, control: true):
+            const _ExportLastIntent(),
+        const SingleActivator(LogicalKeyboardKey.keyE, meta: true):
+            const _ExportLastIntent(),
+        // Export history CSV (Shift)
+        const SingleActivator(LogicalKeyboardKey.keyE,
+                control: true, shift: true):
+            const _ExportHistoryIntent(),
+        const SingleActivator(LogicalKeyboardKey.keyE, meta: true, shift: true):
+            const _ExportHistoryIntent(),
       },
       child: Actions(
         actions: {
@@ -749,6 +768,20 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                 return null;
               }
               _run();
+              return null;
+            },
+          ),
+          _ExportLastIntent: CallbackAction<_ExportLastIntent>(
+            onInvoke: (_) {
+              if (!(_isDesktop && _lastReportPath != null)) return null;
+              _exportLastCsv();
+              return null;
+            },
+          ),
+          _ExportHistoryIntent: CallbackAction<_ExportHistoryIntent>(
+            onInvoke: (_) {
+              if (!(_isDesktop && _history.isNotEmpty)) return null;
+              _exportHistoryCsv();
               return null;
             },
           ),
