@@ -9,6 +9,12 @@ import '../l10n/app_localizations.dart';
 import '../services/l3_cli_runner.dart';
 import 'l3_ab_diff_screen.dart';
 
+void _toast(BuildContext ctx, String msg, {Duration d = const Duration(seconds: 2)}) {
+  final m = ScaffoldMessenger.of(ctx);
+  m.clearSnackBars();
+  m.showSnackBar(SnackBar(content: Text(msg), duration: d));
+}
+
 class L3ReportViewerScreen extends StatelessWidget {
   final String path;
   final String? logPath;
@@ -48,13 +54,7 @@ class L3ReportViewerScreen extends StatelessWidget {
             onPressed: () {
               if (_isDesktop) {
                 Clipboard.setData(ClipboardData(text: path));
-                final messenger = ScaffoldMessenger.of(context);
-                messenger.clearSnackBars();
-                messenger.showSnackBar(
-                  SnackBar(
-                    content: Text(loc.copied),
-                  ),
-                );
+                _toast(context, loc.copied);
               } else {
                 showDialog(
                   context: context,

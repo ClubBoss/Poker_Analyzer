@@ -12,6 +12,12 @@ import '../utils/shared_prefs_keys.dart';
 import '../models/l3_run_history_entry.dart';
 import 'l3_report_viewer_screen.dart';
 
+void _toast(BuildContext ctx, String msg, {Duration d = const Duration(seconds: 2)}) {
+  final m = ScaffoldMessenger.of(ctx);
+  m.clearSnackBars();
+  m.showSnackBar(SnackBar(content: Text(msg), duration: d));
+}
+
 class QuickstartL3Screen extends StatefulWidget {
   const QuickstartL3Screen({super.key});
 
@@ -121,9 +127,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
         if (decoded is! Map) throw const FormatException();
       } catch (_) {
         if (mounted) {
-          messenger.showSnackBar(
-            SnackBar(content: Text(AppLocalizations.of(context).invalidJson)),
-          );
+          _toast(context, AppLocalizations.of(context).invalidJson);
         }
         setState(() {
           _running = false;
@@ -198,9 +202,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
     if (!exists || (await file.readAsString()).trim().isEmpty) {
       if (mounted) {
         final loc = AppLocalizations.of(context);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(loc.reportEmpty)));
+        _toast(context, loc.reportEmpty);
       }
       return;
     }
@@ -307,8 +309,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
         _lastReportPath = null;
       });
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(loc.deleted)));
+        _toast(context, loc.deleted);
       }
     }
   }
@@ -486,14 +487,12 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                                 }
                                 setState(() {});
                                 if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(loc.deleted)),
-                                  );
+                                  _toast(context, loc.deleted);
                                 }
                               },
-                            child: ListTile(
-                              title: Text('$ts ${e.argsSummary}'),
-                              trailing: Wrap(
+                              child: ListTile(
+                                title: Text('$ts ${e.argsSummary}'),
+                                trailing: Wrap(
                                 spacing: 4,
                                 children: [
                                   TextButton(
@@ -510,14 +509,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                                     onPressed: () {
                                       Clipboard.setData(
                                           ClipboardData(text: e.outPath));
-                                      final messenger =
-                                          ScaffoldMessenger.of(context);
-                                      messenger.clearSnackBars();
-                                      messenger.showSnackBar(
-                                        SnackBar(
-                                          content: Text(loc.copied),
-                                        ),
-                                      );
+                                      _toast(context, loc.copied);
                                     },
                                     child: Text(loc.copyPath),
                                   ),
