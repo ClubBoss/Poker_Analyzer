@@ -10,6 +10,7 @@ import '../l10n/app_localizations.dart';
 import '../models/l3_run_history_entry.dart';
 import '../services/l3_cli_runner.dart';
 import '../utils/toast.dart';
+import '../utils/csv_io.dart';
 
 class _ExportIntent extends Intent {
   const _ExportIntent();
@@ -257,11 +258,7 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
     }
     final dir = await Directory.systemTemp.createTemp('l3_ab');
     final file = File('${dir.path}/ab_diff.csv');
-    var csv = buffer.toString();
-    if (Platform.isWindows) {
-      csv = '\uFEFF' + csv.replaceAll('\n', '\r\n');
-    }
-    await file.writeAsString(csv);
+    await writeCsv(file, buffer);
     if (!_isDesktop) HapticFeedback.selectionClick();
     if (!mounted) return;
     final messenger = ScaffoldMessenger.of(context);
