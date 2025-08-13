@@ -5,6 +5,21 @@ import 'package:path/path.dart' as p;
 
 import 'autogen_stats.dart';
 
+Map<String, dynamic>? extractTargetMix(String weights) {
+  dynamic weightsJson;
+  try {
+    weightsJson = json.decode(weights);
+  } catch (_) {
+    try {
+      weightsJson = json.decode(File(weights).readAsStringSync());
+    } catch (_) {
+      /* ignore */
+    }
+  }
+  final mix = (weightsJson is Map) ? weightsJson['targetMix'] : null;
+  return (mix is Map) ? mix.cast<String, dynamic>() : null;
+}
+
 class L3CliResult {
   final int exitCode;
   final String stdout;
@@ -42,17 +57,22 @@ class L3CliRunner {
     ];
 
     if (weightsPreset != null) {
-      args..add('--weightsPreset')..add(weightsPreset);
+      args
+        ..add('--weightsPreset')
+        ..add(weightsPreset);
     } else if (weights != null) {
-      args..add('--weights')..add(weights);
+      args
+        ..add('--weights')
+        ..add(weights);
     }
 
     final res = await Process.run('dart', args);
     final stdoutStr = res.stdout.toString();
     final stderrStr = res.stderr.toString();
 
-    File(logPath)
-        .writeAsStringSync('stdout:\n$stdoutStr\n\nstderr:\n$stderrStr');
+    File(
+      logPath,
+    ).writeAsStringSync('stdout:\n$stdoutStr\n\nstderr:\n$stderrStr');
 
     await runDir.delete(recursive: true);
 
@@ -74,36 +94,34 @@ class L3CliRunner {
       } catch (_) {}
 
       if (stats != null && weights != null) {
-        try {
-          final weightsJson = json.decode(File(weights).readAsStringSync());
-          final targetMix = weightsJson['targetMix'];
-          if (targetMix is Map && stats.total > 0) {
-            const keys = [
-              'monotone',
-              'twoTone',
-              'rainbow',
-              'paired',
-              'aceHigh',
-              'lowConnected',
-              'broadwayHeavy',
-            ];
-            for (final key in keys) {
-              final target = targetMix[key];
-              if (target is num) {
-                final actual = (stats.textures[key] ?? 0) / stats.total;
-                final diff = actual - target.toDouble();
-                if (diff.abs() > 0.10) {
-                  final diffPp = (diff * 100).round();
-                  final actualPct = (actual * 100).round();
-                  final targetPct = (target * 100).round();
-                  final sign = diffPp >= 0 ? '+' : '';
-                  warnings.add(
-                      "L3 autogen: '$key' off by ${sign}${diffPp}pp (target ${targetPct}%, got ${actualPct}%).");
-                }
+        final targetMix = extractTargetMix(weights);
+        if (targetMix != null && stats.total > 0) {
+          const keys = [
+            'monotone',
+            'twoTone',
+            'rainbow',
+            'paired',
+            'aceHigh',
+            'lowConnected',
+            'broadwayHeavy',
+          ];
+          for (final key in keys) {
+            final target = targetMix[key];
+            if (target is num) {
+              final actual = (stats.textures[key] ?? 0) / stats.total;
+              final diff = actual - target.toDouble();
+              if (diff.abs() > 0.10) {
+                final diffPp = (diff * 100).round();
+                final actualPct = (actual * 100).round();
+                final targetPct = (target * 100).round();
+                final sign = diffPp >= 0 ? '+' : '';
+                warnings.add(
+                  "L3 autogen: '$key' off by ${sign}${diffPp}pp (target ${targetPct}%, got ${actualPct}%).",
+                );
               }
             }
           }
-        } catch (_) {}
+        }
       }
     }
 
