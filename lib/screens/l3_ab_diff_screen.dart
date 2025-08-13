@@ -234,8 +234,10 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
             TextButton(
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: file.path));
-                messenger
-                    .showSnackBar(SnackBar(content: Text(loc.copied)));
+                messenger.clearSnackBars();
+                messenger.showSnackBar(
+                  SnackBar(content: Text(loc.copied)),
+                );
               },
               child: Text(loc.copyPath),
             ),

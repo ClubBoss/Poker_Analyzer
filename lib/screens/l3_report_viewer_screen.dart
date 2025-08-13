@@ -48,9 +48,9 @@ class L3ReportViewerScreen extends StatelessWidget {
             onPressed: () {
               if (_isDesktop) {
                 Clipboard.setData(ClipboardData(text: path));
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(
+                final messenger = ScaffoldMessenger.of(context);
+                messenger.clearSnackBars();
+                messenger.showSnackBar(
                   SnackBar(
                     content: Text(loc.copied),
                   ),
