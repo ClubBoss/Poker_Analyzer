@@ -5,6 +5,10 @@ import 'package:args/args.dart';
 import 'package:yaml/yaml.dart';
 
 import 'package:poker_analyzer/l3/jam_fold_evaluator.dart';
+import 'package:poker_analyzer/services/autogen_v4.dart';
+import 'package:poker_analyzer/services/autogen_stats.dart';
+import 'package:poker_analyzer/services/l3_cli_runner.dart'
+    show extractTargetMix;
 
 double _sprFromBoard(String board) {
   final hash = board.codeUnits.fold<int>(0, (a, b) => a + b);
@@ -18,10 +22,56 @@ void main(List<String> args) {
     ..addOption('weights')
     ..addOption('weightsPreset', allowed: ['aggro', 'nitty', 'default'])
     ..addOption('priors')
-    ..addFlag('explain', negatable: false);
+    ..addFlag('explain', negatable: false)
+    ..addOption('seed')
+    ..addOption('count')
+    ..addOption('preset', defaultsTo: 'postflop_default')
+    ..addOption('targetMix');
   final res = parser.parse(args);
-  final dir = res['dir'] as String;
   final outPath = res['out'] as String;
+
+  // Autogen v4 path: generate boards and emit report
+  final countOpt = res['count'] as String?;
+  final presetArg = res['preset'] as String?;
+  final seedOpt = res['seed'] as String?;
+  final targetMixOpt = res['targetMix'] as String?;
+  if (countOpt != null) {
+    final count = int.tryParse(countOpt) ?? 0;
+    final seed = int.tryParse(seedOpt ?? '');
+    Map<String, double>? mix;
+    if (targetMixOpt != null) {
+      final cfg = extractTargetMix(targetMixOpt);
+      mix = cfg?.mix;
+    }
+    final gen = BoardStreetGenerator(seed: seed, targetMix: mix);
+    final spots = gen.generate(
+      count: count,
+      preset: presetArg ?? 'postflop_default',
+    );
+    final report = {
+      'spots': spots,
+      'autogen': {
+        'seed': seed,
+        'count': count,
+        'preset': presetArg ?? 'postflop_default',
+      },
+    };
+    var reportJson = jsonEncode(report);
+    final stats = buildAutogenStats(reportJson);
+    if (stats != null) {
+      (report['autogen'] as Map<String, dynamic>)['stats'] = {
+        'total': stats.total,
+        'textures': stats.textures,
+      };
+      reportJson = jsonEncode(report);
+    }
+    final outFile = File(outPath);
+    outFile.parent.createSync(recursive: true);
+    outFile.writeAsStringSync(reportJson);
+    return;
+  }
+
+  final dir = res['dir'] as String;
 
   JamFoldEvaluator evaluator;
   final weightsOpt = res['weights'] as String?;
