@@ -15,9 +15,7 @@ class FlopBoard {
 
   bool get isPaired {
     final ranks = cards.map((c) => c[0]).toList();
-    return ranks[0] == ranks[1] ||
-        ranks[0] == ranks[2] ||
-        ranks[1] == ranks[2];
+    return ranks[0] == ranks[1] || ranks[0] == ranks[2] || ranks[1] == ranks[2];
   }
 
   bool get isAceHigh => cards.any((c) => c[0] == 'A');
@@ -47,13 +45,26 @@ class JamFoldOutcome {
   final double jamEV;
   final double foldEV;
   final String decision; // 'jam' or 'fold'
+  final String? sprBucket;
+  final List<String>? tagsUsed;
+  final Map<String, double>? contrib;
 
-  JamFoldOutcome({required this.jamEV, required this.foldEV, required this.decision});
+  JamFoldOutcome({
+    required this.jamEV,
+    required this.foldEV,
+    required this.decision,
+    this.sprBucket,
+    this.tagsUsed,
+    this.contrib,
+  });
 
   Map<String, dynamic> toJson() => {
         'jamEV': jamEV,
         'foldEV': foldEV,
         'decision': decision,
+        if (sprBucket != null) 'sprBucket': sprBucket,
+        if (tagsUsed != null) 'tagsUsed': tagsUsed,
+        if (contrib != null) 'contrib': contrib,
       };
 }
 
@@ -63,11 +74,14 @@ class JamFoldEvaluator {
   JamFoldEvaluator({Map<String, double>? weights})
       : weights = weights ?? _defaultWeights;
 
+  factory JamFoldEvaluator.fromWeights(Map<String, double> w) {
+    return JamFoldEvaluator(weights: {..._defaultWeights, ...w});
+  }
+
   factory JamFoldEvaluator.fromJson(String jsonStr) {
     final decoded = json.decode(jsonStr) as Map<String, dynamic>;
-    return JamFoldEvaluator(
-      weights: decoded.map((k, v) => MapEntry(k, (v as num).toDouble())),
-    );
+    final mapped = decoded.map((k, v) => MapEntry(k, (v as num).toDouble()));
+    return JamFoldEvaluator.fromWeights(mapped);
   }
 
   JamFoldOutcome evaluate({
@@ -81,11 +95,17 @@ class JamFoldEvaluator {
             ? 'spr_mid'
             : 'spr_high';
 
+    final tags = board.tags;
+    final contrib = <String, double>{};
     double score = 0;
-    for (final tag in board.tags) {
-      score += weights[tag] ?? 0;
+    for (final tag in tags) {
+      final w = weights[tag] ?? 0;
+      score += w;
+      contrib[tag] = w;
     }
-    score += weights[bucket] ?? 0;
+    final bucketWeight = weights[bucket] ?? 0;
+    score += bucketWeight;
+    contrib[bucket] = bucketWeight;
 
     final jamPrior = priors?['jam'] ?? 0.5;
     final foldPrior = priors?['fold'] ?? 0.5;
@@ -94,7 +114,14 @@ class JamFoldEvaluator {
     final foldEV = foldPrior - score;
     final decision = jamEV >= foldEV ? 'jam' : 'fold';
 
-    return JamFoldOutcome(jamEV: jamEV, foldEV: foldEV, decision: decision);
+    return JamFoldOutcome(
+      jamEV: jamEV,
+      foldEV: foldEV,
+      decision: decision,
+      sprBucket: bucket,
+      tagsUsed: tags,
+      contrib: contrib,
+    );
   }
 }
 
@@ -110,4 +137,3 @@ const Map<String, double> _defaultWeights = {
   'spr_mid': 0.0,
   'spr_high': -0.3,
 };
-
