@@ -1,0 +1,5 @@
+{
+  "targetMix": {"two_tone": 0.3},
+  "toleranceByKey": {"two_tone": 0.04},
+  "minTotalSamples": 75
+}

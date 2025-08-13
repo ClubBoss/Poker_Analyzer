@@ -1,0 +1,53 @@
+name: L3 Weights Contract
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'lib/services/**'
+      - 'lib/l3/**'
+      - 'tool/l3/**'
+      - 'test/l3_cli_runner_weights_parse_test.dart'
+      - 'test/fixtures/l3/weights/**'
+      - '.github/workflows/l3-contract.yml'
+  push:
+    branches: [ main ]
+    paths:
+      - 'lib/services/**'
+      - 'lib/l3/**'
+      - 'tool/l3/**'
+      - 'test/l3_cli_runner_weights_parse_test.dart'
+      - 'test/fixtures/l3/weights/**'
+      - '.github/workflows/l3-contract.yml'
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.27.0'
+          cache: true
+
+      - run: flutter --version
+      - run: dart --version
+
+      - name: Cache Pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - run: flutter pub get
+
+      - name: Precommit sanity
+        run: bash tool/dev/precommit_sanity.sh
+
+      - name: Run contract tests
+        run: dart test test/l3_cli_runner_weights_parse_test.dart
