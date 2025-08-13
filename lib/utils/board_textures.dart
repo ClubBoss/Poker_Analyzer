@@ -1,7 +1,21 @@
-enum BoardTexture { rainbow, twoTone, monotone, paired, aceHigh, lowConnected, broadwayHeavy }
+import 'package:characters/characters.dart';
 
-int _rankToInt(String rank) {
-  switch (rank.toUpperCase()) {
+enum BoardTexture {
+  rainbow,
+  twoTone,
+  monotone,
+  paired,
+  aceHigh,
+  lowConnected,
+  broadwayHeavy,
+}
+
+String _cardSuit(String c) => c.isEmpty ? '' : c.characters.last;
+String _cardRank(String c) => c.characters.skipLast(1).string;
+int _rankToIntFlexible(String rank) {
+  final r = rank.toUpperCase();
+  if (r == 'T' || r == '10') return 10;
+  switch (r) {
     case 'A':
       return 14;
     case 'K':
@@ -10,11 +24,34 @@ int _rankToInt(String rank) {
       return 12;
     case 'J':
       return 11;
-    case 'T':
-      return 10;
-    default:
-      return int.tryParse(rank) ?? 0;
   }
+  return int.tryParse(r) ?? 0;
+}
+
+List<String> parseBoard(dynamic board) {
+  if (board is List) {
+    return board.take(5).cast<String>().toList();
+  }
+  if (board is String) {
+    final clean = board.replaceAll(RegExp(r'[^0-9a-zA-Z♣♠♥♦]'), '');
+    final chars = clean.characters;
+    final cards = <String>[];
+    var i = 0;
+    while (i < chars.length - 1 && cards.length < 5) {
+      var rank = chars.elementAt(i);
+      i++;
+      if (rank == '1' && i < chars.length && chars.elementAt(i) == '0') {
+        rank = '10';
+        i++;
+      }
+      if (i >= chars.length) break;
+      final suit = chars.elementAt(i);
+      i++;
+      cards.add('$rank$suit');
+    }
+    return cards;
+  }
+  return <String>[];
 }
 
 Set<BoardTexture> classifyFlop(List<String> cards) {
@@ -24,12 +61,15 @@ Set<BoardTexture> classifyFlop(List<String> cards) {
   }
   final flop = cards.take(3).toList();
 
+  final ranks = <int>[];
   final suitCounts = <String, int>{};
-  for (final c in flop) {
-    if (c.length < 2) continue;
-    final suit = c[1].toLowerCase();
+  for (final raw in flop) {
+    final suit = _cardSuit(raw).toLowerCase();
+    final rank = _cardRank(raw);
     suitCounts[suit] = (suitCounts[suit] ?? 0) + 1;
+    ranks.add(_rankToIntFlexible(rank));
   }
+
   if (suitCounts.length == 1) {
     res.add(BoardTexture.monotone);
   } else if (suitCounts.length == 2) {
@@ -38,7 +78,7 @@ Set<BoardTexture> classifyFlop(List<String> cards) {
     res.add(BoardTexture.rainbow);
   }
 
-  final ranks = flop.map((c) => _rankToInt(c[0])).toList()..sort();
+  ranks.sort();
 
   if (ranks.toSet().length < 3) {
     res.add(BoardTexture.paired);
@@ -59,4 +99,3 @@ Set<BoardTexture> classifyFlop(List<String> cards) {
 
   return res;
 }
-
