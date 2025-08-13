@@ -23,11 +23,13 @@ jobs:
           filters: |
             l2:
               - 'assets/packs/l2/**'
+              - 'assets/packs/l3/**'
               - 'assets/theory/**'
               - 'tool/validators/**'
               - 'tool/metrics/**'
               - 'tool/autogen/**'
               - 'test/l2_*.dart'
+              - 'test/l3_*.dart'
               - 'pubspec.*'
 
       - name: Skip (no relevant L2 changes)
@@ -62,6 +64,16 @@ jobs:
         run: dart run tool/validators/preset_validator.dart --dir build/tmp/l2
       - name: Run L2 tests
         run: dart test test/l2_*
+      - name: Generate L3 boards (seed 111)
+        run: dart run tool/autogen/l3_board_generator.dart --preset all --seed 111 --out build/tmp/l3/111
+      - name: Generate L3 boards (seed 222)
+        run: dart run tool/autogen/l3_board_generator.dart --preset all --seed 222 --out build/tmp/l3/222
+      - name: Generate L3 boards (seed 333)
+        run: dart run tool/autogen/l3_board_generator.dart --preset all --seed 333 --out build/tmp/l3/333
+      - name: Validate L3 distribution
+        run: dart run tool/validators/l3_distribution_validator.dart --dir build/tmp/l3
+      - name: Run L3 tests
+        run: dart test test/l3_*
       - run: dart run tool/metrics/l2_metrics_report.dart --packs assets/packs/l2 --snippets assets/theory/l2/snippets.yaml --out build/reports/l2_report.md
       - run: |
           echo "::group::L2 Metrics"
