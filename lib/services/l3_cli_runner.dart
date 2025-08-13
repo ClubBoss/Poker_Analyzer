@@ -6,9 +6,15 @@ import 'package:path/path.dart' as p;
 import '../utils/mix_keys.dart';
 import 'autogen_stats.dart';
 
-({Map<String, double> mix, double tolerance})? extractTargetMix(
-  String weights,
-) {
+class TargetMixConfig {
+  final Map<String, double> mix;
+  final double tolerance;
+  const TargetMixConfig({required this.mix, required this.tolerance});
+}
+
+/// Tries to parse [weights] first as inline JSON, then as a file path to JSON.
+/// Returns canonicalized target mix + tolerance (default 0.10), or null.
+TargetMixConfig? extractTargetMix(String weights) {
   dynamic weightsJson;
   try {
     weightsJson = json.decode(weights);
@@ -16,12 +22,13 @@ import 'autogen_stats.dart';
     try {
       weightsJson = json.decode(File(weights).readAsStringSync());
     } catch (_) {
-      /* ignore */
+      // ignore
     }
   }
 
   Map<String, double>? mix;
   double tolerance = 0.10;
+
   if (weightsJson is Map) {
     final rawTolerance = weightsJson['mixTolerance'];
     if (rawTolerance is num) {
@@ -29,16 +36,18 @@ import 'autogen_stats.dart';
     }
     final rawMix = weightsJson['targetMix'];
     if (rawMix is Map) {
-      mix = {};
+      final m = <String, double>{};
       rawMix.forEach((key, value) {
         final canon = canonicalMixKey(key.toString());
         if (canon != null && value is num) {
-          mix![canon] = value.toDouble();
+          m[canon] = value.toDouble();
         }
       });
+      if (m.isNotEmpty) mix = m;
     }
   }
-  return mix != null ? (mix: mix, tolerance: tolerance) : null;
+
+  return mix != null ? TargetMixConfig(mix: mix!, tolerance: tolerance) : null;
 }
 
 class L3CliResult {
@@ -68,7 +77,7 @@ class L3CliRunner {
     final outPath = p.join(outDir.path, 'out.json');
     final logPath = p.join(outDir.path, 'out.log');
 
-    final args = [
+    final args = <String>[
       'run',
       'tool/l3/pack_run_cli.dart',
       '--dir',
@@ -91,15 +100,15 @@ class L3CliRunner {
     final stdoutStr = res.stdout.toString();
     final stderrStr = res.stderr.toString();
 
-    File(
-      logPath,
-    ).writeAsStringSync('stdout:\n$stdoutStr\n\nstderr:\n$stderrStr');
+    File(logPath).writeAsStringSync('stdout:\n$stdoutStr\n\nstderr:\n$stderrStr');
 
     await runDir.delete(recursive: true);
 
     final warnings = <String>[];
     AutogenStats? stats;
+
     if (res.exitCode == 0) {
+      // Surface CLI warnings already printed by the tool.
       for (final line in const LineSplitter().convert(stderrStr)) {
         final lower = line.toLowerCase();
         if (lower.contains('warning') ||
@@ -109,15 +118,19 @@ class L3CliRunner {
         }
       }
 
+      // Compute autogen stats
       try {
         final reportJson = File(outPath).readAsStringSync();
         stats = buildAutogenStats(reportJson);
-      } catch (_) {}
+      } catch (_) {
+        // ignore
+      }
 
+      // Validate targetMix if provided
       if (stats != null && weights != null) {
         final target = extractTargetMix(weights);
         if (target != null && stats.total > 0) {
-          const keys = [
+          const keys = <String>[
             'monotone',
             'twoTone',
             'rainbow',
