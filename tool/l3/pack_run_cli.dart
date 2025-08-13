@@ -14,12 +14,36 @@ double _sprFromBoard(String board) {
 void main(List<String> args) {
   final parser = ArgParser()
     ..addOption('dir', defaultsTo: 'build/tmp/l3/111')
-    ..addOption('out', defaultsTo: 'build/reports/l3_packrun.json');
+    ..addOption('out', defaultsTo: 'build/reports/l3_packrun.json')
+    ..addOption('weights')
+    ..addOption('priors')
+    ..addFlag('explain', negatable: false);
   final res = parser.parse(args);
   final dir = res['dir'] as String;
   final outPath = res['out'] as String;
 
-  final evaluator = JamFoldEvaluator();
+  JamFoldEvaluator evaluator;
+  final weightsOpt = res['weights'] as String?;
+  if (weightsOpt != null) {
+    final jsonStr = weightsOpt.trim().startsWith('{')
+        ? weightsOpt
+        : File(weightsOpt).readAsStringSync();
+    final decoded = (json.decode(jsonStr) as Map<String, dynamic>)
+        .map((k, v) => MapEntry(k, (v as num).toDouble()));
+    evaluator = JamFoldEvaluator.fromWeights(decoded);
+  } else {
+    evaluator = JamFoldEvaluator();
+  }
+
+  Map<String, double>? priors;
+  final priorsOpt = res['priors'] as String?;
+  if (priorsOpt != null) {
+    final decoded = (json.decode(priorsOpt) as Map<String, dynamic>)
+        .map((k, v) => MapEntry(k, (v as num).toDouble()));
+    priors = decoded;
+  }
+
+  final explain = res['explain'] as bool;
   final outSpots = <Map<String, dynamic>>[];
   final textureCounts = <String, int>{};
   final presetCounts = <String, int>{};
@@ -71,16 +95,25 @@ void main(List<String> args) {
         final outcome = evaluator.evaluate(
           board: FlopBoard.fromString(boardStr),
           spr: spr,
+          priors: priors,
         );
         if (outcome.decision == 'jam') jamCount++;
-        outSpots.add({
+        final spotObj = {
           'id': id,
           'board': boardStr,
           'decision': outcome.decision,
           'jamEV': outcome.jamEV,
           'foldEV': outcome.foldEV,
           'spr': spr,
-        });
+        };
+        if (explain) {
+          spotObj['explain'] = {
+            'sprBucket': outcome.sprBucket,
+            'tags': outcome.tagsUsed,
+            'contrib': outcome.contrib,
+          };
+        }
+        outSpots.add(spotObj);
       }
     }
     final summary = {
