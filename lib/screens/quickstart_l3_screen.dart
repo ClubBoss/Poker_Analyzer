@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 import 'dart:async';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show compute, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,6 +12,8 @@ import '../services/l3_cli_runner.dart';
 import '../utils/shared_prefs_keys.dart';
 import '../models/l3_run_history_entry.dart';
 import '../utils/toast.dart';
+import '../utils/csv_io.dart';
+import '../utils/report_csv.dart';
 import 'l3_report_viewer_screen.dart';
 
 class QuickstartL3Screen extends StatefulWidget {
@@ -209,6 +211,92 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
           path: path,
           logPath: entry?.logPath,
           warnings: entry?.warnings ?? const [],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _exportLastCsv() async {
+    final loc = AppLocalizations.of(context);
+    final path = _lastReportPath;
+    if (path == null) {
+      showToast(context, loc.reportEmpty);
+      return;
+    }
+    final file = File(path);
+    if (!await file.exists()) {
+      showToast(context, loc.reportEmpty);
+      return;
+    }
+    final content = await file.readAsString();
+    if (content.trim().isEmpty) {
+      showToast(context, loc.reportEmpty);
+      return;
+    }
+    final navigator = Navigator.of(context);
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+    final csv = await compute(buildReportCsv, content);
+    if (navigator.mounted) navigator.pop();
+    if (csv == null) {
+      showToast(context, loc.invalidJson);
+      return;
+    }
+    final dir = await Directory(
+      '${Directory.systemTemp.path}/l3_report_${DateTime.now().millisecondsSinceEpoch}',
+    ).create(recursive: true);
+    final out = File('${dir.path}/report.csv');
+    await writeCsv(out, StringBuffer()..write(csv));
+    if (!_isDesktop) HapticFeedback.selectionClick();
+    if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.clearSnackBars();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Expanded(child: Text(loc.csvSaved)),
+            TextButton(
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: out.path));
+                if (!_isDesktop) HapticFeedback.selectionClick();
+                messenger.clearSnackBars();
+                showToast(context, loc.copied);
+              },
+              child: Text(loc.copyPath),
+            ),
+            if (!_isDesktop)
+              TextButton(
+                onPressed: () async {
+                  final text = await out.readAsString();
+                  if (!mounted) return;
+                  messenger.clearSnackBars();
+                  await showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      content: SingleChildScrollView(
+                        child: SelectableText(text),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: Text(loc.ok),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                child: Text(loc.open),
+              ),
+            if (_isDesktop)
+              TextButton(
+                onPressed: () => L3CliRunner.revealInFolder(out.path),
+                child: Text(loc.reveal),
+              ),
+          ],
         ),
       ),
     );
@@ -447,7 +535,12 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
               child: Text(loc.run),
             ),
             if (_lastReportPath != null)
-              TextButton(onPressed: _openReport, child: Text(loc.openReport)),
+              Row(
+                children: [
+                  TextButton(onPressed: _openReport, child: Text(loc.openReport)),
+                  TextButton(onPressed: _exportLastCsv, child: Text(loc.exportCsv)),
+                ],
+              ),
             const SizedBox(height: 16),
             if (_history.isNotEmpty)
               Expanded(

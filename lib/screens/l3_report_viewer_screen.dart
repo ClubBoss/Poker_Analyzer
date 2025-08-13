@@ -9,33 +9,8 @@ import '../l10n/app_localizations.dart';
 import '../services/l3_cli_runner.dart';
 import '../utils/toast.dart';
 import '../utils/csv_io.dart';
+import '../utils/report_csv.dart';
 import 'l3_ab_diff_screen.dart';
-
-// top-level
-String? buildReportCsv(String content) {
-  content = content.trim();
-  if (content.isEmpty) return null;
-  dynamic decoded;
-  try {
-    decoded = jsonDecode(content);
-  } catch (_) {
-    return null;
-  }
-  if (decoded is! Map) return null;
-  final buffer = StringBuffer()
-    ..writeln('metric,value')
-    ..writeln('"rootKeys",${decoded.length}');
-  final keys = decoded.keys.map((e) => e.toString()).toList()..sort();
-  for (final k in keys) {
-    final v = decoded[k];
-    if (v is num) {
-      buffer.writeln('"${k.replaceAll('"', '""')}",$v');
-    } else if (v is List) {
-      buffer.writeln('"array:${k.replaceAll('"', '""')}",${v.length}');
-    }
-  }
-  return buffer.toString();
-}
 
 class _ExportIntent extends Intent {
   const _ExportIntent();
