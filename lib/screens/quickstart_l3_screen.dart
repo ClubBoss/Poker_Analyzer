@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 
@@ -60,15 +61,23 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
     final prefs = await SharedPreferences.getInstance();
     final hist = await _historyService.load();
     var preset = prefs.getString(SharedPrefsKeys.l3WeightsPreset);
+    var weightsJson = prefs.getString(SharedPrefsKeys.l3WeightsJson);
     if (preset != null && preset.isEmpty) {
       await prefs.remove(SharedPrefsKeys.l3WeightsPreset);
       preset = null;
+    }
+    if (weightsJson != null && weightsJson.isEmpty) {
+      await prefs.remove(SharedPrefsKeys.l3WeightsJson);
+      weightsJson = null;
     }
     setState(() {
       _lastReportPath = prefs.getString(SharedPrefsKeys.lastL3ReportPath);
       _weightsPreset = preset;
       _history = hist;
     });
+    if (weightsJson != null) {
+      _weightsController.text = weightsJson;
+    }
   }
 
   Future<void> _run() async {
@@ -322,11 +331,23 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
           children: [
             TextField(
               controller: _weightsController,
+              maxLines: null,
+              keyboardType: TextInputType.multiline,
               decoration: InputDecoration(
                 labelText: loc.weightsJson,
                 errorText: _weightsJsonError,
+                suffixIcon: _weightsController.text.isNotEmpty
+                    ? IconButton(
+                        onPressed: () {
+                          _weightsController.clear();
+                          _weightsJsonError = null;
+                          setState(() {});
+                        },
+                        icon: const Icon(Icons.clear),
+                      )
+                    : null,
               ),
-              onChanged: (_) {
+              onChanged: (_) async {
                 final text = _weightsController.text.trim();
                 try {
                   if (text.isNotEmpty) {
@@ -338,6 +359,12 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                   _weightsJsonError = loc.invalidJson;
                 }
                 setState(() {});
+                final prefs = await SharedPreferences.getInstance();
+                if (text.isEmpty) {
+                  await prefs.remove(SharedPrefsKeys.l3WeightsJson);
+                } else {
+                  await prefs.setString(SharedPrefsKeys.l3WeightsJson, text);
+                }
               },
             ),
             const SizedBox(height: 8),
@@ -442,6 +469,19 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                                       await _viewLogsFile(e.logPath);
                                     },
                                     child: Text(loc.logs),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Clipboard.setData(
+                                          ClipboardData(text: e.outPath));
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text(loc.copied),
+                                        ),
+                                      );
+                                    },
+                                    child: Text(loc.copyPath),
                                   ),
                                   if (_isDesktop)
                                     TextButton(

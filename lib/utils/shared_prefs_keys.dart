@@ -57,4 +57,5 @@ class SharedPrefsKeys {
   static const String lastL3ReportPath = 'last_l3_report_path';
   static const String l3RunHistory = 'l3_run_history';
   static const String l3WeightsPreset = 'l3_weights_preset';
+  static const String l3WeightsJson = 'l3_weights_json';
 }
