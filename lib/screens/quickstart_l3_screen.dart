@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,6 +29,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
   final _weightsController = TextEditingController();
   String? _weightsPreset;
   String? _weightsJsonError;
+  Timer? _weightsDebounce;
   bool _running = false;
   L3CliResult? _result;
   String? _lastReportPath;
@@ -86,6 +88,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
   }
 
   Future<void> _formatWeightsJson() async {
+    _weightsDebounce?.cancel();
     final text = _weightsController.text.trim();
     if (text.isEmpty) return;
     try {
@@ -140,28 +143,28 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
     final collectedWarnings = <String>[];
     if (_inlineWarning != null) collectedWarnings.add(_inlineWarning!);
     collectedWarnings.addAll(res.warnings);
-      if (res.exitCode == 0) {
-        await prefs.setString(SharedPrefsKeys.lastL3ReportPath, res.outPath);
-        _lastReportPath = res.outPath;
-        final entry = L3RunHistoryEntry(
-          timestamp: DateTime.now(),
-          argsSummary: preset != null
-              ? 'preset=$preset'
-              : (weightsArg != null ? 'weights=json' : 'default'),
-          outPath: res.outPath,
-          logPath: res.logPath,
-          warnings: collectedWarnings,
-          weights: weightsArg,
-          preset: preset,
-        );
-        final current = await _historyService.load();
-        if (current.isEmpty || !current.first.sameAs(entry)) {
-          await _historyService.push(entry);
-          _history = await _historyService.load();
-        } else {
-          _history = current;
-        }
+    if (res.exitCode == 0) {
+      await prefs.setString(SharedPrefsKeys.lastL3ReportPath, res.outPath);
+      _lastReportPath = res.outPath;
+      final entry = L3RunHistoryEntry(
+        timestamp: DateTime.now(),
+        argsSummary: preset != null
+            ? 'preset=$preset'
+            : (weightsArg != null ? 'weights=json' : 'default'),
+        outPath: res.outPath,
+        logPath: res.logPath,
+        warnings: collectedWarnings,
+        weights: weightsArg,
+        preset: preset,
+      );
+      final current = await _historyService.load();
+      if (current.isEmpty || !current.first.sameAs(entry)) {
+        await _historyService.push(entry);
+        _history = await _historyService.load();
+      } else {
+        _history = current;
       }
+    }
     setState(() {
       _running = false;
       _result = res;
@@ -173,10 +176,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
       messenger.clearSnackBars();
       for (final w in collectedWarnings) {
         messenger.showSnackBar(
-          SnackBar(
-            content: Text(w),
-            duration: const Duration(seconds: 2),
-          ),
+          SnackBar(content: Text(w), duration: const Duration(seconds: 2)),
         );
       }
     }
@@ -315,6 +315,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
 
   @override
   void dispose() {
+    _weightsDebounce?.cancel();
     _weightsController.dispose();
     super.dispose();
   }
@@ -340,10 +341,11 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     TextButton(
-                        onPressed: () async {
-                          await _viewLogs();
-                        },
-                        child: Text(loc.viewLogs)),
+                      onPressed: () async {
+                        await _viewLogs();
+                      },
+                      child: Text(loc.viewLogs),
+                    ),
                     TextButton(onPressed: _retry, child: Text(loc.retry)),
                   ],
                 ),
@@ -367,6 +369,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                 suffixIcon: _weightsController.text.isNotEmpty
                     ? IconButton(
                         onPressed: () async {
+                          _weightsDebounce?.cancel();
                           _weightsController.clear();
                           _weightsJsonError = null;
                           final prefs = await SharedPreferences.getInstance();
@@ -379,24 +382,36 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
               ),
               onTapOutside: (_) => _formatWeightsJson(),
               onEditingComplete: () => _formatWeightsJson(),
-              onChanged: (_) async {
-                final text = _weightsController.text.trim();
-                try {
-                  if (text.isNotEmpty) {
-                    final decoded = jsonDecode(text);
-                    if (decoded is! Map) throw const FormatException();
-                  }
-                  _weightsJsonError = null;
-                } catch (_) {
-                  _weightsJsonError = loc.invalidJson;
-                }
-                setState(() {});
-                final prefs = await SharedPreferences.getInstance();
-                if (text.isEmpty) {
-                  await prefs.remove(SharedPrefsKeys.l3WeightsJson);
-                } else {
-                  await prefs.setString(SharedPrefsKeys.l3WeightsJson, text);
-                }
+              onChanged: (_) {
+                _weightsDebounce?.cancel();
+                _weightsDebounce = Timer(
+                  const Duration(milliseconds: 250),
+                  () async {
+                    final text = _weightsController.text.trim();
+                    String? error;
+                    try {
+                      if (text.isNotEmpty) {
+                        final decoded = jsonDecode(text);
+                        if (decoded is! Map) throw const FormatException();
+                      }
+                    } catch (_) {
+                      error = loc.invalidJson;
+                    }
+                    final prefs = await SharedPreferences.getInstance();
+                    if (text.isEmpty) {
+                      await prefs.remove(SharedPrefsKeys.l3WeightsJson);
+                    } else {
+                      await prefs.setString(
+                        SharedPrefsKeys.l3WeightsJson,
+                        text,
+                      );
+                    }
+                    if (!mounted) return;
+                    setState(() {
+                      _weightsJsonError = error;
+                    });
+                  },
+                );
               },
             ),
             const SizedBox(height: 8),
@@ -428,8 +443,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
               ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed:
-                  (_running || _weightsJsonError != null) ? null : _run,
+              onPressed: (_running || _weightsJsonError != null) ? null : _run,
               child: Text(loc.run),
             ),
             if (_lastReportPath != null)
@@ -456,38 +470,42 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                             background: Container(
                               color: Colors.red,
                               alignment: Alignment.centerRight,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16),
-                              child:
-                                  const Icon(Icons.delete, color: Colors.white),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              child: const Icon(
+                                Icons.delete,
+                                color: Colors.white,
+                              ),
                             ),
-                              onDismissed: (_) async {
-                                final removed = _history.removeAt(index);
-                                await _historyService.save(_history);
-                                final prefs =
-                                    await SharedPreferences.getInstance();
-                                if (_lastReportPath == removed.outPath) {
-                                  if (_history.isNotEmpty) {
-                                    final newPath = _history.first.outPath;
-                                    await prefs.setString(
-                                      SharedPrefsKeys.lastL3ReportPath,
-                                      newPath,
-                                    );
-                                    _lastReportPath = newPath;
-                                  } else {
-                                    await prefs.remove(
-                                        SharedPrefsKeys.lastL3ReportPath);
-                                    _lastReportPath = null;
-                                  }
+                            onDismissed: (_) async {
+                              final removed = _history.removeAt(index);
+                              await _historyService.save(_history);
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              if (_lastReportPath == removed.outPath) {
+                                if (_history.isNotEmpty) {
+                                  final newPath = _history.first.outPath;
+                                  await prefs.setString(
+                                    SharedPrefsKeys.lastL3ReportPath,
+                                    newPath,
+                                  );
+                                  _lastReportPath = newPath;
+                                } else {
+                                  await prefs.remove(
+                                    SharedPrefsKeys.lastL3ReportPath,
+                                  );
+                                  _lastReportPath = null;
                                 }
-                                setState(() {});
-                                if (mounted) {
-                                  showToast(context, loc.deleted);
-                                }
-                              },
-                              child: ListTile(
-                                title: Text('$ts ${e.argsSummary}'),
-                                trailing: Wrap(
+                              }
+                              setState(() {});
+                              if (mounted) {
+                                showToast(context, loc.deleted);
+                              }
+                            },
+                            child: ListTile(
+                              title: Text('$ts ${e.argsSummary}'),
+                              trailing: Wrap(
                                 spacing: 4,
                                 children: [
                                   TextButton(
@@ -503,7 +521,8 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                                   TextButton(
                                     onPressed: () {
                                       Clipboard.setData(
-                                          ClipboardData(text: e.outPath));
+                                        ClipboardData(text: e.outPath),
+                                      );
                                       HapticFeedback.selectionClick();
                                       showToast(context, loc.copied);
                                     },
@@ -515,8 +534,9 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                                       child: Text(loc.folder),
                                     ),
                                   TextButton(
-                                    onPressed:
-                                        _running ? null : () => _reRun(e),
+                                    onPressed: _running
+                                        ? null
+                                        : () => _reRun(e),
                                     child: Text(loc.reRun),
                                   ),
                                 ],
@@ -542,13 +562,15 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
       },
       child: Actions(
         actions: {
-          _RunIntent: CallbackAction<_RunIntent>(onInvoke: (intent) {
-            if (!(_isDesktop && !_running && _weightsJsonError == null)) {
+          _RunIntent: CallbackAction<_RunIntent>(
+            onInvoke: (intent) {
+              if (!(_isDesktop && !_running && _weightsJsonError == null)) {
+                return null;
+              }
+              _run();
               return null;
-            }
-            _run();
-            return null;
-          }),
+            },
+          ),
         },
         child: body,
       ),
