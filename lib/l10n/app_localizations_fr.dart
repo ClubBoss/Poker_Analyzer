@@ -447,4 +447,37 @@ class AppLocalizationsFr extends AppLocalizations {
   String mistakeBoosterRecovered(Object count) {
     return 'Recovered: $count tags';
   }
+
+  @override
+  String get quickstartL3 => 'Quickstart L3';
+
+  @override
+  String get run => 'Run';
+
+  @override
+  String get openReport => 'Open report';
+
+  @override
+  String get viewLogs => 'View logs';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get presetWillBeUsed => 'Preset will be used';
+
+  @override
+  String get reportEmpty => 'Report is empty';
+
+  @override
+  String get abDiff => 'A/B diff';
+
+  @override
+  String get export => 'Export';
+
+  @override
+  String get weightsPreset => 'Weights preset';
+
+  @override
+  String get weightsJson => 'Weights JSON';
 }

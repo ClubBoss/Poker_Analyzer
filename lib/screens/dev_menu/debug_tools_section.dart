@@ -8,6 +8,8 @@ import '../recent_auto_injections_screen.dart';
 import '../theory_recall_stats_dashboard_screen.dart';
 import '../training_pack_import_validator_screen.dart';
 import '../skill_tag_coverage_debugger_screen.dart';
+import '../../l10n/app_localizations.dart';
+import '../quickstart_l3_screen.dart';
 
 class DebugToolsSection extends StatefulWidget {
   const DebugToolsSection({super.key});
@@ -80,6 +82,17 @@ class _DebugToolsSectionState extends State<DebugToolsSection> {
               context,
               MaterialPageRoute(
                 builder: (_) => const RecentAutoInjectionsScreen(),
+              ),
+            );
+          },
+        ),
+        ListTile(
+          title: Text(AppLocalizations.of(context).quickstartL3),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const QuickstartL3Screen(),
               ),
             );
           },

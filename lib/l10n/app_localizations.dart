@@ -903,6 +903,72 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Исправлено тегов: {count}'**
   String mistakeBoosterRecovered(Object count);
+
+  /// No description provided for @quickstartL3.
+  ///
+  /// In ru, this message translates to:
+  /// **'Быстрый старт L3'**
+  String get quickstartL3;
+
+  /// No description provided for @run.
+  ///
+  /// In ru, this message translates to:
+  /// **'Запустить'**
+  String get run;
+
+  /// No description provided for @openReport.
+  ///
+  /// In ru, this message translates to:
+  /// **'Открыть отчет'**
+  String get openReport;
+
+  /// No description provided for @viewLogs.
+  ///
+  /// In ru, this message translates to:
+  /// **'Просмотр логов'**
+  String get viewLogs;
+
+  /// No description provided for @retry.
+  ///
+  /// In ru, this message translates to:
+  /// **'Повторить'**
+  String get retry;
+
+  /// No description provided for @presetWillBeUsed.
+  ///
+  /// In ru, this message translates to:
+  /// **'Будет использован пресет'**
+  String get presetWillBeUsed;
+
+  /// No description provided for @reportEmpty.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отчет пуст'**
+  String get reportEmpty;
+
+  /// No description provided for @abDiff.
+  ///
+  /// In ru, this message translates to:
+  /// **'A/B сравнение'**
+  String get abDiff;
+
+  /// No description provided for @export.
+  ///
+  /// In ru, this message translates to:
+  /// **'Экспорт'**
+  String get export;
+
+  /// No description provided for @weightsPreset.
+  ///
+  /// In ru, this message translates to:
+  /// **'Пресет весов'**
+  String get weightsPreset;
+
+  /// No description provided for @weightsJson.
+  ///
+  /// In ru, this message translates to:
+  /// **'JSON весов'**
+  String get weightsJson;
 }
 
 class _AppLocalizationsDelegate

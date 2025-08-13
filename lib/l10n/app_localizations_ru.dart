@@ -446,4 +446,37 @@ class AppLocalizationsRu extends AppLocalizations {
   String mistakeBoosterRecovered(Object count) {
     return 'Исправлено тегов: $count';
   }
+
+  @override
+  String get quickstartL3 => 'Быстрый старт L3';
+
+  @override
+  String get run => 'Запустить';
+
+  @override
+  String get openReport => 'Открыть отчет';
+
+  @override
+  String get viewLogs => 'Просмотр логов';
+
+  @override
+  String get retry => 'Повторить';
+
+  @override
+  String get presetWillBeUsed => 'Будет использован пресет';
+
+  @override
+  String get reportEmpty => 'Отчет пуст';
+
+  @override
+  String get abDiff => 'A/B сравнение';
+
+  @override
+  String get export => 'Экспорт';
+
+  @override
+  String get weightsPreset => 'Пресет весов';
+
+  @override
+  String get weightsJson => 'JSON весов';
 }
