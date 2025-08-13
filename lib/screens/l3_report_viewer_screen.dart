@@ -75,10 +75,17 @@ class L3ReportViewerScreen extends StatelessWidget {
             IconButton(
               tooltip: loc.logs,
               icon: const Icon(Icons.article),
-              onPressed: () {
+              onPressed: () async {
                 if (_isDesktop) {
-                  final text = File(logPath!).readAsStringSync();
                   showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (_) => const Center(child: CircularProgressIndicator()),
+                  );
+                  final text = await File(logPath!).readAsString();
+                  if (!context.mounted) return;
+                  Navigator.pop(context);
+                  await showDialog(
                     context: context,
                     builder: (_) => AlertDialog(
                       title: Text(loc.viewLogs),

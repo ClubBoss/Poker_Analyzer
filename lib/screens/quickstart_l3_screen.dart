@@ -152,15 +152,22 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
     );
   }
 
-  void _viewLogs() {
+  Future<void> _viewLogs() async {
     final path = _result?.logPath;
     if (path == null) return;
-    _viewLogsFile(path);
+    await _viewLogsFile(path);
   }
 
-  void _viewLogsFile(String path) {
-    final text = File(path).readAsStringSync();
+  Future<void> _viewLogsFile(String path) async {
     showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+    final text = await File(path).readAsString();
+    if (!mounted) return;
+    Navigator.pop(context);
+    await showDialog(
       context: context,
       builder: (_) => AlertDialog(
         title: Text(AppLocalizations.of(context).viewLogs),
@@ -261,7 +268,11 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    TextButton(onPressed: _viewLogs, child: Text(loc.viewLogs)),
+                    TextButton(
+                        onPressed: () async {
+                          await _viewLogs();
+                        },
+                        child: Text(loc.viewLogs)),
                     TextButton(onPressed: _retry, child: Text(loc.retry)),
                   ],
                 ),
@@ -363,7 +374,9 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                                     child: Text(loc.open),
                                   ),
                                   TextButton(
-                                    onPressed: () => _viewLogsFile(e.logPath),
+                                    onPressed: () async {
+                                      await _viewLogsFile(e.logPath);
+                                    },
                                     child: Text(loc.logs),
                                   ),
                                   if (_isDesktop)
