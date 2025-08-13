@@ -35,22 +35,27 @@ void main(List<String> args) async {
       return;
     }
     final outFile = File(argMap['out'] ?? 'build/reports/l3_report.md');
-    final reportPaths = reportsArg.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty);
+    final reportPaths =
+        reportsArg.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty);
 
     var totalSpots = 0;
     var jamCount = 0.0;
     final textureCounts = <String, int>{};
     final presetCounts = <String, int>{};
+    final sprHistogram = <String, int>{};
 
     for (final path in reportPaths) {
       final file = File(path);
       if (!file.existsSync()) continue;
-      final json = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
+      final json =
+          jsonDecode(await file.readAsString()) as Map<String, dynamic>;
       final summary = (json['summary'] as Map<String, dynamic>?) ?? {};
       final total = (summary['total'] as num?)?.toInt() ?? 0;
       final avgJam = (summary['avgJamRate'] as num?)?.toDouble() ?? 0;
-      final textures = (summary['textureCounts'] as Map<String, dynamic>?) ?? {};
+      final textures =
+          (summary['textureCounts'] as Map<String, dynamic>?) ?? {};
       final presets = (summary['presetCounts'] as Map<String, dynamic>?) ?? {};
+      final sprHist = (summary['sprHistogram'] as Map<String, dynamic>?) ?? {};
 
       totalSpots += total;
       jamCount += avgJam * total;
@@ -59,6 +64,9 @@ void main(List<String> args) async {
       });
       presets.forEach((k, v) {
         presetCounts[k] = (presetCounts[k] ?? 0) + (v as num).toInt();
+      });
+      sprHist.forEach((k, v) {
+        sprHistogram[k] = (sprHistogram[k] ?? 0) + (v as num).toInt();
       });
     }
 
@@ -76,13 +84,19 @@ void main(List<String> args) async {
       buffer.writeln('## Presets');
       buffer.write(_renderHistogram(presetCounts));
     }
+    if (sprHistogram.isNotEmpty) {
+      buffer.writeln('## SPR Distribution');
+      buffer.write(_renderHistogram(sprHistogram));
+    }
 
     if (!outFile.parent.existsSync()) {
       outFile.parent.createSync(recursive: true);
     }
     await outFile.writeAsString(buffer.toString());
 
-    print('l3 metrics: total $totalSpots, jam rate ${(jamRate * 100).toStringAsFixed(1)}%');
+    print(
+      'l3 metrics: total $totalSpots, jam rate ${(jamRate * 100).toStringAsFixed(1)}%',
+    );
     print(buffer.toString());
   } catch (e) {
     stderr.writeln('l3 metrics error: $e');

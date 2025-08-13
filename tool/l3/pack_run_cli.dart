@@ -22,6 +22,12 @@ void main(List<String> args) {
   final evaluator = JamFoldEvaluator();
   final outSpots = <Map<String, dynamic>>[];
   final textureCounts = <String, int>{};
+  final presetCounts = <String, int>{};
+  final sprHistogram = <String, int>{
+    'spr_low': 0,
+    'spr_mid': 0,
+    'spr_high': 0,
+  };
   int jamCount = 0;
 
   try {
@@ -33,16 +39,35 @@ void main(List<String> args) {
       final doc = loadYaml(file.readAsStringSync()) as YamlMap;
       final spots = doc['spots'] as YamlList?;
       if (spots == null) continue;
+
+      final docTags = (doc['tags'] as YamlList?)?.cast<String>() ?? <String>[];
+      var preset = docTags.firstWhere(
+        (t) => t == 'paired' || t == 'unpaired' || t == 'ace-high',
+        orElse: () => 'unknown',
+      );
+      if (preset == 'unknown') {
+        final match = RegExp(r'postflop-jam/([^/]+)/').firstMatch(file.path);
+        preset = match?.group(1) ?? 'unknown';
+      }
+
       for (final spot in spots) {
         final s = spot as YamlMap;
         final id = s['id'] as String;
         final boardStr = s['board'] as String;
         final tags = (s['tags'] as YamlList?)?.cast<String>() ?? <String>[];
         final texture = tags.firstWhere(
-            (t) => t == 'monotone' || t == 'twoTone' || t == 'rainbow',
-            orElse: () => 'unknown');
+          (t) => t == 'monotone' || t == 'twoTone' || t == 'rainbow',
+          orElse: () => 'unknown',
+        );
         textureCounts[texture] = (textureCounts[texture] ?? 0) + 1;
         final spr = _sprFromBoard(boardStr);
+        presetCounts[preset] = (presetCounts[preset] ?? 0) + 1;
+        final sprBucket = spr < 1.0
+            ? 'spr_low'
+            : spr < 2.0
+                ? 'spr_mid'
+                : 'spr_high';
+        sprHistogram[sprBucket] = (sprHistogram[sprBucket] ?? 0) + 1;
         final outcome = evaluator.evaluate(
           board: FlopBoard.fromString(boardStr),
           spr: spr,
@@ -54,6 +79,7 @@ void main(List<String> args) {
           'decision': outcome.decision,
           'jamEV': outcome.jamEV,
           'foldEV': outcome.foldEV,
+          'spr': spr,
         });
       }
     }
@@ -61,6 +87,8 @@ void main(List<String> args) {
       'total': outSpots.length,
       'avgJamRate': outSpots.isEmpty ? 0 : jamCount / outSpots.length,
       'textureCounts': textureCounts,
+      'presetCounts': presetCounts,
+      'sprHistogram': sprHistogram,
       'accuracy': {'jam': 0, 'fold': 0},
     };
     final report = {'spots': outSpots, 'summary': summary};
