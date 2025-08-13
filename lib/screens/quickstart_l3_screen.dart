@@ -79,9 +79,9 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
     final runner = L3CliRunner();
     final res = await runner.run(weights: weightsArg, weightsPreset: preset);
     final prefs = await SharedPreferences.getInstance();
-    final warnings = <String>[];
-    if (_inlineWarning != null) warnings.add(_inlineWarning!);
-    warnings.addAll(res.warnings);
+    final collectedWarnings = <String>[];
+    if (_inlineWarning != null) collectedWarnings.add(_inlineWarning!);
+    collectedWarnings.addAll(res.warnings);
     if (res.exitCode == 0) {
       await prefs.setString(SharedPrefsKeys.lastL3ReportPath, res.outPath);
       _lastReportPath = res.outPath;
@@ -92,7 +92,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
             : (weightsArg != null ? 'weights=json' : 'default'),
         outPath: res.outPath,
         logPath: res.logPath,
-        warnings: warnings,
+        warnings: collectedWarnings,
         weights: weightsArg,
         preset: preset,
       );
@@ -106,8 +106,8 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
         _error = res.stderr;
       }
     });
-    if (warnings.isNotEmpty && mounted) {
-      for (final w in warnings) {
+    if (collectedWarnings.isNotEmpty && mounted) {
+      for (final w in collectedWarnings) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(w)));
       }
     }
@@ -128,9 +128,9 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
     if (!exists || (await file.readAsString()).trim().isEmpty) {
       if (mounted) {
         final loc = AppLocalizations.of(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(loc.reportEmpty)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(loc.reportEmpty)));
       }
       return;
     }
@@ -261,10 +261,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
             const SizedBox(height: 16),
             ElevatedButton(onPressed: _run, child: Text(loc.run)),
             if (_lastReportPath != null)
-              TextButton(
-                onPressed: _openReport,
-                child: Text(loc.openReport),
-              ),
+              TextButton(onPressed: _openReport, child: Text(loc.openReport)),
             const SizedBox(height: 16),
             if (_history.isNotEmpty)
               Expanded(
@@ -278,26 +275,31 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                         itemCount: _history.length,
                         itemBuilder: (context, index) {
                           final e = _history[index];
-                          final ts =
-                              DateFormat('yyyy-MM-dd HH:mm').format(e.timestamp);
+                          final ts = DateFormat(
+                            'yyyy-MM-dd HH:mm',
+                          ).format(e.timestamp);
                           return ListTile(
                             title: Text('$ts ${e.argsSummary}'),
                             trailing: Wrap(
                               spacing: 4,
                               children: [
                                 TextButton(
-                                    onPressed: () => _openEntry(e),
-                                    child: Text(loc.open)),
+                                  onPressed: () => _openEntry(e),
+                                  child: Text(loc.open),
+                                ),
                                 TextButton(
-                                    onPressed: () => _viewLogsFile(e.logPath),
-                                    child: Text(loc.logs)),
+                                  onPressed: () => _viewLogsFile(e.logPath),
+                                  child: Text(loc.logs),
+                                ),
                                 if (_isDesktop)
                                   TextButton(
-                                      onPressed: () => _openFolder(e),
-                                      child: Text(loc.folder)),
+                                    onPressed: () => _openFolder(e),
+                                    child: Text(loc.folder),
+                                  ),
                                 TextButton(
-                                    onPressed: () => _reRun(e),
-                                    child: Text(loc.reRun)),
+                                  onPressed: () => _reRun(e),
+                                  child: Text(loc.reRun),
+                                ),
                               ],
                             ),
                           );
