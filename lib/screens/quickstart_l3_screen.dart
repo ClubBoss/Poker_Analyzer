@@ -45,7 +45,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
+                child: Text(AppLocalizations.of(context).ok),
               ),
             ],
           ),
@@ -185,7 +185,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
+            child: Text(AppLocalizations.of(context).ok),
           ),
         ],
       ),
@@ -299,6 +299,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
             TextField(
               controller: _weightsController,
               decoration: InputDecoration(labelText: loc.weightsJson),
+              onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 8),
             DropdownButton<String>(
@@ -315,10 +316,13 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
             if (_weightsController.text.isNotEmpty && _weightsPreset != null)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
-                child: Text(_inlineWarning ?? ''),
+                child: Text(loc.presetWillBeUsed),
               ),
             const SizedBox(height: 16),
-            ElevatedButton(onPressed: _run, child: Text(loc.run)),
+            ElevatedButton(
+              onPressed: _running ? null : _run,
+              child: Text(loc.run),
+            ),
             if (_lastReportPath != null)
               TextButton(onPressed: _openReport, child: Text(loc.openReport)),
             const SizedBox(height: 16),
