@@ -3,24 +3,32 @@ import 'package:test/test.dart';
 
 void main() {
   test('CLI warns when both --weights and --weightsPreset are set', () async {
-    final res = await Process.run('dart', [
-      'run',
-      'tool/l3/pack_run_cli.dart',
-      '--dir',
-      'build/tmp/l3/111', // неважно: до чтения флагов не дойдёт
-      '--out',
-      'build/reports/l3_packrun_warn.json',
-      '--weights',
-      '{"spr_low":0.1}', // минимальный валидный JSON
-      '--weightsPreset',
-      'aggro',
-    ]);
-    // CLI должен не падать…
-    expect(res.exitCode, 0, reason: res.stderr.toString());
-    // …и печатать предупреждение в stderr
-    expect(
-      res.stderr.toString(),
-      contains('both --weights and --weightsPreset'),
-    );
+    final tmp = Directory.systemTemp.createTempSync('l3_cli_warn_');
+    try {
+      final outPath = '${tmp.path}/out.json';
+      final res = await Process.run('dart', [
+        'run',
+        'tool/l3/pack_run_cli.dart',
+        '--dir',
+        tmp.path, // герметично: пустая директория существует
+        '--out',
+        outPath,
+        '--weights',
+        '{"spr_low":0.1}', // минимальный валидный JSON
+        '--weightsPreset',
+        'aggro',
+      ]);
+      // CLI должен не падать…
+      expect(res.exitCode, 0, reason: res.stderr.toString());
+      // …и печатать предупреждение в stderr
+      expect(
+        res.stderr.toString(),
+        contains('both --weights and --weightsPreset'),
+      );
+      // и сформировать JSON-репорт (пусть и пустой)
+      expect(File(outPath).existsSync(), isTrue);
+    } finally {
+      tmp.deleteSync(recursive: true);
+    }
   });
 }
