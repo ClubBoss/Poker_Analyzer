@@ -483,6 +483,8 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get weightsJson => 'JSON весов';
 
+  String get invalidJson => 'Некорректный JSON';
+
   String get recentRuns => 'Последние запуски';
 
   String get open => 'Открыть';

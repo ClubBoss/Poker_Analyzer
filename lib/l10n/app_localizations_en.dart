@@ -483,6 +483,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get weightsJson => 'Weights JSON';
 
+  String get invalidJson => 'Invalid JSON';
+
   String get recentRuns => 'Recent runs';
 
   String get open => 'Open';
