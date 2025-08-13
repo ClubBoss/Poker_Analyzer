@@ -86,6 +86,7 @@ class _DebugToolsSectionState extends State<DebugToolsSection> {
             );
           },
         ),
+        // Quickstart L3 shown only on desktop (see block below)
         if (!kIsWeb &&
             (defaultTargetPlatform == TargetPlatform.macOS ||
                 defaultTargetPlatform == TargetPlatform.windows ||
@@ -95,9 +96,7 @@ class _DebugToolsSectionState extends State<DebugToolsSection> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const QuickstartL3Screen(),
-                ),
+                MaterialPageRoute(builder: (_) => const QuickstartL3Screen()),
               );
             },
           ),
