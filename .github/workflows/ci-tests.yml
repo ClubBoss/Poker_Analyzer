@@ -60,6 +60,8 @@ jobs:
             pub-${{ runner.os }}-
 
       - run: flutter pub get
+      - name: Precommit sanity (dup checks)
+        run: bash tool/dev/precommit_sanity.sh
       - name: Check L2 theory snippet coverage
         run: dart run tool/validators/theory_snippet_coverage.dart --packs assets/packs/l2 --snippets assets/theory/l2/snippets.yaml --min 0.90
       - name: Generate L2 packs (seed 111)
