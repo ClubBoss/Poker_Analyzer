@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:path/path.dart' as p;
 
+import 'autogen_stats.dart';
+
 class L3CliResult {
   final int exitCode;
   final String stdout;
@@ -55,6 +57,7 @@ class L3CliRunner {
     await runDir.delete(recursive: true);
 
     final warnings = <String>[];
+    AutogenStats? stats;
     if (res.exitCode == 0) {
       for (final line in const LineSplitter().convert(stderrStr)) {
         final lower = line.toLowerCase();
@@ -63,6 +66,44 @@ class L3CliRunner {
             lower.contains('both --weights and --weightspreset')) {
           warnings.add(line);
         }
+      }
+
+      try {
+        final reportJson = File(outPath).readAsStringSync();
+        stats = buildAutogenStats(reportJson);
+      } catch (_) {}
+
+      if (stats != null && weights != null) {
+        try {
+          final weightsJson = json.decode(File(weights).readAsStringSync());
+          final targetMix = weightsJson['targetMix'];
+          if (targetMix is Map && stats.total > 0) {
+            const keys = [
+              'monotone',
+              'twoTone',
+              'rainbow',
+              'paired',
+              'aceHigh',
+              'lowConnected',
+              'broadwayHeavy',
+            ];
+            for (final key in keys) {
+              final target = targetMix[key];
+              if (target is num) {
+                final actual = (stats.textures[key] ?? 0) / stats.total;
+                final diff = actual - target.toDouble();
+                if (diff.abs() > 0.10) {
+                  final diffPp = (diff * 100).round();
+                  final actualPct = (actual * 100).round();
+                  final targetPct = (target * 100).round();
+                  final sign = diffPp >= 0 ? '+' : '';
+                  warnings.add(
+                      "L3 autogen: '$key' off by ${sign}${diffPp}pp (target ${targetPct}%, got ${actualPct}%).");
+                }
+              }
+            }
+          }
+        } catch (_) {}
       }
     }
 
