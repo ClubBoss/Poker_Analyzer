@@ -26,6 +26,7 @@ jobs:
               - 'assets/packs/l3/**'
               - 'assets/packs/l3/demo/**'
               - 'assets/theory/**'
+              - 'tool/l3/**'
               - 'tool/config/weights/**'
               - 'tool/validators/**'
               - 'tool/validators/l3_demo_validator.dart'
