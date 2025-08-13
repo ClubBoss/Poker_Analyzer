@@ -77,21 +77,31 @@ class L3ReportViewerScreen extends StatelessWidget {
               icon: const Icon(Icons.article),
               onPressed: () async {
                 if (_isDesktop) {
+                  final navigator = Navigator.of(context);
                   showDialog(
                     context: context,
                     barrierDismissible: false,
                     builder: (_) => const Center(child: CircularProgressIndicator()),
                   );
-                  final text = await File(logPath!).readAsString();
+                  String? text;
+                  Object? error;
+                  try {
+                    text = await File(logPath!).readAsString();
+                  } catch (e) {
+                    error = e;
+                  } finally {
+                    if (navigator.mounted) navigator.pop();
+                  }
                   if (!context.mounted) return;
-                  Navigator.pop(context);
                   await showDialog(
                     context: context,
                     builder: (_) => AlertDialog(
                       title: Text(loc.viewLogs),
-                      content: SingleChildScrollView(
-                        child: SelectableText(text),
-                      ),
+                      content: error == null
+                          ? SingleChildScrollView(
+                              child: SelectableText(text!),
+                            )
+                          : SelectableText(error.toString()),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context),
