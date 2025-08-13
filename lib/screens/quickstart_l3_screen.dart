@@ -59,9 +59,14 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
   Future<void> _loadLast() async {
     final prefs = await SharedPreferences.getInstance();
     final hist = await _historyService.load();
+    var preset = prefs.getString(SharedPrefsKeys.l3WeightsPreset);
+    if (preset != null && preset.isEmpty) {
+      await prefs.remove(SharedPrefsKeys.l3WeightsPreset);
+      preset = null;
+    }
     setState(() {
       _lastReportPath = prefs.getString(SharedPrefsKeys.lastL3ReportPath);
-      _weightsPreset = prefs.getString(SharedPrefsKeys.l3WeightsPreset);
+      _weightsPreset = preset;
       _history = hist;
     });
   }
@@ -77,7 +82,8 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
     var preset = _weightsPreset;
     if (weightsArg != null) {
       try {
-        jsonDecode(weightsArg);
+        final decoded = jsonDecode(weightsArg);
+        if (decoded is! Map) throw const FormatException();
       } catch (_) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -323,7 +329,10 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
               onChanged: (_) {
                 final text = _weightsController.text.trim();
                 try {
-                  if (text.isNotEmpty) jsonDecode(text);
+                  if (text.isNotEmpty) {
+                    final decoded = jsonDecode(text);
+                    if (decoded is! Map) throw const FormatException();
+                  }
                   _weightsJsonError = null;
                 } catch (_) {
                   _weightsJsonError = loc.invalidJson;
@@ -342,16 +351,18 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                 DropdownMenuItem(value: 'nitty', child: Text('nitty')),
               ],
               onChanged: (v) async {
-                setState(() => _weightsPreset = v);
                 final prefs = await SharedPreferences.getInstance();
-                if (v == null) {
+                if (v == null || v.isEmpty) {
+                  setState(() => _weightsPreset = null);
                   await prefs.remove(SharedPrefsKeys.l3WeightsPreset);
                 } else {
+                  setState(() => _weightsPreset = v);
                   await prefs.setString(SharedPrefsKeys.l3WeightsPreset, v);
                 }
               },
             ),
-            if (_weightsController.text.isNotEmpty && _weightsPreset != null)
+            if (_weightsController.text.trim().isNotEmpty &&
+                (_weightsPreset?.isNotEmpty ?? false))
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(loc.presetWillBeUsed),
