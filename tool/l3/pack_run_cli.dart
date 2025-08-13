@@ -22,11 +22,11 @@ void main(List<String> args) {
     ..addOption('weights')
     ..addOption('weightsPreset', allowed: ['aggro', 'nitty', 'default'])
     ..addOption('priors')
-    ..addFlag('explain', negatable: false)
     ..addOption('seed')
     ..addOption('count')
     ..addOption('preset', defaultsTo: 'postflop_default')
-    ..addOption('targetMix');
+    ..addOption('targetMix')
+    ..addFlag('explain', negatable: false);
   final res = parser.parse(args);
   final outPath = res['out'] as String;
 
@@ -56,18 +56,16 @@ void main(List<String> args) {
         'preset': presetArg ?? 'postflop_default',
       },
     };
-    var reportJson = jsonEncode(report);
-    final stats = buildAutogenStats(reportJson);
+    final stats = buildAutogenStats(jsonEncode(report));
     if (stats != null) {
       (report['autogen'] as Map<String, dynamic>)['stats'] = {
         'total': stats.total,
         'textures': stats.textures,
       };
-      reportJson = jsonEncode(report);
     }
     final outFile = File(outPath);
     outFile.parent.createSync(recursive: true);
-    outFile.writeAsStringSync(reportJson);
+    outFile.writeAsStringSync(jsonEncode(report));
     return;
   }
 
