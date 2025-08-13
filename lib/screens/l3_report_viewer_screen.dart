@@ -79,6 +79,7 @@ class L3ReportViewerScreen extends StatelessWidget {
           .create(recursive: true);
       final out = File('${dir.path}/report.csv');
       await out.writeAsString(buffer.toString());
+      HapticFeedback.selectionClick();
       if (!context.mounted) return;
       final messenger = ScaffoldMessenger.of(context);
       messenger.clearSnackBars();
@@ -90,10 +91,35 @@ class L3ReportViewerScreen extends StatelessWidget {
               TextButton(
                 onPressed: () {
                   Clipboard.setData(ClipboardData(text: out.path));
+                  HapticFeedback.selectionClick();
+                  messenger.clearSnackBars();
                   showToast(context, loc.copied);
                 },
                 child: Text(loc.copyPath),
               ),
+              if (!_isDesktop)
+                TextButton(
+                  onPressed: () async {
+                    final text = await out.readAsString();
+                    if (!context.mounted) return;
+                    messenger.clearSnackBars();
+                    await showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        content: SingleChildScrollView(
+                          child: SelectableText(text),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: Text(loc.ok),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  child: Text(loc.open),
+                ),
               if (_isDesktop)
                 TextButton(
                   onPressed: () => L3CliRunner.revealInFolder(out.path),
