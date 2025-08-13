@@ -11,6 +11,10 @@ import '../models/l3_run_history_entry.dart';
 import '../services/l3_cli_runner.dart';
 import '../utils/toast.dart';
 
+class _ExportIntent extends Intent {
+  const _ExportIntent();
+}
+
 class L3AbDiffScreen extends StatefulWidget {
   const L3AbDiffScreen({super.key});
 
@@ -81,97 +85,116 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    return Scaffold(
-      appBar: AppBar(title: Text(loc.abDiff)),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(loc.pickTwoRuns),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _history.length,
-                itemBuilder: (context, index) {
-                  final e = _history[index];
-                  final ts =
-                      DateFormat('yyyy-MM-dd HH:mm').format(e.timestamp);
-                  final selected = e == _a || e == _b;
-                  return ListTile(
-                    selected: selected,
-                    onTap: () {
+    Widget body = Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(loc.pickTwoRuns),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _history.length,
+              itemBuilder: (context, index) {
+                final e = _history[index];
+                final ts =
+                    DateFormat('yyyy-MM-dd HH:mm').format(e.timestamp);
+                final selected = e == _a || e == _b;
+                return ListTile(
+                  selected: selected,
+                  onTap: () {
+                    setState(() {
+                      if (_a == e) {
+                        _a = null;
+                      } else if (_b == e) {
+                        _b = null;
+                      } else if (_a == null) {
+                        _a = e;
+                      } else if (_b == null) {
+                        _b = e;
+                      } else {
+                        _a = e;
+                        _b = null;
+                      }
+                    });
+                  },
+                  title: Text('$ts ${e.argsSummary}'),
+                  leading: Checkbox(
+                    value: selected,
+                    onChanged: (_) {
                       setState(() {
-                        if (_a == e) {
-                          _a = null;
-                        } else if (_b == e) {
-                          _b = null;
+                        if (selected) {
+                          if (_a == e) {
+                            _a = null;
+                          } else {
+                            _b = null;
+                          }
                         } else if (_a == null) {
                           _a = e;
                         } else if (_b == null) {
                           _b = e;
-                        } else {
-                          _a = e;
-                          _b = null;
                         }
                       });
                     },
-                    title: Text('$ts ${e.argsSummary}'),
-                    leading: Checkbox(
-                      value: selected,
-                      onChanged: (_) {
-                        setState(() {
-                          if (selected) {
-                            if (_a == e) {
-                              _a = null;
-                            } else {
-                              _b = null;
-                            }
-                          } else if (_a == null) {
-                            _a = e;
-                          } else if (_b == null) {
-                            _b = e;
-                          }
-                        });
-                      },
-                    ),
-                  );
-                },
-              ),
-            ),
-            Row(
-              children: [
-                ElevatedButton(
-                  onPressed: _a != null && _b != null ? _compare : null,
-                  child: Text(loc.compare),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed:
-                      _statsA != null && _statsB != null ? _exportCsv : null,
-                  child: Text(loc.exportCsv),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            if (_statsA != null && _statsB != null)
-              Expanded(
-                child: SingleChildScrollView(
-                  child: DataTable(
-                    columns: [
-                      const DataColumn(label: Text('')),
-                      DataColumn(label: Text('A')),
-                      DataColumn(label: Text('B')),
-                      DataColumn(label: Text(loc.delta)),
-                    ],
-                    rows: _buildRows(loc),
                   ),
+                );
+              },
+            ),
+          ),
+          Row(
+            children: [
+              ElevatedButton(
+                onPressed: _a != null && _b != null ? _compare : null,
+                child: Text(loc.compare),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton(
+                onPressed:
+                    _statsA != null && _statsB != null ? _exportCsv : null,
+                child: Text(loc.exportCsv),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          if (_statsA != null && _statsB != null)
+            Expanded(
+              child: SingleChildScrollView(
+                child: DataTable(
+                  columns: [
+                    const DataColumn(label: Text('')),
+                    DataColumn(label: Text('A')),
+                    DataColumn(label: Text('B')),
+                    DataColumn(label: Text(loc.delta)),
+                  ],
+                  rows: _buildRows(loc),
                 ),
-              )
-            else
-              Text(loc.noSelection),
-          ],
-        ),
+              ),
+            )
+          else
+            Text(loc.noSelection),
+        ],
       ),
+    );
+    body = Shortcuts(
+      shortcuts: {
+        const SingleActivator(LogicalKeyboardKey.keyE, control: true):
+            const _ExportIntent(),
+        const SingleActivator(LogicalKeyboardKey.keyE, meta: true):
+            const _ExportIntent(),
+      },
+      child: Actions(
+        actions: {
+          _ExportIntent: CallbackAction<_ExportIntent>(onInvoke: (intent) {
+            if (!(_isDesktop && mounted)) return null;
+            _exportCsv();
+            return null;
+          }),
+        },
+        child: body,
+      ),
+    );
+    return Scaffold(
+      appBar: AppBar(title: Text(loc.abDiff)),
+      body: body,
     );
   }
 

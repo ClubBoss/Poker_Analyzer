@@ -10,6 +10,14 @@ import '../services/l3_cli_runner.dart';
 import '../utils/toast.dart';
 import 'l3_ab_diff_screen.dart';
 
+class _ExportIntent extends Intent {
+  const _ExportIntent();
+}
+
+class _CopyPathIntent extends Intent {
+  const _CopyPathIntent();
+}
+
 class L3ReportViewerScreen extends StatelessWidget {
   final String path;
   final String? logPath;
@@ -135,6 +143,72 @@ class L3ReportViewerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
+    Widget body = FutureBuilder<String>(
+      future: _load(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final text = snapshot.data ?? '';
+        if (text.isEmpty) {
+          return Center(child: Text(loc.reportEmpty));
+        }
+        return Column(
+          children: [
+            if (warnings.isNotEmpty)
+              Container(
+                width: double.infinity,
+                color: Colors.amber[100],
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: warnings.map((w) => Text(w)).toList(),
+                ),
+              ),
+            Expanded(
+              child: SingleChildScrollView(child: SelectableText(text)),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => _exportCsv(context),
+                  child: Text(loc.exportCsv),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+    body = Shortcuts(
+      shortcuts: {
+        const SingleActivator(LogicalKeyboardKey.keyE, control: true):
+            const _ExportIntent(),
+        const SingleActivator(LogicalKeyboardKey.keyE, meta: true):
+            const _ExportIntent(),
+        const SingleActivator(LogicalKeyboardKey.keyC, control: true):
+            const _CopyPathIntent(),
+        const SingleActivator(LogicalKeyboardKey.keyC, meta: true):
+            const _CopyPathIntent(),
+      },
+      child: Actions(
+        actions: {
+          _ExportIntent: CallbackAction<_ExportIntent>(onInvoke: (intent) {
+            if (!_isDesktop) return null;
+            _exportCsv(context);
+            return null;
+          }),
+          _CopyPathIntent: CallbackAction<_CopyPathIntent>(onInvoke: (intent) {
+            if (!_isDesktop) return null;
+            Clipboard.setData(ClipboardData(text: path));
+            showToast(context, loc.copied);
+            return null;
+          }),
+        },
+        child: body,
+      ),
+    );
     return Scaffold(
       appBar: AppBar(
         title: Text(loc.quickstartL3),
@@ -172,7 +246,8 @@ class L3ReportViewerScreen extends StatelessWidget {
                   showDialog(
                     context: context,
                     barrierDismissible: false,
-                    builder: (_) => const Center(child: CircularProgressIndicator()),
+                    builder: (_) =>
+                        const Center(child: CircularProgressIndicator()),
                   );
                   String? text;
                   Object? error;
@@ -251,44 +326,7 @@ class L3ReportViewerScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: FutureBuilder<String>(
-        future: _load(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final text = snapshot.data ?? '';
-          if (text.isEmpty) {
-            return Center(child: Text(loc.reportEmpty));
-          }
-          return Column(
-            children: [
-              if (warnings.isNotEmpty)
-                Container(
-                  width: double.infinity,
-                  color: Colors.amber[100],
-                  padding: const EdgeInsets.all(8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: warnings.map((w) => Text(w)).toList(),
-                  ),
-                ),
-              Expanded(
-                child: SingleChildScrollView(child: SelectableText(text)),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () => _exportCsv(context),
-                    child: Text(loc.exportCsv),
-                  ),
-                ],
-              ),
-            ],
-          );
-        },
-      ),
+      body: body,
     );
   }
 }
