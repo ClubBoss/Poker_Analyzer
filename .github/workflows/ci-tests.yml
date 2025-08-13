@@ -24,12 +24,16 @@ jobs:
             l2:
               - 'assets/packs/l2/**'
               - 'assets/packs/l3/**'
+              - 'assets/packs/l3/demo/**'
               - 'assets/theory/**'
               - 'tool/validators/**'
+              - 'tool/validators/l3_demo_validator.dart'
               - 'tool/metrics/**'
               - 'tool/autogen/**'
+              - 'tool/autogen/l3_demo_sampler.dart'
               - 'test/l2_*.dart'
               - 'test/l3_*.dart'
+              - 'test/l3_demo_*.dart'
               - 'pubspec.*'
 
       - name: Skip (no relevant L2 changes)
@@ -78,6 +82,12 @@ jobs:
       - name: Validate L3 distribution
         timeout-minutes: 5
         run: dart run tool/validators/l3_distribution_validator.dart --dir build/tmp/l3 --dedupe flop
+      - name: Generate L3 demo packs
+        run: dart run tool/autogen/l3_demo_sampler.dart --source build/tmp/l3/111 --preset all --out assets/packs/l3/demo --spots 100 --dedupe flop --seed 111
+      - name: Validate L3 demo packs
+        run: dart run tool/validators/l3_demo_validator.dart --dir assets/packs/l3/demo --dedupe flop
+      - name: Run L3 demo tests
+        run: dart test test/l3_demo_*
       - name: PackRun L3 (seed 111)
         run: dart run tool/l3/pack_run_cli.dart --dir build/tmp/l3/111 --out build/reports/l3_packrun_111.json
       - name: PackRun L3 (seed 222)

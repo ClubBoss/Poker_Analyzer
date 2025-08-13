@@ -1,0 +1,869 @@
+id: l3-demo-ace-high
+stage:
+  id: L3
+subtype: postflop-jam
+street: flop
+tags:
+  - l3
+  - demo
+  - ace-high
+spots:
+  -
+    id: l3-demo-ace-high-s001
+    actionType: postflop-jam
+    board: Ac3d2s7h8d
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s002
+    actionType: postflop-jam
+    board: Ac3s2cJh3d
+    tags:
+      - twoTone
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s003
+    actionType: postflop-jam
+    board: Ac3s2sAhQh
+    tags:
+      - twoTone
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s004
+    actionType: postflop-jam
+    board: Ac5d4sTc4d
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s005
+    actionType: postflop-jam
+    board: Ac6s5sAs5c
+    tags:
+      - twoTone
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s006
+    actionType: postflop-jam
+    board: Ac7c5c6s6h
+    tags:
+      - monotone
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s007
+    actionType: postflop-jam
+    board: Ac8c2d6s5h
+    tags:
+      - twoTone
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s008
+    actionType: postflop-jam
+    board: Ac8s2cTsKh
+    tags:
+      - twoTone
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s009
+    actionType: postflop-jam
+    board: Ac8s3hKcQh
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s010
+    actionType: postflop-jam
+    board: Ac9c7hTdQd
+    tags:
+      - twoTone
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s011
+    actionType: postflop-jam
+    board: Ac9d8h7d3h
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s012
+    actionType: postflop-jam
+    board: Ac9h8s3sJs
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s013
+    actionType: postflop-jam
+    board: Ac9s2h5s4c
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s014
+    actionType: postflop-jam
+    board: AcJc2c4dJh
+    tags:
+      - monotone
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s015
+    actionType: postflop-jam
+    board: AcJc9c5d2c
+    tags:
+      - monotone
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s016
+    actionType: postflop-jam
+    board: AcJcTd7cKd
+    tags:
+      - twoTone
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s017
+    actionType: postflop-jam
+    board: AcJd8s6s2s
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s018
+    actionType: postflop-jam
+    board: AcJd9h3c3h
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s019
+    actionType: postflop-jam
+    board: AcJdJcKh7h
+    tags:
+      - twoTone
+      - paired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s020
+    actionType: postflop-jam
+    board: AcJh9sTs6h
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s021
+    actionType: postflop-jam
+    board: AcJs9c5hTd
+    tags:
+      - twoTone
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s022
+    actionType: postflop-jam
+    board: AcKcQcAh6h
+    tags:
+      - monotone
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s023
+    actionType: postflop-jam
+    board: AcKd3h9hAd
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s024
+    actionType: postflop-jam
+    board: AcKd7hQd7s
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s025
+    actionType: postflop-jam
+    board: AcQc5c4d9c
+    tags:
+      - monotone
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s026
+    actionType: postflop-jam
+    board: AcQc6c3cKs
+    tags:
+      - monotone
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s027
+    actionType: postflop-jam
+    board: AcTd4cJhQd
+    tags:
+      - twoTone
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s028
+    actionType: postflop-jam
+    board: AcTh5d6h7c
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s029
+    actionType: postflop-jam
+    board: AcTs6h8sKs
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s030
+    actionType: postflop-jam
+    board: Ad2s2c9d4d
+    tags:
+      - rainbow
+      - paired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s031
+    actionType: postflop-jam
+    board: Ad4d2c4c6d
+    tags:
+      - twoTone
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s032
+    actionType: postflop-jam
+    board: Ad5c4d2s2h
+    tags:
+      - twoTone
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s033
+    actionType: postflop-jam
+    board: Ad6c3cQdTs
+    tags:
+      - twoTone
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s034
+    actionType: postflop-jam
+    board: Ad6h2sQhTc
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s035
+    actionType: postflop-jam
+    board: Ad8d6dKsJh
+    tags:
+      - monotone
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s036
+    actionType: postflop-jam
+    board: Ad8h8d2d3d
+    tags:
+      - twoTone
+      - paired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s037
+    actionType: postflop-jam
+    board: Ad9c2h8c3d
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s038
+    actionType: postflop-jam
+    board: Ad9s5h6sJd
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s039
+    actionType: postflop-jam
+    board: AdJc2s5c9h
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s040
+    actionType: postflop-jam
+    board: AdJd5d5hAs
+    tags:
+      - monotone
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s041
+    actionType: postflop-jam
+    board: AdJs2d9dAh
+    tags:
+      - twoTone
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s042
+    actionType: postflop-jam
+    board: AdJsTc2sJc
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s043
+    actionType: postflop-jam
+    board: AdKh4cKdQs
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s044
+    actionType: postflop-jam
+    board: AdKhTc5cAs
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s045
+    actionType: postflop-jam
+    board: AdKs2dTcTh
+    tags:
+      - twoTone
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s046
+    actionType: postflop-jam
+    board: AdQc2s5h6c
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s047
+    actionType: postflop-jam
+    board: AdQh4cQd6s
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s048
+    actionType: postflop-jam
+    board: AdQh8cKc4h
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s049
+    actionType: postflop-jam
+    board: AdTd6dKdAc
+    tags:
+      - monotone
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s050
+    actionType: postflop-jam
+    board: AdTs4c6d6h
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s051
+    actionType: postflop-jam
+    board: AdTs5c7h8c
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s052
+    actionType: postflop-jam
+    board: Ah3d2c4dQd
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s053
+    actionType: postflop-jam
+    board: Ah4d2s9s2h
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s054
+    actionType: postflop-jam
+    board: Ah5d2s2hJd
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s055
+    actionType: postflop-jam
+    board: Ah6h2cJsJc
+    tags:
+      - twoTone
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s056
+    actionType: postflop-jam
+    board: Ah6h2h5s3h
+    tags:
+      - monotone
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s057
+    actionType: postflop-jam
+    board: Ah7s3d8d9c
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s058
+    actionType: postflop-jam
+    board: Ah8h6h3cTd
+    tags:
+      - monotone
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s059
+    actionType: postflop-jam
+    board: Ah9h3cTc9c
+    tags:
+      - twoTone
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s060
+    actionType: postflop-jam
+    board: Ah9s3h4dAd
+    tags:
+      - twoTone
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s061
+    actionType: postflop-jam
+    board: Ah9s6dJd3s
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s062
+    actionType: postflop-jam
+    board: Ah9s9c4cJs
+    tags:
+      - rainbow
+      - paired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s063
+    actionType: postflop-jam
+    board: AhAd2hTs8s
+    tags:
+      - twoTone
+      - paired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s064
+    actionType: postflop-jam
+    board: AhJc7h2c5h
+    tags:
+      - twoTone
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s065
+    actionType: postflop-jam
+    board: AhJh7hQsTh
+    tags:
+      - monotone
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s066
+    actionType: postflop-jam
+    board: AhJh9hTd7d
+    tags:
+      - monotone
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s067
+    actionType: postflop-jam
+    board: AhJs6c6hJc
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s068
+    actionType: postflop-jam
+    board: AhKhJd5d3d
+    tags:
+      - twoTone
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s069
+    actionType: postflop-jam
+    board: AhKs2d4d3c
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s070
+    actionType: postflop-jam
+    board: AhKsKc8h5h
+    tags:
+      - rainbow
+      - paired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s071
+    actionType: postflop-jam
+    board: AhQc5h8s7h
+    tags:
+      - twoTone
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s072
+    actionType: postflop-jam
+    board: AhQc6s7d3h
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s073
+    actionType: postflop-jam
+    board: AhQd7s4cKs
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s074
+    actionType: postflop-jam
+    board: AhQdThQcQs
+    tags:
+      - twoTone
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s075
+    actionType: postflop-jam
+    board: AhQh9d3cAc
+    tags:
+      - twoTone
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s076
+    actionType: postflop-jam
+    board: AhQhTdJhTs
+    tags:
+      - twoTone
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s077
+    actionType: postflop-jam
+    board: AhTc5d3sKs
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s078
+    actionType: postflop-jam
+    board: AhTh2h8hAc
+    tags:
+      - monotone
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s079
+    actionType: postflop-jam
+    board: AhTs2d3c4d
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s080
+    actionType: postflop-jam
+    board: AhTs9c3h6d
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s081
+    actionType: postflop-jam
+    board: As3c2d5h8c
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s082
+    actionType: postflop-jam
+    board: As3d3c9s5h
+    tags:
+      - rainbow
+      - paired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s083
+    actionType: postflop-jam
+    board: As6s3s3h7d
+    tags:
+      - monotone
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s084
+    actionType: postflop-jam
+    board: As8s4s9d4h
+    tags:
+      - monotone
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s085
+    actionType: postflop-jam
+    board: As9c4h8s7d
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s086
+    actionType: postflop-jam
+    board: As9c6c5s8d
+    tags:
+      - twoTone
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s087
+    actionType: postflop-jam
+    board: As9c6dThQc
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s088
+    actionType: postflop-jam
+    board: As9s2s7c5c
+    tags:
+      - monotone
+      - unpaired
+      - ace-high
+  -
+    id: l3-demo-ace-high-s089
+    actionType: postflop-jam
+    board: AsAc8d5c9c
+    tags:
+      - rainbow
+      - paired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s090
+    actionType: postflop-jam
+    board: AsAhQh9h8h
+    tags:
+      - twoTone
+      - paired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s091
+    actionType: postflop-jam
+    board: AsAhThAc6h
+    tags:
+      - twoTone
+      - paired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s092
+    actionType: postflop-jam
+    board: AsJd3c9s7h
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s093
+    actionType: postflop-jam
+    board: AsJh2c4d7h
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s094
+    actionType: postflop-jam
+    board: AsJs6s7c4c
+    tags:
+      - monotone
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s095
+    actionType: postflop-jam
+    board: AsKd8h2cQh
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s096
+    actionType: postflop-jam
+    board: AsKhKc7s6s
+    tags:
+      - rainbow
+      - paired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s097
+    actionType: postflop-jam
+    board: AsQs5s9s4s
+    tags:
+      - monotone
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s098
+    actionType: postflop-jam
+    board: AsTh7c8d4s
+    tags:
+      - rainbow
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s099
+    actionType: postflop-jam
+    board: AsTs4c2hKd
+    tags:
+      - twoTone
+      - unpaired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-ace-high-s100
+    actionType: postflop-jam
+    board: AsTs5sAh5d
+    tags:
+      - monotone
+      - unpaired
+      - ace-high
+      - broadway

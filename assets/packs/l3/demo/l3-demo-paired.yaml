@@ -1,0 +1,766 @@
+id: l3-demo-paired
+stage:
+  id: L3
+subtype: postflop-jam
+street: flop
+tags:
+  - l3
+  - demo
+  - paired
+spots:
+  -
+    id: l3-demo-paired-s001
+    actionType: postflop-jam
+    board: 3h3c2d8dJd
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s002
+    actionType: postflop-jam
+    board: 4d2s2c3c8d
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s003
+    actionType: postflop-jam
+    board: 4h2s2d3dTs
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s004
+    actionType: postflop-jam
+    board: 4h4d3s5s3d
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s005
+    actionType: postflop-jam
+    board: 4s2s2cAc7c
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s006
+    actionType: postflop-jam
+    board: 4s4c2d8sKs
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s007
+    actionType: postflop-jam
+    board: 5h5c2d8c4s
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s008
+    actionType: postflop-jam
+    board: 5h5c3c6hQh
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s009
+    actionType: postflop-jam
+    board: 5s5c4c2c3s
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s010
+    actionType: postflop-jam
+    board: 6d2s2cTc4c
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s011
+    actionType: postflop-jam
+    board: 6d6c2h4s6h
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s012
+    actionType: postflop-jam
+    board: 6d6c3d5c7s
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s013
+    actionType: postflop-jam
+    board: 6d6c3s5d6s
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s014
+    actionType: postflop-jam
+    board: 6h6c4cAhAc
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s015
+    actionType: postflop-jam
+    board: 6s4h4d2h6h
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s016
+    actionType: postflop-jam
+    board: 7c5h5c8h9d
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s017
+    actionType: postflop-jam
+    board: 7d2d2c4d8h
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s018
+    actionType: postflop-jam
+    board: 7d5h5c8c3h
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s019
+    actionType: postflop-jam
+    board: 7h2h2dAs3d
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s020
+    actionType: postflop-jam
+    board: 7h3s3c5c4c
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s021
+    actionType: postflop-jam
+    board: 7h7c3sTdJs
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s022
+    actionType: postflop-jam
+    board: 7s3s3c5sAs
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s023
+    actionType: postflop-jam
+    board: 7s7c2cAd5c
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s024
+    actionType: postflop-jam
+    board: 8d4d4c6cJc
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s025
+    actionType: postflop-jam
+    board: 8h2h2cAs8s
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s026
+    actionType: postflop-jam
+    board: 8h4s4d7h3h
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s027
+    actionType: postflop-jam
+    board: 8h6d6c4s2h
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s028
+    actionType: postflop-jam
+    board: 8s8c2hTc2s
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s029
+    actionType: postflop-jam
+    board: 8s8d6hAsJh
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s030
+    actionType: postflop-jam
+    board: 9c4d4cJc5h
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s031
+    actionType: postflop-jam
+    board: 9d5d5cTdQh
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s032
+    actionType: postflop-jam
+    board: 9h2h2dTd8h
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s033
+    actionType: postflop-jam
+    board: 9h9c6d7h9s
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s034
+    actionType: postflop-jam
+    board: 9s2s2cTs9c
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s035
+    actionType: postflop-jam
+    board: 9s9h8sAcQc
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s036
+    actionType: postflop-jam
+    board: Ac2h2d8sTh
+    tags:
+      - rainbow
+      - paired
+      - ace-high
+  -
+    id: l3-demo-paired-s037
+    actionType: postflop-jam
+    board: AcQsQc9d6c
+    tags:
+      - twoTone
+      - paired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-paired-s038
+    actionType: postflop-jam
+    board: AdAc7hKdQc
+    tags:
+      - rainbow
+      - paired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-paired-s039
+    actionType: postflop-jam
+    board: AdAcQdAhJs
+    tags:
+      - twoTone
+      - paired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-paired-s040
+    actionType: postflop-jam
+    board: AdJhJcKcKd
+    tags:
+      - rainbow
+      - paired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-paired-s041
+    actionType: postflop-jam
+    board: AdKhKcQsAs
+    tags:
+      - rainbow
+      - paired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-paired-s042
+    actionType: postflop-jam
+    board: AdKsKd6d2d
+    tags:
+      - twoTone
+      - paired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-paired-s043
+    actionType: postflop-jam
+    board: AhAdQh7h7d
+    tags:
+      - twoTone
+      - paired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-paired-s044
+    actionType: postflop-jam
+    board: AhTsTh3d7s
+    tags:
+      - twoTone
+      - paired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-paired-s045
+    actionType: postflop-jam
+    board: As6h6dQc4c
+    tags:
+      - rainbow
+      - paired
+      - ace-high
+  -
+    id: l3-demo-paired-s046
+    actionType: postflop-jam
+    board: As8s8c5cJs
+    tags:
+      - twoTone
+      - paired
+      - ace-high
+  -
+    id: l3-demo-paired-s047
+    actionType: postflop-jam
+    board: AsAc2sQdJd
+    tags:
+      - twoTone
+      - paired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-paired-s048
+    actionType: postflop-jam
+    board: AsAc6s2h6d
+    tags:
+      - twoTone
+      - paired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-paired-s049
+    actionType: postflop-jam
+    board: AsAd3cAhQc
+    tags:
+      - rainbow
+      - paired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-paired-s050
+    actionType: postflop-jam
+    board: AsAd5dTdQc
+    tags:
+      - twoTone
+      - paired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-paired-s051
+    actionType: postflop-jam
+    board: AsAd6h6sQd
+    tags:
+      - rainbow
+      - paired
+      - ace-high
+      - broadway
+  -
+    id: l3-demo-paired-s052
+    actionType: postflop-jam
+    board: Jc3s3hJhKh
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s053
+    actionType: postflop-jam
+    board: Jc5d5c5hKc
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s054
+    actionType: postflop-jam
+    board: Jc6d6cAh8d
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s055
+    actionType: postflop-jam
+    board: Jd3s3h5h8d
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s056
+    actionType: postflop-jam
+    board: Jd5d5c5h9s
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s057
+    actionType: postflop-jam
+    board: Jh7d7cQsQc
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s058
+    actionType: postflop-jam
+    board: Jh9d9c3c5s
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s059
+    actionType: postflop-jam
+    board: JhJc8s8hTd
+    tags:
+      - rainbow
+      - paired
+      - broadway
+  -
+    id: l3-demo-paired-s060
+    actionType: postflop-jam
+    board: JhJc9h7sQd
+    tags:
+      - twoTone
+      - paired
+      - broadway
+  -
+    id: l3-demo-paired-s061
+    actionType: postflop-jam
+    board: JhJd5d9s3c
+    tags:
+      - twoTone
+      - paired
+      - broadway
+  -
+    id: l3-demo-paired-s062
+    actionType: postflop-jam
+    board: JhJdTcKh9s
+    tags:
+      - rainbow
+      - paired
+      - broadway
+  -
+    id: l3-demo-paired-s063
+    actionType: postflop-jam
+    board: JsJc7hKcKh
+    tags:
+      - rainbow
+      - paired
+      - broadway
+  -
+    id: l3-demo-paired-s064
+    actionType: postflop-jam
+    board: JsJh4sAhTs
+    tags:
+      - twoTone
+      - paired
+      - broadway
+  -
+    id: l3-demo-paired-s065
+    actionType: postflop-jam
+    board: JsJh7dQd3s
+    tags:
+      - rainbow
+      - paired
+      - broadway
+  -
+    id: l3-demo-paired-s066
+    actionType: postflop-jam
+    board: Kd2s2hQd4s
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s067
+    actionType: postflop-jam
+    board: Kd9s9hAcJh
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s068
+    actionType: postflop-jam
+    board: KdKc9h4hQd
+    tags:
+      - rainbow
+      - paired
+      - broadway
+  -
+    id: l3-demo-paired-s069
+    actionType: postflop-jam
+    board: KhKc2s2h8s
+    tags:
+      - rainbow
+      - paired
+      - broadway
+  -
+    id: l3-demo-paired-s070
+    actionType: postflop-jam
+    board: KhKd6d8hAh
+    tags:
+      - twoTone
+      - paired
+      - broadway
+  -
+    id: l3-demo-paired-s071
+    actionType: postflop-jam
+    board: KhKd8c7c9c
+    tags:
+      - rainbow
+      - paired
+      - broadway
+  -
+    id: l3-demo-paired-s072
+    actionType: postflop-jam
+    board: KhKd8d3s9s
+    tags:
+      - twoTone
+      - paired
+      - broadway
+  -
+    id: l3-demo-paired-s073
+    actionType: postflop-jam
+    board: Ks6s6dAc2h
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s074
+    actionType: postflop-jam
+    board: KsJhJd9h7h
+    tags:
+      - rainbow
+      - paired
+      - broadway
+  -
+    id: l3-demo-paired-s075
+    actionType: postflop-jam
+    board: KsKc5d5c8s
+    tags:
+      - rainbow
+      - paired
+      - broadway
+  -
+    id: l3-demo-paired-s076
+    actionType: postflop-jam
+    board: KsKc6h7h4c
+    tags:
+      - rainbow
+      - paired
+      - broadway
+  -
+    id: l3-demo-paired-s077
+    actionType: postflop-jam
+    board: KsKc7s7hAs
+    tags:
+      - twoTone
+      - paired
+      - broadway
+  -
+    id: l3-demo-paired-s078
+    actionType: postflop-jam
+    board: KsKcQhKhQd
+    tags:
+      - rainbow
+      - paired
+      - broadway
+  -
+    id: l3-demo-paired-s079
+    actionType: postflop-jam
+    board: KsKd2d3s6s
+    tags:
+      - twoTone
+      - paired
+      - broadway
+  -
+    id: l3-demo-paired-s080
+    actionType: postflop-jam
+    board: Qc2s2c9c9h
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s081
+    actionType: postflop-jam
+    board: Qc2s2dQs4s
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s082
+    actionType: postflop-jam
+    board: Qc4h4c5dQh
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s083
+    actionType: postflop-jam
+    board: Qc7s7hJhTc
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s084
+    actionType: postflop-jam
+    board: Qc9h9cAh5d
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s085
+    actionType: postflop-jam
+    board: QcJsJd9cQs
+    tags:
+      - rainbow
+      - paired
+      - broadway
+  -
+    id: l3-demo-paired-s086
+    actionType: postflop-jam
+    board: Qd6s6cQs5s
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s087
+    actionType: postflop-jam
+    board: QdQcTdQs2s
+    tags:
+      - twoTone
+      - paired
+      - broadway
+  -
+    id: l3-demo-paired-s088
+    actionType: postflop-jam
+    board: Qh7h7c9cAc
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s089
+    actionType: postflop-jam
+    board: Qh9s9h7d3h
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s090
+    actionType: postflop-jam
+    board: QhQcJcAcTc
+    tags:
+      - twoTone
+      - paired
+      - broadway
+  -
+    id: l3-demo-paired-s091
+    actionType: postflop-jam
+    board: QhQd9h2d7h
+    tags:
+      - twoTone
+      - paired
+      - broadway
+  -
+    id: l3-demo-paired-s092
+    actionType: postflop-jam
+    board: Qs5d5c6s7c
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s093
+    actionType: postflop-jam
+    board: Qs8s8hAs3s
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s094
+    actionType: postflop-jam
+    board: QsQc4sKhAc
+    tags:
+      - twoTone
+      - paired
+      - broadway
+  -
+    id: l3-demo-paired-s095
+    actionType: postflop-jam
+    board: QsQd5d7sAs
+    tags:
+      - twoTone
+      - paired
+      - broadway
+  -
+    id: l3-demo-paired-s096
+    actionType: postflop-jam
+    board: QsQh7hKs3c
+    tags:
+      - twoTone
+      - paired
+      - broadway
+  -
+    id: l3-demo-paired-s097
+    actionType: postflop-jam
+    board: QsQh8cJh2c
+    tags:
+      - rainbow
+      - paired
+      - broadway
+  -
+    id: l3-demo-paired-s098
+    actionType: postflop-jam
+    board: Tc2s2c8c2d
+    tags:
+      - twoTone
+      - paired
+  -
+    id: l3-demo-paired-s099
+    actionType: postflop-jam
+    board: Ts2h2d9sQd
+    tags:
+      - rainbow
+      - paired
+  -
+    id: l3-demo-paired-s100
+    actionType: postflop-jam
+    board: TsTc3hJdJh
+    tags:
+      - rainbow
+      - paired
+      - broadway
