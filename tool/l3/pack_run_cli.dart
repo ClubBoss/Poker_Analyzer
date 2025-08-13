@@ -105,7 +105,7 @@ void main(List<String> args) {
         textureCounts[texture] = (textureCounts[texture] ?? 0) + 1;
         final spr = _sprFromBoard(boardStr);
         presetCounts[preset] = (presetCounts[preset] ?? 0) + 1;
-        final sprBucket;
+        late final String sprBucket;
         if (spr < 1.0) {
           sprBucket = 'spr_low';
         } else if (spr < 2.0) {
