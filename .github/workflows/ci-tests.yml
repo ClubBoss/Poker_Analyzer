@@ -39,8 +39,10 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+          flutter-version: '3.27.0'
           cache: true
 
+      - run: flutter --version
       - run: dart --version
 
       - name: Cache pub
