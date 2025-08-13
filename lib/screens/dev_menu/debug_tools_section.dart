@@ -86,17 +86,21 @@ class _DebugToolsSectionState extends State<DebugToolsSection> {
             );
           },
         ),
-        ListTile(
-          title: Text(AppLocalizations.of(context).quickstartL3),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const QuickstartL3Screen(),
-              ),
-            );
-          },
-        ),
+        if (!kIsWeb &&
+            (defaultTargetPlatform == TargetPlatform.macOS ||
+                defaultTargetPlatform == TargetPlatform.windows ||
+                defaultTargetPlatform == TargetPlatform.linux))
+          ListTile(
+            title: Text(AppLocalizations.of(context).quickstartL3),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const QuickstartL3Screen(),
+                ),
+              );
+            },
+          ),
         if (kDebugMode)
           ListTile(
             title: const Text('🧪 Pack Import Validator'),

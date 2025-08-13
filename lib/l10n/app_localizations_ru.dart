@@ -451,6 +451,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get quickstartL3 => 'Быстрый старт L3';
 
   @override
+  String get desktopOnly => 'Только на компьютере';
+
+  @override
   String get run => 'Запустить';
 
   @override

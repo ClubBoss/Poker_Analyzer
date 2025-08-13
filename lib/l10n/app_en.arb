@@ -134,6 +134,7 @@
   ,"mistakeBoosterReinforced": "Reinforced: {count} tags"
   ,"mistakeBoosterRecovered": "Recovered: {count} tags"
   ,"quickstartL3": "Quickstart L3"
+  ,"desktopOnly": "Desktop only"
   ,"run": "Run"
   ,"openReport": "Open report"
   ,"viewLogs": "View logs"

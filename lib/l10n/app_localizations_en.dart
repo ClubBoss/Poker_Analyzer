@@ -451,6 +451,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quickstartL3 => 'Quickstart L3';
 
   @override
+  String get desktopOnly => 'Desktop only';
+
+  @override
   String get run => 'Run';
 
   @override

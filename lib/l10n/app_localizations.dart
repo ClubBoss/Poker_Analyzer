@@ -910,6 +910,12 @@ abstract class AppLocalizations {
   /// **'Быстрый старт L3'**
   String get quickstartL3;
 
+  /// No description provided for @desktopOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Desktop only'**
+  String get desktopOnly;
+
   /// No description provided for @run.
   ///
   /// In ru, this message translates to:
