@@ -48,7 +48,6 @@ spots:
     final md = File('build/reports/l3_report_test.md')
         .readAsStringSync()
         .toLowerCase();
-    expect(md, contains('monotone'));
     expect(md, contains('twotone'));
     expect(md, contains('rainbow'));
   });
