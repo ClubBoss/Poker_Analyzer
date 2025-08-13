@@ -19,6 +19,10 @@ class QuickstartL3Screen extends StatefulWidget {
   State<QuickstartL3Screen> createState() => _QuickstartL3ScreenState();
 }
 
+class _RunIntent extends Intent {
+  const _RunIntent();
+}
+
 class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
   final _weightsController = TextEditingController();
   String? _weightsPreset;
@@ -78,6 +82,25 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
     if (weightsJson != null) {
       _weightsController.text = weightsJson;
     }
+  }
+
+  Future<void> _formatWeightsJson() async {
+    final text = _weightsController.text.trim();
+    if (text.isEmpty) return;
+    try {
+      final decoded = jsonDecode(text);
+      if (decoded is! Map) return;
+      final formatted = const JsonEncoder.withIndent('  ').convert(decoded);
+      if (formatted != text) {
+        _weightsController.text = formatted;
+        _weightsController.selection = TextSelection.fromPosition(
+          TextPosition(offset: formatted.length),
+        );
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(SharedPrefsKeys.l3WeightsJson, formatted);
+        setState(() {});
+      }
+    } catch (_) {}
   }
 
   Future<void> _run() async {
@@ -338,15 +361,19 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                 errorText: _weightsJsonError,
                 suffixIcon: _weightsController.text.isNotEmpty
                     ? IconButton(
-                        onPressed: () {
+                        onPressed: () async {
                           _weightsController.clear();
                           _weightsJsonError = null;
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.remove(SharedPrefsKeys.l3WeightsJson);
                           setState(() {});
                         },
                         icon: const Icon(Icons.clear),
                       )
                     : null,
               ),
+              onTapOutside: (_) => _formatWeightsJson(),
+              onEditingComplete: () => _formatWeightsJson(),
               onChanged: (_) async {
                 final text = _weightsController.text.trim();
                 try {
@@ -507,6 +534,25 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
         ),
       );
     }
+    body = Shortcuts(
+      shortcuts: {
+        const SingleActivator(LogicalKeyboardKey.enter, control: true):
+            const _RunIntent(),
+        const SingleActivator(LogicalKeyboardKey.enter, meta: true):
+            const _RunIntent(),
+      },
+      child: Actions(
+        actions: {
+          _RunIntent: CallbackAction<_RunIntent>(onInvoke: (intent) {
+            if (!_running && _weightsJsonError == null) {
+              _run();
+            }
+            return null;
+          }),
+        },
+        child: body,
+      ),
+    );
     return Scaffold(
       appBar: AppBar(
         title: Text(loc.quickstartL3),
