@@ -7,13 +7,8 @@ import 'package:flutter/services.dart';
 
 import '../l10n/app_localizations.dart';
 import '../services/l3_cli_runner.dart';
+import '../utils/toast.dart';
 import 'l3_ab_diff_screen.dart';
-
-void _toast(BuildContext ctx, String msg, {Duration d = const Duration(seconds: 2)}) {
-  final m = ScaffoldMessenger.of(ctx);
-  m.clearSnackBars();
-  m.showSnackBar(SnackBar(content: Text(msg), duration: d));
-}
 
 class L3ReportViewerScreen extends StatelessWidget {
   final String path;
@@ -54,7 +49,7 @@ class L3ReportViewerScreen extends StatelessWidget {
             onPressed: () {
               if (_isDesktop) {
                 Clipboard.setData(ClipboardData(text: path));
-                _toast(context, loc.copied);
+                showToast(context, loc.copied);
               } else {
                 showDialog(
                   context: context,
