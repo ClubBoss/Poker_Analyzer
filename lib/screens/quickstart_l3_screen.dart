@@ -504,6 +504,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                                     onPressed: () {
                                       Clipboard.setData(
                                           ClipboardData(text: e.outPath));
+                                      HapticFeedback.selectionClick();
                                       showToast(context, loc.copied);
                                     },
                                     child: Text(loc.copyPath),
