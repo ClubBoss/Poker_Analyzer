@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 
 import '../utils/mix_keys.dart';
+import '../l3/weights_contract.dart';
 import 'autogen_stats.dart';
 
 class TargetMixConfig {
@@ -46,65 +47,38 @@ TargetMixConfig? extractTargetMix(String weights) {
   Map<String, double> byKeyTol = {};
   int minTotal = 0;
 
-  double? _numOrStringDouble(dynamic v) {
-    if (v is num) return v.toDouble();
-    if (v is String) return double.tryParse(v);
-    return null;
-  }
-
-  int? _numOrStringInt(dynamic v) {
-    if (v is num) return v.toInt();
-    if (v is String) return int.tryParse(v);
-    return null;
-  }
-
-  void _mergeTolMap(dynamic raw) {
-    if (raw is Map) {
-      raw.forEach((key, value) {
-        final canon = canonicalMixKey(key.toString()) ?? key.toString();
-        final d = _numOrStringDouble(value);
-        if (canon.isNotEmpty && d != null) {
-          byKeyTol[canon] = d;
-        }
-      });
-    }
-  }
-
   if (weightsJson is Map) {
     // Default tolerance OR per-key map under the same key `mixTolerance`.
-    final rawMixTol = weightsJson['mixTolerance'];
-    final tolNum = _numOrStringDouble(rawMixTol);
+    final rawMixTol = weightsJson[kMixToleranceKey];
+    final tolNum = parseDouble(rawMixTol);
     if (tolNum != null) {
       defaultTol = tolNum;
     } else {
-      // If it's not a number, treat it as a per-key map.
-      _mergeTolMap(rawMixTol);
+      mergeTolMap(byKeyTol, rawMixTol);
     }
 
     // Additional aliases for the per-key tolerance map.
-    _mergeTolMap(weightsJson['mixToleranceByKey']);
-    _mergeTolMap(weightsJson['mixToleranceMap']);
-    _mergeTolMap(weightsJson['toleranceByKey']);
-    _mergeTolMap(weightsJson['tolerancesByKey']);
-    _mergeTolMap(weightsJson['toleranceMap']);
-    _mergeTolMap(weightsJson['perKeyTolerance']);
-    _mergeTolMap(weightsJson['byKeyTol']);
-    _mergeTolMap(weightsJson['byKey']); // very liberal fallback
+    for (final alias in kPerKeyToleranceKeys) {
+      if (alias == kMixToleranceKey) continue;
+      mergeTolMap(byKeyTol, weightsJson[alias]);
+    }
 
-    // Min sample guard (aliases, incl. mixMinTotal from test).
-    final rawMin = weightsJson['mixMinTotal'] ??
-        weightsJson['minTotal'] ??
-        weightsJson['minTotalSamples'];
-    final mt = _numOrStringInt(rawMin);
-    if (mt != null) minTotal = mt;
+    // Min sample guard.
+    for (final alias in kMinTotalKeys) {
+      final mt = parseInt(weightsJson[alias]);
+      if (mt != null) {
+        minTotal = mt;
+        break;
+      }
+    }
 
     // Target mix (canonicalized)
-    final rawMix = weightsJson['targetMix'];
+    final rawMix = weightsJson[kTargetMixKey];
     if (rawMix is Map) {
       final m = <String, double>{};
       rawMix.forEach((key, value) {
         final canon = canonicalMixKey(key.toString()) ?? key.toString();
-        final d = _numOrStringDouble(value);
+        final d = parseDouble(value);
         if (canon.isNotEmpty && d != null) {
           m[canon] = d;
         }
@@ -173,8 +147,9 @@ class L3CliRunner {
     final stdoutStr = res.stdout.toString();
     final stderrStr = res.stderr.toString();
 
-    File(logPath)
-        .writeAsStringSync('stdout:\n$stdoutStr\n\nstderr:\n$stderrStr');
+    File(
+      logPath,
+    ).writeAsStringSync('stdout:\n$stdoutStr\n\nstderr:\n$stderrStr');
 
     await runDir.delete(recursive: true);
 

@@ -1,0 +1,5 @@
+{
+  "targetMix": {"two_tone": 0.3, "broadway": 0.25},
+  "mixTolerance": {"two_tone": 0.04},
+  "mixMinTotal": 75
+}
