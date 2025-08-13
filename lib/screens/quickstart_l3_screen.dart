@@ -104,6 +104,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
   }
 
   Future<void> _run() async {
+    await _formatWeightsJson();
     setState(() {
       _running = true;
       _error = null;
@@ -544,9 +545,10 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
       child: Actions(
         actions: {
           _RunIntent: CallbackAction<_RunIntent>(onInvoke: (intent) {
-            if (!_running && _weightsJsonError == null) {
-              _run();
+            if (!(_isDesktop && !_running && _weightsJsonError == null)) {
+              return null;
             }
+            _run();
             return null;
           }),
         },
