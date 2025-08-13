@@ -50,14 +50,14 @@ else
 fi
 
 # 3) no stray ternary tails in CLI (?/: 'spr_*' on their own lines)
-if grep -nE "^[[:space:]]*[\?:][[:space:]]*'spr_(low|mid|high)'" tool/l3/pack_run_cli.dart >/dev/null; then
+if grep -nE "^[[:space:]]*[\\?:][[:space:]]*'spr_(low|mid|high)'" tool/l3/pack_run_cli.dart >/dev/null; then
   say_bad "stray ternary tail in tool/l3/pack_run_cli.dart"
-  grep -nE "^[[:space:]]*[\?:][[:space:]]*'spr_(low|mid|high)'" tool/l3/pack_run_cli.dart || true
+  grep -nE "^[[:space:]]*[\\?:][[:space:]]*'spr_(low|mid|high)'" tool/l3/pack_run_cli.dart || true
 else
   say_ok "no stray ternary tails in CLI"
 fi
 
-# 3b) only one sprBucket declaration (supporting both styles)
+# 3b) only one sprBucket declaration (support both styles)
 count_eq=$(grep -nE '^[[:space:]]*final[[:space:]]+sprBucket[[:space:]]*=' tool/l3/pack_run_cli.dart | wc -l || true)
 count_late=$(grep -nE '^[[:space:]]*late[[:space:]]+final[[:space:]]+String[[:space:]]+sprBucket[[:space:]]*;' tool/l3/pack_run_cli.dart | wc -l || true)
 total=$((count_eq + count_late))
@@ -78,15 +78,18 @@ fi
 
 # --- Formatting / Analyze (scoped) -------------------------------------------
 
-# Scope: changed files first; else narrow to tooling/L3. Override with PRECOMMIT_SCOPE=all
+# Scope: if PRECOMMIT_SCOPE=all -> whole repo.
+# Else if staged Dart files exist -> format only staged.
+# Else -> limit to tool/**, lib/l3/**, test/l3_*.dart (как в CI).
 CHANGED_DART=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.dart$' || true)
 
 scope_format_changed() {
-  if [[ -n "$CHANGED_DART" ]]; then
-    if dart format --set-exit-if-changed $CHANGED_DART >/dev/null 2>&1; then
+  if [[ -n "${CHANGED_DART}" ]]; then
+    if dart format --set-exit-if-changed ${CHANGED_DART} >/dev/null 2>&1; then
       say_ok "format clean (changed files)"
     else
-      say_bad "formatting needed in changed files (run: dart format $CHANGED_DART)"
+      say_bad "formatting needed in changed files (run: dart format ${CHANGED_DART})"
+      return 1
     fi
     return 0
   fi
@@ -94,18 +97,25 @@ scope_format_changed() {
 }
 
 scope_format_scoped() {
-  # Build list of files under tool/, lib/l3/, and test/l3_*.dart
-  SCOPE_LIST=$( (find tool -type f -name '*.dart' 2>/dev/null; \
-                 find lib/l3 -type f -name '*.dart' 2>/dev/null; \
-                 find test -maxdepth 1 -type f -name 'l3_*.dart' 2>/dev/null) | sort )
-  if [[ -z "$SCOPE_LIST" ]]; then
+  # собираем список через git ls-files (как в CI); если вдруг git не видит — fallback на find
+  FILES="$(git ls-files 'tool/**/*.dart' 'lib/l3/**/*.dart' 'test/l3_*.dart' || true)"
+  if [[ -z "${FILES}" ]]; then
+    FILES="$( (find tool -type f -name '*.dart' 2>/dev/null; \
+               find lib/l3 -type f -name '*.dart' 2>/dev/null; \
+               find test -maxdepth 1 -type f -name 'l3_*.dart' 2>/dev/null) | tr '\n' ' ' )"
+  fi
+
+  if [[ -z "${FILES// /}" ]]; then
     say_ok "format scope empty (tool/lib/l3/test l3_*)"
     return 0
   fi
-  if echo "$SCOPE_LIST" | xargs dart format --set-exit-if-changed >/dev/null 2>&1; then
+
+  if dart format --set-exit-if-changed ${FILES} >/dev/null 2>&1; then
     say_ok "format clean (tool, lib/l3, test/l3_*)"
   else
-    say_bad "formatting needed (run: dart format \$(git ls-files 'tool/**/*.dart' 'lib/l3/**/*.dart' 'test/l3_*.dart'))"
+    say_bad "formatting needed (run: dart format ${FILES})"
+    # покажем, что именно меняет форматтер (не валим шаг дополнительно)
+    dart format ${FILES} | sed 's/^/  /' || true
   fi
 }
 
@@ -128,19 +138,22 @@ else
   fi
 fi
 
-# 6) Analyze (tooling/L3 by default)
+# 6) Analyze (tooling/L3 by default; PRECOMMIT_SCOPE=all -> lib/test целиком)
 if command -v dart >/dev/null 2>&1; then
-  ANALYZE_TARGETS=("tool" "lib/l3")
-  if compgen -G "test/l3_*.dart" >/dev/null 2>&1; then
-    ANALYZE_TARGETS+=($(ls test/l3_*.dart))
-  fi
   if [[ "${PRECOMMIT_SCOPE:-}" == "all" ]]; then
-    ANALYZE_TARGETS=("tool" "lib" "test")
-  fi
-  if dart analyze "${ANALYZE_TARGETS[@]}" >/dev/null 2>&1; then
-    say_ok "dart analyze (${ANALYZE_TARGETS[*]})"
+    TARGETS=("tool" "lib" "test")
   else
-    say_bad "dart analyze has issues in scoped targets (${ANALYZE_TARGETS[*]})"
+    TARGETS=("tool" "lib/l3")
+    if compgen -G "test/l3_*.dart" >/dev/null 2>&1; then
+      # раскладываем в массив, чтобы bash не склеил одним аргументом
+      while IFS= read -r f; do TARGETS+=("$f"); done < <(ls test/l3_*.dart 2>/dev/null || true)
+    fi
+  fi
+
+  if dart analyze "${TARGETS[@]}" >/dev/null 2>&1; then
+    say_ok "dart analyze (${TARGETS[*]})"
+  else
+    say_bad "dart analyze has issues in scoped targets (${TARGETS[*]})"
   fi
 fi
 
