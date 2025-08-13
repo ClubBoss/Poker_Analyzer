@@ -2,10 +2,12 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 
 import '../l10n/app_localizations.dart';
 import '../services/l3_cli_runner.dart';
 import '../utils/shared_prefs_keys.dart';
+import '../models/l3_run_history_entry.dart';
 import 'l3_report_viewer_screen.dart';
 
 class QuickstartL3Screen extends StatefulWidget {
@@ -23,6 +25,8 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
   String? _lastReportPath;
   String? _inlineWarning;
   String? _error;
+  List<L3RunHistoryEntry> _history = [];
+  final _historyService = L3RunHistoryService();
 
   bool get _isDesktop =>
       !kIsWeb && (Platform.isMacOS || Platform.isWindows || Platform.isLinux);
@@ -52,8 +56,10 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
 
   Future<void> _loadLast() async {
     final prefs = await SharedPreferences.getInstance();
+    final hist = await _historyService.load();
     setState(() {
       _lastReportPath = prefs.getString(SharedPrefsKeys.lastL3ReportPath);
+      _history = hist;
     });
   }
 
@@ -73,9 +79,25 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
     final runner = L3CliRunner();
     final res = await runner.run(weights: weightsArg, weightsPreset: preset);
     final prefs = await SharedPreferences.getInstance();
+    final warnings = <String>[];
+    if (_inlineWarning != null) warnings.add(_inlineWarning!);
+    warnings.addAll(res.warnings);
     if (res.exitCode == 0) {
       await prefs.setString(SharedPrefsKeys.lastL3ReportPath, res.outPath);
       _lastReportPath = res.outPath;
+      final entry = L3RunHistoryEntry(
+        timestamp: DateTime.now(),
+        argsSummary: preset != null
+            ? 'preset=$preset'
+            : (weightsArg != null ? 'weights=json' : 'default'),
+        outPath: res.outPath,
+        logPath: res.logPath,
+        warnings: warnings,
+        weights: weightsArg,
+        preset: preset,
+      );
+      await _historyService.push(entry);
+      _history = await _historyService.load();
     }
     setState(() {
       _running = false;
@@ -84,9 +106,6 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
         _error = res.stderr;
       }
     });
-    final warnings = <String>[];
-    if (_inlineWarning != null) warnings.add(_inlineWarning!);
-    warnings.addAll(res.warnings);
     if (warnings.isNotEmpty && mounted) {
       for (final w in warnings) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(w)));
@@ -97,6 +116,13 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
   Future<void> _openReport() async {
     final path = _lastReportPath;
     if (path == null) return;
+    L3RunHistoryEntry? entry;
+    for (final e in _history) {
+      if (e.outPath == path) {
+        entry = e;
+        break;
+      }
+    }
     final file = File(path);
     final exists = await file.exists();
     if (!exists || (await file.readAsString()).trim().isEmpty) {
@@ -111,13 +137,23 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
     if (!mounted) return;
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => L3ReportViewerScreen(path: path)),
+      MaterialPageRoute(
+        builder: (_) => L3ReportViewerScreen(
+          path: path,
+          logPath: entry?.logPath,
+          warnings: entry?.warnings ?? const [],
+        ),
+      ),
     );
   }
 
   void _viewLogs() {
     final path = _result?.logPath;
     if (path == null) return;
+    _viewLogsFile(path);
+  }
+
+  void _viewLogsFile(String path) {
     final text = File(path).readAsStringSync();
     showDialog(
       context: context,
@@ -132,6 +168,29 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
         ],
       ),
     );
+  }
+
+  void _openEntry(L3RunHistoryEntry e) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => L3ReportViewerScreen(
+          path: e.outPath,
+          logPath: e.logPath,
+          warnings: e.warnings,
+        ),
+      ),
+    );
+  }
+
+  void _openFolder(L3RunHistoryEntry e) {
+    L3CliRunner.revealInFolder(e.outPath);
+  }
+
+  void _reRun(L3RunHistoryEntry e) {
+    _weightsController.text = e.weights ?? '';
+    setState(() => _weightsPreset = e.preset);
+    _run();
   }
 
   void _retry() {
@@ -201,11 +260,52 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
               ),
             const SizedBox(height: 16),
             ElevatedButton(onPressed: _run, child: Text(loc.run)),
-            const SizedBox(height: 16),
             if (_lastReportPath != null)
-              ElevatedButton(
+              TextButton(
                 onPressed: _openReport,
                 child: Text(loc.openReport),
+              ),
+            const SizedBox(height: 16),
+            if (_history.isNotEmpty)
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(loc.recentRuns),
+                    const SizedBox(height: 8),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: _history.length,
+                        itemBuilder: (context, index) {
+                          final e = _history[index];
+                          final ts =
+                              DateFormat('yyyy-MM-dd HH:mm').format(e.timestamp);
+                          return ListTile(
+                            title: Text('$ts ${e.argsSummary}'),
+                            trailing: Wrap(
+                              spacing: 4,
+                              children: [
+                                TextButton(
+                                    onPressed: () => _openEntry(e),
+                                    child: Text(loc.open)),
+                                TextButton(
+                                    onPressed: () => _viewLogsFile(e.logPath),
+                                    child: Text(loc.logs)),
+                                if (_isDesktop)
+                                  TextButton(
+                                      onPressed: () => _openFolder(e),
+                                      child: Text(loc.folder)),
+                                TextButton(
+                                    onPressed: () => _reRun(e),
+                                    child: Text(loc.reRun)),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
           ],
         ),

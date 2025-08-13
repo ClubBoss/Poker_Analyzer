@@ -55,4 +55,5 @@ class SharedPrefsKeys {
 
   // L3 quickstart
   static const String lastL3ReportPath = 'last_l3_report_path';
+  static const String l3RunHistory = 'l3_run_history';
 }

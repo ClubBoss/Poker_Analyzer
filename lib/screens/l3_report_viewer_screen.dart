@@ -1,13 +1,27 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../l10n/app_localizations.dart';
+import '../services/l3_cli_runner.dart';
+import 'l3_ab_diff_screen.dart';
 
 class L3ReportViewerScreen extends StatelessWidget {
   final String path;
-  const L3ReportViewerScreen({super.key, required this.path});
+  final String? logPath;
+  final List<String> warnings;
+  const L3ReportViewerScreen({
+    super.key,
+    required this.path,
+    this.logPath,
+    this.warnings = const [],
+  });
+
+  bool get _isDesktop =>
+      !kIsWeb && (Platform.isMacOS || Platform.isWindows || Platform.isLinux);
 
   Future<String> _load() async {
     final file = File(path);
@@ -25,7 +39,103 @@ class L3ReportViewerScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(loc.quickstartL3)),
+      appBar: AppBar(
+        title: Text(loc.quickstartL3),
+        actions: [
+          IconButton(
+            tooltip: loc.copyPath,
+            icon: const Icon(Icons.copy),
+            onPressed: () {
+              if (_isDesktop) {
+                Clipboard.setData(ClipboardData(text: path));
+              } else {
+                showDialog(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    content: Text(loc.desktopOnly),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+                );
+              }
+            },
+          ),
+          if (logPath != null)
+            IconButton(
+              tooltip: loc.logs,
+              icon: const Icon(Icons.article),
+              onPressed: () {
+                if (_isDesktop) {
+                  final text = File(logPath!).readAsStringSync();
+                  showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      title: Text(loc.viewLogs),
+                      content: SingleChildScrollView(
+                          child: SelectableText(text)),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
+                  );
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      content: Text(loc.desktopOnly),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              },
+            ),
+          IconButton(
+            tooltip: loc.folder,
+            icon: const Icon(Icons.folder),
+            onPressed: () {
+              if (_isDesktop) {
+                L3CliRunner.revealInFolder(path);
+              } else {
+                showDialog(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    content: Text(loc.desktopOnly),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                  ),
+                );
+              }
+            },
+          ),
+          IconButton(
+            tooltip: loc.abDiff,
+            icon: const Icon(Icons.compare_arrows),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const L3AbDiffScreen()),
+              );
+            },
+          ),
+        ],
+      ),
       body: FutureBuilder<String>(
         future: _load(),
         builder: (context, snapshot) {
@@ -38,6 +148,17 @@ class L3ReportViewerScreen extends StatelessWidget {
           }
           return Column(
             children: [
+              if (warnings.isNotEmpty)
+                Container(
+                  width: double.infinity,
+                  color: Colors.amber[100],
+                  padding: const EdgeInsets.all(8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children:
+                        warnings.map((w) => Text(w)).toList(),
+                  ),
+                ),
               Expanded(
                 child: SingleChildScrollView(
                   child: SelectableText(text),
@@ -46,7 +167,6 @@ class L3ReportViewerScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  TextButton(onPressed: null, child: Text(loc.abDiff)),
                   TextButton(onPressed: null, child: Text(loc.export)),
                 ],
               )

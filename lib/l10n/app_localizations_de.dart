@@ -482,4 +482,37 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get weightsJson => 'Weights JSON';
+
+  @override
+  String get recentRuns => 'Recent runs';
+
+  @override
+  String get open => 'Open';
+
+  @override
+  String get logs => 'Logs';
+
+  @override
+  String get folder => 'Folder';
+
+  @override
+  String get copyPath => 'Copy path';
+
+  @override
+  String get reRun => 'Re-run';
+
+  @override
+  String get pickTwoRuns => 'Pick two runs';
+
+  @override
+  String get compare => 'Compare';
+
+  @override
+  String get noSelection => 'No selection';
+
+  @override
+  String get rootKeys => 'Root keys';
+
+  @override
+  String get arrayLengths => 'Array lengths';
 }

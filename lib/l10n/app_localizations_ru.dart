@@ -482,4 +482,26 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get weightsJson => 'JSON весов';
+
+  String get recentRuns => 'Последние запуски';
+
+  String get open => 'Открыть';
+
+  String get logs => 'Логи';
+
+  String get folder => 'Папка';
+
+  String get copyPath => 'Скопировать путь';
+
+  String get reRun => 'Запустить снова';
+
+  String get pickTwoRuns => 'Выберите два запуска';
+
+  String get compare => 'Сравнить';
+
+  String get noSelection => 'Ничего не выбрано';
+
+  String get rootKeys => 'Корневые ключи';
+
+  String get arrayLengths => 'Длины массивов';
 }
