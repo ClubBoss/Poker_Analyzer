@@ -10,6 +10,7 @@ import '../services/l3_cli_runner.dart';
 import '../utils/toast.dart';
 import '../utils/csv_io.dart';
 import '../utils/report_csv.dart';
+import '../utils/temp_cleanup.dart';
 import 'l3_ab_diff_screen.dart';
 
 class _ExportIntent extends Intent {
@@ -79,6 +80,7 @@ class L3ReportViewerScreen extends StatelessWidget {
         showToast(context, loc.invalidJson);
         return;
       }
+      await cleanupOldTempDirs(prefix: 'l3_report_');
       final dir = await Directory(
         '${Directory.systemTemp.path}/l3_report_${DateTime.now().millisecondsSinceEpoch}',
       ).create(recursive: true);

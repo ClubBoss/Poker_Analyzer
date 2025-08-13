@@ -11,6 +11,7 @@ import '../models/l3_run_history_entry.dart';
 import '../services/l3_cli_runner.dart';
 import '../utils/toast.dart';
 import '../utils/csv_io.dart';
+import '../utils/temp_cleanup.dart';
 
 String buildAbCsv(Map<String, dynamic> payload) {
   final Map<String, num> a = (payload['a'] as Map).cast<String, num>();
@@ -276,6 +277,7 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
     };
     final csv = await compute(buildAbCsv, payload);
     if (navigator.mounted) navigator.pop();
+    await cleanupOldTempDirs(prefix: 'l3_ab');
     final dir = await Directory.systemTemp.createTemp('l3_ab');
     final file = File('${dir.path}/ab_diff.csv');
     await writeCsv(file, StringBuffer()..write(csv));

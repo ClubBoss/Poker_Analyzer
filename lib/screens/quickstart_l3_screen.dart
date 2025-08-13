@@ -15,6 +15,7 @@ import '../utils/toast.dart';
 import '../utils/csv_io.dart';
 import '../utils/history_csv.dart';
 import '../utils/report_csv.dart';
+import '../utils/temp_cleanup.dart';
 import 'l3_report_viewer_screen.dart';
 
 class QuickstartL3Screen extends StatefulWidget {
@@ -289,6 +290,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
       showToast(context, loc.invalidJson);
       return;
     }
+    await cleanupOldTempDirs(prefix: 'l3_report_');
     final dir = await Directory(
       '${Directory.systemTemp.path}/l3_report_${DateTime.now().millisecondsSinceEpoch}',
     ).create(recursive: true);
@@ -368,6 +370,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
         .toList();
     final csv = await compute(buildHistoryCsv, payload);
     if (navigator.mounted) navigator.pop();
+    await cleanupOldTempDirs(prefix: 'l3_history_');
     final dir = await Directory(
       '${Directory.systemTemp.path}/l3_history_${DateTime.now().millisecondsSinceEpoch}',
     ).create(recursive: true);
