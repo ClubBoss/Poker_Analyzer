@@ -72,6 +72,20 @@ jobs:
         run: dart run tool/autogen/l3_board_generator.dart --preset all --seed 333 --out build/tmp/l3/333
       - name: Validate L3 distribution
         run: dart run tool/validators/l3_distribution_validator.dart --dir build/tmp/l3
+      - name: PackRun L3 (seed 111)
+        run: dart run tool/l3/pack_run_cli.dart --dir build/tmp/l3/111 --out build/reports/l3_packrun_111.json
+      - name: PackRun L3 (seed 222)
+        run: dart run tool/l3/pack_run_cli.dart --dir build/tmp/l3/222 --out build/reports/l3_packrun_222.json
+      - name: PackRun L3 (seed 333)
+        run: dart run tool/l3/pack_run_cli.dart --dir build/tmp/l3/333 --out build/reports/l3_packrun_333.json
+      - name: Upload L3 PackRun reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: l3_packrun_reports
+          path: |
+            build/reports/l3_packrun_111.json
+            build/reports/l3_packrun_222.json
+            build/reports/l3_packrun_333.json
       - name: Run L3 tests
         run: dart test test/l3_*
       - run: dart run tool/metrics/l2_metrics_report.dart --packs assets/packs/l2 --snippets assets/theory/l2/snippets.yaml --out build/reports/l2_report.md
