@@ -41,6 +41,12 @@ flutter run -t main.dart
 flutter build apk --target=main.dart
 ```
 
+## Dev setup
+Install pre-commit hooks:
+```bash
+ln -sf ../../tool/dev/precommit_sanity.sh .git/hooks/pre-commit
+```
+
 ## Usage Examples
 - **Run a training pack**: `flutter run`
 - **Verify theory content**: `dart tools/validate_training_content.dart --ci`
