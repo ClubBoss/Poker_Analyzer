@@ -48,6 +48,9 @@ class L3ReportViewerScreen extends StatelessWidget {
             onPressed: () {
               if (_isDesktop) {
                 Clipboard.setData(ClipboardData(text: path));
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('Copied')));
               } else {
                 showDialog(
                   context: context,
@@ -76,7 +79,8 @@ class L3ReportViewerScreen extends StatelessWidget {
                     builder: (_) => AlertDialog(
                       title: Text(loc.viewLogs),
                       content: SingleChildScrollView(
-                          child: SelectableText(text)),
+                        child: SelectableText(text),
+                      ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context),
@@ -129,8 +133,7 @@ class L3ReportViewerScreen extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (_) => const L3AbDiffScreen()),
+                MaterialPageRoute(builder: (_) => const L3AbDiffScreen()),
               );
             },
           ),
@@ -155,21 +158,18 @@ class L3ReportViewerScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(8),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children:
-                        warnings.map((w) => Text(w)).toList(),
+                    children: warnings.map((w) => Text(w)).toList(),
                   ),
                 ),
               Expanded(
-                child: SingleChildScrollView(
-                  child: SelectableText(text),
-                ),
+                child: SingleChildScrollView(child: SelectableText(text)),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(onPressed: null, child: Text(loc.export)),
                 ],
-              )
+              ),
             ],
           );
         },
