@@ -86,6 +86,20 @@ jobs:
         run: dart run tool/autogen/l3_demo_sampler.dart --source build/tmp/l3/111 --preset all --out assets/packs/l3/demo --spots 100 --dedupe flop --seed 111
       - name: Validate L3 demo packs
         run: dart run tool/validators/l3_demo_validator.dart --dir assets/packs/l3/demo --dedupe flop
+      - name: Generate packs manifest
+        run: dart run tool/metrics/packs_manifest.dart --roots assets/packs/l2,assets/packs/l3 --out build/reports/packs_manifest.json --mdOut build/reports/packs_manifest.md
+      - run: |
+          echo "::group::Packs Manifest"
+          cat build/reports/packs_manifest.md
+          echo "::endgroup::"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: packs_manifest
+          path: |
+            build/reports/packs_manifest.json
+            build/reports/packs_manifest.md
+      - name: Run packs manifest test
+        run: dart test test/packs_manifest_test.dart
       - name: Run L3 demo tests
         run: dart test test/l3_demo_*
       - name: PackRun L3 (seed 111)
