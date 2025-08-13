@@ -52,4 +52,7 @@ class SharedPrefsKeys {
 
   // Theory auto-injector
   static const String theoryInjectReport = 'theory_inject_report';
+
+  // L3 quickstart
+  static const String lastL3ReportPath = 'last_l3_report_path';
 }
