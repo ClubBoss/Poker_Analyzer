@@ -70,10 +70,19 @@ Future<void> main(List<String> args) async {
         }
       }
       rel = rel.replaceAll('\\', '/');
+      final handField = (() {
+        final h = spot['hand'];
+        if (h is String) return h;
+        if (h is Map) {
+          final hc = h['heroCards'] ?? h['handCode'];
+          if (hc is String) return hc;
+        }
+        return null;
+      })();
       spots.add({
         'path': rel,
         'spotIndex': i,
-        'hand': spot['hand'],
+        'hand': handField,
         'board': spot['board'],
         'spr': (spot['spr'] as num?)?.toDouble(),
         'bestAction': best,
@@ -104,7 +113,7 @@ Future<void> main(List<String> args) async {
       await handle(p);
     }
   } else if (glob != null) {
-    final regex = _globToRegExp(glob);
+    final regex = _globToRegExp(glob!);
     final paths = <String>[];
     await for (final entity in Directory.current.list(
       recursive: true,
@@ -129,12 +138,22 @@ Future<void> main(List<String> args) async {
     }
   }
 
+  // Deterministic ordering: primary by (delta | abs(delta)) desc,
+  // then by path asc, then by spotIndex asc.
   spots.sort((a, b) {
     final da = a['delta'] as double;
     final db = b['delta'] as double;
     final va = absDelta ? da.abs() : da;
     final vb = absDelta ? db.abs() : db;
-    return vb.compareTo(va);
+    final primary = vb.compareTo(va);
+    if (primary != 0) return primary;
+    final pa = a['path'] as String;
+    final pb = b['path'] as String;
+    final sec = pa.compareTo(pb);
+    if (sec != 0) return sec;
+    final ia = a['spotIndex'] as int;
+    final ib = b['spotIndex'] as int;
+    return ia.compareTo(ib);
   });
 
   if (spots.length > limit) {
