@@ -65,8 +65,8 @@ Future<void> main(List<String> args) async {
         final bucket = sprVal < 1
             ? 'spr_low'
             : sprVal < 2
-            ? 'spr_mid'
-            : 'spr_high';
+                ? 'spr_mid'
+                : 'spr_high';
         final entry = bySpr[bucket]!;
         entry[1]++;
         if (isJam) entry[0]++;

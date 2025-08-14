@@ -285,7 +285,8 @@ Future<void> main(List<String> args) async {
 
   final modes = [inPath, dirPath, glob].whereType<String>();
   if (modes.isEmpty) {
-    stderr.writeln('No input specified. Pass --in, --dir, or --glob. See --help.');
+    stderr.writeln(
+        'No input specified. Pass --in, --dir, or --glob. See --help.');
     exitCode = 64;
     return;
   }

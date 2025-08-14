@@ -37,7 +37,9 @@ Future<void> _writeReport(
 ) async {
   final file = File('${dir.path}${Platform.pathSeparator}$name.json');
   await file.writeAsString(
-    const JsonEncoder.withIndent('  ').convert({'spots': [spot]}),
+    const JsonEncoder.withIndent('  ').convert({
+      'spots': [spot]
+    }),
   );
 }
 

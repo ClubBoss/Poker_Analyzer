@@ -585,9 +585,8 @@ void main() {
       });
       expect(exitCode, 0);
       final list = jsonDecode(out.trim()) as List;
-      final hands = list
-          .map((e) => (e as Map<String, dynamic>)['hand'])
-          .toList();
+      final hands =
+          list.map((e) => (e as Map<String, dynamic>)['hand']).toList();
       expect(list.length, 1);
       expect(hands.contains(null), false);
       expect(hands.contains('As Ks'), true);
@@ -608,9 +607,8 @@ void main() {
       });
       expect(exitCode, 0);
       final list = jsonDecode(out.trim()) as List;
-      final hands = list
-          .map((e) => (e as Map<String, dynamic>)['hand'])
-          .toList();
+      final hands =
+          list.map((e) => (e as Map<String, dynamic>)['hand']).toList();
       // All non-null hands with a space are excluded; null should remain.
       expect(list.length, 1);
       expect(hands.contains(null), true);
@@ -1223,9 +1221,8 @@ void main() {
       expect(exitCode, 0);
       expect(run1, run2);
       final list = jsonDecode(run1.trim()) as List;
-      final boards = list
-          .map((e) => (e as Map<String, dynamic>)['board'])
-          .toSet();
+      final boards =
+          list.map((e) => (e as Map<String, dynamic>)['board']).toSet();
       expect(boards, {'AsKsQs', '9c8d7s'});
     } finally {
       await dir.delete(recursive: true);
@@ -1665,13 +1662,11 @@ void main() {
       expect(exitCode, 0);
       final list = jsonDecode(out.trim()) as List;
       expect(list.length, 2);
-      final hands = list
-          .map((e) => (e as Map<String, dynamic>)['hand'])
-          .toSet();
+      final hands =
+          list.map((e) => (e as Map<String, dynamic>)['hand']).toSet();
       expect(hands.length, 2);
-      final deltas = list
-          .map((e) => (e as Map<String, dynamic>)['delta'])
-          .toList();
+      final deltas =
+          list.map((e) => (e as Map<String, dynamic>)['delta']).toList();
       expect(deltas.contains(-0.8), true);
       expect(deltas.contains(0.7), true);
     } finally {
