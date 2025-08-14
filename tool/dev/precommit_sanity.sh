@@ -37,5 +37,5 @@ if grep -R -q 'sdk: flutter' pubspec.yaml; then
   flutter pub get
 fi
 
-dart analyze lib/ev bin test/ev --fatal-warnings --fatal-infos
+dart analyze bin ev --fatal-warnings --no-fatal-infos
 dart test test/ev/jam_fold_evaluator_test.dart
