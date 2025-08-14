@@ -8,7 +8,7 @@ permissions:
   contents: write
 
 env:
-  THEORY_DIRS: theory,yaml_out
+  THEORY_DIRS: assets,yaml_out,theory
 
 jobs:
   verify:
