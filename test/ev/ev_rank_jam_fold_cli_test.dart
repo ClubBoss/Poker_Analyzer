@@ -187,7 +187,7 @@ Future<Directory> _buildNullHandCorpus() async {
     {
       'spr': 1.0,
       'jamFold': {'evJam': 0.5, 'evFold': 0, 'bestAction': 'jam', 'delta': 0.5},
-    }
+    },
   ]);
   // Spot with a concrete hand
   await _writeReportMulti(dir, 'ak', [
@@ -585,7 +585,10 @@ void main() {
       });
       expect(exitCode, 0);
       final list = jsonDecode(out.trim()) as List;
-      final hands = list.map((e) => (e as Map<String, dynamic>)['hand']).toList();
+      final hands = list
+          .map((e) => (e as Map<String, dynamic>)['hand'])
+          .toList();
+      expect(list.length, 1);
       expect(hands.contains(null), false);
       expect(hands.contains('As Ks'), true);
       Directory.current = prev;
@@ -605,8 +608,11 @@ void main() {
       });
       expect(exitCode, 0);
       final list = jsonDecode(out.trim()) as List;
-      final hands = list.map((e) => (e as Map<String, dynamic>)['hand']).toList();
+      final hands = list
+          .map((e) => (e as Map<String, dynamic>)['hand'])
+          .toList();
       // All non-null hands with a space are excluded; null should remain.
+      expect(list.length, 1);
       expect(hands.contains(null), true);
       expect(hands.contains('As Ks'), false);
       Directory.current = prev;
