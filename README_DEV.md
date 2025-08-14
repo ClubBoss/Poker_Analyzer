@@ -81,6 +81,20 @@ dart run bin/ev_rank_jam_fold_deltas.dart --dir reports/ --limit 50 --action jam
 # absolute impact >= 1.0 regardless of action
 dart run bin/ev_rank_jam_fold_deltas.dart --glob "reports/**/*.json" --abs-delta --min-delta 1.0
 
+# Only consider reports under "packs/hot/**"
+dart run bin/ev_rank_jam_fold_deltas.dart --dir reports/ --include "packs/hot/**"
+
+# Broad include, then exclude archived packs
+dart run bin/ev_rank_jam_fold_deltas.dart \
+  --glob "reports/**/*.json" \
+  --include "reports/**" --exclude "reports/**/archive/**"
+
+# Combine with other filters and CSV
+dart run bin/ev_rank_jam_fold_deltas.dart \
+  --dir reports/ \
+  --include "packs/**" --exclude "packs/**/old/**" \
+  --abs-delta --min-delta 1.0 --format csv --fields path,delta,bestAction
+
 # Only low-SPR (<1) jams, ranked by delta
 dart run bin/ev_rank_jam_fold_deltas.dart --dir reports/ --spr low --action jam
 
