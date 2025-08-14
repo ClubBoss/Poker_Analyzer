@@ -1,0 +1,58 @@
+name: Codex Presubmit (format+analyze)
+
+on:
+  pull_request:
+    branches:
+      - 'codex/**'          # только PR из веток Codex
+
+permissions:
+  contents: write           # нужно, чтобы автоформат мог запушить
+
+concurrency:
+  group: presubmit-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  presubmit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Setup Flutter (for Dart toolchain)
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.27.0'
+          cache: true
+
+      - name: Autoformat changed Dart files
+        id: fmt
+        run: |
+          echo "::group::dart format"
+          dart --version
+          # форматируем весь код (быстро и детерминированно)
+          dart format -o write tool lib test || true
+          echo "::endgroup::"
+
+          # фиксируем, были ли изменения
+          if git diff --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit format (if needed)
+        if: steps.fmt.outputs.changed == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "style: dart format (autofix)"
+          git push
+
+      - name: Dart analyze
+        run: dart analyze
