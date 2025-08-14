@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:path/path.dart' as p;
 import 'package:poker_analyzer/ev/jam_fold_evaluator.dart';
 
 Future<void> main(List<String> args) async {
@@ -70,9 +69,19 @@ Future<void> main(List<String> args) async {
   } else if (glob != null) {
     final regex = _globToRegExp(glob!);
     final root = Directory.current.path;
-    await for (final entity in Directory.current.list(recursive: true, followLinks: false)) {
+    await for (final entity in Directory.current.list(
+      recursive: true,
+      followLinks: false,
+    )) {
       if (entity is! File) continue;
-      final rel = p.relative(entity.path, from: root).replaceAll('\\', '/');
+      var rel = entity.path;
+      if (rel.startsWith(root)) {
+        rel = rel.substring(root.length);
+        if (rel.startsWith(Platform.pathSeparator)) {
+          rel = rel.substring(1);
+        }
+      }
+      rel = rel.replaceAll('\\', '/');
       if (regex.hasMatch(rel)) {
         await handle(entity.path, entity.path);
       }

@@ -2,6 +2,8 @@
 
 ## Jam/Fold EV Enrichment
 
+Exactly one of `--in`, `--dir`, or `--glob` must be provided. `--out` can only be used with `--in`.
+
 Run only the enrichment tests:
 
 ```sh
