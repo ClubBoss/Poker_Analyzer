@@ -462,7 +462,8 @@ Future<void> main(List<String> args) async {
       return v < minDelta!;
     });
   }
-  final tx = textures; if (tx != null) {
+  final tx = textures;
+  if (tx != null) {
     spots.removeWhere((s) {
       final tags = s['_tags'] as Set<String>?;
       if (tags == null) return true;
