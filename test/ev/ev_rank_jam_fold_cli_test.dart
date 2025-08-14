@@ -159,6 +159,20 @@ Future<Directory> _buildHandDedupCorpus() async {
   return dir;
 }
 
+Future<Directory> _buildHandFilterCorpus() async {
+  final dir = await Directory.systemTemp.createTemp('ev_rank_cli_hand_filter');
+  await _writeReportMulti(dir, 'ak', [
+    _mkSpot(hand: 'As Ks', delta: 0.6, spr: 1.5),
+  ]);
+  await _writeReportMulti(dir, 'qj', [
+    _mkSpot(hand: 'Qs Js', delta: 0.7, spr: 1.5),
+  ]);
+  await _writeReportMulti(dir, 'nines', [
+    _mkSpot(hand: '9c 9d', delta: 0.8, spr: 1.5),
+  ]);
+  return dir;
+}
+
 Future<Directory> _buildNullBoardCorpus() async {
   final dir = await Directory.systemTemp.createTemp('ev_rank_cli_null');
   await _writeReport(dir, 'a', delta: 0.5, board: null);
@@ -392,6 +406,205 @@ void main() {
         await cli.main(['--dir', '.', '--exclude', ' ,  ']);
       });
       expect(exitCode, 64);
+      Directory.current = prev;
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('include-hand only', () async {
+    final dir = await _buildHandFilterCorpus();
+    try {
+      final prev = Directory.current;
+      Directory.current = dir;
+      final run1 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', '.', '--include-hand', 'A* K*']);
+      });
+      final run2 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', '.', '--include-hand', 'A* K*']);
+      });
+      expect(run1, run2);
+      expect(exitCode, 0);
+      final list = jsonDecode(run1.trim()) as List;
+      expect(list.length, 1);
+      final first = list.first as Map<String, dynamic>;
+      expect(first['hand'], 'As Ks');
+      Directory.current = prev;
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('exclude-hand only', () async {
+    final dir = await _buildHandFilterCorpus();
+    try {
+      final prev = Directory.current;
+      Directory.current = dir;
+      final out = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', '.', '--exclude-hand', 'Q* J*']);
+      });
+      expect(exitCode, 0);
+      final list = jsonDecode(out.trim()) as List;
+      for (final spot in list) {
+        final h = (spot as Map<String, dynamic>)['hand'] as String?;
+        expect(h, isNot('Qs Js'));
+      }
+      Directory.current = prev;
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('include and exclude hand combo', () async {
+    final dir = await _buildHandFilterCorpus();
+    try {
+      final prev = Directory.current;
+      Directory.current = dir;
+      final out = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          '.',
+          '--include-hand',
+          '* *',
+          '--exclude-hand',
+          '9* 9*',
+        ]);
+      });
+      expect(exitCode, 0);
+      final list = jsonDecode(out.trim()) as List;
+      expect(list.length, 2);
+      final hands = list
+          .map((e) => (e as Map<String, dynamic>)['hand'] as String)
+          .toSet();
+      expect(hands.contains('As Ks'), true);
+      expect(hands.contains('Qs Js'), true);
+      expect(hands.contains('9c 9d'), false);
+      for (final spot in list) {
+        final m = spot as Map<String, dynamic>;
+        expect(
+          m.keys.toSet().containsAll([
+            'path',
+            'spotIndex',
+            'hand',
+            'board',
+            'spr',
+            'bestAction',
+            'evJam',
+            'evFold',
+            'delta',
+          ]),
+          true,
+        );
+      }
+      Directory.current = prev;
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('multiple include-hand flags merged', () async {
+    final dir = await _buildHandFilterCorpus();
+    try {
+      final prev = Directory.current;
+      Directory.current = dir;
+      final out = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          '.',
+          '--include-hand',
+          'A* K*',
+          '--include-hand',
+          'Q* J*',
+        ]);
+      });
+      expect(exitCode, 0);
+      final list = jsonDecode(out.trim()) as List;
+      final hands = list
+          .map((e) => (e as Map<String, dynamic>)['hand'] as String)
+          .toSet();
+      expect(hands.length, 2);
+      expect(hands.contains('As Ks'), true);
+      expect(hands.contains('Qs Js'), true);
+      Directory.current = prev;
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('invalid include-hand/exclude-hand args', () async {
+    final dir = await _buildHandFilterCorpus();
+    try {
+      final prev = Directory.current;
+      Directory.current = dir;
+      await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', '.', '--include-hand', '']);
+      });
+      expect(exitCode, 64);
+
+      await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', '.', '--exclude-hand', ' ,  ']);
+      });
+      expect(exitCode, 64);
+      Directory.current = prev;
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('hand filters with other filters determinism', () async {
+    final dir = await _buildHandFilterCorpus();
+    try {
+      final prev = Directory.current;
+      Directory.current = dir;
+      final run1 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          '.',
+          '--include-hand',
+          '* *',
+          '--exclude-hand',
+          '9* 9*',
+          '--spr',
+          'mid',
+          '--action',
+          'jam',
+          '--abs-delta',
+          '--min-delta',
+          '0.5',
+          '--format',
+          'jsonl',
+        ]);
+      });
+      final run2 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          '.',
+          '--include-hand',
+          '* *',
+          '--exclude-hand',
+          '9* 9*',
+          '--spr',
+          'mid',
+          '--action',
+          'jam',
+          '--abs-delta',
+          '--min-delta',
+          '0.5',
+          '--format',
+          'jsonl',
+        ]);
+      });
+      expect(run1, run2);
+      expect(exitCode, 0);
       Directory.current = prev;
     } finally {
       await dir.delete(recursive: true);
