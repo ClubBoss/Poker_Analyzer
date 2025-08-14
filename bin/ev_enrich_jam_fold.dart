@@ -67,7 +67,7 @@ Future<void> main(List<String> args) async {
       }
     }
   } else if (glob != null) {
-    final regex = _globToRegExp(glob!);
+    final regex = _globToRegExp(glob);
     final root = Directory.current.path;
     await for (final entity in Directory.current.list(
       recursive: true,

@@ -88,7 +88,7 @@ class _GoalScreenState extends State<GoalScreen> {
   Widget _suggestedTile(UserGoal g, Color accent) {
     final progress = (_mastery[g.tag] ?? 0.0);
     return ListTile(
-      title: Text('#${g.tag} — цель: ${g.targetAccuracy?.toStringAsFixed(0)}%'),
+      title: Text('#${g.tag} - цель: ${g.targetAccuracy?.toStringAsFixed(0)}%'),
       subtitle: LinearProgressIndicator(value: progress),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,

@@ -18,9 +18,9 @@ class LearningPathEntryRenderer {
   /// Builds a widget for a single [entry].
   ///
   /// Supported entry types:
-  /// * [TheoryMiniLessonNode] – rendered via [TheoryLessonPreviewTile]
-  /// * [TrainingPackSpot] – rendered via [TrainingPackPreviewCard]
-  /// * [TrainingPackTemplateV2] – rendered via [PackCard]
+  /// * [TheoryMiniLessonNode] - rendered via [TheoryLessonPreviewTile]
+  /// * [TrainingPackSpot] - rendered via [TrainingPackPreviewCard]
+  /// * [TrainingPackTemplateV2] - rendered via [PackCard]
   Widget build(BuildContext context, Object entry) {
     if (entry is TheoryMiniLessonNode) {
       return TheoryLessonPreviewTile(

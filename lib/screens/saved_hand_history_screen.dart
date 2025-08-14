@@ -185,7 +185,7 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
                     icon: const Icon(Icons.date_range),
                     label: Text(_fromDate == null && _toDate == null
                         ? 'Период'
-                        : '${_fromDate == null ? '…' : _dateStr(_fromDate!)} – ${_toDate == null ? '…' : _dateStr(_toDate!)}'),
+                        : '${_fromDate == null ? '...' : _dateStr(_fromDate!)} - ${_toDate == null ? '...' : _dateStr(_toDate!)}'),
                     onPressed: () async {
                       final picked = await showDateRangePicker(
                         context: context,

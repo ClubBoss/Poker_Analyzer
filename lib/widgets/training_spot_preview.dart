@@ -58,7 +58,7 @@ class TrainingSpotPreview extends StatelessWidget {
             Text('P${entry.playerIndex + 1}: $label'),
             if (equity != null)
               Text(
-                ' – ${equity.round()}%',
+                ' - ${equity.round()}%',
                 style: const TextStyle(color: Colors.grey, fontSize: 12),
               ),
           ],

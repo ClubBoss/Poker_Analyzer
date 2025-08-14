@@ -144,7 +144,7 @@ class _StageCompletedScreenState extends State<StageCompletedScreen> {
                         height: 16,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text('Fix My Mistakes (6–12 hands)'),
+                    : const Text('Fix My Mistakes (6-12 hands)'),
               ),
               const SizedBox(height: 12),
               ElevatedButton(

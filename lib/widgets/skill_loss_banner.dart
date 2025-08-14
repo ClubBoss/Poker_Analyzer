@@ -46,7 +46,7 @@ class SkillLossBanner extends StatelessWidget {
                             builder: (_) => TagInsightScreen(tag: loss.tag)),
                       ),
                       child: Text(
-                        '${loss.tag} — ${loss.trend}',
+                        '${loss.tag} - ${loss.trend}',
                         style: const TextStyle(color: Colors.white),
                       ),
                     ),

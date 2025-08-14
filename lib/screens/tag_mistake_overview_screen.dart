@@ -201,7 +201,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
     if (_range == null) return 'Период';
     final start = formatDate(_range!.start);
     final end = formatDate(_range!.end);
-    return start == end ? start : '$start – $end';
+    return start == end ? start : '$start - $end';
   }
 
   String get _compareLabel {
@@ -209,7 +209,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
     if (_compareRange == null) return 'Сравнить периоды';
     final s = formatDate(_compareRange!.start);
     final e = formatDate(_compareRange!.end);
-    return s == e ? s : '$s – $e';
+    return s == e ? s : '$s - $e';
   }
 
   Future<void> _pickRange() async {

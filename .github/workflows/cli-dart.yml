@@ -1,0 +1,75 @@
+name: dart-cli (CLI-only)
+
+on:
+  pull_request:
+    paths:
+      - "bin/**"
+      - "ev/**"
+      - "test/ev/**"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+      - ".github/workflows/cli-dart.yml"
+  push:
+    branches: [ main ]
+    paths:
+      - "bin/**"
+      - "ev/**"
+      - "test/ev/**"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+      - ".github/workflows/cli-dart.yml"
+
+jobs:
+  dart-cli:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Flutter version
+        run: flutter --version
+
+      - name: Cache Pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Pub get (via Flutter)
+        run: flutter pub get
+
+      # ВАЖНО: проверяем ASCII-кавычки только в CLI-области
+      - name: Fail on smart quotes / punctuation (CLI scope)
+        shell: bash
+        run: |
+          set -euo pipefail
+          pattern='[\x{2018}\x{2019}\x{201C}\x{201D}\x{2026}\x{2014}\x{2013}]'
+          if git grep -I -nP "$pattern" -- \
+              'bin/**/*.dart' \
+              'ev/**/*.dart' \
+              'test/ev/**/*.dart' \
+              'README*.md' 'README_*.md'; then
+            echo "::error ::Smart punctuation found in CLI scope. Replace with ASCII equivalents."
+            exit 1
+          fi
+
+      # формат/анализ по CLI-области
+      - name: Format check (CLI only)
+        run: dart format --output=none --set-exit-if-changed bin test/ev
+
+      - name: Analyze (CLI only)
+        run: flutter analyze bin test/ev
+
+      - name: Unit tests (CLI only)
+        run: dart test -r expanded test/ev/_cli_help_smoke_test.dart test/ev/ev_rank_jam_fold_cli_test.dart

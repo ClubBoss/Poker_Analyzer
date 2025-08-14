@@ -461,7 +461,7 @@ class _StarterPacksOnboardingBannerState
           const StarterPackTelemetry().logPickerSelected(recommended.id, count),
         );
 
-        // По ТЗ — запускаем сразу, без отдельного start_tapped (уже есть picker_selected)
+        // По ТЗ - запускаем сразу, без отдельного start_tapped (уже есть picker_selected)
         await _launchPack(recommended);
         return;
       }
@@ -481,7 +481,7 @@ class _StarterPacksOnboardingBannerState
         const StarterPackTelemetry().logPickerSelected(selected.id, count),
       );
 
-      // По ТЗ — запускаем сразу, без отдельного start_tapped (уже есть picker_selected)
+      // По ТЗ - запускаем сразу, без отдельного start_tapped (уже есть picker_selected)
       await _launchPack(selected);
     } finally {
       if (mounted) setState(() => _choosing = false);

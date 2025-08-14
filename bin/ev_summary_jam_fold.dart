@@ -42,7 +42,7 @@ Future<void> main(List<String> args) async {
     'spr_high': [0, 0],
   };
   final byTextureCounts = <String, List<int>>{};
-  const classifier = BoardTextureClassifier();
+  const classifier = const BoardTextureClassifier();
 
   Future<void> handle(String path) async {
     files++;
@@ -65,8 +65,8 @@ Future<void> main(List<String> args) async {
         final bucket = sprVal < 1
             ? 'spr_low'
             : sprVal < 2
-            ? 'spr_mid'
-            : 'spr_high';
+                ? 'spr_mid'
+                : 'spr_high';
         final entry = bySpr[bucket]!;
         entry[1]++;
         if (isJam) entry[0]++;
@@ -98,7 +98,7 @@ Future<void> main(List<String> args) async {
       }
     }
   } else if (glob != null) {
-    final regex = _globToRegExp(glob!);
+    final regex = _globToRegExp(glob);
     final root = Directory.current.path;
     await for (final entity in Directory.current.list(
       recursive: true,

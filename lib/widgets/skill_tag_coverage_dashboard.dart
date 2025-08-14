@@ -131,7 +131,7 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
                             DataCell(
                               Text(
                                 r.spots == 0
-                                    ? '—'
+                                    ? '-'
                                     : '${r.coverage.toStringAsFixed(1)}%',
                               ),
                             ),

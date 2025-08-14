@@ -30,11 +30,11 @@ class ShowdownTab extends StatelessWidget {
           ...List.generate(names.length, (i) {
             final cards = i < revealed.length ? revealed[i] : <CardModel>[];
             final text = cards.isEmpty
-                ? '—'
+                ? '-'
                 : cards.map((c) => '${c.rank}${c.suit}').join(' ');
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 2),
-              child: Text('Player ${i + 1} – $text',
+              child: Text('Player ${i + 1} - $text',
                   style: const TextStyle(color: Colors.white70)),
             );
           }),

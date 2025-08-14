@@ -22,7 +22,7 @@ void main(List<String> args) {
       .whereType<File>()
       .where((f) => f.path.toLowerCase().endsWith('.pka'))
       .toList();
-  stdout.writeln('Building manifest for ${files.length} bundles…');
+  stdout.writeln('Building manifest for ${files.length} bundles...');
   final items = <Map<String, dynamic>>[];
   for (final file in files) {
     try {

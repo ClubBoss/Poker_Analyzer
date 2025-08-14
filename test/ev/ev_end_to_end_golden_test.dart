@@ -37,7 +37,9 @@ Future<void> _writeReport(
 ) async {
   final file = File('${dir.path}${Platform.pathSeparator}$name.json');
   await file.writeAsString(
-    const JsonEncoder.withIndent('  ').convert({'spots': [spot]}),
+    const JsonEncoder.withIndent('  ').convert({
+      'spots': [spot]
+    }),
   );
 }
 
@@ -80,7 +82,7 @@ Future<Map<String, dynamic>> _expectedSummary(Directory dir) async {
     'spr_high': [0, 0],
   };
   final byTextureCounts = <String, List<int>>{};
-  const classifier = BoardTextureClassifier();
+  const classifier = const BoardTextureClassifier();
 
   await for (final entity in dir.list(recursive: true)) {
     if (entity is! File || !entity.path.endsWith('.json')) continue;

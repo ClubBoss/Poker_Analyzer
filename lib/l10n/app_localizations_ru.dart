@@ -94,7 +94,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sortMostHands => 'Больше всего рук';
 
   @override
-  String get sortName => 'Имя A–Я';
+  String get sortName => 'Имя A-Я';
 
   @override
   String get noMistakesLeft => 'Все ошибки уже исправлены!';
@@ -451,9 +451,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get quickstartL3 => 'Быстрый старт L3';
 
   @override
-  String get desktopOnly => 'Только на компьютере';
-
-  @override
   String get run => 'Запустить';
 
   @override
@@ -483,28 +480,43 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get weightsJson => 'JSON весов';
 
+  @override
   String get invalidJson => 'Некорректный JSON';
 
+  @override
+  String get desktopOnly => 'Только на компьютере';
+
+  @override
   String get recentRuns => 'Последние запуски';
 
+  @override
   String get open => 'Открыть';
 
+  @override
   String get logs => 'Логи';
 
+  @override
   String get folder => 'Папка';
 
+  @override
   String get copyPath => 'Скопировать путь';
 
+  @override
   String get reRun => 'Запустить снова';
 
+  @override
   String get pickTwoRuns => 'Выберите два запуска';
 
+  @override
   String get compare => 'Сравнить';
 
+  @override
   String get noSelection => 'Ничего не выбрано';
 
+  @override
   String get rootKeys => 'Корневые ключи';
 
+  @override
   String get arrayLengths => 'Длины массивов';
 
   @override

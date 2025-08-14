@@ -65,7 +65,7 @@ class DecayMilestoneCelebrationService {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          '🧠 Your focus is paying off — $milestone days without decay!',
+          '🧠 Your focus is paying off - $milestone days without decay!',
         ),
       ),
     );

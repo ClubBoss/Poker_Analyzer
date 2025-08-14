@@ -57,7 +57,7 @@ Future<void> main(List<String> args) async {
     }
   }
 
-  stdout.writeln('Fetching remote files…');
+  stdout.writeln('Fetching remote files...');
   final queue = <Reference>[storage.ref(kPrefix)];
   final remote = <Reference>[];
   while (queue.isNotEmpty) {

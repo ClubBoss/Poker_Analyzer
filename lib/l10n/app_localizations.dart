@@ -271,7 +271,7 @@ abstract class AppLocalizations {
   /// No description provided for @sortName.
   ///
   /// In ru, this message translates to:
-  /// **'Имя A–Я'**
+  /// **'Имя A-Я'**
   String get sortName;
 
   /// No description provided for @noMistakesLeft.
@@ -607,7 +607,7 @@ abstract class AppLocalizations {
   /// No description provided for @cancel.
   ///
   /// In ru, this message translates to:
-  /// **'Cancel'**
+  /// **'Отмена'**
   String get cancel;
 
   /// No description provided for @reset.
@@ -667,7 +667,7 @@ abstract class AppLocalizations {
   /// No description provided for @clear.
   ///
   /// In ru, this message translates to:
-  /// **'Clear'**
+  /// **'Очистить'**
   String get clear;
 
   /// No description provided for @ok.
@@ -910,12 +910,6 @@ abstract class AppLocalizations {
   /// **'Быстрый старт L3'**
   String get quickstartL3;
 
-  /// No description provided for @desktopOnly.
-  ///
-  /// In en, this message translates to:
-  /// **'Desktop only'**
-  String get desktopOnly;
-
   /// No description provided for @run.
   ///
   /// In ru, this message translates to:
@@ -982,124 +976,130 @@ abstract class AppLocalizations {
   /// **'Некорректный JSON'**
   String get invalidJson;
 
+  /// No description provided for @desktopOnly.
+  ///
+  /// In ru, this message translates to:
+  /// **'Только на компьютере'**
+  String get desktopOnly;
+
   /// No description provided for @recentRuns.
   ///
-  /// In en, this message translates to:
-  /// **'Recent runs'**
+  /// In ru, this message translates to:
+  /// **'Последние запуски'**
   String get recentRuns;
 
   /// No description provided for @open.
   ///
-  /// In en, this message translates to:
-  /// **'Open'**
+  /// In ru, this message translates to:
+  /// **'Открыть'**
   String get open;
 
   /// No description provided for @logs.
   ///
-  /// In en, this message translates to:
-  /// **'Logs'**
+  /// In ru, this message translates to:
+  /// **'Логи'**
   String get logs;
 
   /// No description provided for @folder.
   ///
-  /// In en, this message translates to:
-  /// **'Folder'**
+  /// In ru, this message translates to:
+  /// **'Папка'**
   String get folder;
 
   /// No description provided for @copyPath.
   ///
-  /// In en, this message translates to:
-  /// **'Copy path'**
+  /// In ru, this message translates to:
+  /// **'Скопировать путь'**
   String get copyPath;
 
   /// No description provided for @reRun.
   ///
-  /// In en, this message translates to:
-  /// **'Re-run'**
+  /// In ru, this message translates to:
+  /// **'Запустить снова'**
   String get reRun;
 
   /// No description provided for @pickTwoRuns.
   ///
-  /// In en, this message translates to:
-  /// **'Pick two runs'**
+  /// In ru, this message translates to:
+  /// **'Выберите два запуска'**
   String get pickTwoRuns;
 
   /// No description provided for @compare.
   ///
-  /// In en, this message translates to:
-  /// **'Compare'**
+  /// In ru, this message translates to:
+  /// **'Сравнить'**
   String get compare;
 
   /// No description provided for @noSelection.
   ///
-  /// In en, this message translates to:
-  /// **'No selection'**
+  /// In ru, this message translates to:
+  /// **'Ничего не выбрано'**
   String get noSelection;
 
   /// No description provided for @rootKeys.
   ///
-  /// In en, this message translates to:
-  /// **'Root keys'**
+  /// In ru, this message translates to:
+  /// **'Корневые ключи'**
   String get rootKeys;
 
   /// No description provided for @arrayLengths.
   ///
-  /// In en, this message translates to:
-  /// **'Array lengths'**
+  /// In ru, this message translates to:
+  /// **'Длины массивов'**
   String get arrayLengths;
 
   /// No description provided for @clearHistory.
   ///
-  /// In en, this message translates to:
-  /// **'Clear history'**
+  /// In ru, this message translates to:
+  /// **'Очистить историю'**
   String get clearHistory;
 
   /// No description provided for @confirmClear.
   ///
-  /// In en, this message translates to:
-  /// **'Clear all runs? This action cannot be undone.'**
+  /// In ru, this message translates to:
+  /// **'Очистить все запуски? Это действие нельзя отменить.'**
   String get confirmClear;
 
   /// No description provided for @deleted.
   ///
-  /// In en, this message translates to:
-  /// **'Deleted'**
+  /// In ru, this message translates to:
+  /// **'Удалено'**
   String get deleted;
 
   /// No description provided for @copied.
   ///
-  /// In en, this message translates to:
-  /// **'Copied'**
+  /// In ru, this message translates to:
+  /// **'Скопировано'**
   String get copied;
 
   /// No description provided for @exportCsv.
   ///
-  /// In en, this message translates to:
-  /// **'Export CSV'**
+  /// In ru, this message translates to:
+  /// **'Экспорт CSV'**
   String get exportCsv;
 
   /// No description provided for @reveal.
   ///
-  /// In en, this message translates to:
-  /// **'Reveal'**
+  /// In ru, this message translates to:
+  /// **'Показать в папке'**
   String get reveal;
 
   /// No description provided for @csvSaved.
   ///
-  /// In en, this message translates to:
-  /// **'CSV saved'**
+  /// In ru, this message translates to:
+  /// **'CSV сохранён'**
   String get csvSaved;
 
   /// No description provided for @delta.
   ///
-  /// In en, this message translates to:
+  /// In ru, this message translates to:
   /// **'Δ'**
   String get delta;
 
   /// No description provided for @args.
   ///
-  /// In en, this message translates to:
-  /// **'Args'**
+  /// In ru, this message translates to:
+  /// **'Аргументы'**
   String get args;
 }
 

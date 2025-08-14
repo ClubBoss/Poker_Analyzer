@@ -280,7 +280,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
     if (mistakes.isNotEmpty) {
       buffer.writeln('## Ошибочные руки');
       for (final h in mistakes) {
-        buffer.writeln('- ${h.name} — ${streetName(h.boardStreet)}');
+        buffer.writeln('- ${h.name} - ${streetName(h.boardStreet)}');
       }
     }
     return buffer.toString();
@@ -422,7 +422,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
             if (hand.evLoss != null)
               Tooltip(
                 message: 'Потеря EV из-за выбранного действия',
-                child: Text('–${hand.evLoss!.toStringAsFixed(1)} bb',
+                child: Text('-${hand.evLoss!.toStringAsFixed(1)} bb',
                     style: const TextStyle(color: Colors.red)),
               ),
           ],
@@ -502,7 +502,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
               style: const TextStyle(color: Colors.white)),
           Text('Средний рейтинг: ${ratingAvg.toStringAsFixed(1)}',
               style: const TextStyle(color: Colors.white)),
-          Text('Потеря EV: –${stats.totalEvLoss.toStringAsFixed(1)} bb',
+          Text('Потеря EV: -${stats.totalEvLoss.toStringAsFixed(1)} bb',
               style: TextStyle(
                   color: stats.totalEvLoss > 0 ? Colors.red : Colors.green)),
         ],

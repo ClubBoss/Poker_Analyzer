@@ -85,7 +85,7 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
                 style: pw.TextStyle(font: boldFont, fontSize: 24)),
             pw.SizedBox(height: 16),
             for (final e in entries) ...[
-              pw.Text('${e.key} — ${e.value.length}',
+              pw.Text('${e.key} - ${e.value.length}',
                   style: pw.TextStyle(font: boldFont, fontSize: 16)),
               pw.SizedBox(height: 4),
               for (final h in e.value)
@@ -238,7 +238,7 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  'Пока нет повторяющихся ошибок — так держать!',
+                  'Пока нет повторяющихся ошибок - так держать!',
                   style: TextStyle(color: Colors.white70),
                   textAlign: TextAlign.center,
                 ),

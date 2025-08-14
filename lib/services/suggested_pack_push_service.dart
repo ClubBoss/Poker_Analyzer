@@ -51,7 +51,7 @@ class SuggestedPackPushService {
         await const TrainingGapNotificationService().suggestNextPack();
     if (tpl == null) return;
 
-    final body = '📈 Улучшите свои слабые места — начните пак "[${tpl.name}]"';
+    final body = '📈 Улучшите свои слабые места - начните пак "[${tpl.name}]"';
     await _plugin.show(
       104,
       'Poker Analyzer',

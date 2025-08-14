@@ -11,7 +11,7 @@ class LearningPathProgress {
     this.currentStageId,
   });
 
-  /// Ratio of completed to total stages in the range 0.0–1.0.
+  /// Ratio of completed to total stages in the range 0.0-1.0.
   double get percentComplete =>
       totalStages == 0 ? 0.0 : completedStages / totalStages;
 

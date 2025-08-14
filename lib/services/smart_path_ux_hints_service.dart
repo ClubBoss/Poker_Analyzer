@@ -29,7 +29,7 @@ class SmartPathUXHintsService {
     if (!appConfig.showSmartPathHints) return null;
 
     if (ctx.afterPackCompleted && ctx.stageProgress >= 0.8) {
-      return 'Продолжай в том же духе — ты почти закрыл эту стадию!';
+      return 'Продолжай в том же духе - ты почти закрыл эту стадию!';
     }
 
     if (ctx.errorCounts.isNotEmpty) {

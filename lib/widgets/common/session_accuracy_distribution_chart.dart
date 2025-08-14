@@ -17,7 +17,7 @@ class SessionAccuracyDistributionChart extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final labels = ['50–60%', '60–70%', '70–80%', '80–90%', '90–100%'];
+    final labels = ['50-60%', '60-70%', '70-80%', '80-90%', '90-100%'];
     final counts = List<int>.filled(labels.length, 0);
     for (final a in accuracies) {
       if (a >= 50 && a < 60) {

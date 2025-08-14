@@ -17,7 +17,7 @@ class TheoryPathCompletionEvaluatorService {
     return (await getBlockStatus(block)) == CompletionStatus.completed;
   }
 
-  /// Computes completion percentage for [block] (0.0–1.0).
+  /// Computes completion percentage for [block] (0.0-1.0).
   Future<double> getBlockCompletionPercent(TheoryBlockModel block) async {
     final total = block.nodeIds.length + block.practicePackIds.length;
     if (total == 0) return 0.0;

@@ -61,7 +61,7 @@ class MistakeTrendChart extends StatelessWidget {
         '${monday.day.toString().padLeft(2, '0')}.${monday.month.toString().padLeft(2, '0')}';
     final e =
         '${end.day.toString().padLeft(2, '0')}.${end.month.toString().padLeft(2, '0')}';
-    return 'W$week ($s–$e)';
+    return 'W$week ($s-$e)';
   }
 
   @override

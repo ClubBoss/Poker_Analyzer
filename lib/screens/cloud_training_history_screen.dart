@@ -109,7 +109,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final buffer = StringBuffer();
     for (final s in _getSortedSessions()) {
       buffer.writeln(
-          '- ${formatDateTime(s.date)}: ${s.accuracy.toStringAsFixed(1)}% — Ошибок: ${s.mistakes}');
+          '- ${formatDateTime(s.date)}: ${s.accuracy.toStringAsFixed(1)}% - Ошибок: ${s.mistakes}');
     }
     final bytes = Uint8List.fromList(utf8.encode(buffer.toString()));
     try {
@@ -158,7 +158,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       return;
     }
     final pack = TrainingPack(
-      name: 'Tag Drill — $_tagFilter',
+      name: 'Tag Drill - $_tagFilter',
       description: '',
       gameType: 'Cash Game',
       tags: const [],

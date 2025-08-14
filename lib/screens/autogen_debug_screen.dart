@@ -424,7 +424,7 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
                         child: const Text('Apply')),
                     TextButton(
                         onPressed: _saveAsPreset,
-                        child: const Text('Save as…')),
+                        child: const Text('Save as...')),
                   ],
                 ),
                 Row(

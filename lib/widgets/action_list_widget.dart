@@ -483,7 +483,7 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
-                                  a.ev! >= 0 ? ' +EV ' : ' –EV ',
+                                  a.ev! >= 0 ? ' +EV ' : ' -EV ',
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,

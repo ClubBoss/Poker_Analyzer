@@ -26,7 +26,9 @@ Map<String, dynamic> spotForHand(String cards) {
 
 Future<String> _writeReport(Directory dir, String name, String hand) async {
   final file = File('${dir.path}/$name.json');
-  final map = {'spots': [spotForHand(hand)]};
+  final map = {
+    'spots': [spotForHand(hand)]
+  };
   await file.writeAsString(const JsonEncoder.withIndent('  ').convert(map));
   return file.path;
 }

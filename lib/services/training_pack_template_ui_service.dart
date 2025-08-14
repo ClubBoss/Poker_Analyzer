@@ -98,7 +98,7 @@ class TrainingPackTemplateUiService {
               });
             }
             return AlertDialog(
-              content: Text('Generating $done of $total spots…'),
+              content: Text('Generating $done of $total spots...'),
               actions: [
                 TextButton(
                   onPressed: () => cancel = true,
@@ -208,7 +208,7 @@ class TrainingPackTemplateUiService {
               });
             }
             return AlertDialog(
-              content: Text('Generated $done of $total missing spots…'),
+              content: Text('Generated $done of $total missing spots...'),
               actions: [
                 TextButton(
                   onPressed: () => cancel = true,

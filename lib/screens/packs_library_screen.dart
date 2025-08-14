@@ -1035,7 +1035,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
                         child: TextField(
                           decoration: InputDecoration(
                             prefixIcon: const Icon(Icons.search),
-                            hintText: 'Search packs…',
+                            hintText: 'Search packs...',
                             border: const OutlineInputBorder(),
                             isDense: true,
                             suffixIcon: _query.isEmpty

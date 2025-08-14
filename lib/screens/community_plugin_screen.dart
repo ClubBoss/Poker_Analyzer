@@ -136,7 +136,7 @@ class _CommunityPluginScreenState extends State<CommunityPluginScreen> {
                               controller: _searchCtrl,
                               decoration: InputDecoration(
                                 prefixIcon: const Icon(Icons.search),
-                                hintText: 'Search…',
+                                hintText: 'Search...',
                                 suffixIcon: _query.isEmpty
                                     ? null
                                     : IconButton(

@@ -56,7 +56,7 @@ class _EvalResultViewState extends State<EvalResultView> {
             children: [
               Text('Score: ${res.score.toStringAsFixed(2)}',
                   style: const TextStyle(color: Colors.white)),
-              Text('Reason: ${res.reason ?? '–'}',
+              Text('Reason: ${res.reason ?? '-'}',
                   style: const TextStyle(color: Colors.white70)),
             ],
           ),

@@ -18,7 +18,7 @@ class AccuracyDistributionChart extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final labels = ['0–40%', '40–60%', '60–80%', '80–100%'];
+    final labels = ['0-40%', '40-60%', '60-80%', '80-100%'];
     final counts = List<int>.filled(labels.length, 0);
     for (final s in sessions) {
       final a = s.accuracy;

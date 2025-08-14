@@ -280,7 +280,7 @@ class _TheoryAutoInjectionAnalyticsPanelState
                           padding: const EdgeInsets.only(top: 4),
                           child: Text(
                             title.length > 10
-                                ? '${title.substring(0, 10)}…'
+                                ? '${title.substring(0, 10)}...'
                                 : title,
                             style: const TextStyle(
                                 color: Colors.white70, fontSize: 10),

@@ -73,7 +73,7 @@ class EvSummaryCard extends StatelessWidget {
                 ),
               ),
               Text(
-                  '+EV: ${(pos / values.length * 100).round()} %   –EV: ${(neg / values.length * 100).round()} %'),
+                  '+EV: ${(pos / values.length * 100).round()} %   -EV: ${(neg / values.length * 100).round()} %'),
             ],
           ),
           const SizedBox(height: 8),

@@ -43,7 +43,7 @@ class _ContinueTrainingButtonState extends State<ContinueTrainingButton> {
     if (!mounted) return;
     if (tpl == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('All training completed — well done!')),
+        const SnackBar(content: Text('All training completed - well done!')),
       );
       setState(() => _starting = false);
       return;

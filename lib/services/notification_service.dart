@@ -115,7 +115,7 @@ class NotificationService {
     await _plugin.zonedSchedule(
       _progressId,
       'Poker Analyzer',
-      '⚡ Готов улучшить $focus? У тебя есть $remaining незавершённых спотов — продолжим тренировку?',
+      '⚡ Готов улучшить $focus? У тебя есть $remaining незавершённых спотов - продолжим тренировку?',
       when,
       const NotificationDetails(
         android: AndroidNotificationDetails('daily_progress', 'Daily Progress'),
@@ -164,7 +164,7 @@ class NotificationService {
       await _plugin.show(
         103,
         'Poker Analyzer',
-        '🔥 ${tpl.name} — осталось $remaining спотов',
+        '🔥 ${tpl.name} - осталось $remaining спотов',
         const NotificationDetails(
           android: AndroidNotificationDetails('rec_pack', 'Recommended Pack'),
           iOS: DarwinNotificationDetails(),

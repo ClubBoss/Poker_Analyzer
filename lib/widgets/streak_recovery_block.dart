@@ -67,7 +67,7 @@ class _StreakRecoveryBlockState extends State<StreakRecoveryBlock> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Yesterday was a miss — try ${s.title} to rebuild momentum',
+            'Yesterday was a miss - try ${s.title} to rebuild momentum',
             style: const TextStyle(color: Colors.white70),
           ),
           if (s.tagFocus != null) ...[

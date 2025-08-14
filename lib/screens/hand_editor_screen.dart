@@ -472,7 +472,7 @@ class _HandEditorScreenState extends State<HandEditorScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-              'Stakes committed — moving to ${['Flop', 'Turn', 'River', 'Showdown'][current + 1]}'),
+              'Stakes committed - moving to ${['Flop', 'Turn', 'River', 'Showdown'][current + 1]}'),
         ),
       );
       setState(() {

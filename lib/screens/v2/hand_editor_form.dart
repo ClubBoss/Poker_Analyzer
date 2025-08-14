@@ -100,7 +100,7 @@ class HandEditorForm extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               const Tooltip(
-                message: '0 — SB, 1 — BB, 2 — UTG, 3 — MP, 4 — CO, 5 — BTN',
+                message: '0 - SB, 1 - BB, 2 - UTG, 3 - MP, 4 - CO, 5 - BTN',
                 child:
                     Icon(Icons.info_outline, size: 16, color: Colors.white54),
               ),

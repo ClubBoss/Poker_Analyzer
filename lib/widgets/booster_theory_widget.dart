@@ -34,7 +34,7 @@ class BoosterTheoryWidget extends StatelessWidget {
   String _shortPreview(String text, {int max = 80}) {
     final clean = text.replaceAll(RegExp(r'\s+'), ' ').trim();
     if (clean.length <= max) return clean;
-    return '${clean.substring(0, max)}…';
+    return '${clean.substring(0, max)}...';
   }
 
   String _icon() {

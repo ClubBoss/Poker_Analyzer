@@ -104,7 +104,7 @@ class PackStatsScreen extends StatelessWidget {
                   children: [
                     for (final e in categoryCounts!.entries)
                       Text(
-                        '${e.key} — ${e.value}',
+                        '${e.key} - ${e.value}',
                         style: const TextStyle(color: Colors.white70),
                       ),
                   ],

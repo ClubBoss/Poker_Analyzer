@@ -157,7 +157,7 @@ class GoalsScreen extends StatelessWidget {
                 SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    '🔥 Бонус за серию — ускоренный прогресс целей!',
+                    '🔥 Бонус за серию - ускоренный прогресс целей!',
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,

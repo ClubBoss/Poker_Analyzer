@@ -37,7 +37,7 @@ class ActionHistoryWidget extends StatelessWidget {
     final pos = playerPositions[last.playerIndex] ?? 'P${last.playerIndex + 1}';
     final lastAction =
         '${_capitalize(last.action)}${last.amount != null ? ' ${last.amount}' : ''}';
-    final header = '$title — $lastAction от $pos';
+    final header = '$title - $lastAction от $pos';
 
     return ExpansionTile(
       title: Text(
@@ -71,6 +71,6 @@ class ActionHistoryWidget extends StatelessWidget {
     final pos = playerPositions[a.playerIndex] ?? 'P${a.playerIndex + 1}';
     final label = a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action;
     final act = '$label${a.amount != null ? ' ${a.amount}' : ''}';
-    return '$pos — $act';
+    return '$pos - $act';
   }
 }
