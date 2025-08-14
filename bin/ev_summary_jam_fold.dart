@@ -42,7 +42,7 @@ Future<void> main(List<String> args) async {
     'spr_high': [0, 0],
   };
   final byTextureCounts = <String, List<int>>{};
-  const classifier = BoardTextureClassifier();
+  const classifier = const BoardTextureClassifier();
 
   Future<void> handle(String path) async {
     files++;

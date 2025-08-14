@@ -2,7 +2,7 @@ import 'package:test/test.dart';
 import 'package:poker_analyzer/services/board_texture_classifier.dart';
 
 void main() {
-  final classifier = BoardTextureClassifier();
+  final classifier = const BoardTextureClassifier();
 
   test('classifies paired ace-high board as wet', () {
     final tags = classifier.classify('AsAhTd');

@@ -297,7 +297,7 @@ Future<void> main(List<String> args) async {
 
   final root = Directory.current.path;
   final spots = <Map<String, dynamic>>[];
-  final classifier = BoardTextureClassifier();
+  final classifier = const BoardTextureClassifier();
 
   Future<void> handle(String path) async {
     final content = await File(path).readAsString();
