@@ -4,6 +4,8 @@ on:
   pull_request:
   push:
     branches: [ main ]
+  schedule:
+    - cron: '0 1 * * *' # nightly (UTC)
 
 concurrency:
   group: l2-tests-${{ github.event.pull_request.number || github.sha }}
@@ -11,6 +13,11 @@ concurrency:
 
 jobs:
   l2:
+    # Run only when explicitly requested:
+    # - PR has 'full-ci' label, OR
+    # - push to main has '[full-ci]' in commit message, OR
+    # - nightly schedule
+    if: ${{ (github.event_name == 'pull_request' && contains(join(github.event.pull_request.labels.*.name, ','), 'full-ci')) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[full-ci]')) || github.event_name == 'schedule' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -99,7 +106,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: packs_manifest
-          path: |
+        path: |
             build/reports/packs_manifest.json
             build/reports/packs_manifest.md
       - name: Run packs manifest test
