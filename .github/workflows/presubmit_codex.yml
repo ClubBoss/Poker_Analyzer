@@ -1,12 +1,10 @@
 name: Codex Presubmit (format+analyze)
 
 on:
-  pull_request:
-    branches:
-      - 'codex/**'          # только PR из веток Codex
+  pull_request: {}              # важно: без фильтра по branches (иначе не сработает)
 
 permissions:
-  contents: write           # нужно, чтобы автоформат мог запушить
+  contents: write               # чтоб авто-commit формата пушился в PR-ветку
 
 concurrency:
   group: presubmit-${{ github.event.pull_request.head.sha || github.sha }}
@@ -14,6 +12,8 @@ concurrency:
 
 jobs:
   presubmit:
+    # Запускаем ТОЛЬКО для PR, у которых head-ветка начинается с "codex/"
+    if: ${{ startsWith(github.head_ref, 'codex/') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -22,23 +22,19 @@ jobs:
           fetch-depth: 0
           persist-credentials: true
 
-      - name: Setup Flutter (for Dart toolchain)
+      - name: Setup Flutter (Dart toolchain)
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           flutter-version: '3.27.0'
           cache: true
 
-      - name: Autoformat changed Dart files
+      - name: Autoformat Dart
         id: fmt
         run: |
           echo "::group::dart format"
-          dart --version
-          # форматируем весь код (быстро и детерминированно)
           dart format -o write tool lib test || true
           echo "::endgroup::"
-
-          # фиксируем, были ли изменения
           if git diff --quiet; then
             echo "changed=false" >> $GITHUB_OUTPUT
           else
