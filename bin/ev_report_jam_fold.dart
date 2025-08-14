@@ -119,5 +119,5 @@ RegExp _globToRegExp(String pattern) {
   escaped = escaped.replaceAll('\\*\\*', '::DOUBLE_STAR::');
   escaped = escaped.replaceAll('\\*', '[^/]*');
   escaped = escaped.replaceAll('::DOUBLE_STAR::', '.*');
-  return RegExp('^' + escaped + r'\\$');
+  return RegExp('^' + escaped + r'\$');
 }
