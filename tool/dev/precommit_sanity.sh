@@ -17,6 +17,11 @@ if grep -R -q 'package:args' bin/ev_enrich_jam_fold.dart || grep -R -q 'ArgParse
   exit 1
 fi
 
+if grep -R -q 'package:path/' bin/ev_enrich_jam_fold.dart; then
+  echo 'bin/ev_enrich_jam_fold.dart must not depend on package:path.'
+  exit 1
+fi
+
 if grep -R -q 'sdk: flutter' pubspec.yaml; then
   if ! command -v flutter >/dev/null 2>&1; then
     echo 'SKIP analyze/test (no Flutter SDK)'
