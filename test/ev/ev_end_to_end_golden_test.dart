@@ -154,7 +154,7 @@ void main() {
     await corpus.create();
 
     try {
-      // Один формат кейсов: список списков (без records)
+      // Единый формат кейсов: список списков (без records)
       final List<List<dynamic>> cases = [
         ['As Ks', 'AhKhQd', 0.5],
         ['7c 2d', '7c5s2h', 0.8],
@@ -232,7 +232,7 @@ void main() {
       });
       expect(rSummary.code, 0);
       final expected = await _expectedSummary(corpus);
-      // Сравниваем строки JSON, чтобы избежать проблем с равенством Map по ссылке
+      // Сравниваем строки JSON для строгой детерминированности
       expect(rSummary.out, jsonEncode(expected));
     } finally {
       await tmp.delete(recursive: true);
