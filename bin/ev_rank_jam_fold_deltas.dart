@@ -157,7 +157,7 @@ Future<void> main(List<String> args) async {
           .map((s) => s.trim())
           .where((s) => s.isNotEmpty)
           .toList();
-      if (textures!.isEmpty) {
+      if (textures.isEmpty) {
         stderr.writeln('Invalid --texture value: ' + value);
         exitCode = 64;
         return;
@@ -175,7 +175,7 @@ Future<void> main(List<String> args) async {
         return;
       }
       includes ??= <String>[];
-      includes!.addAll(parts);
+      includes.addAll(parts);
     } else if (arg == '--exclude' && i + 1 < args.length) {
       final value = args[++i];
       final parts = value
@@ -189,7 +189,7 @@ Future<void> main(List<String> args) async {
         return;
       }
       excludes ??= <String>[];
-      excludes!.addAll(parts);
+      excludes.addAll(parts);
     } else if (arg == '--include-hand' && i + 1 < args.length) {
       final value = args[++i];
       final parts = value
@@ -203,7 +203,7 @@ Future<void> main(List<String> args) async {
         return;
       }
       includeHands ??= <String>[];
-      includeHands!.addAll(parts);
+      includeHands.addAll(parts);
     } else if (arg == '--exclude-hand' && i + 1 < args.length) {
       final value = args[++i];
       final parts = value
@@ -217,7 +217,7 @@ Future<void> main(List<String> args) async {
         return;
       }
       excludeHands ??= <String>[];
-      excludeHands!.addAll(parts);
+      excludeHands.addAll(parts);
     } else if (arg == '--per' && i + 1 < args.length) {
       final value = args[++i];
       if (value != 'none' &&
@@ -274,7 +274,7 @@ Future<void> main(List<String> args) async {
     'delta',
   ];
   if (fields != null) {
-    for (final f in fields!) {
+    for (final f in fields) {
       if (!allowedFields.contains(f)) {
         stderr.writeln('Invalid --fields entry: ' + f);
         exitCode = 64;
@@ -373,7 +373,7 @@ Future<void> main(List<String> args) async {
       await handle(p);
     }
   } else if (glob != null) {
-    final regex = _globToRegExp(glob!);
+    final regex = _globToRegExp(glob);
     final paths = <String>[];
     await for (final entity in Directory.current.list(
       recursive: true,
@@ -398,7 +398,7 @@ Future<void> main(List<String> args) async {
     }
   }
   if (includes != null) {
-    final regs = includes!.map(_globToRegExp).toList();
+    final regs = includes.map(_globToRegExp).toList();
     spots.removeWhere((s) {
       final p = s['path'] as String;
       for (final r in regs) {
@@ -408,7 +408,7 @@ Future<void> main(List<String> args) async {
     });
   }
   if (excludes != null) {
-    final regs = excludes!.map(_globToRegExp).toList();
+    final regs = excludes.map(_globToRegExp).toList();
     spots.removeWhere((s) {
       final p = s['path'] as String;
       for (final r in regs) {
@@ -419,7 +419,7 @@ Future<void> main(List<String> args) async {
   }
 
   if (includeHands != null) {
-    final regs = includeHands!.map(_globToRegExp).toList();
+    final regs = includeHands.map(_globToRegExp).toList();
     spots.removeWhere((s) {
       final h = s['hand'] as String?;
       if (h == null) return true;
@@ -430,7 +430,7 @@ Future<void> main(List<String> args) async {
     });
   }
   if (excludeHands != null) {
-    final regs = excludeHands!.map(_globToRegExp).toList();
+    final regs = excludeHands.map(_globToRegExp).toList();
     spots.removeWhere((s) {
       final h = s['hand'] as String?;
       if (h == null) return false;
@@ -465,7 +465,7 @@ Future<void> main(List<String> args) async {
     spots.removeWhere((s) {
       final tags = s['_tags'] as Set<String>?;
       if (tags == null) return true;
-      for (final t in textures!) {
+      for (final t in textures) {
         if (tags.contains(t)) return false;
       }
       return true;
