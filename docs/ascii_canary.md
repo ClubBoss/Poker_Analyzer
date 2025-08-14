@@ -1,0 +1,1 @@
+Bad – dash and … dots
