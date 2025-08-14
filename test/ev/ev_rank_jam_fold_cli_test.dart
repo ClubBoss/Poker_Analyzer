@@ -11,9 +11,10 @@ Future<String> _writeReport(
   String name, {
   double delta = 0,
   bool includeJamFold = true,
+  double spr = 1.0,
 }) async {
   final file = File('${dir.path}/$name.json');
-  final spot = {'hand': 'As Ks', 'board': 'AhKhQd', 'spr': 1.0};
+  final spot = {'hand': 'As Ks', 'board': 'AhKhQd', 'spr': spr};
   if (includeJamFold) {
     spot['jamFold'] = {
       'evJam': delta,
@@ -45,6 +46,14 @@ Future<Directory> _buildThresholdCorpus() async {
   await _writeReport(dir, 'a', delta: 0.2);
   await _writeReport(dir, 'b', delta: 0.6);
   await _writeReport(dir, 'c', delta: -0.9);
+  return dir;
+}
+
+Future<Directory> _buildSprCorpus() async {
+  final dir = await Directory.systemTemp.createTemp('ev_rank_cli_spr');
+  await _writeReport(dir, 'a', delta: 0.3, spr: 0.8);
+  await _writeReport(dir, 'b', delta: -0.6, spr: 1.2);
+  await _writeReport(dir, 'c', delta: 1.4, spr: 2.5);
   return dir;
 }
 
@@ -199,6 +208,120 @@ void main() {
       final foldList = jsonDecode(foldOut.trim()) as List;
       for (final spot in foldList) {
         expect((spot as Map<String, dynamic>)['bestAction'], 'fold');
+      }
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('spr=low filter', () async {
+    final dir = await _buildSprCorpus();
+    try {
+      final run1 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--spr', 'low']);
+      });
+      expect(exitCode, 0);
+      final list = jsonDecode(run1.trim()) as List;
+      expect(list.length, 1);
+      final spot = list.first as Map<String, dynamic>;
+      expect((spot['spr'] as num).toDouble(), 0.8);
+      expect((spot['path'] as String).endsWith('a.json'), true);
+      final run2 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--spr', 'low']);
+      });
+      expect(run1, run2);
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('spr mid & high filters', () async {
+    final dir = await _buildSprCorpus();
+    try {
+      final midOut = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--spr', 'mid']);
+      });
+      expect(exitCode, 0);
+      final midList = jsonDecode(midOut.trim()) as List;
+      expect(midList.length, 1);
+      expect((midList.first as Map<String, dynamic>)['spr'], 1.2);
+
+      final highOut = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--spr', 'high']);
+      });
+      expect(exitCode, 0);
+      final highList = jsonDecode(highOut.trim()) as List;
+      expect(highList.length, 1);
+      expect((highList.first as Map<String, dynamic>)['spr'], 2.5);
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('spr any behaves like no filter', () async {
+    final dir = await _buildSprCorpus();
+    try {
+      final base = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path]);
+      });
+      expect(exitCode, 0);
+      final anyOut = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--spr', 'any']);
+      });
+      expect(exitCode, 0);
+      expect(anyOut, base);
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('spr invalid arg', () async {
+    final dir = await _buildSprCorpus();
+    try {
+      await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--spr', 'nope']);
+      });
+      expect(exitCode, 64);
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('spr with other filters and formats', () async {
+    final dir = await _buildSprCorpus();
+    try {
+      final out = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          dir.path,
+          '--spr',
+          'mid',
+          '--action',
+          'fold',
+          '--abs-delta',
+          '--min-delta',
+          '0.5',
+          '--format',
+          'jsonl',
+        ]);
+      });
+      expect(exitCode, 0);
+      final lines = out.trim().split('\\n');
+      for (final line in lines) {
+        final map = jsonDecode(line) as Map<String, dynamic>;
+        final spr = (map['spr'] as num).toDouble();
+        expect(spr >= 1 && spr < 2, true);
+        expect(map['bestAction'], 'fold');
+        final d = (map['delta'] as num).toDouble();
+        expect(d.abs() >= 0.5, true);
       }
     } finally {
       await dir.delete(recursive: true);
