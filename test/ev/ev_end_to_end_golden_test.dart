@@ -220,8 +220,9 @@ void main() {
         await ev_summary.main(['--dir', corpus.path]);
       });
       expect(summaryResult.code, 0);
+      final summaryJson = jsonDecode(summaryResult.out) as Map<String, dynamic>;
       final expected = await _expectedSummary(corpus);
-      expect(summaryResult.out, jsonEncode(expected));
+      expect(summaryJson, expected);
     } finally {
       await tmp.delete(recursive: true);
     }
