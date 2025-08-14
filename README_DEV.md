@@ -16,3 +16,17 @@ await prefs.setBool('theory.schedulerEnabled', true);
 await prefs.setBool('theory.ablationEnabled', false); // flip ablation
 await prefs.setInt('theory.maxPerModule', 3); // adjust caps
 ```
+
+## Jam/Fold EV Enrichment
+
+Generate jam vs fold EV for existing reports:
+
+```sh
+dart run bin/ev_enrich_jam_fold.dart --in report.json --out report.json
+```
+
+Run only the enrichment tests:
+
+```sh
+dart test test/ev/jam_fold_evaluator_test.dart
+```
