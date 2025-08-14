@@ -3,7 +3,6 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:path/path.dart' as p;
 import 'package:test/test.dart';
 import 'package:poker_analyzer/services/board_texture_classifier.dart';
 
@@ -36,25 +35,36 @@ Future<void> _writeReport(
   String name,
   Map<String, dynamic> spot,
 ) async {
-  final file = File(p.join(dir.path, '$name.json'));
+  final file = File('${dir.path}${Platform.pathSeparator}$name.json');
   await file.writeAsString(
-    const JsonEncoder.withIndent('  ').convert({'spots': [spot]}),
+    const JsonEncoder.withIndent('  ').convert({
+      'spots': [spot],
+    }),
   );
 }
 
-Future<(String, int)> _runCapture(Future<void> Function() fn) async {
+class _RunResult {
+  final String out;
+  final int code;
+  _RunResult(this.out, this.code);
+}
+
+Future<_RunResult> _runCapture(Future<void> Function() fn) async {
   final buffer = StringBuffer();
   final prev = exitCode;
   exitCode = 0;
   try {
-    await runZoned(() async {
-      await fn();
-    }, zoneSpecification: ZoneSpecification(
-      print: (self, parent, zone, line) {
-        buffer.writeln(line);
+    await runZoned(
+      () async {
+        await fn();
       },
-    ));
-    return (buffer.toString().trim(), exitCode);
+      zoneSpecification: ZoneSpecification(
+        print: (self, parent, zone, line) {
+          buffer.writeln(line);
+        },
+      ),
+    );
+    return _RunResult(buffer.toString().trim(), exitCode);
   } finally {
     exitCode = prev;
   }
@@ -95,8 +105,8 @@ Future<Map<String, dynamic>> _expectedSummary(Directory dir) async {
         final bucket = sprVal < 1
             ? 'spr_low'
             : sprVal < 2
-                ? 'spr_mid'
-                : 'spr_high';
+            ? 'spr_mid'
+            : 'spr_high';
         final entry = bySpr[bucket]!;
         entry[1]++;
         if (isJam) entry[0]++;
@@ -139,24 +149,28 @@ Future<Map<String, dynamic>> _expectedSummary(Directory dir) async {
 void main() {
   test('jam/fold end-to-end golden', () async {
     final tmp = await Directory.systemTemp.createTemp('ev_golden');
-    final corpus = Directory(p.join(tmp.path, 'corpus'));
+    final corpus = Directory('${tmp.path}${Platform.pathSeparator}corpus');
     await corpus.create();
     try {
       final cases = [
-        ('As Ks', 'AhKhQd', 0.5),
-        ('7c 2d', '7c5s2h', 0.8),
-        ('Qh Jd', 'QcQdQs', 0.9),
-        ('9c 9d', 'AsTs2s', 1.2),
-        ('2c 3d', '4h5s6d', 1.5),
-        ('Kd Qd', 'JcTc9c', 1.9),
-        ('5h 5c', '9d9h2c', 2.1),
-        ('Ac 2c', 'Ah2h3h', 2.5),
-        ('Jh Th', 'Qh9h2d', 3.0),
-        ('8s 7s', '8s7d6c', 4.0),
+        ['As Ks', 'AhKhQd', 0.5],
+        ['7c 2d', '7c5s2h', 0.8],
+        ['Qh Jd', 'QcQdQs', 0.9],
+        ['9c 9d', 'AsTs2s', 1.2],
+        ['2c 3d', '4h5s6d', 1.5],
+        ['Kd Qd', 'JcTc9c', 1.9],
+        ['5h 5c', '9d9h2c', 2.1],
+        ['Ac 2c', 'Ah2h3h', 2.5],
+        ['Jh Th', 'Qh9h2d', 3.0],
+        ['8s 7s', '8s7d6c', 4.0],
       ];
       for (var i = 0; i < cases.length; i++) {
         final c = cases[i];
-        await _writeReport(corpus, 'spot_$i', _spot(c.$1, c.$2, c.$3));
+        await _writeReport(
+          corpus,
+          'spot_$i',
+          _spot(c[0] as String, c[1] as String, c[2] as double),
+        );
       }
 
       // Flow A: enrichment and idempotence
@@ -170,7 +184,10 @@ void main() {
         final spot = (json['spots'] as List).first as Map<String, dynamic>;
         final jf = spot['jamFold'] as Map<String, dynamic>?;
         expect(jf, isNotNull);
-        expect(jf!.keys.toSet(), containsAll(['evJam', 'evFold', 'bestAction', 'delta']));
+        expect(
+          jf!.keys.toSet(),
+          containsAll(['evJam', 'evFold', 'bestAction', 'delta']),
+        );
         expect(jf['bestAction'], anyOf('jam', 'fold'));
       }
       await ev_enrich.main(['--dir', corpus.path]);
@@ -180,7 +197,7 @@ void main() {
       }
 
       // Flow B: validator
-      final (reportOut, reportCode) = await _runCapture(() async {
+      final reportResult = await _runCapture(() async {
         await ev_report.main([
           '--dir',
           corpus.path,
@@ -189,27 +206,26 @@ void main() {
           '0.0',
         ]);
       });
-      expect(reportCode, 0);
-      final reportJson = jsonDecode(reportOut) as Map<String, dynamic>;
+      expect(reportResult.code, 0);
+      final reportJson = jsonDecode(reportResult.out) as Map<String, dynamic>;
       expect(reportJson['changed'], 0);
 
-      final invalid = File(p.join(tmp.path, 'missing.json'));
+      final invalid = File('${tmp.path}${Platform.pathSeparator}missing.json');
       await _writeReport(tmp, 'missing', _spot('7c 2d', '7c5s2h', 1.0));
-      final (_, invalidCode) = await _runCapture(() async {
+      final invalidResult = await _runCapture(() async {
         await ev_report.main(['--in', invalid.path, '--validate']);
       });
-      expect(invalidCode, 1);
+      expect(invalidResult.code, 1);
 
       // Flow C: summary golden
-      final (summaryOut, summaryCode) = await _runCapture(() async {
+      final summaryResult = await _runCapture(() async {
         await ev_summary.main(['--dir', corpus.path]);
       });
-      expect(summaryCode, 0);
+      expect(summaryResult.code, 0);
       final expected = await _expectedSummary(corpus);
-      expect(summaryOut, jsonEncode(expected));
+      expect(summaryResult.out, jsonEncode(expected));
     } finally {
       await tmp.delete(recursive: true);
     }
   });
 }
-
