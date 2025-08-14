@@ -81,6 +81,46 @@ void main() {
     }
   });
 
+  test('fail-under passes at threshold', () async {
+    final dir = await Directory.systemTemp.createTemp('ev_fail_under_ok');
+    try {
+      final path = await _writeReport(dir, 'one');
+      final output = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--in', path, '--fail-under', '1.0']);
+      });
+      expect(exitCode, 0);
+      final summary = jsonDecode(output.trim()) as Map<String, dynamic>;
+      expect(summary['jamRate'], 1.0);
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('fail-under exits 1 when jam rate too low', () async {
+    final dir = await Directory.systemTemp.createTemp('ev_fail_under_bad');
+    try {
+      await _writeReport(dir, 'a');
+      await _writeReport(dir, 'b');
+      await _writeReport(dir, 'c', includeJamFold: false);
+      await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--fail-under', '0.9']);
+      });
+      expect(exitCode, 1);
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('invalid fail-under exits 64', () async {
+    await _capturePrint(() async {
+      exitCode = 0;
+      await cli.main(['--dir', '.', '--fail-under', 'nope']);
+    });
+    expect(exitCode, 64);
+  });
+
   test('idempotent no writes', () async {
     final dir = await Directory.systemTemp.createTemp('ev_idem');
     try {

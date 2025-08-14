@@ -49,3 +49,9 @@ Validate a single report:
 ```sh
 dart run bin/ev_report_jam_fold.dart --in report.json --validate
 ```
+
+Fail if jam rate drops below a threshold:
+
+```sh
+dart run bin/ev_report_jam_fold.dart --dir reports/ --fail-under 0.95
+```

@@ -6,6 +6,7 @@ Future<void> main(List<String> args) async {
   String? dirPath;
   String? glob;
   var validate = false;
+  double? failUnder;
 
   for (var i = 0; i < args.length; i++) {
     final arg = args[i];
@@ -17,6 +18,15 @@ Future<void> main(List<String> args) async {
       glob = args[++i];
     } else if (arg == '--validate') {
       validate = true;
+    } else if (arg == '--fail-under' && i + 1 < args.length) {
+      final valueStr = args[++i];
+      final value = double.tryParse(valueStr);
+      if (value == null || value < 0 || value > 1) {
+        stderr.writeln('Invalid --fail-under value: ' + valueStr);
+        exitCode = 64;
+        return;
+      }
+      failUnder = value;
     } else {
       stderr.writeln('Unknown or incomplete argument: $arg');
       exitCode = 64;
@@ -109,7 +119,7 @@ Future<void> main(List<String> args) async {
     'changed': 0,
   };
   print(jsonEncode(summary));
-  if (validate && invalid) {
+  if ((validate && invalid) || (failUnder != null && rate < failUnder)) {
     exitCode = 1;
   }
 }
