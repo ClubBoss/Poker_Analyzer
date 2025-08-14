@@ -11,6 +11,12 @@ double _sprFromBoard(String board) {
   return 0.5 + (hash % 300) / 100.0; // 0.5 - 3.5
 }
 
+Map<String, double> _decodeDoubleMap(String jsonStr) {
+  return (json.decode(jsonStr) as Map<String, dynamic>).map(
+    (k, v) => MapEntry(k, (v as num).toDouble()),
+  );
+}
+
 void main(List<String> args) {
   final parser = ArgParser()
     ..addOption('in', defaultsTo: 'build/reports/l3_packrun.json')
@@ -30,24 +36,20 @@ void main(List<String> args) {
 
   Map<String, double>? weights;
   final weightsOpt = res['weights'] as String?;
-  final presetOpt = res['weightsPreset'] as String?;
   if (weightsOpt != null) {
     final jsonStr = weightsOpt.trim().startsWith('{')
         ? weightsOpt
         : File(weightsOpt).readAsStringSync();
-    weights = (json.decode(jsonStr) as Map<String, dynamic>).map(
-      (k, v) => MapEntry(k, (v as num).toDouble()),
-    );
-  } else if (presetOpt != null) {
+    weights = _decodeDoubleMap(jsonStr);
+  } else {
+    final preset = res['weightsPreset'] as String;
     final presetPath = {
       'aggro': 'tool/config/weights/aggro.json',
       'nitty': 'tool/config/weights/nitty.json',
       'default': 'tool/config/weights/default.json',
-    }[presetOpt]!;
+    }[preset]!;
     final jsonStr = File(presetPath).readAsStringSync();
-    weights = (json.decode(jsonStr) as Map<String, dynamic>).map(
-      (k, v) => MapEntry(k, (v as num).toDouble()),
-    );
+    weights = _decodeDoubleMap(jsonStr);
   }
 
   Map<String, double>? priors;
@@ -56,9 +58,7 @@ void main(List<String> args) {
     final jsonStr = priorsOpt.trim().startsWith('{')
         ? priorsOpt
         : File(priorsOpt).readAsStringSync();
-    priors = (json.decode(jsonStr) as Map<String, dynamic>).map(
-      (k, v) => MapEntry(k, (v as num).toDouble()),
-    );
+    priors = _decodeDoubleMap(jsonStr);
   }
 
   final explain = res['explain'] as bool;
@@ -99,8 +99,8 @@ void main(List<String> args) {
     final sprBucket = spr < 1
         ? 'spr_low'
         : spr < 2
-            ? 'spr_mid'
-            : 'spr_high';
+        ? 'spr_mid'
+        : 'spr_high';
     sprHistogram[sprBucket] = (sprHistogram[sprBucket] ?? 0) + 1;
     final textures = classifyFlop(board3);
     for (final tex in textures) {
