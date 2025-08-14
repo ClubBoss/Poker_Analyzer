@@ -55,3 +55,11 @@ Fail if jam rate drops below a threshold:
 ```sh
 dart run bin/ev_report_jam_fold.dart --dir reports/ --fail-under 0.95
 ```
+
+## Jam/Fold Pack Summary
+
+Summarize jam/fold decisions across reports:
+
+```sh
+dart run bin/ev_summary_jam_fold.dart --dir reports/
+```
