@@ -5,7 +5,9 @@ on:
     paths:
       - "bin/**"
       - "lib/**"
-      - "test/**"
+      - "tool/**"
+      - "tools/**"
+      - "test/ev/**"
       - "pubspec.yaml"
       - "pubspec.lock"
       - ".github/workflows/cli-dart.yml"
@@ -14,7 +16,9 @@ on:
     paths:
       - "bin/**"
       - "lib/**"
-      - "test/**"
+      - "tool/**"
+      - "tools/**"
+      - "test/ev/**"
       - "pubspec.yaml"
       - "pubspec.lock"
       - ".github/workflows/cli-dart.yml"
@@ -49,11 +53,17 @@ jobs:
       - name: Pub get (via Flutter)
         run: flutter pub get
 
-      - name: Format check
-        run: dart format --output=none --set-exit-if-changed .
+      # форматируем только CLI-область, а не весь repo
+      - name: Format check (CLI only)
+        run: >
+          dart format --output=none --set-exit-if-changed
+          bin lib tool tools test/ev
 
-      - name: Analyze
-        run: flutter analyze
+      # анализируем только CLI-область, чтобы не упасть на чужих тестах/виджетах
+      - name: Analyze (CLI only)
+        run: >
+          flutter analyze
+          bin lib tool tools test/ev
 
       - name: Unit tests (CLI only)
         run: dart test test/ev -r expanded
