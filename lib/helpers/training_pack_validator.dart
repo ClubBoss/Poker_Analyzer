@@ -14,7 +14,7 @@ List<String> _extractBoard(TrainingPackSpot s) => [
       for (final street in [1, 2, 3])
         for (final a in s.hand.actions[street] ?? [])
           if (a.action == 'board' && a.customLabel?.isNotEmpty == true)
-            ...a.customLabel!.split(' ')
+            ...(a.customLabel?.split(' ') ?? [])
     ];
 
 final List<SpotRule> spotRules = [
