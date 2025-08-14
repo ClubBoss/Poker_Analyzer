@@ -18,9 +18,9 @@ String? buildReportCsv(String content) {
   for (final k in keys) {
     final v = decoded[k];
     if (v is num) {
-      b.writeln('"${k.replaceAll('"','""')}",$v');
+      b.writeln('"${k.replaceAll('"', '""')}",$v');
     } else if (v is List) {
-      b.writeln('"array:${k.replaceAll('"','""')}",${v.length}');
+      b.writeln('"array:${k.replaceAll('"', '""')}",${v.length}');
     }
   }
   return b.toString();

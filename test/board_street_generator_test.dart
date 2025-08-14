@@ -23,4 +23,3 @@ void main() {
     expect(spots1.length, count);
   });
 }
-
