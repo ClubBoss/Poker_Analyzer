@@ -95,7 +95,7 @@ dart run bin/ev_rank_jam_fold_deltas.dart \
   --include "packs/**" --exclude "packs/**/old/**" \
   --abs-delta --min-delta 1.0 --format csv --fields path,delta,bestAction
 
-> **Shell globbing:** quote patterns to avoid your shell expanding them. Use single quotes on macOS/Linux/PowerShell. On cmd.exe, the shell doesn’t expand globs; just quote patterns with spaces, e.g. `--include "* *"`.
+> **Shell globbing:** quote patterns to avoid your shell expanding them. Use single quotes on macOS/Linux/PowerShell. On cmd.exe, the shell doesn't expand globs; just quote patterns with spaces, e.g. `--include "* *"`.
 > Examples:
 > * **bash/zsh:** `--include '* *'`
 > * **PowerShell:** `--include '* *'`
@@ -119,7 +119,7 @@ dart run bin/ev_rank_jam_fold_deltas.dart \
 
 > **Note:** Hand and path glob matching is **case-sensitive** (same as `_globToRegExp`).
 > The examples assume uppercase ranks and lowercase suits (e.g., `As Ks`, `*s *s`).
-> **Shell globbing:** quote patterns to avoid your shell expanding them. Use single quotes on macOS/Linux/PowerShell. On cmd.exe, the shell doesn’t expand globs; just quote patterns with spaces, e.g. `--include-hand "* *"`.
+> **Shell globbing:** quote patterns to avoid your shell expanding them. Use single quotes on macOS/Linux/PowerShell. On cmd.exe, the shell doesn't expand globs; just quote patterns with spaces, e.g. `--include-hand "* *"`.
 > Examples:
 > * **bash/zsh:** `--include-hand '* *'`
 > * **PowerShell:** `--include-hand '* *'`
