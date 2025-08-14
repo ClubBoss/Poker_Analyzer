@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:poker_analyzer/l3/ev/jam_fold_model.dart';
-import 'package:poker_analyzer/l3/jam_fold_evaluator.dart';
+import 'package:poker_analyzer/l3/jam_fold_evaluator.dart'; // FlopBoard
 import 'package:poker_analyzer/utils/board_textures.dart';
 
 double _sprFromBoard(String board) {
@@ -16,11 +16,8 @@ void main(List<String> args) {
     ..addOption('in', defaultsTo: 'build/reports/l3_packrun.json')
     ..addOption('out', defaultsTo: 'build/reports/l3_packrun_ev.json')
     ..addOption('weights')
-    ..addOption(
-      'weightsPreset',
-      defaultsTo: 'default',
-      allowed: ['aggro', 'nitty', 'default'],
-    )
+    ..addOption('weightsPreset',
+        defaultsTo: 'default', allowed: ['aggro', 'nitty', 'default'])
     ..addOption('priors')
     ..addFlag('explain', negatable: false);
   final res = parser.parse(args);
@@ -35,9 +32,8 @@ void main(List<String> args) {
     final jsonStr = weightsOpt.trim().startsWith('{')
         ? weightsOpt
         : File(weightsOpt).readAsStringSync();
-    weights = (json.decode(jsonStr) as Map<String, dynamic>).map(
-      (k, v) => MapEntry(k, (v as num).toDouble()),
-    );
+    weights = (json.decode(jsonStr) as Map<String, dynamic>)
+        .map((k, v) => MapEntry(k, (v as num).toDouble()));
   } else if (presetOpt != null) {
     final presetPath = {
       'aggro': 'tool/config/weights/aggro.json',
@@ -45,9 +41,8 @@ void main(List<String> args) {
       'default': 'tool/config/weights/default.json',
     }[presetOpt]!;
     final jsonStr = File(presetPath).readAsStringSync();
-    weights = (json.decode(jsonStr) as Map<String, dynamic>).map(
-      (k, v) => MapEntry(k, (v as num).toDouble()),
-    );
+    weights = (json.decode(jsonStr) as Map<String, dynamic>)
+        .map((k, v) => MapEntry(k, (v as num).toDouble()));
   }
 
   Map<String, double>? priors;
@@ -56,16 +51,17 @@ void main(List<String> args) {
     final jsonStr = priorsOpt.trim().startsWith('{')
         ? priorsOpt
         : File(priorsOpt).readAsStringSync();
-    priors = (json.decode(jsonStr) as Map<String, dynamic>).map(
-      (k, v) => MapEntry(k, (v as num).toDouble()),
-    );
+    priors = (json.decode(jsonStr) as Map<String, dynamic>)
+        .map((k, v) => MapEntry(k, (v as num).toDouble()));
   }
 
   final explain = res['explain'] as bool;
   final model = JamFoldModel(weights: weights);
 
   final input = json.decode(File(inPath).readAsStringSync());
-  final spots = (input['spots'] as List?) ?? <dynamic>[];
+  final spots = (input is Map && input['spots'] is List)
+      ? input['spots'] as List
+      : const [];
 
   final outSpots = <Map<String, dynamic>>[];
   final sprHistogram = {'spr_low': 0, 'spr_mid': 0, 'spr_high': 0};
@@ -74,6 +70,7 @@ void main(List<String> args) {
 
   for (final raw in spots) {
     if (raw is! Map) continue;
+
     final rb = raw['board'];
     List<String> board3;
     if (rb is List) {
@@ -84,28 +81,26 @@ void main(List<String> args) {
       continue;
     }
     if (board3.length < 3) continue;
+
     final boardStr = board3.join();
-    final board = FlopBoard.fromString(boardStr);
     final spr = _sprFromBoard(boardStr);
+    final board = FlopBoard.fromString(boardStr);
+
     final eval = model.evaluate(
       board: board,
       spr: spr,
       priors: priors,
       explain: explain,
     );
-    if (eval['decision'] == 'jam') {
-      jamCount++;
-    }
-    final sprBucket = spr < 1
-        ? 'spr_low'
-        : spr < 2
-            ? 'spr_mid'
-            : 'spr_high';
+    if (eval['decision'] == 'jam') jamCount++;
+
+    final sprBucket = spr < 1 ? 'spr_low' : (spr < 2 ? 'spr_mid' : 'spr_high');
     sprHistogram[sprBucket] = (sprHistogram[sprBucket] ?? 0) + 1;
-    final textures = classifyFlop(board3);
-    for (final tex in textures) {
+
+    for (final tex in classifyFlop(board3)) {
       textureCounts[tex.name] = (textureCounts[tex.name] ?? 0) + 1;
     }
+
     final spotOut = Map<String, dynamic>.from(raw)
       ..['decision'] = eval['decision']
       ..['jamEV'] = eval['jamEV']
@@ -114,6 +109,7 @@ void main(List<String> args) {
     if (explain) {
       spotOut['explain'] = eval['explain'];
     }
+
     outSpots.add(spotOut);
   }
 

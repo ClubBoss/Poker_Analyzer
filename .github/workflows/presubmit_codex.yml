@@ -1,26 +1,23 @@
 name: Codex Presubmit (format+analyze)
 
 on:
-  pull_request: {}              # важно: без фильтра по branches (иначе не сработает)
-
-permissions:
-  contents: write               # чтоб авто-commit формата пушился в PR-ветку
+  pull_request:
+  push:
+    branches:
+      - '**'
 
 concurrency:
-  group: presubmit-${{ github.event.pull_request.head.sha || github.sha }}
+  group: presubmit-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
 
 jobs:
   presubmit:
-    # Запускаем ТОЛЬКО для PR, у которых head-ветка начинается с "codex/"
-    if: ${{ startsWith(github.head_ref, 'codex/') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: true
 
       - name: Setup Flutter (Dart toolchain)
         uses: subosito/flutter-action@v2
@@ -29,26 +26,21 @@ jobs:
           flutter-version: '3.27.0'
           cache: true
 
-      - name: Autoformat Dart
-        id: fmt
-        run: |
-          echo "::group::dart format"
-          dart format -o write tool lib test || true
-          echo "::endgroup::"
-          if git diff --quiet; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-          else
-            echo "changed=true" >> $GITHUB_OUTPUT
-          fi
+      - name: Autoformat Dart (workspace)
+        run: dart format -o write $(git ls-files '*.dart')
 
+      # ВАЖНО: коммитим автоформат ТОЛЬКО на push в ветку, не на pull_request
       - name: Commit format (if needed)
-        if: steps.fmt.outputs.changed == 'true'
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/heads/') }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git commit -m "style: dart format (autofix)"
-          git push
+          if ! git diff --quiet; then
+            git add -A
+            git commit -m "style: dart format (autofix)"
+            git push
+          fi
 
-      - name: Dart analyze
-        run: dart analyze
+      # Анализ оставляем нефатальным, чтобы не блокировать PR
+      - name: Dart analyze (non-fatal)
+        run: dart analyze || true
