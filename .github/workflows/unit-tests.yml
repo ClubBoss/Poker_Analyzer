@@ -48,6 +48,19 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Fail on smart quotes / punctuation
+        shell: bash
+        run: |
+          set -euo pipefail
+          globs=(
+            '*.dart' '*.md' '*.arb' '*.yaml' '*.yml'
+          )
+          pattern='[\x{2018}\x{2019}\x{201C}\x{201D}\x{2026}\x{2014}\x{2013}]'
+          if git grep -I -nP "$pattern" -- "${globs[@]}"; then
+            echo "::error ::Smart punctuation found. Replace with ASCII equivalents."
+            exit 1
+          fi
+
       # Запускаем тесты ТОЛЬКО если на PR есть лейбл run-tests
       - name: Run smoke tests (labeled PRs only)
         if: ${{ contains(github.event.pull_request.labels.*.name, 'run-tests') }}
