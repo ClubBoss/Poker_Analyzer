@@ -12,9 +12,10 @@ Future<String> _writeReport(
   double delta = 0,
   bool includeJamFold = true,
   double spr = 1.0,
+  String board = 'AhKhQd',
 }) async {
   final file = File('${dir.path}/$name.json');
-  final spot = {'hand': 'As Ks', 'board': 'AhKhQd', 'spr': spr};
+  final spot = {'hand': 'As Ks', 'board': board, 'spr': spr};
   if (includeJamFold) {
     spot['jamFold'] = {
       'evJam': delta,
@@ -54,6 +55,22 @@ Future<Directory> _buildSprCorpus() async {
   await _writeReport(dir, 'a', delta: 0.3, spr: 0.8);
   await _writeReport(dir, 'b', delta: -0.6, spr: 1.2);
   await _writeReport(dir, 'c', delta: 1.4, spr: 2.5);
+  return dir;
+}
+
+Future<Directory> _buildTextureCorpus() async {
+  final dir = await Directory.systemTemp.createTemp('ev_rank_cli_texture');
+  await _writeReport(dir, 'wet1', delta: 0.5, board: 'AsKsQs');
+  await _writeReport(dir, 'dry1', delta: 0.4, board: 'Ah7d2c');
+  await _writeReport(dir, 'wet2', delta: -0.3, board: '9c8d7s');
+  return dir;
+}
+
+Future<Directory> _buildCompositionCorpus() async {
+  final dir = await Directory.systemTemp.createTemp('ev_rank_cli_comp');
+  await _writeReport(dir, 'a', delta: 0.6, board: 'AsKsQs', spr: 1.5);
+  await _writeReport(dir, 'b', delta: 0.7, board: 'Ah7d2c', spr: 1.5);
+  await _writeReport(dir, 'c', delta: 0.8, board: '9c8d7s', spr: 2.5);
   return dir;
 }
 
@@ -553,6 +570,121 @@ void main() {
         ]);
       });
       expect(run1, run2);
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('texture=wet', () async {
+    final dir = await _buildTextureCorpus();
+    try {
+      final run1 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--texture', 'wet']);
+      });
+      expect(exitCode, 0);
+      final run2 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--texture', 'wet']);
+      });
+      expect(exitCode, 0);
+      expect(run1, run2);
+      final list = jsonDecode(run1.trim()) as List;
+      final boards = list
+          .map((e) => (e as Map<String, dynamic>)['board'])
+          .toSet();
+      expect(boards, {'AsKsQs', '9c8d7s'});
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('texture=dry', () async {
+    final dir = await _buildTextureCorpus();
+    try {
+      final output = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--texture', 'dry']);
+      });
+      expect(exitCode, 0);
+      final list = jsonDecode(output.trim()) as List;
+      expect(list.length, 1);
+      final first = list.first as Map<String, dynamic>;
+      expect(first['board'], 'Ah7d2c');
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('texture union wet,paired', () async {
+    final dir = await _buildTextureCorpus();
+    try {
+      final wetOut = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--texture', 'wet']);
+      });
+      expect(exitCode, 0);
+      final unionOut = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--texture', 'wet,paired']);
+      });
+      expect(exitCode, 0);
+      final wetList = jsonDecode(wetOut.trim()) as List;
+      final unionList = jsonDecode(unionOut.trim()) as List;
+      expect(unionList.length, wetList.length);
+      for (final e in wetList) {
+        expect(unionList.contains(e), true);
+      }
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('empty texture value invalid', () async {
+    final dir = await _buildTextureCorpus();
+    try {
+      await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--texture', '']);
+      });
+      expect(exitCode, 64);
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('texture with other filters and formats', () async {
+    final dir = await _buildCompositionCorpus();
+    try {
+      final out = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          dir.path,
+          '--texture',
+          'wet',
+          '--spr',
+          'mid',
+          '--action',
+          'jam',
+          '--abs-delta',
+          '--min-delta',
+          '0.5',
+          '--format',
+          'jsonl',
+        ]);
+      });
+      expect(exitCode, 0);
+      final lines = out.trim().split('\n');
+      for (final line in lines) {
+        final map = jsonDecode(line) as Map<String, dynamic>;
+        expect(map['board'], 'AsKsQs');
+        expect(map['bestAction'], 'jam');
+        final d = (map['delta'] as num).toDouble();
+        expect(d.abs() >= 0.5, true);
+        final spr = (map['spr'] as num).toDouble();
+        expect(spr >= 1 && spr < 2, true);
+      }
     } finally {
       await dir.delete(recursive: true);
     }

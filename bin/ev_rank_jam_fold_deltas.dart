@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:poker_analyzer/services/board_texture_classifier.dart';
+
 Future<void> main(List<String> args) async {
   String? inPath;
   String? dirPath;
@@ -12,6 +14,7 @@ Future<void> main(List<String> args) async {
   var sprBucket = 'any';
   var format = 'json';
   List<String>? fields;
+  List<String>? textures;
 
   for (var i = 0; i < args.length; i++) {
     final arg = args[i];
@@ -68,6 +71,18 @@ Future<void> main(List<String> args) async {
           .map((s) => s.trim())
           .where((s) => s.isNotEmpty)
           .toList();
+    } else if (arg == '--texture' && i + 1 < args.length) {
+      final value = args[++i];
+      textures = value
+          .split(',')
+          .map((s) => s.trim())
+          .where((s) => s.isNotEmpty)
+          .toList();
+      if (textures!.isEmpty) {
+        stderr.writeln('Invalid --texture value: ' + value);
+        exitCode = 64;
+        return;
+      }
     } else {
       stderr.writeln('Unknown or incomplete argument: $arg');
       exitCode = 64;
@@ -111,6 +126,7 @@ Future<void> main(List<String> args) async {
 
   final root = Directory.current.path;
   final spots = <Map<String, dynamic>>[];
+  final classifier = BoardTextureClassifier();
 
   Future<void> handle(String path) async {
     final content = await File(path).readAsString();
@@ -147,16 +163,19 @@ Future<void> main(List<String> args) async {
         }
         return null;
       })();
+      final board = spot['board'];
+      final tags = board is String ? classifier.classify(board) : <String>{};
       spots.add({
         'path': rel,
         'spotIndex': i,
         'hand': handField,
-        'board': spot['board'],
+        'board': board,
         'spr': (spot['spr'] as num?)?.toDouble(),
         'bestAction': best,
         'evJam': evJam,
         'evFold': evFold,
         'delta': delta,
+        '_tags': tags,
       });
     }
   }
@@ -225,6 +244,19 @@ Future<void> main(List<String> args) async {
       final v = absDelta ? d.abs() : d;
       return v < minDelta!;
     });
+  }
+  if (textures != null) {
+    spots.removeWhere((s) {
+      final tags = s['_tags'] as Set<String>?;
+      if (tags == null) return true;
+      for (final t in textures!) {
+        if (tags.contains(t)) return false;
+      }
+      return true;
+    });
+  }
+  for (final s in spots) {
+    s.remove('_tags');
   }
 
   // Deterministic ordering: primary by (delta | abs(delta)) desc,
