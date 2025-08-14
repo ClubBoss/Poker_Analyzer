@@ -13,6 +13,7 @@ Future<void> main(List<String> args) async {
   var action = 'any';
   var sprBucket = 'any';
   var format = 'json';
+  var uniqueBy = 'none';
   List<String>? fields;
   List<String>? textures;
 
@@ -83,6 +84,17 @@ Future<void> main(List<String> args) async {
         exitCode = 64;
         return;
       }
+    } else if (arg == '--unique-by' && i + 1 < args.length) {
+      final value = args[++i];
+      if (value != 'none' &&
+          value != 'path' &&
+          value != 'hand' &&
+          value != 'board') {
+        stderr.writeln('Invalid --unique-by value: ' + value);
+        exitCode = 64;
+        return;
+      }
+      uniqueBy = value;
     } else {
       stderr.writeln('Unknown or incomplete argument: $arg');
       exitCode = 64;
@@ -276,6 +288,31 @@ Future<void> main(List<String> args) async {
     final ib = b['spotIndex'] as int;
     return ia.compareTo(ib);
   });
+
+  if (uniqueBy != 'none') {
+    final seen = <String>{};
+    final deduped = <Map<String, dynamic>>[];
+    for (final spot in spots) {
+      String? key;
+      if (uniqueBy == 'path') {
+        key = spot['path'] as String?;
+      } else if (uniqueBy == 'hand') {
+        key = spot['hand'] as String?;
+      } else if (uniqueBy == 'board') {
+        key = spot['board'] as String?;
+      }
+      if (key == null) {
+        deduped.add(spot);
+        continue;
+      }
+      if (seen.contains(key)) continue;
+      seen.add(key);
+      deduped.add(spot);
+    }
+    spots
+      ..clear()
+      ..addAll(deduped);
+  }
 
   if (spots.length > limit) {
     spots.length = limit;

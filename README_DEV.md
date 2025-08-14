@@ -92,6 +92,17 @@ dart run bin/ev_rank_jam_fold_deltas.dart --dir reports/ --texture wet
 
 # Multiple tags: either 'wet' or 'paired'
 dart run bin/ev_rank_jam_fold_deltas.dart --glob "reports/**/*.json" --texture wet,paired --limit 50
+
+# One hottest spot per file
+dart run bin/ev_rank_jam_fold_deltas.dart --dir reports/ --unique-by path
+
+# One hottest per board across the tree (by absolute impact)
+dart run bin/ev_rank_jam_fold_deltas.dart --glob "reports/**/*.json" --abs-delta --unique-by board
+
+# Combine with filters & CSV
+dart run bin/ev_rank_jam_fold_deltas.dart \
+  --dir reports/ --spr mid --action jam --min-delta 0.5 \
+  --unique-by hand --format csv --fields path,hand,delta
 ```
 
 Alternate output formats:
