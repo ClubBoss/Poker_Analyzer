@@ -1,41 +1,47 @@
 #!/usr/bin/env bash
 set -euo pipefail
+set -x
 
-FILES=$(git diff --name-only -- '*.dart')
-if [[ -n "$FILES" ]]; then
-  dart format -o write $FILES
-fi
+# 1) format check (fail if бы изменил)
+dart format --output=none --set-exit-if-changed \
+  lib/services lib/l3 tool/l3 \
+  test/l3_cli_runner_weights_parse_test.dart test/fixtures/l3/weights
 
-# Guard checks for EV scope hygiene
-if grep -R -q -e 'package:flutter/' -e 'dart:ui' lib/ev test/ev bin/ev*; then
+# 2) EV scope hygiene (только если каталоги/файлы существуют)
+if [ -d lib/ev ] && grep -R -q -e 'package:flutter/' -e 'dart:ui' lib/ev; then
   echo 'EV code must not import Flutter.'
   exit 1
 fi
+if [ -d test/ev ] && grep -R -q -e 'package:flutter/' -e 'dart:ui' test/ev; then
+  echo 'EV tests must not import Flutter.'
+  exit 1
+fi
+if ls bin/ev_* >/dev/null 2>&1 && grep -R -q -e 'package:flutter/' -e 'dart:ui' bin/ev_*; then
+  echo 'EV CLI must not import Flutter.'
+  exit 1
+fi
 
-for file in \
-  bin/ev_enrich_jam_fold.dart \
-  bin/ev_report_jam_fold.dart \
-  bin/ev_summary_jam_fold.dart \
-  bin/ev_rank_jam_fold_deltas.dart; do
-  if grep -R -q -e 'package:args' -e 'ArgParser' "$file"; then
+# 3) EV CLI deps guard (файлы могут отсутствовать — пропускаем)
+for file in bin/ev_enrich_jam_fold.dart bin/ev_report_jam_fold.dart bin/ev_summary_jam_fold.dart bin/ev_rank_jam_fold_deltas.dart; do
+  [ -f "$file" ] || continue
+  if grep -q -e 'package:args' -e 'ArgParser' "$file"; then
     echo "$file must not depend on package:args."
     exit 1
   fi
-
-  if grep -R -q 'package:path/' "$file"; then
+  if grep -q 'package:path/' "$file"; then
     echo "$file must not depend on package:path."
     exit 1
   fi
-
 done
 
-if grep -R -q 'sdk: flutter' pubspec.yaml; then
-  if ! command -v flutter >/dev/null 2>&1; then
-    echo 'SKIP analyze/test (no Flutter SDK)'
-    exit 0
-  fi
+# 4) flutter deps (если это flutter-проект)
+if grep -q 'sdk: flutter' pubspec.yaml; then
   flutter pub get
+else
+  dart pub get
 fi
 
+# 5) analyzer строго по L3-скоупу
 dart analyze lib/services lib/l3 tool/l3 test/l3_cli_runner_weights_parse_test.dart --fatal-warnings
-dart test test/ev/jam_fold_evaluator_test.dart
+
+# Тесты контракта запускаются отдельным шагом workflow
