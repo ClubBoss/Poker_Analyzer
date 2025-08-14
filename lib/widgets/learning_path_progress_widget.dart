@@ -137,7 +137,7 @@ class _LearningPathProgressWidgetState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${widget.stats.completedStages}/${widget.stats.totalStages} стадий — $pct%',
+            '${widget.stats.completedStages}/${widget.stats.totalStages} стадий - $pct%',
             style: const TextStyle(color: Colors.white),
           ),
           const SizedBox(height: 4),

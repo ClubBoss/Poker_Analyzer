@@ -48,7 +48,7 @@ class _StageSessionHistoryScreenState extends State<StageSessionHistoryScreen> {
               final total = log.correctCount + log.mistakeCount;
               final acc = total == 0 ? 0.0 : log.correctCount / total * 100;
               final ev = log.evPercent;
-              final evText = ev != null ? ev.toStringAsFixed(1) : '—';
+              final evText = ev != null ? ev.toStringAsFixed(1) : '-';
               final cats = log.categories.entries.toList()
                 ..sort((a, b) => b.value.compareTo(a.value));
               final tagText = cats.isEmpty

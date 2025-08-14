@@ -302,7 +302,7 @@ class _AllSessionsScreenState extends State<AllSessionsScreen> {
           ? (calculateAccuracy(e.result.correct, e.result.total)).toStringAsFixed(0)
           : '0';
       buffer.writeln(
-          '- ${e.packName} — ${formatDateTime(e.result.date)} — ${e.result.correct}/${e.result.total} ($percent%)');
+          '- ${e.packName} - ${formatDateTime(e.result.date)} - ${e.result.correct}/${e.result.total} ($percent%)');
     }
 
     final fileName =

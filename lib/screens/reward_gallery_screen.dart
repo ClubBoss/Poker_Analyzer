@@ -54,7 +54,7 @@ class _RewardGalleryScreenState extends State<RewardGalleryScreen> {
                         context: context,
                         barrierDismissible: false,
                         builder: (_) => const AlertDialog(
-                          content: Text('Генерация изображения…'),
+                          content: Text('Генерация изображения...'),
                         ),
                       );
                       try {

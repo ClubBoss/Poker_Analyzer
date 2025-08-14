@@ -12,9 +12,9 @@ class FirstLaunchTutorial extends StatefulWidget {
 
 class _FirstLaunchTutorialState extends State<FirstLaunchTutorial> {
   final _steps = const [
-    'Progress — track results',
-    'Training Packs — practice spots',
-    'Analyzer — review any hand',
+    'Progress - track results',
+    'Training Packs - practice spots',
+    'Analyzer - review any hand',
   ];
   int _index = 0;
 

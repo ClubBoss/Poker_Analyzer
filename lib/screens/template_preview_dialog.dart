@@ -47,7 +47,7 @@ class TemplatePreviewDialog extends StatelessWidget {
             const SizedBox(height: 8),
             for (final n in names)
               Text('• $n', overflow: TextOverflow.ellipsis),
-            if (rest > 0) Text('… +$rest'),
+            if (rest > 0) Text('... +$rest'),
           ],
         ),
       ),

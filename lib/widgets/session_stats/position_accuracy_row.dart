@@ -23,7 +23,7 @@ class PositionAccuracyRow extends StatelessWidget {
     final row = Padding(
       padding: EdgeInsets.only(bottom: 12 * scale),
       child: Text(
-        '$position — $accuracy% точность ($correct из $total верно)',
+        '$position - $accuracy% точность ($correct из $total верно)',
         style: TextStyle(color: Colors.white, fontSize: 14 * scale),
       ),
     );

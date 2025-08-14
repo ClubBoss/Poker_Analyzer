@@ -187,7 +187,7 @@ class _PackDataSource extends DataTableSource {
           ),
         ),
         DataCell(Text(s.mistakes.toString())),
-        DataCell(Text('–${s.totalEvLoss.toStringAsFixed(1)} bb',
+        DataCell(Text('-${s.totalEvLoss.toStringAsFixed(1)} bb',
             style: TextStyle(
                 color: s.totalEvLoss > 0 ? Colors.red : Colors.green))),
         DataCell(Text(s.rating.toStringAsFixed(1).padLeft(4))),
@@ -436,7 +436,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
         s.total,
         '${s.accuracy.toStringAsFixed(1)}%',
         s.mistakes,
-        '–${s.totalEvLoss.toStringAsFixed(1)} bb',
+        '-${s.totalEvLoss.toStringAsFixed(1)} bb',
         s.rating.toStringAsFixed(1),
         s.lastSession != null
             ? DateFormat('dd.MM', Intl.getCurrentLocale()).format(s.lastSession!)
@@ -455,7 +455,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
       sumTotal,
       '${avgAcc.toStringAsFixed(1)}%',
       sumMistakes,
-      '–${sumEvLoss.toStringAsFixed(1)} bb',
+      '-${sumEvLoss.toStringAsFixed(1)} bb',
       avgRating.toStringAsFixed(1),
       '-',
     ]);
@@ -884,7 +884,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
                   ),
                   DataColumn(
                     label: Tooltip(
-                      message: 'Средний рейтинг всех рук в паке (1–5)',
+                      message: 'Средний рейтинг всех рук в паке (1-5)',
                       child: Row(
                         children: [
                           const Text('Рейтинг'),
@@ -940,7 +940,7 @@ class _TrainingPackComparisonScreenState extends State<TrainingPackComparisonScr
                         DataCell(Text('${avgAcc.toStringAsFixed(1)}%')),
                         DataCell(Text('${((sumTotal - sumMistakes) / (sumTotal > 0 ? sumTotal : 1) * 100).toStringAsFixed(1)}%')),
                         DataCell(Text(sumMistakes.toString())),
-                        DataCell(Text('–${sumEvLoss.toStringAsFixed(1)} bb')),
+                        DataCell(Text('-${sumEvLoss.toStringAsFixed(1)} bb')),
                         DataCell(Text(avgRating.toStringAsFixed(1))),
                         const DataCell(Text('-')),
                         const DataCell(SizedBox.shrink()),

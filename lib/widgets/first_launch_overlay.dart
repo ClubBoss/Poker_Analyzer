@@ -31,7 +31,7 @@ class FirstLaunchOverlay extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 const Text(
-                  'Progress — track results\nTraining Packs — practice spots\nAnalyzer — review any hand',
+                  'Progress - track results\nTraining Packs - practice spots\nAnalyzer - review any hand',
                   style: TextStyle(color: Colors.white70),
                   textAlign: TextAlign.center,
                 ),

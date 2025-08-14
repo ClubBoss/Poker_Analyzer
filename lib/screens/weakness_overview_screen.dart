@@ -155,7 +155,7 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
             const SizedBox(height: 8),
             for (final h in samples)
               Text(
-                  '${h.heroPosition} – ${h.boardCards.map((c) => '${c.rank}${c.suit}').join(' ')}'),
+                  '${h.heroPosition} - ${h.boardCards.map((c) => '${c.rank}${c.suit}').join(' ')}'),
             const SizedBox(height: 8),
             Align(
               alignment: Alignment.centerRight,

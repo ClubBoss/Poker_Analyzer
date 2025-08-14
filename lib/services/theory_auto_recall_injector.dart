@@ -81,7 +81,7 @@ class TheoryAutoRecallInjector {
   String _shortSummary(String text, {int max = 160}) {
     final clean = text.replaceAll(RegExp(r'\s+'), ' ').trim();
     if (clean.length <= max) return clean;
-    return '${clean.substring(0, max)}…';
+    return '${clean.substring(0, max)}...';
   }
 }
 

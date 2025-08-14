@@ -428,7 +428,7 @@ class _RoomHandHistoryImportScreenState
                           for (final t in (_allTags.toList()..sort()))
                             PopupMenuItem(value: 'add:$t', child: Text(t)),
                           const PopupMenuItem(
-                              value: 'add:__new__', child: Text('New…')),
+                              value: 'add:__new__', child: Text('New...')),
                           const PopupMenuDivider(),
                           const PopupMenuItem<String>(
                             enabled: false,

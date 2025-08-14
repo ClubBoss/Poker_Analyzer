@@ -38,7 +38,7 @@ class WeaknessBoosterOverlay extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'У тебя просадка в $list — хочешь отработать сейчас?',
+                'У тебя просадка в $list - хочешь отработать сейчас?',
                 style: const TextStyle(color: Colors.white70),
                 textAlign: TextAlign.center,
               ),

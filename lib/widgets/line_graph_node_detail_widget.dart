@@ -21,7 +21,7 @@ class LineGraphNodeDetailWidget extends StatelessWidget {
 
   String _title(LineGraphNode n) {
     String cap(String v) => v.isEmpty ? v : v[0].toUpperCase() + v.substring(1);
-    return '${cap(n.street)} ${cap(n.action)} — ${n.position}';
+    return '${cap(n.street)} ${cap(n.action)} - ${n.position}';
   }
 
   Future<void> _openLesson(

@@ -180,7 +180,7 @@ class _TrainingPackTemplateListScreenState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             duration: const Duration(days: 1),
-            content: Text('${_streetName(street)} почти закрыт в ${t.name} — доиграем?'),
+            content: Text('${_streetName(street)} почти закрыт в ${t.name} - доиграем?'),
             action: SnackBarAction(
               label: 'Продолжить',
               onPressed: () => _chooseVariant(t),
@@ -418,7 +418,7 @@ class _TrainingPackTemplateListScreenState
       final label = a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action;
       parts.add('$label${a.amount != null ? ' ${a.amount}' : ''}');
     }
-    return parts.join(' – ');
+    return parts.join(' - ');
   }
 
   Future<void> _showStreetProgress(TrainingPackTemplate tpl) async {
@@ -2358,13 +2358,13 @@ class _TrainingPackTemplateListScreenState
               PopupMenuItem(
                   value: 'coverage',
                   child: Text(AppLocalizations.of(ctx)!.sortCoverage)),
-              const PopupMenuItem(value: 'name', child: Text('Name A–Z')),
+              const PopupMenuItem(value: 'name', child: Text('Name A-Z')),
               const PopupMenuItem(value: 'created', child: Text('Newest First')),
               const PopupMenuItem(
                   value: 'last_trained',
                   child: Text('Last Trained (Recent → Old)')),
               const PopupMenuItem(value: 'spots', child: Text('Most Spots')),
-              const PopupMenuItem(value: 'tag', child: Text('Tag A–Z')),
+              const PopupMenuItem(value: 'tag', child: Text('Tag A-Z')),
             ],
           ),
           PopupMenuButton<String>(
@@ -2390,7 +2390,7 @@ class _TrainingPackTemplateListScreenState
                 TextField(
                   controller: _searchCtrl,
                   decoration: InputDecoration(
-                    hintText: 'Search…',
+                    hintText: 'Search...',
                     prefixIcon: const Icon(Icons.search),
                     suffixIcon: _query.isEmpty
                         ? null

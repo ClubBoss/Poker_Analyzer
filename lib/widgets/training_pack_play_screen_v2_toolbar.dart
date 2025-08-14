@@ -62,7 +62,7 @@ class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '$title — ${index + 1}/$total',
+                      '$title - ${index + 1}/$total',
                       style: textStyle,
                       overflow: TextOverflow.ellipsis,
                     ),

@@ -33,7 +33,7 @@ class SkillTreeTrackCompletionEvaluator {
     return true;
   }
 
-  /// Returns completion rate (0.0–1.0) for [trackId].
+  /// Returns completion rate (0.0-1.0) for [trackId].
   Future<double> getCompletionRate(String trackId) async {
     await _ensureLoaded();
     final tree = library.getTrack(trackId)?.tree;

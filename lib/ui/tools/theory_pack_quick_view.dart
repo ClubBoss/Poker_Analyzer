@@ -28,7 +28,7 @@ class TheoryPackQuickView extends StatelessWidget {
     final minutes = words / wpm;
     final min = minutes.ceil();
     final max = (minutes * 1.5).ceil();
-    return '$min–$max мин';
+    return '$min-$max мин';
   }
 
   String _summary(String text) {

@@ -94,7 +94,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get sortMostHands => 'Le plus de mains';
 
   @override
-  String get sortName => 'Nom A–Z';
+  String get sortName => 'Nom A-Z';
 
   @override
   String get noMistakesLeft => 'Toutes les erreurs sont déjà corrigées !';
@@ -279,7 +279,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get resetStage => 'Reset Stage';
 
   @override
-  String get cancel => 'Cancel';
+  String get cancel => 'Отмена';
 
   @override
   String get reset => 'Reset';
@@ -309,7 +309,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get confirm => 'Confirm';
 
   @override
-  String get clear => 'Clear';
+  String get clear => 'Очистить';
 
   @override
   String get ok => 'OK';
@@ -449,40 +449,43 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get quickstartL3 => 'Quickstart L3';
+  String get quickstartL3 => 'Быстрый старт L3';
+
+  @override
+  String get run => 'Запустить';
+
+  @override
+  String get openReport => 'Открыть отчет';
+
+  @override
+  String get viewLogs => 'Просмотр логов';
+
+  @override
+  String get retry => 'Повторить';
+
+  @override
+  String get presetWillBeUsed => 'Будет использован пресет';
+
+  @override
+  String get reportEmpty => 'Отчет пуст';
+
+  @override
+  String get abDiff => 'A/B сравнение';
+
+  @override
+  String get export => 'Экспорт';
+
+  @override
+  String get weightsPreset => 'Пресет весов';
+
+  @override
+  String get weightsJson => 'JSON весов';
+
+  @override
+  String get invalidJson => 'Некорректный JSON';
 
   @override
   String get desktopOnly => 'Ordinateur uniquement';
-
-  @override
-  String get run => 'Run';
-
-  @override
-  String get openReport => 'Open report';
-
-  @override
-  String get viewLogs => 'View logs';
-
-  @override
-  String get retry => 'Retry';
-
-  @override
-  String get presetWillBeUsed => 'Preset will be used';
-
-  @override
-  String get reportEmpty => 'Report is empty';
-
-  @override
-  String get abDiff => 'A/B diff';
-
-  @override
-  String get export => 'Export';
-
-  @override
-  String get weightsPreset => 'Weights preset';
-
-  @override
-  String get weightsJson => 'Weights JSON';
 
   @override
   String get recentRuns => 'Recent runs';

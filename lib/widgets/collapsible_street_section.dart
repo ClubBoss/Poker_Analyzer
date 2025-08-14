@@ -53,7 +53,7 @@ class _CollapsibleStreetSectionState extends State<CollapsibleStreetSection> {
       final label =
           a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action;
       return '${_capitalize(label)}${a.amount != null ? ' ${a.amount}' : ''}';
-    }).join(' – ');
+    }).join(' - ');
   }
 
   @override

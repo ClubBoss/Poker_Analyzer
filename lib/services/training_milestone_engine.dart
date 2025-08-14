@@ -48,7 +48,7 @@ class TrainingMilestoneEngine {
     if (milestone != null) {
       triggered.add(milestone);
       await _save();
-      final msg = '🎉 $milestone паков — отличное начало!';
+      final msg = '🎉 $milestone паков - отличное начало!';
       return MilestoneResult(
         triggered: true,
         milestoneValue: milestone,

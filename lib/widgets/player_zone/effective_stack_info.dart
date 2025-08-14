@@ -25,7 +25,7 @@ class EffectiveStackInfo extends StatelessWidget {
       triggerMode:
           isMobile ? TooltipTriggerMode.longPress : TooltipTriggerMode.hover,
       message:
-          'Эффективный стек — минимальный стек между вами и соперником. Используется при пуш/фолд.',
+          'Эффективный стек - минимальный стек между вами и соперником. Используется при пуш/фолд.',
       child: Text(
         'Eff. stack: $effText BB',
         style: style,

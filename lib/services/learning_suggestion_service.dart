@@ -136,7 +136,7 @@ class LearningSuggestionService {
     if (allDone && stages.isNotEmpty) {
       final first = stages.first.items.first.templateId;
       return LearningTip(
-        title: '🎉 Путь завершен — отличная работа!',
+        title: '🎉 Путь завершен - отличная работа!',
         description: 'Можно повторить этапы для закрепления.',
         action: LearningTipAction.repeatStage,
         targetId: first ?? '',

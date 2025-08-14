@@ -639,7 +639,7 @@ class _TrainingPackTemplateListScreenState
               children: [
                 TextField(
                   controller: _searchController,
-                  decoration: const InputDecoration(hintText: 'Поиск…'),
+                  decoration: const InputDecoration(hintText: 'Поиск...'),
                   onChanged: (_) => setState(() {}),
                 ),
                 if (!_groupByStreet && categorySet.isNotEmpty) ...[

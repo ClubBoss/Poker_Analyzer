@@ -103,7 +103,7 @@ class _ReplaySpotWidgetState extends State<ReplaySpotWidget> {
             ],
             if ((widget.evLoss ?? 0) > 0.5) ...[
               const SizedBox(height: 8),
-              Text('Потеря EV: –${widget.evLoss!.toStringAsFixed(1)} bb'),
+              Text('Потеря EV: -${widget.evLoss!.toStringAsFixed(1)} bb'),
             ],
           ],
         ),

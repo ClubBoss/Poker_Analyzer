@@ -13,7 +13,7 @@ class TrainingPackTheoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('${template.name} — теория')),
+      appBar: AppBar(title: Text('${template.name} - теория')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

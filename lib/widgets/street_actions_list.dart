@@ -52,7 +52,7 @@ class StreetActionsList extends StatelessWidget {
     final pos = playerPositions[a.playerIndex] ?? 'P${a.playerIndex + 1}';
     final actLabel =
         a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action;
-    final baseTitle = '$pos — $actLabel';
+    final baseTitle = '$pos - $actLabel';
     final title = a.generated ? '$baseTitle (auto)' : baseTitle;
 
     Color? qualityColor;

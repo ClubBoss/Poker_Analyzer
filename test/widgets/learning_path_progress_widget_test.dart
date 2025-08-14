@@ -60,7 +60,7 @@ void main() {
       ),
     );
 
-    expect(find.text('1/3 стадий — 33%'), findsOneWidget);
+    expect(find.text('1/3 стадий - 33%'), findsOneWidget);
     final bar = tester.widget<LinearProgressIndicator>(
         find.byType(LinearProgressIndicator).first);
     expect(bar.value, closeTo(1 / 3, 0.01));

@@ -24,9 +24,9 @@ class _SpotTemplateGeneratorScreenState
   bool _loading = false;
 
   List<int> _parseRange(String text) {
-    final clean = text.replaceAll(RegExp('[^0-9-– ]'), '');
-    if (clean.contains('-') || clean.contains('–')) {
-      final p = clean.split(RegExp('[-–]'));
+    final clean = text.replaceAll(RegExp('[^0-9-- ]'), '');
+    if (clean.contains('-') || clean.contains('-')) {
+      final p = clean.split(RegExp('[--]'));
       int a = int.tryParse(p.first.trim()) ?? 0;
       int b = int.tryParse(p.last.trim()) ?? a;
       if (b < a) {

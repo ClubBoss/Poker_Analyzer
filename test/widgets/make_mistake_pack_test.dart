@@ -33,7 +33,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Make Mistake Pack'));
     await tester.pumpAndSettle();
-    expect(find.text('Test – Mistakes'), findsOneWidget);
+    expect(find.text('Test - Mistakes'), findsOneWidget);
     expect(service.templates.length, 1);
   });
 }

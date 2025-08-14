@@ -27,7 +27,7 @@ class TrainingPackSpot
   bool pinned;
   int priority;
 
-  /// Ephemeral flag — used only in RAM to highlight freshly imported spots.
+  /// Ephemeral flag - used only in RAM to highlight freshly imported spots.
   /// Never written to / read from JSON.
   bool isNew;
 

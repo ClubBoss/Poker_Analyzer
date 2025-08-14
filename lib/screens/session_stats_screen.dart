@@ -332,19 +332,19 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
   }
 
   Map<String, int> _accuracyHistogram(List<double> accuracies) {
-    final labels = ['50–60%', '60–70%', '70–80%', '80–90%', '90–100%'];
+    final labels = ['50-60%', '60-70%', '70-80%', '80-90%', '90-100%'];
     final counts = <String, int>{for (final l in labels) l: 0};
     for (final a in accuracies) {
       if (a >= 50 && a < 60) {
-        counts['50–60%'] = counts['50–60%']! + 1;
+        counts['50-60%'] = counts['50-60%']! + 1;
       } else if (a < 70) {
-        counts['60–70%'] = counts['60–70%']! + 1;
+        counts['60-70%'] = counts['60-70%']! + 1;
       } else if (a < 80) {
-        counts['70–80%'] = counts['70–80%']! + 1;
+        counts['70-80%'] = counts['70-80%']! + 1;
       } else if (a < 90) {
-        counts['80–90%'] = counts['80–90%']! + 1;
+        counts['80-90%'] = counts['80-90%']! + 1;
       } else {
-        counts['90–100%'] = counts['90–100%']! + 1;
+        counts['90-100%'] = counts['90-100%']! + 1;
       }
     }
     return counts;
@@ -403,7 +403,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
                 100)
             .round();
         buffer.writeln(
-            '- SB — $acc% (${summary.positionCorrect['SB']} из ${summary.positionTotals['SB']} верно)');
+            '- SB - $acc% (${summary.positionCorrect['SB']} из ${summary.positionTotals['SB']} верно)');
       }
       if (summary.positionTotals['BB']! > 0) {
         final acc = (summary.positionCorrect['BB']! /
@@ -411,7 +411,7 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
                 100)
             .round();
         buffer.writeln(
-            '- BB — $acc% (${summary.positionCorrect['BB']} из ${summary.positionTotals['BB']} верно)');
+            '- BB - $acc% (${summary.positionCorrect['BB']} из ${summary.positionTotals['BB']} верно)');
       }
       buffer.writeln();
     }
@@ -498,11 +498,11 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
                   style: pw.TextStyle(font: boldFont, fontSize: 18)),
               if (summary.positionTotals['SB']! > 0)
                 pw.Text(
-                    'SB — ${(summary.positionCorrect['SB']! / summary.positionTotals['SB']! * 100).round()}% точность (${summary.positionCorrect['SB']} из ${summary.positionTotals['SB']} верно)',
+                    'SB - ${(summary.positionCorrect['SB']! / summary.positionTotals['SB']! * 100).round()}% точность (${summary.positionCorrect['SB']} из ${summary.positionTotals['SB']} верно)',
                     style: pw.TextStyle(font: regularFont)),
               if (summary.positionTotals['BB']! > 0)
                 pw.Text(
-                    'BB — ${(summary.positionCorrect['BB']! / summary.positionTotals['BB']! * 100).round()}% точность (${summary.positionCorrect['BB']} из ${summary.positionTotals['BB']} верно)',
+                    'BB - ${(summary.positionCorrect['BB']! / summary.positionTotals['BB']! * 100).round()}% точность (${summary.positionCorrect['BB']} из ${summary.positionTotals['BB']} верно)',
                     style: pw.TextStyle(font: regularFont)),
             ],
             if (summary.tagEntries.isNotEmpty) ...[

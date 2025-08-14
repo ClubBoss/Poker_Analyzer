@@ -71,9 +71,9 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
               final s = spots[index];
               final cards = s.hand.heroCards;
               final tag = s.tags.firstWhereOrNull((t) => t.startsWith('cat:'));
-              final tagText = tag != null ? tag.substring(4) : '—';
+              final tagText = tag != null ? tag.substring(4) : '-';
               final ev = s.heroEv ?? s.evalResult?.ev;
-              final evText = ev != null ? ev.toStringAsFixed(1) : '—';
+              final evText = ev != null ? ev.toStringAsFixed(1) : '-';
               return Card(
                 color: const Color(0xFF2A2B2D),
                 child: ListTile(

@@ -42,7 +42,7 @@ class DailyReminderScheduler {
     if (!first.isAfter(now)) first = first.add(const Duration(days: 1));
 
     final body =
-        '🔁 Напоминание: вы ещё не начали "[$packName]" — давайте улучшим этот спот!';
+        '🔁 Напоминание: вы ещё не начали "[$packName]" - давайте улучшим этот спот!';
 
     for (int i = count; i < 3; i++) {
       final when = first.add(Duration(days: i));

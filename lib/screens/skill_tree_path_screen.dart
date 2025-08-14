@@ -265,7 +265,7 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
     final title = _stageTitles[_currentStage];
     final label = title == null || title.isEmpty
         ? 'Stage $_currentStage'
-        : 'Stage $_currentStage — $title';
+        : 'Stage $_currentStage - $title';
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
       child: Container(

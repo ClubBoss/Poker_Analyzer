@@ -94,7 +94,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sortMostHands => 'Most Hands';
 
   @override
-  String get sortName => 'Name A–Z';
+  String get sortName => 'Name A-Z';
 
   @override
   String get noMistakesLeft => 'All mistakes already fixed!';
@@ -451,9 +451,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quickstartL3 => 'Quickstart L3';
 
   @override
-  String get desktopOnly => 'Desktop only';
-
-  @override
   String get run => 'Run';
 
   @override
@@ -483,28 +480,43 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get weightsJson => 'Weights JSON';
 
+  @override
   String get invalidJson => 'Invalid JSON';
 
+  @override
+  String get desktopOnly => 'Desktop only';
+
+  @override
   String get recentRuns => 'Recent runs';
 
+  @override
   String get open => 'Open';
 
+  @override
   String get logs => 'Logs';
 
+  @override
   String get folder => 'Folder';
 
+  @override
   String get copyPath => 'Copy path';
 
+  @override
   String get reRun => 'Re-run';
 
+  @override
   String get pickTwoRuns => 'Pick two runs';
 
+  @override
   String get compare => 'Compare';
 
+  @override
   String get noSelection => 'No selection';
 
+  @override
   String get rootKeys => 'Root keys';
 
+  @override
   String get arrayLengths => 'Array lengths';
 
   @override

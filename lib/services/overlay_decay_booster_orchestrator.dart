@@ -56,7 +56,7 @@ class OverlayDecayBoosterOrchestrator {
     final messenger = ScaffoldMessenger.of(context);
     final controller = messenger.showSnackBar(
       SnackBar(
-        content: const Text('This concept might be fading — want to refresh?'),
+        content: const Text('This concept might be fading - want to refresh?'),
         action: SnackBarAction(
           label: 'Review now',
           onPressed: () async {

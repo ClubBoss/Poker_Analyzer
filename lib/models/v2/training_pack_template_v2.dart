@@ -48,11 +48,11 @@ class TrainingPackTemplateV2 {
       (meta['requiresAccuracy'] as num?)?.toDouble();
   int? get requiresVolume => (meta['requiresVolume'] as num?)?.toInt();
 
-  /// Ephemeral flag – marks automatically generated packs. Never
+  /// Ephemeral flag - marks automatically generated packs. Never
   /// serialized to or from disk.
   bool isGeneratedPack;
 
-  /// Ephemeral flag – marks packs created by sampling a larger template.
+  /// Ephemeral flag - marks packs created by sampling a larger template.
   /// Never serialized to or from disk.
   bool isSampledPack;
 

@@ -25,7 +25,7 @@ class RewardBannerWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('\uD83E\uDDE0 Уровень $level — $xp/$target XP',
+              Text('\uD83E\uDDE0 Уровень $level - $xp/$target XP',
                   style: const TextStyle(color: Colors.white)),
               const SizedBox(height: 4),
               ClipRRect(

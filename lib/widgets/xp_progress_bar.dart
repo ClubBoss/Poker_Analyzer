@@ -32,7 +32,7 @@ class XPProgressBar extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Level $level — $xp / $next XP',
+            Text('Level $level - $xp / $next XP',
                 style: const TextStyle(color: Colors.white)),
             const SizedBox(height: 4),
             TweenAnimationBuilder<double>(
