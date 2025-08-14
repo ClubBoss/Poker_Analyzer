@@ -16,8 +16,11 @@ void main(List<String> args) {
     ..addOption('in', defaultsTo: 'build/reports/l3_packrun.json')
     ..addOption('out', defaultsTo: 'build/reports/l3_packrun_ev.json')
     ..addOption('weights')
-    ..addOption('weightsPreset',
-        defaultsTo: 'default', allowed: ['aggro', 'nitty', 'default'])
+    ..addOption(
+      'weightsPreset',
+      defaultsTo: 'default',
+      allowed: ['aggro', 'nitty', 'default'],
+    )
     ..addOption('priors')
     ..addFlag('explain', negatable: false);
   final res = parser.parse(args);
@@ -32,8 +35,9 @@ void main(List<String> args) {
     final jsonStr = weightsOpt.trim().startsWith('{')
         ? weightsOpt
         : File(weightsOpt).readAsStringSync();
-    weights = (json.decode(jsonStr) as Map<String, dynamic>)
-        .map((k, v) => MapEntry(k, (v as num).toDouble()));
+    weights = (json.decode(jsonStr) as Map<String, dynamic>).map(
+      (k, v) => MapEntry(k, (v as num).toDouble()),
+    );
   } else if (presetOpt != null) {
     final presetPath = {
       'aggro': 'tool/config/weights/aggro.json',
@@ -41,8 +45,9 @@ void main(List<String> args) {
       'default': 'tool/config/weights/default.json',
     }[presetOpt]!;
     final jsonStr = File(presetPath).readAsStringSync();
-    weights = (json.decode(jsonStr) as Map<String, dynamic>)
-        .map((k, v) => MapEntry(k, (v as num).toDouble()));
+    weights = (json.decode(jsonStr) as Map<String, dynamic>).map(
+      (k, v) => MapEntry(k, (v as num).toDouble()),
+    );
   }
 
   Map<String, double>? priors;
@@ -51,8 +56,9 @@ void main(List<String> args) {
     final jsonStr = priorsOpt.trim().startsWith('{')
         ? priorsOpt
         : File(priorsOpt).readAsStringSync();
-    priors = (json.decode(jsonStr) as Map<String, dynamic>)
-        .map((k, v) => MapEntry(k, (v as num).toDouble()));
+    priors = (json.decode(jsonStr) as Map<String, dynamic>).map(
+      (k, v) => MapEntry(k, (v as num).toDouble()),
+    );
   }
 
   final explain = res['explain'] as bool;
@@ -68,9 +74,17 @@ void main(List<String> args) {
 
   for (final raw in spots) {
     if (raw is! Map) continue;
-    final boardCards = parseBoard(raw['board']).take(3).toList();
-    if (boardCards.length < 3) continue;
-    final boardStr = boardCards.join();
+    final rb = raw['board'];
+    List<String> board3;
+    if (rb is List) {
+      board3 = rb.cast<String>().take(3).toList();
+    } else if (rb is String) {
+      board3 = parseBoard(rb).take(3).toList();
+    } else {
+      continue;
+    }
+    if (board3.length < 3) continue;
+    final boardStr = board3.join();
     final board = FlopBoard.fromString(boardStr);
     final spr = _sprFromBoard(boardStr);
     final eval = model.evaluate(
@@ -88,8 +102,9 @@ void main(List<String> args) {
             ? 'spr_mid'
             : 'spr_high';
     sprHistogram[sprBucket] = (sprHistogram[sprBucket] ?? 0) + 1;
-    for (final t in board.tags) {
-      textureCounts[t] = (textureCounts[t] ?? 0) + 1;
+    final textures = classifyFlop(board3);
+    for (final tex in textures) {
+      textureCounts[tex.name] = (textureCounts[tex.name] ?? 0) + 1;
     }
     final spotOut = Map<String, dynamic>.from(raw)
       ..['decision'] = eval['decision']
