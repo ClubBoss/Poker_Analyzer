@@ -16,7 +16,7 @@ Future<void> main() async {
       .whereType<File>()
       .where((f) => f.path.toLowerCase().endsWith('.json'))
       .toList();
-  stdout.writeln('Generating ${files.length} packs…');
+  stdout.writeln('Generating ${files.length} packs...');
   final start = DateTime.now();
   var index = 0;
   var errors = 0;
@@ -47,7 +47,7 @@ Future<void> main() async {
       }
     }
     stdout.writeln(
-        '[$index/${files.length}] $name.yaml  –  ${ok ? 'OK' : '[ERROR]'}');
+        '[$index/${files.length}] $name.yaml  -  ${ok ? 'OK' : '[ERROR]'}');
     if (!ok) {
       errors++;
       stderr.write(res.stdout);

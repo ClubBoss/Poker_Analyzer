@@ -21,7 +21,7 @@ echo "  REPORT_DIR=${REPORT_DIR}"
 
 # --- Early success when there is nothing to verify ---
 if [[ ! -d "$REPORT_DIR" ]] || [[ -z "$(ls -A "$REPORT_DIR" 2>/dev/null || true)" ]]; then
-  echo "no report (no theory changes) — skipping verification"
+  echo "no report (no theory changes) - skipping verification"
   echo "::notice title=Theory Integrity::No theory changes detected; verifier skipped."
   exit 0
 fi

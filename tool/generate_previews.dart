@@ -22,7 +22,7 @@ Future<void> main(List<String> args) async {
     final l = f.path.toLowerCase();
     return l.endsWith('.json') || l.endsWith('.pka');
   }).toList();
-  stdout.writeln('Generating ${files.length} previews…');
+  stdout.writeln('Generating ${files.length} previews...');
   final start = DateTime.now();
   var done = 0;
   for (var i = 0; i < files.length; i += 4) {
@@ -49,10 +49,10 @@ Future<void> main(List<String> args) async {
           final path = p.join(out.path, '${tpl.id}.png');
           await File(path).writeAsBytes(bytes);
           stdout.writeln(
-              '[${++done}/${files.length}] ${p.basename(path)}  –  OK');
+              '[${++done}/${files.length}] ${p.basename(path)}  -  OK');
         } catch (_) {
           stdout.writeln(
-              '[${++done}/${files.length}] ${p.basename(file.path)}  –  [ERROR]');
+              '[${++done}/${files.length}] ${p.basename(file.path)}  -  [ERROR]');
         }
       }),
     );

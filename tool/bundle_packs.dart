@@ -38,7 +38,7 @@ Future<void> main(List<String> args) async {
       .whereType<File>()
       .where((f) => f.path.toLowerCase().endsWith('.json'))
       .toList();
-  stdout.writeln('Bundling ${files.length} templates…');
+  stdout.writeln('Bundling ${files.length} templates...');
   final start = DateTime.now();
   final indexRows = <List<dynamic>>[];
   for (var j = 0; j < files.length; j++) {
@@ -58,7 +58,7 @@ Future<void> main(List<String> args) async {
         } catch (_) {}
       }
       stdout.writeln(
-          '[${j + 1}/${files.length}] ${p.basename(dest.path)}  –  OK');
+          '[${j + 1}/${files.length}] ${p.basename(dest.path)}  -  OK');
       if (buildIndex) {
         indexRows.add([
           tpl.id,
@@ -72,7 +72,7 @@ Future<void> main(List<String> args) async {
       }
     } catch (e) {
       stdout.writeln(
-          '[${j + 1}/${files.length}] ${p.basename(file.path)}  –  [ERROR]');
+          '[${j + 1}/${files.length}] ${p.basename(file.path)}  -  [ERROR]');
     }
   }
   if (buildIndex) {

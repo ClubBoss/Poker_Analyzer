@@ -18,17 +18,17 @@ Future<void> main(List<String> args) async {
       .whereType<File>()
       .where((f) => f.path.toLowerCase().endsWith('.pka'))
       .toList();
-  stdout.writeln('Uploading ${files.length} bundles…');
+  stdout.writeln('Uploading ${files.length} bundles...');
   for (var i = 0; i < files.length; i++) {
     final file = files[i];
     try {
       final uploaded = await service.uploadBundle(file);
       final status = uploaded ? '[OK]' : 'SKIP';
       stdout.writeln(
-          '[${i + 1}/${files.length}] ${p.basename(file.path)}  –  $status');
+          '[${i + 1}/${files.length}] ${p.basename(file.path)}  -  $status');
     } catch (_) {
       stdout.writeln(
-          '[${i + 1}/${files.length}] ${p.basename(file.path)}  –  [ERROR]');
+          '[${i + 1}/${files.length}] ${p.basename(file.path)}  -  [ERROR]');
     }
   }
 }
