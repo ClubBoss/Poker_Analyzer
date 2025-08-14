@@ -242,11 +242,6 @@ class TrainingPackSpot
   TrainingPackSpot Function(Map<String, dynamic> json) get fromJson =>
       TrainingPackSpot.fromJson;
 
-  /// Converts this spot to a YAML-compatible map.
-  ///
-  /// The returned map omits empty or null values, mirroring [toJson].
-  Map<String, dynamic> toYaml() => toJson();
-
   /// Creates a [TrainingPackSpot] from a YAML map.
   ///
   /// The method is tolerant to missing fields and invalid values to maintain
