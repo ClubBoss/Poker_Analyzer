@@ -1,0 +1,64 @@
+name: CLI (Dart)
+
+on:
+  pull_request:
+    paths:
+      - "bin/**"
+      - "test/ev/**"
+      - "README_DEV.md"
+      - "pubspec.yaml"
+      - ".github/workflows/cli-dart.yml"
+  push:
+    branches: [ main ]
+    paths:
+      - "bin/**"
+      - "test/ev/**"
+      - "README_DEV.md"
+      - "pubspec.yaml"
+      - ".github/workflows/cli-dart.yml"
+
+jobs:
+  dart-cli:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - run: dart --version
+      - run: dart pub get
+
+      - name: Format check
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze
+        run: dart analyze
+
+      - name: Smart punctuation guard
+        run: |
+          python - << 'PY'
+          import sys, re, pathlib
+          bad = re.compile(r'[\u2018\u2019\u201C\u201D\u2026\u2014\u2013]')
+          ok = True
+          exts = {'.dart','.md','.arb','.yaml','.yml'}
+          for p in pathlib.Path('.').rglob('*'):
+            if p.suffix in exts and p.is_file():
+              try:
+                s = p.read_text(errors='ignore')
+              except Exception:
+                continue
+              if bad.search(s):
+                for i, line in enumerate(s.splitlines(), 1):
+                  if bad.search(line):
+                    print(f'{p}:{i}: {line}')
+                    ok = False
+          if not ok:
+            print('Smart punctuation found. Replace with ASCII equivalents.', file=sys.stderr)
+            sys.exit(1)
+          PY
+
+      - name: Unit tests (CLI only)
+        run: dart test test/ev -r expanded
