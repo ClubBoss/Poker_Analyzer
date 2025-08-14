@@ -81,3 +81,16 @@ dart run bin/ev_rank_jam_fold_deltas.dart --dir reports/ --limit 50 --action jam
 # absolute impact >= 1.0 regardless of action
 dart run bin/ev_rank_jam_fold_deltas.dart --glob "reports/**/*.json" --abs-delta --min-delta 1.0
 ```
+
+Alternate output formats:
+
+```sh
+# JSONL for easy piping
+dart run bin/ev_rank_jam_fold_deltas.dart --dir reports/ --format jsonl
+
+# CSV with selected columns and filters
+dart run bin/ev_rank_jam_fold_deltas.dart \
+  --glob "reports/**/*.json" \
+  --abs-delta --min-delta 1.0 --action any \
+  --format csv --fields path,spotIndex,delta,bestAction
+```

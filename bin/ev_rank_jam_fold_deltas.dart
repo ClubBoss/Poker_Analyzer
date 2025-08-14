@@ -9,6 +9,8 @@ Future<void> main(List<String> args) async {
   var absDelta = false;
   double? minDelta;
   var action = 'any';
+  var format = 'json';
+  List<String>? fields;
 
   for (var i = 0; i < args.length; i++) {
     final arg = args[i];
@@ -46,10 +48,45 @@ Future<void> main(List<String> args) async {
       action = value;
     } else if (arg == '--abs-delta') {
       absDelta = true;
+    } else if (arg == '--format' && i + 1 < args.length) {
+      format = args[++i];
+    } else if (arg == '--fields' && i + 1 < args.length) {
+      fields = args[++i]
+          .split(',')
+          .map((s) => s.trim())
+          .where((s) => s.isNotEmpty)
+          .toList();
     } else {
       stderr.writeln('Unknown or incomplete argument: $arg');
       exitCode = 64;
       return;
+    }
+  }
+
+  if (format != 'json' && format != 'jsonl' && format != 'csv') {
+    stderr.writeln('Invalid --format value: ' + format);
+    exitCode = 64;
+    return;
+  }
+
+  const allowedFields = [
+    'path',
+    'spotIndex',
+    'hand',
+    'board',
+    'spr',
+    'bestAction',
+    'evJam',
+    'evFold',
+    'delta',
+  ];
+  if (fields != null) {
+    for (final f in fields!) {
+      if (!allowedFields.contains(f)) {
+        stderr.writeln('Invalid --fields entry: ' + f);
+        exitCode = 64;
+        return;
+      }
     }
   }
 
@@ -190,7 +227,29 @@ Future<void> main(List<String> args) async {
     spots.length = limit;
   }
 
-  print(jsonEncode(spots));
+  if (format == 'json') {
+    print(jsonEncode(spots));
+    return;
+  }
+
+  final selected = fields ?? allowedFields;
+  if (format == 'jsonl') {
+    for (final spot in spots) {
+      final out = <String, dynamic>{};
+      for (final f in selected) {
+        out[f] = spot[f];
+      }
+      print(jsonEncode(out));
+    }
+    return;
+  }
+
+  // csv
+  print(selected.join(','));
+  for (final spot in spots) {
+    final row = selected.map((f) => _csvCell(spot[f])).join(',');
+    print(row);
+  }
 }
 
 RegExp _globToRegExp(String pattern) {
@@ -199,4 +258,19 @@ RegExp _globToRegExp(String pattern) {
   escaped = escaped.replaceAll('\\*', '[^/]*');
   escaped = escaped.replaceAll('::DOUBLE_STAR::', '.*');
   return RegExp('^' + escaped + r'\$');
+}
+
+String _csvCell(Object? value) {
+  if (value == null) return '';
+  var s = value.toString();
+  var needsQuote =
+      s.contains(',') || s.contains('"') || s.contains('\n') || s.contains(' ');
+  if (s.contains('"')) {
+    s = s.replaceAll('"', '""');
+    needsQuote = true;
+  }
+  if (needsQuote) {
+    return '"' + s + '"';
+  }
+  return s;
 }
