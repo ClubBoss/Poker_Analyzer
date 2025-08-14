@@ -37,9 +37,7 @@ Future<void> _writeReport(
 ) async {
   final file = File('${dir.path}${Platform.pathSeparator}$name.json');
   await file.writeAsString(
-    const JsonEncoder.withIndent('  ').convert({
-      'spots': [spot],
-    }),
+    const JsonEncoder.withIndent('  ').convert({'spots': [spot]}),
   );
 }
 
@@ -75,6 +73,7 @@ Future<Map<String, dynamic>> _expectedSummary(Directory dir) async {
   var spots = 0;
   var withJamFold = 0;
   var jamCount = 0;
+
   final bySpr = {
     'spr_low': [0, 0],
     'spr_mid': [0, 0],
@@ -92,31 +91,33 @@ Future<Map<String, dynamic>> _expectedSummary(Directory dir) async {
     final list = data['spots'];
     if (list is! List) continue;
     spots += list.length;
+
     for (final spot in list) {
       if (spot is! Map<String, dynamic>) continue;
       final jf = spot['jamFold'];
       if (jf is! Map<String, dynamic>) continue;
+
       withJamFold++;
       final best = jf['bestAction'];
       final isJam = best == 'jam';
       if (isJam) jamCount++;
+
       final sprVal = (spot['spr'] as num?)?.toDouble();
       if (sprVal != null) {
-        // ignore: lines_longer_than_80_chars
-        final bucket = sprVal < 1
-            ? 'spr_low'
-            : (sprVal < 2 ? 'spr_mid' : 'spr_high');
+        final bucket =
+            sprVal < 1 ? 'spr_low' : (sprVal < 2 ? 'spr_mid' : 'spr_high');
         final sprEntry = bySpr[bucket]!;
-        sprEntry[1]++;
-        if (isJam) sprEntry[0]++;
+        sprEntry[1]++; // total
+        if (isJam) sprEntry[0]++; // jam
       }
+
       final board = spot['board'];
       if (board is String) {
         final tags = classifier.classify(board);
         for (final t in tags) {
           final textureEntry = byTextureCounts.putIfAbsent(t, () => [0, 0]);
-          textureEntry[1]++;
-          if (isJam) textureEntry[0]++;
+          textureEntry[1]++; // total
+          if (isJam) textureEntry[0]++; // jam
         }
       }
     }
@@ -130,6 +131,7 @@ Future<Map<String, dynamic>> _expectedSummary(Directory dir) async {
   final bySprRates = <String, double>{
     for (final e in bySpr.entries) e.key: rate(e.value[0], e.value[1]),
   };
+
   final byTextureRates = SplayTreeMap<String, double>();
   for (final e in byTextureCounts.entries) {
     byTextureRates[e.key] = rate(e.value[0], e.value[1]);
@@ -150,7 +152,9 @@ void main() {
     final tmp = await Directory.systemTemp.createTemp('ev_golden');
     final corpus = Directory('${tmp.path}${Platform.pathSeparator}corpus');
     await corpus.create();
+
     try {
+      // Один формат кейсов: список списков (без records)
       final List<List<dynamic>> cases = [
         ['As Ks', 'AhKhQd', 0.5],
         ['7c 2d', '7c5s2h', 0.8],
@@ -163,6 +167,7 @@ void main() {
         ['Jh Th', 'Qh9h2d', 3.0],
         ['8s 7s', '8s7d6c', 4.0],
       ];
+
       for (var i = 0; i < cases.length; i++) {
         final c = cases[i];
         await _writeReport(
@@ -172,13 +177,15 @@ void main() {
         );
       }
 
-      // Flow A: enrichment and idempotence
+      // Flow A: enrichment + идемпотентность
       await ev_enrich.main(['--dir', corpus.path]);
+
       final snapshots = <String, String>{};
       await for (final entity in corpus.list()) {
         if (entity is! File) continue;
         final content = await entity.readAsString();
         snapshots[entity.path] = content;
+
         final json = jsonDecode(content) as Map<String, dynamic>;
         final spot = (json['spots'] as List).first as Map<String, dynamic>;
         final jf = spot['jamFold'] as Map<String, dynamic>?;
@@ -189,47 +196,44 @@ void main() {
         );
         expect(jf['bestAction'], anyOf('jam', 'fold'));
       }
+
       await ev_enrich.main(['--dir', corpus.path]);
       await for (final entity in corpus.list()) {
         if (entity is! File) continue;
         expect(await entity.readAsString(), snapshots[entity.path]);
       }
 
-      // Flow B: validator
-      {
-        final r = await _runCapture(() async {
-          await ev_report.main([
-            '--dir',
-            corpus.path,
-            '--validate',
-            '--fail-under',
-            '0.0',
-          ]);
-        });
-        expect(r.code, 0);
-        final reportJson = jsonDecode(r.out) as Map<String, dynamic>;
-        expect(reportJson['changed'], 0);
-      }
+      // Flow B: validator (валидный корпус)
+      final rValid = await _runCapture(() async {
+        await ev_report.main([
+          '--dir',
+          corpus.path,
+          '--validate',
+          '--fail-under',
+          '0.0',
+        ]);
+      });
+      expect(rValid.code, 0);
+      final reportJson = jsonDecode(rValid.out) as Map<String, dynamic>;
+      expect(reportJson['changed'], 0);
 
-      final invalid = File('${tmp.path}${Platform.pathSeparator}missing.json');
+      // Невалидный одиночный отчёт (без jamFold)
       await _writeReport(tmp, 'missing', _spot('7c 2d', '7c5s2h', 1.0));
-      {
-        final r = await _runCapture(() async {
-          await ev_report.main(['--in', invalid.path, '--validate']);
-        });
-        expect(r.code, 1);
-      }
+      final invalidFile =
+          File('${tmp.path}${Platform.pathSeparator}missing.json');
+      final rInvalid = await _runCapture(() async {
+        await ev_report.main(['--in', invalidFile.path, '--validate']);
+      });
+      expect(rInvalid.code, 1);
 
       // Flow C: summary golden
-      {
-        final r = await _runCapture(() async {
-          await ev_summary.main(['--dir', corpus.path]);
-        });
-        expect(r.code, 0);
-        final summaryJson = jsonDecode(r.out) as Map<String, dynamic>;
-        final expected = await _expectedSummary(corpus);
-        expect(summaryJson, expected);
-      }
+      final rSummary = await _runCapture(() async {
+        await ev_summary.main(['--dir', corpus.path]);
+      });
+      expect(rSummary.code, 0);
+      final expected = await _expectedSummary(corpus);
+      // Сравниваем строки JSON, чтобы избежать проблем с равенством Map по ссылке
+      expect(rSummary.out, jsonEncode(expected));
     } finally {
       await tmp.delete(recursive: true);
     }
