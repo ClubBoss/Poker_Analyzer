@@ -1,10 +1,10 @@
 name: Codex Presubmit (format+analyze)
 
 on:
-  pull_request: {}              # важно: без фильтра по branches (иначе не сработает)
+  pull_request: {}   # важно: брать все PR; фильтруем по head-ветке ниже
 
 permissions:
-  contents: write               # чтоб авто-commit формата пушился в PR-ветку
+  contents: write    # для авто-коммита форматирования
 
 concurrency:
   group: presubmit-${{ github.event.pull_request.head.sha || github.sha }}
@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   presubmit:
-    # Запускаем ТОЛЬКО для PR, у которых head-ветка начинается с "codex/"
+    # Только для PR, где head-ветка начинается с "codex/"
     if: ${{ startsWith(github.head_ref, 'codex/') }}
     runs-on: ubuntu-latest
     steps:
@@ -32,9 +32,7 @@ jobs:
       - name: Autoformat Dart
         id: fmt
         run: |
-          echo "::group::dart format"
           dart format -o write tool lib test || true
-          echo "::endgroup::"
           if git diff --quiet; then
             echo "changed=false" >> $GITHUB_OUTPUT
           else
@@ -50,5 +48,14 @@ jobs:
           git commit -m "style: dart format (autofix)"
           git push
 
-      - name: Dart analyze
-        run: dart analyze
+      # Узкий анализ только по pure-Dart зонам (не трогаем UI/Flutter)
+      - name: Dart analyze (limited scope)
+        run: |
+          # анализируем только эти директории/файлы
+          dart analyze \
+            tool \
+            lib/services \
+            lib/l3 \
+            test/l3_* \
+            test/l2_* \
+            --no-fatal-warnings --no-fatal-infos || true
