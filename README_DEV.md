@@ -86,6 +86,12 @@ dart run bin/ev_rank_jam_fold_deltas.dart --dir reports/ --spr low --action jam
 
 # Absolute impact on high-SPR (>=2) spots only
 dart run bin/ev_rank_jam_fold_deltas.dart --glob "reports/**/*.json" --spr high --abs-delta --min-delta 1.0
+
+# Only 'wet' boards (per classifier)
+dart run bin/ev_rank_jam_fold_deltas.dart --dir reports/ --texture wet
+
+# Multiple tags: either 'wet' or 'paired'
+dart run bin/ev_rank_jam_fold_deltas.dart --glob "reports/**/*.json" --texture wet,paired --limit 50
 ```
 
 Alternate output formats:
