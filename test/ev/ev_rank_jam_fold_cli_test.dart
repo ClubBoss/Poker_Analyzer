@@ -180,6 +180,22 @@ Future<Directory> _buildNullBoardCorpus() async {
   return dir;
 }
 
+Future<Directory> _buildNullHandCorpus() async {
+  final dir = await Directory.systemTemp.createTemp('ev_rank_cli_null_hand');
+  // Spot with NULL hand
+  await _writeReportMulti(dir, 'null_hand', [
+    {
+      'spr': 1.0,
+      'jamFold': {'evJam': 0.5, 'evFold': 0, 'bestAction': 'jam', 'delta': 0.5},
+    }
+  ]);
+  // Spot with a concrete hand
+  await _writeReportMulti(dir, 'ak', [
+    _mkSpot(hand: 'As Ks', delta: 0.6, spr: 1.5),
+  ]);
+  return dir;
+}
+
 Future<Directory> _buildFilterFormatCorpus() async {
   final dir = await Directory.systemTemp.createTemp('ev_rank_cli_ff');
   await _writeReport(dir, 'a', delta: 1.2, board: 'AhKhQd', spr: 2.5);
@@ -552,6 +568,47 @@ void main() {
         await cli.main(['--dir', '.', '--exclude-hand', ' ,  ']);
       });
       expect(exitCode, 64);
+      Directory.current = prev;
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('include-hand excludes null hands', () async {
+    final dir = await _buildNullHandCorpus();
+    try {
+      final prev = Directory.current;
+      Directory.current = dir;
+      final out = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', '.', '--include-hand', '* *']);
+      });
+      expect(exitCode, 0);
+      final list = jsonDecode(out.trim()) as List;
+      final hands = list.map((e) => (e as Map<String, dynamic>)['hand']).toList();
+      expect(hands.contains(null), false);
+      expect(hands.contains('As Ks'), true);
+      Directory.current = prev;
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('exclude-hand does not drop null hands', () async {
+    final dir = await _buildNullHandCorpus();
+    try {
+      final prev = Directory.current;
+      Directory.current = dir;
+      final out = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', '.', '--exclude-hand', '* *']);
+      });
+      expect(exitCode, 0);
+      final list = jsonDecode(out.trim()) as List;
+      final hands = list.map((e) => (e as Map<String, dynamic>)['hand']).toList();
+      // All non-null hands with a space are excluded; null should remain.
+      expect(hands.contains(null), true);
+      expect(hands.contains('As Ks'), false);
       Directory.current = prev;
     } finally {
       await dir.delete(recursive: true);
