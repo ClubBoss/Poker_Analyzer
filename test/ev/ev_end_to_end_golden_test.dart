@@ -150,7 +150,7 @@ void main() {
     final corpus = Directory('${tmp.path}${Platform.pathSeparator}corpus');
     await corpus.create();
     try {
-      final cases = [
+      final List<List<dynamic>> cases = [
         ['As Ks', 'AhKhQd', 0.5],
         ['7c 2d', '7c5s2h', 0.8],
         ['Qh Jd', 'QcQdQs', 0.9],
