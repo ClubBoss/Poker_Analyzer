@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:poker_analyzer/l3/ev/jam_fold_model.dart';
-import 'package:poker_analyzer/l3/jam_fold_evaluator.dart';
-import 'package:poker_analyzer/utils/board_textures.dart';
+import 'package:poker_analyzer/l3/jam_fold_evaluator.dart'; // FlopBoard
+import 'package:poker_analyzer/utils/board_textures.dart'; // parseBoard, classifyFlop
 
 double _sprFromBoard(String board) {
   final hash = board.codeUnits.fold<int>(0, (a, b) => a + b);
@@ -34,15 +34,15 @@ void main(List<String> args) {
   final inPath = res['in'] as String;
   final outPath = res['out'] as String;
 
+  // Weights
   Map<String, double>? weights;
   final weightsOpt = res['weights'] as String?;
   if (weightsOpt != null) {
-    final jsonStr = weightsOpt.trim().startsWith('{')
-        ? weightsOpt
-        : File(weightsOpt).readAsStringSync();
+    final jsonStr =
+        weightsOpt.trim().startsWith('{') ? weightsOpt : File(weightsOpt).readAsStringSync();
     weights = _decodeDoubleMap(jsonStr);
   } else {
-    final preset = res['weightsPreset'] as String;
+    final preset = res['weightsPreset'] as String; // guaranteed by parser defaults
     final presetPath = {
       'aggro': 'tool/config/weights/aggro.json',
       'nitty': 'tool/config/weights/nitty.json',
@@ -52,12 +52,12 @@ void main(List<String> args) {
     weights = _decodeDoubleMap(jsonStr);
   }
 
+  // Priors (optional)
   Map<String, double>? priors;
   final priorsOpt = res['priors'] as String?;
   if (priorsOpt != null) {
-    final jsonStr = priorsOpt.trim().startsWith('{')
-        ? priorsOpt
-        : File(priorsOpt).readAsStringSync();
+    final jsonStr =
+        priorsOpt.trim().startsWith('{') ? priorsOpt : File(priorsOpt).readAsStringSync();
     priors = _decodeDoubleMap(jsonStr);
   }
 
@@ -74,6 +74,8 @@ void main(List<String> args) {
 
   for (final raw in spots) {
     if (raw is! Map) continue;
+
+    // Поддерживаем оба кодирования борда: List<String> или String
     final rb = raw['board'];
     List<String> board3;
     if (rb is List) {
@@ -84,28 +86,35 @@ void main(List<String> args) {
       continue;
     }
     if (board3.length < 3) continue;
+
     final boardStr = board3.join();
     final board = FlopBoard.fromString(boardStr);
     final spr = _sprFromBoard(boardStr);
+
     final eval = model.evaluate(
       board: board,
       spr: spr,
       priors: priors,
       explain: explain,
     );
+
     if (eval['decision'] == 'jam') {
       jamCount++;
     }
+
     final sprBucket = spr < 1
         ? 'spr_low'
         : spr < 2
             ? 'spr_mid'
             : 'spr_high';
     sprHistogram[sprBucket] = (sprHistogram[sprBucket] ?? 0) + 1;
+
+    // Канонические ключи текстур
     final textures = classifyFlop(board3);
     for (final tex in textures) {
       textureCounts[tex.name] = (textureCounts[tex.name] ?? 0) + 1;
     }
+
     final spotOut = Map<String, dynamic>.from(raw)
       ..['decision'] = eval['decision']
       ..['jamEV'] = eval['jamEV']
