@@ -109,9 +109,10 @@ Future<Directory> _buildCompositionCorpus() async {
 }
 
 Future<Directory> _buildPathFilterCorpus() async {
-  final dir = await Directory('${Directory.current.path}/pf_corpus_'
-          '${DateTime.now().microsecondsSinceEpoch}')
-      .create();
+  final dir = await Directory(
+    '${Directory.current.path}/pf_corpus_'
+    '${DateTime.now().microsecondsSinceEpoch}',
+  ).create();
   await _writeReport(dir, 'a', delta: 0.6, spr: 1.5);
   await _writeReport(dir, 'b', delta: -0.7, spr: 1.5);
   final sub = Directory('${dir.path}/sub');
@@ -170,6 +171,15 @@ Future<Directory> _buildFilterFormatCorpus() async {
   await _writeReport(dir, 'a', delta: 1.2, board: 'AhKhQd', spr: 2.5);
   await _writeReport(dir, 'b', delta: -1.1, board: 'AhKhQd', spr: 2.5);
   await _writeReport(dir, 'c', delta: 0.9, board: 'QcJhTs', spr: 2.5);
+  return dir;
+}
+
+Future<Directory> _buildStreetCorpus() async {
+  final dir = await Directory.systemTemp.createTemp('ev_rank_cli_street');
+  await _writeReport(dir, 'flop', delta: 0.4, board: 'AhKhQd');
+  await _writeReport(dir, 'turn', delta: -0.6, board: 'AsKsQs2d');
+  await _writeReport(dir, 'river', delta: 0.8, board: '9c8d7s2h3c');
+  await _writeReport(dir, 'pre', delta: 0.9, board: null);
   return dir;
 }
 
@@ -937,8 +947,9 @@ void main() {
       expect(exitCode, 0);
       expect(run1, run2);
       final list = jsonDecode(run1.trim()) as List;
-      final boards =
-          list.map((e) => (e as Map<String, dynamic>)['board']).toSet();
+      final boards = list
+          .map((e) => (e as Map<String, dynamic>)['board'])
+          .toSet();
       expect(boards, {'AsKsQs', '9c8d7s'});
     } finally {
       await dir.delete(recursive: true);
@@ -1030,6 +1041,138 @@ void main() {
         expect(d.abs() >= 0.5, true);
         final spr = (map['spr'] as num).toDouble();
         expect(spr >= 1 && spr < 2, true);
+      }
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('street=flop', () async {
+    final dir = await _buildStreetCorpus();
+    try {
+      final run1 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--street', 'flop']);
+      });
+      final run2 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--street', 'flop']);
+      });
+      expect(run1, run2);
+      expect(exitCode, 0);
+      final list = jsonDecode(run1.trim()) as List;
+      expect(list.length, 1);
+      final first = list.first as Map<String, dynamic>;
+      expect(first['board'], 'AhKhQd');
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('street=pre', () async {
+    final dir = await _buildStreetCorpus();
+    try {
+      final out = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--street', 'pre']);
+      });
+      expect(exitCode, 0);
+      final list = jsonDecode(out.trim()) as List;
+      expect(list.length, 1);
+      final first = list.first as Map<String, dynamic>;
+      expect(first['board'], isNull);
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('street=turn & river', () async {
+    final dir = await _buildStreetCorpus();
+    try {
+      final turnOut = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--street', 'turn']);
+      });
+      expect(exitCode, 0);
+      final turnList = jsonDecode(turnOut.trim()) as List;
+      expect(turnList.length, 1);
+      expect((turnList.first as Map<String, dynamic>)['board'], 'AsKsQs2d');
+
+      final riverOut = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--street', 'river']);
+      });
+      expect(exitCode, 0);
+      final riverList = jsonDecode(riverOut.trim()) as List;
+      expect(riverList.length, 1);
+      expect((riverList.first as Map<String, dynamic>)['board'], '9c8d7s2h3c');
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('invalid street arg', () async {
+    final dir = await _buildStreetCorpus();
+    try {
+      await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--street', 'lol']);
+      });
+      expect(exitCode, 64);
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('street filter composition determinism', () async {
+    final dir = await _buildStreetCorpus();
+    try {
+      final run1 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          dir.path,
+          '--street',
+          'turn',
+          '--abs-delta',
+          '--min-delta',
+          '0.5',
+          '--action',
+          'any',
+          '--format',
+          'jsonl',
+        ]);
+      });
+      final run2 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          dir.path,
+          '--street',
+          'turn',
+          '--abs-delta',
+          '--min-delta',
+          '0.5',
+          '--action',
+          'any',
+          '--format',
+          'jsonl',
+        ]);
+      });
+      expect(run1, run2);
+      expect(exitCode, 0);
+      final lines = run1.trim().split('\n');
+      for (final line in lines) {
+        final map = jsonDecode(line) as Map<String, dynamic>;
+        final board = map['board'] as String?;
+        expect(board, isNotNull);
+        final n = RegExp(
+          r'([2-9TJQKA][cdhs])',
+          caseSensitive: false,
+        ).allMatches(board!).length;
+        expect(n, 4);
+        final d = (map['delta'] as num).toDouble();
+        expect(d.abs() >= 0.5, true);
       }
     } finally {
       await dir.delete(recursive: true);
@@ -1246,11 +1389,13 @@ void main() {
       expect(exitCode, 0);
       final list = jsonDecode(out.trim()) as List;
       expect(list.length, 2);
-      final hands =
-          list.map((e) => (e as Map<String, dynamic>)['hand']).toSet();
+      final hands = list
+          .map((e) => (e as Map<String, dynamic>)['hand'])
+          .toSet();
       expect(hands.length, 2);
-      final deltas =
-          list.map((e) => (e as Map<String, dynamic>)['delta']).toList();
+      final deltas = list
+          .map((e) => (e as Map<String, dynamic>)['delta'])
+          .toList();
       expect(deltas.contains(-0.8), true);
       expect(deltas.contains(0.7), true);
     } finally {

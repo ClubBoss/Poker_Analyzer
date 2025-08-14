@@ -12,6 +12,7 @@ Future<void> main(List<String> args) async {
   double? minDelta;
   var action = 'any';
   var sprBucket = 'any';
+  var street = 'any';
   var format = 'json';
   var uniqueBy = 'none';
   var per = 'none';
@@ -66,6 +67,18 @@ Future<void> main(List<String> args) async {
         return;
       }
       sprBucket = value;
+    } else if (arg == '--street' && i + 1 < args.length) {
+      final value = args[++i];
+      if (value != 'pre' &&
+          value != 'flop' &&
+          value != 'turn' &&
+          value != 'river' &&
+          value != 'any') {
+        stderr.writeln('Invalid --street value: ' + value);
+        exitCode = 64;
+        return;
+      }
+      street = value;
     } else if (arg == '--abs-delta') {
       absDelta = true;
     } else if (arg == '--format' && i + 1 < args.length) {
@@ -229,6 +242,7 @@ Future<void> main(List<String> args) async {
       })();
       final board = spot['board'];
       final tags = board is String ? classifier.classify(board) : <String>{};
+      final st = _inferStreet(board);
       spots.add({
         'path': rel,
         'spotIndex': i,
@@ -240,6 +254,7 @@ Future<void> main(List<String> args) async {
         'evFold': evFold,
         'delta': delta,
         '_tags': tags,
+        '_street': st,
       });
     }
   }
@@ -339,8 +354,13 @@ Future<void> main(List<String> args) async {
       return true;
     });
   }
+  if (street != 'any') {
+    spots.removeWhere((s) => s['_street'] != street);
+  }
   for (final s in spots) {
-    s.remove('_tags');
+    s
+      ..remove('_tags')
+      ..remove('_street');
   }
 
   // Deterministic ordering: primary by (delta | abs(delta)) desc,
@@ -443,6 +463,17 @@ RegExp _globToRegExp(String pattern) {
   escaped = escaped.replaceAll('\\*', '[^/]*');
   escaped = escaped.replaceAll('::DOUBLE_STAR::', '.*');
   return RegExp('^' + escaped + r'\$');
+}
+
+String _inferStreet(Object? board) {
+  if (board is! String || board.isEmpty) return 'pre';
+  final re = RegExp(r'([2-9TJQKA][cdhs])', caseSensitive: false);
+  final n = re.allMatches(board).length;
+  if (n == 0) return 'pre';
+  if (n == 3) return 'flop';
+  if (n == 4) return 'turn';
+  if (n == 5) return 'river';
+  return 'unknown';
 }
 
 String _csvCell(Object? value) {

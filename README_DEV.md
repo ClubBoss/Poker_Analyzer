@@ -107,6 +107,15 @@ dart run bin/ev_rank_jam_fold_deltas.dart --dir reports/ --texture wet
 # Multiple tags: either 'wet' or 'paired'
 dart run bin/ev_rank_jam_fold_deltas.dart --glob "reports/**/*.json" --texture wet,paired --limit 50
 
+# Only flop spots, ranked by delta
+dart run bin/ev_rank_jam_fold_deltas.dart --dir reports/ --street flop
+
+# Turn-only with absolute impact and CSV fields
+dart run bin/ev_rank_jam_fold_deltas.dart \
+  --glob "reports/**/*.json" \
+  --street turn --abs-delta --min-delta 0.5 \
+  --format csv --fields path,board,delta
+
 # One hottest spot per file
 dart run bin/ev_rank_jam_fold_deltas.dart --dir reports/ --unique-by path
 
