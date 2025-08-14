@@ -14,6 +14,8 @@ Future<void> main(List<String> args) async {
   var sprBucket = 'any';
   var format = 'json';
   var uniqueBy = 'none';
+  var per = 'none';
+  var perLimit = 1;
   List<String>? fields;
   List<String>? textures;
 
@@ -84,6 +86,26 @@ Future<void> main(List<String> args) async {
         exitCode = 64;
         return;
       }
+    } else if (arg == '--per' && i + 1 < args.length) {
+      final value = args[++i];
+      if (value != 'none' &&
+          value != 'path' &&
+          value != 'hand' &&
+          value != 'board') {
+        stderr.writeln('Invalid --per value: ' + value);
+        exitCode = 64;
+        return;
+      }
+      per = value;
+    } else if (arg == '--per-limit' && i + 1 < args.length) {
+      final valueStr = args[++i];
+      final value = int.tryParse(valueStr);
+      if (value == null || value <= 0) {
+        stderr.writeln('Invalid --per-limit value: ' + valueStr);
+        exitCode = 64;
+        return;
+      }
+      perLimit = value;
     } else if (arg == '--unique-by' && i + 1 < args.length) {
       final value = args[++i];
       if (value != 'none' &&
@@ -288,6 +310,28 @@ Future<void> main(List<String> args) async {
     final ib = b['spotIndex'] as int;
     return ia.compareTo(ib);
   });
+
+  if (per != 'none') {
+    final counts = <Object?, int>{};
+    final capped = <Map<String, dynamic>>[];
+    for (final spot in spots) {
+      Object? key;
+      if (per == 'path') {
+        key = spot['path'] as Object?;
+      } else if (per == 'hand') {
+        key = spot['hand'] as Object?;
+      } else if (per == 'board') {
+        key = spot['board'] as Object?;
+      }
+      final count = counts[key] ?? 0;
+      if (count >= perLimit) continue;
+      counts[key] = count + 1;
+      capped.add(spot);
+    }
+    spots
+      ..clear()
+      ..addAll(capped);
+  }
 
   if (uniqueBy != 'none') {
     final seen = <String>{};
