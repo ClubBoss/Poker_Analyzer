@@ -105,17 +105,17 @@ Future<Map<String, dynamic>> _expectedSummary(Directory dir) async {
         final bucket = sprVal < 1
             ? 'spr_low'
             : (sprVal < 2 ? 'spr_mid' : 'spr_high');
-        final entry = bySpr[bucket]!;
-        entry[1]++;
-        if (isJam) entry[0]++;
+        final sprEntry = bySpr[bucket]!;
+        sprEntry[1]++;
+        if (isJam) sprEntry[0]++;
       }
       final board = spot['board'];
       if (board is String) {
         final tags = classifier.classify(board);
         for (final t in tags) {
-          final entry = byTextureCounts.putIfAbsent(t, () => [0, 0]);
-          entry[1]++;
-          if (isJam) entry[0]++;
+          final textureEntry = byTextureCounts.putIfAbsent(t, () => [0, 0]);
+          textureEntry[1]++;
+          if (isJam) textureEntry[0]++;
         }
       }
     }
