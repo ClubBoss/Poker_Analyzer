@@ -7,6 +7,8 @@ Future<void> main(List<String> args) async {
   String? glob;
   var limit = 20;
   var absDelta = false;
+  double? minDelta;
+  var action = 'any';
 
   for (var i = 0; i < args.length; i++) {
     final arg = args[i];
@@ -25,6 +27,23 @@ Future<void> main(List<String> args) async {
         return;
       }
       limit = value;
+    } else if (arg == '--min-delta' && i + 1 < args.length) {
+      final valueStr = args[++i];
+      final value = double.tryParse(valueStr);
+      if (value == null || value < 0) {
+        stderr.writeln('Invalid --min-delta value: ' + valueStr);
+        exitCode = 64;
+        return;
+      }
+      minDelta = value;
+    } else if (arg == '--action' && i + 1 < args.length) {
+      final value = args[++i];
+      if (value != 'jam' && value != 'fold' && value != 'any') {
+        stderr.writeln('Invalid --action value: ' + value);
+        exitCode = 64;
+        return;
+      }
+      action = value;
     } else if (arg == '--abs-delta') {
       absDelta = true;
     } else {
@@ -136,6 +155,17 @@ Future<void> main(List<String> args) async {
     for (final p in paths) {
       await handle(p);
     }
+  }
+
+  if (action != 'any') {
+    spots.removeWhere((s) => s['bestAction'] != action);
+  }
+  if (minDelta != null) {
+    spots.removeWhere((s) {
+      final d = s['delta'] as double;
+      final v = absDelta ? d.abs() : d;
+      return v < minDelta!;
+    });
   }
 
   // Deterministic ordering: primary by (delta | abs(delta)) desc,

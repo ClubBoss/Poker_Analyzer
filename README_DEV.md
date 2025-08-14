@@ -74,4 +74,10 @@ dart run bin/ev_rank_jam_fold_deltas.dart --dir reports/ --limit 10
 
 # rank by absolute impact
 dart run bin/ev_rank_jam_fold_deltas.dart --glob "reports/**/*.json" --abs-delta
+
+# top 50, only positive jams with delta >= 0.5
+dart run bin/ev_rank_jam_fold_deltas.dart --dir reports/ --limit 50 --action jam --min-delta 0.5
+
+# absolute impact >= 1.0 regardless of action
+dart run bin/ev_rank_jam_fold_deltas.dart --glob "reports/**/*.json" --abs-delta --min-delta 1.0
 ```
