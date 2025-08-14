@@ -39,6 +39,17 @@ jobs:
         run: flutter --version
 
       - name: Cache Pub dependencies
+      - name: ASCII gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=$(git ls-files README.md lib test tool docs || true)
+          if [ -n "$files" ]; then
+            perl -CSAD -ne 'BEGIN { $found=0 } if (/\x{2013}|\x{2014}|\x{2026}|[\x{2018}\x{2019}\x{201C}\x{201D}]|\x{00A0}/) { print "$ARGV:$.: $_"; $found=1 } END { exit $found }' $files || {
+              echo "Smart punctuation found. Run: tool/dev/ascii_fix_all.sh";
+              exit 1;
+            }
+          fi
         uses: actions/cache@v4
         with:
           path: ~/.pub-cache
