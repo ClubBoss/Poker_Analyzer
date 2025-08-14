@@ -21,6 +21,8 @@ Future<void> main(List<String> args) async {
   List<String>? textures;
   List<String>? includes;
   List<String>? excludes;
+  List<String>? includeHands;
+  List<String>? excludeHands;
 
   for (var i = 0; i < args.length; i++) {
     final arg = args[i];
@@ -129,6 +131,34 @@ Future<void> main(List<String> args) async {
       }
       excludes ??= <String>[];
       excludes!.addAll(parts);
+    } else if (arg == '--include-hand' && i + 1 < args.length) {
+      final value = args[++i];
+      final parts = value
+          .split(',')
+          .map((s) => s.trim())
+          .where((s) => s.isNotEmpty)
+          .toList();
+      if (parts.isEmpty) {
+        stderr.writeln('Invalid --include-hand value: ' + value);
+        exitCode = 64;
+        return;
+      }
+      includeHands ??= <String>[];
+      includeHands!.addAll(parts);
+    } else if (arg == '--exclude-hand' && i + 1 < args.length) {
+      final value = args[++i];
+      final parts = value
+          .split(',')
+          .map((s) => s.trim())
+          .where((s) => s.isNotEmpty)
+          .toList();
+      if (parts.isEmpty) {
+        stderr.writeln('Invalid --exclude-hand value: ' + value);
+        exitCode = 64;
+        return;
+      }
+      excludeHands ??= <String>[];
+      excludeHands!.addAll(parts);
     } else if (arg == '--per' && i + 1 < args.length) {
       final value = args[++i];
       if (value != 'none' &&
@@ -319,6 +349,29 @@ Future<void> main(List<String> args) async {
       final p = s['path'] as String;
       for (final r in regs) {
         if (r.hasMatch(p)) return true;
+      }
+      return false;
+    });
+  }
+
+  if (includeHands != null) {
+    final regs = includeHands!.map(_globToRegExp).toList();
+    spots.removeWhere((s) {
+      final h = s['hand'] as String?;
+      if (h == null) return true;
+      for (final r in regs) {
+        if (r.hasMatch(h)) return false;
+      }
+      return true;
+    });
+  }
+  if (excludeHands != null) {
+    final regs = excludeHands!.map(_globToRegExp).toList();
+    spots.removeWhere((s) {
+      final h = s['hand'] as String?;
+      if (h == null) return false;
+      for (final r in regs) {
+        if (r.hasMatch(h)) return true;
       }
       return false;
     });

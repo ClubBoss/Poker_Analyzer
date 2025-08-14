@@ -95,6 +95,21 @@ dart run bin/ev_rank_jam_fold_deltas.dart \
   --include "packs/**" --exclude "packs/**/old/**" \
   --abs-delta --min-delta 1.0 --format csv --fields path,delta,bestAction
 
+# Only AK combos anywhere
+dart run bin/ev_rank_jam_fold_deltas.dart --dir reports/ --include-hand "A*s K*s,A*h K*h"
+
+# Include broad, then exclude suited broadways
+dart run bin/ev_rank_jam_fold_deltas.dart \
+  --glob "reports/**/*.json" \
+  --include-hand "A* K*,Q* J*" --exclude-hand "*s *s"
+
+# Compose with other filters & CSV
+dart run bin/ev_rank_jam_fold_deltas.dart \
+  --dir reports/ \
+  --include-hand "A* A*" \
+  --spr mid --action jam --abs-delta --min-delta 0.5 \
+  --format csv --fields path,hand,delta
+
 # Only low-SPR (<1) jams, ranked by delta
 dart run bin/ev_rank_jam_fold_deltas.dart --dir reports/ --spr low --action jam
 
