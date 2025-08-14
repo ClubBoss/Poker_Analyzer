@@ -110,6 +110,9 @@ dart run bin/ev_rank_jam_fold_deltas.dart \
   --spr mid --action jam --abs-delta --min-delta 0.5 \
   --format csv --fields path,hand,delta
 
+> **Note:** Hand and path glob matching is **case-sensitive** (same as `_globToRegExp`).
+> The examples assume uppercase ranks and lowercase suits (e.g., `As Ks`, `*s *s`).
+
 # Only low-SPR (<1) jams, ranked by delta
 dart run bin/ev_rank_jam_fold_deltas.dart --dir reports/ --spr low --action jam
 
