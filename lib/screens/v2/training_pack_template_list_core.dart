@@ -1185,7 +1185,7 @@ class _TrainingPackTemplateListScreenState
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Delete pack?'),
-        content: Text('“${t.name}” will be removed.'),
+        content: Text('"${t.name}" will be removed.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
