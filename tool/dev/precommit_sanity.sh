@@ -12,7 +12,11 @@ if grep -R -q -e 'package:flutter/' -e 'dart:ui' lib/ev test/ev bin/ev*; then
   exit 1
 fi
 
-for file in bin/ev_enrich_jam_fold.dart bin/ev_report_jam_fold.dart bin/ev_summary_jam_fold.dart; do
+for file in \
+  bin/ev_enrich_jam_fold.dart \
+  bin/ev_report_jam_fold.dart \
+  bin/ev_summary_jam_fold.dart \
+  bin/ev_rank_jam_fold_deltas.dart; do
   if grep -R -q -e 'package:args' -e 'ArgParser' "$file"; then
     echo "$file must not depend on package:args."
     exit 1
@@ -22,6 +26,7 @@ for file in bin/ev_enrich_jam_fold.dart bin/ev_report_jam_fold.dart bin/ev_summa
     echo "$file must not depend on package:path."
     exit 1
   fi
+
 done
 
 if grep -R -q 'sdk: flutter' pubspec.yaml; then
