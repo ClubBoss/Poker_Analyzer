@@ -18,6 +18,8 @@ Future<void> main(List<String> args) async {
   var perLimit = 1;
   List<String>? fields;
   List<String>? textures;
+  List<String>? includes;
+  List<String>? excludes;
 
   for (var i = 0; i < args.length; i++) {
     final arg = args[i];
@@ -86,6 +88,34 @@ Future<void> main(List<String> args) async {
         exitCode = 64;
         return;
       }
+    } else if (arg == '--include' && i + 1 < args.length) {
+      final value = args[++i];
+      final parts = value
+          .split(',')
+          .map((s) => s.trim())
+          .where((s) => s.isNotEmpty)
+          .toList();
+      if (parts.isEmpty) {
+        stderr.writeln('Invalid --include value: ' + value);
+        exitCode = 64;
+        return;
+      }
+      includes ??= <String>[];
+      includes!.addAll(parts);
+    } else if (arg == '--exclude' && i + 1 < args.length) {
+      final value = args[++i];
+      final parts = value
+          .split(',')
+          .map((s) => s.trim())
+          .where((s) => s.isNotEmpty)
+          .toList();
+      if (parts.isEmpty) {
+        stderr.writeln('Invalid --exclude value: ' + value);
+        exitCode = 64;
+        return;
+      }
+      excludes ??= <String>[];
+      excludes!.addAll(parts);
     } else if (arg == '--per' && i + 1 < args.length) {
       final value = args[++i];
       if (value != 'none' &&
@@ -257,6 +287,26 @@ Future<void> main(List<String> args) async {
     for (final p in paths) {
       await handle(p);
     }
+  }
+  if (includes != null) {
+    final regs = includes!.map(_globToRegExp).toList();
+    spots.removeWhere((s) {
+      final p = s['path'] as String;
+      for (final r in regs) {
+        if (r.hasMatch(p)) return false;
+      }
+      return true;
+    });
+  }
+  if (excludes != null) {
+    final regs = excludes!.map(_globToRegExp).toList();
+    spots.removeWhere((s) {
+      final p = s['path'] as String;
+      for (final r in regs) {
+        if (r.hasMatch(p)) return true;
+      }
+      return false;
+    });
   }
 
   if (sprBucket != 'any') {

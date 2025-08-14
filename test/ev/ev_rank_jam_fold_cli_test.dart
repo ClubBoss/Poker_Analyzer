@@ -108,6 +108,18 @@ Future<Directory> _buildCompositionCorpus() async {
   return dir;
 }
 
+Future<Directory> _buildPathFilterCorpus() async {
+  final dir = await Directory('${Directory.current.path}/pf_corpus_'
+          '${DateTime.now().microsecondsSinceEpoch}')
+      .create();
+  await _writeReport(dir, 'a', delta: 0.6, spr: 1.5);
+  await _writeReport(dir, 'b', delta: -0.7, spr: 1.5);
+  final sub = Directory('${dir.path}/sub');
+  await sub.create();
+  await _writeReport(sub, 'c', delta: 0.9, spr: 1.5);
+  return dir;
+}
+
 Future<Directory> _buildPathDedupCorpus() async {
   final dir = await Directory.systemTemp.createTemp('ev_rank_cli_path');
   final file = File('${dir.path}/multi.json');
@@ -237,6 +249,194 @@ Future<String> _capturePrint(Future<void> Function() fn) async {
 }
 
 void main() {
+  test('include only path filter', () async {
+    final dir = await _buildPathFilterCorpus();
+    try {
+      final prev = Directory.current;
+      Directory.current = dir;
+      final run1 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', '.', '--include', 'sub/**']);
+      });
+      final run2 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', '.', '--include', 'sub/**']);
+      });
+      expect(run1, run2);
+      expect(exitCode, 0);
+      final list = jsonDecode(run1.trim()) as List;
+      expect(list.length, 1);
+      final first = list.first as Map<String, dynamic>;
+      expect(first['path'], 'sub/c.json');
+      Directory.current = prev;
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('exclude only path filter', () async {
+    final dir = await _buildPathFilterCorpus();
+    try {
+      final prev = Directory.current;
+      Directory.current = dir;
+      final out = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', '.', '--exclude', '**/b.json']);
+      });
+      expect(exitCode, 0);
+      final list = jsonDecode(out.trim()) as List;
+      for (final spot in list) {
+        final p = (spot as Map<String, dynamic>)['path'] as String;
+        expect(p.endsWith('b.json'), false);
+      }
+      Directory.current = prev;
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('include and exclude combo', () async {
+    final dir = await _buildPathFilterCorpus();
+    try {
+      final prev = Directory.current;
+      Directory.current = dir;
+      final out = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          '.',
+          '--include',
+          '**/*.json',
+          '--exclude',
+          '**/a.json,sub/**',
+        ]);
+      });
+      expect(exitCode, 0);
+      final list = jsonDecode(out.trim()) as List;
+      expect(list.length, 1);
+      final first = list.first as Map<String, dynamic>;
+      expect(first['path'], 'b.json');
+      expect(
+        first.keys.toSet().containsAll([
+          'path',
+          'spotIndex',
+          'hand',
+          'board',
+          'spr',
+          'bestAction',
+          'evJam',
+          'evFold',
+          'delta',
+        ]),
+        true,
+      );
+      Directory.current = prev;
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('multiple include flags merged', () async {
+    final dir = await _buildPathFilterCorpus();
+    try {
+      final prev = Directory.current;
+      Directory.current = dir;
+      final out = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          '.',
+          '--include',
+          'sub/**',
+          '--include',
+          '**/a.json',
+        ]);
+      });
+      expect(exitCode, 0);
+      final list = jsonDecode(out.trim()) as List;
+      final paths = list
+          .map((e) => (e as Map<String, dynamic>)['path'] as String)
+          .toSet();
+      expect(paths.length, 2);
+      expect(paths.contains('a.json'), true);
+      expect(paths.contains('sub/c.json'), true);
+      Directory.current = prev;
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('invalid include/exclude args', () async {
+    final dir = await _buildPathFilterCorpus();
+    try {
+      final prev = Directory.current;
+      Directory.current = dir;
+      await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', '.', '--include', '']);
+      });
+      expect(exitCode, 64);
+
+      await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', '.', '--exclude', ' ,  ']);
+      });
+      expect(exitCode, 64);
+      Directory.current = prev;
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('path filters with other filters determinism', () async {
+    final dir = await _buildPathFilterCorpus();
+    try {
+      final prev = Directory.current;
+      Directory.current = dir;
+      final run1 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          '.',
+          '--include',
+          '**/*.json',
+          '--exclude',
+          '**/b.json',
+          '--spr',
+          'mid',
+          '--action',
+          'jam',
+          '--abs-delta',
+          '--min-delta',
+          '0.5',
+        ]);
+      });
+      final run2 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          '.',
+          '--include',
+          '**/*.json',
+          '--exclude',
+          '**/b.json',
+          '--spr',
+          'mid',
+          '--action',
+          'jam',
+          '--abs-delta',
+          '--min-delta',
+          '0.5',
+        ]);
+      });
+      expect(run1, run2);
+      expect(exitCode, 0);
+      Directory.current = prev;
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
   test('ranking by delta honors limit', () async {
     final dir = await _buildCorpus();
     try {
@@ -737,9 +937,8 @@ void main() {
       expect(exitCode, 0);
       expect(run1, run2);
       final list = jsonDecode(run1.trim()) as List;
-      final boards = list
-          .map((e) => (e as Map<String, dynamic>)['board'])
-          .toSet();
+      final boards =
+          list.map((e) => (e as Map<String, dynamic>)['board']).toSet();
       expect(boards, {'AsKsQs', '9c8d7s'});
     } finally {
       await dir.delete(recursive: true);
@@ -1047,13 +1246,11 @@ void main() {
       expect(exitCode, 0);
       final list = jsonDecode(out.trim()) as List;
       expect(list.length, 2);
-      final hands = list
-          .map((e) => (e as Map<String, dynamic>)['hand'])
-          .toSet();
+      final hands =
+          list.map((e) => (e as Map<String, dynamic>)['hand']).toSet();
       expect(hands.length, 2);
-      final deltas = list
-          .map((e) => (e as Map<String, dynamic>)['delta'])
-          .toList();
+      final deltas =
+          list.map((e) => (e as Map<String, dynamic>)['delta']).toList();
       expect(deltas.contains(-0.8), true);
       expect(deltas.contains(0.7), true);
     } finally {
