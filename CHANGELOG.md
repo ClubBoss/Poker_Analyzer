@@ -30,3 +30,4 @@
 - Display theory cluster completion summary in TheoryPackPreviewScreen.
 
 - Add river probe jam decision training pack template for facing jams over river probes.
+- presubmit smoke Thu Aug 14 02:27:32 UTC 2025
