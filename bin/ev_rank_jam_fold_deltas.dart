@@ -7,6 +7,9 @@ const _USAGE = r'''
 Usage:
   dart run bin/ev_rank_jam_fold_deltas.dart [INPUT] [FILTERS] [RANKING] [OUTPUT]
 
+GENERAL:
+  --help | -h                       # print this help and exit
+
 INPUT (pick exactly one):
   --in <file.json>
   --dir <dir>
