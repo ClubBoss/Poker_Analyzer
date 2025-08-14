@@ -95,7 +95,11 @@ dart run bin/ev_rank_jam_fold_deltas.dart \
   --include "packs/**" --exclude "packs/**/old/**" \
   --abs-delta --min-delta 1.0 --format csv --fields path,delta,bestAction
 
-> **Shell globbing:** quote patterns to avoid expansion by your shell (e.g., `--include '* *'`). Use single quotes on macOS/Linux and PowerShell. On cmd.exe, globbing isn't expanded by the shell; just quote patterns with spaces, e.g. `--include "* *"`.
+> **Shell globbing:** quote patterns to avoid your shell expanding them. Use single quotes on macOS/Linux/PowerShell. On cmd.exe, the shell doesn’t expand globs; just quote patterns with spaces, e.g. `--include "* *"`.
+> Examples:
+> * **bash/zsh:** `--include '* *'`
+> * **PowerShell:** `--include '* *'`
+> * **cmd.exe:** `--include "* *"`
 > If you see `Unknown or incomplete argument: A*s`, wrap the pattern in quotes.
 
 # Only AK combos anywhere
@@ -115,7 +119,11 @@ dart run bin/ev_rank_jam_fold_deltas.dart \
 
 > **Note:** Hand and path glob matching is **case-sensitive** (same as `_globToRegExp`).
 > The examples assume uppercase ranks and lowercase suits (e.g., `As Ks`, `*s *s`).
-> **Shell globbing:** quote patterns to avoid expansion by your shell (e.g., `--include-hand '* *'`). Use single quotes on macOS/Linux and PowerShell. On cmd.exe, globbing isn't expanded by the shell; just quote patterns with spaces, e.g. `--include-hand "* *"`.
+> **Shell globbing:** quote patterns to avoid your shell expanding them. Use single quotes on macOS/Linux/PowerShell. On cmd.exe, the shell doesn’t expand globs; just quote patterns with spaces, e.g. `--include-hand "* *"`.
+> Examples:
+> * **bash/zsh:** `--include-hand '* *'`
+> * **PowerShell:** `--include-hand '* *'`
+> * **cmd.exe:** `--include-hand "* *"`
 > If you see `Unknown or incomplete argument: A*s`, wrap the pattern in quotes.
 
 # Only low-SPR (<1) jams, ranked by delta
