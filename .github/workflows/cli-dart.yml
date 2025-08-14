@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - "bin/**"
-      - "lib/**"
+      - "lib/services/**"      # только то, что реально использует CLI
       - "tool/**"
       - "tools/**"
       - "test/ev/**"
@@ -15,7 +15,7 @@ on:
     branches: [ main ]
     paths:
       - "bin/**"
-      - "lib/**"
+      - "lib/services/**"
       - "tool/**"
       - "tools/**"
       - "test/ev/**"
@@ -53,17 +53,17 @@ jobs:
       - name: Pub get (via Flutter)
         run: flutter pub get
 
-      # форматируем только CLI-область, а не весь repo
+      # форматируем только CLI-область, не трогаем UI/виджеты
       - name: Format check (CLI only)
         run: >
           dart format --output=none --set-exit-if-changed
-          bin lib tool tools test/ev
+          bin lib/services tool tools test/ev
 
-      # анализируем только CLI-область, чтобы не упасть на чужих тестах/виджетах
+      # анализ — по тем же путям
       - name: Analyze (CLI only)
         run: >
           flutter analyze
-          bin lib tool tools test/ev
+          bin lib/services tool tools test/ev
 
       - name: Unit tests (CLI only)
         run: dart test test/ev -r expanded
