@@ -40,6 +40,9 @@ jobs:
 
       - name: Cache Pub dependencies
       - name: ASCII gate
+      - name: ASCII gate
+      - name: Analyze (bin)
+        run: dart analyze bin --fatal-warnings
         shell: bash
         run: |
           set -euo pipefail
