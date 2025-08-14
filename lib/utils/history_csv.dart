@@ -8,4 +8,3 @@ String buildHistoryCsv(List<Map<String, String?>> rows) {
   }
   return b.toString();
 }
-

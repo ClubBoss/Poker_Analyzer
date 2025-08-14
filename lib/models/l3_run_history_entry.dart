@@ -39,8 +39,7 @@ class L3RunHistoryEntry {
         argsSummary: json['args'] as String,
         outPath: json['out'] as String,
         logPath: json['log'] as String,
-        warnings:
-            (json['warnings'] as List?)?.cast<String>() ?? <String>[],
+        warnings: (json['warnings'] as List?)?.cast<String>() ?? <String>[],
         weights: json['weights'] as String?,
         preset: json['preset'] as String?,
       );
@@ -81,4 +80,3 @@ class L3RunHistoryService {
 
   Future<void> clear() => save([]);
 }
-
