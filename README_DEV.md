@@ -112,6 +112,7 @@ dart run bin/ev_rank_jam_fold_deltas.dart \
 
 > **Note:** Hand and path glob matching is **case-sensitive** (same as `_globToRegExp`).
 > The examples assume uppercase ranks and lowercase suits (e.g., `As Ks`, `*s *s`).
+> **Shell globbing:** quote patterns to avoid expansion by your shell (e.g., `--include-hand '* *'`). Use single quotes on macOS/Linux and PowerShell; on cmd.exe, escape `*` or use double quotes where no files match.
 
 # Only low-SPR (<1) jams, ranked by delta
 dart run bin/ev_rank_jam_fold_deltas.dart --dir reports/ --spr low --action jam
