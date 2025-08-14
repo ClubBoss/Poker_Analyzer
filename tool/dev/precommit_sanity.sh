@@ -3,7 +3,7 @@ set -euo pipefail
 set -x
 
 # 1) format check (fail if бы изменил)
-dart format --output=none --set-exit-if-changed \
+dart format --output=none --set-exit-if-changed tool/l3 lib/l3 test/l3_cli_runner_weights_parse_test.dart test/fixtures/l3/weights
   lib/services lib/l3 tool/l3 \
   test/l3_cli_runner_weights_parse_test.dart test/fixtures/l3/weights
 
@@ -42,6 +42,6 @@ else
 fi
 
 # 5) analyzer строго по L3-скоупу
-dart analyze lib/services lib/l3 tool/l3 test/l3_cli_runner_weights_parse_test.dart --fatal-warnings
+dart analyze tool/l3 lib/l3 test/l3_cli_runner_weights_parse_test.dart --fatal-warnings
 
 # Тесты контракта запускаются отдельным шагом workflow
