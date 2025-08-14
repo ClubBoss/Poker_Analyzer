@@ -80,6 +80,12 @@ dart run bin/ev_rank_jam_fold_deltas.dart --dir reports/ --limit 50 --action jam
 
 # absolute impact >= 1.0 regardless of action
 dart run bin/ev_rank_jam_fold_deltas.dart --glob "reports/**/*.json" --abs-delta --min-delta 1.0
+
+# Only low-SPR (<1) jams, ranked by delta
+dart run bin/ev_rank_jam_fold_deltas.dart --dir reports/ --spr low --action jam
+
+# Absolute impact on high-SPR (>=2) spots only
+dart run bin/ev_rank_jam_fold_deltas.dart --glob "reports/**/*.json" --spr high --abs-delta --min-delta 1.0
 ```
 
 Alternate output formats:

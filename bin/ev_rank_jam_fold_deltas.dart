@@ -9,6 +9,7 @@ Future<void> main(List<String> args) async {
   var absDelta = false;
   double? minDelta;
   var action = 'any';
+  var sprBucket = 'any';
   var format = 'json';
   List<String>? fields;
 
@@ -46,6 +47,17 @@ Future<void> main(List<String> args) async {
         return;
       }
       action = value;
+    } else if (arg == '--spr' && i + 1 < args.length) {
+      final value = args[++i];
+      if (value != 'low' &&
+          value != 'mid' &&
+          value != 'high' &&
+          value != 'any') {
+        stderr.writeln('Invalid --spr value: ' + value);
+        exitCode = 64;
+        return;
+      }
+      sprBucket = value;
     } else if (arg == '--abs-delta') {
       absDelta = true;
     } else if (arg == '--format' && i + 1 < args.length) {
@@ -192,6 +204,16 @@ Future<void> main(List<String> args) async {
     for (final p in paths) {
       await handle(p);
     }
+  }
+
+  if (sprBucket != 'any') {
+    spots.removeWhere((s) {
+      final spr = s['spr'] as double?;
+      if (spr == null) return true;
+      if (sprBucket == 'low') return !(spr < 1);
+      if (sprBucket == 'mid') return !(spr >= 1 && spr < 2);
+      return !(spr >= 2);
+    });
   }
 
   if (action != 'any') {
