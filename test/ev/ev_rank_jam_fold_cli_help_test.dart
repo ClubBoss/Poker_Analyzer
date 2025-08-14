@@ -27,4 +27,18 @@ void main() {
     final stdoutStr = result.stdout as String;
     expect(stdoutStr, contains('Usage:'));
   });
+
+  test('--help works with extra args', () async {
+    final dart = Platform.resolvedExecutable;
+    final result = await Process.run(dart, [
+      'run',
+      'bin/ev_rank_jam_fold_deltas.dart',
+      '--help',
+      '--dir',
+      '.',
+    ]);
+    expect(result.exitCode, 0);
+    final stdoutStr = result.stdout as String;
+    expect(stdoutStr, contains('Usage:'));
+  });
 }
