@@ -106,16 +106,22 @@ String enrichJson(String content) {
 class JamFoldMerger {
   const JamFoldMerger();
 
-  Future<void> processFile(String inPath, String outPath) async {
+  Future<bool> processFile(
+    String inPath,
+    String outPath, {
+    bool dryRun = false,
+  }) async {
     final inFile = File(inPath);
     final outFile = File(outPath);
     final original = await inFile.readAsString();
     final merged = enrichJson(original);
     final exists = await outFile.exists();
     final current = exists ? await outFile.readAsString() : '';
-    if (current != merged) {
+    final changed = current != merged;
+    if (changed && !dryRun) {
       await outFile.writeAsString(merged);
     }
+    return changed;
   }
 }
 
