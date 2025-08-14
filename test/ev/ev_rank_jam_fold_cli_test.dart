@@ -12,10 +12,13 @@ Future<String> _writeReport(
   double delta = 0,
   bool includeJamFold = true,
   double spr = 1.0,
-  String board = 'AhKhQd',
+  String? board = 'AhKhQd',
 }) async {
   final file = File('${dir.path}/$name.json');
-  final spot = {'hand': 'As Ks', 'board': board, 'spr': spr};
+  final spot = {'hand': 'As Ks', 'spr': spr};
+  if (board != null) {
+    spot['board'] = board;
+  }
   if (includeJamFold) {
     spot['jamFold'] = {
       'evJam': delta,
@@ -71,6 +74,59 @@ Future<Directory> _buildCompositionCorpus() async {
   await _writeReport(dir, 'a', delta: 0.6, board: 'AsKsQs', spr: 1.5);
   await _writeReport(dir, 'b', delta: 0.7, board: 'Ah7d2c', spr: 1.5);
   await _writeReport(dir, 'c', delta: 0.8, board: '9c8d7s', spr: 2.5);
+  return dir;
+}
+
+Future<Directory> _buildPathDedupCorpus() async {
+  final dir = await Directory.systemTemp.createTemp('ev_rank_cli_path');
+  final file = File('${dir.path}/multi.json');
+  final spot1 = {
+    'hand': 'As Ks',
+    'board': 'AhKhQd',
+    'spr': 1.0,
+    'jamFold': {'evJam': 0.5, 'evFold': 0, 'bestAction': 'jam', 'delta': 0.5},
+  };
+  final spot2 = {
+    'hand': 'Qs Js',
+    'board': 'AhKhQd',
+    'spr': 1.0,
+    'jamFold': {'evJam': 0.7, 'evFold': 0, 'bestAction': 'jam', 'delta': 0.7},
+  };
+  await file.writeAsString(
+    const JsonEncoder.withIndent('  ').convert({
+      'spots': [spot1, spot2],
+    }),
+  );
+  await _writeReport(dir, 'b', delta: 0.6);
+  return dir;
+}
+
+Future<Directory> _buildBoardDedupCorpus() async {
+  final dir = await Directory.systemTemp.createTemp('ev_rank_cli_board');
+  await _writeReport(dir, 'a', delta: 0.5, board: 'AhKhQd');
+  await _writeReport(dir, 'b', delta: 0.7, board: 'AhKhQd');
+  return dir;
+}
+
+Future<Directory> _buildHandDedupCorpus() async {
+  final dir = await Directory.systemTemp.createTemp('ev_rank_cli_hand');
+  await _writeReport(dir, 'a', delta: 0.4, board: 'AhKhQd');
+  await _writeReport(dir, 'b', delta: 0.9, board: 'QcJhTs');
+  return dir;
+}
+
+Future<Directory> _buildNullBoardCorpus() async {
+  final dir = await Directory.systemTemp.createTemp('ev_rank_cli_null');
+  await _writeReport(dir, 'a', delta: 0.5, board: null);
+  await _writeReport(dir, 'b', delta: 0.7, board: null);
+  return dir;
+}
+
+Future<Directory> _buildFilterFormatCorpus() async {
+  final dir = await Directory.systemTemp.createTemp('ev_rank_cli_ff');
+  await _writeReport(dir, 'a', delta: 1.2, board: 'AhKhQd', spr: 2.5);
+  await _writeReport(dir, 'b', delta: -1.1, board: 'AhKhQd', spr: 2.5);
+  await _writeReport(dir, 'c', delta: 0.9, board: 'QcJhTs', spr: 2.5);
   return dir;
 }
 
@@ -684,6 +740,155 @@ void main() {
         expect(d.abs() >= 0.5, true);
         final spr = (map['spr'] as num).toDouble();
         expect(spr >= 1 && spr < 2, true);
+      }
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('unique-by path', () async {
+    final dir = await _buildPathDedupCorpus();
+    try {
+      final noDedup = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path]);
+      });
+      expect(exitCode, 0);
+      final list = jsonDecode(noDedup.trim()) as List;
+      expect(list.length, 3);
+
+      final out = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--unique-by', 'path']);
+      });
+      expect(exitCode, 0);
+      final list2 = jsonDecode(out.trim()) as List;
+      expect(list2.length, 2);
+      final first = list2.first as Map<String, dynamic>;
+      expect((first['delta'] as num).toDouble(), 0.7);
+      expect((first['path'] as String).endsWith('multi.json'), true);
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('unique-by board', () async {
+    final dir = await _buildBoardDedupCorpus();
+    try {
+      final run1 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--unique-by', 'board']);
+      });
+      expect(exitCode, 0);
+      final run2 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--unique-by', 'board']);
+      });
+      expect(run1, run2);
+      final list = jsonDecode(run1.trim()) as List;
+      expect(list.length, 1);
+      final first = list.first as Map<String, dynamic>;
+      expect((first['delta'] as num).toDouble(), 0.7);
+      expect((first['path'] as String).endsWith('b.json'), true);
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('unique-by hand', () async {
+    final dir = await _buildHandDedupCorpus();
+    try {
+      final out = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--unique-by', 'hand']);
+      });
+      expect(exitCode, 0);
+      final list = jsonDecode(out.trim()) as List;
+      expect(list.length, 1);
+      final first = list.first as Map<String, dynamic>;
+      expect((first['delta'] as num).toDouble(), 0.9);
+      expect((first['path'] as String).endsWith('b.json'), true);
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('null keys are unique for board', () async {
+    final dir = await _buildNullBoardCorpus();
+    try {
+      final out = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--unique-by', 'board']);
+      });
+      expect(exitCode, 0);
+      final list = jsonDecode(out.trim()) as List;
+      expect(list.length, 2);
+      for (final spot in list) {
+        expect((spot as Map<String, dynamic>)['board'], isNull);
+      }
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('invalid unique-by arg', () async {
+    final dir = await _buildCorpus();
+    try {
+      await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--unique-by', 'wat']);
+      });
+      expect(exitCode, 64);
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('unique-by with filters and formats', () async {
+    final dir = await _buildFilterFormatCorpus();
+    try {
+      final run1 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          dir.path,
+          '--spr',
+          'high',
+          '--abs-delta',
+          '--min-delta',
+          '1.0',
+          '--unique-by',
+          'board',
+          '--format',
+          'jsonl',
+        ]);
+      });
+      expect(exitCode, 0);
+      final run2 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          dir.path,
+          '--spr',
+          'high',
+          '--abs-delta',
+          '--min-delta',
+          '1.0',
+          '--unique-by',
+          'board',
+          '--format',
+          'jsonl',
+        ]);
+      });
+      expect(run1, run2);
+      final lines = run1.trim().split('\n');
+      for (final line in lines) {
+        final map = jsonDecode(line) as Map<String, dynamic>;
+        final spr = (map['spr'] as num).toDouble();
+        expect(spr >= 2, true);
+        final d = (map['delta'] as num).toDouble();
+        expect(d.abs() >= 1.0, true);
+        expect(map['board'], 'AhKhQd');
       }
     } finally {
       await dir.delete(recursive: true);
