@@ -63,3 +63,15 @@ Summarize jam/fold decisions across reports:
 ```sh
 dart run bin/ev_summary_jam_fold.dart --dir reports/
 ```
+
+## Jam/Fold Delta Ranking
+
+Surface the most impactful jam/fold spots:
+
+```sh
+# top 10 hottest spots across a tree
+dart run bin/ev_rank_jam_fold_deltas.dart --dir reports/ --limit 10
+
+# rank by absolute impact
+dart run bin/ev_rank_jam_fold_deltas.dart --glob "reports/**/*.json" --abs-delta
+```
