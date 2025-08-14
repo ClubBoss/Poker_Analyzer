@@ -102,6 +102,7 @@ Future<Map<String, dynamic>> _expectedSummary(Directory dir) async {
       if (isJam) jamCount++;
       final sprVal = (spot['spr'] as num?)?.toDouble();
       if (sprVal != null) {
+        // ignore: lines_longer_than_80_chars
         final bucket = sprVal < 1
             ? 'spr_low'
             : (sprVal < 2 ? 'spr_mid' : 'spr_high');
@@ -195,34 +196,40 @@ void main() {
       }
 
       // Flow B: validator
-      final reportResult = await _runCapture(() async {
-        await ev_report.main([
-          '--dir',
-          corpus.path,
-          '--validate',
-          '--fail-under',
-          '0.0',
-        ]);
-      });
-      expect(reportResult.code, 0);
-      final reportJson = jsonDecode(reportResult.out) as Map<String, dynamic>;
-      expect(reportJson['changed'], 0);
+      {
+        final r = await _runCapture(() async {
+          await ev_report.main([
+            '--dir',
+            corpus.path,
+            '--validate',
+            '--fail-under',
+            '0.0',
+          ]);
+        });
+        expect(r.code, 0);
+        final reportJson = jsonDecode(r.out) as Map<String, dynamic>;
+        expect(reportJson['changed'], 0);
+      }
 
       final invalid = File('${tmp.path}${Platform.pathSeparator}missing.json');
       await _writeReport(tmp, 'missing', _spot('7c 2d', '7c5s2h', 1.0));
-      final invalidResult = await _runCapture(() async {
-        await ev_report.main(['--in', invalid.path, '--validate']);
-      });
-      expect(invalidResult.code, 1);
+      {
+        final r = await _runCapture(() async {
+          await ev_report.main(['--in', invalid.path, '--validate']);
+        });
+        expect(r.code, 1);
+      }
 
       // Flow C: summary golden
-      final summaryResult = await _runCapture(() async {
-        await ev_summary.main(['--dir', corpus.path]);
-      });
-      expect(summaryResult.code, 0);
-      final summaryJson = jsonDecode(summaryResult.out) as Map<String, dynamic>;
-      final expected = await _expectedSummary(corpus);
-      expect(summaryJson, expected);
+      {
+        final r = await _runCapture(() async {
+          await ev_summary.main(['--dir', corpus.path]);
+        });
+        expect(r.code, 0);
+        final summaryJson = jsonDecode(r.out) as Map<String, dynamic>;
+        final expected = await _expectedSummary(corpus);
+        expect(summaryJson, expected);
+      }
     } finally {
       await tmp.delete(recursive: true);
     }
