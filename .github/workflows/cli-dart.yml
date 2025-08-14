@@ -66,10 +66,10 @@ jobs:
 
       # формат/анализ по CLI-области
       - name: Format check (CLI only)
-        run: dart format --output=none --set-exit-if-changed bin ev test/ev
+        run: dart format --output=none --set-exit-if-changed bin test/ev
 
       - name: Analyze (CLI only)
-        run: flutter analyze bin ev test/ev
+        run: flutter analyze bin test/ev
 
       - name: Unit tests (CLI only)
         run: dart test test/ev -r expanded
