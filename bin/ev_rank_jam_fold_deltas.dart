@@ -3,6 +3,58 @@ import 'dart:io';
 
 import 'package:poker_analyzer/services/board_texture_classifier.dart';
 
+const _USAGE = r'''
+Usage:
+  dart run bin/ev_rank_jam_fold_deltas.dart [INPUT] [FILTERS] [RANKING] [OUTPUT]
+
+INPUT (pick exactly one):
+  --in <file.json>
+  --dir <dir>
+  --glob "<pattern>"                # supports * and **, paths are normalized with '/'
+
+PATH FILTERS (applied first):
+  --include "<glob[,glob...]>"      # keep if path matches ANY
+  --exclude "<glob[,glob...]>"      # drop if path matches ANY
+
+HAND FILTERS (then):
+  --include-hand "<glob[,glob...]>" # keep if hand matches ANY
+  --exclude-hand "<glob[,glob...]>" # drop if hand matches ANY
+  (hand/path matching is case-sensitive; quote globs to avoid shell expansion)
+
+OTHER FILTERS (in order):
+  --spr <low|mid|high|any>
+  --action <jam|fold|any>
+  --min-delta <float>               # compare vs --abs-delta if set
+  --texture <tag[,tag...]>
+  --street <pre|flop|turn|river|any>
+
+RANKING (post-filter, pre-output):
+  --abs-delta                       # rank by |delta|
+  --per <none|path|hand|board>      # per-group cap (after sort)
+  --per-limit <N>                   # default 1 if --per != none
+  --unique-by <none|path|hand|board># dedup after per-cap, before limit
+  --limit <N>                       # global cap (default 20)
+
+OUTPUT:
+  --format <json|jsonl|csv>         # default json
+  --fields a,b,c                    # for jsonl/csv only
+
+Notes:
+  • Sorting is deterministic: (delta or |delta|) desc, then path asc, then spotIndex asc.
+  • Path + hand globs are case-sensitive. Quote patterns in shells:
+      - bash/zsh:       --include-hand '* *'
+      - PowerShell:     --include-hand '* *'
+      - cmd.exe:        --include-hand "* *"
+  • If you see: Unknown or incomplete argument: A*s → wrap the pattern in quotes.
+
+Examples:
+  dart run bin/ev_rank_jam_fold_deltas.dart --dir reports/ --limit 10
+  dart run bin/ev_rank_jam_fold_deltas.dart --glob "reports/**/*.json" --abs-delta
+  dart run bin/ev_rank_jam_fold_deltas.dart --dir reports/ --include "packs/**" --exclude "packs/**/old/**"
+  dart run bin/ev_rank_jam_fold_deltas.dart --dir reports/ --include-hand "A* K*" --exclude-hand "*s *s"
+  dart run bin/ev_rank_jam_fold_deltas.dart --glob "reports/**/*.json" --street turn --abs-delta --min-delta 0.5 --format csv --fields path,board,delta
+''';
+
 Future<void> main(List<String> args) async {
   String? inPath;
   String? dirPath;
@@ -26,7 +78,11 @@ Future<void> main(List<String> args) async {
 
   for (var i = 0; i < args.length; i++) {
     final arg = args[i];
-    if (arg == '--in' && i + 1 < args.length) {
+    if (arg == '--help' || arg == '-h') {
+      stdout.writeln(_USAGE);
+      exitCode = 0;
+      return;
+    } else if (arg == '--in' && i + 1 < args.length) {
       inPath = args[++i];
     } else if (arg == '--dir' && i + 1 < args.length) {
       dirPath = args[++i];
