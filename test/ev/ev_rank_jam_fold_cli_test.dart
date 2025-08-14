@@ -6,6 +6,37 @@ import 'package:test/test.dart';
 
 import '../../bin/ev_rank_jam_fold_deltas.dart' as cli;
 
+Map<String, dynamic> _mkSpot({
+  double delta = 0,
+  double spr = 1.0,
+  String? board = 'AhKhQd',
+  String hand = 'As Ks',
+}) {
+  final spot = {'hand': hand, 'spr': spr};
+  if (board != null) {
+    spot['board'] = board;
+  }
+  spot['jamFold'] = {
+    'evJam': delta,
+    'evFold': 0,
+    'bestAction': delta >= 0 ? 'jam' : 'fold',
+    'delta': delta,
+  };
+  return spot;
+}
+
+Future<String> _writeReportMulti(
+  Directory dir,
+  String name,
+  List<Map<String, dynamic>> spots,
+) async {
+  final file = File('${dir.path}/$name.json');
+  await file.writeAsString(
+    const JsonEncoder.withIndent('  ').convert({'spots': spots}),
+  );
+  return file.path;
+}
+
 Future<String> _writeReport(
   Directory dir,
   String name, {
@@ -127,6 +158,66 @@ Future<Directory> _buildFilterFormatCorpus() async {
   await _writeReport(dir, 'a', delta: 1.2, board: 'AhKhQd', spr: 2.5);
   await _writeReport(dir, 'b', delta: -1.1, board: 'AhKhQd', spr: 2.5);
   await _writeReport(dir, 'c', delta: 0.9, board: 'QcJhTs', spr: 2.5);
+  return dir;
+}
+
+Future<Directory> _buildPerPathCapCorpus() async {
+  final dir = await Directory.systemTemp.createTemp('ev_rank_cli_per_path');
+  await _writeReportMulti(dir, 'multi', [
+    _mkSpot(delta: 1.0),
+    _mkSpot(delta: 0.9),
+    _mkSpot(delta: 0.8),
+    _mkSpot(delta: 0.7),
+  ]);
+  await _writeReport(dir, 'single', delta: 0.5);
+  return dir;
+}
+
+Future<Directory> _buildPerHandCapCorpus() async {
+  final dir = await Directory.systemTemp.createTemp('ev_rank_cli_per_hand');
+  await _writeReportMulti(dir, 'a', [
+    _mkSpot(hand: 'As Ks', delta: 0.5),
+    _mkSpot(hand: 'Qc Jc', delta: -0.6),
+  ]);
+  await _writeReportMulti(dir, 'b', [
+    _mkSpot(hand: 'As Ks', delta: -0.8),
+    _mkSpot(hand: 'Qc Jc', delta: 0.7),
+  ]);
+  return dir;
+}
+
+Future<Directory> _buildPerBoardCapCorpus() async {
+  final dir = await Directory.systemTemp.createTemp('ev_rank_cli_per_board');
+  await _writeReport(dir, 'a', delta: 0.6, board: null);
+  await _writeReport(dir, 'b', delta: 0.4, board: null);
+  await _writeReport(dir, 'c', delta: 0.7, board: 'AhKhQd');
+  return dir;
+}
+
+Future<Directory> _buildPerUniqueCorpus() async {
+  final dir = await Directory.systemTemp.createTemp('ev_rank_cli_per_unique');
+  await _writeReportMulti(dir, 'multi', [
+    _mkSpot(delta: 1.0, board: 'AhKhQd'),
+    _mkSpot(delta: 0.9, board: 'AsAdKd'),
+    _mkSpot(delta: 0.8, board: 'AsAdKd'),
+    _mkSpot(delta: 0.7, board: 'QcJhTs'),
+  ]);
+  await _writeReportMulti(dir, 'single', [
+    _mkSpot(delta: 0.6, board: 'AsAdKd'),
+    _mkSpot(delta: 0.5, board: '9c8d7s'),
+  ]);
+  return dir;
+}
+
+Future<Directory> _buildPerFilterFormatCapCorpus() async {
+  final dir = await Directory.systemTemp.createTemp('ev_rank_cli_per_ff');
+  await _writeReportMulti(dir, 'a', [
+    _mkSpot(delta: -0.6, board: 'AsKsQs', spr: 2.5),
+    _mkSpot(delta: -0.7, board: 'AsKsQs', spr: 2.5),
+  ]);
+  await _writeReportMulti(dir, 'b', [
+    _mkSpot(delta: -0.8, board: '9c8d7s', spr: 2.5),
+  ]);
   return dir;
 }
 
@@ -889,6 +980,251 @@ void main() {
         final d = (map['delta'] as num).toDouble();
         expect(d.abs() >= 1.0, true);
         expect(map['board'], 'AhKhQd');
+      }
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('per=path limit=2', () async {
+    final dir = await _buildPerPathCapCorpus();
+    try {
+      final run1 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          dir.path,
+          '--per',
+          'path',
+          '--per-limit',
+          '2',
+        ]);
+      });
+      expect(exitCode, 0);
+      final run2 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          dir.path,
+          '--per',
+          'path',
+          '--per-limit',
+          '2',
+        ]);
+      });
+      expect(run1, run2);
+      final list = jsonDecode(run1.trim()) as List;
+      expect(list.length, 3);
+      final first = list[0] as Map<String, dynamic>;
+      final second = list[1] as Map<String, dynamic>;
+      final third = list[2] as Map<String, dynamic>;
+      expect((first['path'] as String).endsWith('multi.json'), true);
+      expect((second['path'] as String).endsWith('multi.json'), true);
+      expect((third['path'] as String).endsWith('single.json'), true);
+      expect((first['delta'] as num).toDouble(), 1.0);
+      expect((second['delta'] as num).toDouble(), 0.9);
+      expect((third['delta'] as num).toDouble(), 0.5);
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('per=hand abs-delta', () async {
+    final dir = await _buildPerHandCapCorpus();
+    try {
+      final out = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          dir.path,
+          '--abs-delta',
+          '--per',
+          'hand',
+          '--per-limit',
+          '1',
+        ]);
+      });
+      expect(exitCode, 0);
+      final list = jsonDecode(out.trim()) as List;
+      expect(list.length, 2);
+      final hands = list
+          .map((e) => (e as Map<String, dynamic>)['hand'])
+          .toSet();
+      expect(hands.length, 2);
+      final deltas = list
+          .map((e) => (e as Map<String, dynamic>)['delta'])
+          .toList();
+      expect(deltas.contains(-0.8), true);
+      expect(deltas.contains(0.7), true);
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('per=board with nulls', () async {
+    final dir = await _buildPerBoardCapCorpus();
+    try {
+      final out = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          dir.path,
+          '--per',
+          'board',
+          '--per-limit',
+          '1',
+        ]);
+      });
+      expect(exitCode, 0);
+      final list = jsonDecode(out.trim()) as List;
+      int nullCount = 0;
+      for (final spot in list) {
+        final map = spot as Map<String, dynamic>;
+        if (map['board'] == null) {
+          nullCount++;
+          expect((map['delta'] as num).toDouble(), 0.6);
+        }
+      }
+      expect(nullCount, 1);
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('per with unique-by', () async {
+    final dir = await _buildPerUniqueCorpus();
+    try {
+      final run1 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          dir.path,
+          '--per',
+          'path',
+          '--per-limit',
+          '2',
+          '--unique-by',
+          'board',
+        ]);
+      });
+      expect(exitCode, 0);
+      final run2 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          dir.path,
+          '--per',
+          'path',
+          '--per-limit',
+          '2',
+          '--unique-by',
+          'board',
+        ]);
+      });
+      expect(run1, run2);
+      final list = jsonDecode(run1.trim()) as List;
+      final paths = <String, int>{};
+      final boards = <String?>{};
+      for (final spot in list) {
+        final map = spot as Map<String, dynamic>;
+        final p = map['path'] as String;
+        paths[p] = (paths[p] ?? 0) + 1;
+        expect(boards.add(map['board'] as String?), true);
+      }
+      for (final count in paths.values) {
+        expect(count <= 2, true);
+      }
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('invalid per args', () async {
+    final dir = await _buildCorpus();
+    try {
+      await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--per', 'wat']);
+      });
+      expect(exitCode, 64);
+
+      await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          dir.path,
+          '--per',
+          'path',
+          '--per-limit',
+          '0',
+        ]);
+      });
+      expect(exitCode, 64);
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('per with filters and formats', () async {
+    final dir = await _buildPerFilterFormatCapCorpus();
+    try {
+      final run1 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          dir.path,
+          '--texture',
+          'wet',
+          '--spr',
+          'high',
+          '--action',
+          'fold',
+          '--abs-delta',
+          '--min-delta',
+          '0.5',
+          '--per',
+          'path',
+          '--per-limit',
+          '1',
+          '--format',
+          'jsonl',
+        ]);
+      });
+      expect(exitCode, 0);
+      final run2 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          dir.path,
+          '--texture',
+          'wet',
+          '--spr',
+          'high',
+          '--action',
+          'fold',
+          '--abs-delta',
+          '--min-delta',
+          '0.5',
+          '--per',
+          'path',
+          '--per-limit',
+          '1',
+          '--format',
+          'jsonl',
+        ]);
+      });
+      expect(run1, run2);
+      final lines = run1.trim().split('\n');
+      expect(lines.length, 2);
+      for (final line in lines) {
+        final map = jsonDecode(line) as Map<String, dynamic>;
+        expect(map['bestAction'], 'fold');
+        final spr = (map['spr'] as num).toDouble();
+        expect(spr >= 2, true);
+        final d = (map['delta'] as num).toDouble();
+        expect(d.abs() >= 0.5, true);
+        final path = map['path'] as String;
+        expect(path.endsWith('a.json') || path.endsWith('b.json'), true);
       }
     } finally {
       await dir.delete(recursive: true);

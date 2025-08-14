@@ -103,6 +103,18 @@ dart run bin/ev_rank_jam_fold_deltas.dart --glob "reports/**/*.json" --abs-delta
 dart run bin/ev_rank_jam_fold_deltas.dart \
   --dir reports/ --spr mid --action jam --min-delta 0.5 \
   --unique-by hand --format csv --fields path,hand,delta
+
+# Keep at most 2 hottest spots per file
+dart run bin/ev_rank_jam_fold_deltas.dart --dir reports/ --per path --per-limit 2
+
+# Top-3 per hand across the whole tree (by absolute impact)
+dart run bin/ev_rank_jam_fold_deltas.dart --glob "reports/**/*.json" --abs-delta --per hand --per-limit 3
+
+# Compose with filters & CSV
+dart run bin/ev_rank_jam_fold_deltas.dart \
+  --dir reports/ --spr mid --action jam --min-delta 0.5 \
+  --per board --per-limit 2 \
+  --format csv --fields path,board,delta
 ```
 
 Alternate output formats:
