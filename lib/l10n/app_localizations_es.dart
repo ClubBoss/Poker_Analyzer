@@ -521,8 +521,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get clearHistory => 'Clear history';
 
   @override
-  String get confirmClear =>
-      'Clear all runs? This action cannot be undone.';
+  String get confirmClear => 'Clear all runs? This action cannot be undone.';
 
   @override
   String get deleted => 'Deleted';

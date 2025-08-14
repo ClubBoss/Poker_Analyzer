@@ -663,8 +663,10 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
             if (_lastReportPath != null)
               Row(
                 children: [
-                  TextButton(onPressed: _openReport, child: Text(loc.openReport)),
-                  TextButton(onPressed: _exportLastCsv, child: Text(loc.exportCsv)),
+                  TextButton(
+                      onPressed: _openReport, child: Text(loc.openReport)),
+                  TextButton(
+                      onPressed: _exportLastCsv, child: Text(loc.exportCsv)),
                   TextButton(
                     onPressed: () {
                       if (_lastReportPath == null) return;
@@ -769,9 +771,8 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                                       child: Text(loc.folder),
                                     ),
                                   TextButton(
-                                    onPressed: _running
-                                        ? null
-                                        : () => _reRun(e),
+                                    onPressed:
+                                        _running ? null : () => _reRun(e),
                                     child: Text(loc.reRun),
                                   ),
                                 ],
@@ -801,10 +802,8 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
             const _CopyLastPathIntent(),
         // Copy last logs path (Shift)
         const SingleActivator(LogicalKeyboardKey.keyC,
-                control: true, shift: true):
-            const _CopyLastLogPathIntent(),
-        const SingleActivator(LogicalKeyboardKey.keyC,
-                meta: true, shift: true):
+            control: true, shift: true): const _CopyLastLogPathIntent(),
+        const SingleActivator(LogicalKeyboardKey.keyC, meta: true, shift: true):
             const _CopyLastLogPathIntent(),
         // Export last report CSV
         const SingleActivator(LogicalKeyboardKey.keyE, control: true):
@@ -813,8 +812,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
             const _ExportLastIntent(),
         // Export history CSV (Shift)
         const SingleActivator(LogicalKeyboardKey.keyE,
-                control: true, shift: true):
-            const _ExportHistoryIntent(),
+            control: true, shift: true): const _ExportHistoryIntent(),
         const SingleActivator(LogicalKeyboardKey.keyE, meta: true, shift: true):
             const _ExportHistoryIntent(),
         // Open last report
@@ -829,10 +827,8 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
             const _OpenLastLogsIntent(),
         // Reveal last report in folder
         const SingleActivator(LogicalKeyboardKey.keyR,
-                control: true, shift: true):
-            const _RevealLastIntent(),
-        const SingleActivator(LogicalKeyboardKey.keyR,
-                meta: true, shift: true):
+            control: true, shift: true): const _RevealLastIntent(),
+        const SingleActivator(LogicalKeyboardKey.keyR, meta: true, shift: true):
             const _RevealLastIntent(),
       },
       child: Actions(

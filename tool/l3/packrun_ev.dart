@@ -16,7 +16,8 @@ void main(List<String> args) {
     ..addOption('in', defaultsTo: 'build/reports/l3_packrun.json')
     ..addOption('out', defaultsTo: 'build/reports/l3_packrun_ev.json')
     ..addOption('weights')
-    ..addOption('weightsPreset', defaultsTo: 'default', allowed: ['aggro', 'nitty', 'default'])
+    ..addOption('weightsPreset',
+        defaultsTo: 'default', allowed: ['aggro', 'nitty', 'default'])
     ..addOption('priors')
     ..addFlag('explain', negatable: false);
   final res = parser.parse(args);

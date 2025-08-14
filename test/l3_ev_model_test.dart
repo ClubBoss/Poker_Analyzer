@@ -40,7 +40,8 @@ void main() {
       'default',
     ]);
     expect(res1.exitCode, 0, reason: res1.stderr);
-    final report1 = jsonDecode(File(out1).readAsStringSync()) as Map<String, dynamic>;
+    final report1 =
+        jsonDecode(File(out1).readAsStringSync()) as Map<String, dynamic>;
     final jamRate1 = report1['summary']['jamRate'] as num;
     expect(jamRate1 >= 0 && jamRate1 <= 1, isTrue);
 
@@ -57,7 +58,8 @@ void main() {
       weightsJson,
     ]);
     expect(res2.exitCode, 0, reason: res2.stderr);
-    final report2 = jsonDecode(File(out2).readAsStringSync()) as Map<String, dynamic>;
+    final report2 =
+        jsonDecode(File(out2).readAsStringSync()) as Map<String, dynamic>;
     final jamRate2 = report2['summary']['jamRate'] as num;
     expect(jamRate2 >= 0 && jamRate2 <= 1, isTrue);
   });

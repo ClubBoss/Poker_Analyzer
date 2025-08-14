@@ -5,8 +5,9 @@ class JamFoldModel {
   final JamFoldEvaluator _evaluator;
 
   JamFoldModel({Map<String, double>? weights})
-      : _evaluator =
-            weights != null ? JamFoldEvaluator.fromWeights(weights) : JamFoldEvaluator();
+      : _evaluator = weights != null
+            ? JamFoldEvaluator.fromWeights(weights)
+            : JamFoldEvaluator();
 
   /// Evaluates a spot described by [board] and [spr].
   ///

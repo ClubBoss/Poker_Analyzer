@@ -170,9 +170,8 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
               ),
               const SizedBox(width: 8),
               ElevatedButton(
-                onPressed: _statsA != null && _statsB != null
-                    ? _exportCsv
-                    : null,
+                onPressed:
+                    _statsA != null && _statsB != null ? _exportCsv : null,
                 child: Text(loc.exportCsv),
               ),
             ],
@@ -243,8 +242,8 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
       final label = k == 'rootKeys'
           ? loc.rootKeys
           : k.startsWith('array:')
-          ? '${loc.arrayLengths} ${k.substring(6)}'
-          : k;
+              ? '${loc.arrayLengths} ${k.substring(6)}'
+              : k;
       rows.add(
         DataRow(
           cells: [
