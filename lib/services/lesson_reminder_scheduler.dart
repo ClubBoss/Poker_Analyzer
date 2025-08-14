@@ -52,7 +52,7 @@ class LessonReminderScheduler {
 
     await _plugin.zonedSchedule(
       _id,
-      '\uD83C\uDFC6 Don’t forget your daily poker training!',
+      '\uD83C\uDFC6 Don't forget your daily poker training!',
       'Complete your 5 hands and keep your streak alive \uD83D\uDD25',
       when,
       const NotificationDetails(
