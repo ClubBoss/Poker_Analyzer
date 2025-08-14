@@ -48,16 +48,14 @@ void main(List<String> args) {
         'preset': presetArg ?? 'postflop_default',
       },
     };
-    final stats = buildAutogenStats(jsonEncode(report));
-    final reportWithStats = Map<String, dynamic>.from(report);
-    if (stats != null) {
-      (reportWithStats['autogen'] as Map<String, dynamic>)['stats'] = {
-        'total': stats.total,
-        'textures': stats.textures,
-      };
-    }
+    final stats = buildAutogenStats(jsonEncode(report))!;
+    (report['autogen'] as Map<String, dynamic>)['stats'] = {
+      'total': stats.total,
+      'textures': stats.textures,
+    };
     final outFile = File(outPath);
     outFile.parent.createSync(recursive: true);
-    outFile.writeAsStringSync(jsonEncode(reportWithStats));
+    outFile.writeAsStringSync(jsonEncode(report));
+    return;
   }
 }
