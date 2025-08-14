@@ -112,7 +112,7 @@ Future<void> main(List<String> args) async {
           rel = rel.substring(1);
         }
       }
-      rel = rel.replaceAll('\\\\', '/');
+      rel = rel.replaceAll('\\', '/');
       if (regex.hasMatch(rel)) {
         await handle(entity.path);
       }
