@@ -21,6 +21,7 @@ class BoardStreetGenerator {
   List<Map<String, dynamic>> generate({
     required int count,
     required String preset,
+    int? maxTries,
   }) {
     final presetMix = kAutogenPresets[preset]?.targetMix ?? const {};
     final targetMix = _targetMix ?? presetMix;
@@ -28,7 +29,11 @@ class BoardStreetGenerator {
     final seen = <String>{};
     final texCounts = <String, int>{};
 
-    while (spots.length < count) {
+    final limit = maxTries ?? count * 200;
+    var tries = 0;
+
+    while (spots.length < count && tries < limit) {
+      tries++;
       final board = _randomFlop();
       final key = (List.of(board)..sort()).join();
       if (seen.contains(key)) continue;
@@ -52,6 +57,19 @@ class BoardStreetGenerator {
       }
 
       seen.add(key);
+      for (final tex in textures) {
+        final k = tex.name;
+        texCounts[k] = (texCounts[k] ?? 0) + 1;
+      }
+      spots.add({'board': board, 'street': 'flop', 'meta': {}});
+    }
+
+    while (spots.length < count) {
+      final board = _randomFlop();
+      final key = (List.of(board)..sort()).join();
+      if (seen.contains(key)) continue;
+      seen.add(key);
+      final textures = classifyFlop(board);
       for (final tex in textures) {
         final k = tex.name;
         texCounts[k] = (texCounts[k] ?? 0) + 1;
