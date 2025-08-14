@@ -1,10 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import '../helpers/hand_utils.dart';
 import '../models/action_entry.dart';
 import '../utils/push_fold.dart';
-import '../services/push_fold_ev_service.dart' show computePushEV;
 
 class JamFoldResult {
   final double evJam;
@@ -65,10 +63,10 @@ class JamFoldEvaluator {
     if (!isPushFoldSpot(actions, 0, heroIndex)) return null;
 
     final heroStack = (stacks['$heroIndex'] as num?)?.round();
-    final handCodeStr = handCode(heroCards);
+    final handCodeStr = _handCode(heroCards);
     if (heroStack == null || handCodeStr == null) return null;
 
-    final evJam = computePushEV(
+    final evJam = _computePushEV(
       heroBbStack: heroStack,
       bbCount: playerCount - 1,
       heroHand: handCodeStr,
@@ -118,4 +116,119 @@ class JamFoldMerger {
       await outFile.writeAsString(merged);
     }
   }
+}
+
+int _rankVal(String r) {
+  const order = {
+    '2': 0,
+    '3': 1,
+    '4': 2,
+    '5': 3,
+    '6': 4,
+    '7': 5,
+    '8': 6,
+    '9': 7,
+    'T': 8,
+    'J': 9,
+    'Q': 10,
+    'K': 11,
+    'A': 12,
+  };
+  return order[r] ?? -1;
+}
+
+String? _handCode(String twoCardString) {
+  final parts = twoCardString.split(RegExp(r'\s+'));
+  if (parts.length < 2) return null;
+  final r1 = parts[0][0].toUpperCase();
+  final s1 = parts[0].substring(1);
+  final r2 = parts[1][0].toUpperCase();
+  final s2 = parts[1].substring(1);
+  if (r1 == r2) return '$r1$r2';
+  final firstHigh = _rankVal(r1) >= _rankVal(r2);
+  final high = firstHigh ? r1 : r2;
+  final low = firstHigh ? r2 : r1;
+  final suited = s1 == s2;
+  return '$high$low${suited ? 's' : 'o'}';
+}
+
+final List<String> _handRanking = (() {
+  const ranks = [
+    'A',
+    'K',
+    'Q',
+    'J',
+    'T',
+    '9',
+    '8',
+    '7',
+    '6',
+    '5',
+    '4',
+    '3',
+    '2',
+  ];
+  final hands = <String>[];
+  for (var i = 0; i < ranks.length; i++) {
+    for (var j = 0; j < ranks.length; j++) {
+      if (i == j) {
+        hands.add('${ranks[i]}${ranks[j]}');
+      } else if (i < j) {
+        hands.add('${ranks[i]}${ranks[j]}s');
+      } else {
+        hands.add('${ranks[j]}${ranks[i]}o');
+      }
+    }
+  }
+  int score(String h) {
+    const map = {
+      '2': 2,
+      '3': 3,
+      '4': 4,
+      '5': 5,
+      '6': 6,
+      '7': 7,
+      '8': 8,
+      '9': 9,
+      'T': 10,
+      'J': 11,
+      'Q': 12,
+      'K': 13,
+      'A': 14,
+    };
+    final r1 = map[h[0]]!;
+    final r2 = map[h[1]]!;
+    final suited = h.length == 3 && h[2] == 's';
+    if (r1 == r2) return r1 * 20;
+    final high = r1 > r2 ? r1 : r2;
+    final low = r1 > r2 ? r2 : r1;
+    var s = high * 2 + low / 10;
+    if (suited) s += 1;
+    return (s * 100).round();
+  }
+
+  hands.sort((a, b) => score(b).compareTo(score(a)));
+  return List<String>.unmodifiable(hands);
+})();
+
+final Map<String, double> _equity = {
+  for (int i = 0; i < _handRanking.length; i++)
+    _handRanking[i]: 0.85 - i * (0.55 / (_handRanking.length - 1)),
+};
+
+final Map<String, double> _evCache = {};
+
+double _computePushEV({
+  required int heroBbStack,
+  required int bbCount,
+  required String heroHand,
+  required int anteBb,
+}) {
+  final key = '$heroBbStack|$bbCount|$heroHand|$anteBb';
+  return _evCache.putIfAbsent(key, () {
+    final eq = _equity[heroHand] ?? 0.5;
+    final pot = (bbCount + 1) * anteBb + 1.5;
+    final bet = heroBbStack.toDouble();
+    return eq * (pot + bet) - (1 - eq) * bet;
+  });
 }

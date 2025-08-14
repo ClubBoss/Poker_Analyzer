@@ -38,11 +38,13 @@ void main(List<String> args) {
   Map<String, double>? weights;
   final weightsOpt = res['weights'] as String?;
   if (weightsOpt != null) {
-    final jsonStr =
-        weightsOpt.trim().startsWith('{') ? weightsOpt : File(weightsOpt).readAsStringSync();
+    final jsonStr = weightsOpt.trim().startsWith('{')
+        ? weightsOpt
+        : File(weightsOpt).readAsStringSync();
     weights = _decodeDoubleMap(jsonStr);
   } else {
-    final preset = res['weightsPreset'] as String; // guaranteed by parser defaults
+    final preset =
+        res['weightsPreset'] as String; // guaranteed by parser defaults
     final presetPath = {
       'aggro': 'tool/config/weights/aggro.json',
       'nitty': 'tool/config/weights/nitty.json',
@@ -56,8 +58,9 @@ void main(List<String> args) {
   Map<String, double>? priors;
   final priorsOpt = res['priors'] as String?;
   if (priorsOpt != null) {
-    final jsonStr =
-        priorsOpt.trim().startsWith('{') ? priorsOpt : File(priorsOpt).readAsStringSync();
+    final jsonStr = priorsOpt.trim().startsWith('{')
+        ? priorsOpt
+        : File(priorsOpt).readAsStringSync();
     priors = _decodeDoubleMap(jsonStr);
   }
 
