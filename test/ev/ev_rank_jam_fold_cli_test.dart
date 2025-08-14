@@ -254,4 +254,184 @@ void main() {
       await dir.delete(recursive: true);
     }
   });
+
+  test('jsonl basics', () async {
+    final dir = await _buildCorpus();
+    try {
+      final output = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          dir.path,
+          '--format',
+          'jsonl',
+          '--limit',
+          '2',
+        ]);
+      });
+      expect(exitCode, 0);
+      final lines = output.trim().split('\n');
+      expect(lines.length, 2);
+      final first = jsonDecode(lines.first) as Map<String, dynamic>;
+      expect((first['delta'] as num).toDouble(), 1.5);
+      final run2 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          dir.path,
+          '--format',
+          'jsonl',
+          '--limit',
+          '2',
+        ]);
+      });
+      expect(output, run2);
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('csv basics', () async {
+    final dir = await _buildCorpus();
+    try {
+      final output = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--format', 'csv', '--limit', '3']);
+      });
+      expect(exitCode, 0);
+      final lines = output.trim().split('\n');
+      expect(lines.length, 4);
+      expect(
+        lines.first,
+        'path,spotIndex,hand,board,spr,bestAction,evJam,evFold,delta',
+      );
+      final row = lines[1].split(',');
+      expect(row[0].endsWith('c.json'), true);
+      expect(row[1], '0');
+      expect(row[2], '"As Ks"');
+      expect(row.last, '1.5');
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('fields subset', () async {
+    final dir = await _buildCorpus();
+    try {
+      final csvOut = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          dir.path,
+          '--format',
+          'csv',
+          '--fields',
+          'path,delta',
+        ]);
+      });
+      expect(exitCode, 0);
+      final csvLines = csvOut.trim().split('\n');
+      expect(csvLines.first, 'path,delta');
+      expect(csvLines[1].split(',').length, 2);
+
+      final jsonlOut = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          dir.path,
+          '--format',
+          'jsonl',
+          '--fields',
+          'path,delta',
+        ]);
+      });
+      expect(exitCode, 0);
+      final jsonlLines = jsonlOut.trim().split('\n');
+      final map = jsonDecode(jsonlLines.first) as Map<String, dynamic>;
+      expect(map.keys.toList(), ['path', 'delta']);
+      expect(map.length, 2);
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('invalid new args', () async {
+    final dir = await _buildCorpus();
+    try {
+      await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--format', 'yaml']);
+      });
+      expect(exitCode, 64);
+
+      await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main(['--dir', dir.path, '--fields', 'path,delta,wat']);
+      });
+      expect(exitCode, 64);
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('filters with formats', () async {
+    final dir = await _buildCorpus();
+    try {
+      final out = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          dir.path,
+          '--abs-delta',
+          '--min-delta',
+          '1.0',
+          '--action',
+          'fold',
+          '--format',
+          'jsonl',
+        ]);
+      });
+      expect(exitCode, 0);
+      final lines = out.trim().split('\n');
+      for (final line in lines) {
+        final map = jsonDecode(line) as Map<String, dynamic>;
+        expect(map['bestAction'], 'fold');
+        final d = (map['delta'] as num).toDouble();
+        expect(d.abs() >= 1.0, true);
+      }
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
+  test('determinism with csv fields', () async {
+    final dir = await _buildCorpus();
+    try {
+      final run1 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          dir.path,
+          '--format',
+          'csv',
+          '--fields',
+          'path,spotIndex,delta',
+        ]);
+      });
+      final run2 = await _capturePrint(() async {
+        exitCode = 0;
+        await cli.main([
+          '--dir',
+          dir.path,
+          '--format',
+          'csv',
+          '--fields',
+          'path,spotIndex,delta',
+        ]);
+      });
+      expect(run1, run2);
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
 }
