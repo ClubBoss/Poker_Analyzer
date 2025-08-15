@@ -25,6 +25,7 @@ import '../widgets/sync_status_widget.dart';
 import 'weakness_overview_screen.dart';
 import 'training_home_screen.dart';
 import 'ready_to_train_screen.dart';
+import '../ui/history/history_screen.dart';
 import '../widgets/lesson_suggestion_banner.dart';
 import '../widgets/smart_decay_goal_banner.dart';
 import '../widgets/smart_mistake_goal_banner.dart';
@@ -353,6 +354,18 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                       trainingButtonKey: _trainingButtonKey,
                       newHandButtonKey: _newHandButtonKey,
                       historyButtonKey: _historyButtonKey,
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.history, color: Colors.white),
+                      trailing: const Icon(Icons.chevron_right),
+                      title: const Text('History'),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const HistoryScreen()),
+                        );
+                      },
                     ),
                     ListTile(
                       leading: const Icon(Icons.analytics, color: Colors.white),

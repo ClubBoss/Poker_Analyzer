@@ -4,6 +4,8 @@
 // ));
 
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'; // for kIsWeb & defaultTargetPlatform
@@ -262,6 +264,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     _answerFlashColor = null;
     if (_index + 1 >= _spots.length) {
       setState(() => _index++);
+      _appendSessionHistory();
       return;
     }
     setState(() {
@@ -275,6 +278,26 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     _startTicker();
     _startTimebar();
     _focusNode.requestFocus();
+  }
+
+  void _appendSessionHistory() {
+    if (kIsWeb) return;
+    final total = _spots.length;
+    final correct = _answers.where((a) => a.correct).length;
+    final acc = total == 0 ? 0.0 : correct / total;
+    final obj = {
+      'ts': DateTime.now().toUtc().toIso8601String(),
+      'acc': acc,
+      'total': total,
+      'correct': correct,
+    };
+    try {
+      final dir = Directory('out');
+      if (!dir.existsSync()) dir.createSync(recursive: true);
+      final file = File('${dir.path}/sessions_history.jsonl');
+      file.writeAsStringSync('${jsonEncode(obj)}\n',
+          mode: FileMode.append, flush: true);
+    } catch (_) {}
   }
 
   void _restart(List<UiSpot> spots) {
