@@ -83,6 +83,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final sessions = _items.length;
+    var total = 0;
+    var correct = 0;
+    for (final e in _items) {
+      final t = int.tryParse(e['total']?.toString() ?? '') ?? 0;
+      final c = int.tryParse(e['correct']?.toString() ?? '') ?? 0;
+      total += t;
+      correct += c;
+    }
+    final acc = total == 0 ? 0 : correct / total;
     return Scaffold(
       appBar: AppBar(
         title: const Text('History'),
@@ -93,27 +103,50 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: _items.length,
-        itemBuilder: (context, index) {
-          final e = _items[index];
-          final dt = DateTime.tryParse(e['ts']?.toString() ?? '')?.toLocal();
-          final dateStr = dt?.toString() ?? e['ts']?.toString() ?? '';
-          final acc = (e['acc'] ?? 0) as num;
-          final correct = e['correct'] ?? 0;
-          final total = e['total'] ?? 0;
-          return ListTile(
-            title: Text(dateStr),
-            subtitle: Text('$correct/$total (${(acc * 100).toStringAsFixed(0)}%)'),
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => HistoryDetailScreen(entry: e),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Sessions: $sessions'),
+                    Text(
+                        'Hands: $correct/$total  •  Acc: ${(acc * 100).toStringAsFixed(0)}%'),
+                  ],
                 ),
-              );
-            },
-          );
-        },
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _items.length,
+              itemBuilder: (context, index) {
+                final e = _items[index];
+                final dt =
+                    DateTime.tryParse(e['ts']?.toString() ?? '')?.toLocal();
+                final dateStr = dt?.toString() ?? e['ts']?.toString() ?? '';
+                final acc = (e['acc'] ?? 0) as num;
+                final correct = e['correct'] ?? 0;
+                final total = e['total'] ?? 0;
+                return ListTile(
+                  title: Text(dateStr),
+                  subtitle: Text('$correct/$total (${(acc * 100).toStringAsFixed(0)}%)'),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => HistoryDetailScreen(entry: e),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
