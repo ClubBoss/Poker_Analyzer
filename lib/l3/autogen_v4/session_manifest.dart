@@ -59,4 +59,3 @@ String encodeManifestCompact(SessionManifest m) => jsonEncode(m.toJson());
 
 String encodeManifestPretty(SessionManifest m) =>
     const JsonEncoder.withIndent(' ').convert(m.toJson());
-

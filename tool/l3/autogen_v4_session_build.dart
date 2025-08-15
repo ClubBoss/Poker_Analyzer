@@ -57,8 +57,8 @@ void main(List<String> args) {
   final indexFile = File(indexPath);
   final index = PackIndex.loadIndex(indexFile);
   final entries = index.entries
-      .where((e) => e.preset == preset &&
-          (e.format == 'compact' || e.format == 'pretty'))
+      .where((e) =>
+          e.preset == preset && (e.format == 'compact' || e.format == 'pretty'))
       .toList()
     ..sort((a, b) => a.filename.compareTo(b.filename));
 
@@ -114,6 +114,6 @@ void main(List<String> args) {
 }
 
 void _usage() {
-  stdout.writeln('usage: --index=path [--filter-preset mvs] [--per-pack N] [--max-packs K] [--mode refs|inline] [--manifest-format compact|pretty] [--out dir] [--name file]');
+  stdout.writeln(
+      'usage: --index=path [--filter-preset mvs] [--per-pack N] [--max-packs K] [--mode refs|inline] [--manifest-format compact|pretty] [--out dir] [--name file]');
 }
-
