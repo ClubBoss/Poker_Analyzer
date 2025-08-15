@@ -5,6 +5,7 @@
 
 import 'package:flutter/material.dart';
 
+import 'daily_quick_play.dart';
 import 'demo_seed.dart';
 import 'mvs_player.dart';
 import 'plan_runner.dart';
@@ -46,6 +47,29 @@ class DevMenuPage extends StatelessWidget {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => const PlayFromPlanPage(
+                    planPath: 'out/plan/play_plan_v1.json',
+                    bundleDir: 'dist/training_v1',
+                  ),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            title: const Text('Daily quick play'),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const QuickDailyPlayPage(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            title: const Text('Daily quick play (custom)'),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const QuickDailyPlayPage(
                     planPath: 'out/plan/play_plan_v1.json',
                     bundleDir: 'dist/training_v1',
                   ),
