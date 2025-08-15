@@ -19,9 +19,7 @@ class LocalEvService {
       for (var i = 0; i < acts.length; i++) {
         final a = acts[i];
         if (a.playerIndex == hero &&
-            (a.action == 'push' ||
-                a.action == 'call' ||
-                a.action == 'raise')) {
+            (a.action == 'push' || a.action == 'call' || a.action == 'raise')) {
           acts[i] = a.copyWith(
             ev: computePushEV(
               heroBbStack: stack,
@@ -55,9 +53,7 @@ class LocalEvService {
       for (var i = 0; i < acts.length; i++) {
         final a = acts[i];
         if (a.playerIndex == hero &&
-            (a.action == 'push' ||
-                a.action == 'call' ||
-                a.action == 'raise')) {
+            (a.action == 'push' || a.action == 'call' || a.action == 'raise')) {
           final ev = computePushEV(
             heroBbStack: stack,
             bbCount: spot.hand.playerCount - 1,

@@ -31,7 +31,8 @@ final PluginRuntime pluginRuntime = PluginRuntime();
 
 Future<void> main(List<String> args) async {
   final parser = ArgParser()
-    ..addFlag('help', abbr: 'h', negatable: false, help: 'Show usage information.')
+    ..addFlag('help',
+        abbr: 'h', negatable: false, help: 'Show usage information.')
     ..addFlag(
       'demo',
       defaultsTo: true,
