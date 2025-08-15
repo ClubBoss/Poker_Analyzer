@@ -8,6 +8,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../widgets/active_timebar.dart';
 import 'models.dart';
 import 'result_summary.dart';
 
@@ -30,6 +31,10 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
   String? _chosen;
   bool _showExplain = false;
   bool _autoNext = false;
+  static const int _timeLimitMs = 10000; // 10s default
+  bool _timeEnabled = true; // can toggle
+  int _timeLeftMs = _timeLimitMs;
+  Timer? _timebarTicker; // separate from _ticker
 
   @override
   void initState() {
@@ -37,12 +42,14 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
     _spots = widget.spots;
     _timer.start();
     _startTicker();
+    _startTimebar();
   }
 
   @override
   void dispose() {
     _ticker?.cancel();
     _autoNextTimer?.cancel();
+    _timebarTicker?.cancel();
     _focusNode.dispose();
     super.dispose();
   }
@@ -53,10 +60,34 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
         Timer.periodic(const Duration(milliseconds: 200), (_) => setState(() {}));
   }
 
+  void _startTimebar() {
+    _timebarTicker?.cancel();
+    if (!_timeEnabled) {
+      _timeLeftMs = _timeLimitMs;
+      return;
+    }
+    _timeLeftMs = _timeLimitMs;
+    _timebarTicker =
+        Timer.periodic(const Duration(milliseconds: 100), (_) {
+      if (!mounted || _chosen != null) return;
+      setState(() {
+        _timeLeftMs -= 100;
+        if (_timeLeftMs <= 0) {
+          _timeLeftMs = 0;
+          _timebarTicker?.cancel();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Time up')),
+          );
+        }
+      });
+    });
+  }
+
   void _onAction(String action) {
     if (_chosen != null) return;
     _timer.stop();
     _ticker?.cancel();
+    _timebarTicker?.cancel();
     final spot = _spots[_index];
     final correct = action == spot.action;
     setState(() {
@@ -92,6 +123,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
         ..start();
     });
     _startTicker();
+    _startTimebar();
     _focusNode.requestFocus();
   }
 
@@ -108,6 +140,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
         ..start();
     });
     _startTicker();
+    _startTimebar();
     _focusNode.requestFocus();
   }
 
@@ -154,6 +187,13 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
           setState(() => _autoNext = !_autoNext);
           return;
         }
+        if (event.logicalKey == LogicalKeyboardKey.keyT) {
+          setState(() {
+            _timeEnabled = !_timeEnabled;
+            if (_chosen == null) _startTimebar();
+          });
+          return;
+        }
         if (_chosen == null) {
           if (event.logicalKey == LogicalKeyboardKey.digit1 &&
               actions.length > 0) {
@@ -184,31 +224,58 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Spot ${_index + 1}/${_spots.length}'),
-            Text(
-                't=${(_timer.elapsedMilliseconds / 1000).toStringAsFixed(1)}s'),
-          ],
-        ),
-        const SizedBox(height: 4),
-        LinearProgressIndicator(
-          value: (_index + 1) / _spots.length,
-        ),
-        const SizedBox(height: 4),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            const Text('Auto-next'),
-            Switch(
-              value: _autoNext,
-              onChanged: (v) => setState(() => _autoNext = v),
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                Text(
+                    't=${(_timer.elapsedMilliseconds / 1000).toStringAsFixed(1)}s'),
+              ],
             ),
-          ],
-        ),
-        Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+            const SizedBox(height: 4),
+            LinearProgressIndicator(
+              value: (_index + 1) / _spots.length,
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const Text('Answer timer'),
+                const Spacer(),
+                Switch(
+                  value: _timeEnabled,
+                  onChanged: (v) {
+                    setState(() {
+                      _timeEnabled = v;
+                      if (_chosen == null) _startTimebar();
+                    });
+                  },
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+              ],
+            ),
+            if (_chosen == null && _timeEnabled)
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: ActiveTimebar(
+                  totalMs: _timeLimitMs,
+                  startMs: _timeLeftMs,
+                  running: true,
+                  onTimeout: null,
+                ),
+              ),
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                const Text('Auto-next'),
+                Switch(
+                  value: _autoNext,
+                  onChanged: (v) => setState(() => _autoNext = v),
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+              ],
+            ),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
                   Text(
                     spot.hand,
                     textAlign: TextAlign.center,
