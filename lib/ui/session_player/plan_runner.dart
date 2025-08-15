@@ -91,6 +91,7 @@ class _PlayFromPlanPageState extends State<PlayFromPlanPage> {
   final String _progressPath = 'out/plan/plan_progress_v1.json';
   final _searchCtrl = TextEditingController();
   String _statusFilter = 'all';
+  bool _busy = false;
 
   @override
   void initState() {
@@ -182,6 +183,65 @@ class _PlayFromPlanPageState extends State<PlayFromPlanPage> {
                       ],
                     ),
                   ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: ElevatedButton(
+                    onPressed: filtered.isEmpty || _busy
+                        ? null
+                        : () async {
+                            setState(() => _busy = true);
+                            final deck = <UiSpot>[];
+                            try {
+                              for (final slice in filtered) {
+                                final spots = await loadSliceSpots(
+                                  bundleDir: Directory(widget.bundleDir),
+                                  slice: slice,
+                                );
+                                deck.addAll(spots);
+                              }
+                            } catch (e) {
+                              if (!context.mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Error: $e')),
+                              );
+                              if (!mounted) return;
+                              setState(() => _busy = false);
+                              return;
+                            }
+                            if (deck.isEmpty) {
+                              if (!context.mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('No spots')),
+                              );
+                              if (!mounted) return;
+                              setState(() => _busy = false);
+                              return;
+                            }
+                            if (!context.mounted) return;
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    Scaffold(body: MvsSessionPlayer(spots: deck)),
+                              ),
+                            );
+                            var updated = _progress;
+                            for (final s in filtered) {
+                              updated = markDone(updated, s.id, done: true);
+                            }
+                            await savePlanProgress(updated, path: _progressPath);
+                            if (!mounted) return;
+                            setState(() {
+                              _progress = updated;
+                              _busy = false;
+                            });
+                          },
+                    child: const Text('Play filtered'),
+                  ),
                 ),
               ),
               if (filtered.isEmpty)
