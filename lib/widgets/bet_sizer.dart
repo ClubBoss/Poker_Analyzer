@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class BetSizer extends StatefulWidget {
   // chips-based API
@@ -12,6 +13,7 @@ class BetSizer extends StatefulWidget {
   final ValueChanged<double> onChanged;
   final VoidCallback onConfirm;
   final double? recall; // last chosen amount in chips; null = hidden
+  final bool enableHotkeys;
 
   const BetSizer({
     super.key,
@@ -24,6 +26,7 @@ class BetSizer extends StatefulWidget {
     required this.onChanged,
     required this.onConfirm,
     this.recall,
+    this.enableHotkeys = true,
   });
 
   @override
@@ -33,6 +36,7 @@ class BetSizer extends StatefulWidget {
 class _BetSizerState extends State<BetSizer> {
   late double _value;
   Timer? _repeat;
+  final FocusNode _focus = FocusNode();
 
   @override
   void initState() {
@@ -73,6 +77,42 @@ class _BetSizerState extends State<BetSizer> {
     _repeat = null;
   }
 
+  void _onKey(RawKeyEvent event) {
+    if (event is! RawKeyDownEvent) return;
+    final key = event.logicalKey;
+    if (key == LogicalKeyboardKey.digit1) {
+      if (widget.recall != null) {
+        _set(widget.recall!.clamp(widget.min, widget.max).toDouble());
+      }
+    } else if (key == LogicalKeyboardKey.digit2) {
+      _set(_clamp(widget.pot * 0.25));
+    } else if (key == LogicalKeyboardKey.digit3) {
+      _set(_clamp(widget.pot * 0.5));
+    } else if (key == LogicalKeyboardKey.digit4) {
+      _set(_clamp(widget.pot * 2 / 3));
+    } else if (key == LogicalKeyboardKey.digit5) {
+      _set(_clamp(widget.pot * 0.75));
+    } else if (key == LogicalKeyboardKey.digit6) {
+      _set(_clamp(widget.pot));
+    } else if (key == LogicalKeyboardKey.keyL) {
+      _set(_clamp(widget.stack));
+    } else if (key == LogicalKeyboardKey.minus ||
+        key == LogicalKeyboardKey.numpadSubtract) {
+      _change(-widget.bb);
+    } else if (key == LogicalKeyboardKey.equal ||
+        key == LogicalKeyboardKey.numpadAdd) {
+      _change(widget.bb);
+    } else if (key == LogicalKeyboardKey.bracketLeft) {
+      _change(-widget.bb * 0.5);
+    } else if (key == LogicalKeyboardKey.bracketRight) {
+      _change(widget.bb * 0.5);
+    } else if (key == LogicalKeyboardKey.enter) {
+      widget.onConfirm();
+    } else if (key == LogicalKeyboardKey.escape) {
+      Navigator.maybePop(context);
+    }
+  }
+
   Widget _presetButton(String label, double target) {
     return OutlinedButton(
       onPressed: () => _set(target),
@@ -98,6 +138,7 @@ class _BetSizerState extends State<BetSizer> {
   @override
   void dispose() {
     _stopRepeat();
+    _focus.dispose();
     super.dispose();
   }
 
@@ -106,7 +147,7 @@ class _BetSizerState extends State<BetSizer> {
     final bbValue = _value / widget.bb;
     final chips = _value.round();
 
-    return Column(
+    final column = Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -185,6 +226,14 @@ class _BetSizerState extends State<BetSizer> {
           ],
         ),
       ],
+    );
+
+    if (!widget.enableHotkeys) return column;
+    return RawKeyboardListener(
+      focusNode: _focus,
+      autofocus: true,
+      onKey: _onKey,
+      child: column,
     );
   }
 }
