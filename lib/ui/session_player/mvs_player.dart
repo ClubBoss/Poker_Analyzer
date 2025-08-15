@@ -112,7 +112,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       timeEnabled: true,
       timeLimitMs: 10000,
       sound: false,
-      autoExplainOnWrong: false);
+      autoExplainOnWrong: false,
+      autoNextDelayMs: 600);
   bool _autoNext = false;
   int _timeLimitMs = 10000; // 10s default
   bool _timeEnabled = true; // can toggle
@@ -299,7 +300,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     });
     if (correct && _autoNext) {
       _autoNextTimer?.cancel();
-      _autoNextTimer = Timer(const Duration(milliseconds: 500), () {
+      final delay = Duration(milliseconds: _prefs.autoNextDelayMs);
+      _autoNextTimer = Timer(delay, () {
         if (!mounted) return;
         if (_chosen != null && _answers[_index].correct) _next();
       });
@@ -615,6 +617,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                       : _timeLimitMs,
                   sound: r["sound"] == true,
                   autoExplainOnWrong: r["autoExplainOnWrong"] == true,
+                  autoNextDelayMs: _prefs.autoNextDelayMs,
                 );
                 await saveUiPrefs(p);
                 if (!mounted) return;
