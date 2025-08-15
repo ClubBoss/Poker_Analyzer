@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'answer_log.dart';
+import 'log_saver.dart';
 import 'models.dart';
 import 'review_page.dart';
 
@@ -92,6 +93,24 @@ class ResultSummaryView extends StatelessWidget {
                   .showSnackBar(const SnackBar(content: Text('Copied')));
             },
             child: const Text('Export JSON'),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton(
+            onPressed: () async {
+              try {
+                final path = await saveAnswerLogJson(
+                  spots: spots,
+                  answers: answers,
+                  format: 'pretty',
+                );
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(SnackBar(content: Text('Saved: $path')));
+              } catch (e) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(SnackBar(content: Text('Error: $e')));
+              }
+            },
+            child: const Text('Save to file'),
           ),
         ],
       ),
