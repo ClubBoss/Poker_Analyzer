@@ -23,6 +23,12 @@ class _RewardGalleryScreenState extends State<RewardGalleryScreen> {
     _rendererFuture = RewardCardRendererService.create();
   }
 
+  void _reload() {
+    setState(() {
+      _future = RewardGalleryGroupByTrackService.instance.getGroupedRewards();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,8 +36,23 @@ class _RewardGalleryScreenState extends State<RewardGalleryScreen> {
       body: FutureBuilder<List<TrackRewardGroup>>(
         future: _future,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('Не удалось загрузить награды'),
+                  const SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: _reload,
+                    child: const Text('Повторить'),
+                  ),
+                ],
+              ),
+            );
           }
           final groups = snapshot.data!;
           if (groups.isEmpty) {
@@ -42,8 +63,7 @@ class _RewardGalleryScreenState extends State<RewardGalleryScreen> {
             children: [
               for (final g in groups) ...[
                 ListTile(
-                  leading:
-                      const Icon(Icons.card_giftcard, color: Colors.orange),
+                  leading: const Icon(Icons.card_giftcard, color: Colors.orange),
                   title: Text(g.trackTitle),
                   trailing: IconButton(
                     icon: const Icon(Icons.share),
@@ -63,8 +83,8 @@ class _RewardGalleryScreenState extends State<RewardGalleryScreen> {
                         if (img.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                                content:
-                                    Text('Не удалось сгенерировать карточку')),
+                              content: Text('Не удалось сгенерировать карточку'),
+                            ),
                           );
                           return;
                         }
@@ -77,8 +97,8 @@ class _RewardGalleryScreenState extends State<RewardGalleryScreen> {
                         nav.pop();
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                              content:
-                                  Text('Не удалось сгенерировать карточку')),
+                            content: Text('Не удалось сгенерировать карточку'),
+                          ),
                         );
                       }
                     },
