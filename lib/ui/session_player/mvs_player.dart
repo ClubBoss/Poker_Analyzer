@@ -451,6 +451,23 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       'acc': acc,
       'total': total,
       'correct': correct,
+      'spots': [
+        for (final s in _spots)
+          {
+            'k': s.kind.index,
+            'h': s.hand,
+            'p': s.pos,
+            's': s.stack,
+            'a': s.action,
+            if (s.vsPos != null) 'v': s.vsPos,
+            if (s.limpers != null) 'l': s.limpers,
+            if (s.explain != null) 'e': s.explain,
+          }
+      ],
+      'wrongIdx': [
+        for (var i = 0; i < _answers.length; i++)
+          if (!_answers[i].correct) i
+      ],
     };
     try {
       final dir = Directory('out');
