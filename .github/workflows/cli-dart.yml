@@ -24,9 +24,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: dart-lang/setup-dart@v1
+      # Flutter включает Dart SDK
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
-          sdk: stable
+          channel: stable
+          cache: true
 
       - name: Cache Pub
         uses: actions/cache@v4
@@ -38,12 +41,11 @@ jobs:
           restore-keys: |
             pub-${{ runner.os }}-
 
-      - name: Pub get
-        run: dart pub get
+      - name: Pub get (Flutter)
+        run: flutter pub get
 
       - name: ASCII gate
         run: |
-          # fail on smart punctuation / non-ascii bytes in tracked text files
           if git grep -I -n -E '[\x80-\xFF]|[–—…]'; then
             echo "::error title=ASCII gate::Smart punctuation or non-ASCII bytes detected"
             exit 1
