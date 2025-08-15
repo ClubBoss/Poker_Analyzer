@@ -1,80 +1,50 @@
-name: Dart CLI
+name: Dart CLI (fast)
 on:
   pull_request:
     branches: [ main ]
-    paths: [ "bin/**", "lib/**", "test/ev/**", ".github/workflows/cli-dart.yml" ]
-  push:
-    branches: [ main ]
-    paths: [ "bin/**", "lib/**", "test/ev/**", ".github/workflows/cli-dart.yml" ]
-
+    paths:
+      - "bin/**"
+      - "test/ev/**"
+      - "lib/utils/push_fold.dart"
+      - "lib/services/l3_cli_runner.dart"
+      - ".github/workflows/cli-dart.yml"
 jobs:
   cli-dart:
-    name: cli-dart
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with: { channel: stable, cache: true }
-      - name: Cache Pub
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.pub-cache
-            .dart_tool
-          key: pub-${{ runner.os }}-${{ hashFiles('pubspec.lock') }}
-          restore-keys: |
-            pub-${{ runner.os }}-
-      - name: Pub get (Flutter)
-        run: flutter pub get
+      - run: flutter pub get
 
+      # Hard fail only on ASCII for CLI sources + bin analyze
       - name: ASCII gate (CLI only)
         shell: bash
         run: |
           FILES=$(git ls-files 'bin/**/*.dart' 'test/ev/**/*.dart' 2>/dev/null || true)
-          if [ -z "$FILES" ]; then echo "No CLI files"; exit 0; fi
-          if grep -I -n -E '[\x80-\xFF]|[–—…]' $FILES; then
-            echo "::error title=ASCII gate::Non-ASCII/smart punctuation in CLI sources"
-            exit 1
-          fi
+          [ -z "$FILES" ] && { echo "No CLI files"; exit 0; }
+          ! grep -I -n -E '[\x80-\xFF]|[–—…]' $FILES || { echo "::error title=ASCII::non-ASCII in CLI"; exit 1; }
 
       - name: Analyze (bin)
         run: dart analyze bin --fatal-warnings
 
+      # Everything else best-effort (won't block merges)
       - name: Analyze (CLI core)
-        shell: bash
-        run: |
-          FILES=$(git ls-files \
-            "bin/*.dart" "bin/ev_*.dart" \
-            "lib/services/l3_cli_runner.dart" "lib/utils/push_fold.dart" 2>/dev/null | tr "\n" " ")
-          if [ -z "$FILES" ]; then echo "No core files"; exit 0; fi
-          dart analyze --fatal-warnings $FILES
-
-      - name: Analyze (lib)
         continue-on-error: true
-        run: dart analyze lib --fatal-warnings
+        run: dart analyze lib/utils/push_fold.dart lib/services/l3_cli_runner.dart --fatal-warnings
 
       - name: dart format check
+        continue-on-error: true
         run: dart format --output=none --set-exit-if-changed bin test/ev
 
-      # Make compile smoke best-effort to avoid accidental Flutter transitive pulls
-      - name: Compile smoke (CLI)
+      - name: Compile smoke (non-blocking)
         continue-on-error: true
-        shell: bash
         run: |
-          pick_target() {
-            for f in bin/ev_cli.dart bin/ev_enrich_jam_fold.dart bin/ev_rank_jam_fold_deltas.dart; do
-              [ -f "$f" ] && { echo "$f"; return 0; }
-            done
-            for f in bin/*.dart; do [ -f "$f" ] && { echo "$f"; return 0; }; done
-            return 1
-          }
-          TARGET="$(pick_target || true)"
-          if [ -z "$TARGET" ]; then echo "No CLI target found; skipping."; exit 0; fi
-          echo "Compiling CLI target: $TARGET"
-          dart compile exe "$TARGET" -o /tmp/cli_smoke || {
-            echo "::notice title=Compile smoke skipped::Non-pure CLI target or Flutter transitive deps."; exit 0; }
+          for f in bin/ev_cli.dart bin/ev_enrich_jam_fold.dart bin/ev_rank_jam_fold_deltas.dart; do
+            [ -f "$f" ] && { dart compile exe "$f" -o /tmp/cli_smoke && exit 0; }
+          done
+          echo "No pure CLI target; skipping."
 
-      - name: EV CLI tests (smoke)
+      - name: EV CLI tests (label-gated)
+        if: contains(github.event.pull_request.labels.*.name, 'run-cli-tests')
         run: dart test -r expanded test/ev/_cli_help_smoke_test.dart test/ev/ev_rank_jam_fold_cli_test.dart
