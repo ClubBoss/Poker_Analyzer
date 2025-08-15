@@ -89,7 +89,7 @@ TargetMixConfig? extractTargetMix(String weights) {
 
   return mix != null
       ? TargetMixConfig(
-          mix: mix!,
+          mix: mix,
           tolerance: defaultTol,
           byKeyTol: byKeyTol,
           minTotal: minTotal,
