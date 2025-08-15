@@ -10,6 +10,7 @@ import 'demo_seed.dart';
 import 'mvs_player.dart';
 import 'plan_runner.dart';
 import 'quickstart_launcher.dart';
+import 'mistakes_quick_play.dart';
 
 class DevMenuPage extends StatelessWidget {
   const DevMenuPage({super.key});
@@ -86,6 +87,16 @@ class DevMenuPage extends StatelessWidget {
                     initialManifest:
                         'out/l4_sessions/session_icm_v1_mvs_k1_n20.json',
                   ),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            title: const Text('Mistakes quick play'),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const QuickMistakesPlayPage(),
                 ),
               );
             },
