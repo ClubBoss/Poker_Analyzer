@@ -4,7 +4,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-enum FeedKind { l2_session, l3_session }
+enum FeedKind { l2_session, l3_session, l4_session }
 
 class LoadedSession {
   final FeedKind kind;
@@ -63,6 +63,9 @@ LoadedBundle loadTrainingBundle({
       case 'l3_session':
         kind = FeedKind.l3_session;
         break;
+      case 'l4_session':
+        kind = FeedKind.l4_session;
+        break;
       default:
         throw const FormatException('unknown kind');
     }
@@ -76,11 +79,13 @@ LoadedBundle loadTrainingBundle({
     int count;
     if (kind == FeedKind.l2_session) {
       count = _asList(sessionMap['items']).length;
-    } else {
+    } else if (kind == FeedKind.l3_session) {
       final inline = _asList(sessionMap['inlineItems']);
       count = inline.isNotEmpty
           ? inline.length
           : _asList(sessionMap['items']).length;
+    } else {
+      count = _asList(sessionMap['items']).length;
     }
 
     loaded.add(LoadedSession(kind: kind, path: path, count: count));

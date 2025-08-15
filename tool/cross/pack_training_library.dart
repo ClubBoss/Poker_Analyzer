@@ -68,6 +68,7 @@ void main(List<String> args) {
   final files = <Map<String, dynamic>>[];
   var l2 = 0;
   var l3 = 0;
+  var l4 = 0;
 
   for (final ref in refs) {
     final src = File(ref.path);
@@ -91,6 +92,8 @@ void main(List<String> args) {
       l2++;
     } else if (ref.kind == 'l3_session') {
       l3++;
+    } else if (ref.kind == 'l4_session') {
+      l4++;
     }
   }
 
@@ -108,7 +111,7 @@ void main(List<String> args) {
       .writeAsStringSync(encoder.convert(index));
 
   stdout.writeln(
-    'packed training_v1 out=$outDir files=${files.length} l2=$l2 l3=$l3 layout=$layout',
+    'packed training_v1 out=$outDir files=${files.length} l2=$l2 l3=$l3 l4=$l4 layout=$layout',
   );
 }
 
