@@ -52,6 +52,10 @@ void main(List<String> args) {
   }
 
   final refs = readFeedRefs(feedFile);
+  if (refs.isEmpty) {
+    stderr.writeln('invalid or empty feed: $feedPath');
+    exit(2);
+  }
   final plan = buildPlayPlan(refs, target: target, maxSlices: maxSlices);
   var l2Count = 0;
   var l3Count = 0;
