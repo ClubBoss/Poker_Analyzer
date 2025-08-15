@@ -112,6 +112,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       timeEnabled: true,
       timeLimitMs: 10000,
       sound: false,
+      haptics: true,
       autoWhyOnWrong: true,
       autoNextDelayMs: 600);
   bool _autoNext = false;
@@ -192,7 +193,11 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Time up')),
           );
-          try { HapticFeedback.vibrate(); } catch (_) {}
+          if (_prefs.haptics) {
+            try {
+              HapticFeedback.vibrate();
+            } catch (_) {}
+          }
         }
       });
     });
@@ -243,14 +248,22 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       _startTicker();
       if (_chosen == null && _timeEnabled) _startTimebar();
       unawaited(showMiniToast(context, 'Resumed'));
-      try { HapticFeedback.selectionClick(); } catch (_) {}
+      if (_prefs.haptics) {
+        try {
+          HapticFeedback.selectionClick();
+        } catch (_) {}
+      }
     } else {
       _ticker?.cancel();
       _timebarTicker?.cancel();
       _timer.stop();
       setState(() => _paused = true);
       unawaited(showMiniToast(context, 'Paused'));
-      try { HapticFeedback.selectionClick(); } catch (_) {}
+      if (_prefs.haptics) {
+        try {
+          HapticFeedback.selectionClick();
+        } catch (_) {}
+      }
     }
   }
 
@@ -262,13 +275,15 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     final spot = _spots[_index];
     final correct = action == spot.action;
     // mobile haptics
-    try {
-      if (correct) {
-        HapticFeedback.lightImpact();
-      } else {
-        HapticFeedback.mediumImpact();
-      }
-    } catch (_) {}
+    if (_prefs.haptics) {
+      try {
+        if (correct) {
+          HapticFeedback.lightImpact();
+        } else {
+          HapticFeedback.mediumImpact();
+        }
+      } catch (_) {}
+    }
     if (_prefs.sound) {
       SystemSound.play(
           correct ? SystemSoundType.click : SystemSoundType.alert);
@@ -325,7 +340,11 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     _startTicker();
     _startTimebar();
     unawaited(_saveProgress());
-    try { HapticFeedback.selectionClick(); } catch (_) {}
+    if (_prefs.haptics) {
+      try {
+        HapticFeedback.selectionClick();
+      } catch (_) {}
+    }
     unawaited(showMiniToast(context, 'Undo'));
   }
 
@@ -357,7 +376,11 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       _focusNode.requestFocus();
     }
     unawaited(_saveProgress());
-    try { HapticFeedback.selectionClick(); } catch (_) {}
+    if (_prefs.haptics) {
+      try {
+        HapticFeedback.selectionClick();
+      } catch (_) {}
+    }
     unawaited(showMiniToast(context, 'Skipped'));
   }
 
@@ -518,6 +541,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                   bool timeEnabled = _timeEnabled;
                   int limit = _timeLimitMs;
                   bool sound = _prefs.sound;
+                  bool haptics = _prefs.haptics;
                   bool autoWhy = _prefs.autoWhyOnWrong;
                   final ctrl =
                       TextEditingController(text: limit.toString());
@@ -572,6 +596,17 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                         ]),
                         const SizedBox(height: 8),
                         Row(children: [
+                          const Text('Haptics'),
+                          const Spacer(),
+                          Switch(
+                              value: haptics,
+                              onChanged: (v) {
+                                haptics = v;
+                                (ctx as Element).markNeedsBuild();
+                              })
+                        ]),
+                        const SizedBox(height: 8),
+                        Row(children: [
                           const Text('Auto Why on wrong'),
                           const Spacer(),
                           Switch(
@@ -596,6 +631,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                                   "timeEnabled": timeEnabled,
                                   "timeLimitMs": limit,
                                   "sound": sound,
+                                  "haptics": haptics,
                                   "autoWhyOnWrong": autoWhy,
                                 });
                               },
@@ -616,6 +652,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                       ? r["timeLimitMs"] as int
                       : _timeLimitMs,
                   sound: r["sound"] == true,
+                  haptics: r["haptics"] == true,
                   autoWhyOnWrong: r["autoWhyOnWrong"] == true,
                   autoNextDelayMs: _prefs.autoNextDelayMs,
                 );
