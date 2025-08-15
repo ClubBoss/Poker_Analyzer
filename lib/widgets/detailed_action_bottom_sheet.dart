@@ -146,7 +146,7 @@ class _DetailedActionSheetState extends State<_DetailedActionSheet> {
               min: 1,
               max: widget.stackSizeBB.toDouble(),
               value: _amount,
-              bb: 1,
+              bb: 1.0,
               pot: widget.potSizeBB.toDouble(),
               stack: widget.stackSizeBB.toDouble(),
               onChanged: (v) => setState(() => _amount = v),
