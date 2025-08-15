@@ -46,82 +46,33 @@ Future<List<UiSpot>> loadSliceSpots({
   required Directory bundleDir,
   required PlanSlice slice,
 }) async {
-  final path = slice.file.startsWith('/')
+  final resolvedPath = slice.file.startsWith('/')
       ? slice.file
       : '${bundleDir.path}/${slice.file}';
-  final jsonStr = await File(path).readAsString();
-  List<UiSpot> spots = [];
-  if (slice.kind == 'l3_session') {
-    // TODO: replace with direct L3 decoder once schema stabilizes
-    final root = jsonDecode(jsonStr);
-    final inlineItems = root['inlineItems'];
-    if (inlineItems is List) {
-      for (final raw in inlineItems) {
-        if (raw is! Map) continue;
-        final kind = raw['kind'];
-        SpotKind? spotKind;
-        switch (kind) {
-          case 'open_fold':
-            spotKind = SpotKind.l2_open_fold;
-            break;
-          case 'threebet_push':
-            spotKind = SpotKind.l2_threebet_push;
-            break;
-          case 'limped':
-            spotKind = SpotKind.l2_limped;
-            break;
-        }
-        if (spotKind == null) continue;
-        spots.add(UiSpot(
-          kind: spotKind,
-          hand: '${raw['hand']}',
-          pos: '${raw['pos']}',
-          stack: '${raw['stack']}',
-          action: '${raw['action']}',
-          vsPos: raw['vsPos']?.toString(),
-          limpers: raw['limpers']?.toString(),
-        ));
-      }
-    } else {
-      final items = root['items'];
-      if (items is List) {
-        for (final entry in items) {
-          String? filePath;
-          if (entry is String) {
-            filePath = entry;
-          } else if (entry is Map) {
-            final f = entry['file'];
-            if (f is String) filePath = f;
-          }
-          if (filePath == null) continue;
-          if (!filePath.startsWith('/') &&
-              !(filePath.length > 1 && filePath[1] == ':')) {
-            filePath = '${bundleDir.path}/$filePath';
-          }
-          final text = await File(filePath).readAsString();
-          spots.addAll(decodeL2SessionJson(text));
-        }
-      }
-    }
-    if (spots.isEmpty) throw Exception('empty session');
-  } else {
-    switch (slice.kind) {
-      case 'l2_session':
-        spots = decodeL2SessionJson(jsonStr);
-        break;
-      case 'l4_session':
-        spots = decodeL4IcmSessionJson(jsonStr);
-        break;
-      default:
-        spots = [];
-    }
+  final jsonStr = await File(resolvedPath).readAsString();
+  List<UiSpot> spots;
+  switch (slice.kind) {
+    case 'l2_session':
+      spots = decodeL2SessionJson(jsonStr);
+      break;
+    case 'l3_session':
+      spots = await decodeL3SessionJson(jsonStr,
+          baseDir: File(resolvedPath).parent.path);
+      break;
+    case 'l4_session':
+      spots = decodeL4IcmSessionJson(jsonStr);
+      break;
+    default:
+      spots = [];
   }
   var start = slice.start;
   if (start < 0) start = 0;
   if (start > spots.length) start = spots.length;
   var end = slice.count <= 0 ? spots.length : start + slice.count;
   if (end > spots.length) end = spots.length;
-  return spots.sublist(start, end);
+  final sub = spots.sublist(start, end);
+  if (sub.isEmpty) throw Exception('empty slice');
+  return sub;
 }
 
 class PlayFromPlanPage extends StatefulWidget {
