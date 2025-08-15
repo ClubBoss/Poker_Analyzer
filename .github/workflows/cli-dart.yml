@@ -1,4 +1,5 @@
 name: Dart CLI (fast)
+
 on:
   pull_request:
     branches: [ main ]
@@ -8,13 +9,16 @@ on:
       - "lib/utils/push_fold.dart"
       - "lib/services/l3_cli_runner.dart"
       - ".github/workflows/cli-dart.yml"
+
 jobs:
   cli-dart:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
-        with: { channel: stable, cache: true }
+        with:
+          channel: stable
+          cache: true
       - run: flutter pub get
 
       # Hard fail only on ASCII for CLI sources + bin analyze
@@ -28,7 +32,7 @@ jobs:
       - name: Analyze (bin)
         run: dart analyze bin --fatal-warnings
 
-      # Everything else best-effort (won't block merges)
+      # CLI core analysis is non-blocking
       - name: Analyze (CLI core)
         continue-on-error: true
         run: dart analyze lib/utils/push_fold.dart lib/services/l3_cli_runner.dart --fatal-warnings
