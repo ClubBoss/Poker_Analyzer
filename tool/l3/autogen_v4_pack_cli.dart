@@ -26,7 +26,9 @@ void main(List<String> args) {
 
   final seed = int.tryParse(seedStr ?? '');
   final count = int.tryParse(countStr ?? '40');
-  if (seed == null || count == null || preset != 'mvs' ||
+  if (seed == null ||
+      count == null ||
+      preset != 'mvs' ||
       (format != 'compact' && format != 'pretty')) {
     _usage();
     exit(2);
