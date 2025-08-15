@@ -1,14 +1,10 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'answer_log.dart';
-import 'log_saver.dart';
 import 'models.dart';
-import 'review_page.dart';
+import 'session_export.dart';
 
-class ResultSummaryView extends StatelessWidget {
+class ResultSummaryView extends StatefulWidget {
   final List<UiSpot> spots;
   final List<UiAnswer> answers;
   final VoidCallback onReplayErrors;
@@ -23,97 +19,114 @@ class ResultSummaryView extends StatelessWidget {
   });
 
   @override
+  State<ResultSummaryView> createState() => _ResultSummaryViewState();
+}
+
+class _ResultSummaryViewState extends State<ResultSummaryView> {
+  bool _errorsOnly = false;
+
+  @override
   Widget build(BuildContext context) {
-    final correct = answers.where((a) => a.correct).length;
+    final spots = widget.spots;
+    final answers = widget.answers;
     final total = answers.length;
-    final totalTime =
-        answers.fold(Duration.zero, (d, a) => d + a.elapsed);
-    final totalSecs = totalTime.inMilliseconds / 1000;
-    final avgSecs = total > 0 ? totalSecs / total : 0;
-    final percent = total > 0 ? (correct / total * 100).round() : 0;
-    final mistakes = <SpotKind, int>{};
-    for (var i = 0; i < spots.length; i++) {
-      if (!answers[i].correct) {
-        final kind = spots[i].kind;
-        mistakes[kind] = (mistakes[kind] ?? 0) + 1;
-      }
+    final correct = answers.where((a) => a.correct).length;
+    final acc = total == 0 ? 0.0 : correct / total;
+
+    final indices = <int>[];
+    for (var i = 0; i < answers.length && i < spots.length; i++) {
+      if (!_errorsOnly || !answers[i].correct) indices.add(i);
     }
 
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            'Result: $correct/$total ($percent%)',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Total: ${totalSecs.toStringAsFixed(1)}s • Avg: ${avgSecs.toStringAsFixed(1)}s',
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          ...mistakes.entries
-              .map((e) => Text('${e.key.name}: ${e.value}')),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: onReplayErrors,
-            child: const Text('Replay errors'),
-          ),
-          const SizedBox(height: 8),
-          OutlinedButton(
-            onPressed: onRestart,
-            child: const Text('Restart'),
-          ),
-          const SizedBox(height: 8),
-          OutlinedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ReviewAnswersPage(
-                    spots: spots,
-                    answers: answers,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Accuracy ${(acc * 100).toStringAsFixed(0)}% ($correct/$total)'),
+              Row(
+                children: [
+                  const Text('Only errors'),
+                  Switch(
+                    value: _errorsOnly,
+                    onChanged: (v) => setState(() => _errorsOnly = v),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-                ),
-              );
-            },
-            child: const Text('Review answers'),
+                ],
+              ),
+            ],
           ),
           const SizedBox(height: 8),
-          OutlinedButton(
-            onPressed: () async {
-              final json = const JsonEncoder.withIndent('  ')
-                  .convert(buildAnswerLog(spots, answers).toJson());
-              await Clipboard.setData(ClipboardData(text: json));
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(const SnackBar(content: Text('Copied')));
-            },
-            child: const Text('Export JSON'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              OutlinedButton(
+                onPressed: widget.onReplayErrors,
+                child: const Text('Replay errors'),
+              ),
+              const SizedBox(width: 8),
+              OutlinedButton(
+                onPressed: () async {
+                  final json = buildSessionJson(spots: spots, answers: answers);
+                  final path = await saveSessionJson(json);
+                  await Clipboard.setData(ClipboardData(text: path));
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(SnackBar(content: Text('Saved to $path')));
+                  }
+                },
+                child: const Text('Export JSON'),
+              ),
+              const SizedBox(width: 8),
+              OutlinedButton(
+                onPressed: () async {
+                  final json = buildSessionJson(spots: spots, answers: answers);
+                  await Clipboard.setData(ClipboardData(text: json));
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(const SnackBar(content: Text('Summary copied')));
+                  }
+                },
+                child: const Text('Copy JSON'),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          OutlinedButton(
-            onPressed: () async {
-              try {
-                final path = await saveAnswerLogJson(
-                  spots: spots,
-                  answers: answers,
-                  format: 'pretty',
+          const SizedBox(height: 12),
+          Expanded(
+            child: ListView.separated(
+              itemCount: indices.length,
+              separatorBuilder: (_, __) => const Divider(height: 1),
+              itemBuilder: (_, idx) {
+                final i = indices[idx];
+                final s = spots[i];
+                final a = answers[i];
+                return ListTile(
+                  leading: Icon(
+                    a.correct ? Icons.check_circle : Icons.cancel,
+                    color: a.correct ? Colors.green : Colors.red,
+                  ),
+                  title: Text('Spot ${i + 1} — ${s.hand}'),
+                  subtitle: Text(
+                    'Expected: ${a.expected} • Chosen: ${a.chosen} • ${a.elapsed.inMilliseconds} ms',
+                  ),
+                  onTap: () {
+                    // Optional: future hook to open a single-spot review
+                  },
                 );
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(SnackBar(content: Text('Saved: $path')));
-              } catch (e) {
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(SnackBar(content: Text('Error: $e')));
-              }
-            },
-            child: const Text('Save to file'),
+              },
+            ),
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton(
+            onPressed: widget.onRestart,
+            child: const Text('Restart'),
           ),
         ],
       ),
     );
   }
 }
+
