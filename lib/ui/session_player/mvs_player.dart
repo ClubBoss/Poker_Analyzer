@@ -6,6 +6,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart'; // for kIsWeb & defaultTargetPlatform
 import 'package:flutter/services.dart';
 
 import '../../widgets/active_timebar.dart';
@@ -45,6 +46,11 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   late final Animation<double> _answerPulse;
   Color? _answerFlashColor;
   Timer? _answerFlashTimer;
+
+  bool get _showHotkeys =>
+      kIsWeb ||
+      const {TargetPlatform.macOS, TargetPlatform.windows, TargetPlatform.linux}
+          .contains(defaultTargetPlatform);
 
   @override
   void initState() {
@@ -106,6 +112,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Time up')),
           );
+          try { HapticFeedback.vibrate(); } catch (_) {}
         }
       });
     });
@@ -118,6 +125,14 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     _timebarTicker?.cancel();
     final spot = _spots[_index];
     final correct = action == spot.action;
+    // mobile haptics
+    try {
+      if (correct) {
+        HapticFeedback.lightImpact();
+      } else {
+        HapticFeedback.mediumImpact();
+      }
+    } catch (_) {}
     if (_prefs.sound) {
       SystemSound.play(
           correct ? SystemSoundType.click : SystemSoundType.alert);
@@ -168,6 +183,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     });
     _startTicker();
     _startTimebar();
+    try { HapticFeedback.selectionClick(); } catch (_) {}
     unawaited(showMiniToast(context, 'Undo'));
   }
 
@@ -198,6 +214,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       _startTimebar();
       _focusNode.requestFocus();
     }
+    try { HapticFeedback.selectionClick(); } catch (_) {}
     unawaited(showMiniToast(context, 'Skipped'));
   }
 
@@ -294,17 +311,18 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             onPressed:
                 (_index >= _spots.length || _chosen != null) ? null : _skip,
           ),
-          IconButton(
-            icon: const Icon(Icons.help_outline),
-            onPressed: () {
-              showModalBottomSheet<void>(
-                context: context,
-                backgroundColor: Colors.black87,
-                isScrollControlled: false,
-                builder: (_) => const HotkeysSheet(),
-              );
-            },
-          ),
+          if (_showHotkeys)
+            IconButton(
+              icon: const Icon(Icons.help_outline),
+              onPressed: () {
+                showModalBottomSheet<void>(
+                  context: context,
+                  backgroundColor: Colors.black87,
+                  isScrollControlled: false,
+                  builder: (_) => const HotkeysSheet(),
+                );
+              },
+            ),
           IconButton(
             icon: const Icon(Icons.tune),
             onPressed: () async {
