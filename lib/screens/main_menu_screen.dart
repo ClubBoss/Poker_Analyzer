@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,6 +29,7 @@ import 'weakness_overview_screen.dart';
 import 'training_home_screen.dart';
 import 'ready_to_train_screen.dart';
 import '../ui/history/history_screen.dart';
+import '../ui/session_player/models.dart';
 import '../ui/session_player/mvs_player.dart';
 import '../widgets/lesson_suggestion_banner.dart';
 import '../widgets/smart_decay_goal_banner.dart';
@@ -66,6 +70,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   List<GoalRecommendation> _goalSuggestions = [];
   bool _loadingSuggestions = true;
   bool _resumeAvailable = false;
+  List<UiSpot> _replaySpots = [];
 
   Widget _buildStreakIndicator(BuildContext context) {
     final streak = context.watch<StreakService>().count;
@@ -114,6 +119,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     _loadDismissed();
     _loadGoalSuggestions();
     _loadResumeFlag();
+    _loadReplaySpots();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         context.read<StreakService>().updateStreak();
@@ -147,6 +153,60 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     setState(() {
       _resumeAvailable = prefs.getBool('resume_active') ?? false;
     });
+  }
+
+  Future<void> _loadReplaySpots() async {
+    try {
+      final file = File('out/sessions_history.jsonl');
+      if (!await file.exists()) return;
+      final lines = await file.readAsLines();
+      for (final line in lines) {
+        if (line.trim().isEmpty) continue;
+        try {
+          final obj = jsonDecode(line);
+          if (obj is Map<String, dynamic>) {
+            final spots = _parseSpots(obj['spots']);
+            if (spots.isNotEmpty) {
+              if (!mounted) return;
+              setState(() => _replaySpots = spots);
+            }
+            break;
+          }
+        } catch (_) {}
+      }
+    } catch (_) {}
+  }
+
+  List<UiSpot> _parseSpots(Object? raw) {
+    final out = <UiSpot>[];
+    if (raw is List) {
+      for (final e in raw) {
+        if (e is Map<String, dynamic>) {
+          final k = e['k'], h = e['h'], p = e['p'], st = e['s'], a = e['a'];
+          if (k is int &&
+              k >= 0 &&
+              k < SpotKind.values.length &&
+              h is String &&
+              p is String &&
+              st is String &&
+              a is String) {
+            out.add(
+              UiSpot(
+                kind: SpotKind.values[k],
+                hand: h,
+                pos: p,
+                stack: st,
+                action: a,
+                vsPos: e['v'] as String?,
+                limpers: e['l'] as String?,
+                explain: e['e'] as String?,
+              ),
+            );
+          }
+        }
+      }
+    }
+    return out;
   }
 
   Future<void> _discardResume() async {
@@ -185,8 +245,11 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         MaterialPageRoute(builder: (_) => const OnboardingScreen()),
       );
       if (mounted) {
-        setState(() => _tutorialCompleted =
-            context.read<UserPreferencesService>().tutorialCompleted);
+        setState(
+          () => _tutorialCompleted = context
+              .read<UserPreferencesService>()
+              .tutorialCompleted,
+        );
       }
     });
   }
@@ -221,10 +284,6 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     }
   }
 
-
-
-
-
   Future<void> _toggleDemoMode(bool value) async {
     setState(() => _demoMode = value);
     await context.read<UserPreferencesService>().setDemoMode(value);
@@ -235,12 +294,11 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       );
     }
   }
+}
 
-
-  }
-
-  void _startTutorial() {
-    final flow = TutorialFlow([
+void _startTutorial() {
+  final flow = TutorialFlow(
+    [
       TutorialStep(
         targetKey: _trainingButtonKey,
         description: 'Выберите тренировочный пак',
@@ -248,7 +306,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           Navigator.push(
             ctx,
             MaterialPageRoute(
-                builder: (_) => TrainingHomeScreen(tutorial: flow)),
+              builder: (_) => TrainingHomeScreen(tutorial: flow),
+            ),
           );
         },
       ),
@@ -283,7 +342,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         description: 'Экспортируйте результаты для дальнейшего изучения',
         onNext: (_, __) {},
       ),
-    ], onComplete: () {
+    ],
+    onComplete: () {
       setState(() => _tutorialCompleted = true);
       Navigator.push(
         context,
@@ -297,218 +357,256 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           ),
         ),
       );
-    });
+    },
+  );
 
-    flow.start(context);
-  }
+  flow.start(context);
+}
 
-  @override
-  void dispose() {
-    context.read<StreakService>().removeListener(_onStreakChanged);
-    super.dispose();
-  }
+@override
+void dispose() {
+  context.read<StreakService>().removeListener(_onStreakChanged);
+  super.dispose();
+}
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF121212),
-      appBar: AppBar(
-        title: const Text('Poker AI Analyzer'),
-        centerTitle: true,
-        actions: [
-          SyncStatusIcon.of(context),
-          _buildStreakIndicator(context),
-          if (!_tutorialCompleted)
-            IconButton(
-              icon: const Icon(Icons.help_outline),
-              onPressed: _startTutorial,
-            ),
-        ],
-      ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const LessonSuggestionBanner(),
-                    const SmartDecayGoalBanner(),
-                    const SmartMistakeGoalBanner(),
-                    if (!_loadingSuggestions && _goalSuggestions.isNotEmpty)
-                      GoalSuggestionRow(recommendations: _goalSuggestions),
-                    const GoalReengagementBanner(),
-                    const SmartRecapSuggestionBanner(),
-                    const RecoveryPromptBanner(),
-                    const RecapBannerWidget(),
-                    MainMenuSuggestedBanner(
-                      suggestedDismissed: _suggestedDismissed,
-                      dismissedDate: _dismissedDate,
-                      onDismissed: _dismissSuggestedBanner,
-                      onClearDismissed: _clearDismissed,
-                    ),
-                    MainMenuStreakCard(showPopup: _showStreakPopup),
-                    const MainMenuDailyGoalCard(),
-                    const FocusOfTheWeekCard(),
-                    const MainMenuProgressCard(),
-                    if (_spotOfDay != null)
-                      MainMenuSpotOfDaySection(spot: _spotOfDay!),
-                    const SkillTreeMainMenuEntry(),
-                    if (_resumeAvailable)
-                      ListTile(
-                        leading:
-                            const Icon(Icons.play_circle, color: Colors.white),
-                        title: const Text('Resume session'),
-                        trailing:
-                            TextButton(onPressed: _discardResume, child: const Text('Discard')),
-                        onTap: () async {
-                          final player = await MvsSessionPlayer.fromSaved();
-                          if (player == null) {
-                            await _discardResume();
-                            return;
-                          }
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => Scaffold(body: player)),
-                          );
-                          _loadResumeFlag();
-                        },
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: const Color(0xFF121212),
+    appBar: AppBar(
+      title: const Text('Poker AI Analyzer'),
+      centerTitle: true,
+      actions: [
+        SyncStatusIcon.of(context),
+        _buildStreakIndicator(context),
+        if (!_tutorialCompleted)
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            onPressed: _startTutorial,
+          ),
+      ],
+    ),
+    body: LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const LessonSuggestionBanner(),
+                  const SmartDecayGoalBanner(),
+                  const SmartMistakeGoalBanner(),
+                  if (!_loadingSuggestions && _goalSuggestions.isNotEmpty)
+                    GoalSuggestionRow(recommendations: _goalSuggestions),
+                  const GoalReengagementBanner(),
+                  const SmartRecapSuggestionBanner(),
+                  const RecoveryPromptBanner(),
+                  const RecapBannerWidget(),
+                  MainMenuSuggestedBanner(
+                    suggestedDismissed: _suggestedDismissed,
+                    dismissedDate: _dismissedDate,
+                    onDismissed: _dismissSuggestedBanner,
+                    onClearDismissed: _clearDismissed,
+                  ),
+                  MainMenuStreakCard(showPopup: _showStreakPopup),
+                  const MainMenuDailyGoalCard(),
+                  const FocusOfTheWeekCard(),
+                  const MainMenuProgressCard(),
+                  if (_spotOfDay != null)
+                    MainMenuSpotOfDaySection(spot: _spotOfDay!),
+                  const SkillTreeMainMenuEntry(),
+                  if (_resumeAvailable)
+                    ListTile(
+                      leading: const Icon(
+                        Icons.play_circle,
+                        color: Colors.white,
                       ),
+                      title: const Text('Resume session'),
+                      trailing: TextButton(
+                        onPressed: _discardResume,
+                        child: const Text('Discard'),
+                      ),
+                      onTap: () async {
+                        final player = await MvsSessionPlayer.fromSaved();
+                        if (player == null) {
+                          await _discardResume();
+                          return;
+                        }
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => Scaffold(body: player),
+                          ),
+                        );
+                        _loadResumeFlag();
+                      },
+                    ),
+                  if (_replaySpots.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const ReadyToTrainScreen()),
-                          );
-                        },
-                        icon: const Icon(Icons.play_arrow),
-                        label: const Text('Тренироваться'),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: FilledButton.icon(
+                          icon: const Icon(Icons.play_arrow),
+                          label: const Text('Replay last'),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => Scaffold(
+                                  body: MvsSessionPlayer(spots: _replaySpots),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    MainMenuGrid(
-                      trainingButtonKey: _trainingButtonKey,
-                      newHandButtonKey: _newHandButtonKey,
-                      historyButtonKey: _historyButtonKey,
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.history, color: Colors.white),
-                      trailing: const Icon(Icons.chevron_right),
-                      title: const Text('History'),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const HistoryScreen()),
-                        );
-                      },
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.analytics, color: Colors.white),
-                      trailing: const Icon(Icons.chevron_right),
-                      title: const Text('Анализ ошибок'),
-                      onTap: () {
-                        Navigator.pushNamed(
-                            context, WeaknessOverviewScreen.route);
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    SwitchListTile(
-                      value: _demoMode,
-                      title: const Text('Demo Mode'),
-                      onChanged: _toggleDemoMode,
-                      activeColor: Colors.orange,
-                    ),
-                    const SizedBox(height: 32),
-                    const Text(
-                      '🛠️ Инструменты',
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () async {
-                        final manager = Provider.of<SavedHandManagerService>(
-                            context,
-                            listen: false);
-                        final service =
-                            await HandHistoryFileService.create(manager);
-                        await service.importFromFiles(context);
-                      },
-                      child: const Text('Импортировать Hand History'),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: ElevatedButton.icon(
                       onPressed: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) =>
-                                  const SessionAnalysisImportScreen()),
+                            builder: (_) => const ReadyToTrainScreen(),
+                          ),
                         );
                       },
-                      child: const Text('Анализ сессии EV/ICM'),
+                      icon: const Icon(Icons.play_arrow),
+                      label: const Text('Тренироваться'),
                     ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () async {
-                        final exporter =
-                            Provider.of<SavedHandExportService>(context,
-                                listen: false);
-                        final path = await exporter.exportAllHandsMarkdown();
-                        if (!context.mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(path != null
+                  ),
+                  const SizedBox(height: 16),
+                  MainMenuGrid(
+                    trainingButtonKey: _trainingButtonKey,
+                    newHandButtonKey: _newHandButtonKey,
+                    historyButtonKey: _historyButtonKey,
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.history, color: Colors.white),
+                    trailing: const Icon(Icons.chevron_right),
+                    title: const Text('History'),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const HistoryScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.analytics, color: Colors.white),
+                    trailing: const Icon(Icons.chevron_right),
+                    title: const Text('Анализ ошибок'),
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        WeaknessOverviewScreen.route,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  SwitchListTile(
+                    value: _demoMode,
+                    title: const Text('Demo Mode'),
+                    onChanged: _toggleDemoMode,
+                    activeColor: Colors.orange,
+                  ),
+                  const SizedBox(height: 32),
+                  const Text(
+                    '🛠️ Инструменты',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final manager = Provider.of<SavedHandManagerService>(
+                        context,
+                        listen: false,
+                      );
+                      final service = await HandHistoryFileService.create(
+                        manager,
+                      );
+                      await service.importFromFiles(context);
+                    },
+                    child: const Text('Импортировать Hand History'),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SessionAnalysisImportScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text('Анализ сессии EV/ICM'),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final exporter = Provider.of<SavedHandExportService>(
+                        context,
+                        listen: false,
+                      );
+                      final path = await exporter.exportAllHandsMarkdown();
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            path != null
                                 ? 'Файл сохранён: all_saved_hands.md'
-                                : 'Нет сохранённых раздач'),
+                                : 'Нет сохранённых раздач',
                           ),
-                        );
-                      },
-                      child: const Text('Экспорт всех раздач'),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () async {
-                        final exporter =
-                            Provider.of<SavedHandExportService>(context,
-                                listen: false);
-                        final path = await exporter.exportAllHandsPdf();
-                        if (!context.mounted) return;
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(path != null
+                        ),
+                      );
+                    },
+                    child: const Text('Экспорт всех раздач'),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final exporter = Provider.of<SavedHandExportService>(
+                        context,
+                        listen: false,
+                      );
+                      final path = await exporter.exportAllHandsPdf();
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            path != null
                                 ? 'Файл сохранён: all_saved_hands.pdf'
-                                : 'Нет сохранённых раздач'),
+                                : 'Нет сохранённых раздач',
                           ),
-                        );
-                      },
-                      child: const Text('Экспорт PDF раздач'),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const GlobalEvaluationScreen()),
-                        );
-                      },
-                      child: const Text('Глобальный пересчёт EV/ICM'),
-                    ),
-                  ],
-                ),
+                        ),
+                      );
+                    },
+                    child: const Text('Экспорт PDF раздач'),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const GlobalEvaluationScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text('Глобальный пересчёт EV/ICM'),
+                  ),
+                ],
               ),
             ),
-          );
-        },
-      ),
-    );
-  }
+          ),
+        );
+      },
+    ),
+  );
 }
