@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'feed_fs.dart';
+import 'hash32.dart';
 
 class PlayPlanItem {
   final String id;
@@ -54,12 +56,10 @@ PlayPlan buildPlayPlan(
   for (final ref in refs) {
     var remaining = ref.count;
     var start = 0;
-    var index = 0;
-    final baseId = normFileName(ref.path);
     while (remaining > 0) {
       final take = remaining < target ? remaining : target;
-      final idx = index.toString().padLeft(4, '0');
-      final id = '${baseId}_$idx';
+      final input = '${ref.kind}|${ref.path}|$start|$take';
+      final id = fnv32Hex(Uint8List.fromList(utf8.encode(input)));
       items.add(
         PlayPlanItem(
           id: id,
@@ -75,7 +75,6 @@ PlayPlan buildPlayPlan(
       }
       start += take;
       remaining -= take;
-      index++;
     }
   }
 
