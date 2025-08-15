@@ -323,6 +323,15 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           if (i < 0 || i >= _spots.length) return;
           _restart([_spots[i]]);
         },
+        onReplayMarked: (indices) {
+          if (indices.isEmpty) return;
+          final picks = <UiSpot>[];
+          for (final i in indices) {
+            if (i >= 0 && i < _spots.length) picks.add(_spots[i]);
+          }
+          if (picks.isEmpty) return;
+          _restart(picks);
+        },
       );
     } else {
       child = _buildSpotCard(_spots[_index]);
