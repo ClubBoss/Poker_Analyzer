@@ -41,10 +41,58 @@ class _HistoryScreenState extends State<HistoryScreen> {
     } catch (_) {}
   }
 
+  Future<void> _confirmClear() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear history?'),
+        content: const Text('This will delete all saved sessions.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Clear'),
+          ),
+        ],
+      ),
+    );
+    if (ok == true) {
+      await _clear();
+    }
+  }
+
+  Future<void> _clear() async {
+    try {
+      final file = File('out/sessions_history.jsonl');
+      if (await file.exists()) {
+        await file.delete();
+      }
+    } catch (_) {}
+    setState(() {
+      _items = [];
+    });
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('History cleared')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('History')),
+      appBar: AppBar(
+        title: const Text('History'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: _confirmClear,
+          ),
+        ],
+      ),
       body: ListView.builder(
         itemCount: _items.length,
         itemBuilder: (context, index) {
