@@ -312,6 +312,10 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         answers: _answers,
         onReplayErrors: _replayErrors,
         onRestart: () => _restart(widget.spots),
+        onReplayOne: (i) {
+          if (i < 0 || i >= _spots.length) return;
+          _restart([_spots[i]]);
+        },
       );
     } else {
       child = _buildSpotCard(_spots[_index]);
