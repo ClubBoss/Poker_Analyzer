@@ -14,9 +14,11 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with: { channel: stable, cache: true }
+
       - name: Cache Pub
         uses: actions/cache@v4
         with:
@@ -26,10 +28,10 @@ jobs:
           key: pub-${{ runner.os }}-${{ hashFiles('pubspec.lock') }}
           restore-keys: |
             pub-${{ runner.os }}-
+
       - name: Pub get (Flutter)
         run: flutter pub get
 
-      # ASCII: только CLI-исходники
       - name: ASCII gate (CLI only)
         shell: bash
         run: |
@@ -62,11 +64,24 @@ jobs:
       - name: Compile smoke (CLI)
         shell: bash
         run: |
-          TARGET=""
-          [ -f bin/ev_cli.dart ] && TARGET=bin/ev_cli.dart
-          [ -z "$TARGET" ] && [ -f bin/ev_enrich_jam_fold.dart ] && TARGET=bin/ev_enrich_jam_fold.dart
-          [ -z "$TARGET" ] && [ -f bin/ev_rank_jam_fold_deltas.dart ] && TARGET=bin/ev_rank_jam_fold_deltas.dart
-          [ -z "$TARGET" ] && { echo "No CLI entry to compile"; exit 0; }
+          # pick a CLI entrypoint (no Flutter imports)
+          pick_target() {
+            for f in bin/ev_cli.dart bin/ev_enrich_jam_fold.dart bin/ev_rank_jam_fold_deltas.dart; do
+              [ -f "$f" ] || continue
+              if ! grep -qE 'package:flutter/|flutter_gen/' "$f"; then echo "$f"; return 0; fi
+            done
+            # fallback: first bin/*.dart without Flutter imports
+            for f in bin/*.dart; do
+              [ -f "$f" ] || continue
+              if ! grep -qE 'package:flutter/|flutter_gen/' "$f"; then echo "$f"; return 0; fi
+            done
+            return 1
+          }
+          TARGET="$(pick_target || true)"
+          if [ -z "$TARGET" ]; then
+            echo "No pure CLI target found; skipping compile smoke."; exit 0
+          fi
+          echo "Compiling CLI target: $TARGET"
           dart compile exe "$TARGET" -o /tmp/cli_smoke
 
       - name: EV CLI tests (smoke)
