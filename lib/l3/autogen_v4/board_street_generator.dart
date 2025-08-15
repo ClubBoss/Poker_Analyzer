@@ -24,8 +24,7 @@ class Spot {
   });
 
   @override
-  String toString() =>
-      '$board ${pos.name} ${sprBin.name} ${street.name}';
+  String toString() => '$board ${pos.name} ${sprBin.name} ${street.name}';
 
   @override
   bool operator ==(Object other) =>
@@ -51,33 +50,65 @@ class TargetMix {
     required this.posPct,
   });
 
-  factory TargetMix.mvsDefault() => TargetMix(
-        streetPct: const {
+  /// Const named constructor so callers can do: `const mix = TargetMix.mvsDefault();`
+  const TargetMix.mvsDefault()
+      : streetPct = const {
           Street.flop: 0.5,
           Street.turn: 0.3,
           Street.river: 0.2,
         },
-        sprPct: const {
+        sprPct = const {
           SprBin.short: 0.4,
           SprBin.mid: 0.4,
           SprBin.deep: 0.2,
         },
-        posPct: const {
+        posPct = const {
           Position.ip: 0.5,
           Position.oop: 0.5,
-        },
-      );
+        };
 }
 
 const List<String> _flopTextures = [
-  'A72r', 'KQTr', 'T98hh', '553r', 'J74hh', 'Q82r',
-  '742r', 'AATr', '998r', 'K72hh', 'T84r', '876r',
-  '972hh', '433r', 'QJ9hh', 'K85r', '964r', 'T73r',
-  'J65r', 'A98r', 'KQ9hh', 'TT9r', 'AK2hh', '983r',
+  'A72r',
+  'KQTr',
+  'T98hh',
+  '553r',
+  'J74hh',
+  'Q82r',
+  '742r',
+  'AATr',
+  '998r',
+  'K72hh',
+  'T84r',
+  '876r',
+  '972hh',
+  '433r',
+  'QJ9hh',
+  'K85r',
+  '964r',
+  'T73r',
+  'J65r',
+  'A98r',
+  'KQ9hh',
+  'TT9r',
+  'AK2hh',
+  '983r',
 ];
 
 const List<String> _turnRanks = [
-  'A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'
+  'A',
+  'K',
+  'Q',
+  'J',
+  'T',
+  '9',
+  '8',
+  '7',
+  '6',
+  '5',
+  '4',
+  '3',
+  '2'
 ];
 
 const List<String> _riverRanks = _turnRanks;

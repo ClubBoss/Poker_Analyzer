@@ -15,8 +15,8 @@ void main() {
         expect(spots, isNotEmpty);
 
         final h1 = itemsHash(spots, 10);
-        final h2 = itemsHash(
-            generateSpots(seed: seed, count: count, mix: mix), 10);
+        final h2 =
+            itemsHash(generateSpots(seed: seed, count: count, mix: mix), 10);
         expect(h1, h2);
 
         final streetCounts = {
