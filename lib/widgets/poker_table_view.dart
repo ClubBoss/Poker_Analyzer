@@ -14,6 +14,7 @@ import '../models/table_state.dart';
 import '../services/table_edit_history.dart';
 import '../models/card_model.dart';
 import 'playing_card_widget.dart';
+import 'side_pot_badges.dart';
 
 enum PlayerAction { none, fold, push, call, raise, post }
 
@@ -57,6 +58,8 @@ class PokerTableView extends StatefulWidget {
   final bool showRevealedCards;
   final bool showPlayerActions;
   final bool showBoardLabels;
+  final List<int>? sidePotsChips;
+  final double bbChips;
   const PokerTableView({
     super.key,
     required this.heroIndex,
@@ -88,6 +91,8 @@ class PokerTableView extends StatefulWidget {
     this.showRevealedCards = true,
     this.showPlayerActions = true,
     this.showBoardLabels = true,
+    this.sidePotsChips,
+    this.bbChips = 1.0,
   });
 
   @override
@@ -101,7 +106,9 @@ class _PokerTableViewState extends State<PokerTableView> {
     if (widget.heroIndex != oldWidget.heroIndex ||
         widget.theme != oldWidget.theme ||
         widget.potSize != oldWidget.potSize ||
-        !listEquals(widget.playerStacks, oldWidget.playerStacks)) {
+        !listEquals(widget.playerStacks, oldWidget.playerStacks) ||
+        !listEquals(widget.sidePotsChips, oldWidget.sidePotsChips) ||
+        widget.bbChips != oldWidget.bbChips) {
       setState(() {});
     }
     if (widget.theme != oldWidget.theme) {
@@ -149,6 +156,15 @@ class _PokerTableViewState extends State<PokerTableView> {
                   ),
                 ),
                 _buildBoards(),
+                if ((widget.sidePotsChips ?? const []).isNotEmpty)
+                  Align(
+                    alignment: const Alignment(0, -0.05),
+                    child: SidePotBadges(
+                      sidePotsChips: widget.sidePotsChips!,
+                      bb: widget.bbChips <= 0 ? 1.0 : widget.bbChips,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                    ),
+                  ),
                 GestureDetector(
                   onTap: () async {
                     final controller =
