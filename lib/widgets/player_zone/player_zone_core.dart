@@ -47,12 +47,15 @@ import 'player_zone_overlay.dart';
 import 'player_zone_action_panel.dart';
 import 'bet_chip.dart';
 import 'effective_stack_info.dart';
+import '../active_timebar.dart';
 
 part 'player_zone_registry.dart';
 part 'player_zone_animation_controller.dart';
 part 'player_zone_overlay_controller.dart';
 class PlayerZoneWidget extends StatefulWidget {
   final PlayerZoneConfig config;
+  final bool isActive;
+  final int? timebankMs;
 
   /// Returns the offset of a seat around an elliptical poker table. This is
   /// based on the size of the table widget and indexes players so that index 0
@@ -63,7 +66,8 @@ class PlayerZoneWidget extends StatefulWidget {
         index, playerCount, tableSize.width, tableSize.height);
   }
 
-  const PlayerZoneWidget({Key? key, required this.config}) : super(key: key);
+  const PlayerZoneWidget({Key? key, required this.config, this.isActive = false, this.timebankMs})
+      : super(key: key);
 
   // Backward compatible getters
   String get playerName => config.playerName;
@@ -79,7 +83,6 @@ class PlayerZoneWidget extends StatefulWidget {
   int? get playerIndex => config.playerIndex;
   PlayerType get playerType => config.playerType;
   ValueChanged<PlayerType>? get onPlayerTypeChanged => config.onPlayerTypeChanged;
-  bool get isActive => config.isActive;
   bool get highlightLastAction => config.highlightLastAction;
   bool get showHint => config.showHint;
   bool get showPlayerTypeLabel => config.showPlayerTypeLabel;
@@ -112,6 +115,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
   late final PlayerZoneAnimations _animations;
   late final PlayerZoneAnimationController _animationController;
   late final PlayerZoneOverlayController _overlayController;
+  bool get _isActive => widget.isActive || widget.config.isActive;
   bool _actionGlow = false;
   Color _actionGlowColor = Colors.transparent;
   Timer? _actionGlowTimer;
@@ -234,7 +238,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         weight: 50,
       ),
     ]).animate(_bounceController);
-    if (widget.isActive) {
+    if (_isActive) {
       _controller.repeat(reverse: true);
     }
     _stackController = TextEditingController(text: _stack?.toString() ?? '');
@@ -430,11 +434,13 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       _registry.unregister(oldWidget.playerName);
       _registry.register(widget.playerName, this);
     }
-    if (widget.isActive && !oldWidget.isActive) {
+    final bool wasActive = oldWidget.isActive || oldWidget.config.isActive;
+    final bool isActive = _isActive;
+    if (isActive && !wasActive) {
       _controller
         ..reset()
         ..repeat(reverse: true);
-    } else if (!widget.isActive && oldWidget.isActive) {
+    } else if (!isActive && wasActive) {
       _controller.stop();
       _controller.reset();
     }
@@ -1715,9 +1721,9 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
     result = AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        final bool highlight = widget.isActive || widget.highlightLastAction;
-        final double width = widget.isActive ? 2 + _controller.value * 2 : 3;
-        final double blur = widget.isActive ? 8 + _controller.value * 4 : 8;
+        final bool highlight = widget.highlightLastAction;
+        final double width = widget.highlightLastAction ? 2 + _controller.value * 2 : 3;
+        final double blur = widget.highlightLastAction ? 8 + _controller.value * 4 : 8;
         return AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           padding: EdgeInsets.all(2 * widget.scale),
@@ -1818,20 +1824,6 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       child: result,
     );
 
-    if (widget.isActive) {
-      result = FadeTransition(
-        opacity: Tween(begin: 0.85, end: 1.0).animate(
-          CurvedAnimation(parent: _controller, curve: Curves.easeInOutExpo),
-        ),
-        child: ScaleTransition(
-          scale: Tween(begin: 0.96, end: 1.08).animate(
-            CurvedAnimation(parent: _controller, curve: Curves.easeInOutExpo),
-          ),
-          child: result,
-        ),
-      );
-    }
-
     result = ScaleTransition(
       scale: _bounceAnimation,
       child: result,
@@ -1845,7 +1837,7 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
       ),
     );
 
-    final zone = MouseRegion(
+    Widget zone = MouseRegion(
       onEnter: (_) {
         if (!isMobile) {
           setState(() => _hoverAction = true);
@@ -1871,10 +1863,36 @@ class _PlayerZoneWidgetState extends State<PlayerZoneWidget>
         child: result,
       ),
     );
+    if (_isActive) {
+      zone = AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12 * widget.scale),
+          boxShadow: const [
+            BoxShadow(color: Colors.amberAccent, blurRadius: 12, spreadRadius: 1),
+          ],
+          border: Border.all(color: Colors.amberAccent, width: 2),
+        ),
+        child: zone,
+      );
+    }
+
+    final stack = Stack(
+      children: [
+        zone,
+        if (_isActive && widget.timebankMs != null)
+          Positioned(
+            top: 4,
+            left: 8,
+            right: 8,
+            child: ActiveTimebar(totalMs: widget.timebankMs!, running: true),
+          ),
+      ],
+    );
 
     return Offstage(
       offstage: _isBusted,
-      child: zone,
+      child: stack,
     );
   }
 
