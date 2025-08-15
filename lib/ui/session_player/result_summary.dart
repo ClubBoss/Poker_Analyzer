@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'models.dart';
 import 'session_export.dart';
+import 'spot_review_sheet.dart';
 
 class ResultSummaryView extends StatefulWidget {
   final List<UiSpot> spots;
@@ -120,7 +121,19 @@ class _ResultSummaryViewState extends State<ResultSummaryView> {
                     'Expected: ${a.expected} | Chosen: ${a.chosen} | ${a.elapsed.inMilliseconds} ms',
                   ),
                   onTap: () {
-                    // Optional: future hook to open a single-spot review
+                    showModalBottomSheet<void>(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Theme.of(context).brightness ==
+                              Brightness.dark
+                          ? Colors.black87
+                          : null,
+                      builder: (_) => SpotReviewSheet(
+                        index: i + 1,
+                        spot: s,
+                        answer: a,
+                      ),
+                    );
                   },
                 );
               },
