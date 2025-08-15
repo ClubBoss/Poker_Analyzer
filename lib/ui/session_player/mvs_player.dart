@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../widgets/active_timebar.dart';
+import 'mini_toast.dart';
 import 'models.dart';
 import 'result_summary.dart';
 
@@ -35,6 +36,10 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
   bool _timeEnabled = true; // can toggle
   int _timeLeftMs = _timeLimitMs;
   Timer? _timebarTicker; // separate from _ticker
+  late final AnimationController _answerPulseCtrl;
+  late final Animation<double> _answerPulse;
+  Color? _answerFlashColor;
+  Timer? _answerFlashTimer;
 
   @override
   void initState() {
@@ -43,6 +48,13 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
     _timer.start();
     _startTicker();
     _startTimebar();
+    _answerPulseCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 220),
+    );
+    _answerPulse = Tween(begin: 1.0, end: 1.05)
+        .chain(CurveTween(curve: Curves.easeOut))
+        .animate(_answerPulseCtrl);
   }
 
   @override
@@ -50,6 +62,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
     _ticker?.cancel();
     _autoNextTimer?.cancel();
     _timebarTicker?.cancel();
+    _answerFlashTimer?.cancel();
+    _answerPulseCtrl.dispose();
     _focusNode.dispose();
     super.dispose();
   }
@@ -99,6 +113,18 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
         elapsed: _timer.elapsed,
       ));
     });
+    // micro-feedback: toast + pulse + flash tint
+    unawaited(showMiniToast(context, correct ? 'Correct' : 'Wrong'));
+    _answerPulseCtrl.forward(from: 0.0);
+    setState(() {
+      _answerFlashColor =
+          (correct ? Colors.green : Colors.red).withOpacity(0.12);
+    });
+    _answerFlashTimer?.cancel();
+    _answerFlashTimer = Timer(const Duration(milliseconds: 250), () {
+      if (!mounted) return;
+      setState(() => _answerFlashColor = null);
+    });
     if (correct && _autoNext) {
       _autoNextTimer?.cancel();
       _autoNextTimer = Timer(const Duration(milliseconds: 500), () {
@@ -110,6 +136,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
 
   void _next() {
     _autoNextTimer?.cancel();
+    _answerFlashTimer?.cancel();
+    _answerFlashColor = null;
     if (_index + 1 >= _spots.length) {
       setState(() => _index++);
       return;
@@ -129,6 +157,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
 
   void _restart(List<UiSpot> spots) {
     _autoNextTimer?.cancel();
+    _answerFlashTimer?.cancel();
+    _answerFlashColor = null;
     setState(() {
       _spots = spots;
       _index = 0;
@@ -272,61 +302,70 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
               ],
             ),
             Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    spot.hand,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineSmall,
+              child: ScaleTransition(
+                scale: _answerPulse,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: _answerFlashColor,
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    _buildSubTitle(spot),
-                    textAlign: TextAlign.center,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        spot.hand,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        _buildSubTitle(spot),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 24),
+                      ...actions.map((a) => _buildActionButton(a, spot)),
+                      if (_chosen != null) ...[
+                        const SizedBox(height: 16),
+                        Text(
+                          _answers[_index].correct
+                              ? 'Correct!'
+                              : 'Try again next time',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: _answers[_index].correct
+                                ? Colors.green
+                                : Colors.red,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () =>
+                              setState(() => _showExplain = !_showExplain),
+                          style: TextButton.styleFrom(
+                            visualDensity: VisualDensity.compact,
+                          ),
+                          child: const Text('Why?'),
+                        ),
+                        AnimatedCrossFade(
+                          firstChild: const SizedBox.shrink(),
+                          secondChild: Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Text(spot.explain ?? 'No explanation'),
+                          ),
+                          crossFadeState: _showExplain
+                              ? CrossFadeState.showSecond
+                              : CrossFadeState.showFirst,
+                          duration: const Duration(milliseconds: 200),
+                        ),
+                        const SizedBox(height: 24),
+                        ElevatedButton(
+                          onPressed: _next,
+                          child: const Text('Next'),
+                        ),
+                      ],
+                    ],
                   ),
-                  const SizedBox(height: 24),
-                  ...actions.map((a) => _buildActionButton(a, spot)),
-                  if (_chosen != null) ...[
-                    const SizedBox(height: 16),
-                    Text(
-                      _answers[_index].correct
-                          ? 'Correct!'
-                          : 'Try again next time',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: _answers[_index].correct
-                            ? Colors.green
-                            : Colors.red,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () =>
-                          setState(() => _showExplain = !_showExplain),
-                      style: TextButton.styleFrom(
-                        visualDensity: VisualDensity.compact,
-                      ),
-                      child: const Text('Why?'),
-                    ),
-                    AnimatedCrossFade(
-                      firstChild: const SizedBox.shrink(),
-                      secondChild: Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Text(spot.explain ?? 'No explanation'),
-                      ),
-                      crossFadeState: _showExplain
-                          ? CrossFadeState.showSecond
-                          : CrossFadeState.showFirst,
-                      duration: const Duration(milliseconds: 200),
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: _next,
-                      child: const Text('Next'),
-                    ),
-                  ],
-                ],
+                ),
               ),
             ),
           ],
