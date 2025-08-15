@@ -112,7 +112,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       timeEnabled: true,
       timeLimitMs: 10000,
       sound: false,
-      autoExplainOnWrong: false,
+      autoWhyOnWrong: true,
       autoNextDelayMs: 600);
   bool _autoNext = false;
   int _timeLimitMs = 10000; // 10s default
@@ -281,7 +281,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         chosen: action,
         elapsed: _timer.elapsed,
       ));
-      if (!correct && _prefs.autoExplainOnWrong) {
+      if (!correct && _prefs.autoWhyOnWrong) {
         _showExplain = true;
       }
     });
@@ -518,7 +518,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                   bool timeEnabled = _timeEnabled;
                   int limit = _timeLimitMs;
                   bool sound = _prefs.sound;
-                  bool autoWhy = _prefs.autoExplainOnWrong;
+                  bool autoWhy = _prefs.autoWhyOnWrong;
                   final ctrl =
                       TextEditingController(text: limit.toString());
                   return Padding(
@@ -596,7 +596,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                                   "timeEnabled": timeEnabled,
                                   "timeLimitMs": limit,
                                   "sound": sound,
-                                  "autoExplainOnWrong": autoWhy,
+                                  "autoWhyOnWrong": autoWhy,
                                 });
                               },
                               child: const Text('Save'),
@@ -616,7 +616,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                       ? r["timeLimitMs"] as int
                       : _timeLimitMs,
                   sound: r["sound"] == true,
-                  autoExplainOnWrong: r["autoExplainOnWrong"] == true,
+                  autoWhyOnWrong: r["autoWhyOnWrong"] == true,
                   autoNextDelayMs: _prefs.autoNextDelayMs,
                 );
                 await saveUiPrefs(p);
