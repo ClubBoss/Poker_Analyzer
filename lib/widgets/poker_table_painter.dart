@@ -9,47 +9,62 @@ class PokerTablePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
-    final path = Path()..addOval(rect);
+    final rrect = RRect.fromRectAndRadius(
+      rect,
+      Radius.circular(size.shortestSide * 0.04),
+    );
+    final path = Path()..addRRect(rrect);
 
     canvas.drawShadow(path, Colors.black.withValues(alpha: 0.5), 12.0, true);
 
-    final gradient = _gradientForTheme();
-    final feltPaint = Paint()..shader = gradient.createShader(rect);
-    canvas.drawOval(rect, feltPaint);
+    final base = _baseColor();
+    final center = HSLColor.fromColor(base)
+        .withLightness((HSLColor.fromColor(base).lightness + 0.10).clamp(0.0, 1.0))
+        .toColor();
+    final radius = size.shortestSide * 0.65;
+    final radial = RadialGradient(
+      colors: [center, base],
+      stops: const [0.0, 1.0],
+    ).createShader(
+      Rect.fromCircle(center: size.center(Offset.zero), radius: radius),
+    );
+    final paintRadial = Paint()..shader = radial;
+    canvas.drawRRect(rrect, paintRadial);
+
+    final vignette = RadialGradient(
+      colors: [Colors.transparent, Colors.black.withOpacity(0.18)],
+      stops: const [0.7, 1.0],
+    ).createShader(
+      Rect.fromCircle(
+        center: size.center(Offset.zero),
+        radius: size.shortestSide * 0.75,
+      ),
+    );
+    final paintVignette = Paint()
+      ..shader = vignette
+      ..blendMode = BlendMode.darken;
+    canvas.drawRRect(rrect, paintVignette);
 
     final borderPaint = Paint()
       ..color = _borderColor().withValues(alpha: 0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = size.shortestSide * 0.03;
-    canvas.drawOval(rect.deflate(borderPaint.strokeWidth / 2), borderPaint);
+    canvas.drawRRect(
+      rrect.deflate(borderPaint.strokeWidth / 2),
+      borderPaint,
+    );
   }
 
-  Gradient _gradientForTheme() {
+  Color _baseColor() {
     switch (theme) {
       case TableTheme.green:
-        return const RadialGradient(
-          center: Alignment(0.0, -0.3),
-          radius: 0.8,
-          colors: [Color(0xFF497A5E), Color(0xFF24432E)],
-        );
+        return const Color(0xFF1E5E3C);
       case TableTheme.carbon:
-        return const RadialGradient(
-          center: Alignment(0.0, -0.3),
-          radius: 0.8,
-          colors: [Color(0xFF444444), Color(0xFF222222)],
-        );
+        return const Color(0xFF2C2F33);
       case TableTheme.blue:
-        return const RadialGradient(
-          center: Alignment(0.0, -0.3),
-          radius: 0.8,
-          colors: [Color(0xFF00577C), Color(0xFF001F3F)],
-        );
+        return const Color(0xFF1E3D5E);
       case TableTheme.dark:
-        return const RadialGradient(
-          center: Alignment(0.0, -0.3),
-          radius: 0.8,
-          colors: [Color(0xFF1A1A1A), Color(0xFF000000)],
-        );
+        return const Color(0xFF1A1B1E);
     }
   }
 
