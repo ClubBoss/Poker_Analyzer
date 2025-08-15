@@ -152,6 +152,58 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     }
   }
 
+  void _undo() {
+    if (_answers.isEmpty) return;
+    _autoNextTimer?.cancel();
+    _timebarTicker?.cancel();
+    setState(() {
+      _index = (_index - 1).clamp(0, _spots.length - 1);
+      _answers.removeLast();
+      _chosen = null;
+      _showExplain = false;
+      _timer
+        ..reset()
+        ..start();
+      _answerFlashColor = null;
+    });
+    _startTicker();
+    _startTimebar();
+    unawaited(showMiniToast(context, 'Undo'));
+  }
+
+  void _skip() {
+    if (_index >= _spots.length || _chosen != null) return;
+    _autoNextTimer?.cancel();
+    _timebarTicker?.cancel();
+    setState(() {
+      _index++;
+      _chosen = null;
+      _showExplain = false;
+      _timer
+        ..reset()
+        ..start();
+      _answerFlashColor = null;
+    });
+    if (_index < _spots.length) {
+      _startTicker();
+      _startTimebar();
+      _focusNode.requestFocus();
+    }
+    unawaited(showMiniToast(context, 'Skipped'));
+  }
+
+  int _streak() {
+    var s = 0;
+    for (int i = _answers.length - 1; i >= 0; i--) {
+      if (_answers[i].correct) {
+        s++;
+      } else {
+        break;
+      }
+    }
+    return s;
+  }
+
   void _next() {
     _autoNextTimer?.cancel();
     _answerFlashTimer?.cancel();
@@ -221,6 +273,17 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     return Scaffold(
       appBar: AppBar(
         actions: [
+          IconButton(
+            icon: const Icon(Icons.undo),
+            tooltip: 'Undo',
+            onPressed: _answers.isEmpty ? null : _undo,
+          ),
+          IconButton(
+            icon: const Icon(Icons.skip_next),
+            tooltip: 'Skip',
+            onPressed:
+                (_index >= _spots.length || _chosen != null) ? null : _skip,
+          ),
           IconButton(
             icon: const Icon(Icons.help_outline),
             onPressed: () {
@@ -352,13 +415,24 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
 
   Widget _buildSpotCard(UiSpot spot) {
     final actions = _actionsFor(spot.kind);
-    return RawKeyboardListener(
-      focusNode: _focusNode,
-      autofocus: true,
-      onKey: (event) {
-        if (event is! RawKeyDownEvent) return;
-        if (event.logicalKey == LogicalKeyboardKey.keyA) {
-          setState(() => _autoNext = !_autoNext);
+    final correctCnt = _answers.where((a) => a.correct).length;
+    final acc = _answers.isEmpty ? 0.0 : correctCnt / _answers.length;
+    return GestureDetector(
+      onHorizontalDragEnd: (details) {
+        final vx = details.primaryVelocity ?? 0;
+        if (vx > 350 && _answers.isNotEmpty) {
+          _undo();
+        } else if (vx < -350 && _chosen == null) {
+          _skip();
+        }
+      },
+      child: RawKeyboardListener(
+        focusNode: _focusNode,
+        autofocus: true,
+        onKey: (event) {
+          if (event is! RawKeyDownEvent) return;
+          if (event.logicalKey == LogicalKeyboardKey.keyA) {
+            setState(() => _autoNext = !_autoNext);
           return;
         }
         if (event.logicalKey == LogicalKeyboardKey.keyT) {
@@ -405,6 +479,14 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             const SizedBox(height: 4),
             LinearProgressIndicator(
               value: (_index + 1) / _spots.length,
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Text('Accuracy ${(acc * 100).toStringAsFixed(0)}%'),
+                const SizedBox(width: 12),
+                Text('Streak ${_streak()}'),
+              ],
             ),
             const SizedBox(height: 4),
             Row(
