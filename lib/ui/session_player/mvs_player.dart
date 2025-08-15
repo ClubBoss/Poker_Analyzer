@@ -97,7 +97,7 @@ class MvsSessionPlayer extends StatefulWidget {
 }
 
 class _MvsSessionPlayerState extends State<MvsSessionPlayer>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late List<UiSpot> _spots;
   int _index = 0;
   final _answers = <UiAnswer>[];
@@ -123,6 +123,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   Timer? _timebarTicker; // separate from _ticker
   late final AnimationController _answerPulseCtrl;
   late final Animation<double> _answerPulse;
+  AnimationController? _autoNextAnim;
   Color? _answerFlashColor;
   Timer? _answerFlashTimer;
   bool _paused = false;
@@ -166,6 +167,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     _timebarTicker?.cancel();
     _answerFlashTimer?.cancel();
     _answerPulseCtrl.dispose();
+    _autoNextAnim?.dispose();
     _focusNode.dispose();
     super.dispose();
   }
@@ -202,6 +204,12 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         }
       });
     });
+  }
+
+  void _cancelAutoNextAnim() {
+    _autoNextAnim?.stop();
+    _autoNextAnim?.dispose();
+    _autoNextAnim = null;
   }
 
   Future<void> _saveProgress() async {
@@ -257,6 +265,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     } else {
       _ticker?.cancel();
       _timebarTicker?.cancel();
+      _cancelAutoNextAnim();
       _timer.stop();
       setState(() => _paused = true);
       unawaited(showMiniToast(context, 'Paused'));
@@ -317,16 +326,25 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     if (correct && _autoNext) {
       _autoNextTimer?.cancel();
       final delay = Duration(milliseconds: _prefs.autoNextDelayMs);
+      _cancelAutoNextAnim();
+      _autoNextAnim = AnimationController(vsync: this, duration: delay)
+        ..addListener(() {
+          if (mounted) setState(() {});
+        })
+        ..forward();
       _autoNextTimer = Timer(delay, () {
         if (!mounted) return;
         if (_chosen != null && _answers[_index].correct) _next();
       });
+    } else {
+      _cancelAutoNextAnim();
     }
   }
 
   void _undo() {
     if (_answers.isEmpty) return;
     _autoNextTimer?.cancel();
+    _cancelAutoNextAnim();
     _timebarTicker?.cancel();
     setState(() {
       _index = (_index - 1).clamp(0, _spots.length - 1);
@@ -352,6 +370,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   void _skip() {
     if (_index >= _spots.length || _chosen != null) return;
     _autoNextTimer?.cancel();
+    _cancelAutoNextAnim();
     _timebarTicker?.cancel();
     final spot = _spots[_index];
     setState(() {
@@ -399,6 +418,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
 
   void _next() {
     _autoNextTimer?.cancel();
+    _cancelAutoNextAnim();
     _answerFlashTimer?.cancel();
     _answerFlashColor = null;
     if (_index + 1 >= _spots.length) {
@@ -443,6 +463,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
 
   void _restart(List<UiSpot> spots) {
     _autoNextTimer?.cancel();
+    _cancelAutoNextAnim();
     _answerFlashTimer?.cancel();
     _answerFlashColor = null;
     setState(() {
@@ -722,6 +743,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                   _timeEnabled = p.timeEnabled;
                   _timeLimitMs = p.timeLimitMs;
                   if (_chosen == null) _startTimebar();
+                  if (!_autoNext) _cancelAutoNextAnim();
                 });
               }
             },
@@ -737,6 +759,16 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
               child: player,
             ),
           ),
+          if (_autoNextAnim?.isAnimating == true)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: LinearProgressIndicator(
+                value: _autoNextAnim!.value,
+                minHeight: 2,
+              ),
+            ),
           if (_paused)
             Positioned.fill(
               child: IgnorePointer(
@@ -782,7 +814,10 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         onKey: (event) {
           if (event is! RawKeyDownEvent || _paused) return;
           if (event.logicalKey == LogicalKeyboardKey.keyA) {
-            setState(() => _autoNext = !_autoNext);
+            setState(() {
+              _autoNext = !_autoNext;
+              if (!_autoNext) _cancelAutoNextAnim();
+            });
             return;
           }
           if (event.logicalKey == LogicalKeyboardKey.keyT) {
@@ -872,7 +907,10 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                 const Text('Auto-next'),
                 Switch(
                   value: _autoNext,
-                  onChanged: (v) => setState(() => _autoNext = v),
+                  onChanged: (v) => setState(() {
+                    _autoNext = v;
+                    if (!_autoNext) _cancelAutoNextAnim();
+                  }),
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
               ],
