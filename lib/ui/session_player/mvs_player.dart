@@ -46,6 +46,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   late final Animation<double> _answerPulse;
   Color? _answerFlashColor;
   Timer? _answerFlashTimer;
+  bool _paused = false;
 
   bool get _showHotkeys =>
       kIsWeb ||
@@ -116,6 +117,24 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         }
       });
     });
+  }
+
+  void _togglePause() {
+    if (_paused) {
+      setState(() => _paused = false);
+      _timer.start();
+      _startTicker();
+      if (_chosen == null && _timeEnabled) _startTimebar();
+      unawaited(showMiniToast(context, 'Resumed'));
+      try { HapticFeedback.selectionClick(); } catch (_) {}
+    } else {
+      _ticker?.cancel();
+      _timebarTicker?.cancel();
+      _timer.stop();
+      setState(() => _paused = true);
+      unawaited(showMiniToast(context, 'Paused'));
+      try { HapticFeedback.selectionClick(); } catch (_) {}
+    }
   }
 
   void _onAction(String action) {
@@ -311,6 +330,11 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             onPressed:
                 (_index >= _spots.length || _chosen != null) ? null : _skip,
           ),
+          IconButton(
+            icon: Icon(_paused ? Icons.play_arrow : Icons.pause),
+            tooltip: _paused ? 'Resume' : 'Pause',
+            onPressed: _togglePause,
+          ),
           if (_showHotkeys)
             IconButton(
               icon: const Icon(Icons.help_outline),
@@ -434,9 +458,37 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           ),
         ],
       ),
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        child: child,
+      body: Stack(
+        children: [
+          AbsorbPointer(
+            absorbing: _paused,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: child,
+            ),
+          ),
+          if (_paused)
+            Positioned.fill(
+              child: IgnorePointer(
+                ignoring: true,
+                child: Container(
+                  color: Colors.black.withOpacity(0.45),
+                  child: const Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.pause_circle_filled,
+                            size: 56, color: Colors.white70),
+                        SizedBox(height: 8),
+                        Text('Paused',
+                            style: TextStyle(color: Colors.white)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -458,12 +510,12 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         focusNode: _focusNode,
         autofocus: true,
         onKey: (event) {
-          if (event is! RawKeyDownEvent) return;
+          if (event is! RawKeyDownEvent || _paused) return;
           if (event.logicalKey == LogicalKeyboardKey.keyA) {
             setState(() => _autoNext = !_autoNext);
-          return;
-        }
-        if (event.logicalKey == LogicalKeyboardKey.keyT) {
+            return;
+          }
+          if (event.logicalKey == LogicalKeyboardKey.keyT) {
           setState(() {
             _timeEnabled = !_timeEnabled;
             if (_chosen == null) _startTimebar();
