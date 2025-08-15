@@ -22,7 +22,9 @@ class ResultSummaryView extends StatelessWidget {
     final total = answers.length;
     final totalTime =
         answers.fold(Duration.zero, (d, a) => d + a.elapsed);
-    final avg = total > 0 ? totalTime ~/ total : Duration.zero;
+    final totalSecs = totalTime.inMilliseconds / 1000;
+    final avgSecs = total > 0 ? totalSecs / total : 0;
+    final percent = total > 0 ? (correct / total * 100).round() : 0;
     final mistakes = <SpotKind, int>{};
     for (var i = 0; i < spots.length; i++) {
       if (!answers[i].correct) {
@@ -38,13 +40,13 @@ class ResultSummaryView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Результат: $correct/$total',
+            'Result: $correct/$total ($percent%)',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 8),
           Text(
-            'Среднее время: ${avg.inSeconds}s',
+            'Total: ${totalSecs.toStringAsFixed(1)}s • Avg: ${avgSecs.toStringAsFixed(1)}s',
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
@@ -53,12 +55,12 @@ class ResultSummaryView extends StatelessWidget {
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: onReplayErrors,
-            child: const Text('Повторить ошибки'),
+            child: const Text('Replay errors'),
           ),
           const SizedBox(height: 8),
           OutlinedButton(
             onPressed: onRestart,
-            child: const Text('Заново'),
+            child: const Text('Restart'),
           ),
         ],
       ),
