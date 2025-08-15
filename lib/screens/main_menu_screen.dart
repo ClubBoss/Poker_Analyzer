@@ -26,6 +26,7 @@ import 'weakness_overview_screen.dart';
 import 'training_home_screen.dart';
 import 'ready_to_train_screen.dart';
 import '../ui/history/history_screen.dart';
+import '../ui/session_player/mvs_player.dart';
 import '../widgets/lesson_suggestion_banner.dart';
 import '../widgets/smart_decay_goal_banner.dart';
 import '../widgets/smart_mistake_goal_banner.dart';
@@ -64,6 +65,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   static const _dismissedKey = 'suggested_weekly_dismissed_date';
   List<GoalRecommendation> _goalSuggestions = [];
   bool _loadingSuggestions = true;
+  bool _resumeAvailable = false;
 
   Widget _buildStreakIndicator(BuildContext context) {
     final streak = context.watch<StreakService>().count;
@@ -111,6 +113,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     _loadSpot();
     _loadDismissed();
     _loadGoalSuggestions();
+    _loadResumeFlag();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         context.read<StreakService>().updateStreak();
@@ -136,6 +139,24 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       _goalSuggestions = list;
       _loadingSuggestions = false;
     });
+  }
+
+  Future<void> _loadResumeFlag() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    setState(() {
+      _resumeAvailable = prefs.getBool('resume_active') ?? false;
+    });
+  }
+
+  Future<void> _discardResume() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('resume_active', false);
+    await prefs.remove('resume_spots');
+    await prefs.remove('resume_index');
+    await prefs.remove('resume_answers');
+    if (!mounted) return;
+    setState(() => _resumeAvailable = false);
   }
 
   Future<void> _loadDismissed() async {
@@ -335,6 +356,27 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                     if (_spotOfDay != null)
                       MainMenuSpotOfDaySection(spot: _spotOfDay!),
                     const SkillTreeMainMenuEntry(),
+                    if (_resumeAvailable)
+                      ListTile(
+                        leading:
+                            const Icon(Icons.play_circle, color: Colors.white),
+                        title: const Text('Resume session'),
+                        trailing:
+                            TextButton(onPressed: _discardResume, child: const Text('Discard')),
+                        onTap: () async {
+                          final player = await MvsSessionPlayer.fromSaved();
+                          if (player == null) {
+                            await _discardResume();
+                            return;
+                          }
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => Scaffold(body: player)),
+                          );
+                          _loadResumeFlag();
+                        },
+                      ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: ElevatedButton.icon(
