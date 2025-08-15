@@ -21,7 +21,8 @@ class MvsSessionPlayer extends StatefulWidget {
   State<MvsSessionPlayer> createState() => _MvsSessionPlayerState();
 }
 
-class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
+class _MvsSessionPlayerState extends State<MvsSessionPlayer>
+    with SingleTickerProviderStateMixin {
   late List<UiSpot> _spots;
   int _index = 0;
   final _answers = <UiAnswer>[];
