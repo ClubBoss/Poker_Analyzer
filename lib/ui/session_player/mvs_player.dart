@@ -3,7 +3,10 @@
 //   builder: (_) => Scaffold(body: MvsSessionPlayer(spots: demoSpots())),
 // ));
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'models.dart';
 import 'result_summary.dart';
@@ -21,6 +24,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
   int _index = 0;
   final _answers = <UiAnswer>[];
   final _timer = Stopwatch();
+  final _focusNode = FocusNode();
+  Timer? _ticker;
   String? _chosen;
 
   @override
@@ -28,11 +33,26 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
     super.initState();
     _spots = widget.spots;
     _timer.start();
+    _startTicker();
+  }
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _startTicker() {
+    _ticker?.cancel();
+    _ticker =
+        Timer.periodic(const Duration(milliseconds: 200), (_) => setState(() {}));
   }
 
   void _onAction(String action) {
     if (_chosen != null) return;
     _timer.stop();
+    _ticker?.cancel();
     final spot = _spots[_index];
     final correct = action == spot.action;
     setState(() {
@@ -54,8 +74,12 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
     setState(() {
       _index++;
       _chosen = null;
-      _timer..reset()..start();
+      _timer
+        ..reset()
+        ..start();
     });
+    _startTicker();
+    _focusNode.requestFocus();
   }
 
   void _restart(List<UiSpot> spots) {
@@ -64,8 +88,12 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
       _index = 0;
       _answers.clear();
       _chosen = null;
-      _timer..reset()..start();
+      _timer
+        ..reset()
+        ..start();
     });
+    _startTicker();
+    _focusNode.requestFocus();
   }
 
   void _replayErrors() {
@@ -102,33 +130,88 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
 
   Widget _buildSpotCard(UiSpot spot) {
     final actions = _actionsFor(spot.kind);
-    return Padding(
-      key: ValueKey('spot$_index'),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            spot.hand,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            _buildSubTitle(spot),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-          ...actions.map((a) => _buildActionButton(a, spot)),
-          if (_chosen != null) ...[
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _next,
-              child: const Text('Далее'),
+    return RawKeyboardListener(
+      focusNode: _focusNode,
+      autofocus: true,
+      onKey: (event) {
+        if (event is! RawKeyDownEvent) return;
+        if (_chosen == null) {
+          if (event.logicalKey == LogicalKeyboardKey.digit1 &&
+              actions.length > 0) {
+            _onAction(actions[0]);
+          } else if (event.logicalKey == LogicalKeyboardKey.digit2 &&
+              actions.length > 1) {
+            _onAction(actions[1]);
+          } else if (event.logicalKey == LogicalKeyboardKey.digit3 &&
+              actions.length > 2) {
+            _onAction(actions[2]);
+          }
+        } else {
+          if (event.logicalKey == LogicalKeyboardKey.enter ||
+              event.logicalKey == LogicalKeyboardKey.space) {
+            _next();
+          }
+        }
+      },
+      child: Padding(
+        key: ValueKey('spot$_index'),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Spot ${_index + 1}/${_spots.length}'),
+                Text(
+                    't=${(_timer.elapsedMilliseconds / 1000).toStringAsFixed(1)}s'),
+              ],
+            ),
+            const SizedBox(height: 4),
+            LinearProgressIndicator(
+              value: (_index + 1) / _spots.length,
+            ),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    spot.hand,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _buildSubTitle(spot),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+                  ...actions.map((a) => _buildActionButton(a, spot)),
+                  if (_chosen != null) ...[
+                    const SizedBox(height: 16),
+                    Text(
+                      _answers[_index].correct
+                          ? 'Correct!'
+                          : 'Try again next time',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: _answers[_index].correct
+                            ? Colors.green
+                            : Colors.red,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: _next,
+                      child: const Text('Next'),
+                    ),
+                  ],
+                ],
+              ),
             ),
           ],
-        ],
+        ),
       ),
     );
   }
