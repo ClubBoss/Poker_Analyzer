@@ -24,6 +24,14 @@ List<UiSpot> decodeL2SessionJson(String jsonStr) {
       default:
         continue;
     }
+    String? explain;
+    final e = raw['explain'];
+    if (e is String) {
+      explain = e;
+    } else {
+      final w = raw['why'];
+      if (w is String) explain = w;
+    }
     spots.add(UiSpot(
       kind: spotKind,
       hand: '${raw['hand']}',
@@ -32,6 +40,7 @@ List<UiSpot> decodeL2SessionJson(String jsonStr) {
       action: '${raw['action']}',
       vsPos: raw['vsPos']?.toString(),
       limpers: raw['limpers']?.toString(),
+      explain: explain,
     ));
   }
   return spots;
@@ -49,6 +58,7 @@ List<UiSpot> decodeL4IcmSessionJson(String jsonStr) {
       pos: '${raw['heroPos']}',
       stack: '${raw['stackBb']}',
       action: '${raw['action']}',
+      explain: raw['explain'] is String ? raw['explain'] as String : null,
     ));
   }
   return spots;
@@ -76,6 +86,14 @@ Future<List<UiSpot>> decodeL3SessionJson(String jsonStr,
           break;
       }
       if (spotKind == null) continue;
+      String? explain;
+      final e = raw['explain'];
+      if (e is String) {
+        explain = e;
+      } else {
+        final w = raw['why'];
+        if (w is String) explain = w;
+      }
       spots.add(UiSpot(
         kind: spotKind,
         hand: '${raw['hand']}',
@@ -84,6 +102,7 @@ Future<List<UiSpot>> decodeL3SessionJson(String jsonStr,
         action: '${raw['action']}',
         vsPos: raw['vsPos']?.toString(),
         limpers: raw['limpers']?.toString(),
+        explain: explain,
       ));
     }
   } else {

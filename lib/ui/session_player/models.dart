@@ -8,6 +8,7 @@ class UiSpot {
   final String action;
   final String? vsPos;
   final String? limpers;
+  final String? explain;
 
   const UiSpot({
     required this.kind,
@@ -17,6 +18,7 @@ class UiSpot {
     required this.action,
     this.vsPos,
     this.limpers,
+    this.explain,
   });
 }
 
