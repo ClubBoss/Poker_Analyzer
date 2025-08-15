@@ -13,7 +13,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 50 }
+
+      # Если на PR есть лейбл allow-l10n или пушит бот — считаем проверку пройденной (зелёный шаг)
+      - name: Bypass (label or bot)
+        if: ${{ contains(toJSON(github.event.pull_request.labels), 'allow-l10n') || github.actor == 'github-actions' }}
+        run: echo "Bypassed by label 'allow-l10n' or actor github-actions"
+
+      # Иначе — валим PR при любых ручных изменениях в lib/l10n/**
       - name: Detect drift in lib/l10n/**
+        if: ${{ !contains(toJSON(github.event.pull_request.labels), 'allow-l10n') && github.actor != 'github-actions' }}
         shell: bash
         run: |
           BASE="origin/${GITHUB_BASE_REF:-main}"
