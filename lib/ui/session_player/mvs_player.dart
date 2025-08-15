@@ -1050,7 +1050,11 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     if (spot.vsPos != null) parts.add('vs ${spot.vsPos}');
     if (spot.limpers != null) parts.add('limpers ${spot.limpers}');
     parts.add(spot.stack);
-    return parts.join(' • ');
+    final core = parts.join(' • ');
+    if (spot.kind == SpotKind.callVsJam) {
+      return 'Call vs Jam • $core';
+    }
+    return core;
   }
 
   List<String> _actionsFor(SpotKind kind) {
@@ -1063,6 +1067,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         return ['iso', 'overlimp', 'fold'];
       case SpotKind.l4_icm:
         return ['jam', 'fold'];
+      case SpotKind.callVsJam:
+        return ['Call', 'Fold'];
     }
   }
 
