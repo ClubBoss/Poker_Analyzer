@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'decoders.dart';
 import 'mvs_player.dart';
 import 'models.dart';
+import 'plan_progress.dart';
 
 class PlanSlice {
   final String id;
@@ -86,65 +87,100 @@ class PlayFromPlanPage extends StatefulWidget {
 
 class _PlayFromPlanPageState extends State<PlayFromPlanPage> {
   late Future<List<PlanSlice>> _future;
+  PlanProgress _progress = const PlanProgress({});
+  final String _progressPath = 'out/plan/plan_progress_v1.json';
 
   @override
   void initState() {
     super.initState();
     _future = loadPlanSlices(planPath: widget.planPath);
+    loadPlanProgress(path: _progressPath).then((p) {
+      if (!mounted) return;
+      setState(() => _progress = p);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<PlanSlice>>(
-      future: _future,
-      builder: (context, snap) {
-        if (snap.connectionState != ConnectionState.done) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snap.hasError) {
-          return Center(child: Text('Error: ${snap.error}'));
-        }
-        final slices = snap.data ?? [];
-        return ListView(
-          children: [
-            for (final slice in slices)
-              ListTile(
-                title: Text(slice.id),
-                subtitle: Text('${slice.kind} · ${slice.count}'),
-                trailing: TextButton(
-                  onPressed: () async {
-                    try {
-                      final spots = await loadSliceSpots(
-                        bundleDir: Directory(widget.bundleDir),
-                        slice: slice,
-                      );
-                      if (spots.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('No spots')),
-                        );
-                        return;
-                      }
-                      if (!context.mounted) return;
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => Scaffold(
-                            body: MvsSessionPlayer(spots: spots),
-                          ),
-                        ),
-                      );
-                    } catch (e) {
-                      if (!context.mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error: $e')),
-                      );
-                    }
-                  },
-                  child: const Text('Play'),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Plan slices'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () async {
+              final empty = const PlanProgress({});
+              await savePlanProgress(empty, path: _progressPath);
+              if (!mounted) return;
+              setState(() => _progress = empty);
+            },
+            tooltip: 'Reset',
+          ),
+        ],
+      ),
+      body: FutureBuilder<List<PlanSlice>>(
+        future: _future,
+        builder: (context, snap) {
+          if (snap.connectionState != ConnectionState.done) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snap.hasError) {
+            return Center(child: Text('Error: ${snap.error}'));
+          }
+          final slices = snap.data ?? [];
+          return ListView(
+            children: [
+              for (final slice in slices)
+                ListTile(
+                  title: Text(slice.id),
+                  subtitle: Text('${slice.kind} · ${slice.count}'),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_progress.done[slice.id] == true)
+                        const Icon(Icons.check_circle, color: Colors.green),
+                      const SizedBox(width: 8),
+                      TextButton(
+                        onPressed: () async {
+                          try {
+                            final spots = await loadSliceSpots(
+                              bundleDir: Directory(widget.bundleDir),
+                              slice: slice,
+                            );
+                            if (spots.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('No spots')),
+                              );
+                              return;
+                            }
+                            if (!context.mounted) return;
+                            await Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => Scaffold(
+                                  body: MvsSessionPlayer(spots: spots),
+                                ),
+                              ),
+                            );
+                            final updated = markDone(_progress, slice.id, done: true);
+                            await savePlanProgress(updated, path: _progressPath);
+                            if (!mounted) return;
+                            setState(() => _progress = updated);
+                          } catch (e) {
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Error: $e')),
+                            );
+                          }
+                        },
+                        child: const Text('Play'),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-          ],
-        );
-      },
+            ],
+          );
+        },
+      ),
     );
   }
 }
