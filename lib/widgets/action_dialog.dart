@@ -71,7 +71,7 @@ class _ActionDialogState extends State<ActionDialog> {
       min: 1,
       max: widget.stackSize.toDouble(),
       value: _amount,
-      bb: 1,
+      bb: 1.0,
       pot: widget.pot.toDouble(),
       stack: widget.stackSize.toDouble(),
       onChanged: (v) => setState(() => _amount = v),

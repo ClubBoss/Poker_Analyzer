@@ -2,14 +2,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 class BetSizer extends StatefulWidget {
-  final double min;
-  final double max;
-  final double value;
-  final double bb;
-  final double pot;
-  final double stack;
+  final double min;    // chips
+  final double max;    // chips
+  final double value;  // chips
+  final double bb;     // chips in 1 BB
+  final double pot;    // chips
+  final double stack;  // chips
   final ValueChanged<double> onChanged;
   final VoidCallback onConfirm;
+
   const BetSizer({
     super.key,
     required this.min,
@@ -68,6 +69,10 @@ class _BetSizerState extends State<BetSizer> {
 
   Widget _presetButton(String label, double target) {
     return OutlinedButton(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: Colors.white,
+        side: const BorderSide(color: Colors.white54),
+      ),
       onPressed: () => _set(target),
       child: Text(label),
     );
@@ -82,7 +87,7 @@ class _BetSizerState extends State<BetSizer> {
       onPointerUp: (_) => _stopRepeat(),
       onPointerCancel: (_) => _stopRepeat(),
       child: OutlinedButton(
-        onPressed: () {},
+        onPressed: () => _change(delta),
         child: Text(label),
       ),
     );
@@ -112,12 +117,12 @@ class _BetSizerState extends State<BetSizer> {
         Wrap(
           spacing: 8,
           children: [
-            _presetButton('1/4', widget.pot * 0.25),
-            _presetButton('1/2', widget.pot * 0.5),
-            _presetButton('2/3', widget.pot * 2 / 3),
-            _presetButton('3/4', widget.pot * 0.75),
-            _presetButton('Pot', widget.pot),
-            _presetButton('All-in', widget.stack),
+            _presetButton('1/4', _clamp(widget.pot * 0.25)),
+            _presetButton('1/2', _clamp(widget.pot * 0.5)),
+            _presetButton('2/3', _clamp(widget.pot * 2 / 3)),
+            _presetButton('3/4', _clamp(widget.pot * 0.75)),
+            _presetButton('Pot', _clamp(widget.pot)),
+            _presetButton('All-in', _clamp(widget.stack)),
           ],
         ),
         Slider(
@@ -126,6 +131,7 @@ class _BetSizerState extends State<BetSizer> {
           max: widget.max,
           onChanged: _set,
         ),
+        const SizedBox(height: 4),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
@@ -135,7 +141,7 @@ class _BetSizerState extends State<BetSizer> {
             _stepper('+1BB', widget.bb),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
