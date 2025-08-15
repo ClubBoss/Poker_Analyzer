@@ -117,6 +117,30 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
   }
 
+  List<UiSpot> _parseSpots(Object? raw) {
+    final out = <UiSpot>[];
+    if (raw is List) {
+      for (final e in raw) {
+        if (e is Map<String, dynamic>) {
+          final k = e['k'], h = e['h'], p = e['p'], st = e['s'], a = e['a'];
+          if (k is int && h is String && p is String && st is String && a is String) {
+            out.add(UiSpot(
+              kind: SpotKind.values[k],
+              hand: h,
+              pos: p,
+              stack: st,
+              action: a,
+              vsPos: e['v'] as String?,
+              limpers: e['l'] as String?,
+              explain: e['e'] as String?,
+            ));
+          }
+        }
+      }
+    }
+    return out;
+  }
+
   @override
   Widget build(BuildContext context) {
     final sessions = _items.length;
@@ -130,33 +154,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
     final acc = total == 0 ? 0 : correct / total;
     final latest = _items.isNotEmpty ? _items.first : null;
-    final spots = <UiSpot>[];
-    if (latest != null) {
-      final rawSpots = latest['spots'];
-      if (rawSpots is List) {
-        for (final e in rawSpots) {
-          if (e is Map<String, dynamic>) {
-            final k = e['k'];
-            final h = e['h'];
-            final p = e['p'];
-            final st = e['s'];
-            final act = e['a'];
-            if (k is int && h is String && p is String && st is String && act is String) {
-              spots.add(UiSpot(
-                kind: SpotKind.values[k],
-                hand: h,
-                pos: p,
-                stack: st,
-                action: act,
-                vsPos: e['v'] as String?,
-                limpers: e['l'] as String?,
-                explain: e['e'] as String?,
-              ));
-            }
-          }
-        }
-      }
-    }
+    final spots = _parseSpots(latest?['spots']);
     final canReplay = spots.isNotEmpty;
     return Scaffold(
       appBar: AppBar(
