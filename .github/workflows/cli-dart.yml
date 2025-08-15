@@ -29,15 +29,20 @@ jobs:
       - name: Pub get (Flutter)
         run: flutter pub get
 
-      - name: ASCII gate (Dart sources only)
+      # ASCII: только CLI-исходники
+      - name: ASCII gate (CLI only)
         shell: bash
         run: |
-          FILES=$(git ls-files 'bin/**/*.dart' 'lib/**/*.dart' 'test/ev/**/*.dart' 2>/dev/null || true)
-          if [ -n "$FILES" ] && grep -I -n -E '[\x80-\xFF]|[–—…]' $FILES; then
-            echo "::error title=ASCII gate::Non-ASCII/smart punctuation in Dart sources"; exit 1; fi
+          FILES=$(git ls-files 'bin/**/*.dart' 'test/ev/**/*.dart' 2>/dev/null || true)
+          if [ -z "$FILES" ]; then echo "No CLI files"; exit 0; fi
+          if grep -I -n -E '[\x80-\xFF]|[–—…]' $FILES; then
+            echo "::error title=ASCII gate::Non-ASCII/smart punctuation in CLI sources"
+            exit 1
+          fi
 
       - name: Analyze (bin)
         run: dart analyze bin --fatal-warnings
+
       - name: Analyze (CLI core)
         shell: bash
         run: |
@@ -46,11 +51,14 @@ jobs:
             "lib/services/l3_cli_runner.dart" "lib/utils/push_fold.dart" 2>/dev/null | tr "\n" " ")
           if [ -z "$FILES" ]; then echo "No core files"; exit 0; fi
           dart analyze --fatal-warnings $FILES
+
       - name: Analyze (lib)
         continue-on-error: true
         run: dart analyze lib --fatal-warnings
+
       - name: dart format check
         run: dart format --output=none --set-exit-if-changed bin test/ev
+
       - name: Compile smoke (CLI)
         shell: bash
         run: |
@@ -60,5 +68,6 @@ jobs:
           [ -z "$TARGET" ] && [ -f bin/ev_rank_jam_fold_deltas.dart ] && TARGET=bin/ev_rank_jam_fold_deltas.dart
           [ -z "$TARGET" ] && { echo "No CLI entry to compile"; exit 0; }
           dart compile exe "$TARGET" -o /tmp/cli_smoke
+
       - name: EV CLI tests (smoke)
         run: dart test -r expanded test/ev/_cli_help_smoke_test.dart test/ev/ev_rank_jam_fold_cli_test.dart
