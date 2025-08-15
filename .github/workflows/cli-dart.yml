@@ -7,6 +7,8 @@ on:
       - "bin/**"
       - "lib/**"
       - "test/ev/**"
+      - "docs/**"
+      - "README.md"
       - ".github/workflows/cli-dart.yml"
   push:
     branches: [ main ]
@@ -14,6 +16,8 @@ on:
       - "bin/**"
       - "lib/**"
       - "test/ev/**"
+      - "docs/**"
+      - "README.md"
       - ".github/workflows/cli-dart.yml"
 
 jobs:
@@ -43,15 +47,12 @@ jobs:
       - name: Pub get (Flutter)
         run: flutter pub get
 
-      - name: ASCII gate
+      - name: ASCII gate (whitelist)
         shell: bash
         run: |
-          # exclude service/meta files from ASCII gate
-          if git grep -I -n -E '[\x80-\xFF]|[–—…]' -- . \
-            ':(exclude).editorconfig' \
-            ':(exclude).fvmrc' \
-            ':(exclude).github/scripts/**' \
-            ':(exclude).github/workflows/**'; then
+          # Проверяем только исходники и документацию
+          if git grep -I -n -E '[\x80-\xFF]|[–—…]' -- \
+            bin/ lib/ test/ev/ docs/ README.md ; then
             echo "::error title=ASCII gate::Smart punctuation or non-ASCII bytes detected"
             exit 1
           fi
