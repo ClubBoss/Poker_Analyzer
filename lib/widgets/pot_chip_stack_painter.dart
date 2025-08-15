@@ -8,11 +8,28 @@ class PotChipStackPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final radius = size.width / 2;
+    final chipSize = radius * 2;
+    final centerX = size.width / 2;
+    final baseY = size.height - radius;
+
+    // shadow under pot stack
+    final shadowPaint = Paint()
+      ..color = Colors.black.withOpacity(0.25)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
+    final w = chipSize * 1.8;
+    final h = chipSize * 0.5;
+    final rectShadow = Rect.fromCenter(
+      center: Offset(centerX, baseY + chipSize * 0.35),
+      width: w,
+      height: h,
+    );
+    canvas.drawOval(rectShadow, shadowPaint);
+
     final spacing = radius * 0.7;
     for (int i = 0; i < chipCount; i++) {
       final center = Offset(
-        size.width / 2,
-        size.height - radius - i * spacing,
+        centerX,
+        baseY - i * spacing,
       );
       final rect = Rect.fromCircle(center: center, radius: radius);
       final paint = Paint()
