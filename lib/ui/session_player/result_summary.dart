@@ -10,6 +10,7 @@ class ResultSummaryView extends StatefulWidget {
   final List<UiAnswer> answers;
   final VoidCallback onReplayErrors;
   final VoidCallback onRestart;
+  final ValueChanged<int>? onReplayOne; // index in [0..spots.length)
 
   const ResultSummaryView({
     super.key,
@@ -17,6 +18,7 @@ class ResultSummaryView extends StatefulWidget {
     required this.answers,
     required this.onReplayErrors,
     required this.onRestart,
+    this.onReplayOne,
   });
 
   @override
@@ -135,6 +137,13 @@ class _ResultSummaryViewState extends State<ResultSummaryView> {
                       ),
                     );
                   },
+                  trailing: IconButton(
+                    tooltip: 'Replay',
+                    icon: const Icon(Icons.play_arrow),
+                    onPressed: widget.onReplayOne == null
+                        ? null
+                        : () => widget.onReplayOne!(i),
+                  ),
                 );
               },
             ),
