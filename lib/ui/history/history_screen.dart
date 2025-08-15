@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../session_player/models.dart';
+import '../session_player/mvs_player.dart';
 import 'history_detail_screen.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -127,6 +129,35 @@ class _HistoryScreenState extends State<HistoryScreen> {
       correct += c;
     }
     final acc = total == 0 ? 0 : correct / total;
+    final latest = _items.isNotEmpty ? _items.first : null;
+    final spots = <UiSpot>[];
+    if (latest != null) {
+      final rawSpots = latest['spots'];
+      if (rawSpots is List) {
+        for (final e in rawSpots) {
+          if (e is Map<String, dynamic>) {
+            final k = e['k'];
+            final h = e['h'];
+            final p = e['p'];
+            final st = e['s'];
+            final act = e['a'];
+            if (k is int && h is String && p is String && st is String && act is String) {
+              spots.add(UiSpot(
+                kind: SpotKind.values[k],
+                hand: h,
+                pos: p,
+                stack: st,
+                action: act,
+                vsPos: e['v'] as String?,
+                limpers: e['l'] as String?,
+                explain: e['e'] as String?,
+              ));
+            }
+          }
+        }
+      }
+    }
+    final canReplay = spots.isNotEmpty;
     return Scaffold(
       appBar: AppBar(
         title: const Text('History'),
@@ -148,12 +179,34 @@ class _HistoryScreenState extends State<HistoryScreen> {
             child: Card(
               child: Padding(
                 padding: const EdgeInsets.all(8),
-                child: Column(
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Sessions: $sessions'),
-                    Text(
-                        'Hands: $correct/$total  •  Acc: ${(acc * 100).toStringAsFixed(0)}%'),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Sessions: $sessions'),
+                          Text(
+                              'Hands: $correct/$total  •  Acc: ${(acc * 100).toStringAsFixed(0)}%'),
+                        ],
+                      ),
+                    ),
+                    FilledButton.icon(
+                      icon: const Icon(Icons.play_arrow),
+                      label: const Text('Replay last'),
+                      onPressed: canReplay
+                          ? () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      Scaffold(body: MvsSessionPlayer(spots: spots)),
+                                ),
+                              );
+                            }
+                          : null,
+                    ),
                   ],
                 ),
               ),
