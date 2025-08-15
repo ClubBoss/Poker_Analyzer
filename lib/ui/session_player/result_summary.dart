@@ -32,6 +32,10 @@ class _ResultSummaryViewState extends State<ResultSummaryView> {
     final total = answers.length;
     final correct = answers.where((a) => a.correct).length;
     final acc = total == 0 ? 0.0 : correct / total;
+    final totalMs =
+        answers.fold<int>(0, (sum, a) => sum + a.elapsed.inMilliseconds);
+    final totalSecs = totalMs / 1000.0;
+    final avgSecs = total == 0 ? 0.0 : totalSecs / total;
 
     final indices = <int>[];
     for (var i = 0; i < answers.length && i < spots.length; i++) {
@@ -46,7 +50,10 @@ class _ResultSummaryViewState extends State<ResultSummaryView> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Accuracy ${(acc * 100).toStringAsFixed(0)}% ($correct/$total)'),
+              Text(
+                'Accuracy ${(acc * 100).toStringAsFixed(0)}% ($correct/$total) - '
+                '${totalSecs.toStringAsFixed(1)}s total - ${avgSecs.toStringAsFixed(1)}s avg',
+              ),
               Row(
                 children: [
                   const Text('Only errors'),
@@ -108,9 +115,9 @@ class _ResultSummaryViewState extends State<ResultSummaryView> {
                     a.correct ? Icons.check_circle : Icons.cancel,
                     color: a.correct ? Colors.green : Colors.red,
                   ),
-                  title: Text('Spot ${i + 1} — ${s.hand}'),
+                  title: Text('Spot ${i + 1} - ${s.hand}'),
                   subtitle: Text(
-                    'Expected: ${a.expected} • Chosen: ${a.chosen} • ${a.elapsed.inMilliseconds} ms',
+                    'Expected: ${a.expected} | Chosen: ${a.chosen} | ${a.elapsed.inMilliseconds} ms',
                   ),
                   onTap: () {
                     // Optional: future hook to open a single-spot review
