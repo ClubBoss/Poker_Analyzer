@@ -14,6 +14,9 @@ class BetSizer extends StatefulWidget {
   final VoidCallback onConfirm;
   final double? recall; // last chosen amount in chips; null = hidden
   final bool enableHotkeys;
+  final bool adaptive;
+  final int? street;
+  final double? spr;
 
   const BetSizer({
     super.key,
@@ -27,6 +30,9 @@ class BetSizer extends StatefulWidget {
     required this.onConfirm,
     this.recall,
     this.enableHotkeys = true,
+    this.adaptive = false,
+    this.street,
+    this.spr,
   });
 
   @override
@@ -135,6 +141,63 @@ class _BetSizerState extends State<BetSizer> {
     );
   }
 
+  List<Widget> _buildPresets() {
+    final presets = <Widget>[];
+    double clampv(double v) => _clamp(v);
+    void add(String label, double v) => presets.add(_presetButton(label, clampv(v)));
+
+    if (widget.recall != null) {
+      final v = widget.recall!.clamp(widget.min, widget.max).toDouble();
+      presets.add(OutlinedButton(
+        onPressed: () {
+          _set(v);
+        },
+        child: const Text('Recall'),
+      ));
+    }
+
+    if (!widget.adaptive || widget.street == null) {
+      add('1/4', widget.pot * 0.25);
+      add('1/2', widget.pot * 0.5);
+      add('2/3', widget.pot * 2 / 3);
+      add('3/4', widget.pot * 0.75);
+      add('Pot', widget.pot);
+      add('All-in', widget.stack);
+      return presets;
+    }
+
+    final st = widget.street!;
+    if (st == 0) {
+      add('2.5BB', widget.bb * 2.5);
+      add('3BB', widget.bb * 3.0);
+      add('3.5BB', widget.bb * 3.5);
+      add('4BB', widget.bb * 4.0);
+      add('All-in', widget.stack);
+      return presets;
+    }
+
+    final spr = (widget.spr ?? (widget.pot > 0 ? widget.stack / widget.pot : 9999)).toDouble();
+    if (spr >= 6) {
+      add('1/3', widget.pot / 3);
+      add('1/2', widget.pot * 0.5);
+      add('2/3', widget.pot * 2 / 3);
+      add('3/4', widget.pot * 0.75);
+      add('Pot', widget.pot);
+    } else if (spr >= 3) {
+      add('1/2', widget.pot * 0.5);
+      add('2/3', widget.pot * 2 / 3);
+      add('3/4', widget.pot * 0.75);
+      add('Pot', widget.pot);
+      add('All-in', widget.stack);
+    } else {
+      add('2/3', widget.pot * 2 / 3);
+      add('3/4', widget.pot * 0.75);
+      add('Pot', widget.pot);
+      add('All-in', widget.stack);
+    }
+    return presets;
+  }
+
   @override
   void dispose() {
     _stopRepeat();
@@ -165,27 +228,7 @@ class _BetSizerState extends State<BetSizer> {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: [
-            if (widget.recall != null)
-              OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  visualDensity: VisualDensity.compact,
-                ),
-                onPressed: () {
-                  final v =
-                      widget.recall!.clamp(widget.min, widget.max).toDouble();
-                  setState(() => _value = v);
-                  widget.onChanged(v);
-                },
-                child: const Text('Recall'),
-              ),
-            _presetButton('1/4', _clamp(widget.pot * 0.25)),
-            _presetButton('1/2', _clamp(widget.pot * 0.5)),
-            _presetButton('2/3', _clamp(widget.pot * 2 / 3)),
-            _presetButton('3/4', _clamp(widget.pot * 0.75)),
-            _presetButton('Pot', _clamp(widget.pot)),
-            _presetButton('All-in', _clamp(widget.stack)),
-          ],
+          children: _buildPresets(),
         ),
         const SizedBox(height: 8),
 

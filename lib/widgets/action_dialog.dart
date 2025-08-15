@@ -77,6 +77,9 @@ class _ActionDialogState extends State<ActionDialog> {
       pot: widget.pot.toDouble(),
       stack: widget.stackSize.toDouble(),
       recall: _lastAmountChips,
+      adaptive: true,
+      street: widget.street,
+      spr: widget.pot > 0 ? (widget.stackSize / widget.pot) : null,
       onChanged: (v) => setState(() => _amount = v),
       onConfirm: () => _selectBetAmount(_amount),
     );
