@@ -7,6 +7,7 @@ class UiPrefs {
   final bool timeEnabled;
   final int timeLimitMs;
   final bool sound;
+  final bool haptics;
   final bool autoWhyOnWrong;
   final int autoNextDelayMs;
   const UiPrefs({
@@ -14,6 +15,7 @@ class UiPrefs {
     required this.timeEnabled,
     required this.timeLimitMs,
     required this.sound,
+    required this.haptics,
     required this.autoWhyOnWrong,
     required this.autoNextDelayMs,
   });
@@ -24,6 +26,7 @@ class UiPrefs {
     "timeEnabled": timeEnabled,
     "timeLimitMs": timeLimitMs,
     "sound": sound,
+    "haptics": haptics,
     "autoWhyOnWrong": autoWhyOnWrong,
   };
 
@@ -35,6 +38,7 @@ class UiPrefs {
       timeEnabled: b(m["timeEnabled"], true),
       timeLimitMs: i(m["timeLimitMs"], 10000),
       sound: b(m["sound"], false),
+      haptics: b(m["haptics"], true),
       autoWhyOnWrong:
           b(m["autoWhyOnWrong"], b(m["autoExplainOnWrong"], true)),
       autoNextDelayMs: autoNextDelayMs,
@@ -52,6 +56,7 @@ Future<UiPrefs> loadUiPrefs({String path = 'out/ui_prefs_v1.json'}) async {
         timeEnabled: true,
         timeLimitMs: 10000,
         sound: false,
+        haptics: true,
         autoWhyOnWrong: true,
         autoNextDelayMs: delay as int);
   }
@@ -64,6 +69,7 @@ Future<UiPrefs> loadUiPrefs({String path = 'out/ui_prefs_v1.json'}) async {
       timeEnabled: true,
       timeLimitMs: 10000,
       sound: false,
+      haptics: true,
       autoWhyOnWrong: true,
       autoNextDelayMs: delay as int);
 }
