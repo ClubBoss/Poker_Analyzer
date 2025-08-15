@@ -23,6 +23,7 @@ class ActionDialog extends StatefulWidget {
 }
 
 class _ActionDialogState extends State<ActionDialog> {
+  static double? _lastAmountChips;
   String? _selected;
   double _amount = 1;
 
@@ -34,6 +35,7 @@ class _ActionDialogState extends State<ActionDialog> {
   }
 
   void _selectBetAmount(double amount) {
+    _lastAmountChips = amount.toDouble();
     Navigator.pop(
       context,
       ActionEntry(widget.street, widget.playerIndex, _selected!,
@@ -74,6 +76,7 @@ class _ActionDialogState extends State<ActionDialog> {
       bb: 1.0,
       pot: widget.pot.toDouble(),
       stack: widget.stackSize.toDouble(),
+      recall: _lastAmountChips,
       onChanged: (v) => setState(() => _amount = v),
       onConfirm: () => _selectBetAmount(_amount),
     );

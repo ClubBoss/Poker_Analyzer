@@ -11,6 +11,7 @@ class BetSizer extends StatefulWidget {
   final double stack;  // chips
   final ValueChanged<double> onChanged;
   final VoidCallback onConfirm;
+  final double? recall; // last chosen amount in chips; null = hidden
 
   const BetSizer({
     super.key,
@@ -22,6 +23,7 @@ class BetSizer extends StatefulWidget {
     required this.stack,
     required this.onChanged,
     required this.onConfirm,
+    this.recall,
   });
 
   @override
@@ -123,6 +125,19 @@ class _BetSizerState extends State<BetSizer> {
           spacing: 8,
           runSpacing: 8,
           children: [
+            if (widget.recall != null)
+              OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  visualDensity: VisualDensity.compact,
+                ),
+                onPressed: () {
+                  final v =
+                      widget.recall!.clamp(widget.min, widget.max).toDouble();
+                  setState(() => _value = v);
+                  widget.onChanged(v);
+                },
+                child: const Text('Recall'),
+              ),
             _presetButton('1/4', _clamp(widget.pot * 0.25)),
             _presetButton('1/2', _clamp(widget.pot * 0.5)),
             _presetButton('2/3', _clamp(widget.pot * 2 / 3)),

@@ -47,6 +47,7 @@ class _DetailedActionSheet extends StatefulWidget {
 }
 
 class _DetailedActionSheetState extends State<_DetailedActionSheet> {
+  static double? _lastAmountChips;
   String? _action;
   double _amount = 1;
   late int _street;
@@ -81,6 +82,9 @@ class _DetailedActionSheetState extends State<_DetailedActionSheet> {
 
   void _confirm() {
     if (_action == null) return;
+    if (_action == 'bet' || _action == 'raise') {
+      _lastAmountChips = _amount;
+    }
     final result = <String, dynamic>{
       'action': _action,
       'amount': _needAmount ? _amount.round() : null,
@@ -149,6 +153,7 @@ class _DetailedActionSheetState extends State<_DetailedActionSheet> {
               bb: 1.0,
               pot: widget.potSizeBB.toDouble(),
               stack: widget.stackSizeBB.toDouble(),
+              recall: _lastAmountChips,
               onChanged: (v) => setState(() => _amount = v),
               onConfirm: _confirm,
             ),
