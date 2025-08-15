@@ -27,6 +27,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
   final _focusNode = FocusNode();
   Timer? _ticker;
   String? _chosen;
+  bool _showExplain = false;
 
   @override
   void initState() {
@@ -74,6 +75,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
     setState(() {
       _index++;
       _chosen = null;
+      _showExplain = false;
       _timer
         ..reset()
         ..start();
@@ -88,6 +90,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
       _index = 0;
       _answers.clear();
       _chosen = null;
+      _showExplain = false;
       _timer
         ..reset()
         ..start();
@@ -147,7 +150,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
             _onAction(actions[2]);
           }
         } else {
-          if (event.logicalKey == LogicalKeyboardKey.enter ||
+          if (event.logicalKey == LogicalKeyboardKey.keyH) {
+            setState(() => _showExplain = !_showExplain);
+          } else if (event.logicalKey == LogicalKeyboardKey.enter ||
               event.logicalKey == LogicalKeyboardKey.space) {
             _next();
           }
@@ -200,6 +205,25 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
                             ? Colors.green
                             : Colors.red,
                       ),
+                    ),
+                    TextButton(
+                      onPressed: () =>
+                          setState(() => _showExplain = !_showExplain),
+                      style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                      ),
+                      child: const Text('Why?'),
+                    ),
+                    AnimatedCrossFade(
+                      firstChild: const SizedBox.shrink(),
+                      secondChild: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Text(spot.explain ?? 'No explanation'),
+                      ),
+                      crossFadeState: _showExplain
+                          ? CrossFadeState.showSecond
+                          : CrossFadeState.showFirst,
+                      duration: const Duration(milliseconds: 200),
                     ),
                     const SizedBox(height: 24),
                     ElevatedButton(
