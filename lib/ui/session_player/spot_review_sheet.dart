@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'models.dart';
@@ -60,7 +61,9 @@ class SpotReviewSheet extends StatelessWidget {
                       'elapsed_ms': answer.elapsed.inMilliseconds,
                       'explain': spot.explain,
                     };
-                    await Clipboard.setData(ClipboardData(text: m.toString()));
+                    final json = const JsonEncoder.withIndent('  ').convert(m);
+                    await Clipboard.setData(ClipboardData(text: json));
+                    try { HapticFeedback.selectionClick(); } catch (_) {}
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Copied')));
                     }
