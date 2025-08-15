@@ -114,7 +114,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       sound: false,
       haptics: true,
       autoWhyOnWrong: true,
-      autoNextDelayMs: 600);
+      autoNextDelayMs: 600,
+      fontScale: 1.0);
   bool _autoNext = false;
   int _timeLimitMs = 10000; // 10s default
   bool _timeEnabled = true; // can toggle
@@ -499,6 +500,11 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     } else {
       child = _buildSpotCard(_spots[_index]);
     }
+    final mq = MediaQuery.of(context);
+    final scaled = mq.copyWith(
+      textScaler: TextScaler.linear((_prefs.fontScale).clamp(0.9, 1.3)),
+    );
+    final player = MediaQuery(data: scaled, child: child);
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -543,6 +549,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                   bool sound = _prefs.sound;
                   bool haptics = _prefs.haptics;
                   bool autoWhy = _prefs.autoWhyOnWrong;
+                  double fontScale = _prefs.fontScale;
                   final ctrl =
                       TextEditingController(text: limit.toString());
                   return Padding(
@@ -607,6 +614,26 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                         ]),
                         const SizedBox(height: 8),
                         Row(children: [
+                          const Text('Font size'),
+                          const Spacer(),
+                          ChoiceChip(
+                              label: const Text('L'),
+                              selected: fontScale <= 1.0,
+                              onSelected: (_) {
+                                fontScale = 1.0;
+                                (ctx as Element).markNeedsBuild();
+                              }),
+                          const SizedBox(width: 8),
+                          ChoiceChip(
+                              label: const Text('XL'),
+                              selected: fontScale > 1.0,
+                              onSelected: (_) {
+                                fontScale = 1.15;
+                                (ctx as Element).markNeedsBuild();
+                              }),
+                        ]),
+                        const SizedBox(height: 8),
+                        Row(children: [
                           const Text('Auto Why on wrong'),
                           const Spacer(),
                           Switch(
@@ -633,6 +660,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                                   "sound": sound,
                                   "haptics": haptics,
                                   "autoWhyOnWrong": autoWhy,
+                                  "fontScale": fontScale,
                                 });
                               },
                               child: const Text('Save'),
@@ -655,6 +683,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                   haptics: r["haptics"] == true,
                   autoWhyOnWrong: r["autoWhyOnWrong"] == true,
                   autoNextDelayMs: _prefs.autoNextDelayMs,
+                  fontScale: (r["fontScale"] is num)
+                      ? (r["fontScale"] as num).toDouble()
+                      : _prefs.fontScale,
                 );
                 await saveUiPrefs(p);
                 if (!mounted) return;
@@ -676,7 +707,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             absorbing: _paused,
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
-              child: child,
+              child: player,
             ),
           ),
           if (_paused)
