@@ -54,7 +54,7 @@ class _RewardGalleryScreenState extends State<RewardGalleryScreen> {
               ),
             );
           }
-          final groups = snapshot.data!;
+          final groups = snapshot.data ?? const <TrackRewardGroup>[];
           if (groups.isEmpty) {
             return const Center(child: Text('Вы ещё не получили наград'));
           }
@@ -109,7 +109,7 @@ class _RewardGalleryScreenState extends State<RewardGalleryScreen> {
                     padding: const EdgeInsets.only(left: 72, top: 4, bottom: 8),
                     child: Text('Этап ${r.stageIndex}'),
                   ),
-              ]
+              ],
             ],
           );
         },
