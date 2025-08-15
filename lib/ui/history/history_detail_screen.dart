@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../session_player/models.dart';
+import '../session_player/mvs_player.dart';
+
 class HistoryDetailScreen extends StatelessWidget {
   const HistoryDetailScreen({super.key, required this.entry});
 
@@ -14,11 +17,47 @@ class HistoryDetailScreen extends StatelessWidget {
     final dt = DateTime.tryParse(ts)?.toLocal();
     final dateStr = dt?.toString() ?? ts;
 
-    void showNotAvailable() {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Not available (v1)')),
-      );
+    final rawSpots = entry['spots'];
+    final spots = <UiSpot>[];
+    if (rawSpots is List) {
+      for (final e in rawSpots) {
+        if (e is Map<String, dynamic>) {
+          final k = e['k'];
+          final h = e['h'];
+          final p = e['p'];
+          final st = e['s'];
+          final act = e['a'];
+          if (k is int && h is String && p is String && st is String && act is String) {
+            spots.add(UiSpot(
+              kind: SpotKind.values[k],
+              hand: h,
+              pos: p,
+              stack: st,
+              action: act,
+              vsPos: e['v'] as String?,
+              limpers: e['l'] as String?,
+              explain: e['e'] as String?,
+            ));
+          }
+        }
+      }
     }
+
+    final rawWrong = entry['wrongIdx'];
+    final wrongIdx = <int>[];
+    if (rawWrong is List) {
+      for (final w in rawWrong) {
+        if (w is int) wrongIdx.add(w);
+      }
+    }
+    final wrongOnly = wrongIdx.isEmpty
+        ? spots
+        : [
+            for (final i in wrongIdx)
+              if (i >= 0 && i < spots.length) spots[i]
+          ];
+
+    final canReplay = spots.isNotEmpty;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Session')),
@@ -42,11 +81,31 @@ class HistoryDetailScreen extends StatelessWidget {
             alignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
-                onPressed: total == 0 ? null : showNotAvailable,
+                onPressed: canReplay
+                    ? () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                Scaffold(body: MvsSessionPlayer(spots: wrongOnly)),
+                          ),
+                        );
+                      }
+                    : null,
                 child: const Text('Replay errors'),
               ),
               ElevatedButton(
-                onPressed: total == 0 ? null : showNotAvailable,
+                onPressed: canReplay
+                    ? () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                Scaffold(body: MvsSessionPlayer(spots: spots)),
+                          ),
+                        );
+                      }
+                    : null,
                 child: const Text('Replay all'),
               ),
             ],
