@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UiPrefs {
   final bool autoNext;
@@ -7,12 +8,14 @@ class UiPrefs {
   final int timeLimitMs;
   final bool sound;
   final bool autoExplainOnWrong;
+  final int autoNextDelayMs;
   const UiPrefs({
     required this.autoNext,
     required this.timeEnabled,
     required this.timeLimitMs,
     required this.sound,
     required this.autoExplainOnWrong,
+    required this.autoNextDelayMs,
   });
 
   Map<String, dynamic> toJson() => {
@@ -24,7 +27,7 @@ class UiPrefs {
     "autoExplainOnWrong": autoExplainOnWrong,
   };
 
-  static UiPrefs fromJson(Map m) {
+  static UiPrefs fromJson(Map m, {required int autoNextDelayMs}) {
     bool b(Object? x, bool d) => x is bool ? x : d;
     int i(Object? x, int d) => x is int ? x : (x is num ? x.toInt() : d);
     return UiPrefs(
@@ -33,20 +36,35 @@ class UiPrefs {
       timeLimitMs: i(m["timeLimitMs"], 10000),
       sound: b(m["sound"], false),
       autoExplainOnWrong: b(m["autoExplainOnWrong"], false),
+      autoNextDelayMs: autoNextDelayMs,
     );
   }
 }
 
 Future<UiPrefs> loadUiPrefs({String path = 'out/ui_prefs_v1.json'}) async {
+  final prefs = await SharedPreferences.getInstance();
+  final delay = (prefs.getInt('ui_auto_next_delay_ms') ?? 600).clamp(300, 800);
   final f = File(path);
   if (!await f.exists()) {
-    return const UiPrefs(autoNext: false, timeEnabled: true, timeLimitMs: 10000, sound: false, autoExplainOnWrong: false);
+    return UiPrefs(
+        autoNext: false,
+        timeEnabled: true,
+        timeLimitMs: 10000,
+        sound: false,
+        autoExplainOnWrong: false,
+        autoNextDelayMs: delay as int);
   }
   try {
     final root = jsonDecode(await f.readAsString());
-    if (root is Map) return UiPrefs.fromJson(root);
+    if (root is Map) return UiPrefs.fromJson(root, autoNextDelayMs: delay as int);
   } catch (_) {}
-  return const UiPrefs(autoNext: false, timeEnabled: true, timeLimitMs: 10000, sound: false, autoExplainOnWrong: false);
+  return UiPrefs(
+      autoNext: false,
+      timeEnabled: true,
+      timeLimitMs: 10000,
+      sound: false,
+      autoExplainOnWrong: false,
+      autoNextDelayMs: delay as int);
 }
 
 Future<void> saveUiPrefs(UiPrefs p, {String path = 'out/ui_prefs_v1.json'}) async {
@@ -54,4 +72,7 @@ Future<void> saveUiPrefs(UiPrefs p, {String path = 'out/ui_prefs_v1.json'}) asyn
   await f.parent.create(recursive: true);
   final s = const JsonEncoder.withIndent('  ').convert(p.toJson());
   await f.writeAsString(s);
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setInt('ui_auto_next_delay_ms',
+      (p.autoNextDelayMs).clamp(300, 800) as int);
 }
