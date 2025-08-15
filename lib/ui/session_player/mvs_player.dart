@@ -175,7 +175,16 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     if (_index >= _spots.length || _chosen != null) return;
     _autoNextTimer?.cancel();
     _timebarTicker?.cancel();
+    final spot = _spots[_index];
     setState(() {
+      // считаем пропуск как неправильный ответ,
+      // чтобы длины spots/answers оставались согласованы
+      _answers.add(UiAnswer(
+        correct: false,
+        expected: spot.action,
+        chosen: '(skip)',
+        elapsed: _timer.elapsed,
+      ));
       _index++;
       _chosen = null;
       _showExplain = false;
@@ -246,7 +255,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
 
   void _replayErrors() {
     final wrong = <UiSpot>[];
-    for (var i = 0; i < _spots.length; i++) {
+    // идём по имеющимся ответам; пропуски уже помечены как incorrect
+    for (var i = 0; i < _answers.length; i++) {
       if (!_answers[i].correct) wrong.add(_spots[i]);
     }
     if (wrong.isEmpty) {
