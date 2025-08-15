@@ -17,10 +17,80 @@ import 'mini_toast.dart';
 import 'models.dart';
 import 'result_summary.dart';
 import 'ui_prefs.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MvsSessionPlayer extends StatefulWidget {
   final List<UiSpot> spots;
-  const MvsSessionPlayer({super.key, required this.spots});
+  final int? initialIndex;
+  final List<UiAnswer>? initialAnswers;
+  const MvsSessionPlayer(
+      {super.key, required this.spots, this.initialIndex, this.initialAnswers});
+
+  static Future<MvsSessionPlayer?> fromSaved() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!(prefs.getBool('resume_active') ?? false)) return null;
+    final s = prefs.getString('resume_spots');
+    final i = prefs.getInt('resume_index');
+    final a = prefs.getString('resume_answers');
+    if (s == null || i == null || a == null) return null;
+    try {
+      final spotsData = jsonDecode(s);
+      final answersData = jsonDecode(a);
+      if (spotsData is! List || answersData is! List) return null;
+      final spots = <UiSpot>[];
+      for (final e in spotsData) {
+        if (e is Map<String, dynamic>) {
+          final k = e['k'];
+          final h = e['h'];
+          final p = e['p'];
+          final st = e['s'];
+          final act = e['a'];
+          if (k is int && h is String && p is String && st is String && act is String) {
+            spots.add(UiSpot(
+              kind: SpotKind.values[k],
+              hand: h,
+              pos: p,
+              stack: st,
+              action: act,
+              vsPos: e['v'] as String?,
+              limpers: e['l'] as String?,
+              explain: e['e'] as String?,
+            ));
+          } else {
+            return null;
+          }
+        } else {
+          return null;
+        }
+      }
+      final answers = <UiAnswer>[];
+      for (final e in answersData) {
+        if (e is Map<String, dynamic>) {
+          final c = e['correct'];
+          final ex = e['expected'];
+          final ch = e['chosen'];
+          final ms = e['elapsedMs'];
+          if (c is bool && ex is String && ch is String && ms is int) {
+            answers.add(UiAnswer(
+              correct: c,
+              expected: ex,
+              chosen: ch,
+              elapsed: Duration(milliseconds: ms),
+            ));
+          } else {
+            return null;
+          }
+        } else {
+          return null;
+        }
+      }
+      if (i < 0 || i > spots.length) return null;
+      return MvsSessionPlayer(
+          spots: spots, initialIndex: i, initialAnswers: answers);
+    } catch (_) {
+      return null;
+    }
+  }
 
   @override
   State<MvsSessionPlayer> createState() => _MvsSessionPlayerState();
@@ -63,6 +133,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   void initState() {
     super.initState();
     _spots = widget.spots;
+    _index = widget.initialIndex ?? 0;
+    _answers.addAll(widget.initialAnswers ?? const []);
     _timer.start();
     _startTicker();
     _startTimebar();
@@ -125,6 +197,44 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     });
   }
 
+  Future<void> _saveProgress() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('resume_active', true);
+    await prefs.setString(
+        'resume_spots',
+        jsonEncode(_spots
+            .map((s) => {
+                  'k': s.kind.index,
+                  'h': s.hand,
+                  'p': s.pos,
+                  's': s.stack,
+                  'a': s.action,
+                  if (s.vsPos != null) 'v': s.vsPos,
+                  if (s.limpers != null) 'l': s.limpers,
+                  if (s.explain != null) 'e': s.explain,
+                })
+            .toList()));
+    await prefs.setInt('resume_index', _index);
+    await prefs.setString(
+        'resume_answers',
+        jsonEncode(_answers
+            .map((a) => {
+                  'correct': a.correct,
+                  'expected': a.expected,
+                  'chosen': a.chosen,
+                  'elapsedMs': a.elapsed.inMilliseconds,
+                })
+            .toList()));
+  }
+
+  Future<void> _clearSaved() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('resume_active', false);
+    await prefs.remove('resume_spots');
+    await prefs.remove('resume_index');
+    await prefs.remove('resume_answers');
+  }
+
   void _togglePause() {
     if (_paused) {
       setState(() => _paused = false);
@@ -174,6 +284,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         _showExplain = true;
       }
     });
+    unawaited(_saveProgress());
     // micro-feedback: toast + pulse + flash tint
     unawaited(showMiniToast(context, correct ? 'Correct' : 'Wrong'));
     _answerPulseCtrl.forward(from: 0.0);
@@ -211,6 +322,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     });
     _startTicker();
     _startTimebar();
+    unawaited(_saveProgress());
     try { HapticFeedback.selectionClick(); } catch (_) {}
     unawaited(showMiniToast(context, 'Undo'));
   }
@@ -242,6 +354,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       _startTimebar();
       _focusNode.requestFocus();
     }
+    unawaited(_saveProgress());
     try { HapticFeedback.selectionClick(); } catch (_) {}
     unawaited(showMiniToast(context, 'Skipped'));
   }
@@ -275,12 +388,14 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         ..reset()
         ..start();
     });
+    unawaited(_saveProgress());
     _startTicker();
     _startTimebar();
     _focusNode.requestFocus();
   }
 
   void _appendSessionHistory() {
+    unawaited(_clearSaved());
     if (kIsWeb) return;
     final total = _spots.length;
     final correct = _answers.where((a) => a.correct).length;
