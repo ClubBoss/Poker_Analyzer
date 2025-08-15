@@ -33,6 +33,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          flutter-version: '3.27.0'
           cache: true
 
       - name: Flutter version
@@ -49,7 +50,7 @@ jobs:
       - name: Pub get (via Flutter)
         run: flutter pub get
 
-      # ВАЖНО: проверяем ASCII-кавычки только в CLI-области
+      # ВАЖНО: ASCII-пунктуация только в CLI-области
       - name: Fail on smart quotes / punctuation (CLI scope)
         shell: bash
         run: |
@@ -64,7 +65,7 @@ jobs:
             exit 1
           fi
 
-      # формат/анализ по CLI-области
+      # Формат: только проверка и только CLI-область (lib/l10n/** не трогаем)
       - name: Format check (CLI only)
         run: dart format --output=none --set-exit-if-changed bin test/ev
 
