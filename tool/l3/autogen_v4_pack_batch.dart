@@ -1,39 +1,76 @@
 import 'dart:io';
 
-import 'package:args/args.dart';
 import 'package:poker_analyzer/l3/autogen_v4/board_street_generator.dart';
 import 'package:poker_analyzer/l3/autogen_v4/pack_fs.dart';
 import 'package:poker_analyzer/l3/autogen_v4/spot_pack.dart';
 
 void main(List<String> args) {
-  final parser = ArgParser()
-    ..addOption('seeds')
-    ..addOption('range')
-    ..addOption('count', defaultsTo: '40')
-    ..addOption('preset', defaultsTo: 'mvs')
-    ..addOption('format', defaultsTo: 'compact')
-    ..addOption('out', defaultsTo: 'out/l3_packs')
-    ..addFlag('overwrite', defaultsTo: false);
+  String? seedsStr;
+  String? rangeStr;
+  var countStr = '40';
+  var preset = 'mvs';
+  var format = 'compact';
+  var outStr = 'out/l3_packs';
+  var overwrite = false;
 
-  ArgResults res;
-  try {
-    res = parser.parse(args);
-  } catch (_) {
-    _usage();
-    exit(2);
+  for (final arg in args) {
+    if (arg == '--overwrite') {
+      overwrite = true;
+      continue;
+    }
+    if (!arg.startsWith('--')) {
+      _usage();
+      exit(2);
+    }
+    final eq = arg.indexOf('=');
+    if (eq == -1) {
+      _usage();
+      exit(2);
+    }
+    final name = arg.substring(2, eq);
+    final value = arg.substring(eq + 1);
+    switch (name) {
+      case 'seeds':
+        seedsStr = value;
+        break;
+      case 'range':
+        rangeStr = value;
+        break;
+      case 'count':
+        countStr = value;
+        break;
+      case 'preset':
+        preset = value;
+        break;
+      case 'format':
+        format = value;
+        break;
+      case 'out':
+        outStr = value;
+        break;
+      case 'overwrite':
+        if (value == 'true') {
+          overwrite = true;
+        } else if (value == 'false') {
+          overwrite = false;
+        } else {
+          _usage();
+          exit(2);
+        }
+        break;
+      default:
+        _usage();
+        exit(2);
+    }
   }
 
-  final seedsStr = res['seeds'] as String?;
-  final rangeStr = res['range'] as String?;
   if ((seedsStr == null && rangeStr == null) ||
       (seedsStr != null && rangeStr != null)) {
     _usage();
     exit(2);
   }
 
-  final count = int.tryParse(res['count'] as String? ?? '');
-  final preset = res['preset'] as String?;
-  final format = res['format'] as String?;
+  final count = int.tryParse(countStr);
   if (count == null ||
       preset != 'mvs' ||
       (format != 'compact' && format != 'pretty')) {
@@ -68,9 +105,8 @@ void main(List<String> args) {
     }
   }
 
-  final outDir = Directory(res['out'] as String);
+  final outDir = Directory(outStr);
   outDir.createSync(recursive: true);
-  final overwrite = res['overwrite'] as bool;
 
   // Pre-check for existing files when overwrite is false.
   for (final seed in seeds) {
@@ -96,8 +132,8 @@ void main(List<String> args) {
     final file = writePackFile(
       pack,
       outDir: outDir,
-      preset: preset!,
-      format: format!,
+      preset: preset,
+      format: format,
     );
     final bytes = file.readAsBytesSync();
     final h32 = h32Hex(bytes);
