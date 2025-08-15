@@ -6,11 +6,13 @@ class UiPrefs {
   final bool timeEnabled;
   final int timeLimitMs;
   final bool sound;
+  final bool autoExplainOnWrong;
   const UiPrefs({
     required this.autoNext,
     required this.timeEnabled,
     required this.timeLimitMs,
     required this.sound,
+    required this.autoExplainOnWrong,
   });
 
   Map<String, dynamic> toJson() => {
@@ -19,6 +21,7 @@ class UiPrefs {
     "timeEnabled": timeEnabled,
     "timeLimitMs": timeLimitMs,
     "sound": sound,
+    "autoExplainOnWrong": autoExplainOnWrong,
   };
 
   static UiPrefs fromJson(Map m) {
@@ -29,6 +32,7 @@ class UiPrefs {
       timeEnabled: b(m["timeEnabled"], true),
       timeLimitMs: i(m["timeLimitMs"], 10000),
       sound: b(m["sound"], false),
+      autoExplainOnWrong: b(m["autoExplainOnWrong"], false),
     );
   }
 }
@@ -36,13 +40,13 @@ class UiPrefs {
 Future<UiPrefs> loadUiPrefs({String path = 'out/ui_prefs_v1.json'}) async {
   final f = File(path);
   if (!await f.exists()) {
-    return const UiPrefs(autoNext: false, timeEnabled: true, timeLimitMs: 10000, sound: false);
+    return const UiPrefs(autoNext: false, timeEnabled: true, timeLimitMs: 10000, sound: false, autoExplainOnWrong: false);
   }
   try {
     final root = jsonDecode(await f.readAsString());
     if (root is Map) return UiPrefs.fromJson(root);
   } catch (_) {}
-  return const UiPrefs(autoNext: false, timeEnabled: true, timeLimitMs: 10000, sound: false);
+  return const UiPrefs(autoNext: false, timeEnabled: true, timeLimitMs: 10000, sound: false, autoExplainOnWrong: false);
 }
 
 Future<void> saveUiPrefs(UiPrefs p, {String path = 'out/ui_prefs_v1.json'}) async {

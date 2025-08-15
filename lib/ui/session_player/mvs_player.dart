@@ -36,7 +36,11 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   String? _chosen;
   bool _showExplain = false;
   UiPrefs _prefs = const UiPrefs(
-      autoNext: false, timeEnabled: true, timeLimitMs: 10000, sound: false);
+      autoNext: false,
+      timeEnabled: true,
+      timeLimitMs: 10000,
+      sound: false,
+      autoExplainOnWrong: false);
   bool _autoNext = false;
   int _timeLimitMs = 10000; // 10s default
   bool _timeEnabled = true; // can toggle
@@ -164,6 +168,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         chosen: action,
         elapsed: _timer.elapsed,
       ));
+      if (!correct && _prefs.autoExplainOnWrong) {
+        _showExplain = true;
+      }
     });
     // micro-feedback: toast + pulse + flash tint
     unawaited(showMiniToast(context, correct ? 'Correct' : 'Wrong'));
@@ -362,6 +369,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                   bool timeEnabled = _timeEnabled;
                   int limit = _timeLimitMs;
                   bool sound = _prefs.sound;
+                  bool autoWhy = _prefs.autoExplainOnWrong;
                   final ctrl =
                       TextEditingController(text: limit.toString());
                   return Padding(
@@ -413,6 +421,17 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                                 (ctx as Element).markNeedsBuild();
                               })
                         ]),
+                        const SizedBox(height: 8),
+                        Row(children: [
+                          const Text('Auto Why on wrong'),
+                          const Spacer(),
+                          Switch(
+                              value: autoWhy,
+                              onChanged: (v) {
+                                autoWhy = v;
+                                (ctx as Element).markNeedsBuild();
+                              })
+                        ]),
                         const SizedBox(height: 12),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
@@ -427,7 +446,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                                   "autoNext": autoNext,
                                   "timeEnabled": timeEnabled,
                                   "timeLimitMs": limit,
-                                  "sound": sound
+                                  "sound": sound,
+                                  "autoExplainOnWrong": autoWhy,
                                 });
                               },
                               child: const Text('Save'),
@@ -447,6 +467,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                       ? r["timeLimitMs"] as int
                       : _timeLimitMs,
                   sound: r["sound"] == true,
+                  autoExplainOnWrong: r["autoExplainOnWrong"] == true,
                 );
                 await saveUiPrefs(p);
                 if (!mounted) return;
