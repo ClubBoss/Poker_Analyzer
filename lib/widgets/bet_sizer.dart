@@ -1,163 +1,157 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class BetSizer extends StatefulWidget {
-  final int pot;
-  final int stackSize;
-  final ValueChanged<int> onSelected;
-  final int? initialAmount;
-
+  final double min;
+  final double max;
+  final double value;
+  final double bb;
+  final double pot;
+  final double stack;
+  final ValueChanged<double> onChanged;
+  final VoidCallback onConfirm;
   const BetSizer({
-    Key? key,
+    super.key,
+    required this.min,
+    required this.max,
+    required this.value,
+    required this.bb,
     required this.pot,
-    required this.stackSize,
-    required this.onSelected,
-    this.initialAmount,
-  }) : super(key: key);
+    required this.stack,
+    required this.onChanged,
+    required this.onConfirm,
+  });
 
   @override
   State<BetSizer> createState() => _BetSizerState();
 }
 
-String _formatWithSpaces(String digits) {
-  final buffer = StringBuffer();
-  for (int i = 0; i < digits.length; i++) {
-    if (i > 0 && (digits.length - i) % 3 == 0) {
-      buffer.write(' ');
-    }
-    buffer.write(digits[i]);
-  }
-  return buffer.toString();
-}
-
-class _ThousandsFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
-    final digits = newValue.text.replaceAll(RegExp(r'\D'), '');
-    final formatted = _formatWithSpaces(digits);
-    return TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: formatted.length),
-    );
-  }
-}
-
 class _BetSizerState extends State<BetSizer> {
-  final TextEditingController _controller = TextEditingController();
-  final FocusNode _focusNode = FocusNode();
+  late double _value;
+  Timer? _repeat;
 
   @override
   void initState() {
     super.initState();
-    _controller.addListener(() => setState(() {}));
-    if (widget.initialAmount != null) {
-      final formatted = _formatWithSpaces(widget.initialAmount!.toString());
-      _controller.text = formatted;
+    _value = _clamp(widget.value);
+  }
+
+  @override
+  void didUpdateWidget(covariant BetSizer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.value != widget.value) {
+      _value = _clamp(widget.value);
     }
   }
 
-  int? get _currentAmount {
-    final digits = _controller.text.replaceAll(RegExp(r'\D'), '');
-    final int? value = int.tryParse(digits);
-    if (value == null || value <= 0) return null;
-    return value.clamp(1, widget.stackSize);
+  double _clamp(double v) => v.clamp(widget.min, widget.max);
+
+  void _set(double v) {
+    final nv = _clamp(v);
+    setState(() => _value = nv);
+    widget.onChanged(nv);
   }
 
-  void _setAmount(int amount) {
-    final clamped = amount.clamp(1, widget.stackSize);
-    final formatted = _formatWithSpaces(clamped.toString());
-    _controller.value = TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: formatted.length),
-    );
+  void _change(double delta) => _set(_value + delta);
+
+  void _startRepeat(double delta) {
+    _repeat?.cancel();
+    _repeat = Timer.periodic(const Duration(milliseconds: 120), (_) {
+      _change(delta);
+    });
   }
 
-  Widget _quickButton(String label, double fraction) {
-    final int amount = (widget.pot * fraction).round();
+  void _stopRepeat() {
+    _repeat?.cancel();
+    _repeat = null;
+  }
+
+  Widget _presetButton(String label, double target) {
     return OutlinedButton(
-      style: OutlinedButton.styleFrom(
-        foregroundColor: Colors.white,
-        side: const BorderSide(color: Colors.white54),
-      ),
-      onPressed: () => _setAmount(amount),
+      onPressed: () => _set(target),
       child: Text(label),
     );
   }
 
-  void _submit() {
-    final int? amount = _currentAmount;
-    if (amount != null) {
-      widget.onSelected(amount);
-      _controller.clear();
-      _focusNode.unfocus();
-    }
+  Widget _stepper(String label, double delta) {
+    return Listener(
+      onPointerDown: (_) {
+        _change(delta);
+        _startRepeat(delta);
+      },
+      onPointerUp: (_) => _stopRepeat(),
+      onPointerCancel: (_) => _stopRepeat(),
+      child: OutlinedButton(
+        onPressed: () {},
+        child: Text(label),
+      ),
+    );
   }
 
   @override
   void dispose() {
-    _controller.dispose();
-    _focusNode.dispose();
+    _stopRepeat();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool valid = _currentAmount != null;
+    final bbValue = _value / widget.bb;
+    final chips = _value.round();
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        Row(
+          children: [
+            const Text('Bet/Raise'),
+            const Spacer(),
+            Text('${bbValue.toStringAsFixed(1)} BB ($chips chips)'),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          children: [
+            _presetButton('1/4', widget.pot * 0.25),
+            _presetButton('1/2', widget.pot * 0.5),
+            _presetButton('2/3', widget.pot * 2 / 3),
+            _presetButton('3/4', widget.pot * 0.75),
+            _presetButton('Pot', widget.pot),
+            _presetButton('All-in', widget.stack),
+          ],
+        ),
+        Slider(
+          value: _value,
+          min: widget.min,
+          max: widget.max,
+          onChanged: _set,
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _quickButton('½ Pot', 0.5),
-            _quickButton('⅔ Pot', 2 / 3),
-            _quickButton('Pot', 1.0),
+            _stepper('-1BB', -widget.bb),
+            _stepper('-0.5BB', -widget.bb * 0.5),
+            _stepper('+0.5BB', widget.bb * 0.5),
+            _stepper('+1BB', widget.bb),
           ],
         ),
-        const SizedBox(height: 12),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: TextField(
-            controller: _controller,
-            focusNode: _focusNode,
-            keyboardType: TextInputType.number,
-            textInputAction: TextInputAction.done,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              _ThousandsFormatter(),
-            ],
-            style: const TextStyle(color: Colors.white),
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: Colors.white10,
-              contentPadding:
-                  const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              hintText: 'Введите ставку',
-              hintStyle: const TextStyle(color: Colors.white70),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            OutlinedButton(
+              onPressed: () => Navigator.maybePop(context),
+              child: const Text('Cancel'),
             ),
-            onSubmitted: (_) => _submit(),
-          ),
-        ),
-        const SizedBox(height: 16),
-        AnimatedOpacity(
-          duration: const Duration(milliseconds: 200),
-          opacity: valid ? 1.0 : 0.6,
-          child: ElevatedButton(
-            onPressed: valid ? _submit : null,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blueGrey,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 14),
+            const SizedBox(width: 8),
+            ElevatedButton(
+              onPressed: widget.onConfirm,
+              child: const Text('Confirm'),
             ),
-            child: const Text('OK'),
-          ),
+          ],
         ),
       ],
     );
   }
 }
+

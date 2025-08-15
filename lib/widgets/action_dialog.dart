@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/action_entry.dart';
 import '../models/poker_actions.dart';
+import 'bet_sizer.dart';
 
 /// Dialog allowing to quickly choose an action for a player.
 class ActionDialog extends StatefulWidget {
@@ -23,13 +24,7 @@ class ActionDialog extends StatefulWidget {
 
 class _ActionDialogState extends State<ActionDialog> {
   String? _selected;
-  double _slider = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _slider = 0;
-  }
+  double _amount = 1;
 
   void _selectSimple(String act) {
     Navigator.pop(
@@ -44,14 +39,6 @@ class _ActionDialogState extends State<ActionDialog> {
       ActionEntry(widget.street, widget.playerIndex, _selected!,
           amount: amount.clamp(1, widget.stackSize.toDouble())),
     );
-  }
-
-  void _onSliderChange(double value) {
-    setState(() => _slider = value);
-    final amt = value;
-    if (amt > 0) {
-      _selectBetAmount(amt);
-    }
   }
 
   Widget _actionButton(PokerAction action) {
@@ -70,7 +57,7 @@ class _ActionDialogState extends State<ActionDialog> {
         } else {
           setState(() {
             _selected = action.value;
-            _slider = 0;
+            _amount = 1;
           });
         }
       },
@@ -80,34 +67,15 @@ class _ActionDialogState extends State<ActionDialog> {
   }
 
   Widget _buildBetSizer() {
-    final int max = widget.stackSize;
-    return Column(
-      children: [
-        const SizedBox(height: 12),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            for (final f in [1 / 3, 0.5, 0.75, 1.0])
-              OutlinedButton(
-                onPressed: () {
-                  final amount = widget.pot * f;
-                  _selectBetAmount(amount);
-                },
-                child: Text('${(f * 100).round()}%'),
-              ),
-          ],
-        ),
-        Slider(
-          value: _slider,
-          min: 0,
-          max: max.toDouble(),
-          divisions: max,
-          label: _slider.round().toString(),
-          onChanged: _onSliderChange,
-        ),
-        Text('Amount: ${_slider.round()}',
-            style: const TextStyle(color: Colors.white)),
-      ],
+    return BetSizer(
+      min: 1,
+      max: widget.stackSize.toDouble(),
+      value: _amount,
+      bb: 1,
+      pot: widget.pot.toDouble(),
+      stack: widget.stackSize.toDouble(),
+      onChanged: (v) => setState(() => _amount = v),
+      onConfirm: () => _selectBetAmount(_amount),
     );
   }
 

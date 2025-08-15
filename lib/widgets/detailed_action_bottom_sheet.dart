@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../helpers/poker_street_helper.dart';
+import 'bet_sizer.dart';
 
 Future<Map<String, dynamic>?> showDetailedActionBottomSheet(
   BuildContext context, {
@@ -46,7 +47,6 @@ class _DetailedActionSheet extends StatefulWidget {
 }
 
 class _DetailedActionSheetState extends State<_DetailedActionSheet> {
-  final TextEditingController _controller = TextEditingController();
   String? _action;
   double _amount = 1;
   late int _street;
@@ -54,23 +54,13 @@ class _DetailedActionSheetState extends State<_DetailedActionSheet> {
   @override
   void initState() {
     super.initState();
-    _controller.addListener(_onTextChanged);
     _street = widget.currentStreet;
     if (widget.initialAction != null) {
       _action = widget.initialAction;
       if (widget.initialAmount != null) {
         _amount = widget.initialAmount!.toDouble();
-        _controller.text = widget.initialAmount!.toString();
       }
     }
-  }
-
-  @override
-  void dispose() {
-    _controller
-      ..removeListener(_onTextChanged)
-      ..dispose();
-    super.dispose();
   }
 
   bool get _needAmount => _action == 'bet' || _action == 'raise';
@@ -87,44 +77,6 @@ class _DetailedActionSheetState extends State<_DetailedActionSheet> {
         'street': _street,
       });
     }
-  }
-
-  void _onSliderChanged(double value) {
-    setState(() {
-      _amount = value;
-      _controller.text = value.round().toString();
-    });
-  }
-
-  void _onTextChanged() {
-    final v = int.tryParse(_controller.text);
-    if (v == null) return;
-    setState(() {
-      _amount = v.clamp(1, widget.stackSizeBB).toDouble();
-    });
-  }
-
-  void _setQuick(double fraction) {
-    final value = (widget.potSizeBB * fraction).round();
-    _onSliderChanged(value.clamp(1, widget.stackSizeBB).toDouble());
-  }
-
-  Widget _quickSizeButton(String label, double fraction) {
-    final bb = widget.potSizeBB * fraction;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        OutlinedButton(
-          onPressed: () => _setQuick(fraction),
-          child: Text(label),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          '(${bb.toStringAsFixed(1)} BB)',
-          style: const TextStyle(fontSize: 10, color: Colors.grey),
-        ),
-      ],
-    );
   }
 
   void _confirm() {
@@ -190,56 +142,15 @@ class _DetailedActionSheetState extends State<_DetailedActionSheet> {
           ],
           if (_needAmount) ...[
             const SizedBox(height: 20),
-            Slider(
-              value: _amount,
+            BetSizer(
               min: 1,
               max: widget.stackSizeBB.toDouble(),
-              divisions: widget.stackSizeBB - 1,
-              label: '${_amount.round()} BB',
-              onChanged: _onSliderChanged,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _quickSizeButton('1/3 pot', 1 / 3),
-                _quickSizeButton('1/2 pot', 1 / 2),
-                _quickSizeButton('pot', 1),
-                _quickSizeButton(
-                    'All-in', widget.stackSizeBB / widget.potSizeBB),
-              ],
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _controller,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.white10,
-                hintText: 'Amount in BB',
-                hintStyle: const TextStyle(color: Colors.white54),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              style: const TextStyle(color: Colors.white),
-            ),
-            const SizedBox(height: 4),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                '${_amount.toStringAsFixed(1)} BB',
-                style: const TextStyle(color: Colors.grey, fontSize: 12),
-              ),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _confirm,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueGrey,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-              ),
-              child: const Text('Confirm'),
+              value: _amount,
+              bb: 1,
+              pot: widget.potSizeBB.toDouble(),
+              stack: widget.stackSizeBB.toDouble(),
+              onChanged: (v) => setState(() => _amount = v),
+              onConfirm: _confirm,
             ),
           ],
         ],
