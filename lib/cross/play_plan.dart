@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'feed_fs.dart';
+
 class PlayPlanItem {
   final String id;
   final String kind;
@@ -40,3 +42,42 @@ String encodePlayPlanCompact(PlayPlan p) => jsonEncode(p.toJson());
 
 String encodePlayPlanPretty(PlayPlan p) =>
     const JsonEncoder.withIndent('  ').convert(p.toJson());
+
+PlayPlan buildPlayPlan(
+  List<FeedRef> refs, {
+  int target = 20,
+  int maxSlices = 0,
+}) {
+  final items = <PlayPlanItem>[];
+  var produced = 0;
+
+  for (final ref in refs) {
+    var remaining = ref.count;
+    var start = 0;
+    var index = 0;
+    final baseId = normFileName(ref.path);
+    while (remaining > 0) {
+      final take = remaining < target ? remaining : target;
+      final idx = index.toString().padLeft(4, '0');
+      final id = '${baseId}_$idx';
+      items.add(
+        PlayPlanItem(
+          id: id,
+          kind: ref.kind,
+          file: ref.path,
+          start: start,
+          count: take,
+        ),
+      );
+      produced++;
+      if (maxSlices > 0 && produced >= maxSlices) {
+        return PlayPlan(items: items);
+      }
+      start += take;
+      remaining -= take;
+      index++;
+    }
+  }
+
+  return PlayPlan(items: items);
+}
