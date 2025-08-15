@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import 'history_detail_screen.dart';
+
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
 
@@ -27,8 +29,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
         final entries = <Map<String, dynamic>>[];
         for (final line in lines) {
           if (line.trim().isEmpty) continue;
-          final obj = jsonDecode(line);
-          if (obj is Map<String, dynamic>) entries.add(obj);
+          try {
+            final obj = jsonDecode(line);
+            if (obj is Map<String, dynamic>) entries.add(obj);
+          } catch (_) {}
         }
         setState(() {
           _items = entries.reversed.take(20).toList();
@@ -53,6 +57,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
           return ListTile(
             title: Text(dateStr),
             subtitle: Text('$correct/$total (${(acc * 100).toStringAsFixed(0)}%)'),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => HistoryDetailScreen(entry: e),
+                ),
+              );
+            },
           );
         },
       ),
