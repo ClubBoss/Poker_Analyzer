@@ -26,8 +26,10 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
   final _timer = Stopwatch();
   final _focusNode = FocusNode();
   Timer? _ticker;
+  Timer? _autoNextTimer;
   String? _chosen;
   bool _showExplain = false;
+  bool _autoNext = false;
 
   @override
   void initState() {
@@ -40,6 +42,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
   @override
   void dispose() {
     _ticker?.cancel();
+    _autoNextTimer?.cancel();
     _focusNode.dispose();
     super.dispose();
   }
@@ -65,9 +68,17 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
         elapsed: _timer.elapsed,
       ));
     });
+    if (correct && _autoNext) {
+      _autoNextTimer?.cancel();
+      _autoNextTimer = Timer(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
+        if (_chosen != null && _answers[_index].correct) _next();
+      });
+    }
   }
 
   void _next() {
+    _autoNextTimer?.cancel();
     if (_index + 1 >= _spots.length) {
       setState(() => _index++);
       return;
@@ -85,6 +96,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
   }
 
   void _restart(List<UiSpot> spots) {
+    _autoNextTimer?.cancel();
     setState(() {
       _spots = spots;
       _index = 0;
@@ -138,6 +150,10 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
       autofocus: true,
       onKey: (event) {
         if (event is! RawKeyDownEvent) return;
+        if (event.logicalKey == LogicalKeyboardKey.keyA) {
+          setState(() => _autoNext = !_autoNext);
+          return;
+        }
         if (_chosen == null) {
           if (event.logicalKey == LogicalKeyboardKey.digit1 &&
               actions.length > 0) {
@@ -168,19 +184,31 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Spot ${_index + 1}/${_spots.length}'),
-                Text(
-                    't=${(_timer.elapsedMilliseconds / 1000).toStringAsFixed(1)}s'),
-              ],
+            Text(
+                't=${(_timer.elapsedMilliseconds / 1000).toStringAsFixed(1)}s'),
+          ],
+        ),
+        const SizedBox(height: 4),
+        LinearProgressIndicator(
+          value: (_index + 1) / _spots.length,
+        ),
+        const SizedBox(height: 4),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            const Text('Auto-next'),
+            Switch(
+              value: _autoNext,
+              onChanged: (v) => setState(() => _autoNext = v),
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-            const SizedBox(height: 4),
-            LinearProgressIndicator(
-              value: (_index + 1) / _spots.length,
-            ),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
+          ],
+        ),
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
                   Text(
                     spot.hand,
                     textAlign: TextAlign.center,
