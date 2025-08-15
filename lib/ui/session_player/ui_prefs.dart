@@ -7,14 +7,14 @@ class UiPrefs {
   final bool timeEnabled;
   final int timeLimitMs;
   final bool sound;
-  final bool autoExplainOnWrong;
+  final bool autoWhyOnWrong;
   final int autoNextDelayMs;
   const UiPrefs({
     required this.autoNext,
     required this.timeEnabled,
     required this.timeLimitMs,
     required this.sound,
-    required this.autoExplainOnWrong,
+    required this.autoWhyOnWrong,
     required this.autoNextDelayMs,
   });
 
@@ -24,7 +24,7 @@ class UiPrefs {
     "timeEnabled": timeEnabled,
     "timeLimitMs": timeLimitMs,
     "sound": sound,
-    "autoExplainOnWrong": autoExplainOnWrong,
+    "autoWhyOnWrong": autoWhyOnWrong,
   };
 
   static UiPrefs fromJson(Map m, {required int autoNextDelayMs}) {
@@ -35,7 +35,8 @@ class UiPrefs {
       timeEnabled: b(m["timeEnabled"], true),
       timeLimitMs: i(m["timeLimitMs"], 10000),
       sound: b(m["sound"], false),
-      autoExplainOnWrong: b(m["autoExplainOnWrong"], false),
+      autoWhyOnWrong:
+          b(m["autoWhyOnWrong"], b(m["autoExplainOnWrong"], true)),
       autoNextDelayMs: autoNextDelayMs,
     );
   }
@@ -51,7 +52,7 @@ Future<UiPrefs> loadUiPrefs({String path = 'out/ui_prefs_v1.json'}) async {
         timeEnabled: true,
         timeLimitMs: 10000,
         sound: false,
-        autoExplainOnWrong: false,
+        autoWhyOnWrong: true,
         autoNextDelayMs: delay as int);
   }
   try {
@@ -63,7 +64,7 @@ Future<UiPrefs> loadUiPrefs({String path = 'out/ui_prefs_v1.json'}) async {
       timeEnabled: true,
       timeLimitMs: 10000,
       sound: false,
-      autoExplainOnWrong: false,
+      autoWhyOnWrong: true,
       autoNextDelayMs: delay as int);
 }
 
