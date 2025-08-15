@@ -89,6 +89,8 @@ class _PlayFromPlanPageState extends State<PlayFromPlanPage> {
   late Future<List<PlanSlice>> _future;
   PlanProgress _progress = const PlanProgress({});
   final String _progressPath = 'out/plan/plan_progress_v1.json';
+  final _searchCtrl = TextEditingController();
+  String _statusFilter = 'all';
 
   @override
   void initState() {
@@ -98,6 +100,12 @@ class _PlayFromPlanPageState extends State<PlayFromPlanPage> {
       if (!mounted) return;
       setState(() => _progress = p);
     });
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
   }
 
   @override
@@ -128,52 +136,110 @@ class _PlayFromPlanPageState extends State<PlayFromPlanPage> {
             return Center(child: Text('Error: ${snap.error}'));
           }
           final slices = snap.data ?? [];
-          return ListView(
+          final q = _searchCtrl.text.trim().toLowerCase();
+          bool matches(PlanSlice s) {
+            final inText =
+                q.isEmpty || s.id.toLowerCase().contains(q) || s.kind.toLowerCase().contains(q);
+            final done = _progress.done[s.id] == true;
+            final inStatus = _statusFilter == 'all' ||
+                (_statusFilter == 'done' && done) ||
+                (_statusFilter == 'undone' && !done);
+            return inText && inStatus;
+          }
+          final filtered = [for (final s in slices) if (matches(s)) s];
+          return Column(
             children: [
-              for (final slice in slices)
-                ListTile(
-                  title: Text(slice.id),
-                  subtitle: Text('${slice.kind} · ${slice.count}'),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (_progress.done[slice.id] == true)
-                        const Icon(Icons.check_circle, color: Colors.green),
-                      const SizedBox(width: 8),
-                      TextButton(
-                        onPressed: () async {
-                          try {
-                            final spots = await loadSliceSpots(
-                              bundleDir: Directory(widget.bundleDir),
-                              slice: slice,
-                            );
-                            if (spots.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('No spots')),
-                              );
-                              return;
-                            }
-                            if (!context.mounted) return;
-                            await Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => Scaffold(
-                                  body: MvsSessionPlayer(spots: spots),
-                                ),
-                              ),
-                            );
-                            final updated = markDone(_progress, slice.id, done: true);
-                            await savePlanProgress(updated, path: _progressPath);
-                            if (!mounted) return;
-                            setState(() => _progress = updated);
-                          } catch (e) {
-                            if (!context.mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Error: $e')),
-                            );
-                          }
-                        },
-                        child: const Text('Play'),
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _searchCtrl,
+                        decoration: const InputDecoration(
+                          hintText: 'Search by id/kind...',
+                        ),
+                        onChanged: (_) => setState(() {}),
                       ),
+                    ),
+                    const SizedBox(width: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Filter'),
+                        DropdownButton<String>(
+                          value: _statusFilter,
+                          onChanged: (v) {
+                            if (v == null) return;
+                            setState(() => _statusFilter = v);
+                          },
+                          items: const [
+                            DropdownMenuItem(value: 'all', child: Text('all')),
+                            DropdownMenuItem(value: 'undone', child: Text('undone')),
+                            DropdownMenuItem(value: 'done', child: Text('done')),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              if (filtered.isEmpty)
+                const Expanded(
+                  child: Center(child: Text('No slices match')),
+                )
+              else
+                Expanded(
+                  child: ListView(
+                    children: [
+                      for (final slice in filtered)
+                        ListTile(
+                          title: Text(slice.id),
+                          subtitle: Text('${slice.kind} · ${slice.count}'),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (_progress.done[slice.id] == true)
+                                const Icon(Icons.check_circle, color: Colors.green),
+                              const SizedBox(width: 8),
+                              TextButton(
+                                onPressed: () async {
+                                  try {
+                                    final spots = await loadSliceSpots(
+                                      bundleDir: Directory(widget.bundleDir),
+                                      slice: slice,
+                                    );
+                                    if (spots.isEmpty) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('No spots')),
+                                      );
+                                      return;
+                                    }
+                                    if (!context.mounted) return;
+                                    await Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) => Scaffold(
+                                          body: MvsSessionPlayer(spots: spots),
+                                        ),
+                                      ),
+                                    );
+                                    final updated =
+                                        markDone(_progress, slice.id, done: true);
+                                    await savePlanProgress(updated, path: _progressPath);
+                                    if (!mounted) return;
+                                    setState(() => _progress = updated);
+                                  } catch (e) {
+                                    if (!context.mounted) return;
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Error: $e')),
+                                    );
+                                  }
+                                },
+                                child: const Text('Play'),
+                              ),
+                            ],
+                          ),
+                        ),
                     ],
                   ),
                 ),
