@@ -1,6 +1,11 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import 'answer_log.dart';
 import 'models.dart';
+import 'review_page.dart';
 
 class ResultSummaryView extends StatelessWidget {
   final List<UiSpot> spots;
@@ -61,6 +66,32 @@ class ResultSummaryView extends StatelessWidget {
           OutlinedButton(
             onPressed: onRestart,
             child: const Text('Restart'),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ReviewAnswersPage(
+                    spots: spots,
+                    answers: answers,
+                  ),
+                ),
+              );
+            },
+            child: const Text('Review answers'),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton(
+            onPressed: () async {
+              final json = const JsonEncoder.withIndent('  ')
+                  .convert(buildAnswerLog(spots, answers).toJson());
+              await Clipboard.setData(ClipboardData(text: json));
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(const SnackBar(content: Text('Copied')));
+            },
+            child: const Text('Export JSON'),
           ),
         ],
       ),
