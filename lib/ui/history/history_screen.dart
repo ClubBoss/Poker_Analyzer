@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'history_detail_screen.dart';
 
@@ -81,6 +82,39 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
   }
 
+  Future<void> _exportCsv() async {
+    try {
+      final dir = Directory('out');
+      if (!await dir.exists()) {
+        await dir.create(recursive: true);
+      }
+      final file = File('${dir.path}/sessions_history.csv');
+      final sink = file.openWrite(encoding: ascii);
+      sink.writeln('ts,acc,total,correct');
+      for (final e in _items.reversed) {
+        final ts = e['ts']?.toString() ?? '';
+        final acc = ((e['acc'] ?? 0) as num).toStringAsFixed(2);
+        final total = int.tryParse(e['total']?.toString() ?? '') ?? 0;
+        final correct = int.tryParse(e['correct']?.toString() ?? '') ?? 0;
+        sink.writeln('$ts,$acc,$total,$correct');
+      }
+      await sink.close();
+      final path = file.absolute.path;
+      await Clipboard.setData(ClipboardData(text: path));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Exported to $path')),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Export failed')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final sessions = _items.length;
@@ -97,6 +131,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
       appBar: AppBar(
         title: const Text('History'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.download),
+            onPressed: _exportCsv,
+          ),
           IconButton(
             icon: const Icon(Icons.delete),
             onPressed: _confirmClear,
