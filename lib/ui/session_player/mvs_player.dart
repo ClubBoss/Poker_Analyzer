@@ -12,6 +12,7 @@ import '../../widgets/active_timebar.dart';
 import 'mini_toast.dart';
 import 'models.dart';
 import 'result_summary.dart';
+import 'ui_prefs.dart';
 
 class MvsSessionPlayer extends StatefulWidget {
   final List<UiSpot> spots;
@@ -32,10 +33,12 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   Timer? _autoNextTimer;
   String? _chosen;
   bool _showExplain = false;
+  UiPrefs _prefs = const UiPrefs(
+      autoNext: false, timeEnabled: true, timeLimitMs: 10000, sound: false);
   bool _autoNext = false;
-  static const int _timeLimitMs = 10000; // 10s default
+  int _timeLimitMs = 10000; // 10s default
   bool _timeEnabled = true; // can toggle
-  int _timeLeftMs = _timeLimitMs;
+  int _timeLeftMs = 10000;
   Timer? _timebarTicker; // separate from _ticker
   late final AnimationController _answerPulseCtrl;
   late final Animation<double> _answerPulse;
@@ -56,6 +59,15 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     _answerPulse = Tween(begin: 1.0, end: 1.05)
         .chain(CurveTween(curve: Curves.easeOut))
         .animate(_answerPulseCtrl);
+    loadUiPrefs().then((p) {
+      if (!mounted) return;
+      setState(() {
+        _prefs = p;
+        _autoNext = p.autoNext;
+        _timeEnabled = p.timeEnabled;
+        _timeLeftMs = _timeLimitMs = p.timeLimitMs;
+      });
+    });
   }
 
   @override
@@ -105,6 +117,10 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     _timebarTicker?.cancel();
     final spot = _spots[_index];
     final correct = action == spot.action;
+    if (_prefs.sound) {
+      SystemSound.play(
+          correct ? SystemSoundType.click : SystemSoundType.alert);
+    }
     setState(() {
       _chosen = action;
       _answers.add(UiAnswer(
@@ -201,9 +217,124 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     } else {
       child = _buildSpotCard(_spots[_index]);
     }
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 300),
-      child: child,
+    return Scaffold(
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.tune),
+            onPressed: () async {
+              final r = await showModalBottomSheet<Map<String, dynamic>>(
+                context: context,
+                isScrollControlled: true,
+                builder: (ctx) {
+                  bool autoNext = _autoNext;
+                  bool timeEnabled = _timeEnabled;
+                  int limit = _timeLimitMs;
+                  bool sound = _prefs.sound;
+                  final ctrl =
+                      TextEditingController(text: limit.toString());
+                  return Padding(
+                    padding:
+                        MediaQuery.of(ctx).viewInsets + const EdgeInsets.all(16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(children: [
+                          const Text('Auto-next'),
+                          const Spacer(),
+                          Switch(
+                              value: autoNext,
+                              onChanged: (v) {
+                                autoNext = v;
+                                (ctx as Element).markNeedsBuild();
+                              })
+                        ]),
+                        Row(children: [
+                          const Text('Answer timer'),
+                          const Spacer(),
+                          Switch(
+                              value: timeEnabled,
+                              onChanged: (v) {
+                                timeEnabled = v;
+                                (ctx as Element).markNeedsBuild();
+                              })
+                        ]),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: ctrl,
+                          keyboardType:
+                              const TextInputType.numberWithOptions(signed: false, decimal: false),
+                          decoration:
+                              const InputDecoration(labelText: 'Time limit ms'),
+                          onChanged: (_) {
+                            final t = int.tryParse(ctrl.text);
+                            if (t != null) limit = t;
+                          },
+                        ),
+                        const SizedBox(height: 8),
+                        Row(children: [
+                          const Text('Sound'),
+                          const Spacer(),
+                          Switch(
+                              value: sound,
+                              onChanged: (v) {
+                                sound = v;
+                                (ctx as Element).markNeedsBuild();
+                              })
+                        ]),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                                onPressed: () => Navigator.pop(ctx),
+                                child: const Text('Cancel')),
+                            const SizedBox(width: 8),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(ctx, {
+                                  "autoNext": autoNext,
+                                  "timeEnabled": timeEnabled,
+                                  "timeLimitMs": limit,
+                                  "sound": sound
+                                });
+                              },
+                              child: const Text('Save'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+              if (r != null) {
+                final p = UiPrefs(
+                  autoNext: r["autoNext"] == true,
+                  timeEnabled: r["timeEnabled"] == true,
+                  timeLimitMs: (r["timeLimitMs"] is int)
+                      ? r["timeLimitMs"] as int
+                      : _timeLimitMs,
+                  sound: r["sound"] == true,
+                );
+                await saveUiPrefs(p);
+                if (!mounted) return;
+                setState(() {
+                  _prefs = p;
+                  _autoNext = p.autoNext;
+                  _timeEnabled = p.timeEnabled;
+                  _timeLimitMs = p.timeLimitMs;
+                  if (_chosen == null) _startTimebar();
+                });
+              }
+            },
+          ),
+        ],
+      ),
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: child,
+      ),
     );
   }
 
