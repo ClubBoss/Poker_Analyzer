@@ -24,7 +24,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Flutter включает Dart SDK
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -45,8 +44,14 @@ jobs:
         run: flutter pub get
 
       - name: ASCII gate
+        shell: bash
         run: |
-          if git grep -I -n -E '[\x80-\xFF]|[–—…]'; then
+          # exclude service/meta files from ASCII gate
+          if git grep -I -n -E '[\x80-\xFF]|[–—…]' -- . \
+            ':(exclude).editorconfig' \
+            ':(exclude).fvmrc' \
+            ':(exclude).github/scripts/**' \
+            ':(exclude).github/workflows/**'; then
             echo "::error title=ASCII gate::Smart punctuation or non-ASCII bytes detected"
             exit 1
           fi
@@ -55,6 +60,7 @@ jobs:
         run: dart analyze bin --fatal-warnings
 
       - name: Analyze (CLI core)
+        shell: bash
         run: |
           FILES=$(git ls-files \
             "bin/*.dart" \
@@ -73,6 +79,7 @@ jobs:
         run: dart format --output=none --set-exit-if-changed bin test/ev
 
       - name: Compile smoke (CLI)
+        shell: bash
         run: |
           TARGET=""
           if [ -f bin/ev_cli.dart ]; then TARGET=bin/ev_cli.dart; fi
@@ -82,5 +89,4 @@ jobs:
           dart compile exe "$TARGET" -o /tmp/cli_smoke
 
       - name: EV CLI tests (smoke)
-        run: |
-          dart test -r expanded test/ev/_cli_help_smoke_test.dart test/ev/ev_rank_jam_fold_cli_test.dart
+        run: dart test -r expanded test/ev/_cli_help_smoke_test.dart test/ev/ev_rank_jam_fold_cli_test.dart
