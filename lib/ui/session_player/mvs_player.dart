@@ -546,6 +546,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                   bool autoNext = _autoNext;
                   bool timeEnabled = _timeEnabled;
                   int limit = _timeLimitMs;
+                  int delayMs = _prefs.autoNextDelayMs.clamp(300, 800);
                   bool sound = _prefs.sound;
                   bool haptics = _prefs.haptics;
                   bool autoWhy = _prefs.autoWhyOnWrong;
@@ -567,6 +568,29 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                                 autoNext = v;
                                 (ctx as Element).markNeedsBuild();
                               })
+                        ]),
+                        Row(children: [
+                          const Text('Auto-next delay'),
+                          Expanded(
+                            child: Slider(
+                              value: delayMs.toDouble(),
+                              min: 300,
+                              max: 800,
+                              divisions: 10,
+                              label: '${delayMs} ms',
+                              onChanged: autoNext
+                                  ? (v) {
+                                      delayMs =
+                                          v.round().clamp(300, 800);
+                                      (ctx as Element).markNeedsBuild();
+                                    }
+                                  : null,
+                            ),
+                          ),
+                          SizedBox(
+                              width: 56,
+                              child:
+                                  Text('${delayMs} ms', textAlign: TextAlign.end)),
                         ]),
                         Row(children: [
                           const Text('Answer timer'),
@@ -655,6 +679,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                               onPressed: () {
                                 Navigator.pop(ctx, {
                                   "autoNext": autoNext,
+                                  "autoNextDelayMs": delayMs,
                                   "timeEnabled": timeEnabled,
                                   "timeLimitMs": limit,
                                   "sound": sound,
@@ -682,7 +707,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                   sound: r["sound"] == true,
                   haptics: r["haptics"] == true,
                   autoWhyOnWrong: r["autoWhyOnWrong"] == true,
-                  autoNextDelayMs: _prefs.autoNextDelayMs,
+                  autoNextDelayMs: (r["autoNextDelayMs"] is int)
+                      ? (r["autoNextDelayMs"] as int).clamp(300, 800)
+                      : _prefs.autoNextDelayMs,
                   fontScale: (r["fontScale"] is num)
                       ? (r["fontScale"] as num).toDouble()
                       : _prefs.fontScale,
