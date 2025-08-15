@@ -13,23 +13,29 @@ class PokerTablePainter extends CustomPainter {
       rect,
       Radius.circular(size.shortestSide * 0.04),
     );
-    final path = Path()..addRRect(rrect);
+    final pathRRect = Path()..addRRect(rrect);
 
-    canvas.drawShadow(path, Colors.black.withValues(alpha: 0.5), 12.0, true);
+    canvas.drawShadow(
+      pathRRect,
+      Colors.black.withOpacity(0.5),
+      12.0,
+      true,
+    );
 
     final base = _baseColor();
     final center = HSLColor.fromColor(base)
         .withLightness((HSLColor.fromColor(base).lightness + 0.10).clamp(0.0, 1.0))
         .toColor();
-    final radius = size.shortestSide * 0.65;
     final radial = RadialGradient(
       colors: [center, base],
       stops: const [0.0, 1.0],
     ).createShader(
-      Rect.fromCircle(center: size.center(Offset.zero), radius: radius),
+      Rect.fromCircle(
+        center: size.center(Offset.zero),
+        radius: size.shortestSide * 0.65,
+      ),
     );
-    final paintRadial = Paint()..shader = radial;
-    canvas.drawRRect(rrect, paintRadial);
+    canvas.drawRRect(rrect, Paint()..shader = radial);
 
     final vignette = RadialGradient(
       colors: [Colors.transparent, Colors.black.withOpacity(0.18)],
@@ -40,13 +46,15 @@ class PokerTablePainter extends CustomPainter {
         radius: size.shortestSide * 0.75,
       ),
     );
-    final paintVignette = Paint()
-      ..shader = vignette
-      ..blendMode = BlendMode.darken;
-    canvas.drawRRect(rrect, paintVignette);
+    canvas.drawRRect(
+      rrect,
+      Paint()
+        ..shader = vignette
+        ..blendMode = BlendMode.darken,
+    );
 
     final borderPaint = Paint()
-      ..color = _borderColor().withValues(alpha: 0.3)
+      ..color = _borderColor().withOpacity(0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = size.shortestSide * 0.03;
     canvas.drawRRect(
