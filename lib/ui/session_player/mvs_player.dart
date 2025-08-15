@@ -19,6 +19,30 @@ import 'result_summary.dart';
 import 'ui_prefs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+extension _UiPrefsCopy on UiPrefs {
+  UiPrefs copyWith({
+    bool? autoNext,
+    bool? timeEnabled,
+    int? timeLimitMs,
+    bool? sound,
+    bool? haptics,
+    bool? autoWhyOnWrong,
+    int? autoNextDelayMs,
+    double? fontScale,
+  }) {
+    return UiPrefs(
+      autoNext: autoNext ?? this.autoNext,
+      timeEnabled: timeEnabled ?? this.timeEnabled,
+      timeLimitMs: timeLimitMs ?? this.timeLimitMs,
+      sound: sound ?? this.sound,
+      haptics: haptics ?? this.haptics,
+      autoWhyOnWrong: autoWhyOnWrong ?? this.autoWhyOnWrong,
+      autoNextDelayMs: autoNextDelayMs ?? this.autoNextDelayMs,
+      fontScale: fontScale ?? this.fontScale,
+    );
+  }
+}
+
 class MvsSessionPlayer extends StatefulWidget {
   final List<UiSpot> spots;
   final int? initialIndex;
@@ -831,23 +855,31 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         onKey: (event) {
           if (event is! RawKeyDownEvent || _paused) return;
           if (event.logicalKey == LogicalKeyboardKey.keyA) {
+            final v = !_autoNext;
+            final p = _prefs.copyWith(autoNext: v);
             setState(() {
-              _autoNext = !_autoNext;
-              if (!_autoNext) _cancelAutoNextAnim();
+              _autoNext = v;
+              if (!v) _cancelAutoNextAnim();
+              _prefs = p;
             });
+            saveUiPrefs(p);
             return;
           }
           if (event.logicalKey == LogicalKeyboardKey.keyT) {
-          setState(() {
-            _timeEnabled = !_timeEnabled;
-            if (_chosen == null) _startTimebar();
-          });
-          return;
-        }
-        if (_chosen == null) {
-          if (event.logicalKey == LogicalKeyboardKey.digit1 &&
-              actions.length > 0) {
-            _onAction(actions[0]);
+            final v = !_timeEnabled;
+            final p = _prefs.copyWith(timeEnabled: v);
+            setState(() {
+              _timeEnabled = v;
+              if (_chosen == null) _startTimebar();
+              _prefs = p;
+            });
+            saveUiPrefs(p);
+            return;
+          }
+          if (_chosen == null) {
+            if (event.logicalKey == LogicalKeyboardKey.digit1 &&
+                actions.length > 0) {
+              _onAction(actions[0]);
           } else if (event.logicalKey == LogicalKeyboardKey.digit2 &&
               actions.length > 1) {
             _onAction(actions[1]);
@@ -898,10 +930,13 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                 Switch(
                   value: _timeEnabled,
                   onChanged: (v) {
+                    final p = _prefs.copyWith(timeEnabled: v);
                     setState(() {
                       _timeEnabled = v;
                       if (_chosen == null) _startTimebar();
+                      _prefs = p;
                     });
+                    saveUiPrefs(p);
                   },
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
@@ -924,10 +959,15 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                 const Text('Auto-next'),
                 Switch(
                   value: _autoNext,
-                  onChanged: (v) => setState(() {
-                    _autoNext = v;
-                    if (!_autoNext) _cancelAutoNextAnim();
-                  }),
+                  onChanged: (v) {
+                    final p = _prefs.copyWith(autoNext: v);
+                    setState(() {
+                      _autoNext = v;
+                      if (!_autoNext) _cancelAutoNextAnim();
+                      _prefs = p;
+                    });
+                    saveUiPrefs(p);
+                  },
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
               ],
