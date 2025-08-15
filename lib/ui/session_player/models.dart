@@ -1,0 +1,35 @@
+enum SpotKind { l2_open_fold, l2_threebet_push, l2_limped, l4_icm }
+
+class UiSpot {
+  final SpotKind kind;
+  final String hand;
+  final String pos;
+  final String stack;
+  final String action;
+  final String? vsPos;
+  final String? limpers;
+
+  const UiSpot({
+    required this.kind,
+    required this.hand,
+    required this.pos,
+    required this.stack,
+    required this.action,
+    this.vsPos,
+    this.limpers,
+  });
+}
+
+class UiAnswer {
+  final bool correct;
+  final String expected;
+  final String chosen;
+  final Duration elapsed;
+
+  const UiAnswer({
+    required this.correct,
+    required this.expected,
+    required this.chosen,
+    required this.elapsed,
+  });
+}
