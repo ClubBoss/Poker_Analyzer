@@ -17,9 +17,10 @@ void main(List<String> args) {
     final sessions = bundle.sessions;
     final l2 = sessions.where((s) => s.kind == FeedKind.l2_session).length;
     final l3 = sessions.where((s) => s.kind == FeedKind.l3_session).length;
+    final l4 = sessions.where((s) => s.kind == FeedKind.l4_session).length;
     final total = totalItems(bundle);
     stdout.writeln(
-      'bundle ${bundle.version} ok: sessions=${sessions.length} total=$total l2=$l2 l3=$l3',
+      'bundle ${bundle.version} ok: sessions=${sessions.length} total=$total l2=$l2 l3=$l3 l4=$l4',
     );
     for (var i = 0; i < sessions.length; i++) {
       final s = sessions[i];
