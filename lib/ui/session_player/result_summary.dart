@@ -11,6 +11,7 @@ class ResultSummaryView extends StatefulWidget {
   final VoidCallback onReplayErrors;
   final VoidCallback onRestart;
   final ValueChanged<int>? onReplayOne; // index in [0..spots.length)
+  final void Function(List<int> indices)? onReplayMarked; // indices in [0..spots.length)
 
   const ResultSummaryView({
     super.key,
@@ -19,6 +20,7 @@ class ResultSummaryView extends StatefulWidget {
     required this.onReplayErrors,
     required this.onRestart,
     this.onReplayOne,
+    this.onReplayMarked,
   });
 
   @override
@@ -27,6 +29,7 @@ class ResultSummaryView extends StatefulWidget {
 
 class _ResultSummaryViewState extends State<ResultSummaryView> {
   bool _errorsOnly = false;
+  final Set<int> _marked = <int>{};
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +77,13 @@ class _ResultSummaryViewState extends State<ResultSummaryView> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               OutlinedButton(
+                onPressed: _marked.isEmpty || widget.onReplayMarked == null
+                    ? null
+                    : () => widget.onReplayMarked!(_marked.toList()..sort()),
+                child: const Text('Replay marked'),
+              ),
+              const SizedBox(width: 8),
+              OutlinedButton(
                 onPressed: widget.onReplayErrors,
                 child: const Text('Replay errors'),
               ),
@@ -113,6 +123,7 @@ class _ResultSummaryViewState extends State<ResultSummaryView> {
                 final i = indices[idx];
                 final s = spots[i];
                 final a = answers[i];
+                final marked = _marked.contains(i);
                 return ListTile(
                   leading: Icon(
                     a.correct ? Icons.check_circle : Icons.cancel,
@@ -137,12 +148,31 @@ class _ResultSummaryViewState extends State<ResultSummaryView> {
                       ),
                     );
                   },
-                  trailing: IconButton(
-                    tooltip: 'Replay',
-                    icon: const Icon(Icons.play_arrow),
-                    onPressed: widget.onReplayOne == null
-                        ? null
-                        : () => widget.onReplayOne!(i),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        tooltip: marked ? 'Unmark' : 'Mark',
+                        icon:
+                            Icon(marked ? Icons.bookmark : Icons.bookmark_border),
+                        onPressed: () {
+                          setState(() {
+                            if (marked) {
+                              _marked.remove(i);
+                            } else {
+                              _marked.add(i);
+                            }
+                          });
+                        },
+                      ),
+                      IconButton(
+                        tooltip: 'Replay',
+                        icon: const Icon(Icons.play_arrow),
+                        onPressed: widget.onReplayOne == null
+                            ? null
+                            : () => widget.onReplayOne!(i),
+                      ),
+                    ],
                   ),
                 );
               },
