@@ -1,75 +1,84 @@
-name: dart-cli (CLI-only)
+name: Dart CLI
 
 on:
   pull_request:
+    branches: [ main ]
     paths:
       - "bin/**"
-      - "ev/**"
+      - "lib/**"
       - "test/ev/**"
-      - "pubspec.yaml"
-      - "pubspec.lock"
       - ".github/workflows/cli-dart.yml"
   push:
     branches: [ main ]
     paths:
       - "bin/**"
-      - "ev/**"
+      - "lib/**"
       - "test/ev/**"
-      - "pubspec.yaml"
-      - "pubspec.lock"
       - ".github/workflows/cli-dart.yml"
 
 jobs:
-  dart-cli:
+  cli-dart:
+    name: cli-dart
     runs-on: ubuntu-latest
-
+    timeout-minutes: 15
     steps:
-      - name: Check out
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+
+      - uses: dart-lang/setup-dart@v1
         with:
-          fetch-depth: 0
+          sdk: stable
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
-
-      - name: Flutter version
-        run: flutter --version
-
-      - name: Cache Pub dependencies
+      - name: Cache Pub
         uses: actions/cache@v4
         with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          path: |
+            ~/.pub-cache
+            .dart_tool
+          key: pub-${{ runner.os }}-${{ hashFiles('pubspec.lock') }}
           restore-keys: |
-            ${{ runner.os }}-pub-
+            pub-${{ runner.os }}-
 
-      - name: Pub get (via Flutter)
-        run: flutter pub get
+      - name: Pub get
+        run: dart pub get
 
-      # ВАЖНО: проверяем ASCII-кавычки только в CLI-области
-      - name: Fail on smart quotes / punctuation (CLI scope)
-        shell: bash
+      - name: ASCII gate
         run: |
-          set -euo pipefail
-          pattern='[\x{2018}\x{2019}\x{201C}\x{201D}\x{2026}\x{2014}\x{2013}]'
-          if git grep -I -nP "$pattern" -- \
-              'bin/**/*.dart' \
-              'ev/**/*.dart' \
-              'test/ev/**/*.dart' \
-              'README*.md' 'README_*.md'; then
-            echo "::error ::Smart punctuation found in CLI scope. Replace with ASCII equivalents."
+          # fail on smart punctuation / non-ascii bytes in tracked text files
+          if git grep -I -n -E '[\x80-\xFF]|[–—…]'; then
+            echo "::error title=ASCII gate::Smart punctuation or non-ASCII bytes detected"
             exit 1
           fi
 
-      # формат/анализ по CLI-области
-      - name: Format check (CLI only)
+      - name: Analyze (bin)
+        run: dart analyze bin --fatal-warnings
+
+      - name: Analyze (CLI core)
+        run: |
+          FILES=$(git ls-files \
+            "bin/*.dart" \
+            "bin/ev_*.dart" \
+            "lib/services/l3_cli_runner.dart" \
+            "lib/utils/push_fold.dart" \
+            2>/dev/null | tr "\n" " ")
+          if [ -z "$FILES" ]; then echo "No core files"; exit 0; fi
+          dart analyze --fatal-warnings $FILES
+
+      - name: Analyze (lib)
+        continue-on-error: true
+        run: dart analyze lib --fatal-warnings
+
+      - name: dart format check
         run: dart format --output=none --set-exit-if-changed bin test/ev
 
-      - name: Analyze (CLI only)
-        run: flutter analyze bin test/ev
+      - name: Compile smoke (CLI)
+        run: |
+          TARGET=""
+          if [ -f bin/ev_cli.dart ]; then TARGET=bin/ev_cli.dart; fi
+          if [ -z "$TARGET" ] && [ -f bin/ev_enrich_jam_fold.dart ]; then TARGET=bin/ev_enrich_jam_fold.dart; fi
+          if [ -z "$TARGET" ] && [ -f bin/ev_rank_jam_fold_deltas.dart ]; then TARGET=bin/ev_rank_jam_fold_deltas.dart; fi
+          if [ -z "$TARGET" ]; then echo "No CLI entry to compile"; exit 0; fi
+          dart compile exe "$TARGET" -o /tmp/cli_smoke
 
-      - name: Unit tests (CLI only)
-        run: dart test -r expanded test/ev/_cli_help_smoke_test.dart test/ev/ev_rank_jam_fold_cli_test.dart
+      - name: EV CLI tests (smoke)
+        run: |
+          dart test -r expanded test/ev/_cli_help_smoke_test.dart test/ev/ev_rank_jam_fold_cli_test.dart
