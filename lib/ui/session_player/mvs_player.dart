@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../widgets/active_timebar.dart';
+import 'hotkeys_sheet.dart';
 import 'mini_toast.dart';
 import 'models.dart';
 import 'result_summary.dart';
@@ -220,6 +221,17 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     return Scaffold(
       appBar: AppBar(
         actions: [
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            onPressed: () {
+              showModalBottomSheet<void>(
+                context: context,
+                backgroundColor: Colors.black87,
+                isScrollControlled: false,
+                builder: (_) => const HotkeysSheet(),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.tune),
             onPressed: () async {
