@@ -9,7 +9,8 @@ enum SpotKind {
   l3_check_jam_vs_cbet,
   l3_donk_jam,
   l3_overbet_jam,
-  l3_raise_jam_vs_donk
+  l3_raise_jam_vs_donk,
+  l3_bet_jam_vs_raise
 }
 
 class UiSpot {
