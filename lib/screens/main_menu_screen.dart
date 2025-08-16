@@ -107,6 +107,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       ),
     );
   }
+}
 
   @override
   void initState() {
@@ -160,20 +161,24 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       final file = File('out/sessions_history.jsonl');
       if (!await file.exists()) return;
       final lines = await file.readAsLines();
-      for (final line in lines) {
-        if (line.trim().isEmpty) continue;
+      // iterate from newest to oldest
+      List<UiSpot> latest = const [];
+      for (var i = lines.length - 1; i >= 0; i--) {
+        final line = lines[i].trim();
+        if (line.isEmpty) continue;
         try {
           final obj = jsonDecode(line);
           if (obj is Map<String, dynamic>) {
-            final spots = _parseSpots(obj['spots']);
-            if (spots.isNotEmpty) {
-              if (!mounted) return;
-              setState(() => _replaySpots = spots);
+            final parsed = _parseSpots(obj['spots']);
+            if (parsed.isNotEmpty) {
+              latest = parsed;
+              break;
             }
-            break;
           }
         } catch (_) {}
       }
+      if (!mounted) return;
+      if (latest.isNotEmpty) setState(() => _replaySpots = latest);
     } catch (_) {}
   }
 
@@ -294,9 +299,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       );
     }
   }
-}
 
-void _startTutorial() {
+  void _startTutorial() {
   final flow = TutorialFlow(
     [
       TutorialStep(
@@ -440,7 +444,10 @@ Widget build(BuildContext context) {
                             builder: (_) => Scaffold(body: player),
                           ),
                         );
-                        _loadResumeFlag();
+                        if (mounted) {
+                          _loadReplaySpots();
+                          _loadResumeFlag();
+                        }
                       },
                     ),
                   if (_replaySpots.isNotEmpty)
@@ -459,7 +466,9 @@ Widget build(BuildContext context) {
                                   body: MvsSessionPlayer(spots: _replaySpots),
                                 ),
                               ),
-                            );
+                            ).then((_) {
+                              if (mounted) _loadReplaySpots();
+                            });
                           },
                         ),
                       ),
@@ -467,13 +476,17 @@ Widget build(BuildContext context) {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
+                      onPressed: () async {
+                        await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (_) => const ReadyToTrainScreen(),
                           ),
                         );
+                        if (mounted) {
+                          _loadReplaySpots();
+                          _loadResumeFlag();
+                        }
                       },
                       icon: const Icon(Icons.play_arrow),
                       label: const Text('Тренироваться'),
@@ -489,13 +502,17 @@ Widget build(BuildContext context) {
                     leading: const Icon(Icons.history, color: Colors.white),
                     trailing: const Icon(Icons.chevron_right),
                     title: const Text('History'),
-                    onTap: () {
-                      Navigator.push(
+                    onTap: () async {
+                      await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => const HistoryScreen(),
                         ),
                       );
+                      if (mounted) {
+                        _loadReplaySpots();
+                        _loadResumeFlag();
+                      }
                     },
                   ),
                   ListTile(
@@ -609,4 +626,5 @@ Widget build(BuildContext context) {
       },
     ),
   );
+}
 }
