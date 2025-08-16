@@ -130,6 +130,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   final _focusNode = FocusNode();
   Timer? _ticker;
   Timer? _autoNextTimer;
+  List<UiSpot>? _lastLoadedSpots;
   String? _chosen;
   bool _showExplain = false;
   UiPrefs _prefs = const UiPrefs(
@@ -596,6 +597,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         } catch (_) {}
       }
       if (parsed.isEmpty) return;
+      _lastLoadedSpots = parsed;
       _restart(parsed);
       showMiniToast(context, 'Loaded ${parsed.length} spots');
     } catch (_) {}
@@ -925,6 +927,12 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           if (event is! RawKeyDownEvent || _paused) return;
           if (_showHotkeys && event.logicalKey == LogicalKeyboardKey.keyO) {
             _loadJsonlSpots();
+            return;
+          }
+          if (_showHotkeys && event.logicalKey == LogicalKeyboardKey.keyR) {
+            if (_lastLoadedSpots != null && _lastLoadedSpots!.isNotEmpty) {
+              _restart(_lastLoadedSpots!);
+            }
             return;
           }
           if (event.logicalKey == LogicalKeyboardKey.keyA) {
