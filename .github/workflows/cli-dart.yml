@@ -46,7 +46,7 @@ jobs:
       - name: Pub get
         run: flutter pub get
 
-      # ASCII-пунктуация только в CLI-области
+      # ASCII-punctuation only in CLI scope
       - name: Fail on smart quotes / punctuation (CLI scope)
         shell: bash
         run: |
@@ -61,14 +61,12 @@ jobs:
             exit 1
           fi
 
-      # Формат: только проверка и только CLI-область
       - name: Format check (CLI only)
         run: dart format --output=none --set-exit-if-changed bin test/ev
 
       - name: Analyze (CLI only)
         run: flutter analyze bin test/ev
 
-      # 🔧 Фикс: динамический поиск тестов, скип если нет ни одного
       - name: Unit tests (CLI only)
         shell: bash
         run: |
