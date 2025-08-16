@@ -840,6 +840,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
 
   Widget _buildSpotCard(UiSpot spot) {
     final actions = _actionsFor(spot.kind);
+    final jamFoldHotkeys = _showHotkeys &&
+        spot.kind.name.contains('_jam_vs_') &&
+        listEquals(actions, const ['jam', 'fold']);
     final correctCnt = _answers.where((a) => a.correct).length;
     final acc = _answers.isEmpty ? 0.0 : correctCnt / _answers.length;
     return GestureDetector(
@@ -1007,7 +1010,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 24),
-                      ...actions.map((a) => _buildActionButton(a, spot)),
+                      ...actions.map(
+                          (a) => _buildActionButton(a, spot, jamFoldHotkeys)),
                       if (_chosen != null) ...[
                         const SizedBox(height: 16),
                         Text(
@@ -1159,7 +1163,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     }
   }
 
-  Widget _buildActionButton(String action, UiSpot spot) {
+  Widget _buildActionButton(String action, UiSpot spot, bool jamFoldHotkeys) {
     final correct = action == spot.action;
     Color? color;
     if (_chosen != null) {
@@ -1169,6 +1173,14 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         color = Colors.green;
       }
     }
+    var label = action;
+    if (jamFoldHotkeys) {
+      if (action == 'jam') {
+        label = 'jam [J]';
+      } else if (action == 'fold') {
+        label = 'fold [F]';
+      }
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: ElevatedButton(
@@ -1176,7 +1188,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         style: color != null
             ? ElevatedButton.styleFrom(backgroundColor: color)
             : null,
-        child: Text(action),
+        child: Text(label),
       ),
     );
   }
