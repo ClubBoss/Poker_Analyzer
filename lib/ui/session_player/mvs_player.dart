@@ -569,6 +569,67 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     } catch (_) {}
   }
 
+  Future<void> _loadDemoPack() async {
+    try {
+      final file = File('out/packs/l3_jam_demo.jsonl');
+      if (!file.existsSync()) {
+        showMiniToast(context, 'Demo pack not found');
+        return;
+      }
+      final lines = const LineSplitter().convert(await file.readAsString());
+      final parsed = <UiSpot>[];
+      for (final line in lines) {
+        if (line.trim().isEmpty) continue;
+        try {
+          final obj = jsonDecode(line);
+          if (obj is! Map) continue;
+          final k = obj['kind'];
+          final hand = obj['hand'];
+          final pos = obj['pos'];
+          final vsPos = obj['vsPos'];
+          final stack = obj['stack'];
+          final action = obj['action'];
+          if (k is! String ||
+              hand is! String ||
+              pos is! String ||
+              stack is! String ||
+              action is! String) {
+            continue;
+          }
+          SpotKind? kind;
+          for (final sk in SpotKind.values) {
+            if (sk.name == k) {
+              kind = sk;
+              break;
+            }
+          }
+          if (kind == null) continue;
+          final acts = _actionsFor(kind);
+          if (!listEquals(acts, const ['jam', 'fold']) || !acts.contains(action)) {
+            continue;
+          }
+          parsed.add(UiSpot(
+            kind: kind,
+            hand: hand,
+            pos: pos,
+            vsPos: vsPos is String ? vsPos : null,
+            stack: stack,
+            action: action,
+          ));
+        } catch (_) {}
+      }
+      if (parsed.isEmpty) {
+        showMiniToast(context, 'Demo pack not found');
+        return;
+      }
+      _lastLoadedSpots = parsed;
+      _restart(parsed);
+      showMiniToast(context, 'Loaded ${parsed.length} spots');
+    } catch (_) {
+      showMiniToast(context, 'Demo pack not found');
+    }
+  }
+
   Future<void> _loadJsonlSpots() async {
     try {
       final result = await FilePicker.platform.pickFiles(
@@ -1009,6 +1070,10 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         autofocus: true,
         onKey: (event) {
           if (event is! RawKeyDownEvent || _paused) return;
+          if (_showHotkeys && event.logicalKey == LogicalKeyboardKey.keyD) {
+            _loadDemoPack();
+            return;
+          }
           if (_showHotkeys && event.logicalKey == LogicalKeyboardKey.keyO) {
             _loadJsonlSpots();
             return;
