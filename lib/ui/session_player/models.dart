@@ -6,7 +6,8 @@ enum SpotKind {
   callVsJam,
   l3_postflop_jam,
   l3_checkraise_jam,
-  l3_check_jam_vs_cbet
+  l3_check_jam_vs_cbet,
+  l3_donk_jam
 }
 
 class UiSpot {
