@@ -130,7 +130,7 @@ class SpotImporter {
         }
       }
     } else {
-      addError('Unsupported format $format');
+      addError('Unsupported format ${format ?? kind}');
     }
     return SpotImportReport(
       spots: spots,
