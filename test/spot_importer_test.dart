@@ -111,4 +111,11 @@ void main() {
     expect(report.added, 1);
     expect(report.errors, isEmpty);
   });
+
+  test('format overrides kind when both provided', () {
+    const csv = 'kind,hand,pos,stack,action\ncallVsJam,AKo,BTN,10bb,push';
+    final r = SpotImporter.parse(csv, format: 'csv', kind: 'json');
+    expect(r.added, 1);
+    expect(r.errors, isEmpty);
+  });
 }
