@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../session_player/models.dart';
+import '../session_player/mvs_player.dart';
+import '../session_player/mini_toast.dart';
 
 class CoverageDashboard extends StatelessWidget {
   final List<UiSpot> spots;
@@ -64,9 +66,35 @@ class CoverageDashboard extends StatelessWidget {
                         child: Text(p),
                       ),
                       for (final s in stacks)
-                        Padding(
-                          padding: const EdgeInsets.all(4),
-                          child: Text('${grid[p]![s]}'),
+                        InkWell(
+                          onTap: () {
+                            final subset = spots
+                                .where((spot) {
+                                  final m =
+                                      RegExp(r'\d+').firstMatch(spot.stack);
+                                  final stack = m == null
+                                      ? null
+                                      : int.tryParse(m.group(0)!);
+                                  return spot.pos == p && stack == s;
+                                })
+                                .toList();
+                            if (subset.isEmpty) {
+                              showMiniToast(context, 'No spots for $p/$s');
+                            } else {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => MvsSessionPlayer(
+                                    spots: subset,
+                                    packId: 'cov:$p:$s',
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(4),
+                            child: Text('${grid[p]![s]}'),
+                          ),
                         ),
                     ],
                   ),
