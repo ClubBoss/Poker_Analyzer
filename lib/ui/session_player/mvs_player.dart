@@ -540,6 +540,35 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     }
   }
 
+  void _exportErrors() {
+    final lines = <String>[];
+    for (var i = 0; i < _answers.length; i++) {
+      if (_answers[i].correct) continue;
+      final s = _spots[i];
+      if (!listEquals(_actionsFor(s.kind), const ['jam', 'fold'])) continue;
+      lines.add(jsonEncode({
+        'kind': s.kind.name,
+        'hand': s.hand,
+        'pos': s.pos,
+        if (s.vsPos != null) 'vsPos': s.vsPos,
+        'stack': s.stack,
+        'action': s.action,
+      }));
+    }
+    if (lines.isEmpty) {
+      showMiniToast(context, 'No errors to export');
+      return;
+    }
+    try {
+      final dir = Directory('out/packs');
+      if (!dir.existsSync()) dir.createSync(recursive: true);
+      final file = File('${dir.path}/l3_jam_errors.jsonl');
+      file.writeAsStringSync(lines.join('\n') + '\n');
+      showMiniToast(context,
+          'Exported ${lines.length} spots to out/packs/l3_jam_errors.jsonl');
+    } catch (_) {}
+  }
+
   Future<void> _loadJsonlSpots() async {
     try {
       final result = await FilePicker.platform.pickFiles(
@@ -992,6 +1021,10 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             if (_lastLoadedSpots != null && _lastLoadedSpots!.isNotEmpty) {
               _restart(_lastLoadedSpots!);
             }
+            return;
+          }
+          if (_showHotkeys && event.logicalKey == LogicalKeyboardKey.keyE) {
+            _exportErrors();
             return;
           }
           if (_showHotkeys && event.logicalKey == LogicalKeyboardKey.slash) {
