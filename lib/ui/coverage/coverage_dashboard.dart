@@ -1,0 +1,91 @@
+import 'package:flutter/material.dart';
+import '../session_player/models.dart';
+
+class CoverageDashboard extends StatelessWidget {
+  final List<UiSpot> spots;
+  const CoverageDashboard({super.key, required this.spots});
+
+  @override
+  Widget build(BuildContext context) {
+    const positions = ['SB', 'BB', 'UTG', 'MP', 'CO', 'BTN'];
+    const stacks = [10, 20, 40, 100];
+    final grid = {
+      for (final p in positions) p: {for (final s in stacks) s: 0}
+    };
+    int other = 0;
+    int preflop = 0;
+    int postflop = 0;
+    for (final spot in spots) {
+      final name = spot.kind.name;
+      if (name.startsWith('l3_')) {
+        postflop++;
+      } else {
+        preflop++;
+      }
+      final m = RegExp(r'\d+').firstMatch(spot.stack);
+      final stack = m == null ? null : int.tryParse(m.group(0)!);
+      if (stack != null && stacks.contains(stack) && positions.contains(spot.pos)) {
+        grid[spot.pos]![stack] = grid[spot.pos]![stack]! + 1;
+      } else {
+        other++;
+      }
+    }
+    final total = spots.length;
+    final coverage = ((total / 48) * 100).clamp(0, 100).round();
+    return Scaffold(
+      appBar: AppBar(title: const Text('Coverage')),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Text('$total spots, $total/48 -> $coverage%'),
+            ),
+            Table(
+              border: TableBorder.all(),
+              defaultColumnWidth: const IntrinsicColumnWidth(),
+              children: [
+                TableRow(
+                  children: [
+                    const SizedBox.shrink(),
+                    for (final s in stacks)
+                      Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Text('${s}'),
+                      ),
+                  ],
+                ),
+                for (final p in positions)
+                  TableRow(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Text(p),
+                      ),
+                      for (final s in stacks)
+                        Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: Text('${grid[p]![s]}'),
+                        ),
+                    ],
+                  ),
+              ],
+            ),
+            if (other > 0)
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: Text('other stacks: $other',
+                    style: const TextStyle(fontSize: 12)),
+              ),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Text('preflop: $preflop  postflop: $postflop',
+                  style: const TextStyle(fontSize: 12)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

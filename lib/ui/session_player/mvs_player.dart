@@ -22,6 +22,7 @@ import 'result_summary.dart';
 import 'ui_prefs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/spot_importer.dart';
+import '../coverage/coverage_dashboard.dart';
 
 extension _UiPrefsCopy on UiPrefs {
   UiPrefs copyWith({
@@ -776,6 +777,20 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
               onPressed:
                   (_index >= _spots.length || _chosen != null) ? null : _skip,
             ),
+            if (kDebugMode)
+              IconButton(
+                icon: const Icon(Icons.insights),
+                tooltip: 'Coverage',
+                onPressed: () {
+                  final s = _lastLoadedSpots ?? _spots;
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => CoverageDashboard(spots: s),
+                    ),
+                  );
+                },
+              ),
             IconButton(
               icon: Icon(_paused ? Icons.play_arrow : Icons.pause),
               tooltip: _paused ? 'Resume' : 'Pause',
