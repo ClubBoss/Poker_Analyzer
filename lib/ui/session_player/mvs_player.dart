@@ -137,7 +137,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       timeLimitMs: 10000,
       sound: false,
       haptics: true,
-      autoWhyOnWrong: true,
+      autoWhyOnWrong: false,
       autoNextDelayMs: 600,
       fontScale: 1.0);
   bool _autoNext = false;
@@ -307,6 +307,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     _ticker?.cancel();
     _timebarTicker?.cancel();
     final spot = _spots[_index];
+    final autoWhy = _prefs.autoWhyOnWrong;
+    final jam = spot.kind.name.contains('_jam_vs_');
     final correct = action == spot.action;
     // mobile haptics
     if (_prefs.haptics) {
@@ -330,7 +332,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         chosen: action,
         elapsed: _timer.elapsed,
       ));
-      if (!correct && _prefs.autoWhyOnWrong) {
+      if (!correct && autoWhy && jam) {
         _showExplain = true;
       }
     });
