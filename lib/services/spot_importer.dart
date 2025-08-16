@@ -20,10 +20,20 @@ class SpotImporter {
     final spots = <UiSpot>[];
     final errors = <String>[];
     var skipped = 0;
+    final seen = <String>{};
+    var dupReported = false;
 
     void addError(String msg) {
       skipped++;
       if (errors.length < 5) errors.add(msg);
+    }
+
+    void addDup(String key) {
+      skipped++;
+      if (!dupReported && errors.length < 5) {
+        errors.add('Duplicate spot: $key');
+        dupReported = true;
+      }
     }
 
     final k = kind.toLowerCase();
@@ -42,7 +52,16 @@ class SpotImporter {
           idx++;
           if (e is Map<String, dynamic>) {
             final spot = _spotFromMap(e, idx, addError);
-            if (spot != null) spots.add(spot);
+            if (spot != null) {
+              final key =
+                  '${spot.kind.name}|${spot.hand}|${spot.pos}|${spot.stack}|${spot.action}';
+              if (seen.contains(key)) {
+                addDup(key);
+              } else {
+                seen.add(key);
+                spots.add(spot);
+              }
+            }
           } else {
             addError('Row $idx: not an object');
           }
@@ -73,7 +92,14 @@ class SpotImporter {
             }
             final spot = _spotFromMap(values, i + 1, addError);
             if (spot != null) {
-              spots.add(spot);
+              final key =
+                  '${spot.kind.name}|${spot.hand}|${spot.pos}|${spot.stack}|${spot.action}';
+              if (seen.contains(key)) {
+                addDup(key);
+              } else {
+                seen.add(key);
+                spots.add(spot);
+              }
             }
           }
         }
@@ -87,16 +113,14 @@ class SpotImporter {
 
   static UiSpot? _spotFromMap(
       Map<String, dynamic> m, int row, void Function(String) addError) {
-    final k = m['kind'];
-    final hand = m['hand'];
-    final pos = m['pos'];
-    final stack = m['stack'];
-    final action = m['action'];
-    if (k is! String ||
-        hand is! String ||
-        pos is! String ||
-        stack is! String ||
-        action is! String) {
+    String? get(String key) => m[key] is String ? (m[key] as String).trim() : null;
+
+    final k = get('kind')?.toLowerCase();
+    final hand = get('hand');
+    final pos = get('pos');
+    final stack = get('stack');
+    final action = get('action');
+    if (k == null || hand == null || pos == null || stack == null || action == null) {
       addError('Row $row: missing field');
       return null;
     }
@@ -117,9 +141,9 @@ class SpotImporter {
       pos: pos,
       stack: stack,
       action: action,
-      vsPos: m['vsPos'] is String ? m['vsPos'] as String : null,
-      limpers: m['limpers'] is String ? m['limpers'] as String : null,
-      explain: m['explain'] is String ? m['explain'] as String : null,
+      vsPos: get('vsPos'),
+      limpers: get('limpers'),
+      explain: get('explain'),
     );
   }
 }
