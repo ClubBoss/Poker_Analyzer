@@ -40,6 +40,13 @@ void main() {
     expect(report.errors.first.startsWith('Duplicate spot:'), isTrue);
   });
 
+  test('unsupported format surfaces a clear error', () {
+    final r = SpotImporter.parse('x', format: 'xml');
+    expect(r.added, 0);
+    expect(r.skipped, greaterThanOrEqualTo(1));
+    expect(r.errors.single.toLowerCase(), contains('unsupported format'));
+  });
+
   test('error cap at five messages', () {
     final items = List.generate(
       7,
@@ -117,5 +124,18 @@ void main() {
     final r = SpotImporter.parse(csv, format: 'csv', kind: 'json');
     expect(r.added, 1);
     expect(r.errors, isEmpty);
+  });
+
+  test('duplicate message once, skippedDuplicates counts all', () {
+    const json = '''
+  [
+    {"kind":"callVsJam","hand":"AKo","pos":"BTN","stack":"10bb","action":"push"},
+    {"kind":"callVsJam","hand":"AKo","pos":"BTN","stack":"10bb","action":"push"},
+    {"kind":"callVsJam","hand":"AKo","pos":"BTN","stack":"10bb","action":"push"}
+  ]''';
+    final r = SpotImporter.parse(json, format: 'json');
+    expect(r.added, 1);
+    expect(r.skippedDuplicates, 2);
+    expect(r.errors.where((e) => e.startsWith('Duplicate spot:')).length, 1);
   });
 }
