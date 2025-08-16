@@ -447,9 +447,10 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       }
       if (!correct &&
           autoWhy &&
-          ((spot.kind == SpotKind.l3_flop_jam_vs_raise) ||
-              (spot.kind == SpotKind.l3_turn_jam_vs_raise) ||
-              (spot.kind == SpotKind.l3_river_jam_vs_raise)) &&
+          (spot.kind == SpotKind.l3_flop_jam_vs_raise ||
+              spot.kind == SpotKind.l3_turn_jam_vs_raise ||
+              spot.kind == SpotKind.l3_river_jam_vs_raise ||
+              spot.kind == SpotKind.l4_icm_bubble_jam_vs_fold) &&
           !_replayed.contains(spot)) {
         _spots.insert(_index + 1, spot);
         _replayed.add(spot);
@@ -1445,6 +1446,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     if (spot.kind == SpotKind.l3_river_jam_vs_raise) {
       return 'River Jam vs Raise • ' + core;
     }
+    if (spot.kind == SpotKind.l4_icm_bubble_jam_vs_fold) {
+      return 'ICM Bubble Jam vs Fold • ' + core;
+    }
     return core;
   }
 
@@ -1489,6 +1493,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       case SpotKind.l3_river_jam_vs_raise:
         return ['jam', 'fold'];
       case SpotKind.l3_turn_jam_vs_raise:
+        return ['jam', 'fold'];
+      case SpotKind.l4_icm_bubble_jam_vs_fold:
         return ['jam', 'fold'];
     }
   }
