@@ -72,6 +72,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
   bool _loadingSuggestions = true;
   bool _resumeAvailable = false;
   List<UiSpot> _replaySpots = [];
+  List<UiSpot> _replayWrongSpots = [];
 
   Widget _buildStreakIndicator(BuildContext context) {
     final streak = context.watch<StreakService>().count;
@@ -164,12 +165,17 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       final lines = await file.readAsLines();
       final latest = _latestReplaySpotsFromLines(lines);
       if (!mounted) return;
-      if (latest.isNotEmpty) setState(() => _replaySpots = latest);
+      setState(() {
+        _replaySpots = latest.spots;
+        _replayWrongSpots = latest.wrong;
+      });
     } catch (_) {}
   }
 
-  List<UiSpot> _latestReplaySpotsFromLines(List<String> lines) {
-    List<UiSpot> latest = const [];
+  ({List<UiSpot> spots, List<UiSpot> wrong})
+      _latestReplaySpotsFromLines(List<String> lines) {
+    var latestSpots = <UiSpot>[];
+    var wrongOnly = <UiSpot>[];
     for (var i = lines.length - 1; i >= 0; i--) {
       final line = lines[i].trim();
       if (line.isEmpty) continue;
@@ -178,22 +184,41 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
         if (obj is Map<String, dynamic>) {
           final parsed = _parseSpots(obj['spots']);
           if (parsed.isNotEmpty) {
-            latest = parsed;
+            latestSpots = parsed;
+            final wrong = <int>[];
+            final rawWrong = obj['wrongIdx'];
+            if (rawWrong is List) {
+              for (final w in rawWrong) {
+                if (w is int) wrong.add(w);
+              }
+            }
+            wrongOnly = wrong.isEmpty
+                ? latestSpots
+                : [
+                    for (final i in wrong)
+                      if (i >= 0 && i < latestSpots.length)
+                        latestSpots[i]
+                  ];
             break;
           }
         }
       } catch (_) {}
     }
-    return latest;
+    return (spots: latestSpots, wrong: wrongOnly);
   }
 
   @visibleForTesting
   Future<void> loadReplaySpotsForTest(List<String> lines) async {
-    _replaySpots = _latestReplaySpotsFromLines(lines);
+    final data = _latestReplaySpotsFromLines(lines);
+    _replaySpots = data.spots;
+    _replayWrongSpots = data.wrong;
   }
 
   @visibleForTesting
   List<UiSpot> get replaySpotsForTest => _replaySpots;
+
+  @visibleForTesting
+  List<UiSpot> get replayWrongSpotsForTest => _replayWrongSpots;
 
   List<UiSpot> _parseSpots(Object? raw) {
     final out = <UiSpot>[];
@@ -469,21 +494,45 @@ Widget build(BuildContext context) {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Align(
                         alignment: Alignment.centerRight,
-                        child: FilledButton.icon(
-                          icon: const Icon(Icons.play_arrow),
-                          label: const Text('Replay last'),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => Scaffold(
-                                  body: MvsSessionPlayer(spots: _replaySpots),
-                                ),
+                        child: Wrap(
+                          spacing: 8,
+                          alignment: WrapAlignment.end,
+                          children: [
+                            FilledButton.icon(
+                              icon: const Icon(Icons.play_arrow),
+                              label: const Text('Replay last'),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => Scaffold(
+                                      body: MvsSessionPlayer(spots: _replaySpots),
+                                    ),
+                                  ),
+                                ).then((_) {
+                                  if (mounted) _loadReplaySpots();
+                                });
+                              },
+                            ),
+                            if (_replayWrongSpots.isNotEmpty)
+                              FilledButton.icon(
+                                icon: const Icon(Icons.error),
+                                label: const Text('Replay last errors'),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => Scaffold(
+                                        body: MvsSessionPlayer(
+                                            spots: _replayWrongSpots),
+                                      ),
+                                    ),
+                                  ).then((_) {
+                                    if (mounted) _loadReplaySpots();
+                                  });
+                                },
                               ),
-                            ).then((_) {
-                              if (mounted) _loadReplaySpots();
-                            });
-                          },
+                          ],
                         ),
                       ),
                     ),
