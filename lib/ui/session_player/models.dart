@@ -4,7 +4,8 @@ enum SpotKind {
   l2_limped,
   l4_icm,
   callVsJam,
-  l3_postflop_jam
+  l3_postflop_jam,
+  l3_checkraise_jam
 }
 
 class UiSpot {
