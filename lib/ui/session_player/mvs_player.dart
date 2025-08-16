@@ -77,7 +77,11 @@ class MvsSessionPlayer extends StatefulWidget {
           final p = e['p'];
           final st = e['s'];
           final act = e['a'];
-          if (k is int && h is String && p is String && st is String && act is String) {
+          if (k is int &&
+              h is String &&
+              p is String &&
+              st is String &&
+              act is String) {
             spots.add(UiSpot(
               kind: SpotKind.values[k],
               hand: h,
@@ -135,8 +139,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   final _answers = <UiAnswer>[];
   final _timer = Stopwatch();
   final _focusNode = FocusNode();
-  final String _sessionId =
-      DateTime.now().millisecondsSinceEpoch.toString();
+  final String _sessionId = DateTime.now().millisecondsSinceEpoch.toString();
   Timer? _ticker;
   Timer? _autoNextTimer;
   List<UiSpot>? _lastLoadedSpots;
@@ -194,10 +197,17 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                 final v = s['vsPos'];
                 final st = s['stack'];
                 final a = s['action'];
-                if (k is String && h is String && p is String && st is String && a is String) {
+                if (k is String &&
+                    h is String &&
+                    p is String &&
+                    st is String &&
+                    a is String) {
                   SpotKind? kind;
                   for (final sk in SpotKind.values) {
-                    if (sk.name == k) {kind = sk; break;}
+                    if (sk.name == k) {
+                      kind = sk;
+                      break;
+                    }
                   }
                   if (kind == null) continue;
                   loadedSpots.add(UiSpot(
@@ -282,8 +292,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
 
   void _startTicker() {
     _ticker?.cancel();
-    _ticker =
-        Timer.periodic(const Duration(milliseconds: 200), (_) => setState(() {}));
+    _ticker = Timer.periodic(
+        const Duration(milliseconds: 200), (_) => setState(() {}));
   }
 
   void _startTimebar() {
@@ -293,8 +303,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       return;
     }
     _timeLeftMs = _timeLimitMs;
-    _timebarTicker =
-        Timer.periodic(const Duration(milliseconds: 100), (_) {
+    _timebarTicker = Timer.periodic(const Duration(milliseconds: 100), (_) {
       if (!mounted || _chosen != null) return;
       setState(() {
         _timeLeftMs -= 100;
@@ -359,8 +368,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   void _persistResume() {
     final packId = widget.packId;
     if (packId != null) {
-      unawaited(
-          SessionResume.save(packId: packId, index: _index, sessionId: _sessionId));
+      unawaited(SessionResume.save(
+          packId: packId, index: _index, sessionId: _sessionId));
     }
   }
 
@@ -400,8 +409,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     final autoWhy = _prefs.autoWhyOnWrong;
     final jam = spot.kind.name.contains('_jam_vs_');
     final correct = action == spot.action;
-    final stackBB =
-        int.tryParse(spot.stack.replaceAll(RegExp(r'[^0-9]'), ''));
+    final stackBB = int.tryParse(spot.stack.replaceAll(RegExp(r'[^0-9]'), ''));
     unawaited(Telemetry.logEvent(
       correct ? 'answer_correct' : 'answer_wrong',
       {
@@ -421,8 +429,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       } catch (_) {}
     }
     if (_prefs.sound) {
-      SystemSound.play(
-          correct ? SystemSoundType.click : SystemSoundType.alert);
+      SystemSound.play(correct ? SystemSoundType.click : SystemSoundType.alert);
     }
     setState(() {
       _chosen = action;
@@ -497,8 +504,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   void _skip() {
     if (_index >= _spots.length || _chosen != null) return;
     final spot = _spots[_index];
-    final stackBB =
-        int.tryParse(spot.stack.replaceAll(RegExp(r'[^0-9]'), ''));
+    final stackBB = int.tryParse(spot.stack.replaceAll(RegExp(r'[^0-9]'), ''));
     unawaited(Telemetry.logEvent(
       'answer_skip',
       {
@@ -726,7 +732,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           }
           if (kind == null) continue;
           final acts = _actionsFor(kind);
-          if (!listEquals(acts, const ['jam', 'fold']) || !acts.contains(action)) {
+          if (!listEquals(acts, const ['jam', 'fold']) ||
+              !acts.contains(action)) {
             continue;
           }
           parsed.add(UiSpot(
@@ -753,8 +760,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
 
   Future<void> _loadJsonlSpots() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
-          type: FileType.custom, allowedExtensions: ['jsonl']);
+      final result = await FilePicker.platform
+          .pickFiles(type: FileType.custom, allowedExtensions: ['jsonl']);
       if (result == null || result.files.isEmpty) return;
       final f = result.files.first;
       String? content;
@@ -902,8 +909,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       child = _buildSpotCard(_spots[_index]);
     }
     return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaleFactor: _prefs.fontScale),
+      data: MediaQuery.of(context).copyWith(textScaleFactor: _prefs.fontScale),
       child: Scaffold(
         appBar: AppBar(
           actions: [
@@ -931,8 +937,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                   final p = _prefs.copyWith(fontScale: v);
                   setState(() => _prefs = p);
                   saveUiPrefs(p);
-                  unawaited(showMiniToast(
-                      context, v > 1.0 ? 'Font: XL' : 'Font: L'));
+                  unawaited(
+                      showMiniToast(context, v > 1.0 ? 'Font: XL' : 'Font: L'));
                 },
               ),
               IconButton(
@@ -962,240 +968,237 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             IconButton(
               icon: const Icon(Icons.tune),
               onPressed: () async {
-              final r = await showModalBottomSheet<Map<String, dynamic>>(
-                context: context,
-                isScrollControlled: true,
-                builder: (ctx) {
-                  bool autoNext = _autoNext;
-                  bool timeEnabled = _timeEnabled;
-                  int limit = _timeLimitMs;
-                  int delayMs = _prefs.autoNextDelayMs.clamp(300, 800);
-                  bool sound = _prefs.sound;
-                  bool haptics = _prefs.haptics;
-                  bool autoWhy = _prefs.autoWhyOnWrong;
-                  double fontScale = _prefs.fontScale;
-                  final ctrl =
-                      TextEditingController(text: limit.toString());
-                  return Padding(
-                    padding:
-                        MediaQuery.of(ctx).viewInsets + const EdgeInsets.all(16),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(children: [
-                          const Text('Auto-next'),
-                          const Spacer(),
-                          Switch(
-                              value: autoNext,
-                              onChanged: (v) {
-                                autoNext = v;
-                                (ctx as Element).markNeedsBuild();
-                              })
-                        ]),
-                        Row(children: [
-                          const Text('Auto-next delay'),
-                          Expanded(
-                            child: Slider(
-                              value: delayMs.toDouble(),
-                              min: 300,
-                              max: 800,
-                              divisions: 10,
-                              label: '${delayMs} ms',
-                              onChanged: autoNext
-                                  ? (v) {
-                                      delayMs =
-                                          v.round().clamp(300, 800);
-                                      (ctx as Element).markNeedsBuild();
-                                    }
-                                  : null,
+                final r = await showModalBottomSheet<Map<String, dynamic>>(
+                  context: context,
+                  isScrollControlled: true,
+                  builder: (ctx) {
+                    bool autoNext = _autoNext;
+                    bool timeEnabled = _timeEnabled;
+                    int limit = _timeLimitMs;
+                    int delayMs = _prefs.autoNextDelayMs.clamp(300, 800);
+                    bool sound = _prefs.sound;
+                    bool haptics = _prefs.haptics;
+                    bool autoWhy = _prefs.autoWhyOnWrong;
+                    double fontScale = _prefs.fontScale;
+                    final ctrl = TextEditingController(text: limit.toString());
+                    return Padding(
+                      padding: MediaQuery.of(ctx).viewInsets +
+                          const EdgeInsets.all(16),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(children: [
+                            const Text('Auto-next'),
+                            const Spacer(),
+                            Switch(
+                                value: autoNext,
+                                onChanged: (v) {
+                                  autoNext = v;
+                                  (ctx as Element).markNeedsBuild();
+                                })
+                          ]),
+                          Row(children: [
+                            const Text('Auto-next delay'),
+                            Expanded(
+                              child: Slider(
+                                value: delayMs.toDouble(),
+                                min: 300,
+                                max: 800,
+                                divisions: 10,
+                                label: '${delayMs} ms',
+                                onChanged: autoNext
+                                    ? (v) {
+                                        delayMs = v.round().clamp(300, 800);
+                                        (ctx as Element).markNeedsBuild();
+                                      }
+                                    : null,
+                              ),
                             ),
+                            SizedBox(
+                                width: 56,
+                                child: Text('${delayMs} ms',
+                                    textAlign: TextAlign.end)),
+                          ]),
+                          Row(children: [
+                            const Text('Answer timer'),
+                            const Spacer(),
+                            Switch(
+                                value: timeEnabled,
+                                onChanged: (v) {
+                                  timeEnabled = v;
+                                  (ctx as Element).markNeedsBuild();
+                                })
+                          ]),
+                          const SizedBox(height: 8),
+                          TextField(
+                            controller: ctrl,
+                            keyboardType: const TextInputType.numberWithOptions(
+                                signed: false, decimal: false),
+                            decoration: const InputDecoration(
+                                labelText: 'Time limit ms'),
+                            onChanged: (_) {
+                              final t = int.tryParse(ctrl.text);
+                              if (t != null) limit = t;
+                            },
                           ),
-                          SizedBox(
-                              width: 56,
-                              child:
-                                  Text('${delayMs} ms', textAlign: TextAlign.end)),
-                        ]),
-                        Row(children: [
-                          const Text('Answer timer'),
-                          const Spacer(),
-                          Switch(
-                              value: timeEnabled,
-                              onChanged: (v) {
-                                timeEnabled = v;
-                                (ctx as Element).markNeedsBuild();
-                              })
-                        ]),
-                        const SizedBox(height: 8),
-                        TextField(
-                          controller: ctrl,
-                          keyboardType:
-                              const TextInputType.numberWithOptions(signed: false, decimal: false),
-                          decoration:
-                              const InputDecoration(labelText: 'Time limit ms'),
-                          onChanged: (_) {
-                            final t = int.tryParse(ctrl.text);
-                            if (t != null) limit = t;
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        Row(children: [
-                          const Text('Sound'),
-                          const Spacer(),
-                          Switch(
-                              value: sound,
-                              onChanged: (v) {
-                                sound = v;
-                                (ctx as Element).markNeedsBuild();
-                              })
-                        ]),
-                        const SizedBox(height: 8),
-                        Row(children: [
-                          const Text('Haptics'),
-                          const Spacer(),
-                          Switch(
-                              value: haptics,
-                              onChanged: (v) {
-                                haptics = v;
-                                (ctx as Element).markNeedsBuild();
-                              })
-                        ]),
-                        const SizedBox(height: 8),
-                        Row(children: [
-                          const Text('Font size'),
-                          const Spacer(),
-                          ChoiceChip(
-                              label: const Text('L'),
-                              selected: fontScale <= 1.0,
-                              onSelected: (_) {
-                                fontScale = 1.0;
-                                (ctx as Element).markNeedsBuild();
-                              }),
-                          const SizedBox(width: 8),
-                          ChoiceChip(
-                              label: const Text('XL'),
-                              selected: fontScale > 1.0,
-                              onSelected: (_) {
-                                fontScale = 1.15;
-                                (ctx as Element).markNeedsBuild();
-                              }),
-                        ]),
-                        const SizedBox(height: 8),
-                        Row(children: [
-                          const Text('Auto Why on wrong'),
-                          const Spacer(),
-                          Switch(
-                              value: autoWhy,
-                              onChanged: (v) {
-                                autoWhy = v;
-                                (ctx as Element).markNeedsBuild();
-                              })
-                        ]),
-                        const SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            TextButton(
-                                onPressed: () => Navigator.pop(ctx),
-                                child: const Text('Cancel')),
+                          const SizedBox(height: 8),
+                          Row(children: [
+                            const Text('Sound'),
+                            const Spacer(),
+                            Switch(
+                                value: sound,
+                                onChanged: (v) {
+                                  sound = v;
+                                  (ctx as Element).markNeedsBuild();
+                                })
+                          ]),
+                          const SizedBox(height: 8),
+                          Row(children: [
+                            const Text('Haptics'),
+                            const Spacer(),
+                            Switch(
+                                value: haptics,
+                                onChanged: (v) {
+                                  haptics = v;
+                                  (ctx as Element).markNeedsBuild();
+                                })
+                          ]),
+                          const SizedBox(height: 8),
+                          Row(children: [
+                            const Text('Font size'),
+                            const Spacer(),
+                            ChoiceChip(
+                                label: const Text('L'),
+                                selected: fontScale <= 1.0,
+                                onSelected: (_) {
+                                  fontScale = 1.0;
+                                  (ctx as Element).markNeedsBuild();
+                                }),
                             const SizedBox(width: 8),
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.pop(ctx, {
-                                  "autoNext": autoNext,
-                                  "autoNextDelayMs": delayMs,
-                                  "timeEnabled": timeEnabled,
-                                  "timeLimitMs": limit,
-                                  "sound": sound,
-                                  "haptics": haptics,
-                                  "autoWhyOnWrong": autoWhy,
-                                  "fontScale": fontScale,
-                                });
-                              },
-                              child: const Text('Save'),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              );
-              if (r != null) {
-                final p = UiPrefs(
-                  autoNext: r["autoNext"] == true,
-                  timeEnabled: r["timeEnabled"] == true,
-                  timeLimitMs: (r["timeLimitMs"] is int)
-                      ? r["timeLimitMs"] as int
-                      : _timeLimitMs,
-                  sound: r["sound"] == true,
-                  haptics: r["haptics"] == true,
-                  autoWhyOnWrong: r["autoWhyOnWrong"] == true,
-                  autoNextDelayMs: (r["autoNextDelayMs"] is int)
-                      ? (r["autoNextDelayMs"] as int).clamp(300, 800)
-                      : _prefs.autoNextDelayMs,
-                  fontScale: (r["fontScale"] is num)
-                      ? (r["fontScale"] as num).toDouble()
-                      : _prefs.fontScale,
+                            ChoiceChip(
+                                label: const Text('XL'),
+                                selected: fontScale > 1.0,
+                                onSelected: (_) {
+                                  fontScale = 1.15;
+                                  (ctx as Element).markNeedsBuild();
+                                }),
+                          ]),
+                          const SizedBox(height: 8),
+                          Row(children: [
+                            const Text('Auto Why on wrong'),
+                            const Spacer(),
+                            Switch(
+                                value: autoWhy,
+                                onChanged: (v) {
+                                  autoWhy = v;
+                                  (ctx as Element).markNeedsBuild();
+                                })
+                          ]),
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              TextButton(
+                                  onPressed: () => Navigator.pop(ctx),
+                                  child: const Text('Cancel')),
+                              const SizedBox(width: 8),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(ctx, {
+                                    "autoNext": autoNext,
+                                    "autoNextDelayMs": delayMs,
+                                    "timeEnabled": timeEnabled,
+                                    "timeLimitMs": limit,
+                                    "sound": sound,
+                                    "haptics": haptics,
+                                    "autoWhyOnWrong": autoWhy,
+                                    "fontScale": fontScale,
+                                  });
+                                },
+                                child: const Text('Save'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 );
-                await saveUiPrefs(p);
-                if (!mounted) return;
-                setState(() {
-                  _prefs = p;
-                  _autoNext = p.autoNext;
-                  _timeEnabled = p.timeEnabled;
-                  _timeLimitMs = p.timeLimitMs;
-                  if (_chosen == null) _startTimebar();
-                  if (!_autoNext) _cancelAutoNextAnim();
-                });
-              }
-            },
-          ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          AbsorbPointer(
-            absorbing: _paused,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              child: child,
+                if (r != null) {
+                  final p = UiPrefs(
+                    autoNext: r["autoNext"] == true,
+                    timeEnabled: r["timeEnabled"] == true,
+                    timeLimitMs: (r["timeLimitMs"] is int)
+                        ? r["timeLimitMs"] as int
+                        : _timeLimitMs,
+                    sound: r["sound"] == true,
+                    haptics: r["haptics"] == true,
+                    autoWhyOnWrong: r["autoWhyOnWrong"] == true,
+                    autoNextDelayMs: (r["autoNextDelayMs"] is int)
+                        ? (r["autoNextDelayMs"] as int).clamp(300, 800)
+                        : _prefs.autoNextDelayMs,
+                    fontScale: (r["fontScale"] is num)
+                        ? (r["fontScale"] as num).toDouble()
+                        : _prefs.fontScale,
+                  );
+                  await saveUiPrefs(p);
+                  if (!mounted) return;
+                  setState(() {
+                    _prefs = p;
+                    _autoNext = p.autoNext;
+                    _timeEnabled = p.timeEnabled;
+                    _timeLimitMs = p.timeLimitMs;
+                    if (_chosen == null) _startTimebar();
+                    if (!_autoNext) _cancelAutoNextAnim();
+                  });
+                }
+              },
             ),
-          ),
-          if (_autoNextAnim?.isAnimating == true)
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: LinearProgressIndicator(
-                value: _autoNextAnim!.value,
-                minHeight: 2,
+          ],
+        ),
+        body: Stack(
+          children: [
+            AbsorbPointer(
+              absorbing: _paused,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                child: child,
               ),
             ),
-          if (_paused)
-            Positioned.fill(
-              child: IgnorePointer(
-                ignoring: true,
-                child: Container(
-                  color: Colors.black.withOpacity(0.45),
-                  child: const Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.pause_circle_filled,
-                            size: 56, color: Colors.white70),
-                        SizedBox(height: 8),
-                        Text('Paused',
-                            style: TextStyle(color: Colors.white)),
-                      ],
+            if (_autoNextAnim?.isAnimating == true)
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: LinearProgressIndicator(
+                  value: _autoNextAnim!.value,
+                  minHeight: 2,
+                ),
+              ),
+            if (_paused)
+              Positioned.fill(
+                child: IgnorePointer(
+                  ignoring: true,
+                  child: Container(
+                    color: Colors.black.withOpacity(0.45),
+                    child: const Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.pause_circle_filled,
+                              size: 56, color: Colors.white70),
+                          SizedBox(height: 8),
+                          Text('Paused', style: TextStyle(color: Colors.white)),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
+    );
   }
 
   Widget _buildSpotCard(UiSpot spot) {
@@ -1273,8 +1276,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             return;
           }
           if (_showHotkeys && event.logicalKey == LogicalKeyboardKey.keyY) {
-            final p =
-                _prefs.copyWith(autoWhyOnWrong: !_prefs.autoWhyOnWrong);
+            final p = _prefs.copyWith(autoWhyOnWrong: !_prefs.autoWhyOnWrong);
             setState(() {
               _prefs = p;
             });
@@ -1320,180 +1322,184 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
               _next();
             }
           }
-      },
-      child: Padding(
-        key: ValueKey('spot$_index'),
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Spot ${_index + 1}/${_spots.length}'),
-                Row(
-                  children: [
-                    Text(
-                        't=${(_timer.elapsedMilliseconds / 1000).toStringAsFixed(1)}s'),
-                    if (!_showHotkeys) ...[
-                      const SizedBox(width: 4),
-                      IconButton(
-                        icon: const Icon(Icons.folder_open),
-                        onPressed: _loadJsonlSpots,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.file_download),
-                        onPressed: _exportErrors,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.psychology_alt),
-                        onPressed: () {
-                          final p = _prefs.copyWith(
-                              autoWhyOnWrong: !_prefs.autoWhyOnWrong);
-                          setState(() {
-                            _prefs = p;
-                          });
-                          saveUiPrefs(p);
-                          showMiniToast(context,
-                              p.autoWhyOnWrong ? 'Auto Why: ON' : 'Auto Why: OFF');
-                        },
-                      ),
-                    ],
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            LinearProgressIndicator(
-              value: (_index + 1) / _spots.length,
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                Text('Accuracy ${(acc * 100).toStringAsFixed(0)}%'),
-                const SizedBox(width: 12),
-                Text('Streak ${_streak()}'),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                const Text('Answer timer'),
-                const Spacer(),
-                Switch(
-                  value: _timeEnabled,
-                  onChanged: (v) {
-                    final p = _prefs.copyWith(timeEnabled: v);
-                    setState(() {
-                      _timeEnabled = v;
-                      if (_chosen == null) _startTimebar();
-                      _prefs = p;
-                    });
-                    saveUiPrefs(p);
-                  },
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-              ],
-            ),
-            if (_chosen == null && _timeEnabled)
-              Padding(
-                padding: const EdgeInsets.only(top: 2),
-                child: ActiveTimebar(
-                  totalMs: _timeLimitMs,
-                  startMs: _timeLeftMs,
-                  running: true,
-                  onTimeout: null,
-                ),
-              ),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                const Text('Auto-next'),
-                Switch(
-                  value: _autoNext,
-                  onChanged: (v) {
-                    final p = _prefs.copyWith(autoNext: v);
-                    setState(() {
-                      _autoNext = v;
-                      if (!_autoNext) _cancelAutoNextAnim();
-                      _prefs = p;
-                    });
-                    saveUiPrefs(p);
-                  },
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-              ],
-            ),
-            Expanded(
-              child: ScaleTransition(
-                scale: _answerPulse,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: _answerFlashColor,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+        },
+        child: Padding(
+          key: ValueKey('spot$_index'),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Spot ${_index + 1}/${_spots.length}'),
+                  Row(
                     children: [
                       Text(
-                        spot.hand,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        _buildSubTitle(spot),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 24),
-                      ...actions.map(
-                          (a) => _buildActionButton(a, spot, jamFoldHotkeys)),
-                      if (_chosen != null) ...[
-                        const SizedBox(height: 16),
-                        Text(
-                          _answers[_index].correct
-                              ? 'Correct!'
-                              : 'Try again next time',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: _answers[_index].correct
-                                ? Colors.green
-                                : Colors.red,
-                          ),
+                          't=${(_timer.elapsedMilliseconds / 1000).toStringAsFixed(1)}s'),
+                      if (!_showHotkeys) ...[
+                        const SizedBox(width: 4),
+                        IconButton(
+                          icon: const Icon(Icons.folder_open),
+                          onPressed: _loadJsonlSpots,
                         ),
-                        TextButton(
-                          onPressed: () =>
-                              setState(() => _showExplain = !_showExplain),
-                          style: TextButton.styleFrom(
-                            visualDensity: VisualDensity.compact,
-                          ),
-                          child: const Text('Why?'),
+                        IconButton(
+                          icon: const Icon(Icons.file_download),
+                          onPressed: _exportErrors,
                         ),
-                        AnimatedCrossFade(
-                          firstChild: const SizedBox.shrink(),
-                          secondChild: Padding(
-                            padding: const EdgeInsets.all(8),
-                            child: Text(spot.explain ?? 'No explanation'),
-                          ),
-                          crossFadeState: _showExplain
-                              ? CrossFadeState.showSecond
-                              : CrossFadeState.showFirst,
-                          duration: const Duration(milliseconds: 200),
-                        ),
-                        const SizedBox(height: 24),
-                        ElevatedButton(
-                          onPressed: _next,
-                          child: const Text('Next'),
+                        IconButton(
+                          icon: const Icon(Icons.psychology_alt),
+                          onPressed: () {
+                            final p = _prefs.copyWith(
+                                autoWhyOnWrong: !_prefs.autoWhyOnWrong);
+                            setState(() {
+                              _prefs = p;
+                            });
+                            saveUiPrefs(p);
+                            showMiniToast(
+                                context,
+                                p.autoWhyOnWrong
+                                    ? 'Auto Why: ON'
+                                    : 'Auto Why: OFF');
+                          },
                         ),
                       ],
                     ],
                   ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              LinearProgressIndicator(
+                value: (_index + 1) / _spots.length,
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Text('Accuracy ${(acc * 100).toStringAsFixed(0)}%'),
+                  const SizedBox(width: 12),
+                  Text('Streak ${_streak()}'),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  const Text('Answer timer'),
+                  const Spacer(),
+                  Switch(
+                    value: _timeEnabled,
+                    onChanged: (v) {
+                      final p = _prefs.copyWith(timeEnabled: v);
+                      setState(() {
+                        _timeEnabled = v;
+                        if (_chosen == null) _startTimebar();
+                        _prefs = p;
+                      });
+                      saveUiPrefs(p);
+                    },
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ],
+              ),
+              if (_chosen == null && _timeEnabled)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: ActiveTimebar(
+                    totalMs: _timeLimitMs,
+                    startMs: _timeLeftMs,
+                    running: true,
+                    onTimeout: null,
+                  ),
+                ),
+              const SizedBox(height: 4),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  const Text('Auto-next'),
+                  Switch(
+                    value: _autoNext,
+                    onChanged: (v) {
+                      final p = _prefs.copyWith(autoNext: v);
+                      setState(() {
+                        _autoNext = v;
+                        if (!_autoNext) _cancelAutoNextAnim();
+                        _prefs = p;
+                      });
+                      saveUiPrefs(p);
+                    },
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ],
+              ),
+              Expanded(
+                child: ScaleTransition(
+                  scale: _answerPulse,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: _answerFlashColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          spot.hand,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _buildSubTitle(spot),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 24),
+                        ...actions.map(
+                            (a) => _buildActionButton(a, spot, jamFoldHotkeys)),
+                        if (_chosen != null) ...[
+                          const SizedBox(height: 16),
+                          Text(
+                            _answers[_index].correct
+                                ? 'Correct!'
+                                : 'Try again next time',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: _answers[_index].correct
+                                  ? Colors.green
+                                  : Colors.red,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () =>
+                                setState(() => _showExplain = !_showExplain),
+                            style: TextButton.styleFrom(
+                              visualDensity: VisualDensity.compact,
+                            ),
+                            child: const Text('Why?'),
+                          ),
+                          AnimatedCrossFade(
+                            firstChild: const SizedBox.shrink(),
+                            secondChild: Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Text(spot.explain ?? 'No explanation'),
+                            ),
+                            crossFadeState: _showExplain
+                                ? CrossFadeState.showSecond
+                                : CrossFadeState.showFirst,
+                            duration: const Duration(milliseconds: 200),
+                          ),
+                          const SizedBox(height: 24),
+                          ElevatedButton(
+                            onPressed: _next,
+                            child: const Text('Next'),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
