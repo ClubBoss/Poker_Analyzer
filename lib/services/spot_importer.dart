@@ -21,6 +21,7 @@ class SpotImporter {
   /// Parses [content] and returns an import report.
   ///
   /// Supported formats: 'json', 'csv' (case-insensitive).
+/// If both are provided, [format] is used and [kind] is ignored.
   /// If both are provided, [format] takes precedence; defaults to 'json'.
   /// CSV notes: quoted fields are de-quoted (and "" unescaped), but fields
   /// must not contain the active separator. Prefer ';' when values contain commas.
