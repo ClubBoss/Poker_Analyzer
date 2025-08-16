@@ -54,6 +54,7 @@ import '../services/inline_theory_linker_service.dart';
 import '../widgets/theory_quick_access_banner.dart';
 import '../widgets/inline_theory_recall_banner.dart';
 import '../widgets/inline_theory_booster_display.dart';
+import '../infra/telemetry.dart';
 
 class _EndlessStats {
   int total = 0;
@@ -100,6 +101,8 @@ class TrainingSessionScreen extends StatefulWidget {
 class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
   static final _EndlessStats _endlessStats = _EndlessStats();
   final _linker = InlineTheoryLinkerService();
+  final String _sessionId =
+      DateTime.now().millisecondsSinceEpoch.toString();
   String? _selected;
   bool? _correct;
   Timer? _timer;
@@ -146,6 +149,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
   @override
   void initState() {
     super.initState();
+    unawaited(Telemetry.logEvent('session_start', {'sessionId': _sessionId}));
     if (widget.pack != null) {
       final tpl = _fromPack(widget.pack!);
       Future.microtask(
@@ -170,6 +174,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
   @override
   void dispose() {
     _timer?.cancel();
+    unawaited(Telemetry.logEvent('session_end', {'sessionId': _sessionId}));
     if (widget.onSessionEnd != null && !_continue) {
       _endlessStats.reset();
     }

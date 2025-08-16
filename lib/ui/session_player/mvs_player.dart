@@ -12,6 +12,7 @@ import 'package:flutter/foundation.dart'; // for kIsWeb & defaultTargetPlatform
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
 
+import '../../infra/telemetry.dart';
 import '../../widgets/active_timebar.dart';
 import 'hotkeys_sheet.dart';
 import 'mini_toast.dart';
@@ -128,6 +129,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   final _answers = <UiAnswer>[];
   final _timer = Stopwatch();
   final _focusNode = FocusNode();
+  final String _sessionId =
+      DateTime.now().millisecondsSinceEpoch.toString();
   Timer? _ticker;
   Timer? _autoNextTimer;
   List<UiSpot>? _lastLoadedSpots;
@@ -383,6 +386,16 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     final autoWhy = _prefs.autoWhyOnWrong;
     final jam = spot.kind.name.contains('_jam_vs_');
     final correct = action == spot.action;
+    final stackBB =
+        int.tryParse(spot.stack.replaceAll(RegExp(r'[^0-9]'), ''));
+    unawaited(Telemetry.logEvent(
+      correct ? 'answer_correct' : 'answer_wrong',
+      {
+        'sessionId': _sessionId,
+        'spotKind': spot.kind.name,
+        if (stackBB != null) 'stackBB': stackBB,
+      },
+    ));
     // mobile haptics
     if (_prefs.haptics) {
       try {
@@ -468,10 +481,20 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
 
   void _skip() {
     if (_index >= _spots.length || _chosen != null) return;
+    final spot = _spots[_index];
+    final stackBB =
+        int.tryParse(spot.stack.replaceAll(RegExp(r'[^0-9]'), ''));
+    unawaited(Telemetry.logEvent(
+      'answer_skip',
+      {
+        'sessionId': _sessionId,
+        'spotKind': spot.kind.name,
+        if (stackBB != null) 'stackBB': stackBB,
+      },
+    ));
     _autoNextTimer?.cancel();
     _cancelAutoNextAnim();
     _timebarTicker?.cancel();
-    final spot = _spots[_index];
     setState(() {
       // считаем пропуск как неправильный ответ,
       // чтобы длины spots/answers оставались согласованы
