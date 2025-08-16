@@ -10,6 +10,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'; // for kIsWeb & defaultTargetPlatform
 import 'package:flutter/services.dart';
+import 'package:file_picker/file_picker.dart';
 
 import '../../widgets/active_timebar.dart';
 import 'hotkeys_sheet.dart';
@@ -514,6 +515,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       _index = 0;
       _answers.clear();
       _chosen = null;
+      _paused = false;
       _showExplain = false;
       _timer
         ..reset()
@@ -535,6 +537,68 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     } else {
       _restart(wrong);
     }
+  }
+
+  Future<void> _loadJsonlSpots() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+          type: FileType.custom, allowedExtensions: ['jsonl']);
+      if (result == null || result.files.isEmpty) return;
+      final f = result.files.first;
+      String? content;
+      if (f.path != null) {
+        content = await File(f.path!).readAsString();
+      } else if (f.bytes != null) {
+        content = utf8.decode(f.bytes!);
+      }
+      if (content == null) return;
+      final lines = const LineSplitter().convert(content);
+      final parsed = <UiSpot>[];
+      for (final line in lines) {
+        if (line.trim().isEmpty) continue;
+        try {
+          final obj = jsonDecode(line);
+          if (obj is! Map) continue;
+          final k = obj['kind'];
+          final hand = obj['hand'];
+          final pos = obj['pos'];
+          final vsPos = obj['vsPos'];
+          final stack = obj['stack'];
+          final action = obj['action'];
+          if (k is! String ||
+              hand is! String ||
+              pos is! String ||
+              stack is! String ||
+              action is! String) {
+            continue;
+          }
+          SpotKind? kind;
+          for (final sk in SpotKind.values) {
+            if (sk.name == k) {
+              kind = sk;
+              break;
+            }
+          }
+          if (kind == null) continue;
+          final acts = _actionsFor(kind);
+          if (!listEquals(acts, const ['jam', 'fold']) ||
+              !acts.contains(action)) {
+            continue;
+          }
+          parsed.add(UiSpot(
+            kind: kind,
+            hand: hand,
+            pos: pos,
+            vsPos: vsPos is String ? vsPos : null,
+            stack: stack,
+            action: action,
+          ));
+        } catch (_) {}
+      }
+      if (parsed.isEmpty) return;
+      _restart(parsed);
+      showMiniToast(context, 'Loaded ${parsed.length} spots');
+    } catch (_) {}
   }
 
   @override
@@ -859,6 +923,10 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         autofocus: true,
         onKey: (event) {
           if (event is! RawKeyDownEvent || _paused) return;
+          if (_showHotkeys && event.logicalKey == LogicalKeyboardKey.keyO) {
+            _loadJsonlSpots();
+            return;
+          }
           if (event.logicalKey == LogicalKeyboardKey.keyA) {
             final v = !_autoNext;
             final p = _prefs.copyWith(autoNext: v);
