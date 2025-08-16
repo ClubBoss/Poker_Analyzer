@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../services/user_preferences_service.dart';
 import 'tag_management_screen.dart';
@@ -18,6 +19,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'lesson_track_library_screen.dart';
 import '../services/skill_tree_settings_service.dart';
+import '../ui/settings/privacy_terms.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -298,6 +300,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: const Text('Accent Color'),
               leading: CircleAvatar(backgroundColor: _accentColor),
               onTap: _pickAccentColor,
+            ),
+            ListTile(
+              title: Text(AppLocalizations.of(context)!.privacy_title),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const PrivacyScreen()),
+                );
+              },
+            ),
+            ListTile(
+              title: Text(AppLocalizations.of(context)!.terms_title),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const TermsScreen()),
+                );
+              },
             ),
             Consumer<AuthService>(
               builder: (context, auth, child) {
