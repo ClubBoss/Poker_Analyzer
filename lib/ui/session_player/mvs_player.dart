@@ -139,7 +139,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       timeLimitMs: 10000,
       sound: false,
       haptics: true,
-      autoWhyOnWrong: false,
+      autoWhyOnWrong: true,
       autoNextDelayMs: 600,
       fontScale: 1.0);
   bool _autoNext = false;

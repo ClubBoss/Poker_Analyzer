@@ -46,7 +46,7 @@ class UiPrefs {
       sound: b(m["sound"], false),
       haptics: b(m["haptics"], true),
       autoWhyOnWrong:
-          b(m["autoWhyOnWrong"], b(m["autoExplainOnWrong"], false)),
+          b(m["autoWhyOnWrong"], b(m["autoExplainOnWrong"], true)),
       autoNextDelayMs: autoNextDelayMs,
       fontScale: fs as double,
     );
@@ -65,7 +65,7 @@ Future<UiPrefs> loadUiPrefs({String path = 'out/ui_prefs_v1.json'}) async {
         timeLimitMs: 10000,
         sound: false,
         haptics: true,
-        autoWhyOnWrong: false,
+        autoWhyOnWrong: true,
         autoNextDelayMs: delay as int,
         fontScale: (fsOverride ?? 1.0).clamp(0.9, 1.3),
         );
@@ -94,7 +94,7 @@ Future<UiPrefs> loadUiPrefs({String path = 'out/ui_prefs_v1.json'}) async {
       timeLimitMs: 10000,
       sound: false,
       haptics: true,
-      autoWhyOnWrong: false,
+      autoWhyOnWrong: true,
       autoNextDelayMs: delay as int,
       fontScale: (fsOverride ?? 1.0).clamp(0.9, 1.3),
       );
