@@ -123,4 +123,3 @@ void main(List<String> args) {
   file.writeAsStringSync(buffer.toString());
   stdout.writeln('Wrote ' + spots.length.toString() + ' spots to ' + outPath);
 }
-
