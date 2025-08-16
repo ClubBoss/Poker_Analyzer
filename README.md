@@ -85,3 +85,13 @@ Set these in CI to adjust thresholds or switch modes (PRs run with `COVERAGE_MOD
 
 ![Main menu screenshot](flutter_01.png)
 
+
+## Local checks (run before PR)
+```bash
+dart format --set-exit-if-changed .
+dart analyze
+dart test -r expanded test/mvs_player_smoke_test.dart test/spotkind_integrity_smoke_test.dart
+```
+
+If Flutter isn’t installed, these pass because the spot specs & tests are pure Dart.
+
