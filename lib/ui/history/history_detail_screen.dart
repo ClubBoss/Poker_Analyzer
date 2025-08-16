@@ -89,7 +89,7 @@ class HistoryDetailScreen extends StatelessWidget {
                     ..write(',')
                     ..write(_csv(s.stack))
                     ..write(',')
-                    ..write(s.action)
+                    ..write(_csv(s.action))
                     ..write(',')
                     ..write(_csv(s.vsPos ?? ''))
                     ..write(',')
