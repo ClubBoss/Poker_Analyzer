@@ -20,13 +20,14 @@ class SpotImportReport {
 class SpotImporter {
   /// Parses [content] and returns an import report.
   ///
-  /// [format] takes precedence over [kind] and defaults to `'json'`.
+  /// Supported formats: 'json', 'csv' (case-insensitive).
   /// If both are provided, [format] is used and [kind] is ignored.
+  /// Defaults to 'json'.
   static SpotImportReport parse(
     String content, {
-      String? format,
-      String? kind,
-    }) {
+    String? format,
+    String? kind,
+  }) {
     final fmt = (format ?? kind ?? 'json').toLowerCase();
     final spots = <UiSpot>[];
     final errors = <String>[];
@@ -89,7 +90,7 @@ class SpotImporter {
     } else if (fmt == 'csv') {
       String dequote(String s) {
         if (s.length >= 2 && s.startsWith('"') && s.endsWith('"')) {
-          return s.substring(1, s.length - 1);
+          return s.substring(1, s.length - 1).replaceAll('""', '"');
         }
         return s;
       }
