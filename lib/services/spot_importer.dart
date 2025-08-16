@@ -113,7 +113,13 @@ class SpotImporter {
 
   static UiSpot? _spotFromMap(
       Map<String, dynamic> m, int row, void Function(String) addError) {
-    String? get(String key) => m[key] is String ? (m[key] as String).trim() : null;
+    String? get(String key) {
+      if (m[key] is String) {
+        final t = (m[key] as String).trim();
+        return t.isEmpty ? null : t;
+      }
+      return null;
+    }
 
     final k = get('kind');
     final hand = get('hand');
