@@ -49,4 +49,35 @@ void main() {
     expect(report.skipped, 7);
     expect(report.errors.length, 5);
   });
+
+  test('CSV tolerates column order and extra headers', () {
+    const csv =
+        'pos,kind,action,stack,hand,extra\nBTN,callVsJam,push,10bb,AKo,foo';
+    final report = SpotImporter.parse(csv, kind: 'csv');
+    expect(report.added, 1);
+    expect(report.errors, isEmpty);
+    final spot = report.spots.single;
+    expect(spot.kind, SpotKind.callVsJam);
+    expect(spot.hand, 'AKo');
+    expect(spot.pos, 'BTN');
+    expect(spot.stack, '10bb');
+    expect(spot.action, 'push');
+  });
+
+  test('JSON unknown kind is skipped', () {
+    const json =
+        '[{"kind":"UnKnOwN","hand":"AKo","pos":"BTN","stack":"10bb","action":"push"}]';
+    final report = SpotImporter.parse(json, kind: 'json');
+    expect(report.added, 0);
+    expect(report.skipped, 1);
+    expect(report.errors.single.contains('unknown kind'), isTrue);
+  });
+
+  test('CSV row with empty required field is skipped', () {
+    const csv = 'kind,hand,pos,stack,action\ncallVsJam,,BTN,10bb,push';
+    final report = SpotImporter.parse(csv, kind: 'csv');
+    expect(report.added, 0);
+    expect(report.skipped, 1);
+    expect(report.errors.single.contains('missing field'), isTrue);
+  });
 }
