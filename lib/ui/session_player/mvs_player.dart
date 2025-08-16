@@ -1023,6 +1023,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
               _prefs = p;
             });
             saveUiPrefs(p);
+            showMiniToast(
+                context, p.autoWhyOnWrong ? 'Auto Why: ON' : 'Auto Why: OFF');
             return;
           }
           if (_chosen == null) {
