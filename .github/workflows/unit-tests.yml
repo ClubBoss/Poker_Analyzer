@@ -2,22 +2,9 @@ name: Unit Tests (PR only, label-gated)
 
 on:
   pull_request:
-    paths:
-      - "**/*.dart"
-      - "**/*.yaml"
-      - "**/*.yml"
-      - "pubspec.yaml"
-      - "pubspec.lock"
-      - ".github/workflows/unit-tests.yml"
+    types: [opened, synchronize, reopened, labeled, unlabeled]
   push:
     branches: [ main ]
-    paths:
-      - "**/*.dart"
-      - "**/*.yaml"
-      - "**/*.yml"
-      - "pubspec.yaml"
-      - "pubspec.lock"
-      - ".github/workflows/unit-tests.yml"
 
 jobs:
   tests:
@@ -51,7 +38,7 @@ jobs:
 
       # Smart quotes – ТОЛЬКО когда реально хотим гнать тесты (по лейблу)
       - name: Fail on smart quotes / punctuation (only when tests run)
-        if: ${{ contains(github.event.pull_request.labels.*.name, 'run-tests') }}
+        if: ${{ github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'run-tests') }}
         shell: bash
         run: |
           set -euo pipefail
@@ -61,10 +48,18 @@ jobs:
             exit 1
           fi
 
-      - name: Run smoke tests (labeled PRs only)
-        if: ${{ contains(github.event.pull_request.labels.*.name, 'run-tests') }}
-        run: flutter test --no-pub --coverage test/smoke
+      - name: Format check (repo-wide but no write)
+        if: ${{ github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'run-tests') }}
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze (repo-wide, fatal)
+        if: ${{ github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'run-tests') }}
+        run: flutter analyze
+
+      - name: Unit tests (repo-wide)
+        if: ${{ github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'run-tests') }}
+        run: dart test -r expanded
 
       - name: Skip tests (default)
-        if: ${{ !contains(github.event.pull_request.labels.*.name, 'run-tests') }}
+        if: ${{ github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'run-tests') }}
         run: echo "PR tests are skipped. Add label 'run-tests' to enable."
