@@ -18,12 +18,15 @@ class SpotImportReport {
 }
 
 class SpotImporter {
+  /// Parses [content] and returns an import report.
+  ///
+  /// [format] takes precedence over [kind] and defaults to `'json'`.
   static SpotImportReport parse(
     String content, {
     String? format,
     String? kind,
   }) {
-    final k = (format ?? kind ?? 'json').toLowerCase();
+    final fmt = (format ?? kind ?? 'json').toLowerCase();
     final spots = <UiSpot>[];
     final errors = <String>[];
     var skipped = 0;
@@ -45,7 +48,7 @@ class SpotImporter {
       }
     }
 
-    if (k == 'json') {
+    if (fmt == 'json') {
       dynamic data;
       try {
         data = jsonDecode(content);
@@ -82,7 +85,7 @@ class SpotImporter {
       } else {
         addError('JSON root is not an array');
       }
-    } else if (k == 'csv') {
+    } else if (fmt == 'csv') {
       String dequote(String s) {
         if (s.length >= 2 && s.startsWith('"') && s.endsWith('"')) {
           return s.substring(1, s.length - 1);
