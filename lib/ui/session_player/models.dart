@@ -1,4 +1,11 @@
-enum SpotKind { l2_open_fold, l2_threebet_push, l2_limped, l4_icm, callVsJam }
+enum SpotKind {
+  l2_open_fold,
+  l2_threebet_push,
+  l2_limped,
+  l4_icm,
+  callVsJam,
+  l3_postflop_jam
+}
 
 class UiSpot {
   final SpotKind kind;
