@@ -1016,6 +1016,15 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             saveUiPrefs(p);
             return;
           }
+          if (_showHotkeys && event.logicalKey == LogicalKeyboardKey.keyY) {
+            final p =
+                _prefs.copyWith(autoWhyOnWrong: !_prefs.autoWhyOnWrong);
+            setState(() {
+              _prefs = p;
+            });
+            saveUiPrefs(p);
+            return;
+          }
           if (_chosen == null) {
             if (event.logicalKey == LogicalKeyboardKey.digit1 &&
                 actions.length > 0) {
