@@ -847,45 +847,67 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     } else {
       child = _buildSpotCard(_spots[_index]);
     }
-    final mq = MediaQuery.of(context);
-    final scaled = mq.copyWith(
-      textScaler: TextScaler.linear((_prefs.fontScale).clamp(0.9, 1.3)),
-    );
-    final player = MediaQuery(data: scaled, child: child);
-    return Scaffold(
-      appBar: AppBar(
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.undo),
-            tooltip: 'Undo',
-            onPressed: _answers.isEmpty ? null : _undo,
-          ),
-          IconButton(
-            icon: const Icon(Icons.skip_next),
-            tooltip: 'Skip',
-            onPressed:
-                (_index >= _spots.length || _chosen != null) ? null : _skip,
-          ),
-          IconButton(
-            icon: Icon(_paused ? Icons.play_arrow : Icons.pause),
-            tooltip: _paused ? 'Resume' : 'Pause',
-            onPressed: _togglePause,
-          ),
-          if (_showHotkeys)
+    return MediaQuery(
+      data: MediaQuery.of(context)
+          .copyWith(textScaleFactor: _prefs.fontScale),
+      child: Scaffold(
+        appBar: AppBar(
+          actions: [
             IconButton(
-              icon: const Icon(Icons.help_outline),
-              onPressed: () {
-                showModalBottomSheet<void>(
-                  context: context,
-                  backgroundColor: Colors.black87,
-                  isScrollControlled: false,
-                  builder: (_) => const HotkeysSheet(),
-                );
-              },
+              icon: const Icon(Icons.undo),
+              tooltip: 'Undo',
+              onPressed: _answers.isEmpty ? null : _undo,
             ),
-          IconButton(
-            icon: const Icon(Icons.tune),
-            onPressed: () async {
+            IconButton(
+              icon: const Icon(Icons.skip_next),
+              tooltip: 'Skip',
+              onPressed:
+                  (_index >= _spots.length || _chosen != null) ? null : _skip,
+            ),
+            IconButton(
+              icon: Icon(_paused ? Icons.play_arrow : Icons.pause),
+              tooltip: _paused ? 'Resume' : 'Pause',
+              onPressed: _togglePause,
+            ),
+            if (!_showHotkeys) ...[
+              IconButton(
+                icon: const Icon(Icons.format_size),
+                onPressed: () {
+                  final v = _prefs.fontScale > 1.0 ? 1.0 : 1.2;
+                  final p = _prefs.copyWith(fontScale: v);
+                  setState(() => _prefs = p);
+                  saveUiPrefs(p);
+                  unawaited(showMiniToast(
+                      context, v > 1.0 ? 'Font: XL' : 'Font: L'));
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.vibration),
+                onPressed: () {
+                  final v = !_prefs.haptics;
+                  final p = _prefs.copyWith(haptics: v);
+                  setState(() => _prefs = p);
+                  saveUiPrefs(p);
+                  unawaited(showMiniToast(
+                      context, v ? 'Haptics: ON' : 'Haptics: OFF'));
+                },
+              ),
+            ],
+            if (_showHotkeys)
+              IconButton(
+                icon: const Icon(Icons.help_outline),
+                onPressed: () {
+                  showModalBottomSheet<void>(
+                    context: context,
+                    backgroundColor: Colors.black87,
+                    isScrollControlled: false,
+                    builder: (_) => const HotkeysSheet(),
+                  );
+                },
+              ),
+            IconButton(
+              icon: const Icon(Icons.tune),
+              onPressed: () async {
               final r = await showModalBottomSheet<Map<String, dynamic>>(
                 context: context,
                 isScrollControlled: true,
@@ -1082,7 +1104,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             absorbing: _paused,
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
-              child: player,
+              child: child,
             ),
           ),
           if (_autoNextAnim?.isAnimating == true)
@@ -1118,7 +1140,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             ),
         ],
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildSpotCard(UiSpot spot) {
