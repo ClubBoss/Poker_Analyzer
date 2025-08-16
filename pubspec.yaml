@@ -72,6 +72,7 @@ dependencies:
   package_info_plus: ^8.3.0
   visibility_detector: ^0.4.0+2
   json2yaml: ^3.0.0
+  sentry_flutter: ^9.6.0
 
 dev_dependencies:
   flutter_test:
