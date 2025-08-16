@@ -1036,6 +1036,14 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                 context, p.autoWhyOnWrong ? 'Auto Why: ON' : 'Auto Why: OFF');
             return;
           }
+          if (_showHotkeys && event.logicalKey == LogicalKeyboardKey.keyS) {
+            if (_chosen == null) _skip();
+            return;
+          }
+          if (_showHotkeys && event.logicalKey == LogicalKeyboardKey.keyU) {
+            if (_answers.isNotEmpty) _undo();
+            return;
+          }
           if (_chosen == null) {
             if (event.logicalKey == LogicalKeyboardKey.digit1 &&
                 actions.length > 0) {
