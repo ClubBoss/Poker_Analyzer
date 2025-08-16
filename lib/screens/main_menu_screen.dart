@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:meta/meta.dart';
 
 import '../utils/responsive.dart';
 import 'global_evaluation_screen.dart';
@@ -161,26 +162,38 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       final file = File('out/sessions_history.jsonl');
       if (!await file.exists()) return;
       final lines = await file.readAsLines();
-      // iterate from newest to oldest
-      List<UiSpot> latest = const [];
-      for (var i = lines.length - 1; i >= 0; i--) {
-        final line = lines[i].trim();
-        if (line.isEmpty) continue;
-        try {
-          final obj = jsonDecode(line);
-          if (obj is Map<String, dynamic>) {
-            final parsed = _parseSpots(obj['spots']);
-            if (parsed.isNotEmpty) {
-              latest = parsed;
-              break;
-            }
-          }
-        } catch (_) {}
-      }
+      final latest = _latestReplaySpotsFromLines(lines);
       if (!mounted) return;
       if (latest.isNotEmpty) setState(() => _replaySpots = latest);
     } catch (_) {}
   }
+
+  List<UiSpot> _latestReplaySpotsFromLines(List<String> lines) {
+    List<UiSpot> latest = const [];
+    for (var i = lines.length - 1; i >= 0; i--) {
+      final line = lines[i].trim();
+      if (line.isEmpty) continue;
+      try {
+        final obj = jsonDecode(line);
+        if (obj is Map<String, dynamic>) {
+          final parsed = _parseSpots(obj['spots']);
+          if (parsed.isNotEmpty) {
+            latest = parsed;
+            break;
+          }
+        }
+      } catch (_) {}
+    }
+    return latest;
+  }
+
+  @visibleForTesting
+  Future<void> loadReplaySpotsForTest(List<String> lines) async {
+    _replaySpots = _latestReplaySpotsFromLines(lines);
+  }
+
+  @visibleForTesting
+  List<UiSpot> get replaySpotsForTest => _replaySpots;
 
   List<UiSpot> _parseSpots(Object? raw) {
     final out = <UiSpot>[];
