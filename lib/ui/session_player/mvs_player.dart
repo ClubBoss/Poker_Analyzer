@@ -1057,6 +1057,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     if (spot.kind == SpotKind.l3_postflop_jam) {
       return 'Postflop Jam • $core';
     }
+    if (spot.kind == SpotKind.l3_checkraise_jam) {
+      return 'Check-Raise Jam • $core';
+    }
     return core;
   }
 
@@ -1073,6 +1076,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       case SpotKind.callVsJam:
         return ['Call', 'Fold'];
       case SpotKind.l3_postflop_jam:
+        return ['jam', 'fold'];
+      case SpotKind.l3_checkraise_jam:
         return ['jam', 'fold'];
     }
   }
