@@ -1,5 +1,5 @@
 name: poker_analyzer
-description: A new Flutter project.
+description: Visual trainer for push/fold decisions in tournament poker.
 
 publish_to: 'none' # Remove this line if you want to publish to pub.dev
 
