@@ -18,6 +18,7 @@ import '../../services/session_resume.dart';
 import 'hotkeys_sheet.dart';
 import 'mini_toast.dart';
 import 'models.dart';
+import 'spot_specs.dart';
 import 'result_summary.dart';
 import 'ui_prefs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,43 +26,16 @@ import '../../services/spot_importer.dart';
 import '../coverage/coverage_dashboard.dart';
 import '../modules/modules_screen.dart';
 
-const _autoReplayKinds = {
-  SpotKind.l3_flop_jam_vs_raise,
-  SpotKind.l3_turn_jam_vs_raise,
-  SpotKind.l3_river_jam_vs_raise,
-  SpotKind.l4_icm_bubble_jam_vs_fold,
-  SpotKind.l4_icm_ladder_jam_vs_fold,
-  SpotKind.l4_icm_sb_jam_vs_fold,
-};
-
-const _actionsMap = <SpotKind, List<String>>{
-  SpotKind.l3_flop_jam_vs_raise: ['jam', 'fold'],
-  SpotKind.l3_turn_jam_vs_raise: ['jam', 'fold'],
-  SpotKind.l3_river_jam_vs_raise: ['jam', 'fold'],
-  SpotKind.l4_icm_bubble_jam_vs_fold: ['jam', 'fold'],
-  SpotKind.l4_icm_ladder_jam_vs_fold: ['jam', 'fold'],
-  SpotKind.l4_icm_sb_jam_vs_fold: ['jam', 'fold'],
-};
-
-const _subtitlePrefix = <SpotKind, String>{
-  SpotKind.l3_flop_jam_vs_raise: 'Flop Jam vs Raise • ',
-  SpotKind.l3_turn_jam_vs_raise: 'Turn Jam vs Raise • ',
-  SpotKind.l3_river_jam_vs_raise: 'River Jam vs Raise • ',
-  SpotKind.l4_icm_bubble_jam_vs_fold: 'ICM Bubble Jam vs Fold • ',
-  SpotKind.l4_icm_ladder_jam_vs_fold: 'ICM FT Ladder Jam vs Fold • ',
-  SpotKind.l4_icm_sb_jam_vs_fold: 'ICM SB Jam vs Fold • ',
-};
-
 void _assertSpotKindIntegrity() {
   assert(() {
     // 1) Append-only discipline: latest known value must remain last.
     if (SpotKind.values.last != SpotKind.l4_icm_sb_jam_vs_fold) {
       throw StateError('SpotKind append-only violated: last is not l4_icm_sb_jam_vs_fold');
     }
-    // 2) _autoReplayKinds covered by data-driven maps.
-    for (final k in _autoReplayKinds) {
-      final a = _actionsMap[k];
-      final p = _subtitlePrefix[k];
+    // 2) autoReplayKinds covered by data-driven maps.
+    for (final k in autoReplayKinds) {
+      final a = actionsMap[k];
+      final p = subtitlePrefix[k];
       if (a == null || a.length != 2 || a[0] != 'jam' || a[1] != 'fold') {
         throw StateError('actionsMap missing or invalid for $k');
       }
@@ -496,7 +470,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       }
       if (!correct &&
           autoWhy &&
-          _autoReplayKinds.contains(spot.kind) &&
+          autoReplayKinds.contains(spot.kind) &&
           !_replayed.contains(spot)) {
         _spots.insert(_index + 1, spot);
         _replayed.add(spot);
@@ -1441,7 +1415,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     if (spot.limpers != null) parts.add('limpers ${spot.limpers}');
     parts.add(spot.stack);
     final core = parts.join(' • ');
-    final prefix = _subtitlePrefix[spot.kind];
+    final prefix = subtitlePrefix[spot.kind];
     if (prefix != null) return prefix + core;
     if (spot.kind == SpotKind.callVsJam) {
       return 'Call vs Jam • $core';
@@ -1504,7 +1478,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   }
 
   List<String> _actionsFor(SpotKind kind) {
-    final mapped = _actionsMap[kind];
+    final mapped = actionsMap[kind];
     if (mapped != null) return mapped;
     switch (kind) {
       case SpotKind.l2_open_fold:
