@@ -603,6 +603,61 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     } catch (_) {}
   }
 
+  Future<void> _loadClipboardJsonlSpots() async {
+    try {
+      final data = await Clipboard.getData('text/plain');
+      final content = data?.text;
+      if (content == null) return;
+      final lines = const LineSplitter().convert(content);
+      final parsed = <UiSpot>[];
+      for (final line in lines) {
+        if (line.trim().isEmpty) continue;
+        try {
+          final obj = jsonDecode(line);
+          if (obj is! Map) continue;
+          final k = obj['kind'];
+          final hand = obj['hand'];
+          final pos = obj['pos'];
+          final vsPos = obj['vsPos'];
+          final stack = obj['stack'];
+          final action = obj['action'];
+          if (k is! String ||
+              hand is! String ||
+              pos is! String ||
+              stack is! String ||
+              action is! String) {
+            continue;
+          }
+          SpotKind? kind;
+          for (final sk in SpotKind.values) {
+            if (sk.name == k) {
+              kind = sk;
+              break;
+            }
+          }
+          if (kind == null) continue;
+          final acts = _actionsFor(kind);
+          if (!listEquals(acts, const ['jam', 'fold']) ||
+              !acts.contains(action)) {
+            continue;
+          }
+          parsed.add(UiSpot(
+            kind: kind,
+            hand: hand,
+            pos: pos,
+            vsPos: vsPos is String ? vsPos : null,
+            stack: stack,
+            action: action,
+          ));
+        } catch (_) {}
+      }
+      if (parsed.isEmpty) return;
+      _lastLoadedSpots = parsed;
+      _restart(parsed);
+      showMiniToast(context, 'Loaded ${parsed.length} spots (clipboard)');
+    } catch (_) {}
+  }
+
   @override
   Widget build(BuildContext context) {
     final Widget child;
@@ -927,6 +982,10 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           if (event is! RawKeyDownEvent || _paused) return;
           if (_showHotkeys && event.logicalKey == LogicalKeyboardKey.keyO) {
             _loadJsonlSpots();
+            return;
+          }
+          if (_showHotkeys && event.logicalKey == LogicalKeyboardKey.keyP) {
+            _loadClipboardJsonlSpots();
             return;
           }
           if (_showHotkeys && event.logicalKey == LogicalKeyboardKey.keyR) {
