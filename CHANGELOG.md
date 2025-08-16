@@ -1,6 +1,7 @@
 # Changelog
 
 ## [Unreleased]
+- Remove stray test line from README and clarify screenshot alt text.
 - Warn when `--weights` and `--weightsPreset` flags are used together and add precommit sanity hook.
 - Add DecayHeatmapUISurface widget for visualizing memory decay.
 - Remind to resume stale user goals via GoalReengagementBanner on main menu.

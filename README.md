@@ -83,7 +83,5 @@ Set these in CI to adjust thresholds or switch modes (PRs run with `COVERAGE_MOD
 ## License & Credits
 © 2024 Poker Analyzer contributors. License pending.
 
-![screenshot](flutter_01.png)
-- fast-path test Mon Aug 11 01:16:01 +04 2025
-
+![Main menu screenshot](flutter_01.png)
 
