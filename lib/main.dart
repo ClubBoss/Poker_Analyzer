@@ -86,10 +86,12 @@ import 'services/booster_recall_decay_cleaner.dart';
 import 'services/pinned_comeback_nudge_service.dart';
 import 'route_observer.dart';
 import 'services/recent_packs_service.dart';
+import 'infra/telemetry.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-Future<void> main() async {
+Future<void> _bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Telemetry.init(dsn: const String.fromEnvironment('SENTRY_DSN'));
   auth = AuthService();
   rc = RemoteConfigService();
   if (!CloudSyncService.isLocal) {
@@ -152,6 +154,20 @@ Future<void> main() async {
       providers: buildAppProviders(cloud),
       child: const PokerAIAnalyzerApp(),
     ),
+  );
+  unawaited(Telemetry.logEvent('app_open'));
+  // TODO(session_start): call when a training session begins.
+  // TODO(session_end): call when a training session ends.
+  // TODO(answer_correct): call when a question is answered correctly.
+  // TODO(answer_wrong): call when a question is answered incorrectly.
+  // TODO(answer_skip): call when a question is skipped.
+  // TODO(replay_errors): call when replaying past mistakes.
+}
+
+Future<void> main() async {
+  await runZonedGuarded(
+    _bootstrap,
+    (error, stack) => unawaited(Telemetry.logError(error, stack)),
   );
 }
 
