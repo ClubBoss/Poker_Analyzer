@@ -25,6 +25,15 @@ import '../../services/spot_importer.dart';
 import '../coverage/coverage_dashboard.dart';
 import '../modules/modules_screen.dart';
 
+const _autoReplayKinds = {
+  SpotKind.l3_flop_jam_vs_raise,
+  SpotKind.l3_turn_jam_vs_raise,
+  SpotKind.l3_river_jam_vs_raise,
+  SpotKind.l4_icm_bubble_jam_vs_fold,
+  SpotKind.l4_icm_ladder_jam_vs_fold,
+  SpotKind.l4_icm_sb_jam_vs_fold,
+};
+
 extension _UiPrefsCopy on UiPrefs {
   UiPrefs copyWith({
     bool? autoNext,
@@ -445,11 +454,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       if (!correct && autoWhy) {
         _showExplain = true;
       }
-      if (!correct && autoWhy && (spot.kind == SpotKind.l3_flop_jam_vs_raise ||
-              spot.kind == SpotKind.l3_turn_jam_vs_raise ||
-              spot.kind == SpotKind.l3_river_jam_vs_raise ||
-              spot.kind == SpotKind.l4_icm_bubble_jam_vs_fold ||
-              spot.kind == SpotKind.l4_icm_ladder_jam_vs_fold) &&
+      if (!correct &&
+          autoWhy &&
+          _autoReplayKinds.contains(spot.kind) &&
           !_replayed.contains(spot)) {
         _spots.insert(_index + 1, spot);
         _replayed.add(spot);
