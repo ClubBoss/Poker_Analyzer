@@ -436,6 +436,7 @@ Widget build(BuildContext context) {
                         final player = await MvsSessionPlayer.fromSaved();
                         if (player == null) {
                           await _discardResume();
+                          if (mounted) _loadReplaySpots();
                           return;
                         }
                         await Navigator.push(
