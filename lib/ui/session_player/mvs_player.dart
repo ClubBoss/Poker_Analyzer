@@ -994,6 +994,15 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             }
             return;
           }
+          if (_showHotkeys && event.logicalKey == LogicalKeyboardKey.slash) {
+            showModalBottomSheet<void>(
+              context: context,
+              backgroundColor: Colors.black87,
+              isScrollControlled: false,
+              builder: (_) => const HotkeysSheet(),
+            );
+            return;
+          }
           if (event.logicalKey == LogicalKeyboardKey.keyA) {
             final v = !_autoNext;
             final p = _prefs.copyWith(autoNext: v);
