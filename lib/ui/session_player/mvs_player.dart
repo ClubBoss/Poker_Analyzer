@@ -153,6 +153,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   Color? _answerFlashColor;
   Timer? _answerFlashTimer;
   bool _paused = false;
+  bool _clearedAtSummary = false;
 
   bool get _showHotkeys =>
       kIsWeb ||
@@ -539,7 +540,10 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   }
 
   void _appendSessionHistory() {
-    unawaited(_clearSaved());
+    if (!_clearedAtSummary) {
+      _clearedAtSummary = true;
+      unawaited(_clearSaved());
+    }
     if (kIsWeb) return;
     final total = _spots.length;
     final correct = _answers.where((a) => a.correct).length;
@@ -589,6 +593,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       _chosen = null;
       _paused = false;
       _showExplain = false;
+      _clearedAtSummary = false;
       _timer
         ..reset()
         ..start();
@@ -822,6 +827,10 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
 
   @override
   Widget build(BuildContext context) {
+    if (_index >= _spots.length && !_clearedAtSummary) {
+      _clearedAtSummary = true;
+      unawaited(_clearSaved());
+    }
     final Widget child;
     if (_index >= _spots.length) {
       child = ResultSummaryView(
