@@ -107,8 +107,6 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       ),
     );
   }
-}
-
   @override
   void initState() {
     super.initState();
@@ -162,7 +160,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       if (!await file.exists()) return;
       final lines = await file.readAsLines();
       // iterate from newest to oldest
-      List<UiSpot> latest = const [];
+      List<UiSpot> latest = <UiSpot>[];
       for (var i = lines.length - 1; i >= 0; i--) {
         final line = lines[i].trim();
         if (line.isEmpty) continue;
