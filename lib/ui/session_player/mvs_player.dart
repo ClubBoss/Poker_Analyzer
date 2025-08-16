@@ -1182,8 +1182,36 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Spot ${_index + 1}/${_spots.length}'),
-                Text(
-                    't=${(_timer.elapsedMilliseconds / 1000).toStringAsFixed(1)}s'),
+                Row(
+                  children: [
+                    Text(
+                        't=${(_timer.elapsedMilliseconds / 1000).toStringAsFixed(1)}s'),
+                    if (!_showHotkeys) ...[
+                      const SizedBox(width: 4),
+                      IconButton(
+                        icon: const Icon(Icons.folder_open),
+                        onPressed: _loadJsonlSpots,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.file_download),
+                        onPressed: _exportErrors,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.psychology_alt),
+                        onPressed: () {
+                          final p = _prefs.copyWith(
+                              autoWhyOnWrong: !_prefs.autoWhyOnWrong);
+                          setState(() {
+                            _prefs = p;
+                          });
+                          saveUiPrefs(p);
+                          showMiniToast(context,
+                              p.autoWhyOnWrong ? 'Auto Why: ON' : 'Auto Why: OFF');
+                        },
+                      ),
+                    ],
+                  ],
+                ),
               ],
             ),
             const SizedBox(height: 4),
