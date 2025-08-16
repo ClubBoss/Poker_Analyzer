@@ -21,11 +21,12 @@ class SpotImporter {
   /// Parses [content] and returns an import report.
   ///
   /// [format] takes precedence over [kind] and defaults to `'json'`.
+  /// If both are provided, [format] is used and [kind] is ignored.
   static SpotImportReport parse(
     String content, {
-    String? format,
-    String? kind,
-  }) {
+      String? format,
+      String? kind,
+    }) {
     final fmt = (format ?? kind ?? 'json').toLowerCase();
     final spots = <UiSpot>[];
     final errors = <String>[];
