@@ -87,6 +87,7 @@ import 'services/pinned_comeback_nudge_service.dart';
 import 'route_observer.dart';
 import 'services/recent_packs_service.dart';
 import 'infra/telemetry.dart';
+import 'services/session_resume.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> _bootstrap() async {
@@ -155,6 +156,19 @@ Future<void> _bootstrap() async {
       child: const PokerAIAnalyzerApp(),
     ),
   );
+  WidgetsBinding.instance.addPostFrameCallback((_) async {
+    final r = await SessionResume.load();
+    if (r == null) return;
+    final tpl = await templateStorage.loadById(r.packId);
+    if (tpl == null) return;
+    final pack = TrainingPackV2.fromTemplate(tpl, tpl.id);
+    if (r.index < 0 || r.index >= pack.spotCount) return;
+    navigatorKey.currentState!.pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => TrainingSessionScreen(pack: pack, startIndex: r.index),
+      ),
+    );
+  });
   unawaited(Telemetry.logEvent('app_open'));
   // TODO(session_start): call when a training session begins.
   // TODO(session_end): call when a training session ends.
