@@ -22,12 +22,21 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Setup Flutter (Dart toolchain)
-        uses: subosito/flutter-action@v2
+      - name: Set up Dart
+        uses: dart-lang/setup-dart@v1
         with:
-          channel: 'stable'
-          flutter-version: '3.27.0'
-          cache: true
+          sdk: stable
+
+      - name: Cache Pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Pub get
+        run: dart pub get
 
       # Формат — ТОЛЬКО проверка и ТОЛЬКО нужные пути (без lib/l10n/**)
       - name: Format check (scoped)
