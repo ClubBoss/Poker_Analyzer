@@ -120,4 +120,48 @@ jobs:
       - name: L3 A/B diff 111
         run: dart run tool/metrics/l3_ab_diff.dart --base build/reports/l3_packrun_111.json --challenger build/reports/l3_packrun_aggro.json --out build/reports/l3_ab_111.md
       - run: |
-          echo "::group::L3 A/B dif
+          echo "::group::L3 A/B diff 111"
+          FILE="build/reports/l3_ab_111.md"
+          if [ -f "$FILE" ]; then
+            cat "$FILE"
+          else
+            echo "_No A/B diff generated for this run (placeholder to keep CI green)._"
+          fi
+          echo "::endgroup::"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: l3_ab_111.md
+          path: build/reports/l3_ab_111.md
+      - name: PackRun L3 (seed 222)
+        run: dart run tool/l3/pack_run_cli.dart --dir build/tmp/l3/222 --out build/reports/l3_packrun_222.json
+      - name: PackRun L3 (seed 333)
+        run: dart run tool/l3/pack_run_cli.dart --dir build/tmp/l3/333 --out build/reports/l3_packrun_333.json
+      - name: L3 PackRun metrics
+        run: dart run tool/metrics/l3_packrun_report.dart --reports build/reports/l3_packrun_111.json,build/reports/l3_packrun_222.json,build/reports/l3_packrun_333.json --out build/reports/l3_report.md
+      - run: |
+          echo "::group::L3 Metrics"
+          cat build/reports/l3_report.md
+          echo "::endgroup::"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: l3_report.md
+          path: build/reports/l3_report.md
+      - name: Upload L3 PackRun reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: l3_packrun_reports
+          path: |
+            build/reports/l3_packrun_111.json
+            build/reports/l3_packrun_222.json
+            build/reports/l3_packrun_333.json
+      - name: Run L3 tests
+        run: dart test test/l3_*
+      - run: dart run tool/metrics/l2_metrics_report.dart --packs assets/packs/l2 --snippets assets/theory/l2/snippets.yaml --out build/reports/l2_report.md
+      - run: |
+          echo "::group::L2 Metrics"
+          cat build/reports/l2_report.md
+          echo "::endgroup::"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: l2_report.md
+          path: build/reports/l2_report.md
