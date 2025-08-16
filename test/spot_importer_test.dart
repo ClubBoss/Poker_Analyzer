@@ -104,4 +104,11 @@ void main() {
     final spot = report.spots.single;
     expect(spot.explain, 'reason,detail');
   });
+
+  test('legacy kind parameter still works', () {
+    const csv = 'kind,hand,pos,stack,action\ncallVsJam,AKo,BTN,10bb,push';
+    final report = SpotImporter.parse(csv, kind: 'csv');
+    expect(report.added, 1);
+    expect(report.errors, isEmpty);
+  });
 }

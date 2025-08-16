@@ -18,7 +18,12 @@ class SpotImportReport {
 }
 
 class SpotImporter {
-  static SpotImportReport parse(String content, {required String format}) {
+  static SpotImportReport parse(
+    String content, {
+    String? format,
+    String? kind,
+  }) {
+    final k = (format ?? kind ?? 'json').toLowerCase();
     final spots = <UiSpot>[];
     final errors = <String>[];
     var skipped = 0;
@@ -35,12 +40,11 @@ class SpotImporter {
       skipped++;
       skippedDuplicates++;
       if (!dupReported && errors.length < 5) {
-        errors.add('Duplicate spot: ${key.replaceAll('|', '·')}');
+        errors.add('Duplicate spot: $key');
         dupReported = true;
       }
     }
 
-    final k = format.toLowerCase();
     if (k == 'json') {
       dynamic data;
       try {
