@@ -14,7 +14,7 @@ class ModulesScreen extends StatelessWidget {
     final res = <UiSpot>[];
     final perCell = <String, int>{};
     for (final s in spots) {
-      if (s.kind != SpotKind.preflop) continue;
+      if (s.kind.name != 'callVsJam') continue;
       if (!stacks.contains(s.stack)) continue;
       final key = '${s.pos}-${s.stack}';
       final c = perCell[key] ?? 0;
@@ -29,8 +29,7 @@ class ModulesScreen extends StatelessWidget {
   List<UiSpot> _flopJam() {
     final res = <UiSpot>[];
     for (final s in spots) {
-      if (s.kind != SpotKind.flop) continue;
-      if (!s.stack.toLowerCase().contains('spr<3')) continue;
+      if (s.kind.name != 'l3_postflop_jam') continue;
       res.add(s);
       if (res.length >= 20) break;
     }
