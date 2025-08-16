@@ -14,6 +14,7 @@ import 'package:file_picker/file_picker.dart';
 
 import '../../infra/telemetry.dart';
 import '../../widgets/active_timebar.dart';
+import '../../services/session_resume.dart';
 import 'hotkeys_sheet.dart';
 import 'mini_toast.dart';
 import 'models.dart';
@@ -49,8 +50,13 @@ class MvsSessionPlayer extends StatefulWidget {
   final List<UiSpot> spots;
   final int? initialIndex;
   final List<UiAnswer>? initialAnswers;
+  final String? packId;
   const MvsSessionPlayer(
-      {super.key, required this.spots, this.initialIndex, this.initialAnswers});
+      {super.key,
+      required this.spots,
+      this.initialIndex,
+      this.initialAnswers,
+      this.packId});
 
   static Future<MvsSessionPlayer?> fromSaved() async {
     final prefs = await SharedPreferences.getInstance();
@@ -242,6 +248,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     _startTicker();
     _startTimebar();
     if (resumed) _focusNode.requestFocus();
+    _persistResume();
     _answerPulseCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 220),
@@ -269,6 +276,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     _answerPulseCtrl.dispose();
     _autoNextAnim?.dispose();
     _focusNode.dispose();
+    unawaited(SessionResume.clear());
     super.dispose();
   }
 
@@ -348,6 +356,14 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     try {
       File('out/session_autosave.json').deleteSync();
     } catch (_) {}
+  }
+
+  void _persistResume() {
+    final packId = widget.packId;
+    if (packId != null) {
+      unawaited(
+          SessionResume.save(packId: packId, index: _index, sessionId: _sessionId));
+    }
   }
 
   void _togglePause() {
@@ -468,6 +484,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         ..start();
       _answerFlashColor = null;
     });
+    _persistResume();
     _startTicker();
     _startTimebar();
     unawaited(_saveProgress());
@@ -516,6 +533,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       _startTicker();
       _startTimebar();
       _focusNode.requestFocus();
+      _persistResume();
+    } else {
+      unawaited(SessionResume.clear());
     }
     unawaited(_saveProgress());
     if (_prefs.haptics) {
@@ -556,6 +576,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         ..reset()
         ..start();
     });
+    _persistResume();
     unawaited(_saveProgress());
     _startTicker();
     _startTimebar();
@@ -566,6 +587,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     if (!_clearedAtSummary) {
       _clearedAtSummary = true;
       unawaited(_clearSaved());
+      unawaited(SessionResume.clear());
     }
     if (kIsWeb) return;
     final total = _spots.length;
@@ -624,6 +646,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     _startTicker();
     _startTimebar();
     _focusNode.requestFocus();
+    _persistResume();
     unawaited(_saveProgress());
   }
 
@@ -853,6 +876,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     if (_index >= _spots.length && !_clearedAtSummary) {
       _clearedAtSummary = true;
       unawaited(_clearSaved());
+      unawaited(SessionResume.clear());
     }
     final Widget child;
     if (_index >= _spots.length) {
