@@ -163,11 +163,11 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
       final file = File('out/sessions_history.jsonl');
       if (!await file.exists()) return;
       final lines = await file.readAsLines();
-      final latest = _latestReplaySpotsFromLines(lines);
+      final data = _latestReplaySpotsFromLines(lines);
       if (!mounted) return;
       setState(() {
-        _replaySpots = latest.spots;
-        _replayWrongSpots = latest.wrong;
+        _replaySpots = data.spots;
+        _replayWrongSpots = data.wrong;
       });
     } catch (_) {}
   }
