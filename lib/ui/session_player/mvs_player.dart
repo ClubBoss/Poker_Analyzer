@@ -882,21 +882,31 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             if (event.logicalKey == LogicalKeyboardKey.digit1 &&
                 actions.length > 0) {
               _onAction(actions[0]);
-          } else if (event.logicalKey == LogicalKeyboardKey.digit2 &&
-              actions.length > 1) {
-            _onAction(actions[1]);
-          } else if (event.logicalKey == LogicalKeyboardKey.digit3 &&
-              actions.length > 2) {
-            _onAction(actions[2]);
+            } else if (event.logicalKey == LogicalKeyboardKey.digit2 &&
+                actions.length > 1) {
+              _onAction(actions[1]);
+            } else if (event.logicalKey == LogicalKeyboardKey.digit3 &&
+                actions.length > 2) {
+              _onAction(actions[2]);
+            } else if (_showHotkeys &&
+                spot.kind.name.contains('_jam_vs_') &&
+                actions.length == 2 &&
+                actions[0] == 'jam' &&
+                actions[1] == 'fold') {
+              if (event.logicalKey == LogicalKeyboardKey.keyJ) {
+                _onAction('jam');
+              } else if (event.logicalKey == LogicalKeyboardKey.keyF) {
+                _onAction('fold');
+              }
+            }
+          } else {
+            if (event.logicalKey == LogicalKeyboardKey.keyH) {
+              setState(() => _showExplain = !_showExplain);
+            } else if (event.logicalKey == LogicalKeyboardKey.enter ||
+                event.logicalKey == LogicalKeyboardKey.space) {
+              _next();
+            }
           }
-        } else {
-          if (event.logicalKey == LogicalKeyboardKey.keyH) {
-            setState(() => _showExplain = !_showExplain);
-          } else if (event.logicalKey == LogicalKeyboardKey.enter ||
-              event.logicalKey == LogicalKeyboardKey.space) {
-            _next();
-          }
-        }
       },
       child: Padding(
         key: ValueKey('spot$_index'),
