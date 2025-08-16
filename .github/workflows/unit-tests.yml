@@ -2,9 +2,23 @@ name: Unit Tests (PR only, label-gated)
 
 on:
   pull_request:
+    paths:
+      - "**/*.dart"
+      - "**/*.yaml"
+      - "**/*.yml"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+      - ".github/workflows/unit-tests.yml"
     types: [opened, synchronize, reopened, labeled, unlabeled]
   push:
     branches: [ main ]
+    paths:
+      - "**/*.dart"
+      - "**/*.yaml"
+      - "**/*.yml"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+      - ".github/workflows/unit-tests.yml"
 
 jobs:
   tests:
@@ -36,8 +50,8 @@ jobs:
       - name: Pub get (via Flutter)
         run: flutter pub get
 
-      # Smart quotes – ТОЛЬКО когда реально хотим гнать тесты (по лейблу)
-      - name: Fail on smart quotes / punctuation (only when tests run)
+      # Smart quotes – only when tests actually run
+      - name: Fail on smart quotes / punctuation
         if: ${{ github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'run-tests') }}
         shell: bash
         run: |
@@ -47,6 +61,10 @@ jobs:
             echo "::error ::Smart punctuation found. Replace with ASCII equivalents."
             exit 1
           fi
+
+      - name: Run smoke tests (labeled PRs only)
+        if: ${{ contains(github.event.pull_request.labels.*.name, 'run-tests') }}
+        run: flutter test --no-pub --coverage test/smoke
 
       - name: Format check (repo-wide but no write)
         if: ${{ github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'run-tests') }}
