@@ -1098,22 +1098,22 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       return 'Probe Jam vs Raise • $core';
     }
     if (spot.kind == SpotKind.l3_flop_jam_vs_bet) {
-      return 'Flop Jam vs Bet • $core';
+      return 'Flop Jam vs Bet • ' + core;
     }
     if (spot.kind == SpotKind.l3_flop_jam_vs_raise) {
-      return 'Flop Jam vs Raise • $core';
+      return 'Flop Jam vs Raise • ' + core;
     }
     if (spot.kind == SpotKind.l3_turn_jam_vs_bet) {
-      return 'Turn Jam vs Bet • $core';
+      return 'Turn Jam vs Bet • ' + core;
     }
     if (spot.kind == SpotKind.l3_turn_jam_vs_raise) {
-      return 'Turn Jam vs Raise • $core';
+      return 'Turn Jam vs Raise • ' + core;
     }
     if (spot.kind == SpotKind.l3_river_jam_vs_bet) {
-      return 'River Jam vs Bet • $core';
+      return 'River Jam vs Bet • ' + core;
     }
     if (spot.kind == SpotKind.l3_river_jam_vs_raise) {
-      return 'River Jam vs Raise • $core';
+      return 'River Jam vs Raise • ' + core;
     }
     return core;
   }
