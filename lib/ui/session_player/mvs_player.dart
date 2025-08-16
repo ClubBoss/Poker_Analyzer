@@ -52,6 +52,27 @@ const _subtitlePrefix = <SpotKind, String>{
   SpotKind.l4_icm_sb_jam_vs_fold: 'ICM SB Jam vs Fold • ',
 };
 
+void _assertSpotKindIntegrity() {
+  assert(() {
+    // 1) Append-only discipline: latest known value must remain last.
+    if (SpotKind.values.last != SpotKind.l4_icm_sb_jam_vs_fold) {
+      throw StateError('SpotKind append-only violated: last is not l4_icm_sb_jam_vs_fold');
+    }
+    // 2) _autoReplayKinds covered by data-driven maps.
+    for (final k in _autoReplayKinds) {
+      final a = _actionsMap[k];
+      final p = _subtitlePrefix[k];
+      if (a == null || a.length != 2 || a[0] != 'jam' || a[1] != 'fold') {
+        throw StateError('actionsMap missing or invalid for $k');
+      }
+      if (p == null || p.isEmpty) {
+        throw StateError('subtitlePrefix missing for $k');
+      }
+    }
+    return true;
+  }());
+}
+
 extension _UiPrefsCopy on UiPrefs {
   UiPrefs copyWith({
     bool? autoNext,
@@ -205,6 +226,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
 
   @override
   void initState() {
+    _assertSpotKindIntegrity();
     super.initState();
     _spots = widget.spots;
     _index = widget.initialIndex ?? 0;
