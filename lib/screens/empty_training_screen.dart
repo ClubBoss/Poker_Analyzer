@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import '../services/spot_importer.dart';
 import '../ui/session_player/mini_toast.dart';
 import '../ui/session_player/mvs_player.dart';
+import '../ui/session_player/models.dart';
 
 class EmptyTrainingScreen extends StatelessWidget {
   const EmptyTrainingScreen({super.key});
@@ -32,7 +33,7 @@ class EmptyTrainingScreen extends StatelessWidget {
   }
 
   Future<void> _startBaseCourse(BuildContext context) async {
-    List spots = [];
+    List<UiSpot> spots = [];
     try {
       final f = File('out/seed_spots.json');
       if (f.existsSync()) {

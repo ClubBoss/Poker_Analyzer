@@ -54,7 +54,7 @@ class SpotImporter {
             final spot = _spotFromMap(e, idx, addError);
             if (spot != null) {
               final key =
-                  '${spot.kind.name}|${spot.hand}|${spot.pos}|${spot.stack}|${spot.action}';
+                  '${spot.kind.name}|${spot.hand.trim()}|${spot.pos.trim()}|${spot.stack.trim()}|${spot.action.trim()}';
               if (seen.contains(key)) {
                 addDup(key);
               } else {
@@ -93,7 +93,7 @@ class SpotImporter {
             final spot = _spotFromMap(values, i + 1, addError);
             if (spot != null) {
               final key =
-                  '${spot.kind.name}|${spot.hand}|${spot.pos}|${spot.stack}|${spot.action}';
+                  '${spot.kind.name}|${spot.hand.trim()}|${spot.pos.trim()}|${spot.stack.trim()}|${spot.action.trim()}';
               if (seen.contains(key)) {
                 addDup(key);
               } else {
@@ -115,7 +115,7 @@ class SpotImporter {
       Map<String, dynamic> m, int row, void Function(String) addError) {
     String? get(String key) => m[key] is String ? (m[key] as String).trim() : null;
 
-    final k = get('kind')?.toLowerCase();
+    final k = get('kind');
     final hand = get('hand');
     final pos = get('pos');
     final stack = get('stack');
@@ -126,7 +126,7 @@ class SpotImporter {
     }
     SpotKind? kind;
     for (final sk in SpotKind.values) {
-      if (sk.name == k) {
+      if (k.toLowerCase() == sk.name.toLowerCase()) {
         kind = sk;
         break;
       }
