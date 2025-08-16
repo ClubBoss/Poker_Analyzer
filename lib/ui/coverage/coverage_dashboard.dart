@@ -32,7 +32,9 @@ class _CoverageDashboardState extends State<CoverageDashboard> {
 
     const positions = ['SB', 'BB', 'UTG', 'MP', 'CO', 'BTN'];
     const stacks = [10, 20, 40, 100];
-    final grid = {for (final p in positions) p: {for (final s in stacks) s: 0},};
+    final grid = {
+      for (final p in positions) p: {for (final s in stacks) s: 0},
+    };
     int other = 0;
     int preflop = 0;
     int postflop = 0;
@@ -53,8 +55,11 @@ class _CoverageDashboardState extends State<CoverageDashboard> {
       }
     }
     final total = filtered.length;
-    final target = showPreflop && showPostflop ? 48 : (showPreflop || showPostflop ? 24 : 0);
-    final coverage = target == 0 ? 0 : ((total / target) * 100).clamp(0, 100).round();
+    final target = showPreflop && showPostflop
+        ? 48
+        : (showPreflop || showPostflop ? 24 : 0);
+    final coverage =
+        target == 0 ? 0 : ((total / target) * 100).clamp(0, 100).round();
     return Scaffold(
       appBar: AppBar(title: const Text('Coverage')),
       body: SingleChildScrollView(
