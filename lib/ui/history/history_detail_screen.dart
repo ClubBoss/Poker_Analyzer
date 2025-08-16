@@ -77,24 +77,25 @@ class HistoryDetailScreen extends StatelessWidget {
                 final dir = Directory('out');
                 await dir.create(recursive: true);
                 final file = File('${dir.path}/session_$stamp.csv');
+                String _csv(String v) => '"${v.replaceAll('"', '""')}"';
                 final buf = StringBuffer()..writeln('k,h,p,s,a,v,l,e');
                 for (final s in spots) {
                   buf
                     ..write(s.kind.index)
                     ..write(',')
-                    ..write(s.hand)
+                    ..write(_csv(s.hand))
                     ..write(',')
-                    ..write(s.pos)
+                    ..write(_csv(s.pos))
                     ..write(',')
-                    ..write(s.stack)
+                    ..write(_csv(s.stack))
                     ..write(',')
                     ..write(s.action)
                     ..write(',')
-                    ..write(s.vsPos ?? '')
+                    ..write(_csv(s.vsPos ?? ''))
                     ..write(',')
-                    ..write(s.limpers ?? '')
+                    ..write(_csv(s.limpers ?? ''))
                     ..write(',')
-                    ..writeln(s.explain ?? '');
+                    ..writeln(_csv(s.explain ?? ''));
                 }
                 await file.writeAsString(buf.toString());
                 final path = file.absolute.path;
