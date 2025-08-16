@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../session_player/models.dart';
 import '../session_player/mvs_player.dart';
@@ -60,7 +63,50 @@ class HistoryDetailScreen extends StatelessWidget {
     final canReplay = spots.isNotEmpty;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Session')),
+      appBar: AppBar(
+        title: const Text('Session'),
+        actions: [
+          if (canReplay)
+            IconButton(
+              icon: const Icon(Icons.download),
+              onPressed: () async {
+                final messenger = ScaffoldMessenger.of(context);
+                final d = dt ?? DateTime.now();
+                String two(int n) => n.toString().padLeft(2, '0');
+                final stamp =
+                    '${d.year}${two(d.month)}${two(d.day)}_${two(d.hour)}${two(d.minute)}${two(d.second)}';
+                final dir = Directory('out');
+                await dir.create(recursive: true);
+                final file = File('${dir.path}/session_$stamp.csv');
+                final buf = StringBuffer()..writeln('k,h,p,s,a,v,l,e');
+                for (final s in spots) {
+                  buf
+                    ..write(s.kind.index)
+                    ..write(',')
+                    ..write(s.hand)
+                    ..write(',')
+                    ..write(s.pos)
+                    ..write(',')
+                    ..write(s.stack)
+                    ..write(',')
+                    ..write(s.action)
+                    ..write(',')
+                    ..write(s.vsPos ?? '')
+                    ..write(',')
+                    ..write(s.limpers ?? '')
+                    ..write(',')
+                    ..writeln(s.explain ?? '');
+                }
+                await file.writeAsString(buf.toString());
+                final path = file.absolute.path;
+                await Clipboard.setData(ClipboardData(text: path));
+                messenger.showSnackBar(
+                  SnackBar(content: Text('Exported: $path')),
+                );
+              },
+            ),
+        ],
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
