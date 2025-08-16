@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../session_player/models.dart';
 import '../session_player/mvs_player.dart';
-import '../../utils/csv.dart';
+import '../../utils/csv.dart' show csvEscape;
 
 class HistoryDetailScreen extends StatelessWidget {
   const HistoryDetailScreen({super.key, required this.entry});
