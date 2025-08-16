@@ -29,13 +29,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Dart
-        uses: dart-lang/setup-dart@v1
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
         with:
-          sdk: stable
-
-      - name: Dart version
-        run: dart --version
+          channel: stable
+          cache: true
 
       - name: Cache Pub dependencies
         uses: actions/cache@v4
@@ -46,7 +44,7 @@ jobs:
             ${{ runner.os }}-pub-
 
       - name: Pub get
-        run: dart pub get
+        run: flutter pub get
 
       # ASCII-пунктуация только в CLI-области
       - name: Fail on smart quotes / punctuation (CLI scope)
@@ -68,7 +66,7 @@ jobs:
         run: dart format --output=none --set-exit-if-changed bin test/ev
 
       - name: Analyze (CLI only)
-        run: dart analyze bin test/ev
+        run: flutter analyze bin test/ev
 
       # 🔧 Фикс: динамический поиск тестов, скип если нет ни одного
       - name: Unit tests (CLI only)
