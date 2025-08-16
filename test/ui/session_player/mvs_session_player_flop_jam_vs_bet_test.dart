@@ -31,5 +31,6 @@ void main() {
     expect(find.textContaining('Flop Jam vs Bet'), findsOneWidget);
     expect(find.text('jam'), findsOneWidget);
     expect(find.text('fold'), findsOneWidget);
+    expect(find.byType(ElevatedButton), findsNWidgets(2));
   });
 }
