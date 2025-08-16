@@ -1436,7 +1436,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       return 'Turn Jam vs Bet • ' + core;
     }
     if (spot.kind == SpotKind.l3_turn_jam_vs_raise) {
-      return 'Turn Jam vs Raise • ' + core;
+      return 'Turn Jam vs Raise • $core';
     }
     if (spot.kind == SpotKind.l3_river_jam_vs_bet) {
       return 'River Jam vs Bet • ' + core;
