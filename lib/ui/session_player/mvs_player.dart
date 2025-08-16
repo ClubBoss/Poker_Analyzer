@@ -140,6 +140,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   late List<UiSpot> _spots;
   int _index = 0;
   final _answers = <UiAnswer>[];
+  final _replayed = <UiSpot>{};
   final _timer = Stopwatch();
   final _focusNode = FocusNode();
   final String _sessionId = DateTime.now().millisecondsSinceEpoch.toString();
@@ -154,7 +155,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       timeLimitMs: 10000,
       sound: false,
       haptics: true,
-      autoWhyOnWrong: true,
+      autoWhyOnWrong: false,
       autoNextDelayMs: 600,
       fontScale: 1.0);
   bool _autoNext = false;
@@ -444,6 +445,13 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       ));
       if (!correct && autoWhy && jam) {
         _showExplain = true;
+      }
+      if (!correct &&
+          autoWhy &&
+          spot.kind == SpotKind.l3_flop_jam_vs_raise &&
+          !_replayed.contains(spot)) {
+        _spots.insert(_index + 1, spot);
+        _replayed.add(spot);
       }
     });
     unawaited(_saveProgress());
