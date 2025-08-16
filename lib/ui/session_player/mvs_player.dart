@@ -746,9 +746,6 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     }
   }
 
-
-
-
   @override
   Widget build(BuildContext context) {
     if (_index >= _spots.length && !_clearedAtSummary) {
@@ -1458,6 +1455,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     if (spot.kind == SpotKind.l4_icm_ladder_jam_vs_fold) {
       return 'ICM FT Ladder Jam vs Fold • ' + core;
     }
+    if (spot.kind == SpotKind.l4_icm_sb_jam_vs_fold) {
+      return 'ICM SB Jam vs Fold • ' + core;
+    }
     return core;
   }
 
@@ -1506,6 +1506,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       case SpotKind.l4_icm_bubble_jam_vs_fold:
         return ['jam', 'fold'];
       case SpotKind.l4_icm_ladder_jam_vs_fold:
+        return ['jam', 'fold'];
+      case SpotKind.l4_icm_sb_jam_vs_fold:
         return ['jam', 'fold'];
     }
   }
