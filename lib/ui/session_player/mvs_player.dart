@@ -34,6 +34,24 @@ const _autoReplayKinds = {
   SpotKind.l4_icm_sb_jam_vs_fold,
 };
 
+const _actionsMap = <SpotKind, List<String>>{
+  SpotKind.l3_flop_jam_vs_raise: ['jam', 'fold'],
+  SpotKind.l3_turn_jam_vs_raise: ['jam', 'fold'],
+  SpotKind.l3_river_jam_vs_raise: ['jam', 'fold'],
+  SpotKind.l4_icm_bubble_jam_vs_fold: ['jam', 'fold'],
+  SpotKind.l4_icm_ladder_jam_vs_fold: ['jam', 'fold'],
+  SpotKind.l4_icm_sb_jam_vs_fold: ['jam', 'fold'],
+};
+
+const _subtitlePrefix = <SpotKind, String>{
+  SpotKind.l3_flop_jam_vs_raise: 'Flop Jam vs Raise • ',
+  SpotKind.l3_turn_jam_vs_raise: 'Turn Jam vs Raise • ',
+  SpotKind.l3_river_jam_vs_raise: 'River Jam vs Raise • ',
+  SpotKind.l4_icm_bubble_jam_vs_fold: 'ICM Bubble Jam vs Fold • ',
+  SpotKind.l4_icm_ladder_jam_vs_fold: 'ICM FT Ladder Jam vs Fold • ',
+  SpotKind.l4_icm_sb_jam_vs_fold: 'ICM SB Jam vs Fold • ',
+};
+
 extension _UiPrefsCopy on UiPrefs {
   UiPrefs copyWith({
     bool? autoNext,
@@ -1401,6 +1419,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     if (spot.limpers != null) parts.add('limpers ${spot.limpers}');
     parts.add(spot.stack);
     final core = parts.join(' • ');
+    final prefix = _subtitlePrefix[spot.kind];
+    if (prefix != null) return prefix + core;
     if (spot.kind == SpotKind.callVsJam) {
       return 'Call vs Jam • $core';
     }
@@ -1457,11 +1477,13 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     }
     if (spot.kind == SpotKind.l4_icm_sb_jam_vs_fold) {
       return 'ICM SB Jam vs Fold • ' + core;
-    }
-    return core;
   }
+  return core;
+}
 
   List<String> _actionsFor(SpotKind kind) {
+    final mapped = _actionsMap[kind];
+    if (mapped != null) return mapped;
     switch (kind) {
       case SpotKind.l2_open_fold:
         return ['open', 'fold'];
