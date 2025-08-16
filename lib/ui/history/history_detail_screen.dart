@@ -61,7 +61,6 @@ class HistoryDetailScreen extends StatelessWidget {
           ];
 
     final canReplay = spots.isNotEmpty;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Session'),
