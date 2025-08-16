@@ -6,20 +6,23 @@ class SpotImportReport {
   final List<UiSpot> spots;
   final int added;
   final int skipped;
+  final int skippedDuplicates;
   final List<String> errors;
   SpotImportReport({
     required this.spots,
     required this.added,
     required this.skipped,
+    required this.skippedDuplicates,
     required this.errors,
   });
 }
 
 class SpotImporter {
-  static SpotImportReport parse(String content, {required String kind}) {
+  static SpotImportReport parse(String content, {required String format}) {
     final spots = <UiSpot>[];
     final errors = <String>[];
     var skipped = 0;
+    var skippedDuplicates = 0;
     final seen = <String>{};
     var dupReported = false;
 
@@ -30,13 +33,14 @@ class SpotImporter {
 
     void addDup(String key) {
       skipped++;
+      skippedDuplicates++;
       if (!dupReported && errors.length < 5) {
-        errors.add('Duplicate spot: $key');
+        errors.add('Duplicate spot: ${key.replaceAll('|', '·')}');
         dupReported = true;
       }
     }
 
-    final k = kind.toLowerCase();
+    final k = format.toLowerCase();
     if (k == 'json') {
       dynamic data;
       try {
@@ -44,7 +48,12 @@ class SpotImporter {
       } catch (_) {
         addError('Invalid JSON');
         return SpotImportReport(
-            spots: spots, added: 0, skipped: skipped, errors: errors);
+          spots: spots,
+          added: 0,
+          skipped: skipped,
+          skippedDuplicates: skippedDuplicates,
+          errors: errors,
+        );
       }
       if (data is List) {
         var idx = 0;
@@ -70,9 +79,21 @@ class SpotImporter {
         addError('JSON root is not an array');
       }
     } else if (k == 'csv') {
-      final lines = const LineSplitter().convert(content);
-      if (lines.isNotEmpty) {
-        final headers = lines.first.split(',').map((e) => e.trim()).toList();
+      String dequote(String s) {
+        if (s.length >= 2 && s.startsWith('"') && s.endsWith('"')) {
+          return s.substring(1, s.length - 1);
+        }
+        return s;
+      }
+
+      final rawLines = const LineSplitter().convert(content);
+      if (rawLines.isNotEmpty) {
+        final headerLine = rawLines.first.replaceFirst('\uFEFF', '');
+        final sep = headerLine.contains(';') ? ';' : ',';
+        final headers = headerLine
+            .split(sep)
+            .map((h) => h.trim().toLowerCase())
+            .toList();
         final requiredHeaders = ['kind', 'hand', 'pos', 'stack', 'action'];
         var headerOk = true;
         for (final h in requiredHeaders) {
@@ -82,13 +103,13 @@ class SpotImporter {
           }
         }
         if (headerOk) {
-          for (var i = 1; i < lines.length; i++) {
-            final line = lines[i].trim();
+          for (var i = 1; i < rawLines.length; i++) {
+            final line = rawLines[i].trim();
             if (line.isEmpty) continue;
-            final parts = line.split(',');
+            final parts = line.split(sep);
             final values = <String, String?>{};
             for (var j = 0; j < headers.length && j < parts.length; j++) {
-              values[headers[j]] = parts[j].trim();
+              values[headers[j]] = dequote(parts[j].trim());
             }
             final spot = _spotFromMap(values, i + 1, addError);
             if (spot != null) {
@@ -105,14 +126,27 @@ class SpotImporter {
         }
       }
     } else {
-      addError('Unsupported kind $kind');
+      addError('Unsupported format $format');
     }
     return SpotImportReport(
-        spots: spots, added: spots.length, skipped: skipped, errors: errors);
+      spots: spots,
+      added: spots.length,
+      skipped: skipped,
+      skippedDuplicates: skippedDuplicates,
+      errors: errors,
+    );
+  }
+
+  static int? parseStack(String s) {
+    final m = RegExp(r'(\d+)\s*bb', caseSensitive: false).firstMatch(s);
+    return m == null ? null : int.tryParse(m.group(1)!);
   }
 
   static UiSpot? _spotFromMap(
-      Map<String, dynamic> m, int row, void Function(String) addError) {
+    Map<String, dynamic> m,
+    int row,
+    void Function(String) addError,
+  ) {
     String? get(String key) {
       if (m[key] is String) {
         final t = (m[key] as String).trim();
@@ -126,7 +160,11 @@ class SpotImporter {
     final pos = get('pos');
     final stack = get('stack');
     final action = get('action');
-    if (k == null || hand == null || pos == null || stack == null || action == null) {
+    if (k == null ||
+        hand == null ||
+        pos == null ||
+        stack == null ||
+        action == null) {
       addError('Row $row: missing field');
       return null;
     }

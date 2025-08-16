@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../session_player/models.dart';
 import '../session_player/mvs_player.dart';
 import '../session_player/mini_toast.dart';
+import '../../services/spot_importer.dart';
 
 class CoverageDashboard extends StatefulWidget {
   final List<UiSpot> spots;
@@ -17,6 +18,12 @@ class _CoverageDashboardState extends State<CoverageDashboard> {
 
   @override
   Widget build(BuildContext context) {
+    if (!showPreflop && !showPostflop) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Coverage')),
+        body: const Center(child: Text('No filter selected')),
+      );
+    }
     final filtered = widget.spots.where((spot) {
       final isPost = spot.kind.name.startsWith('l3_');
       if (isPost) return showPostflop;
@@ -26,7 +33,7 @@ class _CoverageDashboardState extends State<CoverageDashboard> {
     const positions = ['SB', 'BB', 'UTG', 'MP', 'CO', 'BTN'];
     const stacks = [10, 20, 40, 100];
     final grid = {
-      for (final p in positions) p: {for (final s in stacks) s: 0}
+      for (final p in positions) p: {for (final s in stacks) s: 0},
     };
     int other = 0;
     int preflop = 0;
@@ -38,8 +45,7 @@ class _CoverageDashboardState extends State<CoverageDashboard> {
       } else {
         preflop++;
       }
-      final m = RegExp(r'\d+').firstMatch(spot.stack);
-      final stack = m == null ? null : int.tryParse(m.group(0)!);
+      final stack = SpotImporter.parseStack(spot.stack);
       if (stack != null &&
           stacks.contains(stack) &&
           positions.contains(spot.pos)) {
@@ -52,8 +58,9 @@ class _CoverageDashboardState extends State<CoverageDashboard> {
     final target = showPreflop && showPostflop
         ? 48
         : (showPreflop || showPostflop ? 24 : 0);
-    final coverage =
-        target == 0 ? 0 : ((total / target) * 100).clamp(0, 100).round();
+    final coverage = target == 0
+        ? 0
+        : ((total / target) * 100).clamp(0, 100).round();
     return Scaffold(
       appBar: AppBar(title: const Text('Coverage')),
       body: SingleChildScrollView(
@@ -99,17 +106,12 @@ class _CoverageDashboardState extends State<CoverageDashboard> {
                 for (final p in positions)
                   TableRow(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(4),
-                        child: Text(p),
-                      ),
+                      Padding(padding: const EdgeInsets.all(4), child: Text(p)),
                       for (final s in stacks)
                         InkWell(
                           onTap: () {
                             final subset = filtered.where((spot) {
-                              final m = RegExp(r'\d+').firstMatch(spot.stack);
-                              final stack =
-                                  m == null ? null : int.tryParse(m.group(0)!);
+                              final stack = SpotImporter.parseStack(spot.stack);
                               return spot.pos == p && stack == s;
                             }).toList();
                             if (subset.isEmpty) {
@@ -119,7 +121,8 @@ class _CoverageDashboardState extends State<CoverageDashboard> {
                                 MaterialPageRoute(
                                   builder: (_) => MvsSessionPlayer(
                                     spots: subset,
-                                    packId: 'cov:$p:$s',
+                                    packId:
+                                        'cov:$p:$s:${showPreflop ? 'P' : ''}${showPostflop ? 'F' : ''}',
                                   ),
                                 ),
                               );
@@ -137,13 +140,17 @@ class _CoverageDashboardState extends State<CoverageDashboard> {
             if (other > 0)
               Padding(
                 padding: const EdgeInsets.all(8),
-                child: Text('other stacks: $other',
-                    style: const TextStyle(fontSize: 12)),
+                child: Text(
+                  'other stacks: $other',
+                  style: const TextStyle(fontSize: 12),
+                ),
               ),
             Padding(
               padding: const EdgeInsets.all(8),
-              child: Text('preflop: $preflop  postflop: $postflop',
-                  style: const TextStyle(fontSize: 12)),
+              child: Text(
+                'preflop: $preflop  postflop: $postflop',
+                style: const TextStyle(fontSize: 12),
+              ),
             ),
           ],
         ),

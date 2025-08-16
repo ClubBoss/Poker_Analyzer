@@ -38,14 +38,16 @@ class EmptyTrainingScreen extends StatelessWidget {
       final f = File('out/seed_spots.json');
       if (f.existsSync()) {
         final content = await f.readAsString();
-        final report = SpotImporter.parse(content, kind: 'json');
+        final report = SpotImporter.parse(content, format: 'json');
         spots = report.spots;
       }
     } catch (_) {}
     if (spots.isEmpty) {
       try {
         final result = await FilePicker.platform.pickFiles(
-            type: FileType.custom, allowedExtensions: ['csv', 'json']);
+          type: FileType.custom,
+          allowedExtensions: ['csv', 'json'],
+        );
         if (result == null || result.files.isEmpty) {
           showMiniToast(context, 'Import cancelled');
           return;
@@ -62,7 +64,7 @@ class EmptyTrainingScreen extends StatelessWidget {
           return;
         }
         final ext = (f.extension ?? '').toLowerCase();
-        final report = SpotImporter.parse(content, kind: ext);
+        final report = SpotImporter.parse(content, format: ext);
         spots = report.spots;
         for (final e in report.errors) {
           showMiniToast(context, e);
