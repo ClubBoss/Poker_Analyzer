@@ -21,6 +21,7 @@ enum SpotKind {
   l3_river_jam_vs_raise,
   l4_icm_bubble_jam_vs_fold,
   l4_icm_ladder_jam_vs_fold,
+  l4_icm_sb_jam_vs_fold,
 }
 
 class UiSpot {

@@ -445,11 +445,14 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       if (!correct && autoWhy) {
         _showExplain = true;
       }
-      if (!correct && autoWhy && (spot.kind == SpotKind.l3_flop_jam_vs_raise ||
+      if (!correct &&
+          autoWhy &&
+          (spot.kind == SpotKind.l3_flop_jam_vs_raise ||
               spot.kind == SpotKind.l3_turn_jam_vs_raise ||
               spot.kind == SpotKind.l3_river_jam_vs_raise ||
               spot.kind == SpotKind.l4_icm_bubble_jam_vs_fold ||
-              spot.kind == SpotKind.l4_icm_ladder_jam_vs_fold) &&
+              spot.kind == SpotKind.l4_icm_ladder_jam_vs_fold ||
+              spot.kind == SpotKind.l4_icm_sb_jam_vs_fold) &&
           !_replayed.contains(spot)) {
         _spots.insert(_index + 1, spot);
         _replayed.add(spot);
@@ -1451,6 +1454,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     if (spot.kind == SpotKind.l4_icm_ladder_jam_vs_fold) {
       return 'ICM FT Ladder Jam vs Fold • ' + core;
     }
+    if (spot.kind == SpotKind.l4_icm_sb_jam_vs_fold) {
+      return 'ICM SB Jam vs Fold • ' + core;
+    }
     return core;
   }
 
@@ -1499,6 +1505,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       case SpotKind.l4_icm_bubble_jam_vs_fold:
         return ['jam', 'fold'];
       case SpotKind.l4_icm_ladder_jam_vs_fold:
+        return ['jam', 'fold'];
+      case SpotKind.l4_icm_sb_jam_vs_fold:
         return ['jam', 'fold'];
     }
   }
