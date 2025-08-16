@@ -301,9 +301,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         if (_timeLeftMs <= 0) {
           _timeLeftMs = 0;
           _timebarTicker?.cancel();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Time up')),
-          );
+          unawaited(showMiniToast(context, 'Time limit reached'));
           if (_prefs.haptics) {
             try {
               HapticFeedback.vibrate();
