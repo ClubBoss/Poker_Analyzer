@@ -165,9 +165,79 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     _spots = widget.spots;
     _index = widget.initialIndex ?? 0;
     _answers.addAll(widget.initialAnswers ?? const []);
-    _timer.start();
+    var resumed = false;
+    if (widget.initialIndex == null && widget.initialAnswers == null) {
+      final file = File('out/session_autosave.json');
+      if (file.existsSync()) {
+        try {
+          final obj = jsonDecode(file.readAsStringSync());
+          final ss = obj['spots'];
+          final ii = obj['index'];
+          final aa = obj['answers'];
+          if (ss is List && ii is int && aa is List) {
+            final loadedSpots = <UiSpot>[];
+            for (final s in ss) {
+              if (s is Map) {
+                final k = s['kind'];
+                final h = s['hand'];
+                final p = s['pos'];
+                final v = s['vsPos'];
+                final st = s['stack'];
+                final a = s['action'];
+                if (k is String && h is String && p is String && st is String && a is String) {
+                  SpotKind? kind;
+                  for (final sk in SpotKind.values) {
+                    if (sk.name == k) {kind = sk; break;}
+                  }
+                  if (kind == null) continue;
+                  loadedSpots.add(UiSpot(
+                    kind: kind,
+                    hand: h,
+                    pos: p,
+                    vsPos: v is String ? v : null,
+                    stack: st,
+                    action: a,
+                  ));
+                }
+              }
+            }
+            final loadedAnswers = <UiAnswer>[];
+            for (final a in aa) {
+              if (a is Map) {
+                final c = a['correct'];
+                final e = a['expected'];
+                final ch = a['chosen'];
+                final ms = a['elapsedMs'];
+                if (c is bool && e is String && ch is String && ms is int) {
+                  loadedAnswers.add(UiAnswer(
+                    correct: c,
+                    expected: e,
+                    chosen: ch,
+                    elapsed: Duration(milliseconds: ms),
+                  ));
+                }
+              }
+            }
+            if (loadedSpots.isNotEmpty && ii >= 0 && ii <= loadedSpots.length) {
+              _spots = loadedSpots;
+              _index = ii;
+              _answers
+                ..clear()
+                ..addAll(loadedAnswers);
+              _chosen = null;
+              _paused = false;
+              resumed = true;
+            }
+          }
+        } catch (_) {}
+      }
+    }
+    _timer
+      ..reset()
+      ..start();
     _startTicker();
     _startTimebar();
+    if (resumed) _focusNode.requestFocus();
     _answerPulseCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 220),
@@ -239,41 +309,41 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   }
 
   Future<void> _saveProgress() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('resume_active', true);
-    await prefs.setString(
-        'resume_spots',
-        jsonEncode(_spots
-            .map((s) => {
-                  'k': s.kind.index,
-                  'h': s.hand,
-                  'p': s.pos,
-                  's': s.stack,
-                  'a': s.action,
-                  if (s.vsPos != null) 'v': s.vsPos,
-                  if (s.limpers != null) 'l': s.limpers,
-                  if (s.explain != null) 'e': s.explain,
-                })
-            .toList()));
-    await prefs.setInt('resume_index', _index);
-    await prefs.setString(
-        'resume_answers',
-        jsonEncode(_answers
-            .map((a) => {
-                  'correct': a.correct,
-                  'expected': a.expected,
-                  'chosen': a.chosen,
-                  'elapsedMs': a.elapsed.inMilliseconds,
-                })
-            .toList()));
+    try {
+      final dir = Directory('out');
+      if (!dir.existsSync()) dir.createSync(recursive: true);
+      final file = File('${dir.path}/session_autosave.json');
+      final obj = {
+        'spots': [
+          for (final s in _spots)
+            {
+              'kind': s.kind.name,
+              'hand': s.hand,
+              'pos': s.pos,
+              if (s.vsPos != null) 'vsPos': s.vsPos,
+              'stack': s.stack,
+              'action': s.action,
+            }
+        ],
+        'index': _index,
+        'answers': [
+          for (final a in _answers)
+            {
+              'correct': a.correct,
+              'expected': a.expected,
+              'chosen': a.chosen,
+              'elapsedMs': a.elapsed.inMilliseconds,
+            }
+        ],
+      };
+      file.writeAsStringSync(jsonEncode(obj));
+    } catch (_) {}
   }
 
   Future<void> _clearSaved() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('resume_active', false);
-    await prefs.remove('resume_spots');
-    await prefs.remove('resume_index');
-    await prefs.remove('resume_answers');
+    try {
+      File('out/session_autosave.json').deleteSync();
+    } catch (_) {}
   }
 
   void _togglePause() {
@@ -511,6 +581,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     _cancelAutoNextAnim();
     _answerFlashTimer?.cancel();
     _answerFlashColor = null;
+    unawaited(_clearSaved());
     setState(() {
       _spots = spots;
       _index = 0;
@@ -525,6 +596,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     _startTicker();
     _startTimebar();
     _focusNode.requestFocus();
+    unawaited(_saveProgress());
   }
 
   void _replayErrors() {
