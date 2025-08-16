@@ -112,6 +112,15 @@ void main() {
     expect(spot.explain, 'reason,detail');
   });
 
+  test('CSV unescapes doubled quotes inside quoted fields', () {
+    const csv = 'kind,hand,pos,stack,action,explain\n'
+        'callVsJam,AKo,BTN,10bb,push,"He said ""jam"""';
+    final r = SpotImporter.parse(csv, format: 'csv');
+    expect(r.added, 1);
+    expect(r.spots.single.explain, 'He said "jam"');
+  });
+
+
   test('legacy kind parameter still works', () {
     const csv = 'kind,hand,pos,stack,action\ncallVsJam,AKo,BTN,10bb,push';
     final report = SpotImporter.parse(csv, kind: 'csv');

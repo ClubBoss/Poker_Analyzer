@@ -54,13 +54,12 @@ class MvsSessionPlayer extends StatefulWidget {
   final int? initialIndex;
   final List<UiAnswer>? initialAnswers;
   final String? packId;
-  const MvsSessionPlayer({
-    super.key,
-    required this.spots,
-    this.initialIndex,
-    this.initialAnswers,
-    this.packId,
-  });
+  const MvsSessionPlayer(
+      {super.key,
+      required this.spots,
+      this.initialIndex,
+      this.initialAnswers,
+      this.packId});
 
   static Future<MvsSessionPlayer?> fromSaved() async {
     final prefs = await SharedPreferences.getInstance();
@@ -86,18 +85,16 @@ class MvsSessionPlayer extends StatefulWidget {
               p is String &&
               st is String &&
               act is String) {
-            spots.add(
-              UiSpot(
-                kind: SpotKind.values[k],
-                hand: h,
-                pos: p,
-                stack: st,
-                action: act,
-                vsPos: e['v'] as String?,
-                limpers: e['l'] as String?,
-                explain: e['e'] as String?,
-              ),
-            );
+            spots.add(UiSpot(
+              kind: SpotKind.values[k],
+              hand: h,
+              pos: p,
+              stack: st,
+              action: act,
+              vsPos: e['v'] as String?,
+              limpers: e['l'] as String?,
+              explain: e['e'] as String?,
+            ));
           } else {
             return null;
           }
@@ -113,14 +110,12 @@ class MvsSessionPlayer extends StatefulWidget {
           final ch = e['chosen'];
           final ms = e['elapsedMs'];
           if (c is bool && ex is String && ch is String && ms is int) {
-            answers.add(
-              UiAnswer(
-                correct: c,
-                expected: ex,
-                chosen: ch,
-                elapsed: Duration(milliseconds: ms),
-              ),
-            );
+            answers.add(UiAnswer(
+              correct: c,
+              expected: ex,
+              chosen: ch,
+              elapsed: Duration(milliseconds: ms),
+            ));
           } else {
             return null;
           }
@@ -130,10 +125,7 @@ class MvsSessionPlayer extends StatefulWidget {
       }
       if (i < 0 || i > spots.length) return null;
       return MvsSessionPlayer(
-        spots: spots,
-        initialIndex: i,
-        initialAnswers: answers,
-      );
+          spots: spots, initialIndex: i, initialAnswers: answers);
     } catch (_) {
       return null;
     }
@@ -157,15 +149,14 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   String? _chosen;
   bool _showExplain = false;
   UiPrefs _prefs = const UiPrefs(
-    autoNext: false,
-    timeEnabled: true,
-    timeLimitMs: 10000,
-    sound: false,
-    haptics: true,
-    autoWhyOnWrong: true,
-    autoNextDelayMs: 600,
-    fontScale: 1.0,
-  );
+      autoNext: false,
+      timeEnabled: true,
+      timeLimitMs: 10000,
+      sound: false,
+      haptics: true,
+      autoWhyOnWrong: true,
+      autoNextDelayMs: 600,
+      fontScale: 1.0);
   bool _autoNext = false;
   int _timeLimitMs = 10000; // 10s default
   bool _timeEnabled = true; // can toggle
@@ -181,11 +172,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
 
   bool get _showHotkeys =>
       kIsWeb ||
-      const {
-        TargetPlatform.macOS,
-        TargetPlatform.windows,
-        TargetPlatform.linux,
-      }.contains(defaultTargetPlatform);
+      const {TargetPlatform.macOS, TargetPlatform.windows, TargetPlatform.linux}
+          .contains(defaultTargetPlatform);
 
   @override
   void initState() {
@@ -225,16 +213,14 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                     }
                   }
                   if (kind == null) continue;
-                  loadedSpots.add(
-                    UiSpot(
-                      kind: kind,
-                      hand: h,
-                      pos: p,
-                      vsPos: v is String ? v : null,
-                      stack: st,
-                      action: a,
-                    ),
-                  );
+                  loadedSpots.add(UiSpot(
+                    kind: kind,
+                    hand: h,
+                    pos: p,
+                    vsPos: v is String ? v : null,
+                    stack: st,
+                    action: a,
+                  ));
                 }
               }
             }
@@ -246,14 +232,12 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                 final ch = a['chosen'];
                 final ms = a['elapsedMs'];
                 if (c is bool && e is String && ch is String && ms is int) {
-                  loadedAnswers.add(
-                    UiAnswer(
-                      correct: c,
-                      expected: e,
-                      chosen: ch,
-                      elapsed: Duration(milliseconds: ms),
-                    ),
-                  );
+                  loadedAnswers.add(UiAnswer(
+                    correct: c,
+                    expected: e,
+                    chosen: ch,
+                    elapsed: Duration(milliseconds: ms),
+                  ));
                 }
               }
             }
@@ -282,10 +266,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       vsync: this,
       duration: const Duration(milliseconds: 220),
     );
-    _answerPulse = Tween(
-      begin: 1.0,
-      end: 1.05,
-    ).chain(CurveTween(curve: Curves.easeOut)).animate(_answerPulseCtrl);
+    _answerPulse = Tween(begin: 1.0, end: 1.05)
+        .chain(CurveTween(curve: Curves.easeOut))
+        .animate(_answerPulseCtrl);
     loadUiPrefs().then((p) {
       if (!mounted) return;
       setState(() {
@@ -313,9 +296,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   void _startTicker() {
     _ticker?.cancel();
     _ticker = Timer.periodic(
-      const Duration(milliseconds: 200),
-      (_) => setState(() {}),
-    );
+        const Duration(milliseconds: 200), (_) => setState(() {}));
   }
 
   void _startTimebar() {
@@ -364,7 +345,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
               if (s.vsPos != null) 'vsPos': s.vsPos,
               'stack': s.stack,
               'action': s.action,
-            },
+            }
         ],
         'index': _index,
         'answers': [
@@ -374,7 +355,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
               'expected': a.expected,
               'chosen': a.chosen,
               'elapsedMs': a.elapsed.inMilliseconds,
-            },
+            }
         ],
       };
       file.writeAsStringSync(jsonEncode(obj));
@@ -390,13 +371,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   void _persistResume() {
     final packId = widget.packId;
     if (packId != null) {
-      unawaited(
-        SessionResume.save(
-          packId: packId,
-          index: _index,
-          sessionId: _sessionId,
-        ),
-      );
+      unawaited(SessionResume.save(
+          packId: packId, index: _index, sessionId: _sessionId));
     }
   }
 
@@ -437,13 +413,14 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     final jam = spot.kind.name.contains('_jam_vs_');
     final correct = action == spot.action;
     final stackBB = int.tryParse(spot.stack.replaceAll(RegExp(r'[^0-9]'), ''));
-    unawaited(
-      Telemetry.logEvent(correct ? 'answer_correct' : 'answer_wrong', {
+    unawaited(Telemetry.logEvent(
+      correct ? 'answer_correct' : 'answer_wrong',
+      {
         'sessionId': _sessionId,
         'spotKind': spot.kind.name,
         if (stackBB != null) 'stackBB': stackBB,
-      }),
-    );
+      },
+    ));
     // mobile haptics
     if (_prefs.haptics) {
       try {
@@ -459,14 +436,12 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     }
     setState(() {
       _chosen = action;
-      _answers.add(
-        UiAnswer(
-          correct: correct,
-          expected: spot.action,
-          chosen: action,
-          elapsed: _timer.elapsed,
-        ),
-      );
+      _answers.add(UiAnswer(
+        correct: correct,
+        expected: spot.action,
+        chosen: action,
+        elapsed: _timer.elapsed,
+      ));
       if (!correct && autoWhy && jam) {
         _showExplain = true;
       }
@@ -476,9 +451,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     unawaited(showMiniToast(context, correct ? 'Correct' : 'Wrong'));
     _answerPulseCtrl.forward(from: 0.0);
     setState(() {
-      _answerFlashColor = (correct ? Colors.green : Colors.red).withOpacity(
-        0.12,
-      );
+      _answerFlashColor =
+          (correct ? Colors.green : Colors.red).withOpacity(0.12);
     });
     _answerFlashTimer?.cancel();
     _answerFlashTimer = Timer(const Duration(milliseconds: 250), () {
@@ -534,27 +508,26 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     if (_index >= _spots.length || _chosen != null) return;
     final spot = _spots[_index];
     final stackBB = int.tryParse(spot.stack.replaceAll(RegExp(r'[^0-9]'), ''));
-    unawaited(
-      Telemetry.logEvent('answer_skip', {
+    unawaited(Telemetry.logEvent(
+      'answer_skip',
+      {
         'sessionId': _sessionId,
         'spotKind': spot.kind.name,
         if (stackBB != null) 'stackBB': stackBB,
-      }),
-    );
+      },
+    ));
     _autoNextTimer?.cancel();
     _cancelAutoNextAnim();
     _timebarTicker?.cancel();
     setState(() {
       // считаем пропуск как неправильный ответ,
       // чтобы длины spots/answers оставались согласованы
-      _answers.add(
-        UiAnswer(
-          correct: false,
-          expected: spot.action,
-          chosen: '(skip)',
-          elapsed: _timer.elapsed,
-        ),
-      );
+      _answers.add(UiAnswer(
+        correct: false,
+        expected: spot.action,
+        chosen: '(skip)',
+        elapsed: _timer.elapsed,
+      ));
       _index++;
       _chosen = null;
       _showExplain = false;
@@ -643,22 +616,19 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             if (s.vsPos != null) 'v': s.vsPos,
             if (s.limpers != null) 'l': s.limpers,
             if (s.explain != null) 'e': s.explain,
-          },
+          }
       ],
       'wrongIdx': [
         for (var i = 0; i < _answers.length; i++)
-          if (!_answers[i].correct) i,
+          if (!_answers[i].correct) i
       ],
     };
     try {
       final dir = Directory('out');
       if (!dir.existsSync()) dir.createSync(recursive: true);
       final file = File('${dir.path}/sessions_history.jsonl');
-      file.writeAsStringSync(
-        '${jsonEncode(obj)}\n',
-        mode: FileMode.append,
-        flush: true,
-      );
+      file.writeAsStringSync('${jsonEncode(obj)}\n',
+          mode: FileMode.append, flush: true);
     } catch (_) {}
   }
 
@@ -706,16 +676,14 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       if (_answers[i].correct) continue;
       final s = _spots[i];
       if (!listEquals(_actionsFor(s.kind), const ['jam', 'fold'])) continue;
-      lines.add(
-        jsonEncode({
-          'kind': s.kind.name,
-          'hand': s.hand,
-          'pos': s.pos,
-          if (s.vsPos != null) 'vsPos': s.vsPos,
-          'stack': s.stack,
-          'action': s.action,
-        }),
-      );
+      lines.add(jsonEncode({
+        'kind': s.kind.name,
+        'hand': s.hand,
+        'pos': s.pos,
+        if (s.vsPos != null) 'vsPos': s.vsPos,
+        'stack': s.stack,
+        'action': s.action,
+      }));
     }
     if (lines.isEmpty) {
       showMiniToast(context, 'No errors to export');
@@ -726,19 +694,15 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       if (!dir.existsSync()) dir.createSync(recursive: true);
       final file = File('${dir.path}/l3_jam_errors.jsonl');
       file.writeAsStringSync(lines.join('\n') + '\n');
-      showMiniToast(
-        context,
-        'Exported ${lines.length} spots to out/packs/l3_jam_errors.jsonl',
-      );
+      showMiniToast(context,
+          'Exported ${lines.length} spots to out/packs/l3_jam_errors.jsonl');
     } catch (_) {}
   }
 
   Future<void> _importSpots() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['csv', 'json'],
-      );
+      final result = await FilePicker.platform
+          .pickFiles(type: FileType.custom, allowedExtensions: ['csv', 'json']);
       if (result == null || result.files.isEmpty) return;
       final f = result.files.first;
       String? content;
@@ -754,9 +718,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           ? ', dups ${report.skippedDuplicates}'
           : '';
       showMiniToast(
-        context,
-        'Imported ${report.added} (skipped ${report.skipped}$dup)',
-      );
+          context, 'Imported ${report.added} (skipped ${report.skipped}$dup)');
       for (final e in report.errors) {
         showMiniToast(context, e);
       }
@@ -767,6 +729,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       showMiniToast(context, 'Import failed');
     }
   }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -813,9 +778,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             IconButton(
               icon: const Icon(Icons.skip_next),
               tooltip: 'Skip',
-              onPressed: (_index >= _spots.length || _chosen != null)
-                  ? null
-                  : _skip,
+              onPressed:
+                  (_index >= _spots.length || _chosen != null) ? null : _skip,
             ),
             if (kDebugMode) ...[
               IconButton(
@@ -838,7 +802,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                   final s = _lastLoadedSpots ?? _spots;
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => ModulesScreen(spots: s)),
+                    MaterialPageRoute(
+                      builder: (_) => ModulesScreen(spots: s),
+                    ),
                   );
                 },
               ),
@@ -857,8 +823,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                   setState(() => _prefs = p);
                   saveUiPrefs(p);
                   unawaited(
-                    showMiniToast(context, v > 1.0 ? 'Font: XL' : 'Font: L'),
-                  );
+                      showMiniToast(context, v > 1.0 ? 'Font: XL' : 'Font: L'));
                 },
               ),
               IconButton(
@@ -868,9 +833,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                   final p = _prefs.copyWith(haptics: v);
                   setState(() => _prefs = p);
                   saveUiPrefs(p);
-                  unawaited(
-                    showMiniToast(context, v ? 'Haptics: ON' : 'Haptics: OFF'),
-                  );
+                  unawaited(showMiniToast(
+                      context, v ? 'Haptics: ON' : 'Haptics: OFF'));
                 },
               ),
             ],
@@ -903,154 +867,125 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                     double fontScale = _prefs.fontScale;
                     final ctrl = TextEditingController(text: limit.toString());
                     return Padding(
-                      padding:
-                          MediaQuery.of(ctx).viewInsets +
+                      padding: MediaQuery.of(ctx).viewInsets +
                           const EdgeInsets.all(16),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Row(
-                            children: [
-                              const Text('Auto-next'),
-                              const Spacer(),
-                              Switch(
+                          Row(children: [
+                            const Text('Auto-next'),
+                            const Spacer(),
+                            Switch(
                                 value: autoNext,
                                 onChanged: (v) {
                                   autoNext = v;
                                   (ctx as Element).markNeedsBuild();
-                                },
+                                })
+                          ]),
+                          Row(children: [
+                            const Text('Auto-next delay'),
+                            Expanded(
+                              child: Slider(
+                                value: delayMs.toDouble(),
+                                min: 300,
+                                max: 800,
+                                divisions: 10,
+                                label: '${delayMs} ms',
+                                onChanged: autoNext
+                                    ? (v) {
+                                        delayMs = v.round().clamp(300, 800);
+                                        (ctx as Element).markNeedsBuild();
+                                      }
+                                    : null,
                               ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              const Text('Auto-next delay'),
-                              Expanded(
-                                child: Slider(
-                                  value: delayMs.toDouble(),
-                                  min: 300,
-                                  max: 800,
-                                  divisions: 10,
-                                  label: '${delayMs} ms',
-                                  onChanged: autoNext
-                                      ? (v) {
-                                          delayMs = v.round().clamp(300, 800);
-                                          (ctx as Element).markNeedsBuild();
-                                        }
-                                      : null,
-                                ),
-                              ),
-                              SizedBox(
+                            ),
+                            SizedBox(
                                 width: 56,
-                                child: Text(
-                                  '${delayMs} ms',
-                                  textAlign: TextAlign.end,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              const Text('Answer timer'),
-                              const Spacer(),
-                              Switch(
+                                child: Text('${delayMs} ms',
+                                    textAlign: TextAlign.end)),
+                          ]),
+                          Row(children: [
+                            const Text('Answer timer'),
+                            const Spacer(),
+                            Switch(
                                 value: timeEnabled,
                                 onChanged: (v) {
                                   timeEnabled = v;
                                   (ctx as Element).markNeedsBuild();
-                                },
-                              ),
-                            ],
-                          ),
+                                })
+                          ]),
                           const SizedBox(height: 8),
                           TextField(
                             controller: ctrl,
                             keyboardType: const TextInputType.numberWithOptions(
-                              signed: false,
-                              decimal: false,
-                            ),
+                                signed: false, decimal: false),
                             decoration: const InputDecoration(
-                              labelText: 'Time limit ms',
-                            ),
+                                labelText: 'Time limit ms'),
                             onChanged: (_) {
                               final t = int.tryParse(ctrl.text);
                               if (t != null) limit = t;
                             },
                           ),
                           const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              const Text('Sound'),
-                              const Spacer(),
-                              Switch(
+                          Row(children: [
+                            const Text('Sound'),
+                            const Spacer(),
+                            Switch(
                                 value: sound,
                                 onChanged: (v) {
                                   sound = v;
                                   (ctx as Element).markNeedsBuild();
-                                },
-                              ),
-                            ],
-                          ),
+                                })
+                          ]),
                           const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              const Text('Haptics'),
-                              const Spacer(),
-                              Switch(
+                          Row(children: [
+                            const Text('Haptics'),
+                            const Spacer(),
+                            Switch(
                                 value: haptics,
                                 onChanged: (v) {
                                   haptics = v;
                                   (ctx as Element).markNeedsBuild();
-                                },
-                              ),
-                            ],
-                          ),
+                                })
+                          ]),
                           const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              const Text('Font size'),
-                              const Spacer(),
-                              ChoiceChip(
+                          Row(children: [
+                            const Text('Font size'),
+                            const Spacer(),
+                            ChoiceChip(
                                 label: const Text('L'),
                                 selected: fontScale <= 1.0,
                                 onSelected: (_) {
                                   fontScale = 1.0;
                                   (ctx as Element).markNeedsBuild();
-                                },
-                              ),
-                              const SizedBox(width: 8),
-                              ChoiceChip(
+                                }),
+                            const SizedBox(width: 8),
+                            ChoiceChip(
                                 label: const Text('XL'),
                                 selected: fontScale > 1.0,
                                 onSelected: (_) {
                                   fontScale = 1.15;
                                   (ctx as Element).markNeedsBuild();
-                                },
-                              ),
-                            ],
-                          ),
+                                }),
+                          ]),
                           const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              const Text('Auto Why on wrong'),
-                              const Spacer(),
-                              Switch(
+                          Row(children: [
+                            const Text('Auto Why on wrong'),
+                            const Spacer(),
+                            Switch(
                                 value: autoWhy,
                                 onChanged: (v) {
                                   autoWhy = v;
                                   (ctx as Element).markNeedsBuild();
-                                },
-                              ),
-                            ],
-                          ),
+                                })
+                          ]),
                           const SizedBox(height: 12),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               TextButton(
-                                onPressed: () => Navigator.pop(ctx),
-                                child: const Text('Cancel'),
-                              ),
+                                  onPressed: () => Navigator.pop(ctx),
+                                  child: const Text('Cancel')),
                               const SizedBox(width: 8),
                               ElevatedButton(
                                 onPressed: () {
@@ -1135,11 +1070,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            Icons.pause_circle_filled,
-                            size: 56,
-                            color: Colors.white70,
-                          ),
+                          Icon(Icons.pause_circle_filled,
+                              size: 56, color: Colors.white70),
                           SizedBox(height: 8),
                           Text('Paused', style: TextStyle(color: Colors.white)),
                         ],
@@ -1156,8 +1088,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
 
   Widget _buildSpotCard(UiSpot spot) {
     final actions = _actionsFor(spot.kind);
-    final jamFoldHotkeys =
-        _showHotkeys &&
+    final jamFoldHotkeys = _showHotkeys &&
         spot.kind.name.contains('_jam_vs_') &&
         listEquals(actions, const ['jam', 'fold']);
     final correctCnt = _answers.where((a) => a.correct).length;
@@ -1228,9 +1159,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             });
             saveUiPrefs(p);
             showMiniToast(
-              context,
-              p.autoWhyOnWrong ? 'Auto Why: ON' : 'Auto Why: OFF',
-            );
+                context, p.autoWhyOnWrong ? 'Auto Why: ON' : 'Auto Why: OFF');
             return;
           }
           if (_showHotkeys && event.logicalKey == LogicalKeyboardKey.keyS) {
@@ -1284,8 +1213,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                   Row(
                     children: [
                       Text(
-                        't=${(_timer.elapsedMilliseconds / 1000).toStringAsFixed(1)}s',
-                      ),
+                          't=${(_timer.elapsedMilliseconds / 1000).toStringAsFixed(1)}s'),
                       if (!_showHotkeys) ...[
                         const SizedBox(width: 4),
                         IconButton(
@@ -1300,18 +1228,16 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                           icon: const Icon(Icons.psychology_alt),
                           onPressed: () {
                             final p = _prefs.copyWith(
-                              autoWhyOnWrong: !_prefs.autoWhyOnWrong,
-                            );
+                                autoWhyOnWrong: !_prefs.autoWhyOnWrong);
                             setState(() {
                               _prefs = p;
                             });
                             saveUiPrefs(p);
                             showMiniToast(
-                              context,
-                              p.autoWhyOnWrong
-                                  ? 'Auto Why: ON'
-                                  : 'Auto Why: OFF',
-                            );
+                                context,
+                                p.autoWhyOnWrong
+                                    ? 'Auto Why: ON'
+                                    : 'Auto Why: OFF');
                           },
                         ),
                       ],
@@ -1320,7 +1246,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                 ],
               ),
               const SizedBox(height: 4),
-              LinearProgressIndicator(value: (_index + 1) / _spots.length),
+              LinearProgressIndicator(
+                value: (_index + 1) / _spots.length,
+              ),
               const SizedBox(height: 4),
               Row(
                 children: [
@@ -1397,11 +1325,13 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         const SizedBox(height: 8),
-                        Text(_buildSubTitle(spot), textAlign: TextAlign.center),
+                        Text(
+                          _buildSubTitle(spot),
+                          textAlign: TextAlign.center,
+                        ),
                         const SizedBox(height: 24),
                         ...actions.map(
-                          (a) => _buildActionButton(a, spot, jamFoldHotkeys),
-                        ),
+                            (a) => _buildActionButton(a, spot, jamFoldHotkeys)),
                         if (_chosen != null) ...[
                           const SizedBox(height: 16),
                           Text(
