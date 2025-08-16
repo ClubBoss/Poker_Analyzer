@@ -37,16 +37,14 @@ class UiPrefs {
     bool b(Object? x, bool d) => x is bool ? x : d;
     int i(Object? x, int d) => x is int ? x : (x is num ? x.toInt() : d);
     double d(Object? x, double dflt) => x is num ? x.toDouble() : dflt;
-    final fs =
-        d(m["fontScale"], 1.0).clamp(0.9, 1.3);
+    final fs = d(m["fontScale"], 1.0).clamp(0.9, 1.3);
     return UiPrefs(
       autoNext: b(m["autoNext"], false),
       timeEnabled: b(m["timeEnabled"], true),
       timeLimitMs: i(m["timeLimitMs"], 10000),
       sound: b(m["sound"], false),
       haptics: b(m["haptics"], true),
-      autoWhyOnWrong:
-          b(m["autoWhyOnWrong"], b(m["autoExplainOnWrong"], false)),
+      autoWhyOnWrong: b(m["autoWhyOnWrong"], b(m["autoExplainOnWrong"], false)),
       autoNextDelayMs: autoNextDelayMs,
       fontScale: fs as double,
     );
@@ -60,15 +58,15 @@ Future<UiPrefs> loadUiPrefs({String path = 'out/ui_prefs_v1.json'}) async {
   final f = File(path);
   if (!await f.exists()) {
     return UiPrefs(
-        autoNext: false,
-        timeEnabled: true,
-        timeLimitMs: 10000,
-        sound: false,
-        haptics: true,
-        autoWhyOnWrong: false,
-        autoNextDelayMs: delay as int,
-        fontScale: (fsOverride ?? 1.0).clamp(0.9, 1.3),
-        );
+      autoNext: false,
+      timeEnabled: true,
+      timeLimitMs: 10000,
+      sound: false,
+      haptics: true,
+      autoWhyOnWrong: false,
+      autoNextDelayMs: delay as int,
+      fontScale: (fsOverride ?? 1.0).clamp(0.9, 1.3),
+    );
   }
   try {
     final root = jsonDecode(await f.readAsString());
@@ -89,15 +87,15 @@ Future<UiPrefs> loadUiPrefs({String path = 'out/ui_prefs_v1.json'}) async {
     }
   } catch (_) {}
   return UiPrefs(
-      autoNext: false,
-      timeEnabled: true,
-      timeLimitMs: 10000,
-      sound: false,
-      haptics: true,
-      autoWhyOnWrong: false,
-      autoNextDelayMs: delay as int,
-      fontScale: (fsOverride ?? 1.0).clamp(0.9, 1.3),
-      );
+    autoNext: false,
+    timeEnabled: true,
+    timeLimitMs: 10000,
+    sound: false,
+    haptics: true,
+    autoWhyOnWrong: false,
+    autoNextDelayMs: delay as int,
+    fontScale: (fsOverride ?? 1.0).clamp(0.9, 1.3),
+  );
 }
 
 Future<void> saveUiPrefs(UiPrefs p, {String path = 'out/ui_prefs_v1.json'}) async {

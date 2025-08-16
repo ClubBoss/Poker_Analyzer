@@ -411,7 +411,6 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     _timebarTicker?.cancel();
     final spot = _spots[_index];
     final autoWhy = _prefs.autoWhyOnWrong;
-    final jam = spot.kind.name.contains('_jam_vs_');
     final correct = action == spot.action;
     final stackBB = int.tryParse(spot.stack.replaceAll(RegExp(r'[^0-9]'), ''));
     unawaited(Telemetry.logEvent(
@@ -443,7 +442,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         chosen: action,
         elapsed: _timer.elapsed,
       ));
-      if (!correct && autoWhy && jam) {
+      if (!correct && autoWhy) {
         _showExplain = true;
       }
       if (!correct &&
