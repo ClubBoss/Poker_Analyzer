@@ -1477,9 +1477,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     }
     if (spot.kind == SpotKind.l4_icm_sb_jam_vs_fold) {
       return 'ICM SB Jam vs Fold • ' + core;
+    }
+    return core;
   }
-  return core;
-}
 
   List<String> _actionsFor(SpotKind kind) {
     final mapped = _actionsMap[kind];
