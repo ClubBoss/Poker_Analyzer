@@ -21,6 +21,7 @@ import 'models.dart';
 import 'result_summary.dart';
 import 'ui_prefs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../services/spot_importer.dart';
 
 extension _UiPrefsCopy on UiPrefs {
   UiPrefs copyWith({
@@ -696,72 +697,10 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     } catch (_) {}
   }
 
-  Future<void> _loadDemoPack() async {
-    try {
-      final file = File('out/packs/l3_jam_demo.jsonl');
-      if (!file.existsSync()) {
-        showMiniToast(context, 'Demo pack not found');
-        return;
-      }
-      final lines = const LineSplitter().convert(await file.readAsString());
-      final parsed = <UiSpot>[];
-      for (final line in lines) {
-        if (line.trim().isEmpty) continue;
-        try {
-          final obj = jsonDecode(line);
-          if (obj is! Map) continue;
-          final k = obj['kind'];
-          final hand = obj['hand'];
-          final pos = obj['pos'];
-          final vsPos = obj['vsPos'];
-          final stack = obj['stack'];
-          final action = obj['action'];
-          if (k is! String ||
-              hand is! String ||
-              pos is! String ||
-              stack is! String ||
-              action is! String) {
-            continue;
-          }
-          SpotKind? kind;
-          for (final sk in SpotKind.values) {
-            if (sk.name == k) {
-              kind = sk;
-              break;
-            }
-          }
-          if (kind == null) continue;
-          final acts = _actionsFor(kind);
-          if (!listEquals(acts, const ['jam', 'fold']) ||
-              !acts.contains(action)) {
-            continue;
-          }
-          parsed.add(UiSpot(
-            kind: kind,
-            hand: hand,
-            pos: pos,
-            vsPos: vsPos is String ? vsPos : null,
-            stack: stack,
-            action: action,
-          ));
-        } catch (_) {}
-      }
-      if (parsed.isEmpty) {
-        showMiniToast(context, 'Demo pack not found');
-        return;
-      }
-      _lastLoadedSpots = parsed;
-      _restart(parsed);
-      showMiniToast(context, 'Loaded ${parsed.length} spots');
-    } catch (_) {
-      showMiniToast(context, 'Demo pack not found');
-    }
-  }
-
-  Future<void> _loadJsonlSpots() async {
+  Future<void> _importSpots() async {
     try {
       final result = await FilePicker.platform
-          .pickFiles(type: FileType.custom, allowedExtensions: ['jsonl']);
+          .pickFiles(type: FileType.custom, allowedExtensions: ['csv', 'json']);
       if (result == null || result.files.isEmpty) return;
       final f = result.files.first;
       String? content;
@@ -771,110 +710,23 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         content = utf8.decode(f.bytes!);
       }
       if (content == null) return;
-      final lines = const LineSplitter().convert(content);
-      final parsed = <UiSpot>[];
-      for (final line in lines) {
-        if (line.trim().isEmpty) continue;
-        try {
-          final obj = jsonDecode(line);
-          if (obj is! Map) continue;
-          final k = obj['kind'];
-          final hand = obj['hand'];
-          final pos = obj['pos'];
-          final vsPos = obj['vsPos'];
-          final stack = obj['stack'];
-          final action = obj['action'];
-          if (k is! String ||
-              hand is! String ||
-              pos is! String ||
-              stack is! String ||
-              action is! String) {
-            continue;
-          }
-          SpotKind? kind;
-          for (final sk in SpotKind.values) {
-            if (sk.name == k) {
-              kind = sk;
-              break;
-            }
-          }
-          if (kind == null) continue;
-          final acts = _actionsFor(kind);
-          if (!listEquals(acts, const ['jam', 'fold']) ||
-              !acts.contains(action)) {
-            continue;
-          }
-          parsed.add(UiSpot(
-            kind: kind,
-            hand: hand,
-            pos: pos,
-            vsPos: vsPos is String ? vsPos : null,
-            stack: stack,
-            action: action,
-          ));
-        } catch (_) {}
+      final ext = (f.extension ?? '').toLowerCase();
+      final report = SpotImporter.parse(content, kind: ext);
+      showMiniToast(
+          context, 'Imported ${report.added} (skipped ${report.skipped})');
+      for (final e in report.errors) {
+        showMiniToast(context, e);
       }
-      if (parsed.isEmpty) return;
-      _lastLoadedSpots = parsed;
-      _restart(parsed);
-      showMiniToast(context, 'Loaded ${parsed.length} spots');
-    } catch (_) {}
+      if (report.spots.isEmpty) return;
+      _lastLoadedSpots = report.spots;
+      _restart(report.spots);
+    } catch (_) {
+      showMiniToast(context, 'Import failed');
+    }
   }
 
-  Future<void> _loadClipboardJsonlSpots() async {
-    try {
-      final data = await Clipboard.getData('text/plain');
-      final content = data?.text;
-      if (content == null) return;
-      final lines = const LineSplitter().convert(content);
-      final parsed = <UiSpot>[];
-      for (final line in lines) {
-        if (line.trim().isEmpty) continue;
-        try {
-          final obj = jsonDecode(line);
-          if (obj is! Map) continue;
-          final k = obj['kind'];
-          final hand = obj['hand'];
-          final pos = obj['pos'];
-          final vsPos = obj['vsPos'];
-          final stack = obj['stack'];
-          final action = obj['action'];
-          if (k is! String ||
-              hand is! String ||
-              pos is! String ||
-              stack is! String ||
-              action is! String) {
-            continue;
-          }
-          SpotKind? kind;
-          for (final sk in SpotKind.values) {
-            if (sk.name == k) {
-              kind = sk;
-              break;
-            }
-          }
-          if (kind == null) continue;
-          final acts = _actionsFor(kind);
-          if (!listEquals(acts, const ['jam', 'fold']) ||
-              !acts.contains(action)) {
-            continue;
-          }
-          parsed.add(UiSpot(
-            kind: kind,
-            hand: hand,
-            pos: pos,
-            vsPos: vsPos is String ? vsPos : null,
-            stack: stack,
-            action: action,
-          ));
-        } catch (_) {}
-      }
-      if (parsed.isEmpty) return;
-      _lastLoadedSpots = parsed;
-      _restart(parsed);
-      showMiniToast(context, 'Loaded ${parsed.length} spots (clipboard)');
-    } catch (_) {}
-  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -1222,16 +1074,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         autofocus: true,
         onKey: (event) {
           if (event is! RawKeyDownEvent || _paused) return;
-          if (_showHotkeys && event.logicalKey == LogicalKeyboardKey.keyD) {
-            _loadDemoPack();
-            return;
-          }
           if (_showHotkeys && event.logicalKey == LogicalKeyboardKey.keyO) {
-            _loadJsonlSpots();
-            return;
-          }
-          if (_showHotkeys && event.logicalKey == LogicalKeyboardKey.keyP) {
-            _loadClipboardJsonlSpots();
+            _importSpots();
             return;
           }
           if (_showHotkeys && event.logicalKey == LogicalKeyboardKey.keyR) {
@@ -1341,7 +1185,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                         const SizedBox(width: 4),
                         IconButton(
                           icon: const Icon(Icons.folder_open),
-                          onPressed: _loadJsonlSpots,
+                          onPressed: _importSpots,
                         ),
                         IconButton(
                           icon: const Icon(Icons.file_download),
