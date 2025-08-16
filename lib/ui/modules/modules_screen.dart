@@ -44,6 +44,9 @@ class ModulesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final pre = _preflopCore();
+    final flop = _flopJam();
+    final mix = _mixed();
     return Scaffold(
       appBar: AppBar(title: const Text('Modules')),
       body: ListView(
@@ -51,13 +54,13 @@ class ModulesScreen extends StatelessWidget {
           ListTile(
             title: const Text('Preflop Core'),
             subtitle: const Text('10/20/40/100bb × positions'),
+            trailing: Chip(label: Text('${pre.length} spots')),
             onTap: () {
-              final subset = _preflopCore();
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => MvsSessionPlayer(
-                      spots: subset, packId: 'mod:preflop'),
+                  builder: (_) =>
+                      MvsSessionPlayer(spots: pre, packId: 'mod:preflop'),
                 ),
               );
             },
@@ -65,13 +68,13 @@ class ModulesScreen extends StatelessWidget {
           ListTile(
             title: const Text('Flop Jam'),
             subtitle: const Text('SPR<3'),
+            trailing: Chip(label: Text('${flop.length} spots')),
             onTap: () {
-              final subset = _flopJam();
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => MvsSessionPlayer(
-                      spots: subset, packId: 'mod:flopjam'),
+                  builder: (_) =>
+                      MvsSessionPlayer(spots: flop, packId: 'mod:flopjam'),
                 ),
               );
             },
@@ -79,13 +82,13 @@ class ModulesScreen extends StatelessWidget {
           ListTile(
             title: const Text('Mixed Drill'),
             subtitle: const Text('random 20 from current pool'),
+            trailing: Chip(label: Text('${mix.length} spots')),
             onTap: () {
-              final subset = _mixed();
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) =>
-                      MvsSessionPlayer(spots: subset, packId: 'mod:mixed'),
+                      MvsSessionPlayer(spots: mix, packId: 'mod:mixed'),
                 ),
               );
             },
