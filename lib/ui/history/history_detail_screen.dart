@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../session_player/models.dart';
 import '../session_player/mvs_player.dart';
+import '../../utils/csv.dart';
 
 class HistoryDetailScreen extends StatelessWidget {
   const HistoryDetailScreen({super.key, required this.entry});
@@ -77,25 +78,24 @@ class HistoryDetailScreen extends StatelessWidget {
                 final dir = Directory('out');
                 await dir.create(recursive: true);
                 final file = File('${dir.path}/session_$stamp.csv');
-                String _csv(String v) => '"${v.replaceAll('"', '""')}"';
                 final buf = StringBuffer()..writeln('k,h,p,s,a,v,l,e');
                 for (final s in spots) {
                   buf
                     ..write(s.kind.index)
                     ..write(',')
-                    ..write(_csv(s.hand))
+                    ..write(csvEscape(s.hand))
                     ..write(',')
-                    ..write(_csv(s.pos))
+                    ..write(csvEscape(s.pos))
                     ..write(',')
-                    ..write(_csv(s.stack))
+                    ..write(csvEscape(s.stack))
                     ..write(',')
-                    ..write(_csv(s.action))
+                    ..write(csvEscape(s.action))
                     ..write(',')
-                    ..write(_csv(s.vsPos ?? ''))
+                    ..write(csvEscape(s.vsPos ?? ''))
                     ..write(',')
-                    ..write(_csv(s.limpers ?? ''))
+                    ..write(csvEscape(s.limpers ?? ''))
                     ..write(',')
-                    ..writeln(_csv(s.explain ?? ''));
+                    ..writeln(csvEscape(s.explain ?? ''));
                 }
                 await file.writeAsString(buf.toString());
                 final path = file.absolute.path;
