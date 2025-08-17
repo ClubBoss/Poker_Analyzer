@@ -805,6 +805,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     for (var i = 0; i < _answers.length; i++) {
       if (_answers[i].correct) continue;
       final s = _spots[i];
+      final reason = _answers[i].chosen == '(skip)'
+          ? 'skip'
+          : (_answers[i].chosen == '(timeout)' ? 'timeout' : 'wrong');
       if (!isJamFold(s.kind)) continue;
       if (!isAutoReplayKind(s.kind)) continue; // L3-only per SSOT
       final key = '${s.kind}|${s.hand}|${s.pos}|${s.vsPos ?? ''}|${s.stack}';
@@ -822,6 +825,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           'expected': s.action,
           'chosen': _answers[i].chosen,
           'elapsedMs': _answers[i].elapsed.inMilliseconds,
+          'sessionId': _sessionId,
+          'ts': DateTime.now().toUtc().toIso8601String(),
+          'reason': reason,
         }),
       );
     }
