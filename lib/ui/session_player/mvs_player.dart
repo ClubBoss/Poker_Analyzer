@@ -816,6 +816,25 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     }
   }
 
+  void _replayL3JamErrors() {
+    final seen = <String>{};
+    final picks = <UiSpot>[];
+    for (var i = 0; i < _answers.length; i++) {
+      final a = _answers[i];
+      if (a.correct) continue;
+      final s = _spots[i];
+      if (!isJamFold(s.kind)) continue;
+      if (!isAutoReplayKind(s.kind)) continue; // L3-only
+      final key = '${s.kind.name}|${s.hand}|${s.pos}|${s.vsPos ?? ''}|${s.stack}';
+      if (seen.add(key)) picks.add(s);
+    }
+    if (picks.isEmpty) {
+      showMiniToast(context, 'No L3 jam errors to replay');
+      return;
+    }
+    _restart(picks);
+  }
+
   void _exportErrors() {
     final lines = <String>[];
     final seen = <String>{};
@@ -939,6 +958,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         spots: _spots,
         answers: _answers,
         onReplayErrors: _replayErrors,
+        onReplayL3JamErrors: _replayL3JamErrors,
         onRestart: () => _restart(widget.spots),
         onReplayOne: (i) {
           if (i < 0 || i >= _spots.length) return;

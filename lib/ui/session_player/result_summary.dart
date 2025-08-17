@@ -9,6 +9,7 @@ class ResultSummaryView extends StatefulWidget {
   final List<UiSpot> spots;
   final List<UiAnswer> answers;
   final VoidCallback onReplayErrors;
+  final VoidCallback? onReplayL3JamErrors;
   final VoidCallback onRestart;
   final ValueChanged<int>? onReplayOne; // index in [0..spots.length)
   final void Function(List<int> indices)?
@@ -19,6 +20,7 @@ class ResultSummaryView extends StatefulWidget {
     required this.spots,
     required this.answers,
     required this.onReplayErrors,
+    this.onReplayL3JamErrors,
     required this.onRestart,
     this.onReplayOne,
     this.onReplayMarked,
@@ -115,6 +117,14 @@ class _ResultSummaryViewState extends State<ResultSummaryView> {
               ),
             ],
           ),
+          if (widget.onReplayL3JamErrors != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: ElevatedButton(
+                onPressed: widget.onReplayL3JamErrors,
+                child: const Text('Replay L3 jam errors'),
+              ),
+            ),
           const SizedBox(height: 12),
           Expanded(
             child: ListView.separated(
