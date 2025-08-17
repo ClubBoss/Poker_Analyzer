@@ -931,11 +931,11 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     } catch (_) {
       Clipboard.setData(ClipboardData(text: text));
       showMiniToast(context, 'Copied L3 errors to clipboard');
-      Telemetry.logEvent('export_l3_errors_clipboard', {
+      unawaited(Telemetry.logEvent('export_l3_errors_clipboard', {
         'sessionId': _sessionId,
         if (widget.packId != null) 'packId': widget.packId,
         'count': rows.length,
-      });
+      }));
     }
   }
 
