@@ -10,8 +10,7 @@ void main() {
     });
 
     test('includes packId when provided', () {
-      final r = buildTelemetry(
-          sessionId: 's1', packId: 'p1', data: {'b': 'x'});
+      final r = buildTelemetry(sessionId: 's1', packId: 'p1', data: {'b': 'x'});
       expect(r, {'sessionId': 's1', 'packId': 'p1', 'b': 'x'});
     });
 
