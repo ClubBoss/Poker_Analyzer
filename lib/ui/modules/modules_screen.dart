@@ -4,16 +4,22 @@ import 'package:flutter/material.dart';
 
 import '../session_player/models.dart';
 import '../session_player/mvs_player.dart';
+import '../session_player/mini_toast.dart';
 
-class ModulesScreen extends StatelessWidget {
+class ModulesScreen extends StatefulWidget {
   final List<UiSpot> spots;
   const ModulesScreen({super.key, required this.spots});
 
+  @override
+  State<ModulesScreen> createState() => _ModulesScreenState();
+}
+
+class _ModulesScreenState extends State<ModulesScreen> {
   List<UiSpot> _preflopCore() {
     const stacks = {'10bb', '20bb', '40bb', '100bb'};
     final res = <UiSpot>[];
     final perCell = <String, int>{};
-    for (final s in spots) {
+    for (final s in widget.spots) {
       if (s.kind.name != 'callVsJam') continue;
       if (!stacks.contains(s.stack)) continue;
       final key = '${s.pos}-${s.stack}';
@@ -28,7 +34,7 @@ class ModulesScreen extends StatelessWidget {
 
   List<UiSpot> _flopJam() {
     final res = <UiSpot>[];
-    for (final s in spots) {
+    for (final s in widget.spots) {
       if (s.kind.name != 'l3_postflop_jam') continue;
       res.add(s);
       if (res.length >= 20) break;
@@ -37,7 +43,7 @@ class ModulesScreen extends StatelessWidget {
   }
 
   List<UiSpot> _mixed() {
-    final list = List<UiSpot>.from(spots);
+    final list = List<UiSpot>.from(widget.spots);
     list.shuffle(Random(0));
     return list.take(min(20, list.length)).toList();
   }
@@ -51,6 +57,29 @@ class ModulesScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Modules')),
       body: ListView(
         children: [
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Wrap(
+              spacing: 8,
+              children: [
+                ActionChip(
+                  label: const Text('Start last import'),
+                  onPressed: () {
+                    if (widget.spots.isEmpty) {
+                      showMiniToast(context, 'Import spots first');
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => MvsSessionPlayer(spots: widget.spots),
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
           ListTile(
             title: const Text('Preflop Core'),
             subtitle: const Text('10/20/40/100bb × positions'),
