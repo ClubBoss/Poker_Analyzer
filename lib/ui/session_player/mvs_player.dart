@@ -779,7 +779,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['csv', 'json'],
+        allowedExtensions: ['csv', 'json', 'jsonl'],
       );
       if (result == null || result.files.isEmpty) return;
       final f = result.files.first;
@@ -791,7 +791,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       }
       if (content == null) return;
       final ext = (f.extension ?? '').toLowerCase();
-      final report = SpotImporter.parse(content, format: ext);
+      final format = (ext == 'jsonl') ? 'json' : ext;
+      final report = SpotImporter.parse(content, format: format);
       final dup = report.skippedDuplicates > 0
           ? ', dups ${report.skippedDuplicates}'
           : '';
