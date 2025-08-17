@@ -854,9 +854,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             IconButton(
               icon: const Icon(Icons.skip_next),
               tooltip: 'Skip',
-              onPressed: (_index >= _spots.length || _chosen != null)
-                  ? null
-                  : _skip,
+              onPressed:
+                  (_index >= _spots.length || _chosen != null) ? null : _skip,
             ),
             if (kDebugMode) ...[
               IconButton(
@@ -944,8 +943,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                     double fontScale = _prefs.fontScale;
                     final ctrl = TextEditingController(text: limit.toString());
                     return Padding(
-                      padding:
-                          MediaQuery.of(ctx).viewInsets +
+                      padding: MediaQuery.of(ctx).viewInsets +
                           const EdgeInsets.all(16),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -1197,8 +1195,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
 
   Widget _buildSpotCard(UiSpot spot) {
     final actions = _actionsFor(spot.kind);
-    final jamFoldHotkeys =
-        _showHotkeys &&
+    final jamFoldHotkeys = _showHotkeys &&
         spot.kind.name.contains('_jam_vs_') &&
         listEquals(actions, const ['jam', 'fold']);
     final correctCnt = _answers.where((a) => a.correct).length;
