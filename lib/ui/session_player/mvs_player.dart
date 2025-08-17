@@ -25,6 +25,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/spot_importer.dart';
 import '../coverage/coverage_dashboard.dart';
 import '../modules/modules_screen.dart';
+import 'package:poker_analyzer/ui/session_player/l3_jsonl_export.dart';
 
 void _assertSpotKindIntegrity(Set<SpotKind> usedKinds) {
   assert(() {
@@ -883,12 +884,13 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   }
 
   void _exportErrors() {
-    final lines = <String>[];
+    final rows = <Map<String, dynamic>>[];
     final seen = <String>{};
     var dups = 0;
     for (var i = 0; i < _answers.length; i++) {
       if (_answers[i].correct) continue;
       final s = _spots[i];
+      if (_replayed.contains(s)) continue;
       final reason = _answers[i].chosen == '(skip)'
           ? 'skip'
           : (_answers[i].chosen == '(timeout)' ? 'timeout' : 'wrong');
@@ -899,24 +901,19 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         dups++;
         continue;
       }
-      lines.add(
-        jsonEncode({
-          'kind': s.kind.name,
-          'hand': s.hand,
-          'pos': s.pos,
-          if (s.vsPos != null) 'vsPos': s.vsPos,
-          'stack': s.stack,
-          'expected': s.action,
-          'chosen': _answers[i].chosen,
-          'elapsedMs': _answers[i].elapsed.inMilliseconds,
-          'sessionId': _sessionId,
-          'ts': DateTime.now().toUtc().toIso8601String(),
-          'reason': reason,
-          if (widget.packId != null) 'packId': widget.packId,
-        }),
+      final row = toL3ExportRow(
+        expected: s.action,
+        chosen: _answers[i].chosen,
+        elapsedMs: _answers[i].elapsed.inMilliseconds,
+        sessionId: _sessionId,
+        ts: DateTime.now().toUtc().millisecondsSinceEpoch,
+        reason: reason,
+        packId: widget.packId ?? '',
       );
+      if (widget.packId == null) row.remove('packId');
+      rows.add(row);
     }
-    if (lines.isEmpty) {
+    if (rows.isEmpty) {
       showMiniToast(context, 'No errors to export');
       return;
     }
@@ -924,10 +921,11 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       final dir = Directory('out/packs');
       if (!dir.existsSync()) dir.createSync(recursive: true);
       final file = File('${dir.path}/l3_jam_errors.jsonl');
-      file.writeAsStringSync(lines.join('\n') + '\n');
+      final text = encodeJsonl(rows);
+      file.writeAsStringSync(text);
       showMiniToast(
         context,
-        'Exported ${lines.length} spots${dups > 0 ? ' (dups $dups)' : ''} to out/packs/l3_jam_errors.jsonl',
+        'Exported ${rows.length} spots${dups > 0 ? ' (dups $dups)' : ''} to out/packs/l3_jam_errors.jsonl',
       );
     } catch (_) {}
   }
@@ -1031,10 +1029,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: ActionChip(
-              label:
-                  Text('Quick Replay L3 errors (${l3Candidates.length})'),
-              onPressed:
-                  l3Candidates.isEmpty ? null : _quickReplayL3JamErrors,
+              label: Text('Quick Replay L3 errors (${l3Candidates.length})'),
+              onPressed: l3Candidates.isEmpty ? null : _quickReplayL3JamErrors,
             ),
           ),
         ],
@@ -1145,7 +1141,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                     double fontScale = _prefs.fontScale;
                     final ctrl = TextEditingController(text: limit.toString());
                     return Padding(
-                      padding: MediaQuery.of(ctx).viewInsets + const EdgeInsets.all(16),
+                      padding:
+                          MediaQuery.of(ctx).viewInsets +
+                          const EdgeInsets.all(16),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
