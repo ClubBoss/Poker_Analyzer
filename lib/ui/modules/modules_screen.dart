@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:poker_analyzer/ui/modules/cash_packs.dart';
 
 import '../session_player/models.dart';
 import '../session_player/mvs_player.dart';
@@ -74,6 +75,25 @@ class _ModulesScreenState extends State<ModulesScreen> {
                           builder: (_) => MvsSessionPlayer(
                             spots: widget.spots,
                             packId: 'import:last',
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                ActionChip(
+                  label: const Text('Start Cash L3'),
+                  onPressed: () {
+                    final spots = loadCashL3V1();
+                    if (spots.isEmpty) {
+                      showMiniToast(context, 'Pack is empty');
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => MvsSessionPlayer(
+                            spots: spots,
+                            packId: 'cash:l3:v1',
                           ),
                         ),
                       );
