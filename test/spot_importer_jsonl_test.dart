@@ -12,7 +12,7 @@ void main() {
 
     final report = SpotImporter.parse(jsonl, format: 'json');
     expect(report.errors, isEmpty);
-    expect(report.added, 2);                 // 3 lines, 1 duplicate
+    expect(report.added, 2); // 3 lines, 1 duplicate
     expect(report.skippedDuplicates, 1);
     expect(report.spots.length, 2);
     expect(report.spots.first.kind, SpotKind.l3_flop_jam_vs_raise);
@@ -27,6 +27,7 @@ void main() {
     expect(report.errors, isEmpty);
     expect(report.added, 1);
     expect(report.spots.single.kind, SpotKind.l3_river_jam_vs_raise);
-    expect(report.spots.single.action, anyOf('jam','fold')); // parser keeps canonical 'action'
+    expect(report.spots.single.action,
+        anyOf('jam', 'fold')); // parser keeps canonical 'action'
   });
 }

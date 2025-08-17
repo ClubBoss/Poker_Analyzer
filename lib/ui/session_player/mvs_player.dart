@@ -504,10 +504,12 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       if (!correct && autoWhy) {
         _showExplain = true;
       }
-      if (!correct &&
-          autoWhy &&
-          isAutoReplayKind(spot.kind) &&
-          !_replayed.contains(spot)) {
+      if (shouldAutoReplay(
+        correct: correct,
+        autoWhy: autoWhy,
+        kind: spot.kind,
+        alreadyReplayed: _replayed.contains(spot),
+      )) {
         _spots.insert(_index + 1, spot);
         _replayed.add(spot);
       }
