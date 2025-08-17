@@ -369,10 +369,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           _timebarTicker?.cancel();
           unawaited(showMiniToast(context, 'Time limit reached'));
           if (_prefs.haptics) {
-            try {
-              HapticFeedback.vibrate();
-            } catch (_) {}
+            try { HapticFeedback.vibrate(); } catch (_) {}
           }
+          _onTimeout();
         }
       });
     });
@@ -621,6 +620,53 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       } catch (_) {}
     }
     unawaited(showMiniToast(context, 'Skipped'));
+  }
+
+  void _onTimeout() {
+    if (_chosen != null || _index >= _spots.length) return;
+    _timer.stop();
+    _ticker?.cancel();
+    _timebarTicker?.cancel();
+
+    final spot = _spots[_index];
+    final autoWhy = _prefs.autoWhyOnWrong;
+    final stackBB =
+        int.tryParse(spot.stack.replaceAll(RegExp(r'[^0-9]'), ''));
+
+    unawaited(Telemetry.logEvent('answer_timeout', {
+      'sessionId': _sessionId,
+      'spotKind': spot.kind.name,
+      if (stackBB != null) 'stackBB': stackBB,
+    }));
+
+    setState(() {
+      _chosen = '(timeout)';
+      _answers.add(UiAnswer(
+        correct: false,
+        expected: spot.action,
+        chosen: '(timeout)',
+        elapsed: _timer.elapsed,
+      ));
+      if (autoWhy) _showExplain = true;
+      if (shouldAutoReplay(
+        correct: false,
+        autoWhy: autoWhy,
+        kind: spot.kind,
+        alreadyReplayed: _replayed.contains(spot),
+      )) {
+        _spots.insert(_index + 1, spot);
+        _replayed.add(spot);
+      }
+    });
+
+    unawaited(_saveProgress());
+    _answerPulseCtrl.forward(from: 0.0);
+    setState(() => _answerFlashColor = Colors.red.withOpacity(0.12));
+    _answerFlashTimer?.cancel();
+    _answerFlashTimer = Timer(const Duration(milliseconds: 250), () {
+      if (!mounted) return;
+      setState(() => _answerFlashColor = null);
+    });
   }
 
   int _streak() {
