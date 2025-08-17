@@ -71,7 +71,10 @@ class _ModulesScreenState extends State<ModulesScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => MvsSessionPlayer(spots: widget.spots),
+                          builder: (_) => MvsSessionPlayer(
+                            spots: widget.spots,
+                            packId: 'import:last',
+                          ),
                         ),
                       );
                     }
