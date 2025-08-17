@@ -6,7 +6,7 @@ import 'package:poker_analyzer/core/training/generation/smart_path_compiler.dart
 Future<void> main(List<String> args) async {
   if (args.length < 2) {
     ErrorLogger.instance.logError(
-      'Usage: dart run tools/compile_path.dart <spec.txt> <packs_dir>',
+      'Usage: dart run tool/compile_path.dart <spec.txt> <packs_dir>',
     );
     exit(1);
   }
