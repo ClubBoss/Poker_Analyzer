@@ -31,6 +31,9 @@ bool isJamFold(SpotKind k) {
   return a != null && a.length == 2 && a[0] == 'jam' && a[1] == 'fold';
 }
 
+String jamDedupKey(UiSpot s) =>
+    '${s.kind.name}|${s.hand}|${s.pos}|${s.vsPos ?? ''}|${s.stack}';
+
 const subtitlePrefix = <SpotKind, String>{
   SpotKind.l3_flop_jam_vs_raise: 'Flop Jam vs Raise • ',
   SpotKind.l3_turn_jam_vs_raise: 'Turn Jam vs Raise • ',
