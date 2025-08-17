@@ -53,41 +53,66 @@ class SpotImporter {
     }
 
     if (fmt == 'json') {
-      dynamic data;
-      try {
-        data = jsonDecode(content);
-      } catch (_) {
-        addError('Invalid JSON');
-        return SpotImportReport(
-          spots: spots,
-          added: 0,
-          skipped: skipped,
-          skippedDuplicates: skippedDuplicates,
-          errors: errors,
-        );
-      }
-      if (data is List) {
-        var idx = 0;
-        for (final e in data) {
-          idx++;
-          if (e is Map<String, dynamic>) {
-            final spot = _spotFromMap(e, idx, addError);
-            if (spot != null) {
-              final key =
-                  '${spot.kind.name}|${spot.hand.trim()}|${spot.pos.trim()}|${spot.stack.trim()}|${spot.action.trim()}';
-              if (seen.contains(key)) {
-                addDup(key);
-              } else {
-                seen.add(key);
-                spots.add(spot);
-              }
-            }
+      final trimmed = content.trimLeft();
+      final isArray = trimmed.startsWith('[');
+      var data = <dynamic>[];
+      if (isArray) {
+        try {
+          final decoded = jsonDecode(content);
+          if (decoded is List) {
+            data = decoded;
           } else {
-            addError('Row $idx: not an object');
+            addError('JSON root is not an array');
           }
+        } catch (_) {
+          addError('Invalid JSON');
+          return SpotImportReport(
+            spots: spots,
+            added: 0,
+            skipped: skipped,
+            skippedDuplicates: skippedDuplicates,
+            errors: errors,
+          );
         }
       } else {
-        addError('JSON root is not an array');
+        final lines = const LineSplitter().convert(content);
+        var lineIdx = 0;
+        for (final raw in lines) {
+          lineIdx++;
+          final line = raw.trim();
+          if (line.isEmpty) continue;
+          dynamic obj;
+          try {
+            obj = jsonDecode(line);
+          } catch (_) {
+            addError('Row $lineIdx: invalid JSON');
+            continue;
+          }
+          if (obj is Map<String, dynamic>) {
+            data.add(obj);
+          } else {
+            addError('Row $lineIdx: not an object');
+          }
+        }
+      }
+      var idx = 0;
+      for (final e in data) {
+        idx++;
+        if (e is Map<String, dynamic>) {
+          final spot = _spotFromMap(e, idx, addError);
+          if (spot != null) {
+            final key =
+                '${spot.kind.name}|${spot.hand.trim()}|${spot.pos.trim()}|${spot.stack.trim()}|${spot.action.trim()}';
+            if (seen.contains(key)) {
+              addDup(key);
+            } else {
+              seen.add(key);
+              spots.add(spot);
+            }
+          }
+        } else {
+          addError('Row $idx: not an object');
+        }
       }
     } else if (fmt == 'csv') {
       String dequote(String s) {
@@ -101,8 +126,10 @@ class SpotImporter {
       if (rawLines.isNotEmpty) {
         final headerLine = rawLines.first.replaceFirst('\uFEFF', '');
         final sep = headerLine.contains(';') ? ';' : ',';
-        final headers =
-            headerLine.split(sep).map((h) => h.trim().toLowerCase()).toList();
+        final headers = headerLine
+            .split(sep)
+            .map((h) => h.trim().toLowerCase())
+            .toList();
         final requiredHeaders = ['kind', 'hand', 'pos', 'stack', 'action'];
         var headerOk = true;
         for (final h in requiredHeaders) {
