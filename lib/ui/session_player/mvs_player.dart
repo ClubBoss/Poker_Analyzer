@@ -504,10 +504,12 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       if (!correct && autoWhy) {
         _showExplain = true;
       }
-      if (!correct &&
-          autoWhy &&
-          isAutoReplayKind(spot.kind) &&
-          !_replayed.contains(spot)) {
+      if (shouldAutoReplay(
+        correct: correct,
+        autoWhy: autoWhy,
+        kind: spot.kind,
+        alreadyReplayed: _replayed.contains(spot),
+      )) {
         _spots.insert(_index + 1, spot);
         _replayed.add(spot);
       }
@@ -865,8 +867,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             IconButton(
               icon: const Icon(Icons.skip_next),
               tooltip: 'Skip',
-              onPressed:
-                  (_index >= _spots.length || _chosen != null) ? null : _skip,
+              onPressed: (_index >= _spots.length || _chosen != null)
+                  ? null
+                  : _skip,
             ),
             if (kDebugMode) ...[
               IconButton(
@@ -954,7 +957,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                     double fontScale = _prefs.fontScale;
                     final ctrl = TextEditingController(text: limit.toString());
                     return Padding(
-                      padding: MediaQuery.of(ctx).viewInsets +
+                      padding:
+                          MediaQuery.of(ctx).viewInsets +
                           const EdgeInsets.all(16),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
