@@ -336,14 +336,16 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         _timeLeftMs = _timeLimitMs = p.timeLimitMs;
       });
     });
-    unawaited(Telemetry.logEvent(
-      'session_start',
-      buildTelemetry(
-        sessionId: _sessionId,
-        packId: widget.packId,
-        data: {'count': widget.spots.length},
+    unawaited(
+      Telemetry.logEvent(
+        'session_start',
+        buildTelemetry(
+          sessionId: _sessionId,
+          packId: widget.packId,
+          data: {'count': widget.spots.length},
+        ),
       ),
-    ));
+    );
   }
 
   @override
@@ -356,21 +358,23 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     _autoNextAnim?.dispose();
     _focusNode.dispose();
     if (_index < _spots.length && !_clearedAtSummary) {
-      unawaited(Telemetry.logEvent(
-        'session_abort',
-        buildTelemetry(
-          sessionId: _sessionId,
-          packId: widget.packId,
-          data: {
-            'answered': _answers.length,
-            'remaining': _spots.length - _index,
-            'elapsedMs': _answers.fold<int>(
-              0,
-              (s, a) => s + a.elapsed.inMilliseconds,
-            ),
-          },
+      unawaited(
+        Telemetry.logEvent(
+          'session_abort',
+          buildTelemetry(
+            sessionId: _sessionId,
+            packId: widget.packId,
+            data: {
+              'answered': _answers.length,
+              'remaining': _spots.length - _index,
+              'elapsedMs': _answers.fold<int>(
+                0,
+                (s, a) => s + a.elapsed.inMilliseconds,
+              ),
+            },
+          ),
         ),
-      ));
+      );
     }
     unawaited(SessionResume.clear());
     super.dispose();
@@ -883,10 +887,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     unawaited(
       Telemetry.logEvent(
         'quick_replay_l3_errors',
-        buildTelemetry(
-          sessionId: _sessionId,
-          packId: widget.packId,
-        ),
+        buildTelemetry(sessionId: _sessionId, packId: widget.packId),
       ),
     );
     _next();
@@ -973,10 +974,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           buildTelemetry(
             sessionId: _sessionId,
             packId: widget.packId,
-            data: {
-              'count': rows.length,
-              'reason': kIsWeb ? 'web' : 'io',
-            },
+            data: {'count': rows.length, 'reason': kIsWeb ? 'web' : 'io'},
           ),
         ),
       );
@@ -1017,6 +1015,92 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           ),
         ) ??
         false;
+  }
+
+  Future<void> _pasteSpots() async {
+    final data = await Clipboard.getData('text/plain');
+    final content = data?.text?.trim();
+    if (content == null || content.isEmpty) {
+      showMiniToast(context, 'Clipboard is empty');
+      return;
+    }
+    try {
+      // Tolerant path: 'json' also accepts JSONL via importer fallback.
+      final report = SpotImporter.parse(content, format: 'json');
+      final dupToast = report.skippedDuplicates > 0
+          ? ', dups ${report.skippedDuplicates}'
+          : '';
+      showMiniToast(
+        context,
+        'Imported ${report.added} (skipped ${report.skipped}$dupToast)',
+      );
+      for (final e in report.errors) {
+        showMiniToast(context, e);
+      }
+      if (report.spots.isEmpty) return;
+      _lastLoadedSpots = report.spots;
+      if (!await _confirmRestartIfInProgress(context)) return;
+      final dup = report.skippedDuplicates > 0
+          ? ' (dups ${report.skippedDuplicates})'
+          : '';
+      unawaited(
+        Telemetry.logEvent(
+          'import_confirm_shown',
+          buildTelemetry(
+            sessionId: _sessionId,
+            packId: widget.packId,
+            data: {
+              'total': report.spots.length,
+              'added': report.added,
+              'skipped': report.skipped,
+              'dups': report.skippedDuplicates,
+            },
+          ),
+        ),
+      );
+      final start =
+          await showDialog<bool>(
+            context: context,
+            barrierDismissible: true,
+            builder: (_) => AlertDialog(
+              title: const Text('Import summary'),
+              content: Text(
+                'Found ${report.spots.length} spots \u2022 added ${report.added} \u2022 skipped ${report.skipped}$dup',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(_, false),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(_, true),
+                  child: const Text('Start'),
+                ),
+              ],
+            ),
+          ) ??
+          false;
+      unawaited(
+        Telemetry.logEvent(
+          'import_confirm_result',
+          buildTelemetry(
+            sessionId: _sessionId,
+            packId: widget.packId,
+            data: {
+              'result': start ? 'start' : 'cancel',
+              'total': report.spots.length,
+              'added': report.added,
+              'skipped': report.skipped,
+              'dups': report.skippedDuplicates,
+            },
+          ),
+        ),
+      );
+      if (!start) return;
+      _restart(report.spots);
+    } catch (_) {
+      showMiniToast(context, 'Import failed');
+    }
   }
 
   Future<void> _importSpots() async {
@@ -1068,7 +1152,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           ),
         ),
       );
-      final start = await showDialog<bool>(
+      final start =
+          await showDialog<bool>(
             context: context,
             barrierDismissible: true,
             builder: (_) => AlertDialog(
@@ -1116,24 +1201,27 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   Widget build(BuildContext context) {
     if (_index >= _spots.length && !_clearedAtSummary) {
       _clearedAtSummary = true;
-      unawaited(Telemetry.logEvent(
-        'session_end',
-        buildTelemetry(
-          sessionId: _sessionId,
-          packId: widget.packId,
-          data: {
-            'total': _answers.length,
-            'correct': _answers.where((a) => a.correct).length,
-            'wrong': _answers.length - _answers.where((a) => a.correct).length,
-            'skipped': _answers.where((a) => a.chosen == '(skip)').length,
-            'timeouts': _answers.where((a) => a.chosen == '(timeout)').length,
-            'elapsedMs': _answers.fold<int>(
-              0,
-              (s, a) => s + a.elapsed.inMilliseconds,
-            ),
-          },
+      unawaited(
+        Telemetry.logEvent(
+          'session_end',
+          buildTelemetry(
+            sessionId: _sessionId,
+            packId: widget.packId,
+            data: {
+              'total': _answers.length,
+              'correct': _answers.where((a) => a.correct).length,
+              'wrong':
+                  _answers.length - _answers.where((a) => a.correct).length,
+              'skipped': _answers.where((a) => a.chosen == '(skip)').length,
+              'timeouts': _answers.where((a) => a.chosen == '(timeout)').length,
+              'elapsedMs': _answers.fold<int>(
+                0,
+                (s, a) => s + a.elapsed.inMilliseconds,
+              ),
+            },
+          ),
         ),
-      ));
+      );
       unawaited(_clearSaved());
       unawaited(SessionResume.clear());
     }
@@ -1144,10 +1232,11 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       final correct = _answers.where((a) => a.correct).length;
       final wrong = total - correct;
       final skipped = _answers.where((a) => a.chosen == '(skip)').length;
-      final timeouts =
-          _answers.where((a) => a.chosen == '(timeout)').length;
-      final elapsedMs =
-          _answers.fold<int>(0, (s, a) => s + a.elapsed.inMilliseconds);
+      final timeouts = _answers.where((a) => a.chosen == '(timeout)').length;
+      final elapsedMs = _answers.fold<int>(
+        0,
+        (s, a) => s + a.elapsed.inMilliseconds,
+      );
       final acc = total > 0 ? (100.0 * correct / total) : 0.0;
       final avgMs = total > 0 ? (elapsedMs / total).round() : 0;
       child = Column(
@@ -1205,8 +1294,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                   label: Text(
                     'Quick Replay L3 errors (${l3Candidates.length})',
                   ),
-                  onPressed:
-                      l3Candidates.isEmpty ? null : _quickReplayL3JamErrors,
+                  onPressed: l3Candidates.isEmpty
+                      ? null
+                      : _quickReplayL3JamErrors,
                 ),
                 ActionChip(
                   label: const Text('Export L3 errors'),
@@ -1273,6 +1363,10 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                     }
                   },
                 ),
+                ActionChip(
+                  label: const Text('Paste spots'),
+                  onPressed: _pasteSpots,
+                ),
               ],
             ),
           ),
@@ -1294,8 +1388,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             IconButton(
               icon: const Icon(Icons.skip_next),
               tooltip: 'Skip',
-              onPressed:
-                  (_index >= _spots.length || _chosen != null) ? null : _skip,
+              onPressed: (_index >= _spots.length || _chosen != null)
+                  ? null
+                  : _skip,
             ),
             if (kDebugMode) ...[
               IconButton(
@@ -1383,7 +1478,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                     double fontScale = _prefs.fontScale;
                     final ctrl = TextEditingController(text: limit.toString());
                     return Padding(
-                      padding: MediaQuery.of(ctx).viewInsets +
+                      padding:
+                          MediaQuery.of(ctx).viewInsets +
                           const EdgeInsets.all(16),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
