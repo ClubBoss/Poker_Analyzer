@@ -6,4 +6,3 @@ String csvEscape(String v) {
   final escaped = v.replaceAll('"', '""');
   return '"$escaped"';
 }
-

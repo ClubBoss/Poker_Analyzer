@@ -148,4 +148,3 @@ String detectSessionKind(Map root) {
   }
   return 'unknown';
 }
-

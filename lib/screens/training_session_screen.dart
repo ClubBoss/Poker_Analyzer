@@ -101,8 +101,7 @@ class TrainingSessionScreen extends StatefulWidget {
 class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
   static final _EndlessStats _endlessStats = _EndlessStats();
   final _linker = InlineTheoryLinkerService();
-  final String _sessionId =
-      DateTime.now().millisecondsSinceEpoch.toString();
+  final String _sessionId = DateTime.now().millisecondsSinceEpoch.toString();
   String? _selected;
   bool? _correct;
   Timer? _timer;

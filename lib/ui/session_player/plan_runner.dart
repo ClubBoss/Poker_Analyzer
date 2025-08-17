@@ -79,7 +79,8 @@ Future<List<UiSpot>> loadSliceSpots({
 class PlayFromPlanPage extends StatefulWidget {
   final String planPath;
   final String bundleDir;
-  const PlayFromPlanPage({super.key, required this.planPath, required this.bundleDir});
+  const PlayFromPlanPage(
+      {super.key, required this.planPath, required this.bundleDir});
 
   @override
   State<PlayFromPlanPage> createState() => _PlayFromPlanPageState();
@@ -139,15 +140,20 @@ class _PlayFromPlanPageState extends State<PlayFromPlanPage> {
           final slices = snap.data ?? [];
           final q = _searchCtrl.text.trim().toLowerCase();
           bool matches(PlanSlice s) {
-            final inText =
-                q.isEmpty || s.id.toLowerCase().contains(q) || s.kind.toLowerCase().contains(q);
+            final inText = q.isEmpty ||
+                s.id.toLowerCase().contains(q) ||
+                s.kind.toLowerCase().contains(q);
             final done = _progress.done[s.id] == true;
             final inStatus = _statusFilter == 'all' ||
                 (_statusFilter == 'done' && done) ||
                 (_statusFilter == 'undone' && !done);
             return inText && inStatus;
           }
-          final filtered = [for (final s in slices) if (matches(s)) s];
+
+          final filtered = [
+            for (final s in slices)
+              if (matches(s)) s
+          ];
           return Column(
             children: [
               Padding(
@@ -176,8 +182,10 @@ class _PlayFromPlanPageState extends State<PlayFromPlanPage> {
                           },
                           items: const [
                             DropdownMenuItem(value: 'all', child: Text('all')),
-                            DropdownMenuItem(value: 'undone', child: Text('undone')),
-                            DropdownMenuItem(value: 'done', child: Text('done')),
+                            DropdownMenuItem(
+                                value: 'undone', child: Text('undone')),
+                            DropdownMenuItem(
+                                value: 'done', child: Text('done')),
                           ],
                         ),
                       ],
@@ -225,15 +233,16 @@ class _PlayFromPlanPageState extends State<PlayFromPlanPage> {
                             await Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) =>
-                                    Scaffold(body: MvsSessionPlayer(spots: deck)),
+                                builder: (_) => Scaffold(
+                                    body: MvsSessionPlayer(spots: deck)),
                               ),
                             );
                             var updated = _progress;
                             for (final s in filtered) {
                               updated = markDone(updated, s.id, done: true);
                             }
-                            await savePlanProgress(updated, path: _progressPath);
+                            await savePlanProgress(updated,
+                                path: _progressPath);
                             if (!mounted) return;
                             setState(() {
                               _progress = updated;
@@ -260,7 +269,8 @@ class _PlayFromPlanPageState extends State<PlayFromPlanPage> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               if (_progress.done[slice.id] == true)
-                                const Icon(Icons.check_circle, color: Colors.green),
+                                const Icon(Icons.check_circle,
+                                    color: Colors.green),
                               const SizedBox(width: 8),
                               TextButton(
                                 onPressed: () async {
@@ -270,8 +280,10 @@ class _PlayFromPlanPageState extends State<PlayFromPlanPage> {
                                       slice: slice,
                                     );
                                     if (spots.isEmpty) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('No spots')),
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                            content: Text('No spots')),
                                       );
                                       return;
                                     }
@@ -283,9 +295,11 @@ class _PlayFromPlanPageState extends State<PlayFromPlanPage> {
                                         ),
                                       ),
                                     );
-                                    final updated =
-                                        markDone(_progress, slice.id, done: true);
-                                    await savePlanProgress(updated, path: _progressPath);
+                                    final updated = markDone(
+                                        _progress, slice.id,
+                                        done: true);
+                                    await savePlanProgress(updated,
+                                        path: _progressPath);
                                     if (!mounted) return;
                                     setState(() => _progress = updated);
                                   } catch (e) {
@@ -310,4 +324,3 @@ class _PlayFromPlanPageState extends State<PlayFromPlanPage> {
     );
   }
 }
-

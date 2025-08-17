@@ -42,4 +42,3 @@ Future<String> saveSessionJson(String json,
   await f.writeAsString(json);
   return f.path;
 }
-

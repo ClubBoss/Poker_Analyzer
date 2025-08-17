@@ -4,12 +4,12 @@ import 'package:flutter/services.dart';
 
 class BetSizer extends StatefulWidget {
   // chips-based API
-  final double min;    // chips
-  final double max;    // chips
-  final double value;  // chips
-  final double bb;     // chips in 1 BB
-  final double pot;    // chips
-  final double stack;  // chips
+  final double min; // chips
+  final double max; // chips
+  final double value; // chips
+  final double bb; // chips in 1 BB
+  final double pot; // chips
+  final double stack; // chips
   final ValueChanged<double> onChanged;
   final VoidCallback onConfirm;
   final double? recall; // last chosen amount in chips; null = hidden
@@ -144,7 +144,8 @@ class _BetSizerState extends State<BetSizer> {
   List<Widget> _buildPresets() {
     final presets = <Widget>[];
     double clampv(double v) => _clamp(v);
-    void add(String label, double v) => presets.add(_presetButton(label, clampv(v)));
+    void add(String label, double v) =>
+        presets.add(_presetButton(label, clampv(v)));
 
     if (widget.recall != null) {
       final v = widget.recall!.clamp(widget.min, widget.max).toDouble();
@@ -176,7 +177,9 @@ class _BetSizerState extends State<BetSizer> {
       return presets;
     }
 
-    final spr = (widget.spr ?? (widget.pot > 0 ? widget.stack / widget.pot : 9999)).toDouble();
+    final spr =
+        (widget.spr ?? (widget.pot > 0 ? widget.stack / widget.pot : 9999))
+            .toDouble();
     if (spr >= 6) {
       add('1/3', widget.pot / 3);
       add('1/2', widget.pot * 0.5);

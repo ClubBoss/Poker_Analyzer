@@ -116,7 +116,9 @@ void main(List<String> args) {
 }
 
 String _join(String a, String b) {
-  return a.endsWith(Platform.pathSeparator) ? '$a$b' : '$a${Platform.pathSeparator}$b';
+  return a.endsWith(Platform.pathSeparator)
+      ? '$a$b'
+      : '$a${Platform.pathSeparator}$b';
 }
 
 void _usage() {

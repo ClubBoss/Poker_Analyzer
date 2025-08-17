@@ -156,7 +156,9 @@ class _DetailedActionSheetState extends State<_DetailedActionSheet> {
               recall: _lastAmountChips,
               adaptive: true,
               street: _street,
-              spr: widget.potSizeBB > 0 ? (widget.stackSizeBB / widget.potSizeBB) : null,
+              spr: widget.potSizeBB > 0
+                  ? (widget.stackSizeBB / widget.potSizeBB)
+                  : null,
               onChanged: (v) => setState(() => _amount = v),
               onConfirm: _confirm,
             ),

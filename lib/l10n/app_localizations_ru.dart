@@ -94,7 +94,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sortMostHands => 'Больше всего рук';
 
   @override
-  String get sortName => 'Имя A-Я';
+  String get sortName => 'Имя A–Я';
 
   @override
   String get noMistakesLeft => 'Все ошибки уже исправлены!';

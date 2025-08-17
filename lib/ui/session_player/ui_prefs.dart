@@ -23,15 +23,15 @@ class UiPrefs {
   });
 
   Map<String, dynamic> toJson() => {
-    "version": "v1",
-    "autoNext": autoNext,
-    "timeEnabled": timeEnabled,
-    "timeLimitMs": timeLimitMs,
-    "sound": sound,
-    "haptics": haptics,
-    "autoWhyOnWrong": autoWhyOnWrong,
-    "fontScale": fontScale,
-  };
+        "version": "v1",
+        "autoNext": autoNext,
+        "timeEnabled": timeEnabled,
+        "timeLimitMs": timeLimitMs,
+        "sound": sound,
+        "haptics": haptics,
+        "autoWhyOnWrong": autoWhyOnWrong,
+        "fontScale": fontScale,
+      };
 
   static UiPrefs fromJson(Map m, {required int autoNextDelayMs}) {
     bool b(Object? x, bool d) => x is bool ? x : d;
@@ -98,14 +98,14 @@ Future<UiPrefs> loadUiPrefs({String path = 'out/ui_prefs_v1.json'}) async {
   );
 }
 
-Future<void> saveUiPrefs(UiPrefs p, {String path = 'out/ui_prefs_v1.json'}) async {
+Future<void> saveUiPrefs(UiPrefs p,
+    {String path = 'out/ui_prefs_v1.json'}) async {
   final f = File(path);
   await f.parent.create(recursive: true);
   final s = const JsonEncoder.withIndent('  ').convert(p.toJson());
   await f.writeAsString(s);
   final prefs = await SharedPreferences.getInstance();
-  await prefs.setInt('ui_auto_next_delay_ms',
-      (p.autoNextDelayMs).clamp(300, 800) as int);
-  await prefs.setDouble(
-      'ui_font_scale', (p.fontScale).clamp(0.9, 1.3));
+  await prefs.setInt(
+      'ui_auto_next_delay_ms', (p.autoNextDelayMs).clamp(300, 800) as int);
+  await prefs.setDouble('ui_font_scale', (p.fontScale).clamp(0.9, 1.3));
 }
