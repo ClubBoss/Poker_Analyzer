@@ -48,8 +48,8 @@ void _assertSpotKindIntegrity(Set<SpotKind> usedKinds) {
         throw StateError('subtitlePrefix missing for $k');
       }
     }
-    // 3) autoReplayKinds invariants.
-    for (final k in autoReplayKinds) {
+    // 3) _autoReplayKinds invariants.
+    for (final k in _autoReplayKinds) {
       final a = actionsMap[k];
       final p = subtitlePrefix[k];
       if (a == null || a.length != 2 || a[0] != 'jam' || a[1] != 'fold') {
