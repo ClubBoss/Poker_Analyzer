@@ -832,6 +832,24 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     } catch (_) {}
   }
 
+  Future<bool> _confirmRestartIfInProgress(BuildContext context) async {
+    final inProgress = _answers.isNotEmpty || _index > 0;
+    if (!inProgress) return true;
+    return await showDialog<bool>(
+          context: context,
+          barrierDismissible: true,
+          builder: (_) => AlertDialog(
+            title: const Text('Replace current session?'),
+            content: const Text('This will discard current progress.'),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(_, false), child: const Text('Cancel')),
+              TextButton(onPressed: () => Navigator.pop(_, true), child: const Text('Replace')),
+            ],
+          ),
+        ) ??
+        false;
+  }
+
   Future<void> _importSpots() async {
     try {
       final result = await FilePicker.platform.pickFiles(
@@ -862,6 +880,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       }
       if (report.spots.isEmpty) return;
       _lastLoadedSpots = report.spots;
+      if (!await _confirmRestartIfInProgress(context)) return;
       _restart(report.spots);
     } catch (_) {
       showMiniToast(context, 'Import failed');
