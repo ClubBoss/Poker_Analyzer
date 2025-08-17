@@ -15,6 +15,11 @@ const actionsMap = <SpotKind, List<String>>{
   SpotKind.l4_icm_sb_jam_vs_fold: ['jam', 'fold'],
 };
 
+bool isJamFold(SpotKind k) {
+  final a = actionsMap[k];
+  return a != null && a.length == 2 && a[0] == 'jam' && a[1] == 'fold';
+}
+
 const subtitlePrefix = <SpotKind, String>{
   SpotKind.l3_flop_jam_vs_raise: 'Flop Jam vs Raise • ',
   SpotKind.l3_turn_jam_vs_raise: 'Turn Jam vs Raise • ',
