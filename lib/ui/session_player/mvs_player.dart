@@ -1140,6 +1140,16 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     final Widget child;
     if (_index >= _spots.length) {
       final l3Candidates = _l3JamErrorCandidates();
+      final total = _answers.length;
+      final correct = _answers.where((a) => a.correct).length;
+      final wrong = total - correct;
+      final skipped = _answers.where((a) => a.chosen == '(skip)').length;
+      final timeouts =
+          _answers.where((a) => a.chosen == '(timeout)').length;
+      final elapsedMs =
+          _answers.fold<int>(0, (s, a) => s + a.elapsed.inMilliseconds);
+      final acc = total > 0 ? (100.0 * correct / total) : 0.0;
+      final avgMs = total > 0 ? (elapsedMs / total).round() : 0;
       child = Column(
         children: [
           Expanded(
@@ -1163,6 +1173,27 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                 if (picks.isEmpty) return;
                 _restart(picks);
               },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: [
+                    Chip(label: Text('Total: $total')),
+                    Chip(label: Text('Correct: $correct')),
+                    Chip(label: Text('Wrong: $wrong')),
+                    Chip(label: Text('Skipped: $skipped')),
+                    Chip(label: Text('Timeouts: $timeouts')),
+                    Chip(label: Text('Acc: ${acc.toStringAsFixed(1)}%')),
+                    Chip(label: Text('Avg ms: $avgMs')),
+                  ],
+                ),
+              ),
             ),
           ),
           Padding(
