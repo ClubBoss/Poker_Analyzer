@@ -2,7 +2,7 @@
 // Navigator.of(context).push(MaterialPageRoute(
 //   builder: (_) => Scaffold(body: MvsSessionPlayer(spots: demoSpots())),
 // ));
-
+// ignore_for_file: deprecated_member_use
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -763,6 +763,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           if (!_answers[i].correct) i,
       ],
       'wrongMeta': wrongMeta,
+      if (widget.packId != null) 'packId': widget.packId,
     };
     try {
       final dir = Directory('out');
@@ -844,6 +845,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           'sessionId': _sessionId,
           'ts': DateTime.now().toUtc().toIso8601String(),
           'reason': reason,
+          if (widget.packId != null) 'packId': widget.packId,
         }),
       );
     }
