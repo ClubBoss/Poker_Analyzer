@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:poker_analyzer/ui/session_player/l3_jsonl_decode.dart';
+
 import '../ui/session_player/models.dart';
 
 class SpotImportReport {
@@ -52,49 +54,7 @@ class SpotImporter {
       }
     }
 
-    if (fmt == 'json') {
-      final trimmed = content.trimLeft();
-      final isArray = trimmed.startsWith('[');
-      var data = <dynamic>[];
-      if (isArray) {
-        try {
-          final decoded = jsonDecode(content);
-          if (decoded is List) {
-            data = decoded;
-          } else {
-            addError('JSON root is not an array');
-          }
-        } catch (_) {
-          addError('Invalid JSON');
-          return SpotImportReport(
-            spots: spots,
-            added: 0,
-            skipped: skipped,
-            skippedDuplicates: skippedDuplicates,
-            errors: errors,
-          );
-        }
-      } else {
-        final lines = const LineSplitter().convert(content);
-        var lineIdx = 0;
-        for (final raw in lines) {
-          lineIdx++;
-          final line = raw.trim();
-          if (line.isEmpty) continue;
-          dynamic obj;
-          try {
-            obj = jsonDecode(line);
-          } catch (_) {
-            addError('Row $lineIdx: invalid JSON');
-            continue;
-          }
-          if (obj is Map<String, dynamic>) {
-            data.add(obj);
-          } else {
-            addError('Row $lineIdx: not an object');
-          }
-        }
-      }
+    void process(Iterable<dynamic> data) {
       var idx = 0;
       for (final e in data) {
         idx++;
@@ -113,6 +73,49 @@ class SpotImporter {
         } else {
           addError('Row $idx: not an object');
         }
+      }
+    }
+
+    if (fmt == 'jsonl') {
+      try {
+        process(decodeJsonl(content));
+      } on FormatException {
+        addError('Invalid JSONL');
+        return SpotImportReport(
+          spots: spots,
+          added: 0,
+          skipped: skipped,
+          skippedDuplicates: skippedDuplicates,
+          errors: errors,
+        );
+      }
+    } else if (fmt == 'json') {
+      Iterable<dynamic>? data;
+      try {
+        final decoded = json.decode(content);
+        if (decoded is List) {
+          data = decoded;
+        } else {
+          data = decodeJsonl(content);
+        }
+      } on FormatException {
+        try {
+          data = decodeJsonl(content);
+        } on FormatException {
+          addError('Invalid JSON');
+          return SpotImportReport(
+            spots: spots,
+            added: 0,
+            skipped: skipped,
+            skippedDuplicates: skippedDuplicates,
+            errors: errors,
+          );
+        }
+      }
+      try {
+        process(data);
+      } on FormatException {
+        addError('Invalid JSON');
       }
     } else if (fmt == 'csv') {
       String dequote(String s) {
