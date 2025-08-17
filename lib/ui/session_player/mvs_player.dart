@@ -26,6 +26,12 @@ import '../../services/spot_importer.dart';
 import '../coverage/coverage_dashboard.dart';
 import '../modules/modules_screen.dart';
 
+const Set<SpotKind> _autoReplayKinds = {
+  SpotKind.l3_flop_jam_vs_raise,
+  SpotKind.l3_turn_jam_vs_raise,
+  SpotKind.l3_river_jam_vs_raise,
+};
+
 void _assertSpotKindIntegrity(Set<SpotKind> usedKinds) {
   assert(() {
     // 1) Append-only discipline: latest known value must remain last.
@@ -480,7 +486,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       }
       if (!correct &&
           autoWhy &&
-          autoReplayKinds.contains(spot.kind) &&
+          _autoReplayKinds.contains(spot.kind) &&
           !_replayed.contains(spot)) {
         _spots.insert(_index + 1, spot);
         _replayed.add(spot);
