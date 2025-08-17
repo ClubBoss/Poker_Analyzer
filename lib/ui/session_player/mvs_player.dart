@@ -747,6 +747,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       if (_answers[i].correct) continue;
       final s = _spots[i];
       if (!isJamFold(s.kind)) continue;
+      if (!isAutoReplayKind(s.kind)) continue; // L3-only per SSOT
       lines.add(
         jsonEncode({
           'kind': s.kind.name,
@@ -854,9 +855,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             IconButton(
               icon: const Icon(Icons.skip_next),
               tooltip: 'Skip',
-              onPressed: (_index >= _spots.length || _chosen != null)
-                  ? null
-                  : _skip,
+              onPressed:
+                  (_index >= _spots.length || _chosen != null) ? null : _skip,
             ),
             if (kDebugMode) ...[
               IconButton(
@@ -944,8 +944,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                     double fontScale = _prefs.fontScale;
                     final ctrl = TextEditingController(text: limit.toString());
                     return Padding(
-                      padding:
-                          MediaQuery.of(ctx).viewInsets +
+                      padding: MediaQuery.of(ctx).viewInsets +
                           const EdgeInsets.all(16),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
