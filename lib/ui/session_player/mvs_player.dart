@@ -746,7 +746,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     for (var i = 0; i < _answers.length; i++) {
       if (_answers[i].correct) continue;
       final s = _spots[i];
-      if (!listEquals(_actionsFor(s.kind), const ['jam', 'fold'])) continue;
+      if (!isJamFold(s.kind)) continue;
       lines.add(
         jsonEncode({
           'kind': s.kind.name,
@@ -1197,10 +1197,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
 
   Widget _buildSpotCard(UiSpot spot) {
     final actions = _actionsFor(spot.kind);
-    final jamFoldHotkeys =
-        _showHotkeys &&
-        spot.kind.name.contains('_jam_vs_') &&
-        listEquals(actions, const ['jam', 'fold']);
+    final jamFoldHotkeys = _showHotkeys && isJamFold(spot.kind);
     final correctCnt = _answers.where((a) => a.correct).length;
     final acc = _answers.isEmpty ? 0.0 : correctCnt / _answers.length;
     return GestureDetector(
