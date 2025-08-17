@@ -2,7 +2,7 @@
 // Navigator.of(context).push(MaterialPageRoute(
 //   builder: (_) => Scaffold(body: MvsSessionPlayer(spots: demoSpots())),
 // ));
-
+// ignore_for_file: deprecated_member_use
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -369,7 +369,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           _timebarTicker?.cancel();
           unawaited(showMiniToast(context, 'Time limit reached'));
           if (_prefs.haptics) {
-            try { HapticFeedback.vibrate(); } catch (_) {}
+            try {
+              HapticFeedback.vibrate();
+            } catch (_) {}
           }
           _onTimeout();
         }
@@ -636,8 +638,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
 
     final spot = _spots[_index];
     final autoWhy = _prefs.autoWhyOnWrong;
-    final stackBB =
-        int.tryParse(spot.stack.replaceAll(RegExp(r'[^0-9]'), ''));
+    final stackBB = int.tryParse(spot.stack.replaceAll(RegExp(r'[^0-9]'), ''));
 
     unawaited(Telemetry.logEvent('answer_timeout', {
       'sessionId': _sessionId,
@@ -763,6 +764,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           if (!_answers[i].correct) i,
       ],
       'wrongMeta': wrongMeta,
+      if (widget.packId != null) 'packId': widget.packId,
     };
     try {
       final dir = Directory('out');
@@ -844,6 +846,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           'sessionId': _sessionId,
           'ts': DateTime.now().toUtc().toIso8601String(),
           'reason': reason,
+          if (widget.packId != null) 'packId': widget.packId,
         }),
       );
     }
@@ -873,8 +876,12 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             title: const Text('Replace current session?'),
             content: const Text('This will discard current progress.'),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(_, false), child: const Text('Cancel')),
-              TextButton(onPressed: () => Navigator.pop(_, true), child: const Text('Replace')),
+              TextButton(
+                  onPressed: () => Navigator.pop(_, false),
+                  child: const Text('Cancel')),
+              TextButton(
+                  onPressed: () => Navigator.pop(_, true),
+                  child: const Text('Replace')),
             ],
           ),
         ) ??
