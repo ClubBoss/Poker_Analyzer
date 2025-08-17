@@ -475,6 +475,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         'sessionId': _sessionId,
         'spotKind': spot.kind.name,
         if (stackBB != null) 'stackBB': stackBB,
+        'expected': spot.action,
+        'chosen': action,
+        'elapsedMs': _timer.elapsed.inMilliseconds,
       }),
     );
     // mobile haptics
@@ -581,6 +584,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         'sessionId': _sessionId,
         'spotKind': spot.kind.name,
         if (stackBB != null) 'stackBB': stackBB,
+        'expected': spot.action,
+        'chosen': '(skip)',
+        'elapsedMs': _timer.elapsed.inMilliseconds,
       }),
     );
     _autoNextTimer?.cancel();
@@ -637,6 +643,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       'sessionId': _sessionId,
       'spotKind': spot.kind.name,
       if (stackBB != null) 'stackBB': stackBB,
+      'expected': spot.action,
+      'chosen': '(timeout)',
+      'elapsedMs': _timer.elapsed.inMilliseconds,
     }));
 
     setState(() {
