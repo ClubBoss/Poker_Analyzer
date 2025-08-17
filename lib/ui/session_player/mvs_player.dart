@@ -1097,6 +1097,26 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   Widget build(BuildContext context) {
     if (_index >= _spots.length && !_clearedAtSummary) {
       _clearedAtSummary = true;
+      unawaited(Telemetry.logEvent(
+        'session_end',
+        buildTelemetry(
+          sessionId: _sessionId,
+          packId: widget.packId,
+          data: {
+            'total': _answers.length,
+            'correct': _answers.where((a) => a.correct).length,
+            'wrong': _answers.length - _answers.where((a) => a.correct).length,
+            'skipped':
+                _answers.where((a) => a.chosen == '(skip)').length,
+            'timeouts':
+                _answers.where((a) => a.chosen == '(timeout)').length,
+            'elapsedMs': _answers.fold<int>(
+              0,
+              (s, a) => s + a.elapsed.inMilliseconds,
+            ),
+          },
+        ),
+      ));
       unawaited(_clearSaved());
       unawaited(SessionResume.clear());
     }
