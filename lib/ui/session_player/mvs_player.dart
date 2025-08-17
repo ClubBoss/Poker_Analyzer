@@ -1032,7 +1032,12 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           buildTelemetry(
             sessionId: _sessionId,
             packId: widget.packId,
-            data: {'count': report.spots.length},
+            data: {
+              'total': report.spots.length,
+              'added': report.added,
+              'skipped': report.skipped,
+              'dups': report.skippedDuplicates,
+            },
           ),
         ),
       );
@@ -1063,7 +1068,13 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           buildTelemetry(
             sessionId: _sessionId,
             packId: widget.packId,
-            data: {'result': start ? 'start' : 'cancel'},
+            data: {
+              'result': start ? 'start' : 'cancel',
+              'total': report.spots.length,
+              'added': report.added,
+              'skipped': report.skipped,
+              'dups': report.skippedDuplicates,
+            },
           ),
         ),
       );
