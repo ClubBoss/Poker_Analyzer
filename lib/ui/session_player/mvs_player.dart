@@ -334,6 +334,14 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         _timeLeftMs = _timeLimitMs = p.timeLimitMs;
       });
     });
+    unawaited(Telemetry.logEvent(
+      'session_start',
+      buildTelemetry(
+        sessionId: _sessionId,
+        packId: widget.packId,
+        data: {'count': widget.spots.length},
+      ),
+    ));
   }
 
   @override
