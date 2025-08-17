@@ -826,8 +826,6 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     }
   }
 
-  String _jamDedupKey(UiSpot s) =>
-      '${s.kind.name}|${s.hand}|${s.pos}|${s.vsPos ?? ''}|${s.stack}';
 
   List<UiSpot> _l3JamErrorCandidates() {
     final autoWhy = _prefs.autoWhyOnWrong;
@@ -841,7 +839,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           isJamFold(s.kind) &&
           isAutoReplayKind(s.kind) &&
           !_replayed.contains(s)) {
-        final key = _jamDedupKey(s);
+        final key = jamDedupKey(s);
         if (seen.add(key)) picks.add(s);
       }
     }
@@ -873,7 +871,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       final s = _spots[i];
       if (!isJamFold(s.kind)) continue;
       if (!isAutoReplayKind(s.kind)) continue; // L3-only
-      final key = _jamDedupKey(s);
+      final key = jamDedupKey(s);
       if (seen.add(key)) picks.add(s);
     }
     if (picks.isEmpty) {
@@ -896,7 +894,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           : (_answers[i].chosen == '(timeout)' ? 'timeout' : 'wrong');
       if (!isJamFold(s.kind)) continue;
       if (!isAutoReplayKind(s.kind)) continue; // L3-only per SSOT
-      final key = _jamDedupKey(s);
+      final key = jamDedupKey(s);
       if (!seen.add(key)) {
         dups++;
         continue;
