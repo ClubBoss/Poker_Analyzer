@@ -480,6 +480,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         'expected': spot.action,
         'chosen': action,
         'elapsedMs': _timer.elapsed.inMilliseconds,
+        if (widget.packId != null) 'packId': widget.packId,
       }),
     );
     // mobile haptics
@@ -589,6 +590,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         'expected': spot.action,
         'chosen': '(skip)',
         'elapsedMs': _timer.elapsed.inMilliseconds,
+        if (widget.packId != null) 'packId': widget.packId,
       }),
     );
     _autoNextTimer?.cancel();
@@ -647,6 +649,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       'expected': spot.action,
       'chosen': '(timeout)',
       'elapsedMs': _timer.elapsed.inMilliseconds,
+      if (widget.packId != null) 'packId': widget.packId,
     }));
 
     setState(() {
