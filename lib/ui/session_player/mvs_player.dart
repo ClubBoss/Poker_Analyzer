@@ -743,11 +743,18 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
 
   void _exportErrors() {
     final lines = <String>[];
+    final seen = <String>{};
+    var dups = 0;
     for (var i = 0; i < _answers.length; i++) {
       if (_answers[i].correct) continue;
       final s = _spots[i];
       if (!isJamFold(s.kind)) continue;
       if (!isAutoReplayKind(s.kind)) continue; // L3-only per SSOT
+      final key = '${s.kind}|${s.hand}|${s.pos}|${s.vsPos ?? ''}|${s.stack}';
+      if (!seen.add(key)) {
+        dups++;
+        continue;
+      }
       lines.add(
         jsonEncode({
           'kind': s.kind.name,
@@ -755,7 +762,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           'pos': s.pos,
           if (s.vsPos != null) 'vsPos': s.vsPos,
           'stack': s.stack,
-          'action': s.action,
+          'expected': s.action,
+          'chosen': _answers[i].chosen,
+          'elapsedMs': _answers[i].elapsed.inMilliseconds,
         }),
       );
     }
@@ -770,7 +779,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       file.writeAsStringSync(lines.join('\n') + '\n');
       showMiniToast(
         context,
-        'Exported ${lines.length} spots to out/packs/l3_jam_errors.jsonl',
+        'Exported ${lines.length} spots${dups > 0 ? ' (dups $dups)' : ''} to out/packs/l3_jam_errors.jsonl',
       );
     } catch (_) {}
   }
