@@ -8,7 +8,7 @@ void main() {
     final dir = await Directory.systemTemp.createTemp('plugin_scaffold_test');
     const pluginName = 'MyPlugin';
     try {
-      final script = File('tools/plugin_scaffold.dart');
+      final script = File('tool/plugin_scaffold.dart');
       await script.copy(p.join(dir.path, 'plugin_scaffold.dart'));
       final errorSrc = File('lib/core/error_logger.dart');
       final errorDst =

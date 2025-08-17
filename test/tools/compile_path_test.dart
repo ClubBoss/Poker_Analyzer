@@ -15,7 +15,7 @@ void main() {
 
       final res = await Process.run('dart', [
         'run',
-        'tools/compile_path.dart',
+        'tool/compile_path.dart',
         txtFile.path,
         packs.path,
       ]);
