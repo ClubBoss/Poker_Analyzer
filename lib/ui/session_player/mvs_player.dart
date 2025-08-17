@@ -506,7 +506,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       }
       if (!correct &&
           autoWhy &&
-          isAutoReplayKind(spot.kind) &&
+          (spot.kind == SpotKind.l3_flop_jam_vs_raise ||
+              spot.kind == SpotKind.l3_turn_jam_vs_raise ||
+              spot.kind == SpotKind.l3_river_jam_vs_raise) &&
           !_replayed.contains(spot)) {
         _spots.insert(_index + 1, spot);
         _replayed.add(spot);
