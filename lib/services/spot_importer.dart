@@ -126,10 +126,8 @@ class SpotImporter {
       if (rawLines.isNotEmpty) {
         final headerLine = rawLines.first.replaceFirst('\uFEFF', '');
         final sep = headerLine.contains(';') ? ';' : ',';
-        final headers = headerLine
-            .split(sep)
-            .map((h) => h.trim().toLowerCase())
-            .toList();
+        final headers =
+            headerLine.split(sep).map((h) => h.trim().toLowerCase()).toList();
         final requiredHeaders = ['kind', 'hand', 'pos', 'stack', 'action'];
         var headerOk = true;
         for (final h in requiredHeaders) {
