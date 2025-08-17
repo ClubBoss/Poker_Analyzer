@@ -725,6 +725,21 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     final total = _spots.length;
     final correct = _answers.where((a) => a.correct).length;
     final acc = total == 0 ? 0.0 : correct / total;
+    final wrongMeta = <Map<String, dynamic>>[];
+    for (var i = 0; i < _answers.length; i++) {
+      final a = _answers[i];
+      if (!a.correct) {
+        final reason = a.chosen == '(skip)'
+            ? 'skip'
+            : (a.chosen == '(timeout)' ? 'timeout' : 'wrong');
+        wrongMeta.add({
+          'i': i,
+          'chosen': a.chosen,
+          'elapsedMs': a.elapsed.inMilliseconds,
+          'reason': reason,
+        });
+      }
+    }
     final obj = {
       'ts': DateTime.now().toUtc().toIso8601String(),
       'acc': acc,
@@ -747,6 +762,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         for (var i = 0; i < _answers.length; i++)
           if (!_answers[i].correct) i,
       ],
+      'wrongMeta': wrongMeta,
     };
     try {
       final dir = Directory('out');
