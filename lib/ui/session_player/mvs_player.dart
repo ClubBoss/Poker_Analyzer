@@ -353,6 +353,23 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     _answerPulseCtrl.dispose();
     _autoNextAnim?.dispose();
     _focusNode.dispose();
+    if (_index < _spots.length && !_clearedAtSummary) {
+      unawaited(Telemetry.logEvent(
+        'session_abort',
+        buildTelemetry(
+          sessionId: _sessionId,
+          packId: widget.packId,
+          data: {
+            'answered': _answers.length,
+            'remaining': _spots.length - _index,
+            'elapsedMs': _answers.fold<int>(
+              0,
+              (s, a) => s + a.elapsed.inMilliseconds,
+            ),
+          },
+        ),
+      ));
+    }
     unawaited(SessionResume.clear());
     super.dispose();
   }
