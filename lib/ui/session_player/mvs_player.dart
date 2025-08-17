@@ -1067,9 +1067,19 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           ),
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: ActionChip(
-              label: Text('Quick Replay L3 errors (${l3Candidates.length})'),
-              onPressed: l3Candidates.isEmpty ? null : _quickReplayL3JamErrors,
+            child: Wrap(
+              spacing: 8,
+              children: [
+                ActionChip(
+                  label: Text('Quick Replay L3 errors (${l3Candidates.length})'),
+                  onPressed:
+                      l3Candidates.isEmpty ? null : _quickReplayL3JamErrors,
+                ),
+                ActionChip(
+                  label: const Text('Export L3 errors'),
+                  onPressed: l3Candidates.isEmpty ? null : _exportErrors,
+                ),
+              ],
             ),
           ),
         ],
