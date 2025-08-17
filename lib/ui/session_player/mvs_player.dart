@@ -826,7 +826,6 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     }
   }
 
-
   List<UiSpot> _l3JamErrorCandidates() {
     final autoWhy = _prefs.autoWhyOnWrong;
     final seen = <String>{};
