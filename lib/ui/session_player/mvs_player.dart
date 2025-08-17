@@ -1205,6 +1205,25 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                     }
                   },
                 ),
+                ActionChip(
+                  label: const Text('Start last import'),
+                  onPressed: () {
+                    final spots = _lastLoadedSpots ?? const <UiSpot>[];
+                    if (spots.isEmpty) {
+                      showMiniToast(context, 'Import spots first');
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => MvsSessionPlayer(
+                            spots: spots,
+                            packId: 'import:last',
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
               ],
             ),
           ),
