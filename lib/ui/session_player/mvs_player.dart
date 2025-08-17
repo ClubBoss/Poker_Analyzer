@@ -57,8 +57,6 @@ void _assertSpotKindIntegrity(Set<SpotKind> usedKinds) {
   }());
 }
 
-bool isAutoReplayKind(SpotKind kind) => autoReplayKinds.contains(kind);
-
 extension _UiPrefsCopy on UiPrefs {
   UiPrefs copyWith({
     bool? autoNext,
