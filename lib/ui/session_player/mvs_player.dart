@@ -644,24 +644,28 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     final autoWhy = _prefs.autoWhyOnWrong;
     final stackBB = int.tryParse(spot.stack.replaceAll(RegExp(r'[^0-9]'), ''));
 
-    unawaited(Telemetry.logEvent('answer_timeout', {
-      'sessionId': _sessionId,
-      'spotKind': spot.kind.name,
-      if (stackBB != null) 'stackBB': stackBB,
-      'expected': spot.action,
-      'chosen': '(timeout)',
-      'elapsedMs': _timer.elapsed.inMilliseconds,
-      if (widget.packId != null) 'packId': widget.packId,
-    }));
+    unawaited(
+      Telemetry.logEvent('answer_timeout', {
+        'sessionId': _sessionId,
+        'spotKind': spot.kind.name,
+        if (stackBB != null) 'stackBB': stackBB,
+        'expected': spot.action,
+        'chosen': '(timeout)',
+        'elapsedMs': _timer.elapsed.inMilliseconds,
+        if (widget.packId != null) 'packId': widget.packId,
+      }),
+    );
 
     setState(() {
       _chosen = '(timeout)';
-      _answers.add(UiAnswer(
-        correct: false,
-        expected: spot.action,
-        chosen: '(timeout)',
-        elapsed: _timer.elapsed,
-      ));
+      _answers.add(
+        UiAnswer(
+          correct: false,
+          expected: spot.action,
+          chosen: '(timeout)',
+          elapsed: _timer.elapsed,
+        ),
+      );
       if (autoWhy) _showExplain = true;
       if (shouldAutoReplay(
         correct: false,
@@ -821,6 +825,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     }
   }
 
+  String _jamDedupKey(UiSpot s) =>
+      '${s.kind.name}|${s.hand}|${s.pos}|${s.vsPos ?? ''}|${s.stack}';
+
   void _replayL3JamErrors() {
     final seen = <String>{};
     final picks = <UiSpot>[];
@@ -830,8 +837,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       final s = _spots[i];
       if (!isJamFold(s.kind)) continue;
       if (!isAutoReplayKind(s.kind)) continue; // L3-only
-      final key =
-          '${s.kind.name}|${s.hand}|${s.pos}|${s.vsPos ?? ''}|${s.stack}';
+      final key = _jamDedupKey(s);
       if (seen.add(key)) picks.add(s);
     }
     if (picks.isEmpty) {
@@ -853,7 +859,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           : (_answers[i].chosen == '(timeout)' ? 'timeout' : 'wrong');
       if (!isJamFold(s.kind)) continue;
       if (!isAutoReplayKind(s.kind)) continue; // L3-only per SSOT
-      final key = '${s.kind}|${s.hand}|${s.pos}|${s.vsPos ?? ''}|${s.stack}';
+      final key = _jamDedupKey(s);
       if (!seen.add(key)) {
         dups++;
         continue;
@@ -902,11 +908,13 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             content: const Text('This will discard current progress.'),
             actions: [
               TextButton(
-                  onPressed: () => Navigator.pop(_, false),
-                  child: const Text('Cancel')),
+                onPressed: () => Navigator.pop(_, false),
+                child: const Text('Cancel'),
+              ),
               TextButton(
-                  onPressed: () => Navigator.pop(_, true),
-                  child: const Text('Replace')),
+                onPressed: () => Navigator.pop(_, true),
+                child: const Text('Replace'),
+              ),
             ],
           ),
         ) ??
@@ -996,8 +1004,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             IconButton(
               icon: const Icon(Icons.skip_next),
               tooltip: 'Skip',
-              onPressed:
-                  (_index >= _spots.length || _chosen != null) ? null : _skip,
+              onPressed: (_index >= _spots.length || _chosen != null)
+                  ? null
+                  : _skip,
             ),
             if (kDebugMode) ...[
               IconButton(
@@ -1085,7 +1094,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                     double fontScale = _prefs.fontScale;
                     final ctrl = TextEditingController(text: limit.toString());
                     return Padding(
-                      padding: MediaQuery.of(ctx).viewInsets +
+                      padding:
+                          MediaQuery.of(ctx).viewInsets +
                           const EdgeInsets.all(16),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
