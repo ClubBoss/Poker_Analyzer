@@ -972,12 +972,12 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       final ext = (f.extension ?? '').toLowerCase();
       final format = (ext == 'jsonl') ? 'json' : ext;
       final report = SpotImporter.parse(content, format: format);
-      final dup = report.skippedDuplicates > 0
+      final dupToast = report.skippedDuplicates > 0
           ? ', dups ${report.skippedDuplicates}'
           : '';
       showMiniToast(
         context,
-        'Imported ${report.added} (skipped ${report.skipped}$dup)',
+        'Imported ${report.added} (skipped ${report.skipped}$dupToast)',
       );
       for (final e in report.errors) {
         showMiniToast(context, e);
@@ -985,6 +985,45 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       if (report.spots.isEmpty) return;
       _lastLoadedSpots = report.spots;
       if (!await _confirmRestartIfInProgress(context)) return;
+      final dup = report.skippedDuplicates > 0
+          ? ' (dups ${report.skippedDuplicates})'
+          : '';
+      unawaited(
+        Telemetry.logEvent('import_confirm_shown', {
+          'sessionId': _sessionId,
+          'count': report.spots.length,
+          if (widget.packId != null) 'packId': widget.packId,
+        }),
+      );
+      final start = await showDialog<bool>(
+            context: context,
+            barrierDismissible: true,
+            builder: (_) => AlertDialog(
+              title: const Text('Import summary'),
+              content: Text(
+                'Found ${report.spots.length} spots \u2022 added ${report.added} \u2022 skipped ${report.skipped}$dup',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(_, false),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(_, true),
+                  child: const Text('Start'),
+                ),
+              ],
+            ),
+          ) ??
+          false;
+      unawaited(
+        Telemetry.logEvent('import_confirm_result', {
+          'sessionId': _sessionId,
+          'result': start ? 'start' : 'cancel',
+          if (widget.packId != null) 'packId': widget.packId,
+        }),
+      );
+      if (!start) return;
       _restart(report.spots);
     } catch (_) {
       showMiniToast(context, 'Import failed');
