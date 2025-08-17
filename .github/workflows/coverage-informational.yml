@@ -9,7 +9,6 @@ on:
       - "tool/**"
       - "pubspec.yaml"
       - "pubspec.lock"
-      - ".github/workflows/coverage-informational.yml"
   push:
     branches: [ main ]
     paths:
@@ -25,24 +24,15 @@ permissions:
 jobs:
   coverage:
     runs-on: ubuntu-latest
-    continue-on-error: true  # ✅ не блокирует merge
+    continue-on-error: true  # не блокирует merge
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
           channel: stable
           cache: true
-
-      - name: Cache Pub dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: ${{ runner.os }}-pub-
 
       - name: Pub get
         run: flutter pub get
@@ -80,7 +70,7 @@ jobs:
         shell: bash
         run: |
           echo "## L2 Report" >> $GITHUB_STEP_SUMMARY
-          cat build/reports/l2_report.md >> $GITHUB_STEP_SUMMARY || echo "_l2_report.md not found_" >> $GITHUB_STEP_SUMMARY
+          (cat build/reports/l2_report.md >> $GITHUB_STEP_SUMMARY) || echo "_l2_report.md not found_" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## L3 Report" >> $GITHUB_STEP_SUMMARY
-          cat build/reports/l3_report.md >> $GITHUB_STEP_SUMMARY || echo "_l3_report.md not found_" >> $GITHUB_STEP_SUMMARY
+          (cat build/reports/l3_report.md >> $GITHUB_STEP_SUMMARY) || echo "_l3_report.md not found_" >> $GITHUB_STEP_SUMMARY
