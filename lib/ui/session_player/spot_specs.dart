@@ -1,12 +1,9 @@
 import 'models.dart';
 
-const autoReplayKinds = {
+const Set<SpotKind> autoReplayKinds = {
   SpotKind.l3_flop_jam_vs_raise,
   SpotKind.l3_turn_jam_vs_raise,
   SpotKind.l3_river_jam_vs_raise,
-  SpotKind.l4_icm_bubble_jam_vs_fold,
-  SpotKind.l4_icm_ladder_jam_vs_fold,
-  SpotKind.l4_icm_sb_jam_vs_fold,
 };
 
 const actionsMap = <SpotKind, List<String>>{

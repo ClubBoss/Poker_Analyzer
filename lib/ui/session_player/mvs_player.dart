@@ -26,12 +26,6 @@ import '../../services/spot_importer.dart';
 import '../coverage/coverage_dashboard.dart';
 import '../modules/modules_screen.dart';
 
-const Set<SpotKind> _autoReplayKinds = {
-  SpotKind.l3_flop_jam_vs_raise,
-  SpotKind.l3_turn_jam_vs_raise,
-  SpotKind.l3_river_jam_vs_raise,
-};
-
 void _assertSpotKindIntegrity(Set<SpotKind> usedKinds) {
   assert(() {
     // 1) Append-only discipline: latest known value must remain last.
@@ -48,8 +42,8 @@ void _assertSpotKindIntegrity(Set<SpotKind> usedKinds) {
         throw StateError('subtitlePrefix missing for $k');
       }
     }
-    // 3) _autoReplayKinds invariants.
-    for (final k in _autoReplayKinds) {
+    // 3) autoReplayKinds invariants.
+    for (final k in autoReplayKinds) {
       final a = actionsMap[k];
       final p = subtitlePrefix[k];
       if (a == null || a.length != 2 || a[0] != 'jam' || a[1] != 'fold') {
@@ -486,7 +480,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       }
       if (!correct &&
           autoWhy &&
-          _autoReplayKinds.contains(spot.kind) &&
+          autoReplayKinds.contains(spot.kind) &&
           !_replayed.contains(spot)) {
         _spots.insert(_index + 1, spot);
         _replayed.add(spot);
