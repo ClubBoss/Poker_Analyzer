@@ -127,4 +127,3 @@ class _ModulesScreenState extends State<ModulesScreen> {
     );
   }
 }
-
