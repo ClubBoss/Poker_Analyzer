@@ -1,15 +1,21 @@
-## Quality Footer (must pass locally before submit)
+<!-- Title: short, imperative, scoped (e.g., feat(l3): ..., fix(ui): ..., ci: ...) -->
 
-- [ ] enum append-only: last == `l4_icm_sb_jam_vs_fold`, no dups/renames
-- [ ] `dart format --set-exit-if-changed .` → no diffs
-- [ ] `dart analyze` → 0 errors
-- [ ] `_autoReplayKinds` used exactly once via `autoReplayKinds.contains(spot.kind)`
-- [ ] `actionsMap` returns `['jam','fold']` for all kinds in `autoReplayKinds`
-- [ ] `subtitlePrefix` contains non-empty exact prefixes for all kinds in `autoReplayKinds`
-- [ ] New jam/fold kinds: updated **all three** of {`spot_specs.dart`: `autoReplayKinds`, `actionsMap`, `subtitlePrefix`}
-- [ ] Tests: `dart test -r expanded test/mvs_player_smoke_test.dart test/spotkind_integrity_smoke_test.dart` pass
+## Summary
+- what/why
+- scope
+- rollback
 
-**Notes (optional):**
-- Affected files:
-- Risk (S/M/L):
-- Rollback: revert this PR
+## Quality Footer (must pass)
+- [ ] enum append-only: SpotKind changed only by appending last + trailing comma, no renames/reorders
+- [ ] single guard occurrence: exactly 1 occurrence of .contains(spot.kind) (canonical guard path only)
+- [ ] format/analyze clean: `dart format --set-exit-if-changed .` and `dart analyze` are clean
+- [ ] actions/subtitle match task: new/changed kinds have correct actions and subtitle mapping
+- [ ] no new deps/strings unless required (i18n later)
+- [ ] tiny, reversible diff: 1-2 files, minimal surface, rollback plan noted
+- [ ] tests (if touched): pass locally; Flutter-free where possible
+
+Canonical guard (keep centralized):
+
+```
+!correct && autoWhy && (spot.kind == SpotKind.l3_flop_jam_vs_raise || spot.kind == SpotKind.l3_turn_jam_vs_raise || spot.kind == SpotKind.l3_river_jam_vs_raise) && !_replayed.contains(spot)
+```
