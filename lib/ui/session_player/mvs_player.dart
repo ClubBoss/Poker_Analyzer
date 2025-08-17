@@ -1004,8 +1004,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           if (widget.packId != null) 'packId': widget.packId,
         }),
       );
-      final start =
-          await showDialog<bool>(
+      final start = await showDialog<bool>(
             context: context,
             barrierDismissible: true,
             builder: (_) => AlertDialog(
@@ -1084,9 +1083,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                   label: Text(
                     'Quick Replay L3 errors (${l3Candidates.length})',
                   ),
-                  onPressed: l3Candidates.isEmpty
-                      ? null
-                      : _quickReplayL3JamErrors,
+                  onPressed:
+                      l3Candidates.isEmpty ? null : _quickReplayL3JamErrors,
                 ),
                 ActionChip(
                   label: const Text('Export L3 errors'),
@@ -1117,9 +1115,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             IconButton(
               icon: const Icon(Icons.skip_next),
               tooltip: 'Skip',
-              onPressed: (_index >= _spots.length || _chosen != null)
-                  ? null
-                  : _skip,
+              onPressed:
+                  (_index >= _spots.length || _chosen != null) ? null : _skip,
             ),
             if (kDebugMode) ...[
               IconButton(
@@ -1207,8 +1204,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                     double fontScale = _prefs.fontScale;
                     final ctrl = TextEditingController(text: limit.toString());
                     return Padding(
-                      padding:
-                          MediaQuery.of(ctx).viewInsets +
+                      padding: MediaQuery.of(ctx).viewInsets +
                           const EdgeInsets.all(16),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
