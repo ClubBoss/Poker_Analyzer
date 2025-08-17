@@ -1,0 +1,49 @@
+import 'package:test/test.dart';
+import '../lib/ui/session_player/spot_specs.dart';
+import '../lib/ui/session_player/models.dart';
+
+void main() {
+  group('auto-replay SSOT', () {
+    test('Exact set match – L3 jam_vs_raise only', () {
+      final fromHelper = {
+        for (final k in SpotKind.values)
+          if (isAutoReplayKind(k)) k,
+      };
+      expect(
+        fromHelper,
+        unorderedEquals({
+          SpotKind.l3_flop_jam_vs_raise,
+          SpotKind.l3_turn_jam_vs_raise,
+          SpotKind.l3_river_jam_vs_raise,
+        }),
+      );
+    });
+
+    test('Invariants for auto-replay kinds', () {
+      for (final k in autoReplayKinds) {
+        // Must be jam/fold
+        final a = actionsMap[k];
+        expect(a, isNotNull);
+        expect(a!.length, 2);
+        expect(a[0], 'jam');
+        expect(a[1], 'fold');
+
+        // Subtitle must exist and contain the Jam vs Raise phrasing
+        final p = subtitlePrefix[k];
+        expect(p, isNotNull);
+        expect(p!.isNotEmpty, true);
+        expect(p.contains('Jam vs Raise • '), true);
+
+        // Helper parity
+        expect(isAutoReplayKind(k), true);
+        expect(isJamFold(k), true);
+      }
+    });
+
+    test('autoReplayKinds keys are covered by maps', () {
+      final keys = autoReplayKinds.toSet();
+      expect(actionsMap.keys.toSet().containsAll(keys), true);
+      expect(subtitlePrefix.keys.toSet().containsAll(keys), true);
+    });
+  });
+}
