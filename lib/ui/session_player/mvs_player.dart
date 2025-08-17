@@ -747,6 +747,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       if (_answers[i].correct) continue;
       final s = _spots[i];
       if (!isJamFold(s.kind)) continue;
+      if (!isAutoReplayKind(s.kind)) continue; // L3-only per SSOT
       lines.add(
         jsonEncode({
           'kind': s.kind.name,
