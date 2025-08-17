@@ -3,7 +3,8 @@ import 'dart:io';
 
 import 'models.dart';
 
-Future<List<UiSpot>> loadMistakeSpotsFromLogs({String dir = 'out/session_logs'}) async {
+Future<List<UiSpot>> loadMistakeSpotsFromLogs(
+    {String dir = 'out/session_logs'}) async {
   final directory = Directory(dir);
   if (!await directory.exists()) return [];
   final files = await directory

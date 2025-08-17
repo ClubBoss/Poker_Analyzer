@@ -123,7 +123,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
       for (final e in raw) {
         if (e is Map<String, dynamic>) {
           final k = e['k'], h = e['h'], p = e['p'], st = e['s'], a = e['a'];
-          if (k is int && h is String && p is String && st is String && a is String) {
+          if (k is int &&
+              h is String &&
+              p is String &&
+              st is String &&
+              a is String) {
             out.add(UiSpot(
               kind: SpotKind.values[k],
               hand: h,
@@ -198,8 +202,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) =>
-                                      Scaffold(body: MvsSessionPlayer(spots: spots)),
+                                  builder: (_) => Scaffold(
+                                      body: MvsSessionPlayer(spots: spots)),
                                 ),
                               );
                             }
@@ -223,7 +227,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 final total = e['total'] ?? 0;
                 return ListTile(
                   title: Text(dateStr),
-                  subtitle: Text('$correct/$total (${(acc * 100).toStringAsFixed(0)}%)'),
+                  subtitle: Text(
+                      '$correct/$total (${(acc * 100).toStringAsFixed(0)}%)'),
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(

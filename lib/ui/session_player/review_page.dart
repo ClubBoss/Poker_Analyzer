@@ -6,7 +6,8 @@ class ReviewAnswersPage extends StatelessWidget {
   final List<UiSpot> spots;
   final List<UiAnswer> answers;
 
-  const ReviewAnswersPage({super.key, required this.spots, required this.answers});
+  const ReviewAnswersPage(
+      {super.key, required this.spots, required this.answers});
 
   @override
   Widget build(BuildContext ctx) {

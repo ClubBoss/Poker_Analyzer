@@ -75,8 +75,9 @@ void main(List<String> args) {
     dir.createSync(recursive: true);
   }
   final outPath = outDir.endsWith('/') ? '$outDir$name' : '$outDir/$name';
-  final json =
-      format == 'pretty' ? encodePlayPlanPretty(plan) : encodePlayPlanCompact(plan);
+  final json = format == 'pretty'
+      ? encodePlayPlanPretty(plan)
+      : encodePlayPlanCompact(plan);
   File(outPath).writeAsStringSync(json);
 
   stdout.writeln('wrote plan name=$name slices=${plan.items.length} '

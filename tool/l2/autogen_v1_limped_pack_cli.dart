@@ -26,7 +26,9 @@ void main(List<String> args) {
 
   final seed = seedStr != null ? int.tryParse(seedStr) : null;
   final count = int.tryParse(countStr);
-  if (seed == null || count == null || preset != 'mvs' ||
+  if (seed == null ||
+      count == null ||
+      preset != 'mvs' ||
       (format != 'compact' && format != 'pretty')) {
     _usage();
     exit(2);
@@ -34,8 +36,9 @@ void main(List<String> args) {
 
   final mix = L2LimpMix.mvsDefault();
   final pack = buildLimpPack(seed: seed, count: count, mix: mix);
-  final json =
-      format == 'pretty' ? encodeLimpPackPretty(pack) : encodeLimpPackCompact(pack);
+  final json = format == 'pretty'
+      ? encodeLimpPackPretty(pack)
+      : encodeLimpPackCompact(pack);
   stdout.write(json);
 }
 

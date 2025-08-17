@@ -63,7 +63,8 @@ class _RewardGalleryScreenState extends State<RewardGalleryScreen> {
             children: [
               for (final g in groups) ...[
                 ListTile(
-                  leading: const Icon(Icons.card_giftcard, color: Colors.orange),
+                  leading:
+                      const Icon(Icons.card_giftcard, color: Colors.orange),
                   title: Text(g.trackTitle),
                   trailing: IconButton(
                     icon: const Icon(Icons.share),
@@ -83,7 +84,8 @@ class _RewardGalleryScreenState extends State<RewardGalleryScreen> {
                         if (img.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Не удалось сгенерировать карточку'),
+                              content:
+                                  Text('Не удалось сгенерировать карточку'),
                             ),
                           );
                           return;

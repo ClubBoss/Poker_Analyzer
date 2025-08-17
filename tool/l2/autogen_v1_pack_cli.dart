@@ -8,7 +8,8 @@ void main(List<String> args) {
     ..addOption('seed', help: 'required seed')
     ..addOption('count', defaultsTo: '40')
     ..addOption('preset', defaultsTo: 'mvs')
-    ..addOption('format', defaultsTo: 'compact', allowed: ['compact', 'pretty']);
+    ..addOption('format',
+        defaultsTo: 'compact', allowed: ['compact', 'pretty']);
   ArgResults opts;
   try {
     opts = parser.parse(args);

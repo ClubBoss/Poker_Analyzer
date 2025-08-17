@@ -28,7 +28,8 @@ void main() {
     });
 
     test('CSV: BOM + ; separator + case-insensitive headers', () {
-      const csv = '\uFEFFPos;Kind;Action;Stack;Hand\nBTN;callVsJam;push;10bb;AKo';
+      const csv =
+          '\uFEFFPos;Kind;Action;Stack;Hand\nBTN;callVsJam;push;10bb;AKo';
       final rep = r(csv, format: 'csv');
       expect(rep.added, 1);
       expect(rep.errors, isEmpty);
@@ -54,7 +55,8 @@ void main() {
       final rep = r(dupJson(count: 3), format: 'json');
       expect(rep.added, 1);
       expect(rep.skippedDuplicates, 2);
-      expect(rep.errors.where((e) => e.startsWith('Duplicate spot:')).length, 1);
+      expect(
+          rep.errors.where((e) => e.startsWith('Duplicate spot:')).length, 1);
     });
 
     test('Unsupported format surfaces clear error', () {

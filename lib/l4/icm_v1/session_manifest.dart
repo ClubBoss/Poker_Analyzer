@@ -56,4 +56,3 @@ String encodeIcmManifestCompact(L4IcmSessionManifest m) =>
 
 String encodeIcmManifestPretty(L4IcmSessionManifest m) =>
     const JsonEncoder.withIndent(' ').convert(m.toJson());
-

@@ -31,7 +31,11 @@ class HistoryDetailScreen extends StatelessWidget {
           final p = e['p'];
           final st = e['s'];
           final act = e['a'];
-          if (k is int && h is String && p is String && st is String && act is String) {
+          if (k is int &&
+              h is String &&
+              p is String &&
+              st is String &&
+              act is String) {
             spots.add(UiSpot(
               kind: SpotKind.values[k],
               hand: h,
@@ -132,8 +136,8 @@ class HistoryDetailScreen extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) =>
-                                Scaffold(body: MvsSessionPlayer(spots: wrongOnly)),
+                            builder: (_) => Scaffold(
+                                body: MvsSessionPlayer(spots: wrongOnly)),
                           ),
                         );
                       }

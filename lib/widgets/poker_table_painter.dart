@@ -24,7 +24,8 @@ class PokerTablePainter extends CustomPainter {
 
     final base = _baseColor();
     final center = HSLColor.fromColor(base)
-        .withLightness((HSLColor.fromColor(base).lightness + 0.10).clamp(0.0, 1.0))
+        .withLightness(
+            (HSLColor.fromColor(base).lightness + 0.10).clamp(0.0, 1.0))
         .toColor();
     final radial = RadialGradient(
       colors: [center, base],

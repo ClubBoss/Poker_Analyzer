@@ -11,7 +11,8 @@ class ResultSummaryView extends StatefulWidget {
   final VoidCallback onReplayErrors;
   final VoidCallback onRestart;
   final ValueChanged<int>? onReplayOne; // index in [0..spots.length)
-  final void Function(List<int> indices)? onReplayMarked; // indices in [0..spots.length)
+  final void Function(List<int> indices)?
+      onReplayMarked; // indices in [0..spots.length)
 
   const ResultSummaryView({
     super.key,
@@ -94,8 +95,8 @@ class _ResultSummaryViewState extends State<ResultSummaryView> {
                   final path = await saveSessionJson(json);
                   await Clipboard.setData(ClipboardData(text: path));
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(SnackBar(content: Text('Saved to $path')));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Saved to $path')));
                   }
                 },
                 child: const Text('Export JSON'),
@@ -106,8 +107,8 @@ class _ResultSummaryViewState extends State<ResultSummaryView> {
                   final json = buildSessionJson(spots: spots, answers: answers);
                   await Clipboard.setData(ClipboardData(text: json));
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(const SnackBar(content: Text('Summary copied')));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Summary copied')));
                   }
                 },
                 child: const Text('Copy JSON'),
@@ -137,10 +138,10 @@ class _ResultSummaryViewState extends State<ResultSummaryView> {
                     showModalBottomSheet<void>(
                       context: context,
                       isScrollControlled: true,
-                      backgroundColor: Theme.of(context).brightness ==
-                              Brightness.dark
-                          ? Colors.black87
-                          : null,
+                      backgroundColor:
+                          Theme.of(context).brightness == Brightness.dark
+                              ? Colors.black87
+                              : null,
                       builder: (_) => SpotReviewSheet(
                         index: i + 1,
                         spot: s,
@@ -153,8 +154,8 @@ class _ResultSummaryViewState extends State<ResultSummaryView> {
                     children: [
                       IconButton(
                         tooltip: marked ? 'Unmark' : 'Mark',
-                        icon:
-                            Icon(marked ? Icons.bookmark : Icons.bookmark_border),
+                        icon: Icon(
+                            marked ? Icons.bookmark : Icons.bookmark_border),
                         onPressed: () {
                           setState(() {
                             if (marked) {
@@ -188,4 +189,3 @@ class _ResultSummaryViewState extends State<ResultSummaryView> {
     );
   }
 }
-
