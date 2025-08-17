@@ -1,30 +1,31 @@
+```markdown
 # Poker Analyzer
 
-[![Demo APK Build](https://github.com/ClubBoss/Poker_Analyzer/actions/workflows/demo_build.yml/badge.svg)](https://github.com/ClubBoss/Poker_Analyzer/actions/workflows/demo_build.yml)
-
-Poker Analyzer is a production‑ready platform for training and analyzing tournament poker decisions.
+Poker Analyzer is a production-ready platform for training and analyzing tournament poker decisions.
 
 ## Key Features
 - Push/fold drills with EV and ICM metrics
 - Postflop decision practice with mistake tracking
 - Theory injection and interactive lessons
-- Automated pack generation and plug‑in converters
+- Automated pack generation and plug-in converters
 - Adaptive learning paths with progress charts
 
 ## Architecture Overview 
 ```
+
 +-------------+       +-----------------+
-| Flutter UI  |<----->| Learning Engine |
+\| Flutter UI  |<----->| Learning Engine |
 +-------------+       +-----------------+
-        |                      |
-        v                      v
+\|                      |
+v                      v
 +-----------------+    +----------------------+
-| Autogen Pipeline|    | Theory Integrity CI  |
+\| Autogen Pipeline|    | Theory Integrity CI  |
 +-----------------+    +----------------------+
-```
-- **Flutter UI** - visual interface for training and analytics
-- **Autogen Pipeline** - scripts compiling packs and theory data
-- **Learning Engine** - evaluates decisions and adapts paths
+
+````
+- **Flutter UI** - visual interface for training and analytics  
+- **Autogen Pipeline** - scripts compiling packs and theory data  
+- **Learning Engine** - evaluates decisions and adapts paths  
 - **Theory Integrity CI** - automated checks validating training content
 
 ## Installation & Setup
@@ -39,59 +40,107 @@ Run a lightweight demo:
 ```bash
 flutter run -t main.dart
 flutter build apk --target=main.dart
-```
+````
 
 ## Dev setup
+
 Install pre-commit hooks:
+
 ```bash
 ln -sf ../../tool/dev/precommit_sanity.sh .git/hooks/pre-commit
 ```
 
 ## Usage Examples
-- **Run a training pack**: `flutter run`
-- **Verify theory content**: `dart tools/validate_training_content.dart --ci`
-- **Generate packs**: `dart tools/precompile_all_packs.dart`
-- **Path YAML Visualizer**: open `tools/path_yaml_visualizer.html`
-- **Pack Library Publisher Dashboard**: open `tools/publisher_dashboard.html`
+
+* **Run a training pack**: `flutter run`
+* **Verify theory content**: `dart tools/validate_training_content.dart --ci`
+* **Generate packs**: `dart tools/precompile_all_packs.dart`
+* **Path YAML Visualizer**: open `tools/path_yaml_visualizer.html`
+* **Pack Library Publisher Dashboard**: open `tools/publisher_dashboard.html`
 
 ## Contributing
-- Use branches prefixed with `codex/<task>` using ASCII characters.
-- Run tests with `flutter test` and validate content via `dart tools/validate_training_content.dart --ci`.
-- Validate seed files: `dart run bin/usf_lint.dart <seed_directory>`.
-- Precompile packs before committing: `dart tools/precompile_all_packs.dart`.
-- For plug-in development, see [docs/plugins/README.md](docs/plugins/README.md) and [PLUGIN_DEV_GUIDE](docs/plugins/PLUGIN_DEV_GUIDE.md).
+
+* Use branches prefixed with `codex/<task>` using ASCII characters.
+* Run tests with `flutter test` and validate content via `dart tools/validate_training_content.dart --ci`.
+* Validate seed files: `dart run bin/usf_lint.dart <seed_directory>`.
+* Precompile packs before committing: `dart tools/precompile_all_packs.dart`.
+* For plug-in development, see [docs/plugins/README.md](docs/plugins/README.md) and [PLUGIN\_DEV\_GUIDE](docs/plugins/PLUGIN_DEV_GUIDE.md).
 
 ## Troubleshooting
+
 If Git reports hidden characters in refs:
+
 ```bash
 tools/check_head_refs.sh
 echo 'ref: refs/heads/main' > .git/HEAD
 ```
 
 ## CI & QA
-GitHub Actions run unit tests, build the demo APK, and enforce theory integrity.
+
+GitHub Actions run unit tests, build the demo APK, enforce theory integrity, and manage formatting.
 
 ### CI configuration
-Environment variables can tune the skill tag coverage gate:
 
-- `COVERAGE_MODE` - `soft` (default) or `strict`.
-- `COVERAGE_MIN_UNIQUE_TAGS` - minimal distinct tags (default `5`).
-- `COVERAGE_MIN_PCT` - minimal tag coverage fraction (default `0.35`).
+* **Fast checks (format+analyze)**: run on every PR, but **non-blocking**.
 
-Set these in CI to adjust thresholds or switch modes (PRs run with `COVERAGE_MODE=strict`).
+  * `dart format` issues auto-fixed and pushed back to PR branch.
+  * `flutter analyze` runs in advisory mode (warnings visible, merge allowed).
+* **Autoformat bot**: ensures consistent code style without manual work.
+* **Coverage gate**: validates training theory coverage.
+
+  * `COVERAGE_MODE` - `soft` (default) or `strict`.
+  * `COVERAGE_MIN_UNIQUE_TAGS` - minimal distinct tags (default `5`).
+  * `COVERAGE_MIN_PCT` - minimal tag coverage fraction (default `0.35`).
 
 ## License & Credits
+
 © 2024 Poker Analyzer contributors. License pending.
 
-![Main menu screenshot](flutter_01.png)
+# Developer Notes (local sanity)
 
+## Quick Checks
 
-## Local checks (run before PR)
+Run the canonical guard test:
+
 ```bash
-dart format --set-exit-if-changed .
-dart analyze
+dart test -r expanded test/guard_single_site_test.dart
+```
+
+Run smoke tests (no Flutter required):
+
+```bash
 dart test -r expanded test/mvs_player_smoke_test.dart test/spotkind_integrity_smoke_test.dart
 ```
 
-If Flutter isn’t installed, these pass because the spot specs & tests are pure Dart.
+## CI parity
 
+On every PR, the following run automatically:
+
+* `dart format` (auto-fixed by bot if needed)
+* `flutter analyze` (advisory only, non-blocking)
+* smoke tests (pure Dart)
+
+Reproduce locally:
+
+```bash
+dart format --set-exit-if-changed .
+dart analyze
+```
+
+## FAQ
+
+**Q:** PR упал из-за формата. Что делать?
+**A:** Ничего — бот сам применит `dart format` и запушит изменения.
+
+**Q:** Можно ли мержить PR с ворнингами от `flutter analyze`?
+**A:** Да, анализатор работает в advisory-режиме.
+
+**Q:** Какие тесты можно гонять без Flutter?
+**A:** Все smoke-тесты:
+
+* `mvs_player_smoke_test.dart`
+* `spotkind_integrity_smoke_test.dart`
+* `guard_single_site_test.dart`
+
+```
+```
