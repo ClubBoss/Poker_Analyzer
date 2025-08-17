@@ -42,6 +42,8 @@ class HotkeysSheet extends StatelessWidget {
               row('H', 'Toggle "Why?"'),
               row('A', 'Toggle Auto-next'),
               row('T', 'Toggle Answer timer'),
+              row('J', 'Jam (jam/fold spots)'),
+              row('F', 'Fold (jam/fold spots)'),
               const Divider(height: 24),
               const Text('BetSizer',
                   style: TextStyle(fontWeight: FontWeight.bold)),
