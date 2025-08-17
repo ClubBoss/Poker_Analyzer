@@ -20,7 +20,7 @@ jobs:
         run: flutter pub get
 
       - name: Run fixer
-        run: dart tools/fix_training_pack_errors.dart --apply
+        run: dart run tool/fix_training_pack_errors.dart --apply
 
       - name: Show fix log
         run: |
