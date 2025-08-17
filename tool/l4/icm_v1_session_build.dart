@@ -16,8 +16,7 @@ void main(List<String> args) {
     if (a.startsWith('--seeds=')) {
       final s = a.substring(8);
       if (s.isNotEmpty) {
-        seeds =
-            s.split(',').where((e) => e.isNotEmpty).map(int.parse).toList();
+        seeds = s.split(',').where((e) => e.isNotEmpty).map(int.parse).toList();
       } else {
         seeds = <int>[];
       }
@@ -78,8 +77,7 @@ void main(List<String> args) {
   final mix = IcmMix.mvsDefault();
   final items = <L4IcmSessionItem>[];
   for (final seed in seeds!) {
-    final spots =
-        generateIcmJamSpots(seed: seed, count: perSeed, mix: mix);
+    final spots = generateIcmJamSpots(seed: seed, count: perSeed, mix: mix);
     for (final s in spots) {
       items.add(L4IcmSessionItem(
         hand: s.hand,
@@ -120,4 +118,3 @@ void _usage() {
   stderr.writeln(
       'usage: --seeds a,b,c | --range start-end [--per-seed N] [--preset mvs] [--format compact|pretty] [--out dir] [--name file]');
 }
-

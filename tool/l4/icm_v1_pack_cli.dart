@@ -41,8 +41,9 @@ void main(List<String> args) {
   }
   final mix = IcmMix.mvsDefault();
   final pack = buildIcmPack(seed: seed!, count: count, mix: mix);
-  final json =
-      format == 'pretty' ? encodeIcmPackPretty(pack) : encodeIcmPackCompact(pack);
+  final json = format == 'pretty'
+      ? encodeIcmPackPretty(pack)
+      : encodeIcmPackCompact(pack);
   stdout.write(json);
 }
 

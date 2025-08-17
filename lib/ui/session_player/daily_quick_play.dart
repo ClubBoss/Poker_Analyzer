@@ -10,7 +10,10 @@ import 'streak_store.dart';
 class QuickDailyPlayPage extends StatefulWidget {
   final String planPath;
   final String bundleDir;
-  const QuickDailyPlayPage({super.key, this.planPath = 'out/plan/play_plan_v1.json', this.bundleDir = 'dist/training_v1'});
+  const QuickDailyPlayPage(
+      {super.key,
+      this.planPath = 'out/plan/play_plan_v1.json',
+      this.bundleDir = 'dist/training_v1'});
 
   @override
   State<QuickDailyPlayPage> createState() => _QuickDailyPlayPageState();
@@ -66,7 +69,8 @@ class _QuickDailyPlayPageState extends State<QuickDailyPlayPage> {
                 Text('Next slice: ${next?.id ?? 'All done'}'),
                 const SizedBox(height: 16),
                 if (next == null)
-                  const Expanded(child: Center(child: Text('All slices completed')))
+                  const Expanded(
+                      child: Center(child: Text('All slices completed')))
                 else
                   ElevatedButton(
                     onPressed: _loading
@@ -80,8 +84,8 @@ class _QuickDailyPlayPageState extends State<QuickDailyPlayPage> {
                               );
                               await Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (_) =>
-                                      Scaffold(body: MvsSessionPlayer(spots: spots)),
+                                  builder: (_) => Scaffold(
+                                      body: MvsSessionPlayer(spots: spots)),
                                 ),
                               );
                               final prog = markDone(_progress, next!.id);
@@ -107,4 +111,3 @@ class _QuickDailyPlayPageState extends State<QuickDailyPlayPage> {
     );
   }
 }
-

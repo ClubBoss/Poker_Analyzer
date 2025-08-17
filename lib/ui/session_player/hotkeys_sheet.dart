@@ -61,4 +61,3 @@ class HotkeysSheet extends StatelessWidget {
     );
   }
 }
-

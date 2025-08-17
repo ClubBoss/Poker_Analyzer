@@ -130,4 +130,3 @@ class _QuickstartLauncherPageState extends State<QuickstartLauncherPage> {
     );
   }
 }
-

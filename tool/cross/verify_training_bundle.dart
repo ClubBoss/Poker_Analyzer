@@ -82,26 +82,40 @@ void main(List<String> args) {
     try {
       final data = jsonDecode(file.readAsStringSync());
       if (kind == 'l2_session') {
-        final items = data is Map && data['items'] is List ? data['items'] as List : const [];
+        final items = data is Map && data['items'] is List
+            ? data['items'] as List
+            : const [];
         count = items.length;
         totalL2 += count;
       } else if (kind == 'l3_session') {
-        if (data is Map && data['inlineItems'] is List && (data['inlineItems'] as List).isNotEmpty) {
+        if (data is Map &&
+            data['inlineItems'] is List &&
+            (data['inlineItems'] as List).isNotEmpty) {
           count = (data['inlineItems'] as List).length;
         } else {
-          final items = data is Map && data['items'] is List ? data['items'] as List : const [];
+          final items = data is Map && data['items'] is List
+              ? data['items'] as List
+              : const [];
           count = items.length;
         }
         totalL3 += count;
       } else {
-        final items = data is Map && data['items'] is List ? data['items'] as List : const [];
+        final items = data is Map && data['items'] is List
+            ? data['items'] as List
+            : const [];
         count = items.length;
         totalL4 += count;
       }
     } catch (_) {
       _fail('malformed json: $dst');
     }
-    files.add({'dst': dst, 'bytes': length, 'h32': h32, 'kind': kind, 'count': count});
+    files.add({
+      'dst': dst,
+      'bytes': length,
+      'h32': h32,
+      'kind': kind,
+      'count': count
+    });
     totalFiles++;
     totalBytes += length;
   }
@@ -130,7 +144,9 @@ void main(List<String> args) {
 }
 
 String _join(String a, String b) {
-  return a.endsWith(Platform.pathSeparator) ? '$a$b' : '$a${Platform.pathSeparator}$b';
+  return a.endsWith(Platform.pathSeparator)
+      ? '$a$b'
+      : '$a${Platform.pathSeparator}$b';
 }
 
 void _usage() {

@@ -101,11 +101,13 @@ void main(List<String> args) {
     '--feed=$feed',
   ]);
 
-  stdout.writeln('smoke ok: feed=$feed bundle=$bundle format=$format layout=$layout');
+  stdout.writeln(
+      'smoke ok: feed=$feed bundle=$bundle format=$format layout=$layout');
 }
 
-List<String> _splitList(String? v) =>
-    v == null || v.isEmpty ? <String>[] : v.split(',').where((e) => e.isNotEmpty).toList();
+List<String> _splitList(String? v) => v == null || v.isEmpty
+    ? <String>[]
+    : v.split(',').where((e) => e.isNotEmpty).toList();
 
 void _run(List<String> cmd) {
   final res = Process.runSync(cmd[0], cmd.sublist(1));
@@ -129,10 +131,12 @@ String _basename(String path) {
   return i == -1 ? path : path.substring(i + 1);
 }
 
-String _join(String a, String b) =>
-    a.endsWith(Platform.pathSeparator) ? '$a$b' : '$a${Platform.pathSeparator}$b';
+String _join(String a, String b) => a.endsWith(Platform.pathSeparator)
+    ? '$a$b'
+    : '$a${Platform.pathSeparator}$b';
 
 Never _usage() {
-  stdout.writeln('usage: --l2 a.json[,..] [--l3 c.json[,..]] [--l4 e.json[,..]] [--feed FILE] [--bundle DIR] [--format compact|pretty] [--layout flat|bykind] [--overwrite]');
+  stdout.writeln(
+      'usage: --l2 a.json[,..] [--l3 c.json[,..]] [--l4 e.json[,..]] [--feed FILE] [--bundle DIR] [--format compact|pretty] [--layout flat|bykind] [--overwrite]');
   exit(2);
 }

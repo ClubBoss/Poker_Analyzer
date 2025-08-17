@@ -15,7 +15,9 @@ class FeedRef {
 
 List<FeedRef> readFeedRefs(File feedFile) {
   final data = jsonDecode(feedFile.readAsStringSync());
-  final items = data is Map && data['items'] is List ? data['items'] as List : <dynamic>[];
+  final items = data is Map && data['items'] is List
+      ? data['items'] as List
+      : <dynamic>[];
   final refs = <FeedRef>[];
   for (final item in items) {
     if (item is Map) {

@@ -35,10 +35,10 @@ Future<String> saveAnswerLogJson({
     await dir.create(recursive: true);
   }
   final file = File('${dir.path}/answers_v1_${hash}.json');
-  final encoder =
-      format == 'pretty' ? const JsonEncoder.withIndent('  ') : const JsonEncoder();
+  final encoder = format == 'pretty'
+      ? const JsonEncoder.withIndent('  ')
+      : const JsonEncoder();
   final json = encoder.convert(log.toJson());
   await file.writeAsString(json);
   return file.absolute.path;
 }
-
