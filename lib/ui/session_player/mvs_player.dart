@@ -369,7 +369,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           _timebarTicker?.cancel();
           unawaited(showMiniToast(context, 'Time limit reached'));
           if (_prefs.haptics) {
-            try { HapticFeedback.vibrate(); } catch (_) {}
+            try {
+              HapticFeedback.vibrate();
+            } catch (_) {}
           }
           _onTimeout();
         }
@@ -636,8 +638,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
 
     final spot = _spots[_index];
     final autoWhy = _prefs.autoWhyOnWrong;
-    final stackBB =
-        int.tryParse(spot.stack.replaceAll(RegExp(r'[^0-9]'), ''));
+    final stackBB = int.tryParse(spot.stack.replaceAll(RegExp(r'[^0-9]'), ''));
 
     unawaited(Telemetry.logEvent('answer_timeout', {
       'sessionId': _sessionId,
@@ -851,8 +852,12 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             title: const Text('Replace current session?'),
             content: const Text('This will discard current progress.'),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(_, false), child: const Text('Cancel')),
-              TextButton(onPressed: () => Navigator.pop(_, true), child: const Text('Replace')),
+              TextButton(
+                  onPressed: () => Navigator.pop(_, false),
+                  child: const Text('Cancel')),
+              TextButton(
+                  onPressed: () => Navigator.pop(_, true),
+                  child: const Text('Replace')),
             ],
           ),
         ) ??
