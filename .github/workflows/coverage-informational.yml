@@ -1,0 +1,76 @@
+name: Coverage Summary (informational)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "**/*.dart"
+      - "assets/**"
+      - "tool/**"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+  push:
+    branches: [ main ]
+    paths:
+      - "**/*.dart"
+      - "assets/**"
+      - "tool/**"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+
+permissions:
+  contents: read
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    continue-on-error: true  # не блокирует merge
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Pub get
+        run: flutter pub get
+
+      - name: Generate L2 report
+        run: |
+          mkdir -p build/reports
+          dart run tool/metrics/l2_metrics_report.dart \
+            --packs assets/packs/l2 \
+            --snippets assets/theory/l2/snippets.yaml \
+            --out build/reports/l2_report.md
+
+      - name: Generate L3 report (if packrun data exists)
+        shell: bash
+        run: |
+          shopt -s nullglob
+          FILES=(build/reports/l3_packrun_*.json)
+          if [ ${#FILES[@]} -gt 0 ]; then
+            dart run tool/metrics/l3_packrun_report.dart \
+              --reports "${FILES[*]}" \
+              --out build/reports/l3_report.md
+          else
+            echo "_No L3 packrun json present; skipping L3 report._" > build/reports/l3_report.md
+          fi
+
+      - name: Upload reports (artifacts)
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage_reports
+          path: |
+            build/reports/l2_report.md
+            build/reports/l3_report.md
+
+      - name: Job Summary
+        shell: bash
+        run: |
+          echo "## L2 Report" >> $GITHUB_STEP_SUMMARY
+          (cat build/reports/l2_report.md >> $GITHUB_STEP_SUMMARY) || echo "_l2_report.md not found_" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## L3 Report" >> $GITHUB_STEP_SUMMARY
+          (cat build/reports/l3_report.md >> $GITHUB_STEP_SUMMARY) || echo "_l3_report.md not found_" >> $GITHUB_STEP_SUMMARY

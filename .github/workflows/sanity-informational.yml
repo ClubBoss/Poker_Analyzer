@@ -1,0 +1,44 @@
+name: Sanity (informational)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "**/*.dart"
+      - "**/*.yaml"
+      - "**/*.yml"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+  push:
+    branches: [ main ]
+    paths:
+      - "**/*.dart"
+      - "**/*.yaml"
+      - "**/*.yml"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+
+permissions:
+  contents: read
+
+jobs:
+  sanity:
+    runs-on: ubuntu-latest
+    continue-on-error: true  # не блокирует merge
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Pub get
+        run: flutter pub get
+
+      - name: Format check (read-only)
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze (read-only)
+        run: flutter analyze
