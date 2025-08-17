@@ -28,6 +28,7 @@ import '../modules/modules_screen.dart';
 import 'package:poker_analyzer/infra/telemetry_builder.dart';
 import 'package:poker_analyzer/ui/session_player/l3_jsonl_export.dart';
 import 'package:poker_analyzer/ui/modules/cash_packs.dart';
+import 'package:poker_analyzer/ui/modules/icm_packs.dart';
 
 void _assertSpotKindIntegrity(Set<SpotKind> usedKinds) {
   assert(() {
@@ -1124,10 +1125,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             'total': _answers.length,
             'correct': _answers.where((a) => a.correct).length,
             'wrong': _answers.length - _answers.where((a) => a.correct).length,
-            'skipped':
-                _answers.where((a) => a.chosen == '(skip)').length,
-            'timeouts':
-                _answers.where((a) => a.chosen == '(timeout)').length,
+            'skipped': _answers.where((a) => a.chosen == '(skip)').length,
+            'timeouts': _answers.where((a) => a.chosen == '(timeout)').length,
             'elapsedMs': _answers.fold<int>(
               0,
               (s, a) => s + a.elapsed.inMilliseconds,
@@ -1199,6 +1198,25 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                           builder: (_) => MvsSessionPlayer(
                             spots: spots,
                             packId: 'cash:l3:v1',
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                ActionChip(
+                  label: const Text('Start ICM L4 SB'),
+                  onPressed: () {
+                    final spots = loadIcmL4SbV1();
+                    if (spots.isEmpty) {
+                      showMiniToast(context, 'Pack is empty');
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => MvsSessionPlayer(
+                            spots: spots,
+                            packId: 'icm:l4:sb:v1',
                           ),
                         ),
                       );
