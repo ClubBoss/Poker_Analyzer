@@ -30,7 +30,8 @@ void _assertSpotKindIntegrity() {
   assert(() {
     // 1) Append-only discipline: latest known value must remain last.
     if (SpotKind.values.last != SpotKind.l4_icm_sb_jam_vs_fold) {
-      throw StateError('SpotKind append-only violated: last is not l4_icm_sb_jam_vs_fold');
+      throw StateError(
+          'SpotKind append-only violated: last is not l4_icm_sb_jam_vs_fold');
     }
     // 2) autoReplayKinds covered by data-driven maps.
     for (final k in autoReplayKinds) {
