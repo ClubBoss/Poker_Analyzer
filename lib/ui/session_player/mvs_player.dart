@@ -828,7 +828,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       final s = _spots[i];
       if (!isJamFold(s.kind)) continue;
       if (!isAutoReplayKind(s.kind)) continue; // L3-only
-      final key = '${s.kind.name}|${s.hand}|${s.pos}|${s.vsPos ?? ''}|${s.stack}';
+      final key =
+          '${s.kind.name}|${s.hand}|${s.pos}|${s.vsPos ?? ''}|${s.stack}';
       if (seen.add(key)) picks.add(s);
     }
     if (picks.isEmpty) {
