@@ -26,14 +26,23 @@ import '../../services/spot_importer.dart';
 import '../coverage/coverage_dashboard.dart';
 import '../modules/modules_screen.dart';
 
-void _assertSpotKindIntegrity() {
+void _assertSpotKindIntegrity(Set<SpotKind> usedKinds) {
   assert(() {
     // 1) Append-only discipline: latest known value must remain last.
     if (SpotKind.values.last != SpotKind.l4_icm_sb_jam_vs_fold) {
       throw StateError(
           'SpotKind append-only violated: last is not l4_icm_sb_jam_vs_fold');
     }
-    // 2) autoReplayKinds covered by data-driven maps.
+    // 2) data-driven maps cover all used kinds.
+    for (final k in usedKinds) {
+      if (!actionsMap.containsKey(k)) {
+        throw StateError('actionsMap missing for $k');
+      }
+      if (!subtitlePrefix.containsKey(k)) {
+        throw StateError('subtitlePrefix missing for $k');
+      }
+    }
+    // 3) autoReplayKinds invariants.
     for (final k in autoReplayKinds) {
       final a = actionsMap[k];
       final p = subtitlePrefix[k];
@@ -201,7 +210,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
 
   @override
   void initState() {
-    _assertSpotKindIntegrity();
+    _assertSpotKindIntegrity(widget.spots.map((e) => e.kind).toSet());
     super.initState();
     _spots = widget.spots;
     _index = widget.initialIndex ?? 0;
@@ -1416,119 +1425,12 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     if (spot.limpers != null) parts.add('limpers ${spot.limpers}');
     parts.add(spot.stack);
     final core = parts.join(' • ');
-    final prefix = subtitlePrefix[spot.kind];
-    if (prefix != null) return prefix + core;
-    if (spot.kind == SpotKind.callVsJam) {
-      return 'Call vs Jam • $core';
-    }
-    if (spot.kind == SpotKind.l3_postflop_jam) {
-      return 'Postflop Jam • $core';
-    }
-    if (spot.kind == SpotKind.l3_checkraise_jam) {
-      return 'Check-Raise Jam • $core';
-    }
-    if (spot.kind == SpotKind.l3_check_jam_vs_cbet) {
-      return 'Check-Jam vs C-bet • $core';
-    }
-    if (spot.kind == SpotKind.l3_donk_jam) {
-      return 'Donk Jam • $core';
-    }
-    if (spot.kind == SpotKind.l3_overbet_jam) {
-      return 'Overbet Jam • $core';
-    }
-    if (spot.kind == SpotKind.l3_raise_jam_vs_donk) {
-      return 'Raise Jam vs Donk • $core';
-    }
-    if (spot.kind == SpotKind.l3_bet_jam_vs_raise) {
-      return 'Bet Jam vs Raise • $core';
-    }
-    if (spot.kind == SpotKind.l3_raise_jam_vs_cbet) {
-      return 'Raise Jam vs C-bet • $core';
-    }
-    if (spot.kind == SpotKind.l3_probe_jam_vs_raise) {
-      return 'Probe Jam vs Raise • $core';
-    }
-    if (spot.kind == SpotKind.l3_flop_jam_vs_bet) {
-      return 'Flop Jam vs Bet • ' + core;
-    }
-    if (spot.kind == SpotKind.l3_flop_jam_vs_raise) {
-      return 'Flop Jam vs Raise • ' + core;
-    }
-    if (spot.kind == SpotKind.l3_turn_jam_vs_bet) {
-      return 'Turn Jam vs Bet • ' + core;
-    }
-    if (spot.kind == SpotKind.l3_turn_jam_vs_raise) {
-      return 'Turn Jam vs Raise • $core';
-    }
-    if (spot.kind == SpotKind.l3_river_jam_vs_bet) {
-      return 'River Jam vs Bet • ' + core;
-    }
-    if (spot.kind == SpotKind.l3_river_jam_vs_raise) {
-      return 'River Jam vs Raise • ' + core;
-    }
-    if (spot.kind == SpotKind.l4_icm_bubble_jam_vs_fold) {
-      return 'ICM Bubble Jam vs Fold • ' + core;
-    }
-    if (spot.kind == SpotKind.l4_icm_ladder_jam_vs_fold) {
-      return 'ICM FT Ladder Jam vs Fold • ' + core;
-    }
-    if (spot.kind == SpotKind.l4_icm_sb_jam_vs_fold) {
-      return 'ICM SB Jam vs Fold • ' + core;
-    }
-    return core;
+    final prefix = subtitlePrefix[spot.kind]!;
+    return prefix + core;
   }
 
   List<String> _actionsFor(SpotKind kind) {
-    final mapped = actionsMap[kind];
-    if (mapped != null) return mapped;
-    switch (kind) {
-      case SpotKind.l2_open_fold:
-        return ['open', 'fold'];
-      case SpotKind.l2_threebet_push:
-        return ['jam', 'fold'];
-      case SpotKind.l2_limped:
-        return ['iso', 'overlimp', 'fold'];
-      case SpotKind.l4_icm:
-        return ['jam', 'fold'];
-      case SpotKind.callVsJam:
-        return ['Call', 'Fold'];
-      case SpotKind.l3_postflop_jam:
-        return ['jam', 'fold'];
-      case SpotKind.l3_checkraise_jam:
-        return ['jam', 'fold'];
-      case SpotKind.l3_check_jam_vs_cbet:
-        return ['jam', 'fold'];
-      case SpotKind.l3_donk_jam:
-        return ['jam', 'fold'];
-      case SpotKind.l3_overbet_jam:
-        return ['jam', 'fold'];
-      case SpotKind.l3_raise_jam_vs_donk:
-        return ['jam', 'fold'];
-      case SpotKind.l3_bet_jam_vs_raise:
-        return ['jam', 'fold'];
-      case SpotKind.l3_raise_jam_vs_cbet:
-        return ['jam', 'fold'];
-      case SpotKind.l3_probe_jam_vs_raise:
-        return ['jam', 'fold'];
-      case SpotKind.l3_flop_jam_vs_bet:
-        return ['jam', 'fold'];
-      case SpotKind.l3_flop_jam_vs_raise:
-        return ['jam', 'fold'];
-      case SpotKind.l3_river_jam_vs_bet:
-        return ['jam', 'fold'];
-      case SpotKind.l3_turn_jam_vs_bet:
-        return ['jam', 'fold'];
-      case SpotKind.l3_river_jam_vs_raise:
-        return ['jam', 'fold'];
-      case SpotKind.l3_turn_jam_vs_raise:
-        return ['jam', 'fold'];
-      case SpotKind.l4_icm_bubble_jam_vs_fold:
-        return ['jam', 'fold'];
-      case SpotKind.l4_icm_ladder_jam_vs_fold:
-        return ['jam', 'fold'];
-      case SpotKind.l4_icm_sb_jam_vs_fold:
-        return ['jam', 'fold'];
-    }
+    return actionsMap[kind]!;
   }
 
   Widget _buildActionButton(String action, UiSpot spot, bool jamFoldHotkeys) {
