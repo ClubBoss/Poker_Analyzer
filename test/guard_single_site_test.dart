@@ -7,7 +7,7 @@ void main() {
     final source = File(
       'lib/ui/session_player/mvs_player.dart',
     ).readAsStringSync();
-    final pattern = RegExp(r'\bautoReplayKinds\.contains\(\s*spot\.kind\s*\)');
+    final pattern = RegExp(r'\bisAutoReplayKind\(\s*spot\.kind\s*\)');
     final count = pattern.allMatches(source).length;
     expect(
       count,
