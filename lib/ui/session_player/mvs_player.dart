@@ -929,6 +929,16 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         context,
         'Exported ${rows.length} spots${dups > 0 ? ' (dups $dups)' : ''} to out/packs/l3_jam_errors.jsonl',
       );
+      unawaited(
+        Telemetry.logEvent(
+          'export_l3_errors_file',
+          buildTelemetry(
+            sessionId: _sessionId,
+            packId: widget.packId,
+            data: {'count': rows.length},
+          ),
+        ),
+      );
     } catch (_) {
       Clipboard.setData(ClipboardData(text: text));
       showMiniToast(context, 'Copied L3 errors to clipboard');
