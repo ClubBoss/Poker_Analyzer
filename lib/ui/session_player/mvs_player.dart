@@ -57,6 +57,8 @@ void _assertSpotKindIntegrity(Set<SpotKind> usedKinds) {
   }());
 }
 
+bool isAutoReplayKind(SpotKind kind) => autoReplayKinds.contains(kind);
+
 extension _UiPrefsCopy on UiPrefs {
   UiPrefs copyWith({
     bool? autoNext,
@@ -480,7 +482,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       }
       if (!correct &&
           autoWhy &&
-          autoReplayKinds.contains(spot.kind) &&
+          isAutoReplayKind(spot.kind) &&
           !_replayed.contains(spot)) {
         _spots.insert(_index + 1, spot);
         _replayed.add(spot);
