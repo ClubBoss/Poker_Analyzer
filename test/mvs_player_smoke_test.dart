@@ -1,41 +1,30 @@
-import 'dart:io';
 import 'package:test/test.dart';
+import 'package:poker_analyzer/ui/session_player/models.dart';
+import 'package:poker_analyzer/ui/session_player/spot_specs.dart';
 
 void main() {
-  final src = File('lib/ui/session_player/mvs_player.dart').readAsStringSync();
-  const kinds = [
-    'l3_flop_jam_vs_raise',
-    'l3_turn_jam_vs_raise',
-    'l3_river_jam_vs_raise',
-    'l4_icm_bubble_jam_vs_fold',
-    'l4_icm_ladder_jam_vs_fold',
-    'l4_icm_sb_jam_vs_fold',
-  ];
-  test('_autoReplayKinds enums', () {
-    final m = RegExp(r'const _autoReplayKinds = {([^}]+)};').firstMatch(src)!;
-    final found = RegExp(r'SpotKind\.(\w+)')
-        .allMatches(m.group(1)!)
-        .map((e) => e.group(1)!)
-        .toList();
-    expect(found, kinds);
-  });
-  test('_actionsFor jam/fold', () {
-    for (final k in kinds) {
-      expect(
-          RegExp("case SpotKind\\.$k:\\n\\s+return \\[\'jam\', \'fold\'\\];")
-              .hasMatch(src),
-          true);
-    }
-  });
-  test('subtitle prefixes', () {
-    const pref = {
-      'l3_flop_jam_vs_raise': 'Flop Jam vs Raise •',
-      'l3_turn_jam_vs_raise': 'Turn Jam vs Raise •',
-      'l3_river_jam_vs_raise': 'River Jam vs Raise •',
-      'l4_icm_bubble_jam_vs_fold': 'ICM Bubble Jam vs Fold •',
-      'l4_icm_ladder_jam_vs_fold': 'ICM FT Ladder Jam vs Fold •',
-      'l4_icm_sb_jam_vs_fold': 'ICM SB Jam vs Fold •',
-    };
-    pref.forEach((k, p) => expect(src.contains(p), true));
+  group('mvs_player smoke', () {
+    test('jam_vs kinds return jam/fold', () {
+      for (final k in autoReplayKinds) {
+        expect(actionsMap[k], ['jam', 'fold']);
+      }
+    });
+
+    test('subtitle prefixes non-empty & sane', () {
+      const expected = {
+        SpotKind.l3_flop_jam_vs_raise: 'Flop Jam vs Raise • ',
+        SpotKind.l3_turn_jam_vs_raise: 'Turn Jam vs Raise • ',
+        SpotKind.l3_river_jam_vs_raise: 'River Jam vs Raise • ',
+        SpotKind.l4_icm_bubble_jam_vs_fold: 'ICM Bubble Jam vs Fold • ',
+        SpotKind.l4_icm_ladder_jam_vs_fold: 'ICM FT Ladder Jam vs Fold • ',
+        SpotKind.l4_icm_sb_jam_vs_fold: 'ICM SB Jam vs Fold • ',
+      };
+      for (final k in autoReplayKinds) {
+        final p = subtitlePrefix[k];
+        expect(p, isNotNull);
+        expect(p!.isNotEmpty, true);
+        expect(p.startsWith(expected[k]!), true);
+      }
+    });
   });
 }
