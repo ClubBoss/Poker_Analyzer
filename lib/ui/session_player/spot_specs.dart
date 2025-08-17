@@ -6,6 +6,8 @@ const Set<SpotKind> autoReplayKinds = {
   SpotKind.l3_river_jam_vs_raise,
 };
 
+bool isAutoReplayKind(SpotKind k) => autoReplayKinds.contains(k);
+
 const actionsMap = <SpotKind, List<String>>{
   SpotKind.l3_flop_jam_vs_raise: ['jam', 'fold'],
   SpotKind.l3_turn_jam_vs_raise: ['jam', 'fold'],
