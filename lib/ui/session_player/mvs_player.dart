@@ -940,6 +940,19 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         ),
       );
     } catch (_) {
+      unawaited(
+        Telemetry.logEvent(
+          'export_l3_errors_failed',
+          buildTelemetry(
+            sessionId: _sessionId,
+            packId: widget.packId,
+            data: {
+              'count': rows.length,
+              'reason': kIsWeb ? 'web' : 'io',
+            },
+          ),
+        ),
+      );
       Clipboard.setData(ClipboardData(text: text));
       showMiniToast(context, 'Copied L3 errors to clipboard');
       unawaited(
