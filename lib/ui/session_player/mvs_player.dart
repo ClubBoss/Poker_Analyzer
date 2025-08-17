@@ -828,6 +828,41 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   String _jamDedupKey(UiSpot s) =>
       '${s.kind.name}|${s.hand}|${s.pos}|${s.vsPos ?? ''}|${s.stack}';
 
+  List<UiSpot> _l3JamErrorCandidates() {
+    final autoWhy = _prefs.autoWhyOnWrong;
+    final seen = <String>{};
+    final picks = <UiSpot>[];
+    for (var i = 0; i < _answers.length; i++) {
+      final a = _answers[i];
+      final s = _spots[i];
+      if (!a.correct &&
+          autoWhy &&
+          isJamFold(s.kind) &&
+          isAutoReplayKind(s.kind) &&
+          !_replayed.contains(s)) {
+        final key = _jamDedupKey(s);
+        if (seen.add(key)) picks.add(s);
+      }
+    }
+    return picks;
+  }
+
+  void _quickReplayL3JamErrors() {
+    final picks = _l3JamErrorCandidates();
+    if (picks.isEmpty) return;
+    setState(() {
+      _spots.insertAll(_index, picks);
+      _replayed.addAll(picks);
+    });
+    unawaited(
+      Telemetry.logEvent('quick_replay_l3_errors', {
+        'sessionId': _sessionId,
+        if (widget.packId != null) 'packId': widget.packId,
+      }),
+    );
+    _next();
+  }
+
   void _replayL3JamErrors() {
     final seen = <String>{};
     final picks = <UiSpot>[];
@@ -967,26 +1002,42 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     }
     final Widget child;
     if (_index >= _spots.length) {
-      child = ResultSummaryView(
-        key: const ValueKey('summary'),
-        spots: _spots,
-        answers: _answers,
-        onReplayErrors: _replayErrors,
-        onReplayL3JamErrors: _replayL3JamErrors,
-        onRestart: () => _restart(widget.spots),
-        onReplayOne: (i) {
-          if (i < 0 || i >= _spots.length) return;
-          _restart([_spots[i]]);
-        },
-        onReplayMarked: (indices) {
-          if (indices.isEmpty) return;
-          final picks = <UiSpot>[];
-          for (final i in indices) {
-            if (i >= 0 && i < _spots.length) picks.add(_spots[i]);
-          }
-          if (picks.isEmpty) return;
-          _restart(picks);
-        },
+      final l3Candidates = _l3JamErrorCandidates();
+      child = Column(
+        children: [
+          Expanded(
+            child: ResultSummaryView(
+              key: const ValueKey('summary'),
+              spots: _spots,
+              answers: _answers,
+              onReplayErrors: _replayErrors,
+              onReplayL3JamErrors: _replayL3JamErrors,
+              onRestart: () => _restart(widget.spots),
+              onReplayOne: (i) {
+                if (i < 0 || i >= _spots.length) return;
+                _restart([_spots[i]]);
+              },
+              onReplayMarked: (indices) {
+                if (indices.isEmpty) return;
+                final picks = <UiSpot>[];
+                for (final i in indices) {
+                  if (i >= 0 && i < _spots.length) picks.add(_spots[i]);
+                }
+                if (picks.isEmpty) return;
+                _restart(picks);
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: ActionChip(
+              label:
+                  Text('Quick Replay L3 errors (${l3Candidates.length})'),
+              onPressed:
+                  l3Candidates.isEmpty ? null : _quickReplayL3JamErrors,
+            ),
+          ),
+        ],
       );
     } else {
       child = _buildSpotCard(_spots[_index]);
