@@ -25,6 +25,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/spot_importer.dart';
 import '../coverage/coverage_dashboard.dart';
 import '../modules/modules_screen.dart';
+import 'package:poker_analyzer/infra/telemetry_builder.dart';
 import 'package:poker_analyzer/ui/session_player/l3_jsonl_export.dart';
 
 void _assertSpotKindIntegrity(Set<SpotKind> usedKinds) {
@@ -854,10 +855,13 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       _replayed.addAll(picks);
     });
     unawaited(
-      Telemetry.logEvent('quick_replay_l3_errors', {
-        'sessionId': _sessionId,
-        if (widget.packId != null) 'packId': widget.packId,
-      }),
+      Telemetry.logEvent(
+        'quick_replay_l3_errors',
+        buildTelemetry(
+          sessionId: _sessionId,
+          packId: widget.packId,
+        ),
+      ),
     );
     _next();
   }
@@ -929,11 +933,16 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     } catch (_) {
       Clipboard.setData(ClipboardData(text: text));
       showMiniToast(context, 'Copied L3 errors to clipboard');
-      unawaited(Telemetry.logEvent('export_l3_errors_clipboard', {
-        'sessionId': _sessionId,
-        if (widget.packId != null) 'packId': widget.packId,
-        'count': rows.length,
-      }));
+      unawaited(
+        Telemetry.logEvent(
+          'export_l3_errors_clipboard',
+          buildTelemetry(
+            sessionId: _sessionId,
+            packId: widget.packId,
+            data: {'count': rows.length},
+          ),
+        ),
+      );
     }
   }
 
@@ -996,11 +1005,14 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           ? ' (dups ${report.skippedDuplicates})'
           : '';
       unawaited(
-        Telemetry.logEvent('import_confirm_shown', {
-          'sessionId': _sessionId,
-          'count': report.spots.length,
-          if (widget.packId != null) 'packId': widget.packId,
-        }),
+        Telemetry.logEvent(
+          'import_confirm_shown',
+          buildTelemetry(
+            sessionId: _sessionId,
+            packId: widget.packId,
+            data: {'count': report.spots.length},
+          ),
+        ),
       );
       final start = await showDialog<bool>(
             context: context,
@@ -1024,11 +1036,14 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           ) ??
           false;
       unawaited(
-        Telemetry.logEvent('import_confirm_result', {
-          'sessionId': _sessionId,
-          'result': start ? 'start' : 'cancel',
-          if (widget.packId != null) 'packId': widget.packId,
-        }),
+        Telemetry.logEvent(
+          'import_confirm_result',
+          buildTelemetry(
+            sessionId: _sessionId,
+            packId: widget.packId,
+            data: {'result': start ? 'start' : 'cancel'},
+          ),
+        ),
       );
       if (!start) return;
       _restart(report.spots);
