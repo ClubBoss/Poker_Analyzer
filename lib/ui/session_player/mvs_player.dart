@@ -101,6 +101,7 @@ class MvsSessionPlayer extends StatefulWidget {
     final s = prefs.getString('resume_spots');
     final i = prefs.getInt('resume_index');
     final a = prefs.getString('resume_answers');
+    final packId = prefs.getString('resume_packId');
     if (s == null || i == null || a == null) return null;
     try {
       final spotsData = jsonDecode(s);
@@ -166,6 +167,7 @@ class MvsSessionPlayer extends StatefulWidget {
         spots: spots,
         initialIndex: i,
         initialAnswers: answers,
+        packId: packId,
       );
     } catch (_) {
       return null;
@@ -412,6 +414,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
               'elapsedMs': a.elapsed.inMilliseconds,
             },
         ],
+        if (widget.packId != null) 'packId': widget.packId,
       };
       file.writeAsStringSync(jsonEncode(obj));
     } catch (_) {}
@@ -424,11 +427,10 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   }
 
   void _persistResume() {
-    final packId = widget.packId;
-    if (packId != null) {
+    if (widget.packId != null) {
       unawaited(
         SessionResume.save(
-          packId: packId,
+          packId: widget.packId!,
           index: _index,
           sessionId: _sessionId,
         ),
