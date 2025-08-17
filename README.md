@@ -48,7 +48,7 @@ flutter pub get
 
 flutter gen-l10n (локализация)
 
-(опц.) Предсобрать паки: dart tools/precompile_all_packs.dart
+(опц.) Предсобрать паки: dart run tool/precompile_all_packs.dart
 
 Старт:
 
@@ -90,10 +90,10 @@ dart test -r expanded test/mvs_player_smoke_test.dart test/spotkind_integrity_sm
 flutter test
 
 # Валидация теории/контента
-dart tools/validate_training_content.dart --ci
+dart run tool/validate_training_content.dart --ci
 
 # Предсборка тренировочных паков
-dart tools/precompile_all_packs.dart
+dart run tool/precompile_all_packs.dart
 
 Contributing
 
@@ -110,7 +110,7 @@ Troubleshooting
 
 Если Git жалуется на refs/HEAD:
 
-tools/check_head_refs.sh
+tool/dev/check_head_refs.sh
 echo 'ref: refs/heads/main' > .git/HEAD
 
 
