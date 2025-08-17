@@ -18,6 +18,7 @@ import '../../services/session_resume.dart';
 import 'hotkeys_sheet.dart';
 import 'mini_toast.dart';
 import 'models.dart';
+import 'spot_specs.dart';
 import 'result_summary.dart';
 import 'ui_prefs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
