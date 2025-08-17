@@ -23,7 +23,7 @@ const actionsMap = <SpotKind, List<String>>{
   SpotKind.l3_river_jam_vs_raise: ['jam', 'fold'],
   SpotKind.l4_icm_bubble_jam_vs_fold: ['jam', 'fold'],
   SpotKind.l4_icm_ladder_jam_vs_fold: ['jam', 'fold'],
-  SpotKind.l4_icm_sb_jam_vs_fold: ['jam', 'fold'],
+  SpotKind.l4_icm_sb_jam_vs_fold: const ['jam', 'fold'],
 };
 
 bool isJamFold(SpotKind k) {
