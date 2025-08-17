@@ -917,17 +917,26 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       showMiniToast(context, 'No errors to export');
       return;
     }
+    final text = encodeJsonl(rows);
     try {
+      if (kIsWeb) throw StateError('web');
       final dir = Directory('out/packs');
       if (!dir.existsSync()) dir.createSync(recursive: true);
       final file = File('${dir.path}/l3_jam_errors.jsonl');
-      final text = encodeJsonl(rows);
       file.writeAsStringSync(text);
       showMiniToast(
         context,
         'Exported ${rows.length} spots${dups > 0 ? ' (dups $dups)' : ''} to out/packs/l3_jam_errors.jsonl',
       );
-    } catch (_) {}
+    } catch (_) {
+      Clipboard.setData(ClipboardData(text: text));
+      showMiniToast(context, 'Copied L3 errors to clipboard');
+      Telemetry.logEvent('export_l3_errors_clipboard', {
+        'sessionId': _sessionId,
+        if (widget.packId != null) 'packId': widget.packId,
+        'count': rows.length,
+      });
+    }
   }
 
   Future<bool> _confirmRestartIfInProgress(BuildContext context) async {
