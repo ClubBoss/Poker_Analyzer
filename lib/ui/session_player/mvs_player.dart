@@ -480,6 +480,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         'expected': spot.action,
         'chosen': action,
         'elapsedMs': _timer.elapsed.inMilliseconds,
+        if (widget.packId != null) 'packId': widget.packId,
       }),
     );
     // mobile haptics
@@ -589,6 +590,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         'expected': spot.action,
         'chosen': '(skip)',
         'elapsedMs': _timer.elapsed.inMilliseconds,
+        if (widget.packId != null) 'packId': widget.packId,
       }),
     );
     _autoNextTimer?.cancel();
@@ -647,6 +649,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       'expected': spot.action,
       'chosen': '(timeout)',
       'elapsedMs': _timer.elapsed.inMilliseconds,
+      if (widget.packId != null) 'packId': widget.packId,
     }));
 
     setState(() {
@@ -825,7 +828,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       final s = _spots[i];
       if (!isJamFold(s.kind)) continue;
       if (!isAutoReplayKind(s.kind)) continue; // L3-only
-      final key = '${s.kind.name}|${s.hand}|${s.pos}|${s.vsPos ?? ''}|${s.stack}';
+      final key =
+          '${s.kind.name}|${s.hand}|${s.pos}|${s.vsPos ?? ''}|${s.stack}';
       if (seen.add(key)) picks.add(s);
     }
     if (picks.isEmpty) {
