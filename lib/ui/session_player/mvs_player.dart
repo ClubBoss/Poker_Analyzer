@@ -1068,13 +1068,14 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         'icm:l4:bubble:v1',
       }.contains(widget.packId);
       final isLadder = widget.packId == 'icm:l4:ladder:v1';
-      final ladderVariant =
-          isLadder ? 'retry' : (isIcmL4Pack ? 'next' : 'start');
+      final ladderVariant = isLadder
+          ? 'retry'
+          : (isIcmL4Pack ? 'next' : 'start');
       final ladderLabel = ladderVariant == 'retry'
           ? 'Retry ICM L4 Ladder'
           : (ladderVariant == 'next'
-              ? 'Next: ICM L4 Ladder'
-              : 'Start ICM L4 Ladder');
+                ? 'Next: ICM L4 Ladder'
+                : 'Start ICM L4 Ladder');
       const passAccPct = 80;
       const passAvgMs = 1800;
 
@@ -1083,19 +1084,24 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       final accPct = total == 0 ? 0.0 : (correct * 100.0) / total;
       final avgMs = total == 0
           ? 0
-          : (_answers.map((a) => a.elapsed).fold(Duration.zero, (a, b) => a + b).inMilliseconds ~/
-              total);
+          : (_answers
+                    .map((a) => a.elapsed)
+                    .fold(Duration.zero, (a, b) => a + b)
+                    .inMilliseconds ~/
+                total);
       final passed = accPct >= passAccPct && avgMs <= passAvgMs;
 
       if (isLadder && !_ladderOutcomeLogged) {
         _ladderOutcomeLogged = true;
-        unawaited(Telemetry.logEvent('ladder_session_passed', {
-          'packId': widget.packId,
-          'passed': passed,
-          'accPct': accPct,
-          'avgMs': avgMs,
-          'total': total,
-        }));
+        unawaited(
+          Telemetry.logEvent('ladder_session_passed', {
+            'packId': widget.packId,
+            'passed': passed,
+            'accPct': accPct,
+            'avgMs': avgMs,
+            'total': total,
+          }),
+        );
       }
       child = Column(
         children: [
@@ -1195,10 +1201,11 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                 ActionChip(
                   label: Text(ladderLabel),
                   onPressed: () {
-                    unawaited(Telemetry.logEvent('cta_icm_l4_ladder_tap', {
-                      'fromPackId': widget.packId,
-                      'variant': ladderVariant,
-                    }));
+                    unawaited(
+                      Telemetry.logEvent('cta_icm_l4_ladder_tap', {
+                        'variant': ladderVariant,
+                      }),
+                    );
                     final spots = loadIcmL4LadderV1();
                     if (spots.isEmpty) {
                       showMiniToast(context, 'Pack is empty');
