@@ -134,7 +134,7 @@ Future<List<UiSpot>> decodeL3SessionJson(
       }
     }
   }
-  if (spots.isEmpty) throw FormatException('empty l3 session');
+  if (spots.isEmpty) throw const FormatException('empty l3 session');
   return spots;
 }
 

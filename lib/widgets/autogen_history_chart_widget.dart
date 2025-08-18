@@ -90,7 +90,7 @@ class _AutogenHistoryChartWidgetState extends State<AutogenHistoryChartWidget> {
                   },
                 ),
               ),
-              leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
+              leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: true)),
               rightTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
@@ -104,7 +104,7 @@ class _AutogenHistoryChartWidgetState extends State<AutogenHistoryChartWidget> {
                   },
                 ),
               ),
-              topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
             ),
             lineBarsData: [
               LineChartBarData(

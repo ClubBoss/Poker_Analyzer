@@ -70,7 +70,7 @@ class _SpotDuplicationWizardState extends State<SpotDuplicationWizard> {
             mainAxisSize: MainAxisSize.min,
             children: [
               DropdownButtonFormField<HeroPosition>(
-                value: pos,
+                initialValue: pos,
                 decoration: const InputDecoration(labelText: 'Position'),
                 items: [
                   for (final p in kPositionOrder)

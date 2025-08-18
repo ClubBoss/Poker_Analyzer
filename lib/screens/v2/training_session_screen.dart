@@ -246,7 +246,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                           ),
                           value: _mistakesOnly,
                           onChanged: (v) => setState(() => _mistakesOnly = v),
-                          activeColor: Colors.orange,
+                          activeThumbColor: Colors.orange,
                         ),
                         const SizedBox(height: 8),
                         ElevatedButton(

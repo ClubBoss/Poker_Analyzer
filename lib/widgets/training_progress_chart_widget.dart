@@ -177,10 +177,10 @@ class _TrainingProgressChartWidgetState
               ),
             ),
             const SizedBox(height: 8),
-            Wrap(
+            const Wrap(
               spacing: 8,
               runSpacing: 4,
-              children: const [
+              children: [
                 _Legend(color: Colors.blue, text: 'Accuracy %'),
                 _Legend(color: Colors.green, text: 'Volume'),
               ],

@@ -600,7 +600,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       } else {
         subtitle = Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [subtitle!, const SizedBox(height: 4), rChip],
+          children: [subtitle, const SizedBox(height: 4), rChip],
         );
       }
     }

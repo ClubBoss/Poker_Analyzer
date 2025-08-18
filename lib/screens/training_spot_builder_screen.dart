@@ -209,7 +209,7 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<int>(
-              value: _tableSize,
+              initialValue: _tableSize,
               decoration: const InputDecoration(
                 labelText: 'Игроков',
                 border: OutlineInputBorder(),
@@ -230,7 +230,7 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<int>(
-              value: _heroIndex,
+              initialValue: _heroIndex,
               decoration: const InputDecoration(
                 labelText: 'Позиция героя',
                 border: OutlineInputBorder(),
@@ -295,7 +295,7 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
-              value: _recommendedAction,
+              initialValue: _recommendedAction,
               decoration: const InputDecoration(
                 labelText: 'Recommended Action',
                 border: OutlineInputBorder(),

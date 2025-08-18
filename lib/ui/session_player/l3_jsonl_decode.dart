@@ -5,7 +5,7 @@ Iterable<Map<String, dynamic>> decodeJsonl(String src) sync* {
     if (line.trim().isEmpty) continue;
     final decoded = json.decode(line);
     if (decoded is! Map<String, dynamic>) {
-      throw FormatException('Expected JSON object');
+      throw const FormatException('Expected JSON object');
     }
     yield Map<String, dynamic>.from(decoded);
   }

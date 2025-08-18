@@ -339,8 +339,8 @@ class _LearningPathStageDetailedScreenState
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          Text('Hands: \$_stageHands'),
-          Text('Accuracy: \${_stageAccuracy.toStringAsFixed(1)}%'),
+          const Text('Hands: \$_stageHands'),
+          const Text('Accuracy: \${_stageAccuracy.toStringAsFixed(1)}%'),
           const SizedBox(height: 8),
           Row(
             children: [

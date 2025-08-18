@@ -110,7 +110,7 @@ class _TagTrainingHeatmapSummaryScreenState
                     'Только активные дни',
                     style: TextStyle(color: Colors.white),
                   ),
-                  activeColor: Colors.greenAccent,
+                  activeThumbColor: Colors.greenAccent,
                 ),
               ],
             ),

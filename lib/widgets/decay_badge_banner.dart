@@ -15,20 +15,20 @@ class DecayBadgeBanner extends StatelessWidget {
     return MaterialBanner(
       backgroundColor: Colors.grey[850],
       leading: const Icon(Icons.local_fire_department, color: Colors.orange),
-      content: Column(
+      content: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             '🔥 \$milestone-day streak!',
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Text(
             'No critical decay for \$milestone days',
-            style: const TextStyle(color: Colors.white70),
+            style: TextStyle(color: Colors.white70),
           ),
         ],
       ),

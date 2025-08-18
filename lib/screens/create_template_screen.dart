@@ -91,7 +91,7 @@ class _CreateTemplateScreenState extends State<CreateTemplateScreen> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
-                  value: _gameType,
+                  initialValue: _gameType,
                   decoration: const InputDecoration(labelText: 'Тип игры'),
                   items: const [
                     DropdownMenuItem(

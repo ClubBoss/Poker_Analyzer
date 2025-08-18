@@ -55,7 +55,7 @@ class PackEditorScreen extends StatelessWidget {
     final core = PackEditorCore(pack);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Pack Editor'),
+        title: const Text('Pack Editor'),
         actions: [
           IconButton(
             icon: const Icon(Icons.save),

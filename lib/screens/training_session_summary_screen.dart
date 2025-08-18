@@ -628,7 +628,7 @@ class _TrainingSessionSummaryScreenState
                     'Auto review mistakes',
                     style: TextStyle(color: Colors.white),
                   ),
-                  activeColor: Colors.orange,
+                  activeThumbColor: Colors.orange,
                   contentPadding: EdgeInsets.zero,
                 ),
               ],
