@@ -14,7 +14,10 @@ bool shouldAutoReplay({
   required SpotKind kind,
   required bool alreadyReplayed,
 }) {
-  return !correct && autoWhy && isAutoReplayKind(kind) && !alreadyReplayed;
+  return !correct &&
+      autoWhy &&
+      autoReplayKinds.contains(kind) &&
+      !alreadyReplayed;
 }
 
 const actionsMap = <SpotKind, List<String>>{
