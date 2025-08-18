@@ -513,15 +513,13 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           elapsed: _timer.elapsed,
         ),
       );
-      if (!correct && autoWhy) {
-        _showExplain = true;
-      }
       if (shouldAutoReplay(
         correct: correct,
         autoWhy: autoWhy,
         kind: spot.kind,
         alreadyReplayed: _replayed.contains(spot),
       )) {
+        _showExplain = true;
         _spots.insert(_index + 1, spot);
         _replayed.add(spot);
       }
@@ -671,13 +669,13 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           elapsed: _timer.elapsed,
         ),
       );
-      if (autoWhy) _showExplain = true;
       if (shouldAutoReplay(
         correct: false,
         autoWhy: autoWhy,
         kind: spot.kind,
         alreadyReplayed: _replayed.contains(spot),
       )) {
+        _showExplain = true;
         _spots.insert(_index + 1, spot);
         _replayed.add(spot);
       }
