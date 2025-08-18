@@ -23,6 +23,7 @@ const actionsMap = <SpotKind, List<String>>{
   SpotKind.l4_icm_ladder_jam_vs_fold: ['jam', 'fold'],
   SpotKind.l4_icm_sb_jam_vs_fold: const ['jam', 'fold'],
   SpotKind.l4_icm_bb_jam_vs_fold: const ['jam', 'fold'],
+  SpotKind.l1_core_call_vs_price: ['call', 'fold'],
 };
 
 bool isJamFold(SpotKind k) {
@@ -41,6 +42,7 @@ const subtitlePrefix = <SpotKind, String>{
   SpotKind.l4_icm_ladder_jam_vs_fold: 'ICM FT Ladder Jam vs Fold • ',
   SpotKind.l4_icm_sb_jam_vs_fold: 'ICM SB Jam vs Fold • ',
   SpotKind.l4_icm_bb_jam_vs_fold: 'ICM BB Jam vs Fold • ',
+  SpotKind.l1_core_call_vs_price: 'Pot Odds • ',
 };
 // SSOT for Ladder pass criteria
 const int ladderPassAccPct = 80; // percent

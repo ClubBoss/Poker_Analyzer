@@ -33,12 +33,10 @@ import 'package:poker_analyzer/ui/session_player/l3_jsonl_export.dart';
 
 const actionsMap = <SpotKind, List<String>>{
   ...specs.actionsMap,
-  SpotKind.l1_core_call_vs_price: ['call', 'fold'],
 };
 
 const subtitlePrefix = <SpotKind, String>{
   ...specs.subtitlePrefix,
-  SpotKind.l1_core_call_vs_price: 'Pot Odds • ',
 };
 
 void _assertSpotKindIntegrity(Set<SpotKind> usedKinds) {
