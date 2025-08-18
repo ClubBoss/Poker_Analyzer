@@ -422,8 +422,8 @@ Widget build(BuildContext context) {
         SyncStatusIcon.of(context),
         _buildStreakIndicator(context),
         if (!_tutorialCompleted)
-          IconButton(
-            icon: const Icon(Icons.help_outline),
+          const IconButton(
+            icon: Icon(Icons.help_outline),
             onPressed: _startTutorial,
           ),
       ],
@@ -466,9 +466,9 @@ Widget build(BuildContext context) {
                         color: Colors.white,
                       ),
                       title: const Text('Resume session'),
-                      trailing: TextButton(
+                      trailing: const TextButton(
                         onPressed: _discardResume,
-                        child: const Text('Discard'),
+                        child: Text('Discard'),
                       ),
                       onTap: () async {
                         final player = await MvsSessionPlayer.fromSaved();
@@ -594,7 +594,7 @@ Widget build(BuildContext context) {
                     value: _demoMode,
                     title: const Text('Demo Mode'),
                     onChanged: _toggleDemoMode,
-                    activeColor: Colors.orange,
+                    activeThumbColor: Colors.orange,
                   ),
                   const SizedBox(height: 32),
                   const Text(

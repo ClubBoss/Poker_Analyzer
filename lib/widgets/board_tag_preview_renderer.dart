@@ -14,7 +14,7 @@ class BoardTagPreviewRenderer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tags = DynamicBoardTaggerService().tag(board).toList()..sort();
+    final tags = const DynamicBoardTaggerService().tag(board).toList()..sort();
     if (tags.isEmpty) return const SizedBox.shrink();
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,

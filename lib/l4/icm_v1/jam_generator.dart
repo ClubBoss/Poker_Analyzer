@@ -43,14 +43,14 @@ class IcmMix {
     required this.triplePct,
   });
 
-  factory IcmMix.mvsDefault() => IcmMix(
-    posPct: const {IcmPos.btn: 0.55, IcmPos.sb: 0.45},
-    stackBbPct: const {
+  factory IcmMix.mvsDefault() => const IcmMix(
+    posPct: {IcmPos.btn: 0.55, IcmPos.sb: 0.45},
+    stackBbPct: {
       StackBin.bb5: 0.35,
       StackBin.bb10: 0.40,
       StackBin.bb15: 0.25,
     },
-    triplePct: const {
+    triplePct: {
       StackTriple.sss: 0.10,
       StackTriple.sms: 0.20,
       StackTriple.mms: 0.25,

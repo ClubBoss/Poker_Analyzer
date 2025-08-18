@@ -70,7 +70,7 @@ class _NewTrainingPackTemplateDialogState
             TextField(controller: _nameCtrl, autofocus: true),
             const SizedBox(height: 12),
             DropdownButtonFormField<GameType>(
-              value: _type,
+              initialValue: _type,
               decoration: const InputDecoration(labelText: 'Game Type'),
               items: const [
                 DropdownMenuItem(
@@ -84,7 +84,7 @@ class _NewTrainingPackTemplateDialogState
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
-              value: _street,
+              initialValue: _street,
               decoration: const InputDecoration(labelText: 'Улица целью'),
               items: const [
                 DropdownMenuItem(value: 'any', child: Text('Any')),
@@ -110,7 +110,7 @@ class _NewTrainingPackTemplateDialogState
               title: const Text('Variant (optional)'),
               children: [
                 DropdownButtonFormField<GameType>(
-                  value: _varType,
+                  initialValue: _varType,
                   decoration: const InputDecoration(labelText: 'Game Type'),
                   items: const [
                     DropdownMenuItem(
@@ -124,7 +124,7 @@ class _NewTrainingPackTemplateDialogState
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<HeroPosition>(
-                  value: _pos,
+                  initialValue: _pos,
                   decoration: const InputDecoration(labelText: 'Position'),
                   items: const [
                     DropdownMenuItem(value: HeroPosition.sb, child: Text('SB')),

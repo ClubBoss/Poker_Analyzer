@@ -71,7 +71,7 @@ class _TrainingPackBuilderScreenState extends State<TrainingPackBuilderScreen> {
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<HeroPosition>(
-            value: _pos,
+            initialValue: _pos,
             decoration: const InputDecoration(labelText: 'Position'),
             items: [
               for (final p in HeroPosition.values)

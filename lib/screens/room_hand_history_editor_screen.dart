@@ -126,7 +126,7 @@ class _SpotDialogState extends State<_SpotDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             DropdownButtonFormField<int>(
-              value: _heroIndex,
+              initialValue: _heroIndex,
               decoration: const InputDecoration(
                 labelText: 'Hero',
                 border: OutlineInputBorder(),

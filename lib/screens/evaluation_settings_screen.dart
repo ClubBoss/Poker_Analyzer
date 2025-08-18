@@ -65,13 +65,13 @@ class _EvaluationSettingsScreenState extends State<EvaluationSettingsScreen> {
             SwitchListTile(
               value: _useIcm,
               title: const Text('Use ICM'),
-              activeColor: Colors.orange,
+              activeThumbColor: Colors.orange,
               onChanged: (v) => setState(() => _useIcm = v),
             ),
             SwitchListTile(
               value: _offline,
               title: const Text('Offline Mode'),
-              activeColor: Colors.orange,
+              activeThumbColor: Colors.orange,
               onChanged: (v) => setState(() => _offline = v),
             ),
             TextField(

@@ -100,7 +100,7 @@ class _PackSpotConstructorScreenState extends State<PackSpotConstructorScreen> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<HeroPosition>(
-              value: _pos,
+              initialValue: _pos,
               decoration: const InputDecoration(labelText: 'Position'),
               items: [
                 for (final p in HeroPosition.values)

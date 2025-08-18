@@ -64,20 +64,20 @@ class _LearningPathLauncherScreenState
             child: PopupMenuButton<LearningPathViewMode>(
               onSelected: _setMode,
               itemBuilder: (context) => [
-                PopupMenuItem(
+                const PopupMenuItem(
                   value: LearningPathViewMode.horizontal,
                   child: Row(
-                    children: const [
+                    children: [
                       Icon(Icons.arrow_forward),
                       SizedBox(width: 8),
                       Text('Горизонтальный'),
                     ],
                   ),
                 ),
-                PopupMenuItem(
+                const PopupMenuItem(
                   value: LearningPathViewMode.linear,
                   child: Row(
-                    children: const [
+                    children: [
                       Icon(Icons.arrow_upward),
                       SizedBox(width: 8),
                       Text('Вертикальный'),
@@ -85,8 +85,8 @@ class _LearningPathLauncherScreenState
                   ),
                 ),
               ],
-              child: Row(
-                children: const [
+              child: const Row(
+                children: [
                   Icon(Icons.swap_vert),
                   SizedBox(width: 4),
                   Text('Режим просмотра'),

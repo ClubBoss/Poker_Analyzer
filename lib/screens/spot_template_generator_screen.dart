@@ -76,7 +76,7 @@ class _SpotTemplateGeneratorScreenState
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             DropdownButtonFormField<HeroPosition>(
-              value: _hero,
+              initialValue: _hero,
               decoration: const InputDecoration(labelText: 'Hero Position'),
               items: [
                 for (final p in kPositionOrder)
@@ -86,7 +86,7 @@ class _SpotTemplateGeneratorScreenState
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<HeroPosition>(
-              value: _villain,
+              initialValue: _villain,
               decoration: const InputDecoration(labelText: 'Villain Position'),
               items: [
                 for (final p in kPositionOrder)
@@ -96,7 +96,7 @@ class _SpotTemplateGeneratorScreenState
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
-              value: _action,
+              initialValue: _action,
               decoration: const InputDecoration(labelText: 'Action Type'),
               items: const [
                 DropdownMenuItem(value: 'push', child: Text('Push')),

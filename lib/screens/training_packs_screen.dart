@@ -510,7 +510,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
             title: const Text('Скрыть завершённые'),
             value: _hideCompleted,
             onChanged: _toggleHideCompleted,
-            activeColor: Colors.orange,
+            activeThumbColor: Colors.orange,
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -608,7 +608,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
             final prefs = _prefs ?? await SharedPreferences.getInstance();
             await prefs.setBool(_groupKey, v);
           },
-          activeColor: Colors.orange,
+          activeThumbColor: Colors.orange,
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

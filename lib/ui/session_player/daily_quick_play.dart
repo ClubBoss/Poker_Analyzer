@@ -91,7 +91,7 @@ class _QuickDailyPlayPageState extends State<QuickDailyPlayPage> {
                                   ),
                                 ),
                               );
-                              final prog = markDone(_progress, next!.id);
+                              final prog = markDone(_progress, next.id);
                               await savePlanProgress(prog);
                               final st = bumpIfNeeded(_streak);
                               await saveStreak(st);

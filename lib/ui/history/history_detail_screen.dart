@@ -126,7 +126,7 @@ class HistoryDetailScreen extends StatelessWidget {
             subtitle: Text('$correct / $total'),
           ),
           const Spacer(),
-          ButtonBar(
+          OverflowBar(
             alignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(

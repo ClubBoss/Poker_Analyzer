@@ -714,7 +714,7 @@ class _TrainingPackTemplateListScreenState
                   title: const Text('Группировать по улице'),
                   value: _groupByStreet,
                   onChanged: _setGroupByStreet,
-                  activeColor: Colors.orange,
+                  activeThumbColor: Colors.orange,
                 ),
                 Expanded(
                   child: (() {

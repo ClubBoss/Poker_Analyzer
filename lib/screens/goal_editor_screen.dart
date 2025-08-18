@@ -97,7 +97,7 @@ class _GoalEditorScreenState extends State<GoalEditorScreen> {
               children: [
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: _type,
+                    initialValue: _type,
                     items: const [
                       DropdownMenuItem(
                         value: 'mistakes',

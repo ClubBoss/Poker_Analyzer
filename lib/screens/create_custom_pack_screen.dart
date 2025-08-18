@@ -252,7 +252,7 @@ class _CreateCustomPackScreenState extends State<CreateCustomPackScreen> {
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<GameType>(
-                  value: _gameType,
+                  initialValue: _gameType,
                   decoration: const InputDecoration(labelText: 'Тип игры'),
                   items: const [
                     DropdownMenuItem(

@@ -134,7 +134,7 @@ class SettingsPlaceholderScreen extends StatelessWidget {
             value: reminder.enabled,
             onChanged: (v) => reminder.setEnabled(v),
             title: const Text('Напоминания'),
-            activeColor: Colors.orange,
+            activeThumbColor: Colors.orange,
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -144,19 +144,19 @@ class SettingsPlaceholderScreen extends StatelessWidget {
             value: dailyReminder.enabled,
             onChanged: (v) => dailyReminder.setEnabled(v),
             title: const Text('Daily Reminder'),
-            activeColor: Colors.orange,
+            activeThumbColor: Colors.orange,
           ),
           SwitchListTile(
             value: prefs.showQuickAccess,
             onChanged: (v) => prefs.setShowQuickAccess(v),
             title: const Text('Show Quick Access'),
-            activeColor: Colors.orange,
+            activeThumbColor: Colors.orange,
           ),
           SwitchListTile(
             value: streakReminder.enabled,
             onChanged: (v) => streakReminder.setEnabled(v),
             title: const Text('Streak Reminder'),
-            activeColor: Colors.orange,
+            activeThumbColor: Colors.orange,
           ),
           ListTile(
             title: const Text('Time', style: TextStyle(color: Colors.white)),

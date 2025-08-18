@@ -33,7 +33,7 @@ class TrainingPackExporterV2 {
         schema: 'TemplateSet',
         prevHash: prevHash,
         onBackup: (path, backupPath, newHash, prev) async {
-          await PathTransactionManager(
+          await const PathTransactionManager(
             rootDir: '.',
           ).recordFileBackup(path, backupPath);
         },

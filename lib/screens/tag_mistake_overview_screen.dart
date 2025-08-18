@@ -847,7 +847,7 @@ class _TagMistakeOverviewScreenState extends State<TagMistakeOverviewScreen> {
               title: const Text('Сравнить с предыдущим периодом'),
               value: _comparePrevious,
               onChanged: _toggleComparePrevious,
-              activeColor: Colors.orange,
+              activeThumbColor: Colors.orange,
             ),
           ),
         ),

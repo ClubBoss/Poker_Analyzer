@@ -184,8 +184,8 @@ class _L3AbDiffScreenState extends State<L3AbDiffScreen> {
                 child: DataTable(
                   columns: [
                     const DataColumn(label: Text('')),
-                    DataColumn(label: Text('A')),
-                    DataColumn(label: Text('B')),
+                    const DataColumn(label: Text('A')),
+                    const DataColumn(label: Text('B')),
                     DataColumn(label: Text(loc.delta)),
                   ],
                   rows: _buildRows(loc),
