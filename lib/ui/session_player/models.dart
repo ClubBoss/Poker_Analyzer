@@ -22,6 +22,7 @@ enum SpotKind {
   l4_icm_bubble_jam_vs_fold,
   l4_icm_ladder_jam_vs_fold,
   l4_icm_sb_jam_vs_fold,
+  l4_icm_bb_jam_vs_fold,
 }
 
 const _spotKindBaseline = [
@@ -48,6 +49,7 @@ const _spotKindBaseline = [
   'l4_icm_bubble_jam_vs_fold',
   'l4_icm_ladder_jam_vs_fold',
   'l4_icm_sb_jam_vs_fold',
+  'l4_icm_bb_jam_vs_fold',
 ];
 
 final _spotKindGuard = () {
