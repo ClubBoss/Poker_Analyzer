@@ -1,7 +1,7 @@
 {
   "modules_done": [
     "core_rules_and_setup",
-    "core_pot_odds_equity",
-    "core_starting_hands"
+    "cash:l3:v1",
+    "icm:l4:ladder:v1"
   ]
 }
