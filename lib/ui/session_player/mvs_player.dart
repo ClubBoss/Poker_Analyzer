@@ -18,7 +18,7 @@ import '../../services/session_resume.dart';
 import 'hotkeys_sheet.dart';
 import 'mini_toast.dart';
 import 'models.dart';
-import 'spot_specs.dart';
+import 'spot_specs.dart' as specs;
 import 'result_summary.dart';
 import 'ui_prefs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,6 +30,16 @@ import 'package:poker_analyzer/ui/modules/icm_mix_packs.dart';
 import 'package:poker_analyzer/ui/modules/icm_bubble_packs.dart';
 import 'package:poker_analyzer/ui/modules/icm_ladder_packs.dart';
 import 'package:poker_analyzer/ui/session_player/l3_jsonl_export.dart';
+
+const actionsMap = <SpotKind, List<String>>{
+  ...specs.actionsMap,
+  SpotKind.l1_core_call_vs_price: ['call', 'fold'],
+};
+
+const subtitlePrefix = <SpotKind, String>{
+  ...specs.subtitlePrefix,
+  SpotKind.l1_core_call_vs_price: 'Pot Odds • ',
+};
 
 void _assertSpotKindIntegrity(Set<SpotKind> usedKinds) {
   assert(() {
@@ -49,7 +59,7 @@ void _assertSpotKindIntegrity(Set<SpotKind> usedKinds) {
       }
     }
     // 3) autoReplayKinds invariants.
-    for (final k in autoReplayKinds) {
+    for (final k in specs.autoReplayKinds) {
       final a = actionsMap[k];
       final p = subtitlePrefix[k];
       if (a == null || a.length != 2 || a[0] != 'jam' || a[1] != 'fold') {
@@ -514,7 +524,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           elapsed: _timer.elapsed,
         ),
       );
-      if (shouldAutoReplay(
+      if (specs.shouldAutoReplay(
         correct: correct,
         autoWhy: autoWhy,
         kind: spot.kind,
@@ -670,7 +680,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           elapsed: _timer.elapsed,
         ),
       );
-      if (shouldAutoReplay(
+      if (specs.shouldAutoReplay(
         correct: false,
         autoWhy: autoWhy,
         kind: spot.kind,
@@ -838,10 +848,10 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       final s = _spots[i];
       if (!a.correct &&
           autoWhy &&
-          isJamFold(s.kind) &&
+          specs.isJamFold(s.kind) &&
           isAutoReplayKind(s.kind) &&
           !_replayed.contains(s)) {
-        final key = jamDedupKey(s);
+        final key = specs.jamDedupKey(s);
         if (seen.add(key)) picks.add(s);
       }
     }
@@ -871,9 +881,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       final a = _answers[i];
       if (a.correct) continue;
       final s = _spots[i];
-      if (!isJamFold(s.kind)) continue;
+      if (!specs.isJamFold(s.kind)) continue;
       if (!isAutoReplayKind(s.kind)) continue; // L3-only
-      final key = jamDedupKey(s);
+      final key = specs.jamDedupKey(s);
       if (seen.add(key)) picks.add(s);
     }
     if (picks.isEmpty) {
@@ -894,9 +904,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       final reason = _answers[i].chosen == '(skip)'
           ? 'skip'
           : (_answers[i].chosen == '(timeout)' ? 'timeout' : 'wrong');
-      if (!isJamFold(s.kind)) continue;
+      if (!specs.isJamFold(s.kind)) continue;
       if (!isAutoReplayKind(s.kind)) continue; // L3-only per SSOT
-      final key = jamDedupKey(s);
+      final key = specs.jamDedupKey(s);
       if (!seen.add(key)) {
         dups++;
         continue;
@@ -1603,7 +1613,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
 
   Widget _buildSpotCard(UiSpot spot) {
     final actions = _actionsFor(spot.kind);
-    final jamFoldHotkeys = _showHotkeys && isJamFold(spot.kind);
+    final jamFoldHotkeys = _showHotkeys && specs.isJamFold(spot.kind);
     final correctCnt = _answers.where((a) => a.correct).length;
     final acc = _answers.isEmpty ? 0.0 : correctCnt / _answers.length;
     return GestureDetector(
