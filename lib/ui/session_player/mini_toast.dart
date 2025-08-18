@@ -7,7 +7,6 @@ Future<void> showMiniToast(
   Duration duration = const Duration(milliseconds: 1200),
 }) async {
   final overlay = Overlay.of(context);
-  if (overlay == null) return;
   late OverlayEntry entry;
   final animation = ValueNotifier<double>(0.0);
 

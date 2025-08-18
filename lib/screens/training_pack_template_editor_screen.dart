@@ -234,7 +234,7 @@ class _TrainingPackTemplateEditorScreenState
               ),
             const SizedBox(height: 16),
             DropdownButtonFormField<int>(
-              value: _difficulty,
+              initialValue: _difficulty,
               decoration: const InputDecoration(labelText: 'Сложность'),
               items: const [
                 DropdownMenuItem(value: 1, child: Text('1')),

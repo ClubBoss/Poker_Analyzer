@@ -81,7 +81,7 @@ class _SpotEditorScreenState extends State<SpotEditorScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             DropdownButtonFormField<int>(
-              value: _playerCount,
+              initialValue: _playerCount,
               decoration: const InputDecoration(labelText: 'Players'),
               dropdownColor: const Color(0xFF3A3B3E),
               items: [
@@ -100,7 +100,7 @@ class _SpotEditorScreenState extends State<SpotEditorScreen> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<int>(
-              value: _heroIndex,
+              initialValue: _heroIndex,
               decoration: const InputDecoration(labelText: 'Hero position'),
               dropdownColor: const Color(0xFF3A3B3E),
               items: [

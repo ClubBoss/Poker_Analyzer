@@ -184,7 +184,7 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
                       ),
                       const SizedBox(height: 12),
                       DropdownButtonFormField<int>(
-                        value: _difficulty,
+                        initialValue: _difficulty,
                         decoration: const InputDecoration(
                           labelText: 'Сложность',
                         ),

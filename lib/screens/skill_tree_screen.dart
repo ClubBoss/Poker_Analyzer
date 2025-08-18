@@ -130,13 +130,13 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
   void _showStageUnlockBanner() {
     final messenger = ScaffoldMessenger.of(context);
     messenger.clearMaterialBanners();
-    final banner = MaterialBanner(
+    final banner = const MaterialBanner(
       backgroundColor: Colors.green,
-      content: const Text(
+      content: Text(
         '⭐ New Stage Unlocked!',
         style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
       ),
-      actions: const [SizedBox.shrink()],
+      actions: [SizedBox.shrink()],
     );
     messenger.showMaterialBanner(banner);
     Future.delayed(const Duration(seconds: 3), () {

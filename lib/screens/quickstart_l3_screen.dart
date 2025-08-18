@@ -169,7 +169,7 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
       weightsArg = null;
       _inlineWarning = AppLocalizations.of(context).presetWillBeUsed;
     }
-    final runner = L3CliRunner();
+    final runner = const L3CliRunner();
     final res = await runner.run(weights: weightsArg, weightsPreset: preset);
     final prefs = await SharedPreferences.getInstance();
     final collectedWarnings = <String>[];

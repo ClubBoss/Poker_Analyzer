@@ -169,7 +169,7 @@ class _AutogenMetricsDashboardScreenState
                 const SizedBox(height: 16),
                 const AutogenDebugControlPanelWidget(),
                 const SizedBox(height: 16),
-                SizedBox(height: 300, child: AutogenEventLogViewerWidget()),
+                const SizedBox(height: 300, child: AutogenEventLogViewerWidget()),
                 const SizedBox(height: 16),
                 const AutogenErrorInspectorWidget(),
                 const SizedBox(height: 16),
@@ -177,11 +177,11 @@ class _AutogenMetricsDashboardScreenState
                 const SizedBox(height: 16),
                 const AutoFormatPanelWidget(),
                 const SizedBox(height: 16),
-                Card(
+                const Card(
                   child: ExpansionTile(
-                    title: const Text('Theory Injection Scheduler'),
-                    childrenPadding: const EdgeInsets.all(16),
-                    children: const [TheoryInjectionDashboardPanel()],
+                    title: Text('Theory Injection Scheduler'),
+                    childrenPadding: EdgeInsets.all(16),
+                    children: [TheoryInjectionDashboardPanel()],
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -280,9 +280,9 @@ class _AutogenMetricsDashboardScreenState
               ),
               minY: 0,
               maxY: 100,
-              gridData: FlGridData(show: true, drawVerticalLine: false),
+              gridData: const FlGridData(show: true, drawVerticalLine: false),
               titlesData: FlTitlesData(
-                leftTitles: AxisTitles(
+                leftTitles: const AxisTitles(
                   sideTitles: SideTitles(showTitles: true, interval: 20),
                 ),
                 bottomTitles: AxisTitles(

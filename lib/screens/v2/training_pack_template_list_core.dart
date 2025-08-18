@@ -1104,7 +1104,7 @@ class _TrainingPackTemplateListScreenState
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<GameType>(
-                value: type,
+                initialValue: type,
                 decoration: const InputDecoration(labelText: 'Game Type'),
                 items: const [
                   DropdownMenuItem(
@@ -1242,7 +1242,7 @@ class _TrainingPackTemplateListScreenState
               TextField(controller: ctrl, autofocus: true),
               const SizedBox(height: 12),
               DropdownButtonFormField<GameType>(
-                value: type,
+                initialValue: type,
                 decoration: const InputDecoration(labelText: 'Game Type'),
                 items: const [
                   DropdownMenuItem(
@@ -1255,7 +1255,7 @@ class _TrainingPackTemplateListScreenState
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: street,
+                initialValue: street,
                 decoration: const InputDecoration(labelText: 'Target Street'),
                 items: const [
                   DropdownMenuItem(value: 'any', child: Text('Any')),
@@ -1366,7 +1366,7 @@ class _TrainingPackTemplateListScreenState
             mainAxisSize: MainAxisSize.min,
             children: [
               DropdownButtonFormField<String>(
-                value: street,
+                initialValue: street,
                 decoration: const InputDecoration(labelText: 'Target Street'),
                 items: const [
                   DropdownMenuItem(value: 'any', child: Text('Any')),
@@ -1682,7 +1682,7 @@ class _TrainingPackTemplateListScreenState
                     ),
                   ),
                   DropdownButtonFormField<HeroPosition>(
-                    value: pos,
+                    initialValue: pos,
                     decoration:
                         const InputDecoration(labelText: 'Hero Position'),
                     items: [
@@ -1693,7 +1693,7 @@ class _TrainingPackTemplateListScreenState
                         setState(() => pos = v ?? HeroPosition.sb),
                   ),
                   DropdownButtonFormField<String>(
-                    value: street,
+                    initialValue: street,
                     decoration:
                         const InputDecoration(labelText: 'Target Street'),
                     items: const [
@@ -2537,19 +2537,19 @@ class _TrainingPackTemplateListScreenState
                   title: const Text('Hide Completed'),
                   value: _hideCompleted,
                   onChanged: _setHideCompleted,
-                  activeColor: Colors.orange,
+                  activeThumbColor: Colors.orange,
                 ),
                 SwitchListTile(
                   title: const Text('Group by Street'),
                   value: _groupByStreet,
                   onChanged: _setGroupByStreet,
-                  activeColor: Colors.orange,
+                  activeThumbColor: Colors.orange,
                 ),
                 SwitchListTile(
                   title: const Text('Group by Game Type'),
                   value: _groupByType,
                   onChanged: _setGroupByType,
-                  activeColor: Colors.orange,
+                  activeThumbColor: Colors.orange,
                 ),
                 if (!narrow)
                   Padding(

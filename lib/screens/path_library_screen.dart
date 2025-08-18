@@ -97,17 +97,17 @@ class _PathLibraryScreenState extends State<PathLibraryScreen> {
                           value: null,
                           child: Text('Все'),
                         ),
-                        DropdownMenuItem(
+                        const DropdownMenuItem(
                           value: PathDifficulty.easy,
-                          child: const Text('Легкие'),
+                          child: Text('Легкие'),
                         ),
-                        DropdownMenuItem(
+                        const DropdownMenuItem(
                           value: PathDifficulty.medium,
-                          child: const Text('Средние'),
+                          child: Text('Средние'),
                         ),
-                        DropdownMenuItem(
+                        const DropdownMenuItem(
                           value: PathDifficulty.hard,
-                          child: const Text('Сложные'),
+                          child: Text('Сложные'),
                         ),
                       ],
                     ),

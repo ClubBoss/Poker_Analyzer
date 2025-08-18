@@ -129,7 +129,7 @@ class _GraphPathAuthoringWizardScreenState extends State<GraphPathAuthoringWizar
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: stageType,
+                initialValue: stageType,
                 decoration: const InputDecoration(labelText: 'stageType'),
                 items: const [
                   DropdownMenuItem(value: 'practice', child: Text('practice')),

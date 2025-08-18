@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../models/learning_path_node_v2.dart';
 import '../models/v2/training_pack_template_v2.dart';
 import '../services/learning_graph_engine.dart';
-import '../services/learning_path_loader.dart';
 import '../services/mini_lesson_library_service.dart';
 import '../services/training_pack_launcher_service.dart';
 import '../services/skill_tree_node_detail_unlock_hint_service.dart';

@@ -46,7 +46,7 @@ class UiPrefs {
       haptics: b(m["haptics"], true),
       autoWhyOnWrong: b(m["autoWhyOnWrong"], b(m["autoExplainOnWrong"], false)),
       autoNextDelayMs: autoNextDelayMs,
-      fontScale: fs as double,
+      fontScale: fs,
     );
   }
 }
@@ -64,14 +64,14 @@ Future<UiPrefs> loadUiPrefs({String path = 'out/ui_prefs_v1.json'}) async {
       sound: false,
       haptics: true,
       autoWhyOnWrong: false,
-      autoNextDelayMs: delay as int,
+      autoNextDelayMs: delay,
       fontScale: (fsOverride ?? 1.0).clamp(0.9, 1.3),
     );
   }
   try {
     final root = jsonDecode(await f.readAsString());
     if (root is Map) {
-      var p = UiPrefs.fromJson(root, autoNextDelayMs: delay as int);
+      var p = UiPrefs.fromJson(root, autoNextDelayMs: delay);
       final fs = (fsOverride ?? p.fontScale).clamp(0.9, 1.3);
       p = UiPrefs(
         autoNext: p.autoNext,
@@ -81,7 +81,7 @@ Future<UiPrefs> loadUiPrefs({String path = 'out/ui_prefs_v1.json'}) async {
         haptics: p.haptics,
         autoWhyOnWrong: p.autoWhyOnWrong,
         autoNextDelayMs: p.autoNextDelayMs,
-        fontScale: fs as double,
+        fontScale: fs,
       );
       return p;
     }
@@ -93,7 +93,7 @@ Future<UiPrefs> loadUiPrefs({String path = 'out/ui_prefs_v1.json'}) async {
     sound: false,
     haptics: true,
     autoWhyOnWrong: false,
-    autoNextDelayMs: delay as int,
+    autoNextDelayMs: delay,
     fontScale: (fsOverride ?? 1.0).clamp(0.9, 1.3),
   );
 }
@@ -109,7 +109,7 @@ Future<void> saveUiPrefs(
   final prefs = await SharedPreferences.getInstance();
   await prefs.setInt(
     'ui_auto_next_delay_ms',
-    (p.autoNextDelayMs).clamp(300, 800) as int,
+    (p.autoNextDelayMs).clamp(300, 800),
   );
   await prefs.setDouble('ui_font_scale', (p.fontScale).clamp(0.9, 1.3));
 }

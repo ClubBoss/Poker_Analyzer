@@ -595,7 +595,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
                         _prefs ?? await SharedPreferences.getInstance();
                     await prefs.setBool(_mistakesKey, v);
                   },
-            activeColor: Colors.orange,
+            activeThumbColor: Colors.orange,
           ),
           Padding(
             padding: const EdgeInsets.all(16),

@@ -157,7 +157,7 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
                               ),
                             ),
                           ],
-                          color: MaterialStatePropertyAll(
+                          color: WidgetStatePropertyAll(
                             Color.alphaBlend(
                               Colors
                                   .primaries[r.category.hashCode %

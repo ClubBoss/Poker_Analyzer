@@ -263,7 +263,7 @@ class _TemplateHandsEditorScreenState extends State<TemplateHandsEditorScreen> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
-                  value: _gameType,
+                  initialValue: _gameType,
                   decoration: const InputDecoration(labelText: 'Тип игры'),
                   items: const [
                     DropdownMenuItem(

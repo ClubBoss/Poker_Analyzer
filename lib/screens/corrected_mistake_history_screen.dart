@@ -54,7 +54,7 @@ class _CorrectedMistakeHistoryScreenState
                     'Показать только с EV',
                     style: TextStyle(color: Colors.white),
                   ),
-                  activeColor: Colors.orange,
+                  activeThumbColor: Colors.orange,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                 ),
                 Expanded(
