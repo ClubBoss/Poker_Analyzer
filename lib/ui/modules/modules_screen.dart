@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:poker_analyzer/infra/telemetry.dart';
+import 'package:poker_analyzer/infra/telemetry_builder.dart';
 import 'package:poker_analyzer/ui/modules/cash_packs.dart';
 import 'package:poker_analyzer/ui/modules/icm_bb_packs.dart';
 import 'package:poker_analyzer/ui/modules/icm_mix_packs.dart';
@@ -8,7 +12,8 @@ import 'package:poker_analyzer/ui/modules/icm_bubble_packs.dart';
 import 'package:poker_analyzer/ui/modules/icm_ladder_packs.dart';
 
 import 'package:poker_analyzer/ui/session_player/spot_specs.dart'
-    as specs show isJamFold; // ignore: unused_import
+    as specs
+    show isJamFold; // ignore: unused_import
 import '../../../tooling/curriculum_ids.dart' as ssot;
 import 'package:poker_analyzer/content/manifest.dart';
 
@@ -215,11 +220,32 @@ class _ModulesScreenState extends State<ModulesScreen> {
                 final ready = isReady(moduleId);
                 return ListTile(
                   title: Text(moduleId),
-                  trailing:
-                      ready ? null : const Chip(label: Text('Coming soon')),
+                  trailing: ready
+                      ? null
+                      : const Chip(label: Text('Coming soon')),
                   enabled: ready,
                   onTap: ready
-                      ? () => showMiniToast(context, moduleId)
+                      ? () {
+                          unawaited(
+                            Telemetry.logEvent(
+                              'theory_viewed',
+                              buildTheoryViewed(
+                                moduleId: moduleId,
+                                theoryId: 'intro',
+                              ),
+                            ),
+                          );
+                          unawaited(
+                            Telemetry.logEvent(
+                              'demo_completed',
+                              buildDemoCompleted(
+                                moduleId: moduleId,
+                                demoId: 'demo1',
+                              ),
+                            ),
+                          );
+                          showMiniToast(context, moduleId);
+                        }
                       : null,
                 );
               },
