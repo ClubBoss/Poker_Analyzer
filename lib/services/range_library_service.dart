@@ -4,7 +4,7 @@ import 'range_import_export_service.dart';
 
 class RangeLibraryService {
   RangeLibraryService._([RangeImportExportService? io])
-      : _io = io ?? const RangeImportExportService();
+    : _io = io ?? const RangeImportExportService();
   static final instance = RangeLibraryService._();
 
   final RangeImportExportService _io;
@@ -25,7 +25,7 @@ class RangeLibraryService {
       if (list is List) {
         final range = [
           for (final e in list)
-            if (e is String) e
+            if (e is String) e,
         ];
         _cache[id] = range;
         return range;

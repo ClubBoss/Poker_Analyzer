@@ -37,8 +37,9 @@ class _PackMatrixConfigEditorScreenState
   Future<void> _save() async {
     await const PackMatrixConfig().saveMatrix(_matrix);
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Сохранено')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Сохранено')));
   }
 
   void _reorderAudience(int oldIndex, int newIndex) {
@@ -58,11 +59,13 @@ class _PackMatrixConfigEditorScreenState
         content: TextField(controller: controller, autofocus: true),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Отмена')),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Отмена'),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(context, controller.text.trim()),
-              child: const Text('OK')),
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: const Text('OK'),
+          ),
         ],
       ),
     );
@@ -80,11 +83,13 @@ class _PackMatrixConfigEditorScreenState
         content: TextField(controller: controller, autofocus: true),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Отмена')),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Отмена'),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(context, controller.text.trim()),
-              child: const Text('OK')),
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: const Text('OK'),
+          ),
         ],
       ),
     );
@@ -133,7 +138,7 @@ class _PackMatrixConfigEditorScreenState
                       subtitle: Wrap(
                         spacing: 4,
                         children: [
-                          for (final t in _matrix[i].$2) Chip(label: Text(t))
+                          for (final t in _matrix[i].$2) Chip(label: Text(t)),
                         ],
                       ),
                       leading: const Icon(Icons.drag_handle),
@@ -141,14 +146,17 @@ class _PackMatrixConfigEditorScreenState
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () => _renameAudience(i)),
+                            icon: const Icon(Icons.edit),
+                            onPressed: () => _renameAudience(i),
+                          ),
                           IconButton(
-                              icon: const Icon(Icons.list),
-                              onPressed: () => _editTags(i)),
+                            icon: const Icon(Icons.list),
+                            onPressed: () => _editTags(i),
+                          ),
                           IconButton(
-                              icon: const Icon(Icons.delete),
-                              onPressed: () => _removeAudience(i)),
+                            icon: const Icon(Icons.delete),
+                            onPressed: () => _removeAudience(i),
+                          ),
                         ],
                       ),
                     ),
@@ -156,7 +164,9 @@ class _PackMatrixConfigEditorScreenState
               ],
             ),
       floatingActionButton: FloatingActionButton(
-          onPressed: _addAudience, child: const Icon(Icons.add)),
+        onPressed: _addAudience,
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
@@ -195,11 +205,13 @@ class _TagsEditorScreenState extends State<_TagsEditorScreen> {
         content: TextField(controller: controller, autofocus: true),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Отмена')),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Отмена'),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(context, controller.text.trim()),
-              child: const Text('OK')),
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: const Text('OK'),
+          ),
         ],
       ),
     );
@@ -218,8 +230,9 @@ class _TagsEditorScreenState extends State<_TagsEditorScreen> {
         title: const Text('Теги'),
         actions: [
           IconButton(
-              icon: const Icon(Icons.check),
-              onPressed: () => Navigator.pop(context, _tags))
+            icon: const Icon(Icons.check),
+            onPressed: () => Navigator.pop(context, _tags),
+          ),
         ],
       ),
       backgroundColor: AppColors.background,
@@ -233,13 +246,16 @@ class _TagsEditorScreenState extends State<_TagsEditorScreen> {
               title: Text(_tags[i]),
               leading: const Icon(Icons.drag_handle),
               trailing: IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () => _removeTag(i)),
+                icon: const Icon(Icons.delete),
+                onPressed: () => _removeTag(i),
+              ),
             ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-          onPressed: _addTag, child: const Icon(Icons.add)),
+        onPressed: _addTag,
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }

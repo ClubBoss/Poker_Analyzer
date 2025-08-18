@@ -59,10 +59,7 @@ class TagInsightHeader extends StatelessWidget {
             children: [
               Icon(trendIcon, size: 14, color: trendColor),
               const SizedBox(width: 4),
-              Text(
-                trend,
-                style: TextStyle(color: trendColor, fontSize: 12),
-              ),
+              Text(trend, style: TextStyle(color: trendColor, fontSize: 12)),
             ],
           ),
           const SizedBox(height: 4),

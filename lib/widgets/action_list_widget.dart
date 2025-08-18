@@ -130,12 +130,15 @@ class _ActionListWidgetState extends State<ActionListWidget> {
   Future<ActionEntry?> _showDialog(ActionEntry entry) {
     int player = entry.playerIndex;
     String act = entry.action;
-    final amountController =
-        TextEditingController(text: entry.amount?.toString() ?? '');
-    final labelController =
-        TextEditingController(text: entry.customLabel ?? '');
-    final equityController =
-        TextEditingController(text: entry.equity?.toString() ?? '');
+    final amountController = TextEditingController(
+      text: entry.amount?.toString() ?? '',
+    );
+    final labelController = TextEditingController(
+      text: entry.customLabel ?? '',
+    );
+    final equityController = TextEditingController(
+      text: entry.equity?.toString() ?? '',
+    );
     final pa = entry.potAfter;
     final po = entry.potOdds;
     final origAmount = entry.amount ?? 0;
@@ -373,9 +376,9 @@ class _ActionListWidgetState extends State<ActionListWidget> {
       _recalcErrors();
     });
     _notify();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('All actions cleared')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('All actions cleared')));
   }
 
   @override
@@ -411,10 +414,11 @@ class _ActionListWidgetState extends State<ActionListWidget> {
             final isBlind = index < 2 && a.action == 'post';
             final heroBg = (a.playerIndex == widget.heroIndex && a.ev != null)
                 ? (a.ev! >= 0
-                    ? Colors.green.withValues(alpha: 0.1)
-                    : Colors.red.withValues(alpha: 0.1))
+                      ? Colors.green.withValues(alpha: 0.1)
+                      : Colors.red.withValues(alpha: 0.1))
                 : null;
-            final bg = heroBg ??
+            final bg =
+                heroBg ??
                 (_errors[index] == null
                     ? Colors.transparent
                     : Colors.red.withValues(alpha: 0.15));
@@ -443,8 +447,12 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(_format(a)),
-                            if (['post', 'call', 'raise', 'push']
-                                    .contains(a.action) &&
+                            if ([
+                                  'post',
+                                  'call',
+                                  'raise',
+                                  'push',
+                                ].contains(a.action) &&
                                 a.amount != null)
                               Padding(
                                 padding: const EdgeInsets.only(left: 4),
@@ -552,8 +560,10 @@ class _ActionListWidgetState extends State<ActionListWidget> {
                         padding: const EdgeInsets.only(top: 4, right: 8),
                         child: Text(
                           'Total pot: ${pot.potAfter.toStringAsFixed(1)} BB',
-                          style:
-                              const TextStyle(color: Colors.grey, fontSize: 12),
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
                     )

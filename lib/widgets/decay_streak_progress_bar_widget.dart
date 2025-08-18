@@ -47,17 +47,23 @@ class DecayStreakProgressBarWidget extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Text('🧠 No critical decay:',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      )),
+                  const Text(
+                    '🧠 No critical decay:',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(width: 4),
-                  Text('$current-day streak',
-                      style: const TextStyle(color: Colors.white)),
+                  Text(
+                    '$current-day streak',
+                    style: const TextStyle(color: Colors.white),
+                  ),
                   const Spacer(),
-                  Text('$current / $milestone',
-                      style: const TextStyle(color: Colors.white70)),
+                  Text(
+                    '$current / $milestone',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
                 ],
               ),
               const SizedBox(height: 4),

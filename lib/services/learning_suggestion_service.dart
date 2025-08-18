@@ -12,7 +12,7 @@ enum LearningTipAction {
   continuePack,
   startStage,
   repeatStage,
-  exploreNextStage
+  exploreNextStage,
 }
 
 class LearningTip {
@@ -44,7 +44,8 @@ class LearningSuggestionService {
 
   /// Suggests the next best pack to train based on progress and weak spots.
   Future<LearningPackSuggestion?> nextSuggestedPack(
-      BuildContext context) async {
+    BuildContext context,
+  ) async {
     final list = await getSuggestions(context);
     return list.isNotEmpty ? list.first : null;
   }
@@ -52,12 +53,13 @@ class LearningSuggestionService {
   /// Returns extended suggestions for the learning path.
   /// The list is ordered by priority.
   Future<List<LearningPackSuggestion>> getSuggestions(
-      BuildContext context) async {
+    BuildContext context,
+  ) async {
     final mastery = context.read<TagMasteryService>();
     final weakTags = await mastery.topWeakTags(5);
 
-    final stages =
-        await LearningPathProgressService.instance.getCurrentStageState();
+    final stages = await LearningPathProgressService.instance
+        .getCurrentStageState();
     final result = <LearningPackSuggestion>[];
 
     for (final stage in stages) {
@@ -84,8 +86,12 @@ class LearningSuggestionService {
           reason = 'Слабая зона: $match';
         }
 
-        result.add(LearningPackSuggestion(
-            templateId: id, suggestionReason: reason ?? 'Непройденный пак'));
+        result.add(
+          LearningPackSuggestion(
+            templateId: id,
+            suggestionReason: reason ?? 'Непройденный пак',
+          ),
+        );
       }
     }
 
@@ -93,8 +99,8 @@ class LearningSuggestionService {
   }
 
   Future<LearningTip?> getTip() async {
-    final stages =
-        await LearningPathProgressService.instance.getCurrentStageState();
+    final stages = await LearningPathProgressService.instance
+        .getCurrentStageState();
 
     for (final stage in stages) {
       for (final item in stage.items) {
@@ -131,8 +137,8 @@ class LearningSuggestionService {
       }
     }
 
-    final allDone =
-        await LearningPathProgressService.instance.isAllStagesCompleted();
+    final allDone = await LearningPathProgressService.instance
+        .isAllStagesCompleted();
     if (allDone && stages.isNotEmpty) {
       final first = stages.first.items.first.templateId;
       return LearningTip(

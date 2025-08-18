@@ -19,8 +19,11 @@ class PackPlayStats {
   final int launches;
   final int totalTrained;
   final int mistakes;
-  const PackPlayStats(
-      {this.launches = 0, this.totalTrained = 0, this.mistakes = 0});
+  const PackPlayStats({
+    this.launches = 0,
+    this.totalTrained = 0,
+    this.mistakes = 0,
+  });
 }
 
 class TrainingStatsService extends ChangeNotifier {
@@ -64,8 +67,9 @@ class TrainingStatsService extends ChangeNotifier {
   Map<String, SkillStat> _skillStats = {};
   Map<String, int> _mistakeCounts = {};
 
-  Map<DateTime, int> get handsPerDay =>
-      {for (final e in _handsPerDay.entries) DateTime.parse(e.key): e.value};
+  Map<DateTime, int> get handsPerDay => {
+    for (final e in _handsPerDay.entries) DateTime.parse(e.key): e.value,
+  };
 
   final _sessionController = StreamController<int>.broadcast();
   final _handsController = StreamController<int>.broadcast();
@@ -108,39 +112,53 @@ class TrainingStatsService extends ChangeNotifier {
 
   List<MapEntry<DateTime, int>> handsDaily([int days = 7]) {
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day)
-        .subtract(Duration(days: days - 1));
+    final start = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(Duration(days: days - 1));
     return [
       for (final e in _entries(_handsPerDay))
-        if (!e.key.isBefore(start)) e
+        if (!e.key.isBefore(start)) e,
     ];
   }
 
   List<MapEntry<DateTime, int>> sessionsDaily([int days = 7]) {
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day)
-        .subtract(Duration(days: days - 1));
+    final start = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(Duration(days: days - 1));
     return [
       for (final e in _entries(_sessionsPerDay))
-        if (!e.key.isBefore(start)) e
+        if (!e.key.isBefore(start)) e,
     ];
   }
 
   List<MapEntry<DateTime, int>> mistakesDaily([int days = 7]) {
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day)
-        .subtract(Duration(days: days - 1));
+    final start = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(Duration(days: days - 1));
     return [
       for (final e in _entries(_mistakesPerDay))
-        if (!e.key.isBefore(start)) e
+        if (!e.key.isBefore(start)) e,
     ];
   }
 
-  List<MapEntry<DateTime, double>> evDaily(List<SavedHand> hands,
-      [int days = 7]) {
+  List<MapEntry<DateTime, double>> evDaily(
+    List<SavedHand> hands, [
+    int days = 7,
+  ]) {
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day)
-        .subtract(Duration(days: days - 1));
+    final start = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(Duration(days: days - 1));
     final Map<DateTime, List<double>> map = {};
     for (final h in hands) {
       final v = h.heroEv;
@@ -153,15 +171,20 @@ class TrainingStatsService extends ChangeNotifier {
       ..sort((a, b) => a.key.compareTo(b.key));
     return [
       for (final e in entries)
-        MapEntry(e.key, e.value.reduce((a, b) => a + b) / e.value.length)
+        MapEntry(e.key, e.value.reduce((a, b) => a + b) / e.value.length),
     ];
   }
 
-  List<MapEntry<DateTime, double>> icmDaily(List<SavedHand> hands,
-      [int days = 7]) {
+  List<MapEntry<DateTime, double>> icmDaily(
+    List<SavedHand> hands, [
+    int days = 7,
+  ]) {
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day)
-        .subtract(Duration(days: days - 1));
+    final start = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(Duration(days: days - 1));
     final Map<DateTime, List<double>> map = {};
     for (final h in hands) {
       final v = h.heroIcmEv;
@@ -174,7 +197,7 @@ class TrainingStatsService extends ChangeNotifier {
       ..sort((a, b) => a.key.compareTo(b.key));
     return [
       for (final e in entries)
-        MapEntry(e.key, e.value.reduce((a, b) => a + b) / e.value.length)
+        MapEntry(e.key, e.value.reduce((a, b) => a + b) / e.value.length),
     ];
   }
 
@@ -192,7 +215,8 @@ class TrainingStatsService extends ChangeNotifier {
   }
 
   List<MapEntry<DateTime, double>> _groupWeeklyAvg(
-      List<MapEntry<DateTime, double>> daily) {
+    List<MapEntry<DateTime, double>> daily,
+  ) {
     final Map<DateTime, List<double>> grouped = {};
     for (final e in daily) {
       final w = e.key.subtract(Duration(days: e.key.weekday - 1));
@@ -202,24 +226,29 @@ class TrainingStatsService extends ChangeNotifier {
       ..sort((a, b) => a.key.compareTo(b.key));
     return [
       for (final e in entries)
-        MapEntry(e.key, e.value.reduce((a, b) => a + b) / e.value.length)
+        MapEntry(e.key, e.value.reduce((a, b) => a + b) / e.value.length),
     ];
   }
 
-  List<MapEntry<DateTime, double>> evWeekly(List<SavedHand> hands,
-      [int weeks = 4]) {
+  List<MapEntry<DateTime, double>> evWeekly(
+    List<SavedHand> hands, [
+    int weeks = 4,
+  ]) {
     final daily = evDaily(hands, weeks * 7);
     return _groupWeeklyAvg(daily);
   }
 
-  List<MapEntry<DateTime, double>> icmWeekly(List<SavedHand> hands,
-      [int weeks = 4]) {
+  List<MapEntry<DateTime, double>> icmWeekly(
+    List<SavedHand> hands, [
+    int weeks = 4,
+  ]) {
     final daily = icmDaily(hands, weeks * 7);
     return _groupWeeklyAvg(daily);
   }
 
   List<MapEntry<DateTime, double>> _groupMonthlyAvg(
-      List<MapEntry<DateTime, double>> daily) {
+    List<MapEntry<DateTime, double>> daily,
+  ) {
     final Map<DateTime, List<double>> grouped = {};
     for (final e in daily) {
       final m = DateTime(e.key.year, e.key.month);
@@ -229,34 +258,40 @@ class TrainingStatsService extends ChangeNotifier {
       ..sort((a, b) => a.key.compareTo(b.key));
     return [
       for (final e in entries)
-        MapEntry(e.key, e.value.reduce((a, b) => a + b) / e.value.length)
+        MapEntry(e.key, e.value.reduce((a, b) => a + b) / e.value.length),
     ];
   }
 
-  List<MapEntry<DateTime, double>> evMonthly(List<SavedHand> hands,
-      [int months = 12]) {
+  List<MapEntry<DateTime, double>> evMonthly(
+    List<SavedHand> hands, [
+    int months = 12,
+  ]) {
     final now = DateTime.now();
     final start = DateTime(now.year, now.month - months + 1);
     final daily = [
       for (final e in evDaily(hands, months * 31))
-        if (!e.key.isBefore(start)) e
+        if (!e.key.isBefore(start)) e,
     ];
     return _groupMonthlyAvg(daily);
   }
 
-  List<MapEntry<DateTime, double>> icmMonthly(List<SavedHand> hands,
-      [int months = 12]) {
+  List<MapEntry<DateTime, double>> icmMonthly(
+    List<SavedHand> hands, [
+    int months = 12,
+  ]) {
     final now = DateTime.now();
     final start = DateTime(now.year, now.month - months + 1);
     final daily = [
       for (final e in icmDaily(hands, months * 31))
-        if (!e.key.isBefore(start)) e
+        if (!e.key.isBefore(start)) e,
     ];
     return _groupMonthlyAvg(daily);
   }
 
   List<MapEntry<DateTime, double>> categoryEvSeries(
-      List<SavedHand> hands, String cat) {
+    List<SavedHand> hands,
+    String cat,
+  ) {
     final Map<DateTime, List<double>> map = {};
     for (final h in hands) {
       if (h.category != cat) continue;
@@ -269,12 +304,14 @@ class TrainingStatsService extends ChangeNotifier {
       ..sort((a, b) => a.key.compareTo(b.key));
     return [
       for (final e in entries)
-        MapEntry(e.key, e.value.reduce((a, b) => a + b) / e.value.length)
+        MapEntry(e.key, e.value.reduce((a, b) => a + b) / e.value.length),
     ];
   }
 
   List<MapEntry<DateTime, double>> categoryIcmSeries(
-      List<SavedHand> hands, String cat) {
+    List<SavedHand> hands,
+    String cat,
+  ) {
     final Map<DateTime, List<double>> map = {};
     for (final h in hands) {
       if (h.category != cat) continue;
@@ -287,7 +324,7 @@ class TrainingStatsService extends ChangeNotifier {
       ..sort((a, b) => a.key.compareTo(b.key));
     return [
       for (final e in entries)
-        MapEntry(e.key, e.value.reduce((a, b) => a + b) / e.value.length)
+        MapEntry(e.key, e.value.reduce((a, b) => a + b) / e.value.length),
     ];
   }
 
@@ -314,7 +351,8 @@ class TrainingStatsService extends ChangeNotifier {
   }
 
   List<MapEntry<DateTime, int>> _groupWeekly(
-      List<MapEntry<DateTime, int>> daily) {
+    List<MapEntry<DateTime, int>> daily,
+  ) {
     final Map<DateTime, int> grouped = {};
     for (final e in daily) {
       final w = e.key.subtract(Duration(days: e.key.weekday - 1));
@@ -341,7 +379,8 @@ class TrainingStatsService extends ChangeNotifier {
   }
 
   List<MapEntry<DateTime, int>> _groupMonthly(
-      List<MapEntry<DateTime, int>> daily) {
+    List<MapEntry<DateTime, int>> daily,
+  ) {
     final Map<DateTime, int> grouped = {};
     for (final e in daily) {
       final m = DateTime(e.key.year, e.key.month);
@@ -357,7 +396,7 @@ class TrainingStatsService extends ChangeNotifier {
     final start = DateTime(now.year, now.month - months + 1);
     final daily = [
       for (final e in _entries(_handsPerDay))
-        if (!e.key.isBefore(start)) e
+        if (!e.key.isBefore(start)) e,
     ];
     return _groupMonthly(daily);
   }
@@ -367,7 +406,7 @@ class TrainingStatsService extends ChangeNotifier {
     final start = DateTime(now.year, now.month - months + 1);
     final daily = [
       for (final e in _entries(_sessionsPerDay))
-        if (!e.key.isBefore(start)) e
+        if (!e.key.isBefore(start)) e,
     ];
     return _groupMonthly(daily);
   }
@@ -377,7 +416,7 @@ class TrainingStatsService extends ChangeNotifier {
     final start = DateTime(now.year, now.month - months + 1);
     final daily = [
       for (final e in _entries(_mistakesPerDay))
-        if (!e.key.isBefore(start)) e
+        if (!e.key.isBefore(start)) e,
     ];
     return _groupMonthly(daily);
   }
@@ -403,14 +442,9 @@ class TrainingStatsService extends ChangeNotifier {
     final sMap = {for (final e in sessions) e.key: e.value};
     final hMap = {for (final e in hands) e.key: e.value};
     final mMap = {for (final e in mistakes) e.key: e.value};
-    final dates = {
-      ...sMap.keys,
-      ...hMap.keys,
-      ...mMap.keys,
-    }.toList()
-      ..sort();
+    final dates = {...sMap.keys, ...hMap.keys, ...mMap.keys}.toList()..sort();
     final rows = <List<dynamic>>[
-      ['Date', 'Sessions', 'Hands', 'Mistakes']
+      ['Date', 'Sessions', 'Hands', 'Mistakes'],
     ];
     for (final d in dates) {
       final key = d.toIso8601String().split('T').first;
@@ -434,7 +468,10 @@ class TrainingStatsService extends ChangeNotifier {
   }
 
   Future<void> _saveMap(
-      SharedPreferences prefs, String key, Map<String, int> map) async {
+    SharedPreferences prefs,
+    String key,
+    Map<String, int> map,
+  ) async {
     await prefs.setString(key, jsonEncode(map));
   }
 
@@ -449,9 +486,12 @@ class TrainingStatsService extends ChangeNotifier {
   int _calcCurrentStreak() {
     final today = DateTime.now();
     int streak = 0;
-    for (int i = 0;; i++) {
-      final day = DateTime(today.year, today.month, today.day)
-          .subtract(Duration(days: i));
+    for (int i = 0; ; i++) {
+      final day = DateTime(
+        today.year,
+        today.month,
+        today.day,
+      ).subtract(Duration(days: i));
       final key = day.toIso8601String().split('T').first;
       final hands = _handsPerDay[key] ?? 0;
       final mistakes = _mistakesPerDay[key] ?? 0;
@@ -465,10 +505,8 @@ class TrainingStatsService extends ChangeNotifier {
   }
 
   int _calcBestStreak() {
-    final allKeys = {
-      ..._handsPerDay.keys,
-      ..._mistakesPerDay.keys,
-    }..removeWhere((e) => e.isEmpty);
+    final allKeys = {..._handsPerDay.keys, ..._mistakesPerDay.keys}
+      ..removeWhere((e) => e.isEmpty);
     final dates = allKeys.map(DateTime.parse).toList()..sort();
     int best = 0;
     int current = 0;
@@ -509,21 +547,21 @@ class TrainingStatsService extends ChangeNotifier {
     _evalCorrect = prefs.getInt(_evalCorrectKey) ?? 0;
     _evalHistory = [
       for (final s in prefs.getStringList(_evalHistoryKey) ?? [])
-        double.tryParse(s) ?? 0
+        double.tryParse(s) ?? 0,
     ];
     final skillsRaw = prefs.getString(_skillStatsKey);
     if (skillsRaw != null) {
       final data = jsonDecode(skillsRaw) as Map<String, dynamic>;
       _skillStats = {
         for (final e in data.entries)
-          e.key: SkillStat.fromJson(Map<String, dynamic>.from(e.value))
+          e.key: SkillStat.fromJson(Map<String, dynamic>.from(e.value)),
       };
     }
     final countsRaw = prefs.getString(_mistakeCountsKey);
     if (countsRaw != null) {
       final data = jsonDecode(countsRaw) as Map<String, dynamic>;
       _mistakeCounts = {
-        for (final e in data.entries) e.key: (e.value as num).toInt()
+        for (final e in data.entries) e.key: (e.value as num).toInt(),
       };
     }
     _currentStreak = prefs.getInt(_currentStreakKey) ?? 0;
@@ -533,8 +571,9 @@ class TrainingStatsService extends ChangeNotifier {
       if (remote != null) {
         final remoteAt =
             DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
-                DateTime.fromMillisecondsSinceEpoch(0);
-        final localAt = DateTime.tryParse(prefs.getString(_timeKey) ?? '') ??
+            DateTime.fromMillisecondsSinceEpoch(0);
+        final localAt =
+            DateTime.tryParse(prefs.getString(_timeKey) ?? '') ??
             DateTime.fromMillisecondsSinceEpoch(0);
         if (remoteAt.isAfter(localAt)) {
           _sessions = (remote['sessions'] as num?)?.toInt() ?? _sessions;
@@ -545,17 +584,17 @@ class TrainingStatsService extends ChangeNotifier {
           final mpd = remote['mistakesPerDay'];
           if (spd is Map) {
             _sessionsPerDay = {
-              for (final e in spd.entries) e.key: (e.value as num).toInt()
+              for (final e in spd.entries) e.key: (e.value as num).toInt(),
             };
           }
           if (hpd is Map) {
             _handsPerDay = {
-              for (final e in hpd.entries) e.key: (e.value as num).toInt()
+              for (final e in hpd.entries) e.key: (e.value as num).toInt(),
             };
           }
           if (mpd is Map) {
             _mistakesPerDay = {
-              for (final e in mpd.entries) e.key: (e.value as num).toInt()
+              for (final e in mpd.entries) e.key: (e.value as num).toInt(),
             };
           }
           _currentStreak = (remote['currentStreak'] as num?)?.toInt() ?? 0;
@@ -571,13 +610,14 @@ class TrainingStatsService extends ChangeNotifier {
             _skillStats = {
               for (final e in skills.entries)
                 e.key: SkillStat.fromJson(
-                    Map<String, dynamic>.from(e.value as Map))
+                  Map<String, dynamic>.from(e.value as Map),
+                ),
             };
           }
           final counts = remote['mistakeCounts'];
           if (counts is Map) {
             _mistakeCounts = {
-              for (final e in counts.entries) e.key: (e.value as num).toInt()
+              for (final e in counts.entries) e.key: (e.value as num).toInt(),
             };
           }
           await _persist(remoteAt);
@@ -591,23 +631,21 @@ class TrainingStatsService extends ChangeNotifier {
   }
 
   Map<String, dynamic> _toMap() => {
-        'sessions': _sessions,
-        'hands': _hands,
-        'mistakes': _mistakes,
-        'sessionsPerDay': _sessionsPerDay,
-        'handsPerDay': _handsPerDay,
-        'mistakesPerDay': _mistakesPerDay,
-        'currentStreak': _currentStreak,
-        'bestStreak': _bestStreak,
-        'evalTotal': _evalTotal,
-        'evalCorrect': _evalCorrect,
-        'evalHistory': _evalHistory,
-        'skills': {
-          for (final e in _skillStats.entries) e.key: e.value.toJson()
-        },
-        'mistakeCounts': _mistakeCounts,
-        'updatedAt': DateTime.now().toIso8601String(),
-      };
+    'sessions': _sessions,
+    'hands': _hands,
+    'mistakes': _mistakes,
+    'sessionsPerDay': _sessionsPerDay,
+    'handsPerDay': _handsPerDay,
+    'mistakesPerDay': _mistakesPerDay,
+    'currentStreak': _currentStreak,
+    'bestStreak': _bestStreak,
+    'evalTotal': _evalTotal,
+    'evalCorrect': _evalCorrect,
+    'evalHistory': _evalHistory,
+    'skills': {for (final e in _skillStats.entries) e.key: e.value.toJson()},
+    'mistakeCounts': _mistakeCounts,
+    'updatedAt': DateTime.now().toIso8601String(),
+  };
 
   Future<void> _persist(DateTime ts) async {
     final prefs = await SharedPreferences.getInstance();
@@ -619,14 +657,16 @@ class TrainingStatsService extends ChangeNotifier {
     await _saveMap(prefs, _mistakesHistKey, _mistakesPerDay);
     await prefs.setInt(_evalTotalKey, _evalTotal);
     await prefs.setInt(_evalCorrectKey, _evalCorrect);
-    await prefs.setStringList(
-        _evalHistoryKey, [for (final v in _evalHistory) v.toString()]);
+    await prefs.setStringList(_evalHistoryKey, [
+      for (final v in _evalHistory) v.toString(),
+    ]);
     await prefs.setInt(_currentStreakKey, _currentStreak);
     await prefs.setInt(_bestStreakKey, _bestStreak);
     await prefs.setString(
       _skillStatsKey,
-      jsonEncode(
-          {for (final e in _skillStats.entries) e.key: e.value.toJson()}),
+      jsonEncode({
+        for (final e in _skillStats.entries) e.key: e.value.toJson(),
+      }),
     );
     await prefs.setString(_mistakeCountsKey, jsonEncode(_mistakeCounts));
     await prefs.setString(_timeKey, ts.toIso8601String());
@@ -752,8 +792,9 @@ class TrainingStatsService extends ChangeNotifier {
     for (final t in templates.templates) {
       final stat = await TrainingPackStatsService.getStats(t.id);
       if (stat != null) {
-        packs
-            .add(PackAccuracy(id: t.id, name: t.name, accuracy: stat.accuracy));
+        packs.add(
+          PackAccuracy(id: t.id, name: t.name, accuracy: stat.accuracy),
+        );
       }
     }
     final avg = packs.isNotEmpty

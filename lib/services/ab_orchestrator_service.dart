@@ -78,8 +78,10 @@ class ABOrchestratorService {
             (exp['arms'] as List?)?.cast<Map<String, dynamic>>() ?? const [];
         final h2 = sha256.convert(utf8.encode('$userId|$expId|arm')).toString();
         final u2 = int.parse(h2.substring(0, 8), radix: 16) / 0xFFFFFFFF;
-        final total =
-            arms.fold<num>(0, (s, a) => s + (a['ratio'] as num? ?? 1));
+        final total = arms.fold<num>(
+          0,
+          (s, a) => s + (a['ratio'] as num? ?? 1),
+        );
         final slot = u2 * total;
         num cumulative = 0;
         for (final a in arms) {
@@ -99,7 +101,8 @@ class ABOrchestratorService {
           .cast<Map<String, dynamic>>()
           .firstWhere((a) => a['id'] == assigned, orElse: () => {});
       final overrides = armSpec['overrides'] as Map<String, dynamic>? ?? {};
-      final prefsOv = (overrides['prefs'] as Map?)?.map(
+      final prefsOv =
+          (overrides['prefs'] as Map?)?.map(
             (k, v) => MapEntry(k.toString(), v),
           ) ??
           const {};

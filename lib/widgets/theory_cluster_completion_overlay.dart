@@ -36,8 +36,11 @@ class TheoryClusterCompletionOverlay extends StatelessWidget {
           return Icon(Icons.check_circle, color: Colors.green, size: size);
         }
         if (value <= 0.0) {
-          return Icon(Icons.radio_button_unchecked,
-              color: Colors.grey, size: size);
+          return Icon(
+            Icons.radio_button_unchecked,
+            color: Colors.grey,
+            size: size,
+          );
         }
         final ring = SizedBox(
           width: size,

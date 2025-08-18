@@ -6,8 +6,12 @@ import 'package:poker_analyzer/models/v2/hand_data.dart';
 import 'package:poker_analyzer/models/v2/hero_position.dart';
 import 'package:poker_analyzer/core/training/engine/training_type_engine.dart';
 
-TrainingPackSpot _spot(String id, HeroPosition pos, int stack,
-    {List<String>? board}) {
+TrainingPackSpot _spot(
+  String id,
+  HeroPosition pos,
+  int stack, {
+  List<String>? board,
+}) {
   final hand = HandData.fromSimpleInput('AhAs', pos, stack)
     ..board.addAll(board ?? []);
   return TrainingPackSpot(id: id, hand: hand);

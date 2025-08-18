@@ -37,12 +37,14 @@ class _ClearTableCardsState extends State<ClearTableCards>
     _opacity = Tween<double>(begin: 1.0, end: 0.0).animate(
       CurvedAnimation(parent: _controller, curve: const Interval(0.4, 1.0)),
     );
-    _offsetY = Tween<double>(begin: 0.0, end: 100.0 * widget.scale).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
-    );
-    _rotation = Tween<double>(begin: 0.0, end: 0.2).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _offsetY = Tween<double>(
+      begin: 0.0,
+      end: 100.0 * widget.scale,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
+    _rotation = Tween<double>(
+      begin: 0.0,
+      end: 0.2,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         widget.onCompleted?.call();
@@ -65,10 +67,7 @@ class _ClearTableCardsState extends State<ClearTableCards>
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        final pos = Offset(
-          widget.start.dx,
-          widget.start.dy + _offsetY.value,
-        );
+        final pos = Offset(widget.start.dx, widget.start.dy + _offsetY.value);
         return Positioned(
           left: pos.dx - width / 2,
           top: pos.dy - height / 2,

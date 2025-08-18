@@ -28,11 +28,11 @@ class _PositionTagAnalyticsScreenState
     }
     final data = _byTag
         ? (_current != null
-            ? service.tagSeries(_current!)
-            : const <ProgressEntry>[])
+              ? service.tagSeries(_current!)
+              : const <ProgressEntry>[])
         : (_current != null
-            ? service.positionSeries(_current!)
-            : const <ProgressEntry>[]);
+              ? service.positionSeries(_current!)
+              : const <ProgressEntry>[]);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Position & Tag'),
@@ -61,7 +61,7 @@ class _PositionTagAnalyticsScreenState
                 style: const TextStyle(color: Colors.white),
                 items: [
                   for (final v in values)
-                    DropdownMenuItem(value: v, child: Text(v))
+                    DropdownMenuItem(value: v, child: Text(v)),
                 ],
                 onChanged: (v) => setState(() => _current = v),
               ),

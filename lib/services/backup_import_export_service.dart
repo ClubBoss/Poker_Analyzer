@@ -37,10 +37,10 @@ class BackupImportExportService {
   List<ActionEvaluationRequest> get _completed => queueService.completed;
 
   Map<String, dynamic> _currentState() => serializer.encodeQueues(
-        pending: _pending,
-        failed: _failed,
-        completed: _completed,
-      );
+    pending: _pending,
+    failed: _failed,
+    completed: _completed,
+  );
 
   String _timestamp() =>
       DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now());
@@ -51,8 +51,9 @@ class BackupImportExportService {
       final dir = await fileManager.getBackupDirectory(exportsFolder);
       final fileName = 'evaluation_queue_${_timestamp()}.json';
       final file = await fileManager.createFile(dir, fileName);
-      await fileManager
-          .writeJsonFile(file, [for (final e in _pending) e.toJson()]);
+      await fileManager.writeJsonFile(file, [
+        for (final e in _pending) e.toJson(),
+      ]);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -89,15 +90,15 @@ class BackupImportExportService {
       await fileManager.writeJsonFile(file, _currentState());
       if (context.mounted) {
         final name = savePath.split(Platform.pathSeparator).last;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Queue exported: $name')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Queue exported: $name')));
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to export queue')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Failed to export queue')));
       }
     }
   }
@@ -137,8 +138,10 @@ class BackupImportExportService {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(
-                  'Imported ${_pending.length} pending, ${_failed.length} failed, ${_completed.length} completed evaluations')),
+            content: Text(
+              'Imported ${_pending.length} pending, ${_failed.length} failed, ${_completed.length} completed evaluations',
+            ),
+          ),
         );
       }
     } catch (_) {
@@ -177,8 +180,10 @@ class BackupImportExportService {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(
-                  'Restored ${_pending.length} pending, ${_failed.length} failed, ${_completed.length} completed evaluations')),
+            content: Text(
+              'Restored ${_pending.length} pending, ${_failed.length} failed, ${_completed.length} completed evaluations',
+            ),
+          ),
         );
       }
     } catch (_) {
@@ -199,9 +204,9 @@ class BackupImportExportService {
       await fileManager.writeJsonFile(file, _currentState());
       Future(() => cleanupOldEvaluationBackups());
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Backup created: $fileName')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Backup created: $fileName')));
       }
     } catch (_) {
       if (context.mounted) {
@@ -282,16 +287,17 @@ class BackupImportExportService {
       _completed.addAll(importedCompleted);
       await queueService.persist();
       debugPanelCallback?.call();
-      final total = importedPending.length +
+      final total =
+          importedPending.length +
           importedFailed.length +
           importedCompleted.length;
       final msg = skipped == 0
           ? 'Imported $total evaluations from ${result.files.length} files'
           : 'Imported $total evaluations, $skipped files skipped';
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(msg)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(msg)));
       }
     } catch (_) {
       if (context.mounted) {
@@ -307,7 +313,10 @@ class BackupImportExportService {
   }
 
   Future<void> exportArchive(
-      BuildContext context, String subfolder, String prefix) async {
+    BuildContext context,
+    String subfolder,
+    String prefix,
+  ) async {
     String emptyMsg;
     String failMsg;
     String dialogTitle;
@@ -336,16 +345,18 @@ class BackupImportExportService {
       final dir = await fileManager.getBackupDirectory(subfolder);
       if (!await dir.exists()) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(emptyMsg)));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(emptyMsg)));
         }
         return;
       }
       final files = await dir.list(recursive: true).whereType<File>().toList();
       if (files.isEmpty) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(emptyMsg)));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(emptyMsg)));
         }
         return;
       }
@@ -368,13 +379,15 @@ class BackupImportExportService {
       await zipFile.writeAsBytes(bytes, flush: true);
       if (context.mounted) {
         final name = savePath.split(Platform.pathSeparator).last;
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Archive saved: $name')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Archive saved: $name')));
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(failMsg)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(failMsg)));
       }
     }
   }
@@ -422,8 +435,10 @@ class BackupImportExportService {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(
-                  'Restored ${_pending.length} pending, ${_failed.length} failed, ${_completed.length} completed evaluations')),
+            content: Text(
+              'Restored ${_pending.length} pending, ${_failed.length} failed, ${_completed.length} completed evaluations',
+            ),
+          ),
         );
       }
     } catch (_) {
@@ -477,16 +492,15 @@ class BackupImportExportService {
     _completed.addAll(importedCompleted);
     await queueService.persist();
     debugPanelCallback?.call();
-    final total = importedPending.length +
+    final total =
+        importedPending.length +
         importedFailed.length +
         importedCompleted.length;
     final msg = skipped == 0
         ? 'Imported $total evaluations from ${result.files.length} files'
         : 'Imported $total evaluations, $skipped files skipped';
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg)),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     }
   }
 
@@ -498,9 +512,9 @@ class BackupImportExportService {
     final dir = await fileManager.getBackupDirectory(backupsFolder);
     if (!await dir.exists()) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No backup files found')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('No backup files found')));
       }
       return;
     }

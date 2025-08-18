@@ -11,8 +11,11 @@ class _FakeLauncher extends TrainingSessionLauncher {
   TrainingPackTemplateV2? launched;
   _FakeLauncher() : super();
   @override
-  Future<void> launch(TrainingPackTemplateV2 template,
-      {int startIndex = 0, List<String>? sessionTags}) async {
+  Future<void> launch(
+    TrainingPackTemplateV2 template, {
+    int startIndex = 0,
+    List<String>? sessionTags,
+  }) async {
     launched = template;
   }
 }
@@ -34,7 +37,9 @@ void main() {
     await service.launch();
     expect(launcher.launched?.spots.length, 1);
     expect(BoosterQueueService.instance.getQueue(), isEmpty);
-    expect(UserActionLogger.instance.events.last['event'],
-        'decay_booster_completed');
+    expect(
+      UserActionLogger.instance.events.last['event'],
+      'decay_booster_completed',
+    );
   });
 }

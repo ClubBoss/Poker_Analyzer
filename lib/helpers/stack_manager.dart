@@ -9,7 +9,7 @@ class StackManager {
   final Map<int, StackWithInvestments> _currentStacks = {};
 
   StackManager(Map<int, int> initialStacks, {Map<int, int>? remainingStacks})
-      : _initialStacks = Map<int, int>.from(initialStacks) {
+    : _initialStacks = Map<int, int>.from(initialStacks) {
     for (final MapEntry<int, int> entry in _initialStacks.entries) {
       final StackWithInvestments sw = StackWithInvestments(entry.value);
       final int? remaining = remainingStacks?[entry.key];
@@ -38,10 +38,7 @@ class StackManager {
     if (investmentActions.contains(a.action)) {
       final double? amount = a.amount;
       if (amount != null) {
-        _currentStacks[a.playerIndex]?.addInvestment(
-          a.street,
-          amount.round(),
-        );
+        _currentStacks[a.playerIndex]?.addInvestment(a.street, amount.round());
       }
     }
   }

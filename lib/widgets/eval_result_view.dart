@@ -44,8 +44,10 @@ class _EvalResultViewState extends State<EvalResultView> {
               children: [
                 Icon(Icons.warning, color: Colors.orange),
                 SizedBox(width: 4),
-                Text('Evaluation failed',
-                    style: TextStyle(color: Colors.orange)),
+                Text(
+                  'Evaluation failed',
+                  style: TextStyle(color: Colors.orange),
+                ),
               ],
             ),
           );
@@ -54,10 +56,14 @@ class _EvalResultViewState extends State<EvalResultView> {
           padding: const EdgeInsets.only(top: 4),
           child: Column(
             children: [
-              Text('Score: ${res.score.toStringAsFixed(2)}',
-                  style: const TextStyle(color: Colors.white)),
-              Text('Reason: ${res.reason ?? '-'}',
-                  style: const TextStyle(color: Colors.white70)),
+              Text(
+                'Score: ${res.score.toStringAsFixed(2)}',
+                style: const TextStyle(color: Colors.white),
+              ),
+              Text(
+                'Reason: ${res.reason ?? '-'}',
+                style: const TextStyle(color: Colors.white70),
+              ),
             ],
           ),
         );

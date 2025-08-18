@@ -26,15 +26,17 @@ class AdaptiveNextStepEngine {
     TagCoverageService? coverage,
     List<LessonStep>? steps,
     List<LessonTrack>? tracks,
-  })  : progress = progress ?? LessonProgressTrackerService.instance,
-        trackEngine = trackEngine,
-        loader = loader ?? LessonLoaderService.instance,
-        tagProvider = tagProvider ?? LessonStepTagService.instance,
-        coverageService = coverage ??
-            TagCoverageService(
-                provider: tagProvider ?? LessonStepTagService.instance),
-        _stepsOverride = steps,
-        _tracksOverride = tracks;
+  }) : progress = progress ?? LessonProgressTrackerService.instance,
+       trackEngine = trackEngine,
+       loader = loader ?? LessonLoaderService.instance,
+       tagProvider = tagProvider ?? LessonStepTagService.instance,
+       coverageService =
+           coverage ??
+           TagCoverageService(
+             provider: tagProvider ?? LessonStepTagService.instance,
+           ),
+       _stepsOverride = steps,
+       _tracksOverride = tracks;
 
   static const _recentKey = 'lesson_recent_steps';
 

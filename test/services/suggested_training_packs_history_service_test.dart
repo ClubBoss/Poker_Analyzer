@@ -44,7 +44,8 @@ void main() {
 
     final list =
         await SuggestedTrainingPacksHistoryService.getRecentSuggestions(
-            limit: 2);
+          limit: 2,
+        );
     expect(list.length, 2);
     expect(list[0].packId, 'c');
     expect(list[1].packId, 'b');
@@ -57,18 +58,18 @@ void main() {
       'suggested_pack_history': jsonEncode([
         {'id': 'old', 'source': 's', 'ts': old.toIso8601String()},
         {'id': 'new', 'source': 's', 'ts': recent.toIso8601String()},
-      ])
+      ]),
     });
     final oldRes =
         await SuggestedTrainingPacksHistoryService.wasRecentlySuggested(
-      'old',
-      within: const Duration(days: 30),
-    );
+          'old',
+          within: const Duration(days: 30),
+        );
     final newRes =
         await SuggestedTrainingPacksHistoryService.wasRecentlySuggested(
-      'new',
-      within: const Duration(days: 30),
-    );
+          'new',
+          within: const Duration(days: 30),
+        );
     expect(oldRes, isFalse);
     expect(newRes, isTrue);
   });
@@ -80,7 +81,7 @@ void main() {
       'suggested_pack_history': jsonEncode([
         {'id': 'old', 'source': 's', 'ts': old.toIso8601String()},
         {'id': 'new', 'source': 's', 'ts': recent.toIso8601String()},
-      ])
+      ]),
     });
     await SuggestedTrainingPacksHistoryService.clearStaleEntries(
       maxAge: const Duration(days: 60),

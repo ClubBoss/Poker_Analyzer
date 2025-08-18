@@ -25,8 +25,9 @@ class _FakeLibrary implements MiniLessonLibraryService {
   Future<void> reload() async {}
 
   @override
-  List<TheoryMiniLessonNode> findByTags(List<String> tags) =>
-      [for (final t in tags) ...lessons.where((l) => l.tags.contains(t))];
+  List<TheoryMiniLessonNode> findByTags(List<String> tags) => [
+    for (final t in tags) ...lessons.where((l) => l.tags.contains(t)),
+  ];
 
   @override
   List<TheoryMiniLessonNode> getByTags(Set<String> tags) =>

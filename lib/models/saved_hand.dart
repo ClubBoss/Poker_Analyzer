@@ -47,15 +47,21 @@ class SavedHand {
   @JsonKey(fromJson: _intIntMapFromJson, toJson: _intIntMapToJson)
   final Map<int, int> stackSizes;
   @JsonKey(
-      fromJson: _intIntMapFromJsonNullable, toJson: _intIntMapToJsonNullable)
+    fromJson: _intIntMapFromJsonNullable,
+    toJson: _intIntMapToJsonNullable,
+  )
   final Map<int, int>? currentBets;
   @JsonKey(
-      fromJson: _intIntMapFromJsonNullable, toJson: _intIntMapToJsonNullable)
+    fromJson: _intIntMapFromJsonNullable,
+    toJson: _intIntMapToJsonNullable,
+  )
   final Map<int, int>? remainingStacks;
 
   /// Winnings collected by each player in chips or big blinds.
   @JsonKey(
-      fromJson: _intIntMapFromJsonNullable, toJson: _intIntMapToJsonNullable)
+    fromJson: _intIntMapFromJsonNullable,
+    toJson: _intIntMapToJsonNullable,
+  )
   final Map<int, int>? winnings;
 
   /// Total pot size in chips or big blinds.
@@ -102,19 +108,23 @@ class SavedHand {
   final List<int>? foldedPlayers;
   final List<int>? allInPlayers;
   @JsonKey(
-      fromJson: _intNullableStringMapFromJson,
-      toJson: _intNullableStringMapToJson)
+    fromJson: _intNullableStringMapFromJson,
+    toJson: _intNullableStringMapToJson,
+  )
   final Map<int, String?>? actionTags;
 
   /// Descriptions shown at showdown for each player.
   @JsonKey(
-      fromJson: _intStringMapFromJsonNullable,
-      toJson: _intStringMapToJsonNullable)
+    fromJson: _intStringMapFromJsonNullable,
+    toJson: _intStringMapToJsonNullable,
+  )
   final Map<int, String>? showdownDescriptions;
 
   /// Finishing positions for players eliminated from a tournament.
   @JsonKey(
-      fromJson: _intIntMapFromJsonNullable, toJson: _intIntMapToJsonNullable)
+    fromJson: _intIntMapFromJsonNullable,
+    toJson: _intIntMapToJsonNullable,
+  )
   final Map<int, int>? eliminatedPositions;
 
   /// Pending action evaluation requests queued when the hand was saved.
@@ -188,12 +198,13 @@ class SavedHand {
     this.playbackIndex = 0,
     this.showFullBoard = false,
     int? revealStreet,
-  })  : tags = tags ?? [],
-        revealedCards = revealedCards ??
-            List.generate(numberOfPlayers, (_) => <CardModel>[]),
-        savedAt = savedAt ?? DateTime.now(),
-        date = date ?? DateTime.now(),
-        revealStreet = revealStreet ?? boardStreet;
+  }) : tags = tags ?? [],
+       revealedCards =
+           revealedCards ??
+           List.generate(numberOfPlayers, (_) => <CardModel>[]),
+       savedAt = savedAt ?? DateTime.now(),
+       date = date ?? DateTime.now(),
+       revealStreet = revealStreet ?? boardStreet;
 
   SavedHand copyWith({
     String? name,
@@ -261,25 +272,30 @@ class SavedHand {
       heroIndex: heroIndex ?? this.heroIndex,
       heroPosition: heroPosition ?? this.heroPosition,
       numberOfPlayers: numberOfPlayers ?? this.numberOfPlayers,
-      playerCards: playerCards ??
+      playerCards:
+          playerCards ??
           [for (final list in this.playerCards) List<CardModel>.from(list)],
       boardCards: boardCards ?? List<CardModel>.from(this.boardCards),
       boardStreet: boardStreet ?? this.boardStreet,
-      revealedCards: revealedCards ??
+      revealedCards:
+          revealedCards ??
           [for (final list in this.revealedCards) List<CardModel>.from(list)],
       opponentIndex: opponentIndex ?? this.opponentIndex,
       activePlayerIndex: activePlayerIndex ?? this.activePlayerIndex,
       actions: actions ?? List<ActionEntry>.from(this.actions),
       stackSizes: stackSizes ?? Map<int, int>.from(this.stackSizes),
-      currentBets: currentBets ??
+      currentBets:
+          currentBets ??
           (this.currentBets == null
               ? null
               : Map<int, int>.from(this.currentBets!)),
-      remainingStacks: remainingStacks ??
+      remainingStacks:
+          remainingStacks ??
           (this.remainingStacks == null
               ? null
               : Map<int, int>.from(this.remainingStacks!)),
-      winnings: winnings ??
+      winnings:
+          winnings ??
           (this.winnings == null ? null : Map<int, int>.from(this.winnings!)),
       totalPot: totalPot ?? this.totalPot,
       rake: rake ?? this.rake,
@@ -317,27 +333,33 @@ class SavedHand {
       collapsedHistoryStreets:
           collapsedHistoryStreets ?? this.collapsedHistoryStreets,
       firstActionTaken: firstActionTaken ?? this.firstActionTaken,
-      foldedPlayers: foldedPlayers ??
+      foldedPlayers:
+          foldedPlayers ??
           (this.foldedPlayers == null
               ? null
               : List<int>.from(this.foldedPlayers!)),
-      allInPlayers: allInPlayers ??
+      allInPlayers:
+          allInPlayers ??
           (this.allInPlayers == null
               ? null
               : List<int>.from(this.allInPlayers!)),
-      actionTags: actionTags ??
+      actionTags:
+          actionTags ??
           (this.actionTags == null
               ? null
               : Map<int, String?>.from(this.actionTags!)),
-      showdownDescriptions: showdownDescriptions ??
+      showdownDescriptions:
+          showdownDescriptions ??
           (this.showdownDescriptions == null
               ? null
               : Map<int, String>.from(this.showdownDescriptions!)),
-      eliminatedPositions: eliminatedPositions ??
+      eliminatedPositions:
+          eliminatedPositions ??
           (this.eliminatedPositions == null
               ? null
               : Map<int, int>.from(this.eliminatedPositions!)),
-      pendingEvaluations: pendingEvaluations ??
+      pendingEvaluations:
+          pendingEvaluations ??
           (this.pendingEvaluations == null
               ? null
               : [
@@ -352,7 +374,7 @@ class SavedHand {
                           ? null
                           : Map<String, dynamic>.from(e.metadata!),
                       attempts: e.attempts,
-                    )
+                    ),
                 ]),
       playbackIndex: playbackIndex ?? this.playbackIndex,
       showFullBoard: showFullBoard ?? this.showFullBoard,
@@ -384,9 +406,6 @@ class SavedHand {
   }
 
   SavedHand markAsCorrected() {
-    return copyWith(
-      corrected: true,
-      evLossRecovered: evLoss ?? 0,
-    );
+    return copyWith(corrected: true, evLossRecovered: evLoss ?? 0);
   }
 }

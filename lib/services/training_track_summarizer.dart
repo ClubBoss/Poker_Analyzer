@@ -76,10 +76,8 @@ class TrainingTrackSummarizer {
         evAfterSum += after;
         evAfterCount++;
       }
-      final tags = <String>{
-        ...?spot?.tags,
-        ...?spot?.categories,
-      }..removeWhere((e) => e.trim().isEmpty);
+      final tags = <String>{...?spot?.tags, ...?spot?.categories}
+        ..removeWhere((e) => e.trim().isEmpty);
       for (final t in tags) {
         final tag = t.trim().toLowerCase();
         if (tag.isEmpty) continue;

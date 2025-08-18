@@ -49,12 +49,13 @@ class _AutoFormatPanelWidgetState extends State<AutoFormatPanelWidget> {
       builder: (ctx) => AlertDialog(
         title: const Text('AutoFormat Preview'),
         content: Text(
-            'Spots per pack: ${fmt.spotsPerPack}\nStreets: ${fmt.streets}\nTheory ratio: ${fmt.theoryRatio.toStringAsFixed(2)}'),
+          'Spots per pack: ${fmt.spotsPerPack}\nStreets: ${fmt.streets}\nTheory ratio: ${fmt.theoryRatio.toStringAsFixed(2)}',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: const Text('Close'),
-          )
+          ),
         ],
       ),
     );

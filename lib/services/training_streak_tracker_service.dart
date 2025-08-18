@@ -73,10 +73,6 @@ class TrainingStreakTrackerService {
     final days = prefs.getStringList(_datesKey) ?? <String>[];
     final current = await getCurrentStreak();
     final max = await getMaxStreak();
-    return {
-      'days': days,
-      'currentStreak': current,
-      'maxStreak': max,
-    };
+    return {'days': days, 'currentStreak': current, 'maxStreak': max};
   }
 }

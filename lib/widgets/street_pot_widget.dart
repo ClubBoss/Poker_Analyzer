@@ -46,10 +46,7 @@ class StreetPotWidget extends StatelessWidget {
                   const SizedBox(width: 8),
                   Text(
                     '$_streetName пот: $value',
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 12,
-                    ),
+                    style: const TextStyle(color: Colors.white70, fontSize: 12),
                   ),
                   if (sprValue != null) ...[
                     const SizedBox(width: 8),

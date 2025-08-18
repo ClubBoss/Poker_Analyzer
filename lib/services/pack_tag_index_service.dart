@@ -66,13 +66,13 @@ class PackTagIndexService {
     final tagIndex = <String, Set<String>>{};
     for (final e in (data['tags'] as Map?)?.entries ?? {}) {
       tagIndex[e.key.toString()] = {
-        for (final p in e.value as List? ?? []) p.toString()
+        for (final p in e.value as List? ?? []) p.toString(),
       };
     }
     final packIndex = <String, Set<String>>{};
     for (final e in (data['packs'] as Map?)?.entries ?? {}) {
       packIndex[e.key.toString()] = {
-        for (final t in e.value as List? ?? []) t.toString()
+        for (final t in e.value as List? ?? []) t.toString(),
       };
     }
     final query = [for (final t in tags) t.trim().toLowerCase()]
@@ -90,7 +90,7 @@ class PackTagIndexService {
         result = {
           for (final e in packIndex.entries)
             if (e.value.length == query.length && e.value.containsAll(query))
-              e.key
+              e.key,
         };
         break;
       case TagFilterMode.and:

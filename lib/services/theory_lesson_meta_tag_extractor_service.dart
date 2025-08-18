@@ -21,12 +21,7 @@ class TheoryLessonMetaTagExtractorService {
     caseSensitive: false,
   );
 
-  static const List<String> _textures = [
-    'paired',
-    'wet',
-    'dry',
-    'acehigh',
-  ];
+  static const List<String> _textures = ['paired', 'wet', 'dry', 'acehigh'];
 
   /// Parses [lesson] and returns extracted [TheoryLessonMetaData].
   TheoryLessonMetaData extract(TheoryMiniLessonNode lesson) {

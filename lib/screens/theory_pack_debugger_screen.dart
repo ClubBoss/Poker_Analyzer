@@ -80,8 +80,9 @@ class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
         title: const Text('📘 Theory Pack Debugger'),
         actions: const [
           Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8),
-              child: StreakBadge())
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            child: StreakBadge(),
+          ),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
@@ -107,16 +108,18 @@ class _TheoryPackDebuggerScreenState extends State<TheoryPackDebuggerScreen> {
               itemBuilder: (_, i) {
                 final pack = _filtered[i];
                 final status = _reviewEngine.getStatus(pack);
-                final completion =
-                    const TheoryPackCompletionEstimator().estimate(pack);
+                final completion = const TheoryPackCompletionEstimator()
+                    .estimate(pack);
                 final tags = pack.tags.isNotEmpty
                     ? pack.tags
                     : _tagger.autoTag(pack).toList();
                 final tagText = tags.join(', ');
-                final boosterList =
-                    _suggester.suggestBoosters(pack, _packs).join(', ');
-                final boosters =
-                    boosterList.isNotEmpty ? 'Boosters: $boosterList' : '';
+                final boosterList = _suggester
+                    .suggestBoosters(pack, _packs)
+                    .join(', ');
+                final boosters = boosterList.isNotEmpty
+                    ? 'Boosters: $boosterList'
+                    : '';
                 Widget icon;
                 switch (status) {
                   case ReviewStatus.approved:

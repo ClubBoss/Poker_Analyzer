@@ -17,8 +17,9 @@ class TheoryLessonCompletionLogger {
     final prefs = await SharedPreferences.getInstance();
     final now = DateTime.now().toUtc();
     final entries = await _load(prefs);
-    final exists = entries
-        .any((e) => e.lessonId == lessonId && _isSameDay(e.timestamp, now));
+    final exists = entries.any(
+      (e) => e.lessonId == lessonId && _isSameDay(e.timestamp, now),
+    );
     if (!exists) {
       entries.add(LessonCompletionEntry(lessonId: lessonId, timestamp: now));
       await _save(prefs, entries);
@@ -57,8 +58,11 @@ class TheoryLessonCompletionLogger {
       final data = jsonDecode(raw);
       if (data is List) {
         return data
-            .map((e) => LessonCompletionEntry.fromJson(
-                Map<String, dynamic>.from(e as Map)))
+            .map(
+              (e) => LessonCompletionEntry.fromJson(
+                Map<String, dynamic>.from(e as Map),
+              ),
+            )
             .toList();
       }
     } catch (_) {}
@@ -66,9 +70,13 @@ class TheoryLessonCompletionLogger {
   }
 
   Future<void> _save(
-      SharedPreferences prefs, List<LessonCompletionEntry> entries) async {
+    SharedPreferences prefs,
+    List<LessonCompletionEntry> entries,
+  ) async {
     await prefs.setString(
-        _key, jsonEncode([for (final e in entries) e.toJson()]));
+      _key,
+      jsonEncode([for (final e in entries) e.toJson()]),
+    );
   }
 
   bool _isSameDay(DateTime a, DateTime b) =>

@@ -16,10 +16,10 @@ class DecayBoosterReminderOrchestrator {
     DecayBoosterReminderEngine? boosterEngine,
     ReviewStreakEvaluatorService? streak,
     PackRecallStatsService? recall,
-  })  : queue = queue ?? BoosterQueueService.instance,
-        boosterEngine = boosterEngine ?? DecayBoosterReminderEngine(),
-        streak = streak ?? const ReviewStreakEvaluatorService(),
-        recall = recall ?? PackRecallStatsService.instance;
+  }) : queue = queue ?? BoosterQueueService.instance,
+       boosterEngine = boosterEngine ?? DecayBoosterReminderEngine(),
+       streak = streak ?? const ReviewStreakEvaluatorService(),
+       recall = recall ?? PackRecallStatsService.instance;
 
   /// Whether a decay booster banner should be shown.
   Future<bool> shouldShowDecayBoosterBanner() async {
@@ -42,24 +42,34 @@ class DecayBoosterReminderOrchestrator {
     final list = <MemoryReminder>[];
 
     if (await shouldShowDecayBoosterBanner()) {
-      list.add(const MemoryReminder(
-          type: MemoryReminderType.decayBooster, priority: 3));
+      list.add(
+        const MemoryReminder(
+          type: MemoryReminderType.decayBooster,
+          priority: 3,
+        ),
+      );
     }
 
     final broken = await brokenStreakPacks();
     if (broken.isNotEmpty) {
-      list.add(MemoryReminder(
+      list.add(
+        MemoryReminder(
           type: MemoryReminderType.brokenStreak,
           priority: 2,
-          packId: broken.first));
+          packId: broken.first,
+        ),
+      );
     }
 
     final upcoming = await upcomingReviewPacks();
     if (upcoming.isNotEmpty) {
-      list.add(MemoryReminder(
+      list.add(
+        MemoryReminder(
           type: MemoryReminderType.upcomingReview,
           priority: 1,
-          packId: upcoming.first));
+          packId: upcoming.first,
+        ),
+      );
     }
 
     list.sort((a, b) => b.priority.compareTo(a.priority));

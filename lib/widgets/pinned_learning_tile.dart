@@ -103,10 +103,8 @@ class PinnedLearningTile extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => TrainingPackScreen(
-          pack: tpl,
-          initialPosition: item.lastPosition,
-        ),
+        builder: (_) =>
+            TrainingPackScreen(pack: tpl, initialPosition: item.lastPosition),
       ),
     );
   }

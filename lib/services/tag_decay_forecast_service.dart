@@ -32,8 +32,8 @@ class TagDecayForecastService {
     this.retention = const DecayTagRetentionTrackerService(),
     RecallSuccessLoggerService? logger,
     InboxBoosterTunerService? tuner,
-  })  : logger = logger ?? RecallSuccessLoggerService.instance,
-        tuner = tuner ?? InboxBoosterTunerService.instance;
+  }) : logger = logger ?? RecallSuccessLoggerService.instance,
+       tuner = tuner ?? InboxBoosterTunerService.instance;
 
   Future<Map<String, TagDecayStats>> summarize({DateTime? now}) async {
     final events = await DecaySessionTagImpactRecorder.instance.loadAllEvents();
@@ -48,18 +48,21 @@ class TagDecayForecastService {
       final last = times.isNotEmpty ? times.last : null;
       final intervals = <double>[];
       for (var i = 1; i < times.length; i++) {
-        intervals
-            .add(times[i].difference(times[i - 1]).inMilliseconds / 86400000);
+        intervals.add(
+          times[i].difference(times[i - 1]).inMilliseconds / 86400000,
+        );
       }
       final avg = intervals.isEmpty
           ? 0.0
           : intervals.reduce((a, b) => a + b) / intervals.length;
       final std = intervals.isEmpty
           ? 0.0
-          : math.sqrt(intervals
-                  .map((d) => math.pow(d - avg, 2))
-                  .reduce((a, b) => a + b) /
-              intervals.length);
+          : math.sqrt(
+              intervals
+                      .map((d) => math.pow(d - avg, 2))
+                      .reduce((a, b) => a + b) /
+                  intervals.length,
+            );
       final next = last?.add(Duration(days: avg.round()));
       final sinceLast = last != null ? current.difference(last) : Duration.zero;
       result[entry.key] = TagDecayStats(

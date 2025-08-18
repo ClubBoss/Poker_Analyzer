@@ -91,7 +91,7 @@ class _SuggestedTipBannerState extends State<SuggestedTipBanner>
               onPressed: _onAction,
               style: ElevatedButton.styleFrom(backgroundColor: accent),
               child: const Text('Перейти'),
-            )
+            ),
           ],
         ),
       ),

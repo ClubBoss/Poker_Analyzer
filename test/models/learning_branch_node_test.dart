@@ -17,7 +17,7 @@ void main() {
     final json = {
       'id': 'b2',
       'prompt': 'Format?',
-      'branches': {'A': 'n1', 'B': 'n2'}
+      'branches': {'A': 'n1', 'B': 'n2'},
     };
     final node = LearningBranchNode.fromJson(json);
     expect(node.id, 'b2');
@@ -42,7 +42,7 @@ void main() {
     const yamlMap = {
       'id': 'b4',
       'prompt': 'Way?',
-      'branches': {'Live': 'nLive', 'Online': 'nOnline'}
+      'branches': {'Live': 'nLive', 'Online': 'nOnline'},
     };
     final node = LearningBranchNode.fromYaml(yamlMap);
     expect(node.toJson(), yamlMap);

@@ -49,9 +49,10 @@ class _FoldFlyingCardsState extends State<FoldFlyingCards>
         curve: Interval(widget.fadeStart, 1.0, curve: Curves.easeOut),
       ),
     );
-    _rotation = Tween<double>(begin: 0.0, end: 0.4).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _rotation = Tween<double>(
+      begin: 0.0,
+      end: 0.4,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         widget.onCompleted?.call();
@@ -99,10 +100,7 @@ class _FoldFlyingCardsState extends State<FoldFlyingCards>
           top: pos.dy - height / 2,
           child: FadeTransition(
             opacity: _opacity,
-            child: Transform.rotate(
-              angle: _rotation.value,
-              child: child,
-            ),
+            child: Transform.rotate(angle: _rotation.value, child: child),
           ),
         );
       },

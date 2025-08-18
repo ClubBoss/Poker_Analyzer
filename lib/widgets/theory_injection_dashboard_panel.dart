@@ -37,10 +37,8 @@ class TheoryInjectionDashboardPanel extends StatelessWidget {
     final notifier = AutogenStatusDashboardService.instance.getStatusNotifier(
       'TheoryInjectionScheduler',
     );
-    final policyNotifier =
-        AutogenStatusDashboardService.instance.getStatusNotifier(
-      'TheoryLinkPolicy',
-    );
+    final policyNotifier = AutogenStatusDashboardService.instance
+        .getStatusNotifier('TheoryLinkPolicy');
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -90,7 +88,9 @@ class TheoryInjectionDashboardPanel extends StatelessWidget {
                               const SizedBox(width: 8),
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 6, vertical: 2),
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
                                 decoration: BoxDecoration(
                                   color: Colors.orange,
                                   borderRadius: BorderRadius.circular(4),
@@ -98,7 +98,9 @@ class TheoryInjectionDashboardPanel extends StatelessWidget {
                                 child: const Text(
                                   'A/B: Ablated',
                                   style: TextStyle(
-                                      color: Colors.white, fontSize: 12),
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                  ),
                                 ),
                               ),
                             ],
@@ -107,9 +109,7 @@ class TheoryInjectionDashboardPanel extends StatelessWidget {
                         const SizedBox(height: 8),
                         Text('Last run: $last'),
                         const SizedBox(height: 8),
-                        Text(
-                          'Runs: $runs  |  Skipped: $skipped',
-                        ),
+                        Text('Runs: $runs  |  Skipped: $skipped'),
                         const SizedBox(height: 12),
                         ElevatedButton(
                           onPressed: () => TheoryInjectionSchedulerService

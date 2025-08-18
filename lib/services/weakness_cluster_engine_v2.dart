@@ -63,11 +63,13 @@ class WeaknessClusterEngine {
     final results = <WeaknessCluster>[];
     data.forEach((label, d) {
       if (d.spotIds.length >= 3 && d.count > 0) {
-        results.add(WeaknessCluster(
-          label: label,
-          spotIds: d.spotIds.toList(),
-          avgAccuracy: d.totalAccuracy / d.count,
-        ));
+        results.add(
+          WeaknessCluster(
+            label: label,
+            spotIds: d.spotIds.toList(),
+            avgAccuracy: d.totalAccuracy / d.count,
+          ),
+        );
       }
     });
 

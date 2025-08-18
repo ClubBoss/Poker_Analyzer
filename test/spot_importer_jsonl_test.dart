@@ -27,7 +27,9 @@ void main() {
     expect(report.errors, isEmpty);
     expect(report.added, 1);
     expect(report.spots.single.kind, SpotKind.l3_river_jam_vs_raise);
-    expect(report.spots.single.action,
-        anyOf('jam', 'fold')); // parser keeps canonical 'action'
+    expect(
+      report.spots.single.action,
+      anyOf('jam', 'fold'),
+    ); // parser keeps canonical 'action'
   });
 }

@@ -65,7 +65,8 @@ class _TheoryPackPreviewScreenState extends State<TheoryPackPreviewScreen> {
   }
 
   Future<TheoryMiniLessonNode?> _firstIncompleteLesson(
-      TheoryLessonCluster cluster) async {
+    TheoryLessonCluster cluster,
+  ) async {
     for (final l in cluster.lessons) {
       if (!await MiniLessonLibraryService.instance.isLessonCompleted(l.id)) {
         return l;
@@ -101,7 +102,9 @@ class _TheoryPackPreviewScreenState extends State<TheoryPackPreviewScreen> {
                       }
                       return Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         child: ElevatedButton(
                           onPressed: () => _openLesson(firstIncomplete),
                           child: const Text('Continue lesson'),
@@ -115,7 +118,9 @@ class _TheoryPackPreviewScreenState extends State<TheoryPackPreviewScreen> {
                       final count = countSnap.data ?? 0;
                       return Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         child: Text(
                           '$count of ${cluster.lessons.length} lessons complete',
                           style: const TextStyle(color: Colors.white70),
@@ -132,8 +137,10 @@ class _TheoryPackPreviewScreenState extends State<TheoryPackPreviewScreen> {
                             final done = doneSnap.data ?? false;
                             return ListTile(
                               leading: done
-                                  ? const Icon(Icons.check_circle,
-                                      color: Colors.green)
+                                  ? const Icon(
+                                      Icons.check_circle,
+                                      color: Colors.green,
+                                    )
                                   : null,
                               title: Text(
                                 l.resolvedTitle,
@@ -154,8 +161,10 @@ class _TheoryPackPreviewScreenState extends State<TheoryPackPreviewScreen> {
   }
 
   void _start(BuildContext context) {
-    final pack =
-        TrainingPackV2.fromTemplate(widget.template, widget.template.id);
+    final pack = TrainingPackV2.fromTemplate(
+      widget.template,
+      widget.template.id,
+    );
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => TrainingSessionScreen(pack: pack)),

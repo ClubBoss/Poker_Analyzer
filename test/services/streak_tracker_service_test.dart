@@ -68,7 +68,7 @@ void main() {
             .toIso8601String()
             .split('T')
             .first,
-      ]
+      ],
     });
     final service = StreakTrackerService.instance;
     final map = await service.getLast30DaysMap();

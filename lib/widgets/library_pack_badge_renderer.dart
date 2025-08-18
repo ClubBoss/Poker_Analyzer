@@ -26,8 +26,9 @@ class _LibraryPackBadgeRendererState extends State<LibraryPackBadgeRenderer> {
     if (_cache.containsKey(widget.packId)) {
       return _cache[widget.packId];
     }
-    final data = await PackLibraryCompletionService.instance
-        .getCompletion(widget.packId);
+    final data = await PackLibraryCompletionService.instance.getCompletion(
+      widget.packId,
+    );
     _cache[widget.packId] = data;
     return data;
   }

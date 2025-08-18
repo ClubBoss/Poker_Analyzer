@@ -4,7 +4,7 @@ mixin TrainingPackTemplateIo on State<TrainingPackTemplateListScreen> {
   Future<void> _export() async {
     final json = jsonEncode([
       for (final t in _templates)
-        if (!t.isDraft) t.toJson()
+        if (!t.isDraft) t.toJson(),
     ]);
     await Clipboard.setData(ClipboardData(text: json));
     ScaffoldMessenger.of(context).showSnackBar(
@@ -20,27 +20,31 @@ mixin TrainingPackTemplateIo on State<TrainingPackTemplateListScreen> {
       raw = jsonDecode(clip.text!);
     } catch (_) {}
     if (raw is! List) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Invalid JSON')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Invalid JSON')));
       return;
     }
     final imported = [
       for (final m in raw)
-        TrainingPackTemplate.fromJson(Map<String, dynamic>.from(m))
+        TrainingPackTemplate.fromJson(Map<String, dynamic>.from(m)),
     ];
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Import templates?'),
-        content:
-            Text('This will add ${imported.length} template(s) to your list.'),
+        content: Text(
+          'This will add ${imported.length} template(s) to your list.',
+        ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel')),
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Import')),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Import'),
+          ),
         ],
       ),
     );
@@ -91,13 +95,15 @@ mixin TrainingPackTemplateIo on State<TrainingPackTemplateListScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-              'Imported ${tpl.spots.length} spots${skipped > 0 ? ', $skipped skipped' : ''}'),
+            'Imported ${tpl.spots.length} spots${skipped > 0 ? ', $skipped skipped' : ''}',
+          ),
         ),
       );
       _edit(tpl);
     } catch (_) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Invalid CSV')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Invalid CSV')));
     }
   }
 
@@ -130,13 +136,15 @@ mixin TrainingPackTemplateIo on State<TrainingPackTemplateListScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-              'Imported ${tpl.spots.length} spots${skipped > 0 ? ', $skipped skipped' : ''}'),
+            'Imported ${tpl.spots.length} spots${skipped > 0 ? ', $skipped skipped' : ''}',
+          ),
         ),
       );
       _edit(tpl);
     } catch (_) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Invalid CSV')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Invalid CSV')));
     }
   }
 }

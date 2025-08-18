@@ -16,21 +16,22 @@ class DecayAnalyticsExport {
   });
 
   Map<String, dynamic> toJson() => {
-        'tag': tag,
-        'decay': decay,
-        'adaptation': adaptation.name,
-        if (lastInteraction != null)
-          'lastInteraction': lastInteraction!.toIso8601String(),
-        'recommendedDaysUntilReview': recommendedDaysUntilReview,
-      };
+    'tag': tag,
+    'decay': decay,
+    'adaptation': adaptation.name,
+    if (lastInteraction != null)
+      'lastInteraction': lastInteraction!.toIso8601String(),
+    'recommendedDaysUntilReview': recommendedDaysUntilReview,
+  };
 
   factory DecayAnalyticsExport.fromJson(Map<String, dynamic> json) =>
       DecayAnalyticsExport(
         tag: json['tag'] as String? ?? '',
         decay: (json['decay'] as num?)?.toDouble() ?? 0.0,
         adaptation: _parseAdaptation(json['adaptation'] as String?),
-        lastInteraction:
-            DateTime.tryParse(json['lastInteraction'] as String? ?? ''),
+        lastInteraction: DateTime.tryParse(
+          json['lastInteraction'] as String? ?? '',
+        ),
         recommendedDaysUntilReview:
             (json['recommendedDaysUntilReview'] as num?)?.toInt() ?? 0,
       );

@@ -118,10 +118,7 @@ class _DetailedActionSheetState extends State<_DetailedActionSheet> {
             iconEnabledColor: Colors.white,
             items: [
               for (int i = 0; i < streetNames.length; i++)
-                DropdownMenuItem(
-                  value: i,
-                  child: Text(streetNames[i]),
-                ),
+                DropdownMenuItem(value: i, child: Text(streetNames[i])),
             ],
             onChanged: (v) => setState(() => _street = v ?? _street),
           ),
@@ -137,10 +134,14 @@ class _DetailedActionSheetState extends State<_DetailedActionSheet> {
                 ),
               ),
               onPressed: () => _onActionSelected(actions[i]['value'] as String),
-              icon: Text(actions[i]['icon'] as String,
-                  style: const TextStyle(fontSize: 24)),
-              label: Text(actions[i]['label'] as String,
-                  style: const TextStyle(fontSize: 20)),
+              icon: Text(
+                actions[i]['icon'] as String,
+                style: const TextStyle(fontSize: 24),
+              ),
+              label: Text(
+                actions[i]['label'] as String,
+                style: const TextStyle(fontSize: 20),
+              ),
             ),
             if (i != actions.length - 1) const SizedBox(height: 12),
           ],

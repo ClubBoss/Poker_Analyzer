@@ -18,13 +18,16 @@ class BoosterClusterEngine {
   final BoosterSimilarityEngine _engine;
   final double _threshold;
 
-  const BoosterClusterEngine(
-      {BoosterSimilarityEngine? engine, double threshold = 0.85})
-      : _engine = engine ?? const BoosterSimilarityEngine(),
-        _threshold = threshold;
+  const BoosterClusterEngine({
+    BoosterSimilarityEngine? engine,
+    double threshold = 0.85,
+  }) : _engine = engine ?? const BoosterSimilarityEngine(),
+       _threshold = threshold;
 
-  List<SpotCluster> analyzeSpots(List<TrainingPackSpot> spots,
-      {double? threshold}) {
+  List<SpotCluster> analyzeSpots(
+    List<TrainingPackSpot> spots, {
+    double? threshold,
+  }) {
     final thr = threshold ?? _threshold;
     if (spots.isEmpty) return [];
     final pairs = _engine.analyzeSpots(spots, threshold: thr);
@@ -61,13 +64,17 @@ class BoosterClusterEngine {
     return clusters;
   }
 
-  List<SpotCluster> analyzePack(TrainingPackTemplateV2 pack,
-      {double? threshold}) {
+  List<SpotCluster> analyzePack(
+    TrainingPackTemplateV2 pack, {
+    double? threshold,
+  }) {
     return analyzeSpots(pack.spots, threshold: threshold);
   }
 
-  Future<int> saveClustersToFolder(List<SpotCluster> clusters,
-      {String dir = 'yaml_out/clusters'}) async {
+  Future<int> saveClustersToFolder(
+    List<SpotCluster> clusters, {
+    String dir = 'yaml_out/clusters',
+  }) async {
     if (clusters.isEmpty) return 0;
     final directory = Directory(dir);
     await directory.create(recursive: true);

@@ -52,8 +52,9 @@ class _LessonStepRecapScreenState extends State<LessonStepRecapScreen> {
     final steps = await LessonLoaderService.instance.loadAllLessons();
     final completed = await path.getCompletedStepMap();
     final templates = context.read<TrainingPackTemplateStorageService>();
-    final profile =
-        await SmartReviewService.instance.getMistakeProfile(templates);
+    final profile = await SmartReviewService.instance.getMistakeProfile(
+      templates,
+    );
     final spots = await SmartReviewService.instance.getMistakeSpots(templates);
     final advisor = LearningPathAdvisor(steps: steps);
     final next = advisor.recommendNextStep(
@@ -111,7 +112,8 @@ class _LessonStepRecapScreenState extends State<LessonStepRecapScreen> {
   @override
   Widget build(BuildContext context) {
     final accent = Theme.of(context).colorScheme.secondary;
-    final tags = (widget.step.meta['tags'] as List?)
+    final tags =
+        (widget.step.meta['tags'] as List?)
             ?.map((e) => e.toString())
             .toList() ??
         const <String>[];

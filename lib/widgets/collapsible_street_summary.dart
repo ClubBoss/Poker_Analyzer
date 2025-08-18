@@ -67,8 +67,9 @@ class _CollapsibleStreetSummaryState extends State<CollapsibleStreetSummary> {
     final last = actions.last;
     final pos =
         widget.playerPositions[last.playerIndex] ?? 'P${last.playerIndex + 1}';
-    final label =
-        last.action == 'custom' ? (last.customLabel ?? 'custom') : last.action;
+    final label = last.action == 'custom'
+        ? (last.customLabel ?? 'custom')
+        : last.action;
     final actionText =
         '${_capitalize(label)}${last.amount != null ? ' ${last.amount}' : ''}';
     return Text(
@@ -83,8 +84,9 @@ class _CollapsibleStreetSummaryState extends State<CollapsibleStreetSummary> {
     return Column(
       children: List.generate(4, (i) {
         final expanded = _expandedStreet == i;
-        final streetActions =
-            widget.actions.where((a) => a.street == i).toList(growable: false);
+        final streetActions = widget.actions
+            .where((a) => a.street == i)
+            .toList(growable: false);
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           child: Container(
@@ -123,7 +125,9 @@ class _CollapsibleStreetSummaryState extends State<CollapsibleStreetSummary> {
                     heightFactor: expanded ? 1 : 0,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8.0, vertical: 4.0),
+                        horizontal: 8.0,
+                        vertical: 4.0,
+                      ),
                       child: StreetActionsList(
                         street: i,
                         actions: widget.actions,

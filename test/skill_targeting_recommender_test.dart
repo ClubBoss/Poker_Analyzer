@@ -15,7 +15,7 @@ void main() {
         trainingType: TrainingType.pushFold,
         tags: const ['a'],
         spots: [
-          TrainingPackSpot(id: 's1', hand: HandData(), tags: ['a'])
+          TrainingPackSpot(id: 's1', hand: HandData(), tags: ['a']),
         ],
       ),
       TrainingPackTemplateV2(
@@ -24,7 +24,7 @@ void main() {
         trainingType: TrainingType.pushFold,
         tags: const ['b'],
         spots: [
-          TrainingPackSpot(id: 's2', hand: HandData(), tags: ['b'])
+          TrainingPackSpot(id: 's2', hand: HandData(), tags: ['b']),
         ],
       ),
       TrainingPackTemplateV2(
@@ -33,7 +33,7 @@ void main() {
         trainingType: TrainingType.pushFold,
         tags: const ['a', 'b'],
         spots: [
-          TrainingPackSpot(id: 's3', hand: HandData(), tags: ['a', 'b'])
+          TrainingPackSpot(id: 's3', hand: HandData(), tags: ['a', 'b']),
         ],
       ),
     ];

@@ -9,7 +9,7 @@ class FakeTagMasteryService extends TagMasteryService {
   final Map<String, DateTime> _last;
   final Map<String, double> _acc;
   FakeTagMasteryService(this._mastery, this._last, this._acc)
-      : super(logs: SessionLogService(sessions: TrainingSessionService()));
+    : super(logs: SessionLogService(sessions: TrainingSessionService()));
 
   @override
   Future<Map<String, double>> computeMastery({bool force = false}) async =>
@@ -33,10 +33,7 @@ void main() {
         'push': now.subtract(const Duration(days: 10)),
         'call': now.subtract(const Duration(days: 1)),
       },
-      {
-        'push': 0.9,
-        'call': 0.95,
-      },
+      {'push': 0.9, 'call': 0.95},
     );
     final tracker = TagRetentionTracker(mastery: mastery);
     final decayed = await tracker.getDecayedTags(now: now);

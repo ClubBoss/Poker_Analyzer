@@ -44,21 +44,21 @@ class IcmMix {
   });
 
   factory IcmMix.mvsDefault() => IcmMix(
-        posPct: const {IcmPos.btn: 0.55, IcmPos.sb: 0.45},
-        stackBbPct: const {
-          StackBin.bb5: 0.35,
-          StackBin.bb10: 0.40,
-          StackBin.bb15: 0.25,
-        },
-        triplePct: const {
-          StackTriple.sss: 0.10,
-          StackTriple.sms: 0.20,
-          StackTriple.mms: 0.25,
-          StackTriple.mls: 0.20,
-          StackTriple.lms: 0.15,
-          StackTriple.lls: 0.10,
-        },
-      );
+    posPct: const {IcmPos.btn: 0.55, IcmPos.sb: 0.45},
+    stackBbPct: const {
+      StackBin.bb5: 0.35,
+      StackBin.bb10: 0.40,
+      StackBin.bb15: 0.25,
+    },
+    triplePct: const {
+      StackTriple.sss: 0.10,
+      StackTriple.sms: 0.20,
+      StackTriple.mms: 0.25,
+      StackTriple.mls: 0.20,
+      StackTriple.lms: 0.15,
+      StackTriple.lls: 0.10,
+    },
+  );
 }
 
 List<IcmSpot> generateIcmJamSpots({

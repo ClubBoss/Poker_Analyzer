@@ -21,20 +21,19 @@ void main() {
     unusedTags: const [],
     overloadedTags: const [],
     packsPerTag: const {'a': 1, 'b': 1, 'c': 1},
-    tagLastUpdated: {
-      'a': DateTime(2023, 5, 1),
-      'b': DateTime(2022, 1, 1),
-    },
+    tagLastUpdated: {'a': DateTime(2023, 5, 1), 'b': DateTime(2022, 1, 1)},
   );
 
   testWidgets('sorts by spots covered', (tester) async {
-    await tester.pumpWidget(MaterialApp(
-      home: SkillTagCoverageDashboard(
-        statsStream: Stream.value(stats),
-        allTags: allTags,
-        tagCategoryMap: tagCategoryMap,
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SkillTagCoverageDashboard(
+          statsStream: Stream.value(stats),
+          allTags: allTags,
+          tagCategoryMap: tagCategoryMap,
+        ),
       ),
-    ));
+    );
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Spots Covered'));
@@ -49,13 +48,15 @@ void main() {
   });
 
   testWidgets('falls back to stats when allTags empty', (tester) async {
-    await tester.pumpWidget(MaterialApp(
-      home: SkillTagCoverageDashboard(
-        statsStream: Stream.value(stats),
-        allTags: {},
-        tagCategoryMap: tagCategoryMap,
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SkillTagCoverageDashboard(
+          statsStream: Stream.value(stats),
+          allTags: {},
+          tagCategoryMap: tagCategoryMap,
+        ),
       ),
-    ));
+    );
     await tester.pumpAndSettle();
 
     expect(find.text('a'), findsOneWidget);
@@ -64,13 +65,15 @@ void main() {
   });
 
   testWidgets('sorts last updated with nulls last', (tester) async {
-    await tester.pumpWidget(MaterialApp(
-      home: SkillTagCoverageDashboard(
-        statsStream: Stream.value(statsWithDates),
-        allTags: const {'a', 'b', 'c'},
-        tagCategoryMap: tagCategoryMap,
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SkillTagCoverageDashboard(
+          statsStream: Stream.value(statsWithDates),
+          allTags: const {'a', 'b', 'c'},
+          tagCategoryMap: tagCategoryMap,
+        ),
       ),
-    ));
+    );
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Last Updated'));
@@ -85,18 +88,21 @@ void main() {
   });
 
   testWidgets('row colors vary by category', (tester) async {
-    await tester.pumpWidget(MaterialApp(
-      home: SkillTagCoverageDashboard(
-        statsStream: Stream.value(stats),
-        allTags: allTags,
-        tagCategoryMap: tagCategoryMap,
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SkillTagCoverageDashboard(
+          statsStream: Stream.value(stats),
+          allTags: allTags,
+          tagCategoryMap: tagCategoryMap,
+        ),
       ),
-    ));
+    );
     await tester.pumpAndSettle();
 
     final dataTable = tester.widget<DataTable>(find.byType(DataTable));
-    final base =
-        Theme.of(tester.element(find.byType(DataTable))).colorScheme.surface;
+    final base = Theme.of(
+      tester.element(find.byType(DataTable)),
+    ).colorScheme.surface;
     final rowColorA = dataTable.rows[0].color!.resolve({});
     final rowColorC = dataTable.rows[2].color!.resolve({});
     expect(rowColorA, isNot(equals(base)));
@@ -104,13 +110,15 @@ void main() {
   });
 
   testWidgets('filters uncovered tags', (tester) async {
-    await tester.pumpWidget(MaterialApp(
-      home: SkillTagCoverageDashboard(
-        statsStream: Stream.value(stats),
-        allTags: allTags,
-        tagCategoryMap: tagCategoryMap,
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SkillTagCoverageDashboard(
+          statsStream: Stream.value(stats),
+          allTags: allTags,
+          tagCategoryMap: tagCategoryMap,
+        ),
       ),
-    ));
+    );
     await tester.pumpAndSettle();
 
     await tester.tap(find.byType(Switch));
@@ -121,13 +129,15 @@ void main() {
   });
 
   testWidgets('columns == cells in SkillTagCoverageDashboard', (tester) async {
-    await tester.pumpWidget(MaterialApp(
-      home: SkillTagCoverageDashboard(
-        statsStream: Stream.value(stats),
-        allTags: allTags,
-        tagCategoryMap: tagCategoryMap,
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SkillTagCoverageDashboard(
+          statsStream: Stream.value(stats),
+          allTags: allTags,
+          tagCategoryMap: tagCategoryMap,
+        ),
       ),
-    ));
+    );
     await tester.pumpAndSettle();
 
     final table = tester.widget<DataTable>(find.byType(DataTable));

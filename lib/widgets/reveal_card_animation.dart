@@ -103,8 +103,10 @@ class _RevealCardAnimationState extends State<RevealCardAnimation>
 
             if (widget.grayscale) {
               front = ColorFiltered(
-                colorFilter:
-                    const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+                colorFilter: const ColorFilter.mode(
+                  Colors.grey,
+                  BlendMode.saturation,
+                ),
                 child: front,
               );
             }

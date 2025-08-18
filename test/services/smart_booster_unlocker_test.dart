@@ -47,7 +47,7 @@ class _FakeLibrary implements MiniLessonLibraryService {
 class _FakeMastery extends TagMasteryService {
   final Map<String, double> map;
   _FakeMastery(this.map)
-      : super(logs: SessionLogService(sessions: TrainingSessionService()));
+    : super(logs: SessionLogService(sessions: TrainingSessionService()));
 
   @override
   Future<Map<String, double>> computeMastery({bool force = false}) async => map;

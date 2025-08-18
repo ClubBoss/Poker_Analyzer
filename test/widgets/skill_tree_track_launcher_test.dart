@@ -12,9 +12,9 @@ void main() {
   });
 
   testWidgets('shows intro when track not started', (tester) async {
-    await tester.pumpWidget(const MaterialApp(
-      home: SkillTreeTrackLauncher(trackId: 't1'),
-    ));
+    await tester.pumpWidget(
+      const MaterialApp(home: SkillTreeTrackLauncher(trackId: 't1')),
+    );
     await tester.pump();
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
     await tester.pump();
@@ -25,9 +25,9 @@ void main() {
 
   testWidgets('shows path when track started', (tester) async {
     SharedPreferences.setMockInitialValues({'skill_track_started_t2': true});
-    await tester.pumpWidget(const MaterialApp(
-      home: SkillTreeTrackLauncher(trackId: 't2'),
-    ));
+    await tester.pumpWidget(
+      const MaterialApp(home: SkillTreeTrackLauncher(trackId: 't2')),
+    );
     await tester.pump();
     await tester.pump();
     expect(find.byType(SkillTreeTrackLauncher), findsOneWidget);

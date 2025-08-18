@@ -7,9 +7,9 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('fills content for single node', () {
-    final service = TheoryMiniLessonContentTemplateService(templateMap: {
-      'BTN vs BB, Flop CBet': 'template text',
-    });
+    final service = TheoryMiniLessonContentTemplateService(
+      templateMap: {'BTN vs BB, Flop CBet': 'template text'},
+    );
     final node = TheoryMiniLessonNode(
       id: 'l1',
       title: 'T',
@@ -21,9 +21,9 @@ void main() {
   });
 
   test('fills content for list', () {
-    final service = TheoryMiniLessonContentTemplateService(templateMap: {
-      'BTN vs BB, Flop CBet': 'template text',
-    });
+    final service = TheoryMiniLessonContentTemplateService(
+      templateMap: {'BTN vs BB, Flop CBet': 'template text'},
+    );
     final lessons = [
       TheoryMiniLessonNode(
         id: 'l1',
@@ -55,10 +55,12 @@ void main() {
   });
 
   test('replaces placeholders with metadata', () {
-    final service = TheoryMiniLessonContentTemplateService(templateMap: {
-      'BTN vs BB, Flop CBet':
-          '{position} vs {villainPosition} on {targetStreet} {stage} {boardTexture}',
-    });
+    final service = TheoryMiniLessonContentTemplateService(
+      templateMap: {
+        'BTN vs BB, Flop CBet':
+            '{position} vs {villainPosition} on {targetStreet} {stage} {boardTexture}',
+      },
+    );
     final node = TheoryMiniLessonNode(
       id: 'n1',
       title: 'T',
@@ -68,9 +70,6 @@ void main() {
       targetStreet: 'Flop',
     );
     final result = service.withGeneratedContent(node);
-    expect(
-      result.content,
-      'BTN vs BB on Flop Level1 Wet Board',
-    );
+    expect(result.content, 'BTN vs BB on Flop Level1 Wet Board');
   });
 }

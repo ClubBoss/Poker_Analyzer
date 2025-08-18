@@ -38,7 +38,7 @@ Future<void> _writeReport(
   final file = File('${dir.path}${Platform.pathSeparator}$name.json');
   await file.writeAsString(
     const JsonEncoder.withIndent('  ').convert({
-      'spots': [spot]
+      'spots': [spot],
     }),
   );
 }
@@ -106,8 +106,9 @@ Future<Map<String, dynamic>> _expectedSummary(Directory dir) async {
 
       final sprVal = (spot['spr'] as num?)?.toDouble();
       if (sprVal != null) {
-        final bucket =
-            sprVal < 1 ? 'spr_low' : (sprVal < 2 ? 'spr_mid' : 'spr_high');
+        final bucket = sprVal < 1
+            ? 'spr_low'
+            : (sprVal < 2 ? 'spr_mid' : 'spr_high');
         final sprEntry = bySpr[bucket]!;
         sprEntry[1]++; // total
         if (isJam) sprEntry[0]++; // jam
@@ -221,8 +222,9 @@ void main() {
 
       // Невалидный одиночный отчёт (без jamFold)
       await _writeReport(tmp, 'missing', _spot('7c 2d', '7c5s2h', 1.0));
-      final invalidFile =
-          File('${tmp.path}${Platform.pathSeparator}missing.json');
+      final invalidFile = File(
+        '${tmp.path}${Platform.pathSeparator}missing.json',
+      );
       final rInvalid = await _runCapture(() async {
         await ev_report.main(['--in', invalidFile.path, '--validate']);
       });

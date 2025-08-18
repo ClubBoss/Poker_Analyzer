@@ -29,7 +29,9 @@ class SmartBoosterDropoffDetector {
   Future<void> _setCooldown(Duration duration) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
-        _cooldownKey, DateTime.now().add(duration).toIso8601String());
+      _cooldownKey,
+      DateTime.now().add(duration).toIso8601String(),
+    );
   }
 
   /// Records outcome of a booster drill.

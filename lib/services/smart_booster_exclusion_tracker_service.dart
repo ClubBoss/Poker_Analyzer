@@ -15,11 +15,13 @@ class SmartBoosterExclusionTrackerService {
     final prefs = await SharedPreferences.getInstance();
     final entries =
         prefs.getStringList(SharedPrefsKeys.boosterExclusionLog) ?? [];
-    entries.add(jsonEncode({
-      'tag': tag,
-      'reason': reason,
-      'timestamp': DateTime.now().toIso8601String(),
-    }));
+    entries.add(
+      jsonEncode({
+        'tag': tag,
+        'reason': reason,
+        'timestamp': DateTime.now().toIso8601String(),
+      }),
+    );
     if (entries.length > _maxEntries) {
       entries.removeRange(0, entries.length - _maxEntries);
     }

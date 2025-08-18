@@ -20,8 +20,9 @@ class DailyChallengeNotificationService {
     if (_initialized) return;
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
-    await _plugin
-        .initialize(const InitializationSettings(android: android, iOS: ios));
+    await _plugin.initialize(
+      const InitializationSettings(android: android, iOS: ios),
+    );
     tz.initializeTimeZones();
     _initialized = true;
   }
@@ -39,8 +40,14 @@ class DailyChallengeNotificationService {
     final state = await DailyChallengeMetaService.instance.getTodayState();
     if (state == ChallengeState.locked) return;
     final now = tz.TZDateTime.now(tz.local);
-    var when =
-        tz.TZDateTime(tz.local, now.year, now.month, now.day, t.hour, t.minute);
+    var when = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      t.hour,
+      t.minute,
+    );
     if (!when.isAfter(now)) {
       when = when.add(const Duration(days: 1));
     }
@@ -50,8 +57,10 @@ class DailyChallengeNotificationService {
       '🎯 Готов к челленджу дня? Вернись и улучшай свои навыки!',
       when,
       const NotificationDetails(
-        android:
-            AndroidNotificationDetails('daily_challenge', 'Daily Challenge'),
+        android: AndroidNotificationDetails(
+          'daily_challenge',
+          'Daily Challenge',
+        ),
         iOS: DarwinNotificationDetails(),
       ),
       androidAllowWhileIdle: true,

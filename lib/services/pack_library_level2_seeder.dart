@@ -80,5 +80,9 @@ class _PackConfig {
   final bool include3betPush;
   final String title;
   const _PackConfig(
-      this.gameType, this.isHeroFirstIn, this.include3betPush, this.title);
+    this.gameType,
+    this.isHeroFirstIn,
+    this.include3betPush,
+    this.title,
+  );
 }

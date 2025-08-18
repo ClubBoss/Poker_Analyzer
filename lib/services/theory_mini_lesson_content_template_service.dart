@@ -10,9 +10,9 @@ class TheoryMiniLessonContentTemplateService {
   /// `'BTN vs BB, Flop CBet'`.
   final Map<String, String> templateMap;
 
-  const TheoryMiniLessonContentTemplateService(
-      {Map<String, String>? templateMap})
-      : templateMap = templateMap ?? theoryLessonTemplateMap;
+  const TheoryMiniLessonContentTemplateService({
+    Map<String, String>? templateMap,
+  }) : templateMap = templateMap ?? theoryLessonTemplateMap;
 
   /// Returns a new [TheoryMiniLessonNode] with its `content` field populated
   /// using a matching template. If no template is found or [node.content] is
@@ -71,8 +71,10 @@ class TheoryMiniLessonContentTemplateService {
   String _fillPlaceholders(String template, TheoryMiniLessonNode node) {
     var result = template;
 
-    final posTag =
-        node.tags.firstWhere((t) => t.contains(' vs '), orElse: () => '');
+    final posTag = node.tags.firstWhere(
+      (t) => t.contains(' vs '),
+      orElse: () => '',
+    );
     if (posTag.isNotEmpty) {
       final parts = posTag.split(' vs ');
       final hero = parts.first;

@@ -12,9 +12,11 @@ class TheoryOnboardingPathRecommender {
   ) {
     if (clusters.isEmpty) return null;
     var filtered = clusters
-        .where((c) =>
-            c.entryPointIds.isNotEmpty &&
-            c.sharedTags.any((t) => profile.tags.contains(t)))
+        .where(
+          (c) =>
+              c.entryPointIds.isNotEmpty &&
+              c.sharedTags.any((t) => profile.tags.contains(t)),
+        )
         .toList();
     if (filtered.isEmpty) {
       filtered = clusters.where((c) => c.entryPointIds.isNotEmpty).toList();

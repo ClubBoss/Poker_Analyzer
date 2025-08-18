@@ -65,8 +65,10 @@ class _TagPresetEditorState extends State<TagPresetEditor> {
                   for (final tag in widget.suggestions)
                     CheckboxListTile(
                       value: _selected.contains(tag),
-                      title: Text(tag,
-                          style: const TextStyle(color: Colors.white)),
+                      title: Text(
+                        tag,
+                        style: const TextStyle(color: Colors.white),
+                      ),
                       onChanged: (v) {
                         setState(() {
                           if (v ?? false) {

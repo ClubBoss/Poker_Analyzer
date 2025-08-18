@@ -55,16 +55,18 @@ class _PlayerInfoOverlayState extends State<PlayerInfoOverlay>
     );
     _opacity = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween(begin: 0.0, end: 1.0).chain(
-          CurveTween(curve: Curves.easeIn),
-        ),
+        tween: Tween(
+          begin: 0.0,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeIn)),
         weight: 20,
       ),
       const TweenSequenceItem(tween: ConstantTween(1.0), weight: 60),
       TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 0.0).chain(
-          CurveTween(curve: Curves.easeOut),
-        ),
+        tween: Tween(
+          begin: 1.0,
+          end: 0.0,
+        ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 20,
       ),
     ]).animate(_controller);
@@ -98,7 +100,7 @@ class _PlayerInfoOverlayState extends State<PlayerInfoOverlay>
               color: AppColors.overlay,
               borderRadius: BorderRadius.circular(8),
               boxShadow: const [
-                BoxShadow(color: AppColors.shadow, blurRadius: 4)
+                BoxShadow(color: AppColors.shadow, blurRadius: 4),
               ],
             ),
             child: Column(

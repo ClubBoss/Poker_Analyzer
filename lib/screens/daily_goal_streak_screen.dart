@@ -27,14 +27,14 @@ class _DailyGoalStreakScreenState extends State<DailyGoalStreakScreen> {
   Widget build(BuildContext context) {
     final service = context.watch<DailyLearningGoalService>();
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day)
-        .subtract(const Duration(days: 29));
+    final start = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(const Duration(days: 29));
     final days = [for (var i = 0; i < 30; i++) start.add(Duration(days: i))];
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('🔥 Цепочка целей'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('🔥 Цепочка целей'), centerTitle: true),
       body: Column(
         children: [
           const SizedBox(height: 16),
@@ -59,8 +59,9 @@ class _DailyGoalStreakScreenState extends State<DailyGoalStreakScreen> {
               ),
               itemBuilder: (context, index) {
                 final d = days[index];
-                final completed =
-                    _completed.contains(DateTime(d.year, d.month, d.day));
+                final completed = _completed.contains(
+                  DateTime(d.year, d.month, d.day),
+                );
                 return Container(
                   alignment: Alignment.center,
                   decoration: BoxDecoration(

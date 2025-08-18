@@ -8,7 +8,10 @@ import 'package:poker_analyzer/models/v2/hand_data.dart';
 import 'package:poker_analyzer/core/training/engine/training_type_engine.dart';
 
 TrainingPackTemplateV2 _pack(
-    String id, List<TrainingPackSpot> spots, List<String> tags) {
+  String id,
+  List<TrainingPackSpot> spots,
+  List<String> tags,
+) {
   return TrainingPackTemplateV2(
     id: id,
     name: id,
@@ -20,12 +23,7 @@ TrainingPackTemplateV2 _pack(
 }
 
 TrainingPackSpot _spot(String id, String tag, {String type = 'theory'}) {
-  return TrainingPackSpot(
-    id: id,
-    type: type,
-    tags: [tag],
-    hand: HandData(),
-  );
+  return TrainingPackSpot(id: id, type: type, tags: [tag], hand: HandData());
 }
 
 void main() {
@@ -35,7 +33,10 @@ void main() {
     final out = Directory(p.join(dir.path, 'out'));
     try {
       final p1 = _pack(
-          'p1', [_spot('a', 'btnPush'), _spot('b', 'btnPush')], ['btnPush']);
+        'p1',
+        [_spot('a', 'btnPush'), _spot('b', 'btnPush')],
+        ['btnPush'],
+      );
       final p2 = _pack('p2', [_spot('c', 'limped')], ['limped']);
       await File(p.join(src.path, 'p1.yaml')).writeAsString(p1.toYamlString());
       await File(p.join(src.path, 'p2.yaml')).writeAsString(p2.toYamlString());

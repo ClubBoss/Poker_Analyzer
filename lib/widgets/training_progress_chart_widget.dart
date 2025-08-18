@@ -6,11 +6,7 @@ import '../services/training_session_fingerprint_timeline_service.dart';
 
 /// Visualizes training progress over time showing accuracy and volume.
 class TrainingProgressChartWidget extends StatefulWidget {
-  const TrainingProgressChartWidget({
-    super.key,
-    this.service,
-    this.dayRange,
-  });
+  const TrainingProgressChartWidget({super.key, this.service, this.dayRange});
 
   /// Service used to load timeline data. Defaults to
   /// [TrainingSessionFingerprintTimelineService].
@@ -47,8 +43,9 @@ class _TrainingProgressChartWidgetState
         }
         var data = snapshot.data!;
         if (widget.dayRange != null) {
-          final cutoff =
-              DateTime.now().subtract(Duration(days: widget.dayRange!));
+          final cutoff = DateTime.now().subtract(
+            Duration(days: widget.dayRange!),
+          );
           data = data.where((e) => e.date.isAfter(cutoff)).toList();
         }
         if (data.isEmpty) {
@@ -86,8 +83,9 @@ class _TrainingProgressChartWidgetState
         final maxX = allSpots.last.x;
 
         final volumeInterval = (maxVolume / 4).ceil();
-        final volumeIntervalScaled =
-            maxVolume == 0 ? 0 : volumeInterval / maxVolume * 100;
+        final volumeIntervalScaled = maxVolume == 0
+            ? 0
+            : volumeInterval / maxVolume * 100;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -120,7 +118,8 @@ class _TrainingProgressChartWidgetState
                       ),
                     ),
                     topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
@@ -139,7 +138,8 @@ class _TrainingProgressChartWidgetState
                         interval: (maxX - minX) / 4,
                         getTitlesWidget: (value, meta) {
                           final date = DateTime.fromMillisecondsSinceEpoch(
-                              value.toInt());
+                            value.toInt(),
+                          );
                           return Text(
                             DateFormat('MM/dd').format(date),
                             style: const TextStyle(fontSize: 10),

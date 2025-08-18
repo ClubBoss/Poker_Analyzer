@@ -11,7 +11,7 @@ import 'package:poker_analyzer/models/training_pack_template.dart';
 class _FakeTagMasteryService extends TagMasteryService {
   final Map<String, double> _data;
   _FakeTagMasteryService(this._data)
-      : super(logs: SessionLogService(sessions: TrainingSessionService()));
+    : super(logs: SessionLogService(sessions: TrainingSessionService()));
 
   @override
   Future<Map<String, double>> computeMastery({bool force = false}) async =>
@@ -27,22 +27,26 @@ void main() {
 
   test('picks pack with lowest mastery', () async {
     final storage = TemplateStorageService();
-    storage.addTemplate(TrainingPackTemplate(
-      id: 'starter_pushfold_10bb',
-      name: 'A',
-      gameType: 'tournament',
-      description: '',
-      hands: const [],
-      tags: const ['easy'],
-    ));
-    storage.addTemplate(TrainingPackTemplate(
-      id: 'starter_pushfold_15bb',
-      name: 'B',
-      gameType: 'tournament',
-      description: '',
-      hands: const [],
-      tags: const ['hard'],
-    ));
+    storage.addTemplate(
+      TrainingPackTemplate(
+        id: 'starter_pushfold_10bb',
+        name: 'A',
+        gameType: 'tournament',
+        description: '',
+        hands: const [],
+        tags: const ['easy'],
+      ),
+    );
+    storage.addTemplate(
+      TrainingPackTemplate(
+        id: 'starter_pushfold_15bb',
+        name: 'B',
+        gameType: 'tournament',
+        description: '',
+        hands: const [],
+        tags: const ['hard'],
+      ),
+    );
     final mastery = _FakeTagMasteryService({'easy': 0.9, 'hard': 0.5});
     final engine = SuggestedNextStepEngine(
       path: TrainingPathProgressService.instance,
@@ -55,24 +59,30 @@ void main() {
 
   test('returns null when all completed', () async {
     final storage = TemplateStorageService();
-    storage.addTemplate(TrainingPackTemplate(
-      id: 'starter_pushfold_10bb',
-      name: 'A',
-      gameType: 'tournament',
-      description: '',
-      hands: const [],
-    ));
-    storage.addTemplate(TrainingPackTemplate(
-      id: 'starter_pushfold_15bb',
-      name: 'B',
-      gameType: 'tournament',
-      description: '',
-      hands: const [],
-    ));
-    await TrainingPathProgressService.instance
-        .markCompleted('starter_pushfold_10bb');
-    await TrainingPathProgressService.instance
-        .markCompleted('starter_pushfold_15bb');
+    storage.addTemplate(
+      TrainingPackTemplate(
+        id: 'starter_pushfold_10bb',
+        name: 'A',
+        gameType: 'tournament',
+        description: '',
+        hands: const [],
+      ),
+    );
+    storage.addTemplate(
+      TrainingPackTemplate(
+        id: 'starter_pushfold_15bb',
+        name: 'B',
+        gameType: 'tournament',
+        description: '',
+        hands: const [],
+      ),
+    );
+    await TrainingPathProgressService.instance.markCompleted(
+      'starter_pushfold_10bb',
+    );
+    await TrainingPathProgressService.instance.markCompleted(
+      'starter_pushfold_15bb',
+    );
     final mastery = _FakeTagMasteryService({});
     final engine = SuggestedNextStepEngine(
       path: TrainingPathProgressService.instance,

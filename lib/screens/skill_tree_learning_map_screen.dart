@@ -45,8 +45,9 @@ class _SkillTreeLearningMapScreenState
     await progress.isCompleted('');
     final evaluator = SkillTreeUnlockEvaluator(progress: progress);
     final unlocked = evaluator.getUnlockedNodes(tree).map((n) => n.id).toSet();
-    final completed =
-        progress.completedNodeIds.value.where(tree.nodes.containsKey).toSet();
+    final completed = progress.completedNodeIds.value
+        .where(tree.nodes.containsKey)
+        .toSet();
     setState(() {
       _track = tree;
       _unlocked = unlocked..addAll(completed);
@@ -114,9 +115,7 @@ class _SkillTreeLearningMapScreenState
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     final tree = _track;
     if (tree == null) {
@@ -150,8 +149,9 @@ class _SkillTreeLearningMapScreenState
         ..subtreeSeparation = 20,
     );
 
-    final title =
-        tree.roots.isNotEmpty ? tree.roots.first.title : widget.trackId;
+    final title = tree.roots.isNotEmpty
+        ? tree.roots.first.title
+        : widget.trackId;
 
     return Scaffold(
       appBar: AppBar(title: Text(title)),
@@ -160,10 +160,7 @@ class _SkillTreeLearningMapScreenState
         boundaryMargin: const EdgeInsets.all(100),
         minScale: 0.1,
         maxScale: 2.0,
-        child: GraphView(
-          graph: graph,
-          algorithm: builder,
-        ),
+        child: GraphView(graph: graph, algorithm: builder),
       ),
     );
   }

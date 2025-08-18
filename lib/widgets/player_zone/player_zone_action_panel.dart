@@ -90,7 +90,9 @@ class PlayerZoneActionPanel extends StatelessWidget {
                 scale: heroLabelScale,
                 child: Container(
                   padding: EdgeInsets.symmetric(
-                      horizontal: 6 * scale, vertical: 2 * scale),
+                    horizontal: 6 * scale,
+                    vertical: 2 * scale,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.accent,
                     borderRadius: BorderRadius.circular(8 * scale),
@@ -174,27 +176,35 @@ class _ActionLabelOverlayState extends State<ActionLabelOverlay>
 
     _opacity = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween(begin: 0.0, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeOut)),
+        tween: Tween(
+          begin: 0.0,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 20,
       ),
       const TweenSequenceItem(tween: ConstantTween(1.0), weight: 60),
       TweenSequenceItem(
-        tween:
-            Tween(begin: 1.0, end: 0.0).chain(CurveTween(curve: Curves.easeIn)),
+        tween: Tween(
+          begin: 1.0,
+          end: 0.0,
+        ).chain(CurveTween(curve: Curves.easeIn)),
         weight: 20,
       ),
     ]).animate(_controller);
 
     _scale = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween(begin: 0.8, end: 1.1)
-            .chain(CurveTween(curve: Curves.easeOut)),
+        tween: Tween(
+          begin: 0.8,
+          end: 1.1,
+        ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 50,
       ),
       TweenSequenceItem(
-        tween:
-            Tween(begin: 1.1, end: 1.0).chain(CurveTween(curve: Curves.easeIn)),
+        tween: Tween(
+          begin: 1.1,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeIn)),
         weight: 50,
       ),
     ]).animate(_controller);
@@ -232,7 +242,7 @@ class _ActionLabelOverlayState extends State<ActionLabelOverlay>
               color: widget.color.withValues(alpha: 0.9),
               borderRadius: BorderRadius.circular(8 * widget.scale),
               boxShadow: const [
-                BoxShadow(color: Colors.black45, blurRadius: 4)
+                BoxShadow(color: Colors.black45, blurRadius: 4),
               ],
             ),
             child: Text(
@@ -264,16 +274,18 @@ class _BetAmountOverlayState extends State<BetAmountOverlay>
     );
     _opacity = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween(begin: 0.0, end: 1.0).chain(
-          CurveTween(curve: Curves.easeIn),
-        ),
+        tween: Tween(
+          begin: 0.0,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeIn)),
         weight: 25,
       ),
       const TweenSequenceItem(tween: ConstantTween(1.0), weight: 50),
       TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 0.0).chain(
-          CurveTween(curve: Curves.easeOut),
-        ),
+        tween: Tween(
+          begin: 1.0,
+          end: 0.0,
+        ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 25,
       ),
     ]).animate(_controller);
@@ -308,9 +320,7 @@ class _BetAmountOverlayState extends State<BetAmountOverlay>
           decoration: BoxDecoration(
             color: widget.color.withValues(alpha: 0.9),
             shape: BoxShape.circle,
-            boxShadow: const [
-              BoxShadow(color: Colors.black45, blurRadius: 4),
-            ],
+            boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 4)],
           ),
           child: Text(
             '${widget.amount}',
@@ -358,16 +368,18 @@ class _RefundMessageOverlayState extends State<RefundMessageOverlay>
     );
     _opacity = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween(begin: 0.0, end: 1.0).chain(
-          CurveTween(curve: Curves.easeIn),
-        ),
+        tween: Tween(
+          begin: 0.0,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeIn)),
         weight: 25,
       ),
       const TweenSequenceItem(tween: ConstantTween(1.0), weight: 50),
       TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 0.0).chain(
-          CurveTween(curve: Curves.easeOut),
-        ),
+        tween: Tween(
+          begin: 1.0,
+          end: 0.0,
+        ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 25,
       ),
     ]).animate(_controller);

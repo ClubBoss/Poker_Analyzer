@@ -26,11 +26,23 @@ void main() {
 
     final blocks = {
       'a': const TheoryBlockModel(
-          id: 'a', title: 'A', nodeIds: [], practicePackIds: []),
+        id: 'a',
+        title: 'A',
+        nodeIds: [],
+        practicePackIds: [],
+      ),
       'b': const TheoryBlockModel(
-          id: 'b', title: 'B', nodeIds: [], practicePackIds: []),
+        id: 'b',
+        title: 'B',
+        nodeIds: [],
+        practicePackIds: [],
+      ),
       'c': const TheoryBlockModel(
-          id: 'c', title: 'C', nodeIds: [], practicePackIds: []),
+        id: 'c',
+        title: 'C',
+        nodeIds: [],
+        practicePackIds: [],
+      ),
     };
 
     final library = _FakeBlockLibrary(blocks);

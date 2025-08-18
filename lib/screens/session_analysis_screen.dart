@@ -127,15 +127,16 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
   }
 
   TrainingPackSpot _spotFromHand(SavedHand h) {
-    final heroCards =
-        h.playerCards[h.heroIndex].map((c) => '${c.rank}${c.suit}').join(' ');
+    final heroCards = h.playerCards[h.heroIndex]
+        .map((c) => '${c.rank}${c.suit}')
+        .join(' ');
     final actions = <ActionEntry>[
       for (final a in h.actions)
-        if (a.street == 0) a
+        if (a.street == 0) a,
     ];
     final stacks = <String, double>{
       for (int i = 0; i < h.numberOfPlayers; i++)
-        '$i': (h.stackSizes[i] ?? 0).toDouble()
+        '$i': (h.stackSizes[i] ?? 0).toDouble(),
     };
     return TrainingPackSpot(
       id: const Uuid().v4(),
@@ -186,10 +187,12 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
                 const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -253,12 +256,14 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
         ..sort((a, b) => a.savedAt.compareTo(b.savedAt));
       if (!mounted) return;
       await PackExportService.exportSessionCsv(list, _evs, _icms);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('CSV exported')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('CSV exported')));
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Export failed: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Export failed: $e')));
       }
     }
   }
@@ -269,12 +274,14 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
         ..sort((a, b) => a.savedAt.compareTo(b.savedAt));
       if (!mounted) return;
       await PackExportService.exportSessionPdf(list, _evs, _icms);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('PDF exported')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('PDF exported')));
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Export failed: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Export failed: $e')));
       }
     }
   }
@@ -282,7 +289,9 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
   Widget _buildNoteField() {
     return Padding(
       padding: const EdgeInsets.symmetric(
-          horizontal: AppConstants.padding16, vertical: 8),
+        horizontal: AppConstants.padding16,
+        vertical: 8,
+      ),
       child: Card(
         color: AppColors.cardBackground,
         child: Padding(
@@ -320,8 +329,9 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
         }
       }
     }
-    final accuracy =
-        correct + mistakes > 0 ? correct * 100 / (correct + mistakes) : 0.0;
+    final accuracy = correct + mistakes > 0
+        ? correct * 100 / (correct + mistakes)
+        : 0.0;
     final preEv = _evs.isNotEmpty ? _evs.first : 0.0;
     final postEv = _evs.isNotEmpty ? _evs.last : 0.0;
     final preIcm = _icms.isNotEmpty ? _icms.first : 0.0;
@@ -343,22 +353,30 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Hands: ${list.length}',
-                          style: const TextStyle(color: Colors.white)),
-                      const SizedBox(height: 4),
-                      Text('Accuracy: ${accuracy.toStringAsFixed(1)}%',
-                          style: const TextStyle(color: Colors.white)),
-                      const SizedBox(height: 4),
-                      Text('Mistakes: $mistakes',
-                          style: const TextStyle(color: Colors.white)),
+                      Text(
+                        'Hands: ${list.length}',
+                        style: const TextStyle(color: Colors.white),
+                      ),
                       const SizedBox(height: 4),
                       Text(
-                          'EV: ${preEv.toStringAsFixed(2)} ➜ ${postEv.toStringAsFixed(2)}',
-                          style: const TextStyle(color: Colors.white)),
+                        'Accuracy: ${accuracy.toStringAsFixed(1)}%',
+                        style: const TextStyle(color: Colors.white),
+                      ),
                       const SizedBox(height: 4),
                       Text(
-                          'ICM: ${preIcm.toStringAsFixed(2)} ➜ ${postIcm.toStringAsFixed(2)}',
-                          style: const TextStyle(color: Colors.white)),
+                        'Mistakes: $mistakes',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'EV: ${preEv.toStringAsFixed(2)} ➜ ${postEv.toStringAsFixed(2)}',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'ICM: ${preIcm.toStringAsFixed(2)} ➜ ${postIcm.toStringAsFixed(2)}',
+                        style: const TextStyle(color: Colors.white),
+                      ),
                     ],
                   ),
                 ),
@@ -369,16 +387,19 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
                   builder: (context) => ElevatedButton(
                     onPressed: () async {
                       final tpl = await MistakeReviewPackService.latestTemplate(
-                          context);
+                        context,
+                      );
                       if (tpl == null) return;
-                      await context
-                          .read<TrainingSessionService>()
-                          .startSession(tpl, persist: false);
+                      await context.read<TrainingSessionService>().startSession(
+                        tpl,
+                        persist: false,
+                      );
                       if (!context.mounted) return;
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (_) => const TrainingSessionScreen()),
+                          builder: (_) => const TrainingSessionScreen(),
+                        ),
                       );
                     },
                     child: const Text('Review Mistakes'),
@@ -413,8 +434,10 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: ListTile(
-                      title: Text(list[i].name,
-                          style: const TextStyle(color: Colors.white)),
+                      title: Text(
+                        list[i].name,
+                        style: const TextStyle(color: Colors.white),
+                      ),
                       subtitle: Text(
                         'EV: ${_evs[i].toStringAsFixed(2)} • ICM: ${_icms[i].toStringAsFixed(2)}',
                         style: const TextStyle(color: Colors.white70),
@@ -438,16 +461,19 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
                   builder: (context) => ElevatedButton(
                     onPressed: () async {
                       final tpl = await MistakeReviewPackService.latestTemplate(
-                          context);
+                        context,
+                      );
                       if (tpl == null) return;
-                      await context
-                          .read<TrainingSessionService>()
-                          .startSession(tpl, persist: false);
+                      await context.read<TrainingSessionService>().startSession(
+                        tpl,
+                        persist: false,
+                      );
                       if (!context.mounted) return;
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (_) => const TrainingSessionScreen()),
+                          builder: (_) => const TrainingSessionScreen(),
+                        ),
                       );
                     },
                     child: const Text('Train Mistakes'),

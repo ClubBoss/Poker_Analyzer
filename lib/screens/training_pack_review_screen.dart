@@ -275,7 +275,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
       ..writeln();
     final mistakes = [
       for (final h in widget.pack.hands)
-        if (widget.mistakenNames.contains(h.name)) h
+        if (widget.mistakenNames.contains(h.name)) h,
     ];
     if (mistakes.isNotEmpty) {
       buffer.writeln('## Ошибочные руки');
@@ -288,7 +288,8 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
 
   Future<void> _exportReport() async {
     final markdown = _generateReport();
-    final dir = await getDownloadsDirectory() ??
+    final dir =
+        await getDownloadsDirectory() ??
         await getApplicationDocumentsDirectory();
     final safeName = widget.pack.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
     final fileName = '${safeName}_${DateTime.now().millisecondsSinceEpoch}.md';
@@ -317,26 +318,33 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
       pw.MultiPage(
         build: (context) {
           return [
-            pw.Text(widget.pack.name,
-                style: pw.TextStyle(font: boldFont, fontSize: 24)),
+            pw.Text(
+              widget.pack.name,
+              style: pw.TextStyle(font: boldFont, fontSize: 24),
+            ),
             pw.SizedBox(height: 16),
             for (final hand in widget.pack.hands)
               pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  pw.Text(hand.name,
-                      style: pw.TextStyle(font: boldFont, fontSize: 18)),
+                  pw.Text(
+                    hand.name,
+                    style: pw.TextStyle(font: boldFont, fontSize: 18),
+                  ),
                   pw.Bullet(
-                      text: 'Rating: ${hand.rating}',
-                      style: pw.TextStyle(font: regularFont)),
+                    text: 'Rating: ${hand.rating}',
+                    style: pw.TextStyle(font: regularFont),
+                  ),
                   if (hand.tags.isNotEmpty)
                     pw.Bullet(
-                        text: 'Tags: ${hand.tags.join(', ')}',
-                        style: pw.TextStyle(font: regularFont)),
+                      text: 'Tags: ${hand.tags.join(', ')}',
+                      style: pw.TextStyle(font: regularFont),
+                    ),
                   pw.Bullet(
-                      text:
-                          'Mistake: ${widget.mistakenNames.contains(hand.name) ? 'Yes' : 'No'}',
-                      style: pw.TextStyle(font: regularFont)),
+                    text:
+                        'Mistake: ${widget.mistakenNames.contains(hand.name) ? 'Yes' : 'No'}',
+                    style: pw.TextStyle(font: regularFont),
+                  ),
                   pw.SizedBox(height: 8),
                 ],
               ),
@@ -347,7 +355,8 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
 
     final bytes = await pdf.save();
 
-    final dir = await getDownloadsDirectory() ??
+    final dir =
+        await getDownloadsDirectory() ??
         await getApplicationDocumentsDirectory();
     final safeName = widget.pack.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
     final fileName = '${safeName}_${DateTime.now().millisecondsSinceEpoch}.pdf';
@@ -380,7 +389,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
         0 => 'preflop',
         1 => 'flop',
         2 => 'turn',
-        _ => 'river'
+        _ => 'river',
       });
     }
     final filters = <String, dynamic>{};
@@ -400,12 +409,14 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
     final model = await Navigator.push<TrainingPackTemplateModel>(
       context,
       MaterialPageRoute(
-          builder: (_) => TrainingPackTemplateEditorScreen(initial: initial)),
+        builder: (_) => TrainingPackTemplateEditorScreen(initial: initial),
+      ),
     );
     if (model != null && mounted) {
       await context.read<TrainingPackTemplateStorageService>().add(model);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Шаблон сохранён')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Шаблон сохранён')));
     }
   }
 
@@ -417,13 +428,18 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
         title: Row(
           children: [
             Expanded(
-                child: Text(hand.name,
-                    style: const TextStyle(color: Colors.white))),
+              child: Text(
+                hand.name,
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
             if (hand.evLoss != null)
               Tooltip(
                 message: 'Потеря EV из-за выбранного действия',
-                child: Text('-${hand.evLoss!.toStringAsFixed(1)} bb',
-                    style: const TextStyle(color: Colors.red)),
+                child: Text(
+                  '-${hand.evLoss!.toStringAsFixed(1)} bb',
+                  style: const TextStyle(color: Colors.red),
+                ),
               ),
           ],
         ),
@@ -494,17 +510,28 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          Text('Кол-во рук: $total',
-              style: const TextStyle(color: Colors.white)),
-          Text('Точность: ${accuracy.toStringAsFixed(1)}%',
-              style: const TextStyle(color: Colors.white)),
-          Text('Ошибок: $mistakes',
-              style: const TextStyle(color: Colors.white)),
-          Text('Средний рейтинг: ${ratingAvg.toStringAsFixed(1)}',
-              style: const TextStyle(color: Colors.white)),
-          Text('Потеря EV: -${stats.totalEvLoss.toStringAsFixed(1)} bb',
-              style: TextStyle(
-                  color: stats.totalEvLoss > 0 ? Colors.red : Colors.green)),
+          Text(
+            'Кол-во рук: $total',
+            style: const TextStyle(color: Colors.white),
+          ),
+          Text(
+            'Точность: ${accuracy.toStringAsFixed(1)}%',
+            style: const TextStyle(color: Colors.white),
+          ),
+          Text(
+            'Ошибок: $mistakes',
+            style: const TextStyle(color: Colors.white),
+          ),
+          Text(
+            'Средний рейтинг: ${ratingAvg.toStringAsFixed(1)}',
+            style: const TextStyle(color: Colors.white),
+          ),
+          Text(
+            'Потеря EV: -${stats.totalEvLoss.toStringAsFixed(1)} bb',
+            style: TextStyle(
+              color: stats.totalEvLoss > 0 ? Colors.red : Colors.green,
+            ),
+          ),
         ],
       ),
     );
@@ -518,7 +545,7 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
         ? visible
         : [
             for (final h in visible)
-              if (h.name.toLowerCase().contains(query)) h
+              if (h.name.toLowerCase().contains(query)) h,
           ];
     return Scaffold(
       appBar: AppBar(
@@ -609,11 +636,17 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
                   style: const TextStyle(color: Colors.white),
                   items: const [
                     DropdownMenuItem(
-                        value: _SortOption.name, child: Text('Name')),
+                      value: _SortOption.name,
+                      child: Text('Name'),
+                    ),
                     DropdownMenuItem(
-                        value: _SortOption.rating, child: Text('Rating')),
+                      value: _SortOption.rating,
+                      child: Text('Rating'),
+                    ),
                     DropdownMenuItem(
-                        value: _SortOption.date, child: Text('Date')),
+                      value: _SortOption.date,
+                      child: Text('Date'),
+                    ),
                   ],
                   onChanged: (value) async {
                     if (value == null) return;

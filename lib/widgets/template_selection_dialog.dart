@@ -20,7 +20,7 @@ class _TemplateSelectionDialogState extends State<TemplateSelectionDialog> {
       for (final t in widget.templates)
         if (t.name.toLowerCase().contains(_filter.toLowerCase()) ||
             t.description.toLowerCase().contains(_filter.toLowerCase()))
-          t
+          t,
     ];
     return AlertDialog(
       title: const Text('Выберите шаблон'),

@@ -35,15 +35,17 @@ class _TodayProgressBannerState extends State<TodayProgressBanner>
     );
     _pulse = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 1.1).chain(
-          CurveTween(curve: Curves.easeOut),
-        ),
+        tween: Tween(
+          begin: 1.0,
+          end: 1.1,
+        ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 50,
       ),
       TweenSequenceItem(
-        tween: Tween(begin: 1.1, end: 1.0).chain(
-          CurveTween(curve: Curves.easeIn),
-        ),
+        tween: Tween(
+          begin: 1.1,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeIn)),
         weight: 50,
       ),
     ]).animate(_controller);
@@ -102,8 +104,11 @@ class _TodayProgressBannerState extends State<TodayProgressBanner>
     final target = context.watch<DailyTargetService>().target;
     final streakService = context.watch<StreakCounterService>();
     final streak = streakService.count;
-    final today =
-        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    final today = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+    );
     final hands = stats.handsPerDay[today] ?? 0;
     final dailyMistakes = stats.mistakesDaily(1);
     final mistakes = dailyMistakes.isNotEmpty ? dailyMistakes.first.value : 0;
@@ -133,11 +138,16 @@ class _TodayProgressBannerState extends State<TodayProgressBanner>
               if (streak > 0)
                 Row(
                   children: [
-                    const Icon(Icons.local_fire_department,
-                        color: Colors.orange, size: 16),
+                    const Icon(
+                      Icons.local_fire_department,
+                      color: Colors.orange,
+                      size: 16,
+                    ),
                     const SizedBox(width: 4),
-                    Text('$streak',
-                        style: const TextStyle(color: Colors.white)),
+                    Text(
+                      '$streak',
+                      style: const TextStyle(color: Colors.white),
+                    ),
                   ],
                 ),
             ],
@@ -156,38 +166,46 @@ class _TodayProgressBannerState extends State<TodayProgressBanner>
             ),
           ),
           if (streak == 0 && streakService.lastSuccess != null)
-            Builder(builder: (context) {
-              final last = streakService.lastSuccess!;
-              final diff = today
-                  .difference(DateTime(last.year, last.month, last.day))
-                  .inDays;
-              if (diff > 1) {
-                final date =
-                    DateFormat('d MMM', Intl.getCurrentLocale()).format(last);
-                return Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          const Text('🔥 Streak Lost',
-                              style: TextStyle(color: Colors.white)),
-                          const SizedBox(width: 8),
-                          Text(date,
-                              style: const TextStyle(color: Colors.white70)),
-                        ],
-                      ),
-                      TextButton(
-                        onPressed: () => streakService.restart(),
-                        child: const Text('Restart'),
-                      ),
-                    ],
-                  ),
-                );
-              }
-              return const SizedBox.shrink();
-            }),
+            Builder(
+              builder: (context) {
+                final last = streakService.lastSuccess!;
+                final diff = today
+                    .difference(DateTime(last.year, last.month, last.day))
+                    .inDays;
+                if (diff > 1) {
+                  final date = DateFormat(
+                    'd MMM',
+                    Intl.getCurrentLocale(),
+                  ).format(last);
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            const Text(
+                              '🔥 Streak Lost',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              date,
+                              style: const TextStyle(color: Colors.white70),
+                            ),
+                          ],
+                        ),
+                        TextButton(
+                          onPressed: () => streakService.restart(),
+                          child: const Text('Restart'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
         ],
       ),
     );

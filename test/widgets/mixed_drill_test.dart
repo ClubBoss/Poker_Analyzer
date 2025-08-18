@@ -19,7 +19,7 @@ void main() {
       name: 'One',
       spots: [
         for (int i = 0; i < 5; i++)
-          TrainingPackSpot(id: 's1_\$i', hand: HandData())
+          TrainingPackSpot(id: 's1_\$i', hand: HandData()),
       ],
       createdAt: DateTime.now(),
     );
@@ -28,7 +28,7 @@ void main() {
       name: 'Two',
       spots: [
         for (int i = 0; i < 5; i++)
-          TrainingPackSpot(id: 's2_\$i', hand: HandData())
+          TrainingPackSpot(id: 's2_\$i', hand: HandData()),
       ],
       createdAt: DateTime.now(),
     );
@@ -49,8 +49,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(TrainingSessionScreen), findsOneWidget);
     final state = tester.state(find.byType(TrainingSessionScreen));
-    final service =
-        Provider.of<TrainingSessionService>(state.context, listen: false);
+    final service = Provider.of<TrainingSessionService>(
+      state.context,
+      listen: false,
+    );
     expect(service.spots.length, 3);
   });
 }

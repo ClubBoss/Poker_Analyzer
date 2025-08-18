@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 class TrainingSpotFilterPanel extends StatelessWidget {
   final ValueChanged<String> onSearchChanged;
 
-  const TrainingSpotFilterPanel({
-    super.key,
-    required this.onSearchChanged,
-  });
+  const TrainingSpotFilterPanel({super.key, required this.onSearchChanged});
 
   @override
   Widget build(BuildContext context) {

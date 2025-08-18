@@ -35,8 +35,11 @@ class TheoryPackSeederLevel2 {
         if (t == 'level2') continue;
         final tpl = templates[t];
         if (tpl != null) {
-          lessons.add(
-              {'tag': t, 'title': tpl['title']!, 'content': tpl['content']!});
+          lessons.add({
+            'tag': t,
+            'title': tpl['title']!,
+            'content': tpl['content']!,
+          });
           if (lessons.length >= 2) break;
         }
       }
@@ -71,35 +74,35 @@ class TheoryPackSeederLevel2 {
 const Map<String, Map<String, String>> _defaultTemplates = {
   'openfold': {
     'title': 'Open/Fold Strategy Basics',
-    'content': 'Tighten early positions and widen from late position.'
+    'content': 'Tighten early positions and widen from late position.',
   },
   'open-fold': {
     'title': 'Open/Fold Strategy Basics',
-    'content': 'Tighten early positions and widen from late position.'
+    'content': 'Tighten early positions and widen from late position.',
   },
   '3bet-push': {
     'title': '3bet Push vs Open',
-    'content': 'Shove strong hands over opens when short stacked.'
+    'content': 'Shove strong hands over opens when short stacked.',
   },
   'callVsOpen': {
     'title': 'Call vs Open',
-    'content': 'Defend with hands that play well postflop.'
+    'content': 'Defend with hands that play well postflop.',
   },
   'cbet': {
     'title': 'C-Bet Fundamentals',
-    'content': 'Bet the flop frequently with range advantage.'
+    'content': 'Bet the flop frequently with range advantage.',
   },
   'check-raise': {
     'title': 'Check-Raise Tactics',
-    'content': 'Use check-raises to apply pressure from out of position.'
+    'content': 'Use check-raises to apply pressure from out of position.',
   },
   'float': {
     'title': 'Turn Float Strategy',
     'content':
-        'Call flop to take the pot on later streets when conditions are right.'
+        'Call flop to take the pot on later streets when conditions are right.',
   },
   'donk': {
     'title': 'Donk Bet Insights',
-    'content': 'Lead out from out of position on favourable boards.'
+    'content': 'Lead out from out of position on favourable boards.',
   },
 };

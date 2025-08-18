@@ -9,8 +9,8 @@ class TheoryMiniLessonNavigator {
   TheoryMiniLessonNavigator({
     MiniLessonLibraryService? library,
     NavigationService navigation = const NavigationService(),
-  })  : _library = library ?? MiniLessonLibraryService.instance,
-        _navigation = navigation;
+  }) : _library = library ?? MiniLessonLibraryService.instance,
+       _navigation = navigation;
 
   final MiniLessonLibraryService _library;
   final NavigationService _navigation;
@@ -34,9 +34,9 @@ class TheoryMiniLessonNavigator {
     }
     if (ctx == null || !(ctx.mounted)) return;
 
-    await Navigator.of(ctx).push(
-      MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: lesson)),
-    );
+    await Navigator.of(
+      ctx,
+    ).push(MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: lesson)));
   }
 
   /// Opens a lesson directly by its [id].
@@ -51,8 +51,8 @@ class TheoryMiniLessonNavigator {
     }
     if (ctx == null || !(ctx.mounted)) return;
 
-    await Navigator.of(ctx).push(
-      MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: lesson)),
-    );
+    await Navigator.of(
+      ctx,
+    ).push(MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: lesson)));
   }
 }

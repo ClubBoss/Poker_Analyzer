@@ -19,8 +19,9 @@ class DailyReminderScheduler {
     if (_initialized) return;
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
-    await _plugin
-        .initialize(const InitializationSettings(android: android, iOS: ios));
+    await _plugin.initialize(
+      const InitializationSettings(android: android, iOS: ios),
+    );
     tz.initializeTimeZones();
     _initialized = true;
   }
@@ -53,7 +54,9 @@ class DailyReminderScheduler {
         when,
         const NotificationDetails(
           android: AndroidNotificationDetails(
-              'daily_pack_reminder', 'Daily Pack Reminder'),
+            'daily_pack_reminder',
+            'Daily Pack Reminder',
+          ),
           iOS: DarwinNotificationDetails(),
         ),
         androidAllowWhileIdle: true,

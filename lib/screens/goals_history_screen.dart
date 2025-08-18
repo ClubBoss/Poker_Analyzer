@@ -122,7 +122,9 @@ class _GoalsHistoryScreenState extends State<GoalsHistoryScreen> {
                                   Container(
                                     margin: const EdgeInsets.only(left: 6),
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 6, vertical: 2),
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: accent,
                                       borderRadius: BorderRadius.circular(4),
@@ -130,7 +132,9 @@ class _GoalsHistoryScreenState extends State<GoalsHistoryScreen> {
                                     child: const Text(
                                       'Новая',
                                       style: TextStyle(
-                                          fontSize: 12, color: Colors.white),
+                                        fontSize: 12,
+                                        color: Colors.white,
+                                      ),
                                     ),
                                   ),
                               ],
@@ -139,7 +143,7 @@ class _GoalsHistoryScreenState extends State<GoalsHistoryScreen> {
                             if (completed && g.completedAt != null)
                               Text('Завершено: ${_formatDate(g.completedAt!)}')
                             else
-                              Text('${g.progress}/${g.target}')
+                              Text('${g.progress}/${g.target}'),
                           ],
                         ),
                       ),

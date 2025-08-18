@@ -6,9 +6,7 @@ TheoryPackModel _pack(String id, String title, String text) {
   return TheoryPackModel(
     id: id,
     title: title,
-    sections: [
-      TheorySectionModel(title: 's', text: text, type: 'tip'),
-    ],
+    sections: [TheorySectionModel(title: 's', text: text, type: 'tip')],
   );
 }
 

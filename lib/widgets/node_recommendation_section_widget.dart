@@ -47,10 +47,9 @@ class NodeRecommendationSectionWidget extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             rec.reason,
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(color: Colors.grey),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: Colors.grey),
           ),
           const SizedBox(height: 8),
         ],

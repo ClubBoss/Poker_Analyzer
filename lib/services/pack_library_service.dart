@@ -32,15 +32,17 @@ class PackLibraryService {
 
   Future<List<TrainingPackTemplateV2>> listStarters() async {
     await TrainingPackLibraryV2.instance.loadFromFolder();
-    final list =
-        TrainingPackLibraryV2.instance.filterBy(type: TrainingType.pushFold);
+    final list = TrainingPackLibraryV2.instance.filterBy(
+      type: TrainingType.pushFold,
+    );
     return list.where((p) => p.tags.contains('starter')).toList();
   }
 
   Future<TrainingPackTemplateV2?> recommendedStarter() async {
     await TrainingPackLibraryV2.instance.loadFromFolder();
-    final list =
-        TrainingPackLibraryV2.instance.filterBy(type: TrainingType.pushFold);
+    final list = TrainingPackLibraryV2.instance.filterBy(
+      type: TrainingType.pushFold,
+    );
     if (list.isEmpty) return null;
 
     final starters = list.where((p) => p.tags.contains('starter')).toList();
@@ -58,8 +60,9 @@ class PackLibraryService {
   /// Returns the first pack containing [tag] or `null` if none found.
   Future<TrainingPackTemplateV2?> findByTag(String tag) async {
     await TrainingPackLibraryV2.instance.loadFromFolder();
-    final list =
-        TrainingPackLibraryV2.instance.filterBy(type: TrainingType.pushFold);
+    final list = TrainingPackLibraryV2.instance.filterBy(
+      type: TrainingType.pushFold,
+    );
     return list.firstWhereOrNull((p) => p.tags.contains(tag));
   }
 

@@ -22,33 +22,48 @@ class AccuracyProgressBar extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          LayoutBuilder(builder: (context, constraints) {
-            if (constraints.maxWidth < 360) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Сессии с точностью > 80%',
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth < 360) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Сессии с точностью > 80%',
                       style: TextStyle(
-                          color: Colors.white70, fontSize: 14 * scale)),
-                  SizedBox(height: 4 * scale),
-                  Text('$good из $total',
-                      style:
-                          TextStyle(color: Colors.white, fontSize: 14 * scale)),
+                        color: Colors.white70,
+                        fontSize: 14 * scale,
+                      ),
+                    ),
+                    SizedBox(height: 4 * scale),
+                    Text(
+                      '$good из $total',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14 * scale,
+                      ),
+                    ),
+                  ],
+                );
+              }
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Сессии с точностью > 80%',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14 * scale,
+                    ),
+                  ),
+                  Text(
+                    '$good из $total',
+                    style: TextStyle(color: Colors.white, fontSize: 14 * scale),
+                  ),
                 ],
               );
-            }
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Сессии с точностью > 80%',
-                    style:
-                        TextStyle(color: Colors.white70, fontSize: 14 * scale)),
-                Text('$good из $total',
-                    style:
-                        TextStyle(color: Colors.white, fontSize: 14 * scale)),
-              ],
-            );
-          }),
+            },
+          ),
           SizedBox(height: 4 * scale),
           ClipRRect(
             borderRadius: BorderRadius.circular(4),

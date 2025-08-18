@@ -133,17 +133,19 @@ class DebugSnapshotService {
             .cast<File>()
             .toList();
         if (files.isEmpty) return null;
-        final results = await Future.wait(files.map((f) async {
-          try {
-            final stat = await f.stat();
-            return MapEntry(f, stat.modified);
-          } catch (e) {
-            if (kDebugMode) {
-              debugPrint('Failed to stat ${f.path}: $e');
+        final results = await Future.wait(
+          files.map((f) async {
+            try {
+              final stat = await f.stat();
+              return MapEntry(f, stat.modified);
+            } catch (e) {
+              if (kDebugMode) {
+                debugPrint('Failed to stat ${f.path}: $e');
+              }
+              return null;
             }
-            return null;
-          }
-        }));
+          }),
+        );
         final entries = results.whereType<MapEntry<File, DateTime>>().toList();
         if (entries.isEmpty) return null;
         entries.sort((a, b) => b.value.compareTo(a.value));
@@ -162,7 +164,8 @@ class DebugSnapshotService {
   Future<void> cleanupOldSnapshots() async {
     await _initFuture;
     await _ioLock.synchronized(
-        () => _cleanupOldFiles(snapshotsFolder, snapshotRetentionLimit));
+      () => _cleanupOldFiles(snapshotsFolder, snapshotRetentionLimit),
+    );
   }
 
   /// Returns the directory containing snapshot files.
@@ -185,7 +188,8 @@ class DebugSnapshotService {
       if (!await dir.exists()) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('No snapshot files found')));
+            const SnackBar(content: Text('No snapshot files found')),
+          );
         }
         return;
       }
@@ -193,7 +197,8 @@ class DebugSnapshotService {
       if (files.isEmpty) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('No snapshot files found')));
+            const SnackBar(content: Text('No snapshot files found')),
+          );
         }
         return;
       }
@@ -216,13 +221,15 @@ class DebugSnapshotService {
       await zipFile.writeAsBytes(bytes, flush: true);
       if (context.mounted) {
         final name = savePath.split(Platform.pathSeparator).last;
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Archive saved: $name')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Archive saved: $name')));
       }
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Failed to export snapshots')));
+          const SnackBar(content: Text('Failed to export snapshots')),
+        );
       }
     }
   }

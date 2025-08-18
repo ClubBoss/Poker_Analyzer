@@ -11,7 +11,8 @@ import 'package:yaml/yaml.dart';
 void main(List<String> args) {
   if (args.isEmpty) {
     stderr.writeln(
-        'Usage: dart run tool/generate_pushfold_packs.dart <config.yaml>');
+      'Usage: dart run tool/generate_pushfold_packs.dart <config.yaml>',
+    );
     exit(1);
   }
   final file = File(args.first);
@@ -43,7 +44,7 @@ void main(List<String> args) {
       final name = item['name'].toString();
       final heroBbStack = (item['heroBbStack'] as num).toInt();
       final playerStacksBb = [
-        for (final v in item['playerStacksBb']) (v as num).toInt()
+        for (final v in item['playerStacksBb']) (v as num).toInt(),
       ];
       final heroPos = parseHeroPosition(item['heroPos'].toString());
       final rangeRaw = item['heroRange'];
@@ -55,11 +56,13 @@ void main(List<String> args) {
         final top = RegExp(r'^top(\\d+)\\$').firstMatch(s);
         final topFun = RegExp(r'^topNHands\\((\\d+)\\)\\$').firstMatch(s);
         if (top != null) {
-          heroRange =
-              PackGeneratorService.topNHands(int.parse(top[1]!)).toList();
+          heroRange = PackGeneratorService.topNHands(
+            int.parse(top[1]!),
+          ).toList();
         } else if (topFun != null) {
-          heroRange =
-              PackGeneratorService.topNHands(int.parse(topFun[1]!)).toList();
+          heroRange = PackGeneratorService.topNHands(
+            int.parse(topFun[1]!),
+          ).toList();
         } else {
           heroRange = PackGeneratorService.parseRangeString(s).toList();
         }
@@ -87,7 +90,8 @@ void main(List<String> args) {
       stdout.writeln('[$index/$total] $id - ${tpl.spots.length} spots - OK');
     } catch (e) {
       stderr.writeln(
-          '[$index/$total] ${item is YamlMap ? item['id'] : ''} - [ERROR] $e');
+        '[$index/$total] ${item is YamlMap ? item['id'] : ''} - [ERROR] $e',
+      );
     }
   }
   final elapsed = DateTime.now().difference(start).inMilliseconds / 1000;
@@ -106,14 +110,14 @@ String _tplToCsv(tpl) {
       'CallsMask',
       'EV_BB',
       'ICM_EV',
-      'Tags'
+      'Tags',
     ],
   ];
   for (final spot in tpl.spots) {
     final hand = spot.hand;
     final stacks = [
       for (var i = 0; i < hand.playerCount; i++)
-        hand.stacks['$i']?.toString() ?? ''
+        hand.stacks['$i']?.toString() ?? '',
     ].join('/');
     final pre = hand.actions[0] ?? [];
     final callsMask = hand.playerCount == 2
@@ -122,7 +126,7 @@ String _tplToCsv(tpl) {
             for (var i = 0; i < hand.playerCount; i++)
               pre.any((a) => a.playerIndex == i && a.action == 'call')
                   ? '1'
-                  : '0'
+                  : '0',
           ].join();
     rows.add([
       spot.title,

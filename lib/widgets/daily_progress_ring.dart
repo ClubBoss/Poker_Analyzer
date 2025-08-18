@@ -59,18 +59,23 @@ class DailyProgressRing extends StatelessWidget {
                         backgroundColor: Colors.white24,
                         valueColor: AlwaysStoppedAnimation(_color(value)),
                       ),
-                      Text('$percent%',
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold)),
+                      Text(
+                        '$percent%',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                 );
               },
             ),
             const SizedBox(height: 8),
-            Text('$hands/$target',
-                style: const TextStyle(color: Colors.white70, fontSize: 12)),
+            Text(
+              '$hands/$target',
+              style: const TextStyle(color: Colors.white70, fontSize: 12),
+            ),
           ],
         ),
       ),

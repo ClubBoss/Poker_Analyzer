@@ -30,8 +30,9 @@ class BoosterCooldownBlockerService {
           _cache = {
             for (final e in data.entries)
               if (e.value is Map)
-                e.key.toString():
-                    _Record.fromJson(Map<String, dynamic>.from(e.value as Map))
+                e.key.toString(): _Record.fromJson(
+                  Map<String, dynamic>.from(e.value as Map),
+                ),
           };
         }
       } catch (_) {}
@@ -108,9 +109,9 @@ class _Record {
   }
 
   Map<String, dynamic> toJson() => {
-        if (dismissed != null) 'd': dismissed!.toIso8601String(),
-        if (completed != null) 'c': completed!.toIso8601String(),
-      };
+    if (dismissed != null) 'd': dismissed!.toIso8601String(),
+    if (completed != null) 'c': completed!.toIso8601String(),
+  };
 
   factory _Record.fromJson(Map<String, dynamic> json) {
     return _Record(

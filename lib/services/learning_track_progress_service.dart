@@ -19,8 +19,8 @@ class LearningTrackProgressService {
     required this.gatekeeper,
     LearningPathRegistryService? registry,
     LearningPathProgressSnapshotService? snapshots,
-  })  : registry = registry ?? LearningPathRegistryService.instance,
-        snapshots = snapshots ?? LearningPathProgressSnapshotService.instance;
+  }) : registry = registry ?? LearningPathRegistryService.instance,
+       snapshots = snapshots ?? LearningPathProgressSnapshotService.instance;
 
   Future<LearningTrackProgressModel> build(String pathId) async {
     _currentPathId = pathId;
@@ -49,8 +49,10 @@ class LearningTrackProgressService {
       final stage = template.stages.firstWhere((s) => s.id == currentId);
       final sub = <String, double>{};
       for (final s in stage.subStages) {
-        final p = await TrainingProgressService.instance
-            .getSubStageProgress(stage.id, s.packId);
+        final p = await TrainingProgressService.instance.getSubStageProgress(
+          stage.id,
+          s.packId,
+        );
         sub[s.packId] = p;
       }
       final snap = LearningPathProgressSnapshot(

@@ -5,8 +5,12 @@ class CategorySection extends StatelessWidget {
   final String title;
   final List<String> categories;
   final ValueChanged<String>? onTap;
-  const CategorySection(
-      {super.key, required this.title, required this.categories, this.onTap});
+  const CategorySection({
+    super.key,
+    required this.title,
+    required this.categories,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,9 +22,10 @@ class CategorySection extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(title,
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            child: Text(
+              title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
           ),
           const SizedBox(height: 8),
           for (final c in categories)

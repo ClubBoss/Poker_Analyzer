@@ -57,8 +57,10 @@ class _DailyChallengeHistoryScreenState
                   icon: const Icon(Icons.chevron_left),
                   onPressed: () {
                     setState(() {
-                      _focusedMonth =
-                          DateTime(_focusedMonth.year, _focusedMonth.month - 1);
+                      _focusedMonth = DateTime(
+                        _focusedMonth.year,
+                        _focusedMonth.month - 1,
+                      );
                     });
                   },
                 ),
@@ -70,8 +72,10 @@ class _DailyChallengeHistoryScreenState
                   icon: const Icon(Icons.chevron_right),
                   onPressed: () {
                     setState(() {
-                      _focusedMonth =
-                          DateTime(_focusedMonth.year, _focusedMonth.month + 1);
+                      _focusedMonth = DateTime(
+                        _focusedMonth.year,
+                        _focusedMonth.month + 1,
+                      );
                     });
                   },
                 ),
@@ -109,8 +113,10 @@ class _DailyChallengeHistoryScreenState
                     color: bgColor,
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  child: Text('${d.day}',
-                      style: TextStyle(color: textColor, fontSize: 12)),
+                  child: Text(
+                    '${d.day}',
+                    style: TextStyle(color: textColor, fontSize: 12),
+                  ),
                 );
               },
             ),

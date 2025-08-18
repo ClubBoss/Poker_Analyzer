@@ -29,7 +29,11 @@ class TableGeometryHelper {
   /// Returns the position of the player relative to the table center using
   /// simple elliptical geometry.
   static Offset positionForPlayer(
-      int index, int numberOfPlayers, double tableWidth, double tableHeight) {
+    int index,
+    int numberOfPlayers,
+    double tableWidth,
+    double tableHeight,
+  ) {
     final double angle = 2 * pi * index / numberOfPlayers + pi / 2;
     final double radiusX = tableWidth / 2;
     final double radiusY = tableHeight / 2;

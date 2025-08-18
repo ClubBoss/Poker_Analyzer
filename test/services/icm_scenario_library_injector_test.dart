@@ -73,7 +73,7 @@ void main() {
         title: 'Pack',
         spots: [
           for (var i = 0; i < 10; i++)
-            TrainingPackSpot(id: 's$i', hand: HandData())
+            TrainingPackSpot(id: 's$i', hand: HandData()),
         ],
         tags: const ['finalTable'],
         metadata: const {},
@@ -83,8 +83,10 @@ void main() {
       expect(result.spots.length, 12);
       expect(result.metadata['icmInjected'], isTrue);
       expect(result.metadata['icmScenarioCount'], 2);
-      final stages =
-          result.spots.take(2).map((s) => s.meta['icm']['stage']).toSet();
+      final stages = result.spots
+          .take(2)
+          .map((s) => s.meta['icm']['stage'])
+          .toSet();
       expect(stages.length, 2); // diversity by stage
       expect(result.spots.first.tags.contains('icm'), isTrue);
     });
@@ -113,7 +115,7 @@ void main() {
         title: 'Pack',
         spots: [
           for (var i = 0; i < 5; i++)
-            TrainingPackSpot(id: 's$i', hand: HandData())
+            TrainingPackSpot(id: 's$i', hand: HandData()),
         ],
         tags: const ['finalTable'],
         metadata: const {},
@@ -124,26 +126,31 @@ void main() {
       expect(r1.spots.first.id, r2.spots.first.id);
     });
 
-    test('reduces injection count when novelty guard flags duplicate',
-        () async {
-      final pack = TrainingPackModel(
-        id: 'p1',
-        title: 'Pack',
-        spots: [
-          for (var i = 0; i < 10; i++)
-            TrainingPackSpot(id: 's$i', hand: HandData())
-        ],
-        tags: const ['finalTable'],
-        metadata: const {},
-      );
-      final guard =
-          _FakeGuard((count) => count > 11); // duplicate if >1 injected
-      final injector =
-          ICMScenarioLibraryInjector(scenarios: library, noveltyGuard: guard);
-      final result = await injector.inject(pack);
-      expect(result.spots.length, 11);
-      expect(result.metadata['icmScenarioCount'], 1);
-      expect(guard.evaluateCalls, greaterThan(0));
-    });
+    test(
+      'reduces injection count when novelty guard flags duplicate',
+      () async {
+        final pack = TrainingPackModel(
+          id: 'p1',
+          title: 'Pack',
+          spots: [
+            for (var i = 0; i < 10; i++)
+              TrainingPackSpot(id: 's$i', hand: HandData()),
+          ],
+          tags: const ['finalTable'],
+          metadata: const {},
+        );
+        final guard = _FakeGuard(
+          (count) => count > 11,
+        ); // duplicate if >1 injected
+        final injector = ICMScenarioLibraryInjector(
+          scenarios: library,
+          noveltyGuard: guard,
+        );
+        final result = await injector.inject(pack);
+        expect(result.spots.length, 11);
+        expect(result.metadata['icmScenarioCount'], 1);
+        expect(guard.evaluateCalls, greaterThan(0));
+      },
+    );
   });
 }

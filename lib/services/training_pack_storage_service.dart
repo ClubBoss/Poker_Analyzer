@@ -77,14 +77,16 @@ class TrainingPackStorageService extends ChangeNotifier {
     }
     _hotCache
       ..clear()
-      ..addAll([
-        for (final p in _packs)
-          if (count[p.id] != null) p
-      ]..sort((a, b) {
+      ..addAll(
+        [
+          for (final p in _packs)
+            if (count[p.id] != null) p,
+        ]..sort((a, b) {
           final r = (count[b.id] ?? 0).compareTo(count[a.id] ?? 0);
           if (r != 0) return r;
           return b.lastAttemptDate.compareTo(a.lastAttemptDate);
-        }));
+        }),
+      );
     _hotTime = DateTime.now();
     _hotLogs = await _readLogsTime();
   }
@@ -104,14 +106,16 @@ class TrainingPackStorageService extends ChangeNotifier {
     }
     _topCache
       ..clear()
-      ..addAll([
-        for (final p in _packs)
-          if (count[p.id] != null) (p, count[p.id]!)
-      ]..sort((a, b) {
+      ..addAll(
+        [
+          for (final p in _packs)
+            if (count[p.id] != null) (p, count[p.id]!),
+        ]..sort((a, b) {
           final r = b.$2.compareTo(a.$2);
           if (r != 0) return r;
           return b.$1.lastAttemptDate.compareTo(a.$1.lastAttemptDate);
-        }));
+        }),
+      );
     _topTime = DateTime.now();
     _topLogs = await _readLogsTime();
   }
@@ -155,14 +159,15 @@ class TrainingPackStorageService extends ChangeNotifier {
         count.update(log.templateId, (c) => c + 1, ifAbsent: () => 1);
       }
     }
-    final list = [
-      for (final p in _packs)
-        if (count[p.id] != null) (p, count[p.id]!)
-    ]..sort((a, b) {
-        final r = b.$2.compareTo(a.$2);
-        if (r != 0) return r;
-        return b.$1.lastAttemptDate.compareTo(a.$1.lastAttemptDate);
-      });
+    final list =
+        [
+          for (final p in _packs)
+            if (count[p.id] != null) (p, count[p.id]!),
+        ]..sort((a, b) {
+          final r = b.$2.compareTo(a.$2);
+          if (r != 0) return r;
+          return b.$1.lastAttemptDate.compareTo(a.$1.lastAttemptDate);
+        });
     return list;
   }
 
@@ -184,15 +189,21 @@ class TrainingPackStorageService extends ChangeNotifier {
         if (data is List) {
           _packs
             ..clear()
-            ..addAll(data.whereType<Map>().map(
-                (e) => TrainingPack.fromJson(Map<String, dynamic>.from(e))));
+            ..addAll(
+              data.whereType<Map>().map(
+                (e) => TrainingPack.fromJson(Map<String, dynamic>.from(e)),
+              ),
+            );
         } else if (data is Map) {
           final packsJson = data['packs'];
           if (packsJson is List) {
             _packs
               ..clear()
-              ..addAll(packsJson.whereType<Map>().map(
-                  (e) => TrainingPack.fromJson(Map<String, dynamic>.from(e))));
+              ..addAll(
+                packsJson.whereType<Map>().map(
+                  (e) => TrainingPack.fromJson(Map<String, dynamic>.from(e)),
+                ),
+              );
           }
           final snapsJson = data['snapshots'];
           if (snapsJson is Map) {
@@ -201,7 +212,7 @@ class TrainingPackStorageService extends ChangeNotifier {
               if (value is List) {
                 _snapshots[key] = [
                   for (final s in value.whereType<Map>())
-                    PackSnapshot.fromJson(Map<String, dynamic>.from(s))
+                    PackSnapshot.fromJson(Map<String, dynamic>.from(s)),
                 ];
               }
             });
@@ -226,8 +237,8 @@ class TrainingPackStorageService extends ChangeNotifier {
       if (_snapshots.isNotEmpty)
         'snapshots': {
           for (final e in _snapshots.entries)
-            e.key: [for (final s in e.value) s.toJson()]
-        }
+            e.key: [for (final s in e.value) s.toJson()],
+        },
     };
     await file.writeAsString(jsonEncode(data));
   }
@@ -245,7 +256,8 @@ class TrainingPackStorageService extends ChangeNotifier {
     try {
       final manifest = await _manifestFuture;
       final paths = manifest.keys.where(
-          (e) => e.startsWith('assets/training_packs/') && e.endsWith('.json'));
+        (e) => e.startsWith('assets/training_packs/') && e.endsWith('.json'),
+      );
       for (final p in paths) {
         final data = jsonDecode(await rootBundle.loadString(p));
         if (data is Map<String, dynamic>) {
@@ -303,7 +315,8 @@ class TrainingPackStorageService extends ChangeNotifier {
 
   Future<File?> exportPack(TrainingPack pack) async {
     if (pack.isBuiltIn) return null;
-    final dir = await getDownloadsDirectory() ??
+    final dir =
+        await getDownloadsDirectory() ??
         await getApplicationDocumentsDirectory();
     final safeName = pack.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
     final file = File('${dir.path}/$safeName.json');
@@ -325,8 +338,9 @@ class TrainingPackStorageService extends ChangeNotifier {
       final content = utf8.decode(data);
       final json = jsonDecode(content);
       if (json is! Map<String, dynamic>) return 'Неверный формат файла';
-      final pack = TrainingPack.fromJson(Map<String, dynamic>.from(json))
-          .copyWith(createdAt: DateTime.now());
+      final pack = TrainingPack.fromJson(
+        Map<String, dynamic>.from(json),
+      ).copyWith(createdAt: DateTime.now());
       final String base = pack.name.isEmpty ? 'Pack' : pack.name;
       String name = base;
       int idx = 2;
@@ -334,10 +348,7 @@ class TrainingPackStorageService extends ChangeNotifier {
         name = '$base ($idx)';
         idx++;
       }
-      final imported = pack.copyWith(
-        name: name,
-        isBuiltIn: false,
-      );
+      final imported = pack.copyWith(name: name, isBuiltIn: false);
       _packs.add(imported);
       await _persist();
       notifyListeners();
@@ -413,11 +424,13 @@ class TrainingPackStorageService extends ChangeNotifier {
     final last = history.isNotEmpty ? history.last : null;
     final total = (last?.total ?? 0) + 1;
     final solved = (last?.correct ?? 0) + (correct ? 1 : 0);
-    history.add(TrainingSessionResult(
-      date: DateTime.now(),
-      total: total,
-      correct: solved,
-    ));
+    history.add(
+      TrainingSessionResult(
+        date: DateTime.now(),
+        total: total,
+        correct: solved,
+      ),
+    );
     final updated = pack.copyWith(history: history);
     _packs[index] = updated;
     await _persist();
@@ -557,8 +570,9 @@ class TrainingPackStorageService extends ChangeNotifier {
     String? colorTag,
   }) async {
     final selected = hands ?? template.hands;
-    final category =
-        (template.category?.isNotEmpty == true ? template.category! : 'custom');
+    final category = (template.category?.isNotEmpty == true
+        ? template.category!
+        : 'custom');
     final String base = 'Новый пак: $category';
     String name = base;
     int idx = 2;
@@ -572,8 +586,8 @@ class TrainingPackStorageService extends ChangeNotifier {
       category: categoryOverride?.isNotEmpty == true
           ? categoryOverride!
           : (template.category?.isNotEmpty == true
-              ? template.category!
-              : 'Uncategorized'),
+                ? template.category!
+                : 'Uncategorized'),
       gameType: parseGameType(template.gameType),
       colorTag: colorTag ?? '#2196F3',
       hands: selected,
@@ -589,7 +603,9 @@ class TrainingPackStorageService extends ChangeNotifier {
   }
 
   Future<TrainingPack?> restoreSnapshot(
-      TrainingPack pack, PackSnapshot snap) async {
+    TrainingPack pack,
+    PackSnapshot snap,
+  ) async {
     final index = _packs.indexOf(pack);
     if (index == -1) return null;
     final updated = pack.copyWith(tags: snap.tags, hands: snap.hands);
@@ -628,7 +644,10 @@ class TrainingPackStorageService extends ChangeNotifier {
   }
 
   Future<void> renameSnapshot(
-      TrainingPack pack, PackSnapshot snap, String comment) async {
+    TrainingPack pack,
+    PackSnapshot snap,
+    String comment,
+  ) async {
     final list = _snapshots[pack.id];
     if (list == null) return;
     final idx = list.indexWhere((e) => e.id == snap.id);
@@ -655,7 +674,7 @@ class TrainingPackStorageService extends ChangeNotifier {
     if (index == -1) return pack;
     final prev = _packs[index];
     final mods = {
-      for (final h in modified) h.savedAt.millisecondsSinceEpoch: h
+      for (final h in modified) h.savedAt.millisecondsSinceEpoch: h,
     };
     final updatedHands = <SavedHand>[];
     for (final h in prev.hands) {

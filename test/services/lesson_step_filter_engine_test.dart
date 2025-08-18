@@ -18,21 +18,23 @@ void main() {
   );
 
   LessonStep step(String id, LessonStepFilter? filter) => LessonStep(
-        id: id,
-        title: id,
-        introText: '',
-        linkedPackId: 'p',
-        filter: filter,
-        meta: const {'schemaVersion': '3.0.0'},
-      );
+    id: id,
+    title: id,
+    introText: '',
+    linkedPackId: 'p',
+    filter: filter,
+    meta: const {'schemaVersion': '3.0.0'},
+  );
 
   test('filters by minXp', () {
     final steps = [
       step('a', LessonStepFilter(minXp: 1000)),
       step('b', LessonStepFilter(minXp: 2000)),
     ];
-    final result =
-        const LessonStepFilterEngine().applyFilters(steps, profile: profile);
+    final result = const LessonStepFilterEngine().applyFilters(
+      steps,
+      profile: profile,
+    );
     expect(result.map((s) => s.id), ['a']);
   });
 
@@ -41,8 +43,10 @@ void main() {
       step('a', LessonStepFilter(tags: {'push_fold'})),
       step('b', LessonStepFilter(tags: {'mtt'})),
     ];
-    final result =
-        const LessonStepFilterEngine().applyFilters(steps, profile: profile);
+    final result = const LessonStepFilterEngine().applyFilters(
+      steps,
+      profile: profile,
+    );
     expect(result.map((s) => s.id), ['a']);
   });
 
@@ -51,8 +55,10 @@ void main() {
       step('a', LessonStepFilter(completedLessonIds: {'intro'})),
       step('b', LessonStepFilter(completedLessonIds: {'other'})),
     ];
-    final result =
-        const LessonStepFilterEngine().applyFilters(steps, profile: profile);
+    final result = const LessonStepFilterEngine().applyFilters(
+      steps,
+      profile: profile,
+    );
     expect(result.map((s) => s.id), ['a']);
   });
 
@@ -61,8 +67,10 @@ void main() {
       step('a', LessonStepFilter(gameType: GameType.tournament)),
       step('b', LessonStepFilter(gameType: GameType.cash)),
     ];
-    final result =
-        const LessonStepFilterEngine().applyFilters(steps, profile: profile);
+    final result = const LessonStepFilterEngine().applyFilters(
+      steps,
+      profile: profile,
+    );
     expect(result.map((s) => s.id), ['a']);
   });
 
@@ -71,30 +79,36 @@ void main() {
       step('a', LessonStepFilter(skillLevel: SkillLevel.intermediate)),
       step('b', LessonStepFilter(skillLevel: SkillLevel.advanced)),
     ];
-    final result =
-        const LessonStepFilterEngine().applyFilters(steps, profile: profile);
+    final result = const LessonStepFilterEngine().applyFilters(
+      steps,
+      profile: profile,
+    );
     expect(result.map((s) => s.id), ['a']);
   });
 
   test('filters by multiple conditions', () {
     final steps = [
       step(
-          'a',
-          LessonStepFilter(
-            minXp: 1000,
-            tags: {'push_fold'},
-            gameType: GameType.tournament,
-          )),
+        'a',
+        LessonStepFilter(
+          minXp: 1000,
+          tags: {'push_fold'},
+          gameType: GameType.tournament,
+        ),
+      ),
       step(
-          'b',
-          LessonStepFilter(
-            minXp: 1600,
-            tags: {'push_fold'},
-            gameType: GameType.tournament,
-          )),
+        'b',
+        LessonStepFilter(
+          minXp: 1600,
+          tags: {'push_fold'},
+          gameType: GameType.tournament,
+        ),
+      ),
     ];
-    final result =
-        const LessonStepFilterEngine().applyFilters(steps, profile: profile);
+    final result = const LessonStepFilterEngine().applyFilters(
+      steps,
+      profile: profile,
+    );
     expect(result.map((s) => s.id), ['a']);
   });
 }

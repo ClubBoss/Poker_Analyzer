@@ -22,10 +22,6 @@ class BetChipsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (amount <= 0) return const SizedBox.shrink();
-    return ChipStackWidget(
-      amount: amount,
-      color: color,
-      scale: scale,
-    );
+    return ChipStackWidget(amount: amount, color: color, scale: scale);
   }
 }

@@ -32,19 +32,20 @@ class _SuggestedPackTileState extends State<SuggestedPackTile> {
   }
 
   Future<void> _load() async {
-    final tpl = await const TrainingGapNotificationService()
-        .suggestNextPack(excludeId: widget.excludeId);
+    final tpl = await const TrainingGapNotificationService().suggestNextPack(
+      excludeId: widget.excludeId,
+    );
     if (tpl == null) return;
     String? reason;
-    final weakCategory =
-        await const TrainingGapDetectorService().detectWeakCategory();
+    final weakCategory = await const TrainingGapDetectorService()
+        .detectWeakCategory();
     if (weakCategory != null && tpl.category == weakCategory) {
       reason = 'Слабая категория: ${translateCategory(weakCategory)}';
     } else {
       await PackLibraryLoaderService.instance.loadLibrary();
       final packs = [
         for (final t in PackLibraryLoaderService.instance.library)
-          TrainingPackTemplate.fromJson(t.toJson())
+          TrainingPackTemplate.fromJson(t.toJson()),
       ];
       final stats = await const TrainingTypeStatsService()
           .calculateCompletionPercent(packs);
@@ -91,8 +92,10 @@ class _SuggestedPackTileState extends State<SuggestedPackTile> {
           if (_reason != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child:
-                  Text(_reason!, style: const TextStyle(color: Colors.white70)),
+              child: Text(
+                _reason!,
+                style: const TextStyle(color: Colors.white70),
+              ),
             ),
           const SizedBox(height: 8),
           Align(
@@ -104,7 +107,8 @@ class _SuggestedPackTileState extends State<SuggestedPackTile> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (_) => const TrainingSessionScreen()),
+                    builder: (_) => const TrainingSessionScreen(),
+                  ),
                 );
               },
               style: ElevatedButton.styleFrom(backgroundColor: accent),

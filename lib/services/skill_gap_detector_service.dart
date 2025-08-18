@@ -9,8 +9,8 @@ class SkillGapDetectorService {
   SkillGapDetectorService({
     TagMasteryHistoryService? history,
     MiniLessonLibraryService? library,
-  })  : history = history ?? TagMasteryHistoryService(),
-        library = library ?? MiniLessonLibraryService.instance;
+  }) : history = history ?? TagMasteryHistoryService(),
+       library = library ?? MiniLessonLibraryService.instance;
 
   /// Returns tags never reinforced or in the bottom [threshold] fraction
   /// of total XP across all tags.

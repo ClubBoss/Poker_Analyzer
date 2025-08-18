@@ -13,7 +13,12 @@ class MistakeHeatmap extends StatelessWidget {
   const MistakeHeatmap({super.key, required this.data});
 
   Widget _cell(
-      BuildContext context, String pos, String street, int value, int max) {
+    BuildContext context,
+    String pos,
+    String street,
+    int value,
+    int max,
+  ) {
     final t = max > 0 ? value / max : 0.0;
     final color = Color.lerp(Colors.transparent, Colors.redAccent, t)!;
     return InkWell(
@@ -52,28 +57,34 @@ class MistakeHeatmap extends StatelessWidget {
         border: TableBorder.all(color: Colors.white24),
         defaultColumnWidth: const FlexColumnWidth(),
         children: [
-          TableRow(children: [
-            const SizedBox.shrink(),
-            for (final s in streets)
-              Padding(
-                padding: const EdgeInsets.all(4),
-                child: Text(s,
-                    textAlign: TextAlign.center,
-                    style:
-                        const TextStyle(color: Colors.white70, fontSize: 12)),
-              ),
-          ]),
-          for (final p in positions)
-            TableRow(children: [
-              Padding(
-                padding: const EdgeInsets.all(4),
-                child: Text(p,
-                    style:
-                        const TextStyle(color: Colors.white70, fontSize: 12)),
-              ),
+          TableRow(
+            children: [
+              const SizedBox.shrink(),
               for (final s in streets)
-                _cell(context, p, s, data[p]?[s] ?? 0, maxVal),
-            ]),
+                Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Text(
+                    s,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white70, fontSize: 12),
+                  ),
+                ),
+            ],
+          ),
+          for (final p in positions)
+            TableRow(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Text(
+                    p,
+                    style: const TextStyle(color: Colors.white70, fontSize: 12),
+                  ),
+                ),
+                for (final s in streets)
+                  _cell(context, p, s, data[p]?[s] ?? 0, maxVal),
+              ],
+            ),
         ],
       ),
     );
@@ -83,15 +94,18 @@ class MistakeHeatmap extends StatelessWidget {
 class _HeatmapMistakeHandsScreen extends StatelessWidget {
   final String position;
   final String street;
-  const _HeatmapMistakeHandsScreen(
-      {required this.position, required this.street});
+  const _HeatmapMistakeHandsScreen({
+    required this.position,
+    required this.street,
+  });
 
   @override
   Widget build(BuildContext context) {
     final hands = context.watch<SavedHandManagerService>().hands;
     final filtered = [
       for (final h in hands)
-        if (h.heroPosition == position && streetName(h.boardStreet) == street) h
+        if (h.heroPosition == position && streetName(h.boardStreet) == street)
+          h,
     ];
 
     return Scaffold(

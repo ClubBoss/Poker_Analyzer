@@ -25,7 +25,8 @@ class MistakeTrendChart extends StatelessWidget {
   });
 
   static Map<String, Map<DateTime, int>> aggregateByWeek(
-      Map<String, Map<DateTime, int>> src) {
+    Map<String, Map<DateTime, int>> src,
+  ) {
     DateTime? min;
     DateTime? max;
     for (final m in src.values) {
@@ -167,7 +168,7 @@ class MistakeTrendChart extends StatelessWidget {
                   LineTooltipItem(
                     text,
                     const TextStyle(color: Colors.white, fontSize: 12),
-                  )
+                  ),
               ];
             },
           ),
@@ -180,10 +181,12 @@ class MistakeTrendChart extends StatelessWidget {
               const FlLine(color: Colors.white24, strokeWidth: 1),
         ),
         titlesData: FlTitlesData(
-          rightTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,

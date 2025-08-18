@@ -17,11 +17,13 @@ class BoosterSimilarityEngine {
       for (var j = i + 1; j < spots.length; j++) {
         final sim = _similarity(spots[i], spots[j]);
         if (sim > threshold) {
-          results.add(SpotSimilarityResult(
-            idA: spots[i].id,
-            idB: spots[j].id,
-            similarity: sim,
-          ));
+          results.add(
+            SpotSimilarityResult(
+              idA: spots[i].id,
+              idB: spots[j].id,
+              similarity: sim,
+            ),
+          );
         }
       }
     }
@@ -33,8 +35,7 @@ class BoosterSimilarityEngine {
   List<SpotSimilarityResult> analyzePack(
     TrainingPackTemplateV2 pack, {
     double threshold = 0.85,
-  }) =>
-      analyzeSpots(pack.spots, threshold: threshold);
+  }) => analyzeSpots(pack.spots, threshold: threshold);
 
   double _similarity(TrainingPackSpot a, TrainingPackSpot b) {
     final cardsA = _heroMask(a);

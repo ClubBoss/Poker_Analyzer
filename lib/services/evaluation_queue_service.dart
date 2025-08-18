@@ -135,8 +135,9 @@ class EvaluationQueueService {
   }
 
   Future<Map<String, dynamic>> state() async {
-    final pendingJson = await _queueLock
-        .synchronized(() => [for (final e in pending) e.toJson()]);
+    final pendingJson = await _queueLock.synchronized(
+      () => [for (final e in pending) e.toJson()],
+    );
     return {
       'pending': pendingJson,
       'failed': [for (final e in failed) e.toJson()],
@@ -160,13 +161,16 @@ class EvaluationQueueService {
         }
       }
 
-      final pendingIds = await _queueLock
-          .synchronized(() => [for (final e in pending) _queueEntryId(e)]);
+      final pendingIds = await _queueLock.synchronized(
+        () => [for (final e in pending) _queueEntryId(e)],
+      );
       await _sharedPrefs.setStringList(_pendingOrderKey, pendingIds);
-      await _sharedPrefs.setStringList(
-          _failedOrderKey, [for (final e in failed) _queueEntryId(e)]);
-      await _sharedPrefs.setStringList(
-          _completedOrderKey, [for (final e in completed) _queueEntryId(e)]);
+      await _sharedPrefs.setStringList(_failedOrderKey, [
+        for (final e in failed) _queueEntryId(e),
+      ]);
+      await _sharedPrefs.setStringList(_completedOrderKey, [
+        for (final e in completed) _queueEntryId(e),
+      ]);
       await _sharedPrefs.setString(_timeKey, DateTime.now().toIso8601String());
       if (cloud != null) {
         await cloud!.uploadQueue({
@@ -227,7 +231,9 @@ class EvaluationQueueService {
   }
 
   void applySavedOrder(
-      List<ActionEvaluationRequest> list, List<String>? order) {
+    List<ActionEvaluationRequest> list,
+    List<String>? order,
+  ) {
     if (order == null || order.isEmpty) return;
     final remaining = List<ActionEvaluationRequest>.from(list);
     final reordered = <ActionEvaluationRequest>[];
@@ -273,7 +279,9 @@ class EvaluationQueueService {
         applySavedOrder(pending, _sharedPrefs.getStringList(_pendingOrderKey));
         applySavedOrder(failed, _sharedPrefs.getStringList(_failedOrderKey));
         applySavedOrder(
-            completed, _sharedPrefs.getStringList(_completedOrderKey));
+          completed,
+          _sharedPrefs.getStringList(_completedOrderKey),
+        );
 
         resumed =
             pending.isNotEmpty || failed.isNotEmpty || completed.isNotEmpty;
@@ -325,7 +333,10 @@ class EvaluationQueueService {
 
   /// Reorder [queue] moving the item at [oldIndex] to [newIndex].
   Future<void> reorderQueue(
-      List<ActionEvaluationRequest> queue, int oldIndex, int newIndex) async {
+    List<ActionEvaluationRequest> queue,
+    int oldIndex,
+    int newIndex,
+  ) async {
     await _queueLock.synchronized(() {
       final item = queue.removeAt(oldIndex);
       queue.insert(newIndex, item);
@@ -334,7 +345,9 @@ class EvaluationQueueService {
   }
 
   int _deduplicateList(
-      List<ActionEvaluationRequest> list, Set<String> seenIds) {
+    List<ActionEvaluationRequest> list,
+    Set<String> seenIds,
+  ) {
     final originalLength = list.length;
     final unique = <ActionEvaluationRequest>[];
     for (final entry in list) {
@@ -412,7 +425,9 @@ class EvaluationQueueService {
   }
 
   int _compareEvaluationRequests(
-      ActionEvaluationRequest a, ActionEvaluationRequest b) {
+    ActionEvaluationRequest a,
+    ActionEvaluationRequest b,
+  ) {
     final streetComp = a.street.compareTo(b.street);
     if (streetComp != 0) return streetComp;
     final playerComp = a.playerIndex.compareTo(b.playerIndex);
@@ -440,9 +455,11 @@ class EvaluationQueueService {
     await _initFuture;
     final remote = await cloud!.downloadQueue();
     if (remote == null) return;
-    final remoteAt = DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
+    final remoteAt =
+        DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
         DateTime.fromMillisecondsSinceEpoch(0);
-    final localAt = DateTime.tryParse(_sharedPrefs.getString(_timeKey) ?? '') ??
+    final localAt =
+        DateTime.tryParse(_sharedPrefs.getString(_timeKey) ?? '') ??
         DateTime.fromMillisecondsSinceEpoch(0);
     if (remoteAt.isAfter(localAt)) {
       final queues = _decodeQueues(remote);
@@ -457,12 +474,15 @@ class EvaluationQueueService {
       completed
         ..clear()
         ..addAll(queues['completed']!);
-      await _sharedPrefs.setStringList(
-          _pendingOrderKey, [for (final e in pending) _queueEntryId(e)]);
-      await _sharedPrefs.setStringList(
-          _failedOrderKey, [for (final e in failed) _queueEntryId(e)]);
-      await _sharedPrefs.setStringList(
-          _completedOrderKey, [for (final e in completed) _queueEntryId(e)]);
+      await _sharedPrefs.setStringList(_pendingOrderKey, [
+        for (final e in pending) _queueEntryId(e),
+      ]);
+      await _sharedPrefs.setStringList(_failedOrderKey, [
+        for (final e in failed) _queueEntryId(e),
+      ]);
+      await _sharedPrefs.setStringList(_completedOrderKey, [
+        for (final e in completed) _queueEntryId(e),
+      ]);
       await _sharedPrefs.setString(_timeKey, remoteAt.toIso8601String());
       await _persist();
     } else if (localAt.isAfter(remoteAt)) {

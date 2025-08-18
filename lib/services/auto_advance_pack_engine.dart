@@ -22,8 +22,8 @@ class AutoAdvancePackEngine {
 
   /// Returns the next recommended training pack or `null` if all are done.
   Future<TrainingPackTemplateV2?> getNextRecommendedPack() async {
-    final stages =
-        await LearningPathProgressService.instance.getCurrentStageState();
+    final stages = await LearningPathProgressService.instance
+        .getCurrentStageState();
     final activeStage = stages.firstWhereOrNull(
       (s) => !LearningPathProgressService.instance.isStageCompleted(s.items),
     );

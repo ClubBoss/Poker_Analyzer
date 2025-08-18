@@ -69,9 +69,12 @@ class _PackSpotConstructorScreenState extends State<PackSpotConstructorScreen> {
       heroPos: _pos,
       spots: [spot],
     );
-    await context
-        .read<EvaluationExecutorService>()
-        .evaluateSingle(context, spot, template: tpl, anteBb: spot.hand.anteBb);
+    await context.read<EvaluationExecutorService>().evaluateSingle(
+      context,
+      spot,
+      template: tpl,
+      anteBb: spot.hand.anteBb,
+    );
     await TrainingPackService.saveCustomSpot(spot);
     if (mounted) Navigator.pop(context, true);
   }
@@ -85,8 +88,10 @@ class _PackSpotConstructorScreenState extends State<PackSpotConstructorScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('Hero Cards',
-                style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text(
+              'Hero Cards',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             CardPickerWidget(
               cards: _cards,
@@ -99,7 +104,7 @@ class _PackSpotConstructorScreenState extends State<PackSpotConstructorScreen> {
               decoration: const InputDecoration(labelText: 'Position'),
               items: [
                 for (final p in HeroPosition.values)
-                  DropdownMenuItem(value: p, child: Text(p.label))
+                  DropdownMenuItem(value: p, child: Text(p.label)),
               ],
               onChanged: (v) => setState(() => _pos = v ?? HeroPosition.sb),
             ),
@@ -118,15 +123,18 @@ class _PackSpotConstructorScreenState extends State<PackSpotConstructorScreen> {
                   child: TextField(
                     controller: _villainStackCtrl,
                     keyboardType: TextInputType.number,
-                    decoration:
-                        const InputDecoration(labelText: 'Villain Stack'),
+                    decoration: const InputDecoration(
+                      labelText: 'Villain Stack',
+                    ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            const Text('Preflop Actions',
-                style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text(
+              'Preflop Actions',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             ActionEditorList(
               initial: _actions,

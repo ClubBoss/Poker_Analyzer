@@ -10,8 +10,9 @@ import 'package:poker_analyzer/services/training_pack_template_ui_service.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('generateMissingSpotsWithProgress adds missing hands',
-      (tester) async {
+  testWidgets('generateMissingSpotsWithProgress adds missing hands', (
+    tester,
+  ) async {
     final range = PackGeneratorService.topNHands(25).toList();
     final initial = PackGeneratorService.generatePushFoldPackSync(
       id: 'i',
@@ -31,10 +32,16 @@ void main() {
       spots: List<TrainingPackSpot>.from(initial),
     );
     late BuildContext ctx;
-    await tester.pumpWidget(MaterialApp(home: Builder(builder: (c) {
-      ctx = c;
-      return const SizedBox();
-    })));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (c) {
+            ctx = c;
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
     const service = TrainingPackTemplateUiService();
     final future = service.generateMissingSpotsWithProgress(ctx, tpl);
     await tester.pumpAndSettle();

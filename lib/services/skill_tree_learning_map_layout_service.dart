@@ -4,9 +4,8 @@ import 'skill_tree_track_progress_service.dart';
 class SkillTreeLearningMapLayoutService {
   final SkillTreeTrackProgressService tracks;
 
-  SkillTreeLearningMapLayoutService({
-    SkillTreeTrackProgressService? tracks,
-  }) : tracks = tracks ?? SkillTreeTrackProgressService();
+  SkillTreeLearningMapLayoutService({SkillTreeTrackProgressService? tracks})
+    : tracks = tracks ?? SkillTreeTrackProgressService();
 
   /// Returns a grid of [TrackProgressEntry] items laid out in [columns] per row.
   Future<List<List<TrackProgressEntry>>> buildLayout({int columns = 2}) async {

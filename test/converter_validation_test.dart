@@ -20,15 +20,18 @@ void main() {
       final converterRegistry = registry.get<ConverterRegistry>();
       final converters = <ConverterPlugin>[
         for (final id in converterRegistry.dumpFormatIds())
-          converterRegistry.findByFormatId(id)!
+          converterRegistry.findByFormatId(id)!,
       ];
 
       expect(converters, isNotEmpty);
 
       for (final converter in converters) {
         expect(converter.formatId, isNotEmpty);
-        expect(converter.formatId.contains(RegExp(r'\s')), isFalse,
-            reason: 'formatId should not contain whitespace');
+        expect(
+          converter.formatId.contains(RegExp(r'\s')),
+          isFalse,
+          reason: 'formatId should not contain whitespace',
+        );
         expect(converter.description.trim(), isNotEmpty);
         expect(converter.capabilities, isNotNull);
 
@@ -116,8 +119,11 @@ void main() {
         }
 
         final result = converter.convertFrom(sample);
-        expect(result, isNotNull,
-            reason: 'converter ${converter.formatId} failed to parse sample');
+        expect(
+          result,
+          isNotNull,
+          reason: 'converter ${converter.formatId} failed to parse sample',
+        );
       }
     });
   });

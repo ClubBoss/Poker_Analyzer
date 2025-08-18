@@ -19,11 +19,12 @@ class TagSkillTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = Color.lerp(Colors.red, Colors.green, value) ?? Colors.red;
     return GestureDetector(
-      onTap: onTap ??
+      onTap:
+          onTap ??
           () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => TagInsightScreen(tag: tag)),
-              ),
+            context,
+            MaterialPageRoute(builder: (_) => TagInsightScreen(tag: tag)),
+          ),
       child: Container(
         padding: kCardPadding,
         decoration: BoxDecoration(

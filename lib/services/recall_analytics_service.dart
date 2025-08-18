@@ -19,13 +19,13 @@ class RecallEvent {
   });
 
   Map<String, dynamic> toJson() => {
-        'trigger': trigger,
-        if (lessonId != null) 'lessonId': lessonId,
-        if (tags != null && tags!.isNotEmpty) 'tags': tags,
-        'action': action,
-        'timestamp': timestamp.toIso8601String(),
-        if (viewDuration != null) 'viewDuration': viewDuration!.inMilliseconds,
-      };
+    'trigger': trigger,
+    if (lessonId != null) 'lessonId': lessonId,
+    if (tags != null && tags!.isNotEmpty) 'tags': tags,
+    'action': action,
+    'timestamp': timestamp.toIso8601String(),
+    if (viewDuration != null) 'viewDuration': viewDuration!.inMilliseconds,
+  };
 }
 
 class RecallAnalyticsService extends ChangeNotifier {
@@ -66,7 +66,11 @@ class RecallAnalyticsService extends ChangeNotifier {
     _openedLessonId = lessonId;
     _openedTags = tags;
     logPrompt(
-        trigger: trigger, lessonId: lessonId, tags: tags, dismissed: false);
+      trigger: trigger,
+      lessonId: lessonId,
+      tags: tags,
+      dismissed: false,
+    );
   }
 
   void recapClosed() {

@@ -14,7 +14,7 @@ Map<String, int> _buildPushFoldThresholds() {
     'J',
     'Q',
     'K',
-    'A'
+    'A',
   ];
   final map = <String, int>{};
   int val(String r) => ranks.indexOf(r);

@@ -11,30 +11,36 @@ void main() {
 
   test('generateTimeline aggregates sessions by day', () async {
     final logger = TrainingSessionFingerprintLoggerService();
-    await logger.logSession(TrainingSessionFingerprint(
-      packId: 'p1',
-      tags: const ['a'],
-      completedAt: DateTime(2023, 1, 1, 10),
-      totalSpots: 5,
-      correct: 3,
-      incorrect: 2,
-    ));
-    await logger.logSession(TrainingSessionFingerprint(
-      packId: 'p2',
-      tags: const ['b'],
-      completedAt: DateTime(2023, 1, 1, 15),
-      totalSpots: 2,
-      correct: 1,
-      incorrect: 1,
-    ));
-    await logger.logSession(TrainingSessionFingerprint(
-      packId: 'p3',
-      tags: const ['a', 'c'],
-      completedAt: DateTime(2023, 1, 2),
-      totalSpots: 5,
-      correct: 5,
-      incorrect: 0,
-    ));
+    await logger.logSession(
+      TrainingSessionFingerprint(
+        packId: 'p1',
+        tags: const ['a'],
+        completedAt: DateTime(2023, 1, 1, 10),
+        totalSpots: 5,
+        correct: 3,
+        incorrect: 2,
+      ),
+    );
+    await logger.logSession(
+      TrainingSessionFingerprint(
+        packId: 'p2',
+        tags: const ['b'],
+        completedAt: DateTime(2023, 1, 1, 15),
+        totalSpots: 2,
+        correct: 1,
+        incorrect: 1,
+      ),
+    );
+    await logger.logSession(
+      TrainingSessionFingerprint(
+        packId: 'p3',
+        tags: const ['a', 'c'],
+        completedAt: DateTime(2023, 1, 2),
+        totalSpots: 5,
+        correct: 5,
+        incorrect: 0,
+      ),
+    );
 
     final service = TrainingSessionFingerprintTimelineService(logger: logger);
     final timeline = await service.generateTimeline();

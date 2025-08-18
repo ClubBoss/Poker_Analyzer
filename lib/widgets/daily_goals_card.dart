@@ -7,8 +7,12 @@ class DailyGoalsCard extends StatelessWidget {
   const DailyGoalsCard({super.key});
 
   Widget _bar(
-      BuildContext context, String title, double progress, double target,
-      {int decimals = 0}) {
+    BuildContext context,
+    String title,
+    double progress,
+    double target, {
+    int decimals = 0,
+  }) {
     final accent = Theme.of(context).colorScheme.secondary;
     final value = target > 0 ? (progress / target).clamp(0.0, 1.0) : 0.0;
     return Padding(
@@ -54,18 +58,37 @@ class DailyGoalsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(l.dailyGoals,
-              style:
-                  const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(
+            l.dailyGoals,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
-          _bar(context, l.sessions, service.progressSessions.toDouble(),
-              service.targetSessions.toDouble()),
-          _bar(context, l.accuracyPercent, service.progressAccuracy,
-              service.targetAccuracy),
-          _bar(context, l.ev, service.progressEv, service.targetEv,
-              decimals: 1),
-          _bar(context, l.icm, service.progressIcm, service.targetIcm,
-              decimals: 2),
+          _bar(
+            context,
+            l.sessions,
+            service.progressSessions.toDouble(),
+            service.targetSessions.toDouble(),
+          ),
+          _bar(
+            context,
+            l.accuracyPercent,
+            service.progressAccuracy,
+            service.targetAccuracy,
+          ),
+          _bar(
+            context,
+            l.ev,
+            service.progressEv,
+            service.targetEv,
+            decimals: 1,
+          ),
+          _bar(
+            context,
+            l.icm,
+            service.progressIcm,
+            service.targetIcm,
+            decimals: 2,
+          ),
         ],
       ),
     );

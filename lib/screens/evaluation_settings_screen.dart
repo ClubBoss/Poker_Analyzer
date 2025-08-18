@@ -26,7 +26,8 @@ class _EvaluationSettingsScreenState extends State<EvaluationSettingsScreen> {
   }
 
   Future<void> _save() async {
-    final threshold = double.tryParse(_threshold.text) ??
+    final threshold =
+        double.tryParse(_threshold.text) ??
         EvaluationSettingsService.instance.evThreshold;
     await EvaluationSettingsService.instance.update(
       threshold: threshold,
@@ -78,10 +79,7 @@ class _EvaluationSettingsScreenState extends State<EvaluationSettingsScreen> {
               decoration: const InputDecoration(labelText: 'API Endpoint'),
             ),
             const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _save,
-              child: const Text('Save'),
-            ),
+            ElevatedButton(onPressed: _save, child: const Text('Save')),
           ],
         ),
       ),

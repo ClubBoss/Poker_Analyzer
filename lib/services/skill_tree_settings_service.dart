@@ -15,8 +15,9 @@ class SkillTreeSettingsService {
   Future<void> load() async {
     if (_loaded) return;
     final prefs = await SharedPreferences.getInstance();
-    final cloudVal =
-        await CloudPreferencesService.instance.getBool(_hideCompletedKey);
+    final cloudVal = await CloudPreferencesService.instance.getBool(
+      _hideCompletedKey,
+    );
     final localVal = prefs.getBool(_hideCompletedKey);
     final value = cloudVal ?? localVal ?? false;
     hideCompletedPrereqs.value = value;

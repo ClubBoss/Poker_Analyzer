@@ -7,7 +7,7 @@ import 'error_logger_service.dart';
 
 class TrainingHistoryImportService {
   TrainingHistoryImportService({TrainingSpotStorageService? storage})
-      : _storage = storage ?? TrainingSpotStorageService();
+    : _storage = storage ?? TrainingSpotStorageService();
 
   final TrainingSpotStorageService _storage;
 
@@ -29,8 +29,11 @@ class TrainingHistoryImportService {
             await _storage.addSpot(spot);
             count++;
           } catch (e, st) {
-            ErrorLoggerService.instance
-                .logError('History spot import failed', e, st);
+            ErrorLoggerService.instance.logError(
+              'History spot import failed',
+              e,
+              st,
+            );
           }
         }
       }

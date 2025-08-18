@@ -28,28 +28,33 @@ class YamlPackPreviewEngine {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(pack.name,
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            Text(
+              pack.name,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             if (pack.goal.trim().isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 4),
-                child: Text(pack.goal,
-                    style: const TextStyle(color: Colors.white70)),
+                child: Text(
+                  pack.goal,
+                  style: const TextStyle(color: Colors.white70),
+                ),
               ),
             if (tags.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 4),
-                child: Text('🏷️ $tags',
-                    style:
-                        const TextStyle(color: Colors.white70, fontSize: 12)),
+                child: Text(
+                  '🏷️ $tags',
+                  style: const TextStyle(color: Colors.white70, fontSize: 12),
+                ),
               ),
             if (pos.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 4),
-                child: Text('🪑 $pos',
-                    style:
-                        const TextStyle(color: Colors.white70, fontSize: 12)),
+                child: Text(
+                  '🪑 $pos',
+                  style: const TextStyle(color: Colors.white70, fontSize: 12),
+                ),
               ),
             Padding(
               padding: const EdgeInsets.only(top: 4),
@@ -57,20 +62,33 @@ class YamlPackPreviewEngine {
                 spacing: 8,
                 children: [
                   if (ev != null)
-                    Text('EV ${ev.toStringAsFixed(1)}',
-                        style: const TextStyle(
-                            color: Colors.greenAccent, fontSize: 12)),
+                    Text(
+                      'EV ${ev.toStringAsFixed(1)}',
+                      style: const TextStyle(
+                        color: Colors.greenAccent,
+                        fontSize: 12,
+                      ),
+                    ),
                   if (icm != null)
-                    Text('ICM ${icm.toStringAsFixed(1)}',
-                        style: const TextStyle(
-                            color: Colors.purpleAccent, fontSize: 12)),
+                    Text(
+                      'ICM ${icm.toStringAsFixed(1)}',
+                      style: const TextStyle(
+                        color: Colors.purpleAccent,
+                        fontSize: 12,
+                      ),
+                    ),
                   if (coverage != null)
-                    Text('📈 ${coverage.round()}%',
-                        style: const TextStyle(
-                            color: Colors.white70, fontSize: 12)),
-                  Text('🃏 ${pack.spotCount}',
-                      style:
-                          const TextStyle(color: Colors.white70, fontSize: 12)),
+                    Text(
+                      '📈 ${coverage.round()}%',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
+                    ),
+                  Text(
+                    '🃏 ${pack.spotCount}',
+                    style: const TextStyle(color: Colors.white70, fontSize: 12),
+                  ),
                 ],
               ),
             ),

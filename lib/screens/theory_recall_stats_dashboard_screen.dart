@@ -54,8 +54,9 @@ class _TheoryRecallStatsDashboardScreenState
         ..addAll(sortMap(lessonCounts));
       _tagLessonCounts
         ..clear()
-        ..addAll(
-            {for (final t in tagLessonCounts.entries) t.key: sortMap(t.value)});
+        ..addAll({
+          for (final t in tagLessonCounts.entries) t.key: sortMap(t.value),
+        });
     });
   }
 
@@ -68,9 +69,7 @@ class _TheoryRecallStatsDashboardScreenState
   Widget build(BuildContext context) {
     if (!kDebugMode) return const SizedBox.shrink();
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Theory Recall Stats'),
-      ),
+      appBar: AppBar(title: const Text('Theory Recall Stats')),
       backgroundColor: AppColors.background,
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -89,22 +88,17 @@ class _TheoryRecallStatsDashboardScreenState
           const SizedBox(height: 16),
           const Text('Most Frequent Tags'),
           for (final t in _tagCounts.take(10))
-            ListTile(
-              title: Text(t.$1),
-              trailing: Text('${t.$2}'),
-            ),
+            ListTile(title: Text(t.$1), trailing: Text('${t.$2}')),
           const SizedBox(height: 16),
           const Text('Most Viewed Lessons'),
           for (final l in _lessonCounts.take(10))
-            ListTile(
-              title: Text(l.$1),
-              trailing: Text('${l.$2}'),
-            ),
+            ListTile(title: Text(l.$1), trailing: Text('${l.$2}')),
           const SizedBox(height: 16),
           for (final entry in _tagLessonCounts.entries)
             ExpansionTile(
               title: Text(
-                  '${entry.key} (${_tagCounts.firstWhere((t) => t.$1 == entry.key).$2})'),
+                '${entry.key} (${_tagCounts.firstWhere((t) => t.$1 == entry.key).$2})',
+              ),
               children: [
                 for (final lesson in entry.value.take(5))
                   ListTile(

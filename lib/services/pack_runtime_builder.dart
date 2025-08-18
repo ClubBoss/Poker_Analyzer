@@ -30,10 +30,7 @@ class PackRuntimeBuilder {
     return future.whenComplete(() => _pending.remove(key));
   }
 
-  void clearCache(
-    TrainingPackTemplate tpl,
-    TrainingPackVariant variant,
-  ) {
+  void clearCache(TrainingPackTemplate tpl, TrainingPackVariant variant) {
     final key = _key(tpl, variant);
     _cache.remove(key);
     _pending.remove(key);

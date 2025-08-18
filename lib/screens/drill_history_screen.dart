@@ -38,7 +38,7 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
       for (final r in all)
         if ((d == null || r.date.isAfter(now.subtract(d))) &&
             (query.isEmpty || r.templateName.toLowerCase().contains(query)))
-          r
+          r,
     ];
   }
 
@@ -47,8 +47,10 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
       return SizedBox(
         height: responsiveSize(context, 200),
         child: const Center(
-          child: Text('Недостаточно данных',
-              style: TextStyle(color: Colors.white70)),
+          child: Text(
+            'Недостаточно данных',
+            style: TextStyle(color: Colors.white70),
+          ),
         ),
       );
     }
@@ -79,10 +81,12 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
                 const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -109,9 +113,10 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
                   final d = sorted[index].date;
                   final label =
                       '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
-                  return Text(label,
-                      style:
-                          const TextStyle(color: Colors.white, fontSize: 10));
+                  return Text(
+                    label,
+                    style: const TextStyle(color: Colors.white, fontSize: 10),
+                  );
                 },
               ),
             ),
@@ -164,8 +169,9 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
       ids.addAll(r.wrongSpotIds.where((e) => e.isNotEmpty));
     }
     if (ids.isEmpty) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Ошибок не найдено')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Ошибок не найдено')));
       return;
     }
     final packs = context.read<TrainingPackStorageService>().packs;
@@ -176,8 +182,9 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
       }
     }
     if (hands.isEmpty) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Ошибок не найдено')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Ошибок не найдено')));
       return;
     }
     await Navigator.push(
@@ -195,16 +202,18 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
   Future<void> _repeatLast() async {
     final history = context.read<DrillHistoryService>().results;
     if (history.isEmpty) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('История пуста')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('История пуста')));
       return;
     }
     final last = history.first;
     final packs = context.read<TrainingPackStorageService>().packs;
     final pack = packs.firstWhereOrNull((p) => p.id == last.templateId);
     if (pack == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Шаблон не найден')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Шаблон не найден')));
       return;
     }
     await Navigator.push(
@@ -215,7 +224,10 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
               ? pack.hands
               : [
                   for (final s in pack.spots)
-                    handFromPackSpot(s as TrainingPackSpot, anteBb: pack.anteBb)
+                    handFromPackSpot(
+                      s as TrainingPackSpot,
+                      anteBb: pack.anteBb,
+                    ),
                 ],
           templateId: pack.id,
           templateName: pack.name,
@@ -226,69 +238,69 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
   }
 
   Widget _empty() => const Center(
-        child:
-            Text('История пока пуста', style: TextStyle(color: Colors.white70)),
-      );
+    child: Text('История пока пуста', style: TextStyle(color: Colors.white70)),
+  );
 
   Widget _noResults() => const Center(
-        child: Text('Нет результатов', style: TextStyle(color: Colors.white70)),
-      );
+    child: Text('Нет результатов', style: TextStyle(color: Colors.white70)),
+  );
 
   Widget _list(List<DrillResult> data) => ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: data.length,
-        itemBuilder: (context, index) {
-          final r = data[index];
-          final pct = r.total == 0 ? 0 : (r.correct / r.total * 100).round();
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            decoration: BoxDecoration(
-              color: AppColors.cardBackground,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.3),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
+    padding: const EdgeInsets.all(16),
+    itemCount: data.length,
+    itemBuilder: (context, index) {
+      final r = data[index];
+      final pct = r.total == 0 ? 0 : (r.correct / r.total * 100).round();
+      return Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: AppColors.cardBackground,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.3),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: ListTile(
+          leading: const Icon(Icons.history, color: Colors.white),
+          title: Text(
+            r.templateName,
+            style: const TextStyle(color: Colors.white),
+          ),
+          subtitle: Text(
+            '${formatDate(r.date)} •  ${r.correct}/${r.total}  ($pct%)',
+            style: const TextStyle(color: Colors.white70),
+          ),
+          trailing: Text(
+            r.evLoss.toStringAsFixed(2),
+            style: TextStyle(color: r.evLoss > 0 ? Colors.red : Colors.green),
+          ),
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (_) => AlertDialog(
+                title: Text(r.templateName),
+                content: Text(
+                  '${formatDate(r.date)}\n'
+                  'Верно: ${r.correct}/${r.total} ($pct%)\n'
+                  'Потеря EV: ${r.evLoss.toStringAsFixed(2)} bb',
                 ),
-              ],
-            ),
-            child: ListTile(
-              leading: const Icon(Icons.history, color: Colors.white),
-              title: Text(r.templateName,
-                  style: const TextStyle(color: Colors.white)),
-              subtitle: Text(
-                '${formatDate(r.date)} •  ${r.correct}/${r.total}  ($pct%)',
-                style: const TextStyle(color: Colors.white70),
-              ),
-              trailing: Text(
-                r.evLoss.toStringAsFixed(2),
-                style:
-                    TextStyle(color: r.evLoss > 0 ? Colors.red : Colors.green),
-              ),
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (_) => AlertDialog(
-                    title: Text(r.templateName),
-                    content: Text(
-                      '${formatDate(r.date)}\n'
-                      'Верно: ${r.correct}/${r.total} ($pct%)\n'
-                      'Потеря EV: ${r.evLoss.toStringAsFixed(2)} bb',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('OK'),
-                      ),
-                    ],
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('OK'),
                   ),
-                );
-              },
-            ),
-          );
-        },
+                ],
+              ),
+            );
+          },
+        ),
       );
+    },
+  );
 
   @override
   void dispose() {
@@ -349,7 +361,8 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
                       style: const TextStyle(color: Colors.white),
                       items: const ['Все', '7 дней', '30 дней']
                           .map(
-                              (p) => DropdownMenuItem(value: p, child: Text(p)))
+                            (p) => DropdownMenuItem(value: p, child: Text(p)),
+                          )
                           .toList(),
                       onChanged: (v) => setState(() => _period = v ?? 'Все'),
                     ),

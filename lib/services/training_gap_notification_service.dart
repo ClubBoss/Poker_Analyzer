@@ -13,11 +13,12 @@ class TrainingGapNotificationService {
     final library = PackLibraryLoaderService.instance.library;
 
     // Try weak category first
-    final weakCategory =
-        await const TrainingGapDetectorService().detectWeakCategory();
+    final weakCategory = await const TrainingGapDetectorService()
+        .detectWeakCategory();
     if (weakCategory != null) {
       final tpl = library.firstWhereOrNull(
-          (t) => t.category == weakCategory && t.id != excludeId);
+        (t) => t.category == weakCategory && t.id != excludeId,
+      );
       if (tpl != null) {
         return TrainingPackTemplate.fromJson(tpl.toJson());
       }
@@ -25,14 +26,15 @@ class TrainingGapNotificationService {
 
     // Fallback to weakest training type
     final packs = [
-      for (final t in library) TrainingPackTemplate.fromJson(t.toJson())
+      for (final t in library) TrainingPackTemplate.fromJson(t.toJson()),
     ];
     final stats = await const TrainingTypeStatsService()
         .calculateCompletionPercent(packs);
     final weakType = const WeakTrainingTypeDetector().findWeakestType(stats);
     if (weakType != null) {
       final tpl = library.firstWhereOrNull(
-          (t) => t.trainingType == weakType && t.id != excludeId);
+        (t) => t.trainingType == weakType && t.id != excludeId,
+      );
       if (tpl != null) {
         return TrainingPackTemplate.fromJson(tpl.toJson());
       }

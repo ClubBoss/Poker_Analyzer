@@ -11,10 +11,10 @@ import '../services/last_viewed_theory_store.dart';
 import '../services/user_error_rate_service.dart';
 import '../screens/theory_lesson_viewer_screen.dart';
 
-typedef LessonMatchProvider = Future<List<TheoryMiniLessonNode>> Function(
-    List<String> tags);
-typedef AnalyticsLogger = Future<void> Function(
-    String event, Map<String, dynamic> params);
+typedef LessonMatchProvider =
+    Future<List<TheoryMiniLessonNode>> Function(List<String> tags);
+typedef AnalyticsLogger =
+    Future<void> Function(String event, Map<String, dynamic> params);
 
 Future<List<TheoryMiniLessonNode>> _defaultMatchProvider(
   List<String> tags,
@@ -35,7 +35,7 @@ class MistakeInlineTheoryPrompt extends StatefulWidget {
   final LessonMatchProvider matchProvider;
   final AnalyticsLogger log;
   final void Function(String spotId, String packId, String? lessonId)?
-      onTheoryViewed;
+  onTheoryViewed;
 
   const MistakeInlineTheoryPrompt({
     super.key,
@@ -45,8 +45,8 @@ class MistakeInlineTheoryPrompt extends StatefulWidget {
     LessonMatchProvider? matchProvider,
     AnalyticsLogger? log,
     this.onTheoryViewed,
-  })  : matchProvider = matchProvider ?? _defaultMatchProvider,
-        log = log ?? _defaultLog;
+  }) : matchProvider = matchProvider ?? _defaultMatchProvider,
+       log = log ?? _defaultLog;
 
   @override
   State<MistakeInlineTheoryPrompt> createState() =>
@@ -69,9 +69,11 @@ class _MistakeInlineTheoryPromptState extends State<MistakeInlineTheoryPrompt> {
     final baseTags = <String>{
       for (final t in widget.attempt.spot.tags) t.toLowerCase(),
     };
-    baseTags.addAll(const MistakeTagClassifier()
-        .classifyTheory(widget.attempt)
-        .map((e) => e.toLowerCase()));
+    baseTags.addAll(
+      const MistakeTagClassifier()
+          .classifyTheory(widget.attempt)
+          .map((e) => e.toLowerCase()),
+    );
     final matches = await widget.matchProvider(baseTags.toList());
     if (matches.isEmpty) return;
     final rates = await UserErrorRateService.instance.getRates(
@@ -143,8 +145,10 @@ class _MistakeInlineTheoryPromptState extends State<MistakeInlineTheoryPrompt> {
         'spotId': widget.spotId,
         'rank_score': selected.score,
       });
-      await LastViewedTheoryStore.instance
-          .add(widget.packId, selected.lesson.id);
+      await LastViewedTheoryStore.instance.add(
+        widget.packId,
+        selected.lesson.id,
+      );
       await _openLesson(selected, lessons.length);
     }
   }

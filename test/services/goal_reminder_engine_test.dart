@@ -26,7 +26,7 @@ class _FakeLogService extends SessionLogService {
   Future<UserProgress> getUserProgress() async {
     await PackLibraryLoaderService.instance.loadLibrary();
     final library = {
-      for (final t in PackLibraryLoaderService.instance.library) t.id: t
+      for (final t in PackLibraryLoaderService.instance.library) t.id: t,
     };
     final history = <TrainingResult>[];
     for (final log in list) {
@@ -58,14 +58,15 @@ class _FakeMasteryService extends TagMasteryService {
 
 class _FakeSuggestionService extends GoalSuggestionService {
   final List<TrainingGoal> goals;
-  _FakeSuggestionService(
-      {required TagMasteryService mastery, required this.goals})
-      : super(mastery: mastery);
+  _FakeSuggestionService({
+    required TagMasteryService mastery,
+    required this.goals,
+  }) : super(mastery: mastery);
 
   @override
-  Future<List<TrainingGoal>> suggestGoals(
-          {required UserProgress progress}) async =>
-      goals;
+  Future<List<TrainingGoal>> suggestGoals({
+    required UserProgress progress,
+  }) async => goals;
 }
 
 void main() {

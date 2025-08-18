@@ -21,11 +21,14 @@ class PlayerZoneOverlayController {
     final overlay = Overlay.of(_state.context);
     final box = _state.context.findRenderObject() as RenderBox?;
     if (box == null) return;
-    final start =
-        box.localToGlobal(Offset(box.size.width / 2, 20 * _state.widget.scale));
+    final start = box.localToGlobal(
+      Offset(box.size.width / 2, 20 * _state.widget.scale),
+    );
     final media = MediaQuery.of(_state.context).size;
-    final end =
-        Offset(media.width / 2, media.height / 2 - 60 * _state.widget.scale);
+    final end = Offset(
+      media.width / 2,
+      media.height / 2 - 60 * _state.widget.scale,
+    );
     final control = Offset(
       (start.dx + end.dx) / 2,
       (start.dy + end.dy) / 2 -
@@ -58,10 +61,12 @@ class PlayerZoneOverlayController {
         _state._stackKey.currentContext?.findRenderObject() as RenderBox?;
     if (stackBox == null) return;
     final media = MediaQuery.of(_state.context).size;
-    final start = startPosition ??
+    final start =
+        startPosition ??
         Offset(media.width / 2, media.height / 2 - 60 * _state.widget.scale);
     final end = stackBox.localToGlobal(
-        Offset(stackBox.size.width / 2, stackBox.size.height / 2));
+      Offset(stackBox.size.width / 2, stackBox.size.height / 2),
+    );
     final control = Offset(
       (start.dx + end.dx) / 2,
       (start.dy + end.dy) / 2 -
@@ -91,11 +96,14 @@ class PlayerZoneOverlayController {
     final overlay = Overlay.of(_state.context);
     final box = _state.context.findRenderObject() as RenderBox?;
     if (box == null) return;
-    final start =
-        box.localToGlobal(Offset(box.size.width / 2, 20 * _state.widget.scale));
+    final start = box.localToGlobal(
+      Offset(box.size.width / 2, 20 * _state.widget.scale),
+    );
     final media = MediaQuery.of(_state.context).size;
-    final end =
-        Offset(media.width / 2, media.height / 2 - 60 * _state.widget.scale);
+    final end = Offset(
+      media.width / 2,
+      media.height / 2 - 60 * _state.widget.scale,
+    );
     final control = Offset(
       (start.dx + end.dx) / 2,
       (start.dy + end.dy) / 2 -
@@ -128,8 +136,9 @@ class PlayerZoneOverlayController {
     final overlay = Overlay.of(_state.context);
     final box = _state.context.findRenderObject() as RenderBox?;
     if (box == null) return;
-    final pos = box
-        .localToGlobal(Offset(box.size.width / 2, -16 * _state.widget.scale));
+    final pos = box.localToGlobal(
+      Offset(box.size.width / 2, -16 * _state.widget.scale),
+    );
     late OverlayEntry entry;
     entry = OverlayEntry(
       builder: (_) => BetAmountOverlay(
@@ -152,8 +161,9 @@ class PlayerZoneOverlayController {
     final overlay = Overlay.of(_state.context);
     final box = _state.context.findRenderObject() as RenderBox?;
     if (box == null) return;
-    final pos = box
-        .localToGlobal(Offset(box.size.width / 2, -16 * _state.widget.scale));
+    final pos = box.localToGlobal(
+      Offset(box.size.width / 2, -16 * _state.widget.scale),
+    );
     late OverlayEntry entry;
     entry = OverlayEntry(
       builder: (_) => RefundMessageOverlay(
@@ -175,8 +185,9 @@ class PlayerZoneOverlayController {
     final overlay = Overlay.of(_state.context);
     final box = _state.context.findRenderObject() as RenderBox?;
     if (box == null) return;
-    final pos = box
-        .localToGlobal(Offset(box.size.width / 2, -16 * _state.widget.scale));
+    final pos = box.localToGlobal(
+      Offset(box.size.width / 2, -16 * _state.widget.scale),
+    );
     late OverlayEntry entry;
     entry = OverlayEntry(
       builder: (_) => LossAmountWidget(
@@ -198,8 +209,9 @@ class PlayerZoneOverlayController {
     final overlay = Overlay.of(_state.context);
     final box = _state.context.findRenderObject() as RenderBox?;
     if (box == null) return;
-    final pos = box
-        .localToGlobal(Offset(box.size.width / 2, -16 * _state.widget.scale));
+    final pos = box.localToGlobal(
+      Offset(box.size.width / 2, -16 * _state.widget.scale),
+    );
     late OverlayEntry entry;
     entry = OverlayEntry(
       builder: (_) => GainAmountWidget(
@@ -221,8 +233,9 @@ class PlayerZoneOverlayController {
     final overlay = Overlay.of(_state.context);
     final box = _state.context.findRenderObject() as RenderBox?;
     if (box == null) return;
-    final pos = box
-        .localToGlobal(Offset(box.size.width / 2, -32 * _state.widget.scale));
+    final pos = box.localToGlobal(
+      Offset(box.size.width / 2, -32 * _state.widget.scale),
+    );
     late OverlayEntry entry;
     entry = OverlayEntry(
       builder: (_) => ActionLabelOverlay(
@@ -251,8 +264,10 @@ class PlayerZoneOverlayController {
         _state._stackKey.currentContext?.findRenderObject() as RenderBox?;
     if (box == null) return;
     final media = MediaQuery.of(_state.context).size;
-    final start =
-        Offset(media.width / 2, media.height / 2 - 60 * _state.widget.scale);
+    final start = Offset(
+      media.width / 2,
+      media.height / 2 - 60 * _state.widget.scale,
+    );
     final end = box.localToGlobal(box.size.center(Offset.zero));
     late OverlayEntry entry;
     entry = OverlayEntry(
@@ -278,8 +293,10 @@ class PlayerZoneOverlayController {
     if (box == null) return;
     final media = MediaQuery.of(_state.context).size;
     final start = box.localToGlobal(box.size.center(Offset.zero));
-    final end =
-        Offset(media.width / 2, media.height / 2 - 60 * _state.widget.scale);
+    final end = Offset(
+      media.width / 2,
+      media.height / 2 - 60 * _state.widget.scale,
+    );
     late OverlayEntry entry;
     entry = OverlayEntry(
       builder: (_) => FoldChipOverlay(
@@ -304,8 +321,10 @@ class PlayerZoneOverlayController {
     if (box == null) return;
     final media = MediaQuery.of(_state.context).size;
     final start = box.localToGlobal(box.size.center(Offset.zero));
-    final end =
-        Offset(media.width / 2, media.height / 2 - 60 * _state.widget.scale);
+    final end = Offset(
+      media.width / 2,
+      media.height / 2 - 60 * _state.widget.scale,
+    );
     late OverlayEntry entry;
     entry = OverlayEntry(
       builder: (_) => FoldChipOverlay(
@@ -333,8 +352,10 @@ class PlayerZoneOverlayController {
 
     _winChipsAnimating = true;
     final media = MediaQuery.of(_state.context).size;
-    final start =
-        Offset(media.width / 2, media.height / 2 - 60 * _state.widget.scale);
+    final start = Offset(
+      media.width / 2,
+      media.height / 2 - 60 * _state.widget.scale,
+    );
     final end = box.localToGlobal(box.size.center(Offset.zero));
     final rnd = Random();
     final chipCount = 6 + rnd.nextInt(3);

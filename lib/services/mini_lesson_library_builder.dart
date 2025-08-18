@@ -41,8 +41,8 @@ class MiniLessonLibraryBuilder {
   const MiniLessonLibraryBuilder({
     MiniLessonNodeBuilder? nodeBuilder,
     YamlWriter? yamlWriter,
-  })  : nodeBuilder = nodeBuilder ?? const MiniLessonNodeBuilder(),
-        writer = yamlWriter ?? const YamlWriter();
+  }) : nodeBuilder = nodeBuilder ?? const MiniLessonNodeBuilder(),
+       writer = yamlWriter ?? const YamlWriter();
 
   /// Builds a list of YAML compatible lesson maps.
   List<Map<String, dynamic>> _buildList(
@@ -56,13 +56,15 @@ class MiniLessonLibraryBuilder {
     for (final e in entries) {
       final key = '${e.tag.toLowerCase()}|${e.title.toLowerCase()}';
       if (deduplicate && !seen.add(key)) continue;
-      list.add(nodeBuilder.toYamlMap(
-        tag: e.tag,
-        title: e.title,
-        content: e.content,
-        priority: autoPriority ? prio++ : null,
-        examples: e.examples.isEmpty ? null : e.examples,
-      ));
+      list.add(
+        nodeBuilder.toYamlMap(
+          tag: e.tag,
+          title: e.title,
+          content: e.content,
+          priority: autoPriority ? prio++ : null,
+          examples: e.examples.isEmpty ? null : e.examples,
+        ),
+      );
     }
     return list;
   }
@@ -74,8 +76,11 @@ class MiniLessonLibraryBuilder {
     bool deduplicate = true,
   }) {
     final map = {
-      'lessons': _buildList(entries,
-          autoPriority: autoPriority, deduplicate: deduplicate)
+      'lessons': _buildList(
+        entries,
+        autoPriority: autoPriority,
+        deduplicate: deduplicate,
+      ),
     };
     return const YamlEncoder().convert(map);
   }
@@ -88,8 +93,11 @@ class MiniLessonLibraryBuilder {
     bool deduplicate = true,
   }) async {
     final map = {
-      'lessons': _buildList(entries,
-          autoPriority: autoPriority, deduplicate: deduplicate)
+      'lessons': _buildList(
+        entries,
+        autoPriority: autoPriority,
+        deduplicate: deduplicate,
+      ),
     };
     await writer.write(map, path);
     return File(path);

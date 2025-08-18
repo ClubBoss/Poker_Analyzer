@@ -26,17 +26,17 @@ class AnswerLogItem {
   });
 
   Map<String, dynamic> toJson() => {
-        'kind': kind,
-        'hand': hand,
-        'pos': pos,
-        'vsPos': vsPos,
-        'limpers': limpers,
-        'stack': stack,
-        'expected': expected,
-        'chosen': chosen,
-        'correct': correct,
-        'elapsedMs': elapsedMs,
-      };
+    'kind': kind,
+    'hand': hand,
+    'pos': pos,
+    'vsPos': vsPos,
+    'limpers': limpers,
+    'stack': stack,
+    'expected': expected,
+    'chosen': chosen,
+    'correct': correct,
+    'elapsedMs': elapsedMs,
+  };
 }
 
 class AnswerLog {
@@ -53,11 +53,11 @@ class AnswerLog {
   });
 
   Map<String, dynamic> toJson() => {
-        'version': version,
-        'total': total,
-        'correct': correct,
-        'items': items.map((e) => e.toJson()).toList(),
-      };
+    'version': version,
+    'total': total,
+    'correct': correct,
+    'items': items.map((e) => e.toJson()).toList(),
+  };
 }
 
 AnswerLog buildAnswerLog(List<UiSpot> spots, List<UiAnswer> answers) {
@@ -67,18 +67,20 @@ AnswerLog buildAnswerLog(List<UiSpot> spots, List<UiAnswer> answers) {
     final spot = spots[i];
     final ans = answers[i];
     if (ans.correct) correct++;
-    items.add(AnswerLogItem(
-      kind: spot.kind.name,
-      hand: spot.hand,
-      pos: spot.pos,
-      vsPos: spot.vsPos,
-      limpers: spot.limpers,
-      stack: spot.stack,
-      expected: ans.expected,
-      chosen: ans.chosen,
-      correct: ans.correct,
-      elapsedMs: ans.elapsed.inMilliseconds,
-    ));
+    items.add(
+      AnswerLogItem(
+        kind: spot.kind.name,
+        hand: spot.hand,
+        pos: spot.pos,
+        vsPos: spot.vsPos,
+        limpers: spot.limpers,
+        stack: spot.stack,
+        expected: ans.expected,
+        chosen: ans.chosen,
+        correct: ans.correct,
+        elapsedMs: ans.elapsed.inMilliseconds,
+      ),
+    );
   }
   return AnswerLog(total: answers.length, correct: correct, items: items);
 }

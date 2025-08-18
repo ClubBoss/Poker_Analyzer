@@ -73,8 +73,9 @@ class _TrainingTypeGapPromptBannerState
     }
 
     await PackLibraryLoaderService.instance.loadLibrary();
-    final pack = PackLibraryLoaderService.instance.library
-        .firstWhereOrNull((p) => p.trainingType == type);
+    final pack = PackLibraryLoaderService.instance.library.firstWhereOrNull(
+      (p) => p.trainingType == type,
+    );
 
     if (mounted) {
       setState(() {
@@ -137,8 +138,10 @@ class _TrainingTypeGapPromptBannerState
             ],
           ),
           const SizedBox(height: 4),
-          Text('🃏 Пак: ${_pack!.name}',
-              style: const TextStyle(color: Colors.white70)),
+          Text(
+            '🃏 Пак: ${_pack!.name}',
+            style: const TextStyle(color: Colors.white70),
+          ),
           const SizedBox(height: 8),
           Align(
             alignment: Alignment.centerRight,

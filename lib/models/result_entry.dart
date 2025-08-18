@@ -16,15 +16,16 @@ class ResultEntry {
   String get expected => evaluation.expectedAction;
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'userAction': userAction,
-        'evaluation': evaluation.toJson(),
-      };
+    'name': name,
+    'userAction': userAction,
+    'evaluation': evaluation.toJson(),
+  };
 
   factory ResultEntry.fromJson(Map<String, dynamic> json) => ResultEntry(
-        name: json['name'] as String? ?? '',
-        userAction: json['userAction'] as String? ?? '-',
-        evaluation: EvaluationResult.fromJson(
-            Map<String, dynamic>.from(json['evaluation'] as Map)),
-      );
+    name: json['name'] as String? ?? '',
+    userAction: json['userAction'] as String? ?? '-',
+    evaluation: EvaluationResult.fromJson(
+      Map<String, dynamic>.from(json['evaluation'] as Map),
+    ),
+  );
 }

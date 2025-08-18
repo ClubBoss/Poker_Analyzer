@@ -6,11 +6,8 @@ class _Path extends LearningPathTemplateV2 {
   final Map<String, dynamic> meta;
   final bool recommendedFlag;
 
-  _Path({
-    required String id,
-    List<String>? tags,
-    this.meta = const {},
-  }) : super(id: id, title: id, description: '', tags: tags);
+  _Path({required String id, List<String>? tags, this.meta = const {}})
+    : super(id: id, title: id, description: '', tags: tags);
 
   @override
   dynamic noSuchMethod(Invocation invocation) {

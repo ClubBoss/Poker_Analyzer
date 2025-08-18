@@ -43,13 +43,15 @@ class SkillTreePathConnectorBuilder {
         strokeWidth: strokeWidth,
         arrow: showArrow && i == nodes.length - 2,
       );
-      widgets.add(Positioned(
-        left: rect.left,
-        top: rect.top,
-        width: rect.width,
-        height: rect.height,
-        child: CustomPaint(painter: painter),
-      ));
+      widgets.add(
+        Positioned(
+          left: rect.left,
+          top: rect.top,
+          width: rect.width,
+          height: rect.height,
+          child: CustomPaint(painter: painter),
+        ),
+      );
     }
     return widgets;
   }

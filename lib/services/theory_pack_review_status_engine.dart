@@ -10,8 +10,10 @@ class TheoryPackReviewStatusEngine {
   /// Returns review status for [pack] based on simple heuristics.
   ReviewStatus getStatus(TheoryPackModel pack) {
     final hasTitle = pack.title.trim().isNotEmpty;
-    final wordCount =
-        pack.sections.fold<int>(0, (sum, s) => sum + _wordCount(s.text));
+    final wordCount = pack.sections.fold<int>(
+      0,
+      (sum, s) => sum + _wordCount(s.text),
+    );
     if (hasTitle && pack.sections.isNotEmpty && wordCount >= 150) {
       return ReviewStatus.approved;
     }

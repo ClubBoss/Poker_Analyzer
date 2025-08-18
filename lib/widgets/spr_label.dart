@@ -8,11 +8,8 @@ class SPRLabel extends StatelessWidget {
   /// Scale factor for sizing.
   final double scale;
 
-  const SPRLabel({
-    Key? key,
-    required this.spr,
-    this.scale = 1.0,
-  }) : super(key: key);
+  const SPRLabel({Key? key, required this.spr, this.scale = 1.0})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,11 +21,7 @@ class SPRLabel extends StatelessWidget {
         fontSize: 12 * scale,
         fontWeight: FontWeight.w600,
         shadows: const [
-          Shadow(
-            offset: Offset(1, 1),
-            blurRadius: 2,
-            color: Colors.blueAccent,
-          ),
+          Shadow(offset: Offset(1, 1), blurRadius: 2, color: Colors.blueAccent),
         ],
       ),
     );

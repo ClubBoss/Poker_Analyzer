@@ -54,11 +54,15 @@ class DecaySessionTagImpactRecorder {
   Future<void> _saveAll(List<DecayTagReinforcementEvent> list) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
-        _allKey, jsonEncode([for (final e in list) e.toJson()]));
+      _allKey,
+      jsonEncode([for (final e in list) e.toJson()]),
+    );
   }
 
   Future<void> recordSession(
-      Map<String, double> tagDeltas, DateTime timestamp) async {
+    Map<String, double> tagDeltas,
+    DateTime timestamp,
+  ) async {
     final all = await _loadAll();
     for (final entry in tagDeltas.entries) {
       final tag = entry.key.toLowerCase();
@@ -88,11 +92,13 @@ class DecaySessionTagImpactRecorder {
   }
 
   Future<List<DecayTagReinforcementEvent>> loadByDateRange(
-      DateTime start, DateTime end) async {
+    DateTime start,
+    DateTime end,
+  ) async {
     final all = await _loadAll();
     return [
       for (final e in all)
-        if (!e.timestamp.isBefore(start) && !e.timestamp.isAfter(end)) e
+        if (!e.timestamp.isBefore(start) && !e.timestamp.isAfter(end)) e,
     ];
   }
 }

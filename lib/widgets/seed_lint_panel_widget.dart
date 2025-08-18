@@ -58,13 +58,15 @@ class _SeedLintPanelWidgetState extends State<SeedLintPanelWidget> {
                 TextButton(
                   onPressed: () async {
                     final data = filtered
-                        .map((i) => {
-                              'seedId': i.seedId,
-                              'severity': i.severity,
-                              'code': i.code,
-                              'message': i.message,
-                              'path': i.path,
-                            })
+                        .map(
+                          (i) => {
+                            'seedId': i.seedId,
+                            'severity': i.severity,
+                            'code': i.code,
+                            'message': i.message,
+                            'path': i.path,
+                          },
+                        )
                         .toList();
                     await Clipboard.setData(
                       ClipboardData(text: jsonEncode(data)),
@@ -76,15 +78,16 @@ class _SeedLintPanelWidgetState extends State<SeedLintPanelWidget> {
                   onPressed: () async {
                     final rows = [
                       ['id', 'severity', 'code', 'message'],
-                      ...issues.map((i) =>
-                          [i.seedId ?? '', i.severity, i.code, i.message])
+                      ...issues.map(
+                        (i) => [i.seedId ?? '', i.severity, i.code, i.message],
+                      ),
                     ];
                     final csv = rows.map((r) => r.join(',')).join('\n');
                     final file = File('seed_lint.csv');
                     await file.writeAsString(csv);
                   },
                   child: const Text('Download CSV'),
-                )
+                ),
               ],
             ),
             Expanded(
@@ -98,12 +101,14 @@ class _SeedLintPanelWidgetState extends State<SeedLintPanelWidget> {
                   ],
                   rows: [
                     for (final i in filtered)
-                      DataRow(cells: [
-                        DataCell(Text(i.seedId ?? '')),
-                        DataCell(Text(i.severity)),
-                        DataCell(Text(i.code)),
-                        DataCell(Text(i.message)),
-                      ])
+                      DataRow(
+                        cells: [
+                          DataCell(Text(i.seedId ?? '')),
+                          DataCell(Text(i.severity)),
+                          DataCell(Text(i.code)),
+                          DataCell(Text(i.message)),
+                        ],
+                      ),
                   ],
                 ),
               ),

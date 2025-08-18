@@ -38,7 +38,7 @@ class _PackLibraryStatsScreenState extends State<PackLibraryStatsScreen> {
         ..clear()
         ..addAll([
           for (final e in res['tags'] as List)
-            (e[0] as String, (e[1] as num).toInt())
+            (e[0] as String, (e[1] as num).toInt()),
         ]);
       _ev = (res['ev'] as num?)?.toDouble();
     });
@@ -56,7 +56,9 @@ class _PackLibraryStatsScreenState extends State<PackLibraryStatsScreen> {
               padding: const EdgeInsets.all(16),
               children: [
                 ElevatedButton(
-                    onPressed: _load, child: const Text('🔄 Обновить')),
+                  onPressed: _load,
+                  child: const Text('🔄 Обновить'),
+                ),
                 const SizedBox(height: 16),
                 Text('Всего паков: $_total'),
                 const SizedBox(height: 12),
@@ -67,10 +69,12 @@ class _PackLibraryStatsScreenState extends State<PackLibraryStatsScreen> {
                   ],
                   rows: [
                     for (final e in _audience.entries)
-                      DataRow(cells: [
-                        DataCell(Text(e.key)),
-                        DataCell(Text('${e.value}')),
-                      ]),
+                      DataRow(
+                        cells: [
+                          DataCell(Text(e.key)),
+                          DataCell(Text('${e.value}')),
+                        ],
+                      ),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -81,10 +85,12 @@ class _PackLibraryStatsScreenState extends State<PackLibraryStatsScreen> {
                   ],
                   rows: [
                     for (final t in _tags)
-                      DataRow(cells: [
-                        DataCell(Text(t.$1)),
-                        DataCell(Text('${t.$2}')),
-                      ]),
+                      DataRow(
+                        cells: [
+                          DataCell(Text(t.$1)),
+                          DataCell(Text('${t.$2}')),
+                        ],
+                      ),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -120,7 +126,8 @@ Future<Map<String, dynamic>> _statsTask(String _) async {
         for (final t in tpl.tags) {
           tags[t] = (tags[t] ?? 0) + 1;
         }
-        final ev = (map['evScore'] as num?)?.toDouble() ??
+        final ev =
+            (map['evScore'] as num?)?.toDouble() ??
             (tpl.meta['evScore'] as num?)?.toDouble();
         if (ev != null) {
           evSum += ev;
@@ -132,7 +139,7 @@ Future<Map<String, dynamic>> _statsTask(String _) async {
   final tagList = tags.entries.toList()
     ..sort((a, b) => b.value.compareTo(a.value));
   final topTags = [
-    for (final e in tagList.take(10)) [e.key, e.value]
+    for (final e in tagList.take(10)) [e.key, e.value],
   ];
   return {
     'total': total,

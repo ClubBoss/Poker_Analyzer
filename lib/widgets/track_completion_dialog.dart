@@ -31,8 +31,11 @@ class _TrackCompletionDialogState extends State<TrackCompletionDialog> {
   Future<void> _share(RewardCardRendererService renderer) async {
     final bytes = await renderer.exportImage(widget.trackId);
     if (bytes.isEmpty) return;
-    final file =
-        XFile.fromData(bytes, mimeType: 'image/png', name: 'reward.png');
+    final file = XFile.fromData(
+      bytes,
+      mimeType: 'image/png',
+      name: 'reward.png',
+    );
     await Share.shareXFiles([file]);
   }
 
@@ -45,7 +48,8 @@ class _TrackCompletionDialogState extends State<TrackCompletionDialog> {
         return AlertDialog(
           content: SizedBox(
             width: 320,
-            child: snapshot.connectionState == ConnectionState.done &&
+            child:
+                snapshot.connectionState == ConnectionState.done &&
                     renderer != null
                 ? renderer.buildCard(widget.trackId)
                 : const SizedBox(

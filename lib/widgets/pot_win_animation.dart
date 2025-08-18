@@ -95,7 +95,9 @@ class _PotWinAnimationState extends State<PotWinAnimation>
             child: ScaleTransition(
               scale: Tween<double>(begin: 0.5, end: 1.5).animate(
                 CurvedAnimation(
-                    parent: _flareController, curve: Curves.easeOut),
+                  parent: _flareController,
+                  curve: Curves.easeOut,
+                ),
               ),
               child: Container(
                 width: 40 * widget.scale,

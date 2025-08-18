@@ -20,8 +20,10 @@ class CoverageMeter extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        Text('Coverage: ${percent.round()}%',
-            style: const TextStyle(color: Colors.white70, fontSize: 12)),
+        Text(
+          'Coverage: ${percent.round()}%',
+          style: const TextStyle(color: Colors.white70, fontSize: 12),
+        ),
       ],
     );
   }

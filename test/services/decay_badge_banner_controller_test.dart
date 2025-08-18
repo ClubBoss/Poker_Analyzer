@@ -28,19 +28,21 @@ void main() {
     await tester.pumpWidget(
       MultiProvider(
         providers: [
-          Provider<DecayBadgeBannerController>.value(value: controller)
+          Provider<DecayBadgeBannerController>.value(value: controller),
         ],
         child: MaterialApp(
-          home: Builder(builder: (context) {
-            return Scaffold(
-              body: TextButton(
-                onPressed: () {
-                  controller.maybeShowStreakBadgeBanner(context);
-                },
-                child: const Text('tap'),
-              ),
-            );
-          }),
+          home: Builder(
+            builder: (context) {
+              return Scaffold(
+                body: TextButton(
+                  onPressed: () {
+                    controller.maybeShowStreakBadgeBanner(context);
+                  },
+                  child: const Text('tap'),
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -56,26 +58,28 @@ void main() {
     final controller = DecayBadgeBannerController(notifier: notifier);
     await tester.pumpWidget(
       MaterialApp(
-        home: Builder(builder: (context) {
-          return Scaffold(
-            body: Column(
-              children: [
-                TextButton(
-                  onPressed: () {
-                    controller.maybeShowStreakBadgeBanner(context);
-                  },
-                  child: const Text('a'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    controller.maybeShowStreakBadgeBanner(context);
-                  },
-                  child: const Text('b'),
-                ),
-              ],
-            ),
-          );
-        }),
+        home: Builder(
+          builder: (context) {
+            return Scaffold(
+              body: Column(
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      controller.maybeShowStreakBadgeBanner(context);
+                    },
+                    child: const Text('a'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      controller.maybeShowStreakBadgeBanner(context);
+                    },
+                    child: const Text('b'),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
 
@@ -92,16 +96,18 @@ void main() {
     final controller = DecayBadgeBannerController(notifier: notifier);
     await tester.pumpWidget(
       MaterialApp(
-        home: Builder(builder: (context) {
-          return Scaffold(
-            body: TextButton(
-              onPressed: () {
-                controller.maybeShowStreakBadgeBanner(context);
-              },
-              child: const Text('tap'),
-            ),
-          );
-        }),
+        home: Builder(
+          builder: (context) {
+            return Scaffold(
+              body: TextButton(
+                onPressed: () {
+                  controller.maybeShowStreakBadgeBanner(context);
+                },
+                child: const Text('tap'),
+              ),
+            );
+          },
+        ),
       ),
     );
 

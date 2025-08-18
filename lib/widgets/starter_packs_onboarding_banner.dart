@@ -225,7 +225,8 @@ class _StarterPacksOnboardingBannerState
     setState(() => _launching = true);
     try {
       final cached = _packCache[p.id];
-      final full = cached ??
+      final full =
+          cached ??
           await (PackLibraryService.instance.getById(p.id) ?? Future.value(p));
       _cachePut(full.id, full);
       final count = _totalHands(full);
@@ -287,8 +288,8 @@ class _StarterPacksOnboardingBannerState
       final prefs = await _getPrefs();
       final selectedId = prefs.getString(_kPrefSelectedId);
 
-      final recommended =
-          await PackLibraryService.instance.recommendedStarter();
+      final recommended = await PackLibraryService.instance
+          .recommendedStarter();
 
       List<TrainingPackTemplateV2> list = const [];
       try {
@@ -322,11 +323,15 @@ class _StarterPacksOnboardingBannerState
       }
       final progress = ValueNotifier<Map<String, int>>(prefill);
       for (final p in all) {
-        _refreshHandsAndCacheOnce(prefs, p.id, onValue: (v) {
-          final map = Map<String, int>.from(progress.value);
-          map[p.id] = v;
-          progress.value = map;
-        });
+        _refreshHandsAndCacheOnce(
+          prefs,
+          p.id,
+          onValue: (v) {
+            final map = Map<String, int>.from(progress.value);
+            map[p.id] = v;
+            progress.value = map;
+          },
+        );
       }
 
       final selected = await showModalBottomSheet<TrainingPackTemplateV2>(
@@ -361,8 +366,9 @@ class _StarterPacksOnboardingBannerState
                   final aTotal = totals[a.id] ?? 0;
                   final bTotal = totals[b.id] ?? 0;
                   if (aTotal != bTotal) return bTotal.compareTo(aTotal);
-                  final nameCmp =
-                      (nameLower[a.id] ?? '').compareTo(nameLower[b.id] ?? '');
+                  final nameCmp = (nameLower[a.id] ?? '').compareTo(
+                    nameLower[b.id] ?? '',
+                  );
                   if (nameCmp != 0) return nameCmp;
 
                   // New deterministic tiebreaker:
@@ -382,7 +388,8 @@ class _StarterPacksOnboardingBannerState
                   }
                 }
 
-                final maxH = MediaQuery.of(context).size.height *
+                final maxH =
+                    MediaQuery.of(context).size.height *
                     _kChooserMaxHeightFactor;
                 final headerCount = recommended != null ? 1 : 0;
                 final totalCount = headerCount + items.length;
@@ -405,8 +412,8 @@ class _StarterPacksOnboardingBannerState
                               selectedId == null && _pack?.id == recommended.id,
                           trailing:
                               selectedId == null && _pack?.id == recommended.id
-                                  ? const Icon(Icons.check)
-                                  : null,
+                              ? const Icon(Icons.check)
+                              : null,
                           onTap: () => Navigator.of(context).pop(recommended),
                         );
                       }
@@ -419,8 +426,9 @@ class _StarterPacksOnboardingBannerState
                         title: Text(p.name),
                         subtitle: Text(_progressText(done, total, t)),
                         selected: p.id == _pack?.id,
-                        trailing:
-                            p.id == _pack?.id ? const Icon(Icons.check) : null,
+                        trailing: p.id == _pack?.id
+                            ? const Icon(Icons.check)
+                            : null,
                         onTap: () => Navigator.of(context).pop(p),
                       );
                     },

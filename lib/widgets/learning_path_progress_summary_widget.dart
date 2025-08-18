@@ -105,9 +105,7 @@ class LearningPathProgressSummaryWidget extends StatelessWidget {
               alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: onPressed,
-                style: TextButton.styleFrom(
-                  foregroundColor: accent,
-                ),
+                style: TextButton.styleFrom(foregroundColor: accent),
                 child: Text(finished ? 'Review' : 'Continue'),
               ),
             ),

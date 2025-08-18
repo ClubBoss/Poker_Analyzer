@@ -52,14 +52,18 @@ class _ConfettiOverlayState extends State<ConfettiOverlay>
 }
 
 /// Helper to display [ConfettiOverlay] above the current screen.
-void showConfettiOverlay(BuildContext context,
-    {Path Function(Size size)? particlePath}) {
+void showConfettiOverlay(
+  BuildContext context, {
+  Path Function(Size size)? particlePath,
+}) {
   final overlay = Overlay.of(context);
 
   late OverlayEntry entry;
   entry = OverlayEntry(
     builder: (_) => ConfettiOverlay(
-        onCompleted: () => entry.remove(), particlePath: particlePath),
+      onCompleted: () => entry.remove(),
+      particlePath: particlePath,
+    ),
   );
   overlay.insert(entry);
 }

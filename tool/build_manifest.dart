@@ -8,7 +8,8 @@ import 'package:poker_analyzer/models/v2/training_pack_template.dart';
 void main(List<String> args) {
   if (args.isEmpty) {
     stderr.writeln(
-        'Usage: dart run tool/build_manifest.dart <bundlesDir> [outputPath]');
+      'Usage: dart run tool/build_manifest.dart <bundlesDir> [outputPath]',
+    );
     exit(1);
   }
   final dir = Directory(args[0]);
@@ -28,8 +29,9 @@ void main(List<String> args) {
     try {
       final bytes = file.readAsBytesSync();
       final archive = ZipDecoder().decodeBytes(bytes);
-      final tplFile =
-          archive.files.firstWhere((e) => e.name == 'template.json');
+      final tplFile = archive.files.firstWhere(
+        (e) => e.name == 'template.json',
+      );
       final jsonMap =
           jsonDecode(utf8.decode(tplFile.content)) as Map<String, dynamic>;
       final tpl = TrainingPackTemplate.fromJson(jsonMap);
@@ -49,7 +51,8 @@ void main(List<String> args) {
         'pka': p.basename(file.path),
       });
       stdout.writeln(
-          '[OK] ${p.basename(file.path)}${hasPng ? '' : ' (preview missing)'}');
+        '[OK] ${p.basename(file.path)}${hasPng ? '' : ' (preview missing)'}',
+      );
     } catch (_) {
       stdout.writeln('[ERROR] ${p.basename(file.path)}');
     }
@@ -69,5 +72,6 @@ void main(List<String> args) {
   outFile.writeAsStringSync(const JsonEncoder.withIndent('  ').convert(items));
   final size = (outFile.lengthSync() / 1024).toStringAsFixed(1);
   stdout.writeln(
-      'Saved ${p.basename(outFile.path)}  (${items.length} items, $size KB)');
+    'Saved ${p.basename(outFile.path)}  (${items.length} items, $size KB)',
+  );
 }

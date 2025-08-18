@@ -69,7 +69,9 @@ class _SkillTreeStageGateCelebrationOverlayState
 
 /// Displays [SkillTreeStageGateCelebrationOverlay] above the current screen.
 void showSkillTreeStageGateCelebrationOverlay(
-    BuildContext context, String message) {
+  BuildContext context,
+  String message,
+) {
   final overlay = Overlay.of(context);
 
   late OverlayEntry entry;

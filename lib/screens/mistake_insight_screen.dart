@@ -30,8 +30,10 @@ class _MistakeInsightScreenState extends State<MistakeInsightScreen> {
 
   Future<void> _load() async {
     final templates = context.read<TemplateStorageService>();
-    final spots = await SmartReviewService.instance
-        .getMistakeSpots(templates, context: context);
+    final spots = await SmartReviewService.instance.getMistakeSpots(
+      templates,
+      context: context,
+    );
     if (!mounted) return;
     setState(() {
       _spots = spots;
@@ -45,7 +47,7 @@ class _MistakeInsightScreenState extends State<MistakeInsightScreen> {
     final cutoff = DateTime.now().subtract(Duration(days: days));
     return [
       for (final s in _spots)
-        if (!s.createdAt.isBefore(cutoff)) s
+        if (!s.createdAt.isBefore(cutoff)) s,
     ];
   }
 
@@ -122,10 +124,12 @@ class _MistakeInsightScreenState extends State<MistakeInsightScreen> {
                 const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            topTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -134,9 +138,10 @@ class _MistakeInsightScreenState extends State<MistakeInsightScreen> {
                   if (i < 0 || i >= names.length) {
                     return const SizedBox.shrink();
                   }
-                  return Text(names[i],
-                      style:
-                          const TextStyle(color: Colors.white, fontSize: 10));
+                  return Text(
+                    names[i],
+                    style: const TextStyle(color: Colors.white, fontSize: 10),
+                  );
                 },
               ),
             ),
@@ -188,9 +193,7 @@ class _MistakeInsightScreenState extends State<MistakeInsightScreen> {
     }
     return SizedBox(
       height: 200,
-      child: PieChart(
-        PieChartData(sections: sections),
-      ),
+      child: PieChart(PieChartData(sections: sections)),
     );
   }
 
@@ -210,9 +213,9 @@ class _MistakeInsightScreenState extends State<MistakeInsightScreen> {
             onChanged: (v) => setState(() => _period = v!),
             items: [
               for (final p in _periods)
-                DropdownMenuItem(value: p, child: Text(p))
+                DropdownMenuItem(value: p, child: Text(p)),
             ],
-          )
+          ),
         ],
       ),
       body: _loading
@@ -229,7 +232,8 @@ class _MistakeInsightScreenState extends State<MistakeInsightScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (_) => const MistakeReviewScreen()),
+                        builder: (_) => const MistakeReviewScreen(),
+                      ),
                     );
                   },
                   child: const Text('Начать повторение'),

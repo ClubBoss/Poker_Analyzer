@@ -120,9 +120,7 @@ class _PackLibrarySearchScreenState extends State<PackLibrarySearchScreen> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     return Scaffold(
       appBar: AppBar(title: const Text('Search Library')),
@@ -151,10 +149,7 @@ class _PackLibrarySearchScreenState extends State<PackLibrarySearchScreen> {
                 final tpl = _results[index];
                 return TrainingPackTemplateTooltipWidget(
                   template: tpl,
-                  child: PackCard(
-                    template: tpl,
-                    onTap: () => _open(tpl),
-                  ),
+                  child: PackCard(template: tpl, onTap: () => _open(tpl)),
                 );
               },
             ),

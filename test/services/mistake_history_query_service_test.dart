@@ -29,11 +29,7 @@ void main() {
       'x3': ['TagA'],
     };
 
-    final streets = {
-      's1': 'flop',
-      's2': 'turn',
-      'x3': 'flop',
-    };
+    final streets = {'s1': 'flop', 's2': 'turn', 'x3': 'flop'};
 
     final successes = [
       RecallSuccessEntry(tag: 'TagA', timestamp: DateTime(2023, 1, 4)),

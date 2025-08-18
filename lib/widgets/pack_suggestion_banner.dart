@@ -72,19 +72,25 @@ class _PackSuggestionBannerState extends State<PackSuggestionBanner> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(p.name,
-              style: const TextStyle(color: Colors.white, fontSize: 16)),
+          Text(
+            p.name,
+            style: const TextStyle(color: Colors.white, fontSize: 16),
+          ),
           if (ev != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text('EV: ${ev.toStringAsFixed(0)}',
-                  style: const TextStyle(color: Colors.white70)),
+              child: Text(
+                'EV: ${ev.toStringAsFixed(0)}',
+                style: const TextStyle(color: Colors.white70),
+              ),
             ),
           if (p.audience != null && p.audience!.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(p.audience!,
-                  style: const TextStyle(color: Colors.white70)),
+              child: Text(
+                p.audience!,
+                style: const TextStyle(color: Colors.white70),
+              ),
             ),
           const SizedBox(height: 8),
           Row(

@@ -66,13 +66,13 @@ void main() {
             create: (_) => _FakeNextStepEngine(),
           ),
           ChangeNotifierProvider<SavedHandManagerService>(
-            create: (_) => SavedHandManagerService(
-              storage: SavedHandStorageService(),
-            ),
+            create: (_) =>
+                SavedHandManagerService(storage: SavedHandStorageService()),
           ),
           ChangeNotifierProvider<PlayerStyleService>(
             create: (context) => PlayerStyleService(
-                hands: context.read<SavedHandManagerService>()),
+              hands: context.read<SavedHandManagerService>(),
+            ),
           ),
           ChangeNotifierProvider<ProgressForecastService>(
             create: (context) => ProgressForecastService(
@@ -117,7 +117,11 @@ void main() {
             results: {},
           ),
           template: TrainingPackTemplate(
-              id: 't', name: '', spots: [], createdAt: DateTime(0)),
+            id: 't',
+            name: '',
+            spots: [],
+            createdAt: DateTime(0),
+          ),
           preEvPct: 0,
           preIcmPct: 0,
           xpEarned: 0,
@@ -145,7 +149,11 @@ void main() {
             results: {},
           ),
           template: TrainingPackTemplate(
-              id: 't', name: '', spots: [], createdAt: DateTime(0)),
+            id: 't',
+            name: '',
+            spots: [],
+            createdAt: DateTime(0),
+          ),
           preEvPct: 0,
           preIcmPct: 0,
           xpEarned: 10,
@@ -198,7 +206,11 @@ class _FakeAdaptiveTrainingService extends ChangeNotifier
   @override
   Future<TrainingPackTemplate> buildAdaptivePack() async =>
       TrainingPackTemplate(
-          id: '', name: '', spots: [], createdAt: DateTime.now());
+        id: '',
+        name: '',
+        spots: [],
+        createdAt: DateTime.now(),
+      );
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

@@ -48,11 +48,11 @@ class _DecayAdaptationInsightScreenState
     setState(() => _loading = true);
     final tuner = BoosterAdaptationTuner.instance;
     final adaptations = await tuner.loadAdaptations();
-    final successLogs =
-        await RecallSuccessLoggerService.instance.getSuccesses();
+    final successLogs = await RecallSuccessLoggerService.instance
+        .getSuccesses();
     final tagStats = await const ReviewStreakEvaluatorService().getTagStats();
-    final decayScores =
-        await const DecayTagRetentionTrackerService().getAllDecayScores();
+    final decayScores = await const DecayTagRetentionTrackerService()
+        .getAllDecayScores();
 
     final successMap = <String, int>{};
     for (final e in successLogs) {
@@ -91,14 +91,16 @@ class _DecayAdaptationInsightScreenState
         reason = 'Low recall or long delay';
       }
 
-      list.add(_RowData(
-        tag: tag,
-        adaptation: adaptation,
-        success: successRate,
-        daysSince: daysSince,
-        decay: decay,
-        reason: reason,
-      ));
+      list.add(
+        _RowData(
+          tag: tag,
+          adaptation: adaptation,
+          success: successRate,
+          daysSince: daysSince,
+          decay: decay,
+          reason: reason,
+        ),
+      );
     }
     _sort(list);
     if (!mounted) return;
@@ -133,8 +135,10 @@ class _DecayAdaptationInsightScreenState
         list.sort((a, b) => compare(a.decay, b.decay));
         break;
       default:
-        list.sort((a, b) =>
-            _ascending ? a.tag.compareTo(b.tag) : b.tag.compareTo(a.tag));
+        list.sort(
+          (a, b) =>
+              _ascending ? a.tag.compareTo(b.tag) : b.tag.compareTo(a.tag),
+        );
     }
   }
 
@@ -142,7 +146,7 @@ class _DecayAdaptationInsightScreenState
     final query = _searchController.text.toLowerCase();
     return [
       for (final e in _rows)
-        if (query.isEmpty || e.tag.toLowerCase().contains(query)) e
+        if (query.isEmpty || e.tag.toLowerCase().contains(query)) e,
     ];
   }
 
@@ -177,11 +181,20 @@ class _DecayAdaptationInsightScreenState
         DataColumn(label: const Text('Tag'), onSort: _onSort),
         DataColumn(label: const Text('Adaptation'), onSort: _onSort),
         DataColumn(
-            label: const Text('Success %'), numeric: true, onSort: _onSort),
+          label: const Text('Success %'),
+          numeric: true,
+          onSort: _onSort,
+        ),
         DataColumn(
-            label: const Text('Days since'), numeric: true, onSort: _onSort),
+          label: const Text('Days since'),
+          numeric: true,
+          onSort: _onSort,
+        ),
         DataColumn(
-            label: const Text('Decay %'), numeric: true, onSort: _onSort),
+          label: const Text('Decay %'),
+          numeric: true,
+          onSort: _onSort,
+        ),
         const DataColumn(label: Text('Reason')),
       ],
       rows: [
@@ -207,7 +220,7 @@ class _DecayAdaptationInsightScreenState
       appBar: AppBar(
         title: const Text('Decay Adaptation'),
         actions: [
-          IconButton(onPressed: _load, icon: const Icon(Icons.refresh))
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh)),
         ],
       ),
       body: _loading

@@ -11,8 +11,11 @@ import '../widgets/saved_hand_viewer_dialog.dart';
 class SnapshotDiffScreen extends StatefulWidget {
   final TrainingPack pack;
   final PackSnapshot snapshot;
-  const SnapshotDiffScreen(
-      {super.key, required this.pack, required this.snapshot});
+  const SnapshotDiffScreen({
+    super.key,
+    required this.pack,
+    required this.snapshot,
+  });
 
   @override
   State<SnapshotDiffScreen> createState() => _SnapshotDiffScreenState();
@@ -43,24 +46,26 @@ class _SnapshotDiffScreenState extends State<SnapshotDiffScreen>
     super.initState();
     _pack = widget.pack;
     _compute();
-    SharedPreferences.getInstance().then((p) =>
-        p.setString('pack_editor_last_snapshot_diff', widget.snapshot.id));
+    SharedPreferences.getInstance().then(
+      (p) => p.setString('pack_editor_last_snapshot_diff', widget.snapshot.id),
+    );
   }
 
   void _compute() {
     final pMap = {
-      for (final h in _pack.hands) h.savedAt.millisecondsSinceEpoch: h
+      for (final h in _pack.hands) h.savedAt.millisecondsSinceEpoch: h,
     };
     final sMap = {
-      for (final h in widget.snapshot.hands) h.savedAt.millisecondsSinceEpoch: h
+      for (final h in widget.snapshot.hands)
+        h.savedAt.millisecondsSinceEpoch: h,
     };
     _added = [
       for (final e in sMap.entries)
-        if (!pMap.containsKey(e.key)) e.value
+        if (!pMap.containsKey(e.key)) e.value,
     ];
     _removed = [
       for (final e in pMap.entries)
-        if (!sMap.containsKey(e.key)) e.value
+        if (!sMap.containsKey(e.key)) e.value,
     ];
     _modified = [];
     for (final key in sMap.keys) {
@@ -68,7 +73,8 @@ class _SnapshotDiffScreenState extends State<SnapshotDiffScreen>
         final a = pMap[key]!;
         final b = sMap[key]!;
         final n = a.name != b.name;
-        final t = !Set.from(a.tags).containsAll(b.tags) ||
+        final t =
+            !Set.from(a.tags).containsAll(b.tags) ||
             !Set.from(b.tags).containsAll(a.tags);
         final ac = a.actions.length != b.actions.length;
         if (n || t || ac) _modified.add(_Mod(b, a, n, t, ac));
@@ -104,8 +110,10 @@ class _SnapshotDiffScreenState extends State<SnapshotDiffScreen>
     final undoRem = add;
     final undoMod = [for (final m in mod) m.oldHand];
     setState(() {
-      _pack = service.packs
-          .firstWhere((e) => e.id == _pack.id, orElse: () => _pack);
+      _pack = service.packs.firstWhere(
+        (e) => e.id == _pack.id,
+        orElse: () => _pack,
+      );
       _selAdd.clear();
       _selRem.clear();
       _selMod.clear();
@@ -114,8 +122,9 @@ class _SnapshotDiffScreenState extends State<SnapshotDiffScreen>
     });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content:
-            Text('Restored ${add.length + rem.length + mod.length} changes'),
+        content: Text(
+          'Restored ${add.length + rem.length + mod.length} changes',
+        ),
         action: SnackBarAction(
           label: 'Undo',
           onPressed: () {
@@ -126,8 +135,10 @@ class _SnapshotDiffScreenState extends State<SnapshotDiffScreen>
               modified: undoMod,
             );
             setState(() {
-              _pack = service.packs
-                  .firstWhere((e) => e.id == _pack.id, orElse: () => _pack);
+              _pack = service.packs.firstWhere(
+                (e) => e.id == _pack.id,
+                orElse: () => _pack,
+              );
               _compute();
             });
           },
@@ -148,12 +159,15 @@ class _SnapshotDiffScreenState extends State<SnapshotDiffScreen>
         child: Scaffold(
           appBar: AppBar(
             title: Text(
-                '+${_added.length}  -${_removed.length}  ±${_modified.length}'),
-            bottom: const TabBar(tabs: [
-              Tab(text: 'Added'),
-              Tab(text: 'Removed'),
-              Tab(text: 'Modified'),
-            ]),
+              '+${_added.length}  -${_removed.length}  ±${_modified.length}',
+            ),
+            bottom: const TabBar(
+              tabs: [
+                Tab(text: 'Added'),
+                Tab(text: 'Removed'),
+                Tab(text: 'Modified'),
+              ],
+            ),
             leading: BackButton(
               onPressed: () => Navigator.pop(context, _changed),
             ),
@@ -212,7 +226,8 @@ class _SnapshotDiffScreenState extends State<SnapshotDiffScreen>
                       }),
                       onLongPress: () => _previewHand(m.newHand),
                       title: Text(
-                          m.newHand.name.isEmpty ? 'Untitled' : m.newHand.name),
+                        m.newHand.name.isEmpty ? 'Untitled' : m.newHand.name,
+                      ),
                       subtitle: Text(_sub(m)),
                     ),
                 ],

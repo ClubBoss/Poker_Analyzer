@@ -89,7 +89,7 @@ class _TrainingPackCardState extends State<TrainingPackCard>
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('OK'),
-          )
+          ),
         ],
       ),
     );
@@ -160,7 +160,8 @@ class _TrainingPackCardState extends State<TrainingPackCard>
       setState(() {
         if (ts != null) _completedAt = formatLongDate(ts);
         if (acc != null) _accuracy = acc;
-        _passed = a0 != null &&
+        _passed =
+            a0 != null &&
             a1 != null &&
             a2 != null &&
             a0 >= 80 &&
@@ -187,17 +188,28 @@ class _TrainingPackCardState extends State<TrainingPackCard>
     Color c(double v) => v >= 90
         ? Colors.green
         : v >= 60
-            ? Colors.yellow
-            : Colors.red;
+        ? Colors.yellow
+        : Colors.red;
     return Text.rich(
-      TextSpan(children: [
-        const TextSpan(text: 'EV: '),
-        TextSpan(text: '${ev.round()}%', style: TextStyle(color: c(ev))),
-        const TextSpan(text: ', ICM: '),
-        TextSpan(text: '${icm.round()}%', style: TextStyle(color: c(icm))),
-        const TextSpan(text: ', Acc: '),
-        TextSpan(text: '${acc.round()}%', style: TextStyle(color: c(acc))),
-      ]),
+      TextSpan(
+        children: [
+          const TextSpan(text: 'EV: '),
+          TextSpan(
+            text: '${ev.round()}%',
+            style: TextStyle(color: c(ev)),
+          ),
+          const TextSpan(text: ', ICM: '),
+          TextSpan(
+            text: '${icm.round()}%',
+            style: TextStyle(color: c(icm)),
+          ),
+          const TextSpan(text: ', Acc: '),
+          TextSpan(
+            text: '${acc.round()}%',
+            style: TextStyle(color: c(acc)),
+          ),
+        ],
+      ),
       style: const TextStyle(fontSize: 12, color: Colors.white70),
     );
   }
@@ -250,13 +262,16 @@ class _TrainingPackCardState extends State<TrainingPackCard>
                           padding: const EdgeInsets.only(bottom: 4),
                           child: Chip(
                             label: Text(
-                                widget.template.meta['theme'].toString(),
-                                style: const TextStyle(fontSize: 11)),
+                              widget.template.meta['theme'].toString(),
+                              style: const TextStyle(fontSize: 11),
+                            ),
                             backgroundColor: Colors.blueGrey,
                             materialTapTargetSize:
                                 MaterialTapTargetSize.shrinkWrap,
                             visualDensity: const VisualDensity(
-                                horizontal: -4, vertical: -4),
+                              horizontal: -4,
+                              vertical: -4,
+                            ),
                           ),
                         ),
                       Row(
@@ -283,7 +298,9 @@ class _TrainingPackCardState extends State<TrainingPackCard>
                           child: Text(
                             widget.lockReason!,
                             style: const TextStyle(
-                                color: Colors.redAccent, fontSize: 12),
+                              color: Colors.redAccent,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
                       if (widget.template.description.isNotEmpty)
@@ -299,8 +316,10 @@ class _TrainingPackCardState extends State<TrainingPackCard>
                         curve: Curves.easeInOut,
                         child: widget.template.meta['dynamicParams'] != null
                             ? Padding(
-                                padding:
-                                    const EdgeInsets.only(top: 8, bottom: 4),
+                                padding: const EdgeInsets.only(
+                                  top: 8,
+                                  bottom: 4,
+                                ),
                                 child: TrainingPackPreviewPanel(
                                   tpl: TrainingPackTemplateV2.fromTemplate(
                                     widget.template,
@@ -346,8 +365,9 @@ class _TrainingPackCardState extends State<TrainingPackCard>
                       if (widget.template.coveragePercent != null)
                         Padding(
                           padding: const EdgeInsets.only(top: 4),
-                          child:
-                              CoverageMeter(widget.template.coveragePercent!),
+                          child: CoverageMeter(
+                            widget.template.coveragePercent!,
+                          ),
                         ),
                     ],
                   ),
@@ -442,11 +462,7 @@ class _TrainingPackCardState extends State<TrainingPackCard>
                 ),
               ),
             if (_evPct != null || _icmPct != null || _accPct != null)
-              Positioned(
-                bottom: 4,
-                left: 4,
-                child: _progressLine(),
-              ),
+              Positioned(bottom: 4, left: 4, child: _progressLine()),
             if (_lastAttempt != null ||
                 (widget.dimmed && (_completedAt != null || _accuracy != null)))
               Positioned(
@@ -493,8 +509,11 @@ class _TrainingPackCardState extends State<TrainingPackCard>
                     child: Container(
                       color: Colors.black54,
                       alignment: Alignment.center,
-                      child:
-                          const Icon(Icons.lock, color: Colors.white, size: 40),
+                      child: const Icon(
+                        Icons.lock,
+                        color: Colors.white,
+                        size: 40,
+                      ),
                     ),
                   ),
                 ),

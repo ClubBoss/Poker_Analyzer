@@ -25,10 +25,7 @@ class InlineReportViewerWidget extends StatelessWidget {
   }
 
   Future<String?> _loadYaml(String packId) async {
-    final candidates = [
-      'packs/generated/$packId.yaml',
-      '$packId.yaml',
-    ];
+    final candidates = ['packs/generated/$packId.yaml', '$packId.yaml'];
     for (final path in candidates) {
       final file = File(path);
       if (await file.exists()) {
@@ -75,8 +72,9 @@ class InlineReportViewerWidget extends StatelessWidget {
                 initialData: const [],
                 builder: (context, stepSnap) {
                   final steps = stepSnap.data ?? [];
-                  final errors =
-                      steps.where((e) => e.status == 'error').toList();
+                  final errors = steps
+                      .where((e) => e.status == 'error')
+                      .toList();
 
                   final children = <Widget>[
                     ExpansionTile(

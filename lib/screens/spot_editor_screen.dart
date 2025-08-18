@@ -32,8 +32,9 @@ class _SpotEditorScreenState extends State<SpotEditorScreen> {
     _heroIndex = m?.heroIndex ?? 0;
     if (_heroIndex >= _playerCount) _heroIndex = 0;
     _stack = TextEditingController(
-        text: (m?.stacks.isNotEmpty == true ? m!.stacks[m.heroIndex] : 100)
-            .toString());
+      text: (m?.stacks.isNotEmpty == true ? m!.stacks[m.heroIndex] : 100)
+          .toString(),
+    );
     _cards = m?.heroIndex != null && m!.playerCards.length > m.heroIndex
         ? List<CardModel>.from(m.playerCards[m.heroIndex])
         : <CardModel>[];
@@ -54,7 +55,9 @@ class _SpotEditorScreenState extends State<SpotEditorScreen> {
     _actions.removeWhere((a) => a.playerIndex >= size);
     final spot = TrainingSpot(
       playerCards: List.generate(
-          size, (i) => i == _heroIndex ? List.from(_cards) : <CardModel>[]),
+        size,
+        (i) => i == _heroIndex ? List.from(_cards) : <CardModel>[],
+      ),
       boardCards: const [],
       actions: List.from(_actions),
       heroIndex: _heroIndex,
@@ -83,7 +86,7 @@ class _SpotEditorScreenState extends State<SpotEditorScreen> {
               dropdownColor: const Color(0xFF3A3B3E),
               items: [
                 for (int i = 2; i <= 6; i++)
-                  DropdownMenuItem(value: i, child: Text('$i'))
+                  DropdownMenuItem(value: i, child: Text('$i')),
               ],
               onChanged: (v) {
                 if (v == null) return;
@@ -102,7 +105,7 @@ class _SpotEditorScreenState extends State<SpotEditorScreen> {
               dropdownColor: const Color(0xFF3A3B3E),
               items: [
                 for (int i = 0; i < _positions.length; i++)
-                  DropdownMenuItem(value: i, child: Text(_positions[i]))
+                  DropdownMenuItem(value: i, child: Text(_positions[i])),
               ],
               onChanged: (v) => setState(() => _heroIndex = v ?? 0),
             ),
@@ -114,15 +117,16 @@ class _SpotEditorScreenState extends State<SpotEditorScreen> {
             ),
             const SizedBox(height: 12),
             CardPickerWidget(
-                cards: _cards,
-                onChanged: (i, c) {
-                  if (_cards.length > i) {
-                    _cards[i] = c;
-                  } else {
-                    _cards.add(c);
-                  }
-                  setState(() {});
-                }),
+              cards: _cards,
+              onChanged: (i, c) {
+                if (_cards.length > i) {
+                  _cards[i] = c;
+                } else {
+                  _cards.add(c);
+                }
+                setState(() {});
+              },
+            ),
             const SizedBox(height: 12),
             Expanded(
               child: SingleChildScrollView(
@@ -137,10 +141,7 @@ class _SpotEditorScreenState extends State<SpotEditorScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: _save,
-              child: const Text('Save'),
-            ),
+            ElevatedButton(onPressed: _save, child: const Text('Save')),
           ],
         ),
       ),

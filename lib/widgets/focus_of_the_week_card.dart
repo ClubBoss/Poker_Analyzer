@@ -69,8 +69,10 @@ class FocusOfTheWeekCard extends StatelessWidget {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
-                Text('$pos • $street - $max ошибок',
-                    style: const TextStyle(color: Colors.white)),
+                Text(
+                  '$pos • $street - $max ошибок',
+                  style: const TextStyle(color: Colors.white),
+                ),
               ],
             ),
           ),
@@ -80,10 +82,8 @@ class FocusOfTheWeekCard extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => _FocusMistakeHandsScreen(
-                    position: pos!,
-                    street: street!,
-                  ),
+                  builder: (_) =>
+                      _FocusMistakeHandsScreen(position: pos!, street: street!),
                 ),
               );
             },
@@ -99,15 +99,13 @@ class FocusOfTheWeekCard extends StatelessWidget {
                   if (h.heroPosition == pos! &&
                       streetName(h.boardStreet) == street! &&
                       h.date.isAfter(cutoff))
-                    h
+                    h,
               ];
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => TrainingScreen.drill(
-                    hands: filteredHands,
-                    anteBb: 0,
-                  ),
+                  builder: (_) =>
+                      TrainingScreen.drill(hands: filteredHands, anteBb: 0),
                 ),
               );
             },
@@ -122,8 +120,10 @@ class FocusOfTheWeekCard extends StatelessWidget {
 class _FocusMistakeHandsScreen extends StatelessWidget {
   final String position;
   final String street;
-  const _FocusMistakeHandsScreen(
-      {required this.position, required this.street});
+  const _FocusMistakeHandsScreen({
+    required this.position,
+    required this.street,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +134,7 @@ class _FocusMistakeHandsScreen extends StatelessWidget {
         if (h.heroPosition == position &&
             streetName(h.boardStreet) == street &&
             h.date.isAfter(cutoff))
-          h
+          h,
     ];
     return Scaffold(
       appBar: AppBar(

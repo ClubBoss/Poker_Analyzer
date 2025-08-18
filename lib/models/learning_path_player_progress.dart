@@ -10,8 +10,8 @@ class LearningPathProgress {
     Map<String, StageProgress>? stages,
     this.currentStageId,
     DateTime? updatedAt,
-  })  : stages = stages ?? {},
-        updatedAt = updatedAt ?? DateTime.now();
+  }) : stages = stages ?? {},
+       updatedAt = updatedAt ?? DateTime.now();
 
   LearningPathProgress copyWith({
     Map<String, StageProgress>? stages,
@@ -26,11 +26,11 @@ class LearningPathProgress {
   }
 
   Map<String, dynamic> toJson() => {
-        'stages': stages.map((k, v) => MapEntry(k, v.toJson())),
-        'currentStageId': currentStageId,
-        'updatedAt': updatedAt.toIso8601String(),
-        'version': 1,
-      };
+    'stages': stages.map((k, v) => MapEntry(k, v.toJson())),
+    'currentStageId': currentStageId,
+    'updatedAt': updatedAt.toIso8601String(),
+    'version': 1,
+  };
 
   factory LearningPathProgress.fromJson(Map<String, dynamic> json) {
     final stagesJson = json['stages'] as Map? ?? {};
@@ -41,7 +41,8 @@ class LearningPathProgress {
     return LearningPathProgress(
       stages: stages,
       currentStageId: json['currentStageId'] as String?,
-      updatedAt: DateTime.tryParse(json['updatedAt'] as String? ?? '') ??
+      updatedAt:
+          DateTime.tryParse(json['updatedAt'] as String? ?? '') ??
           DateTime.now(),
     );
   }
@@ -71,11 +72,7 @@ class StageProgress {
     final newHands = handsPlayed + 1;
     final newCorrect = correct ? this.correct + 1 : this.correct;
     final acc = newHands == 0 ? 0.0 : newCorrect / newHands;
-    return copyWith(
-      handsPlayed: newHands,
-      correct: newCorrect,
-      accuracy: acc,
-    );
+    return copyWith(handsPlayed: newHands, correct: newCorrect, accuracy: acc);
   }
 
   StageProgress copyWith({
@@ -99,14 +96,14 @@ class StageProgress {
   }
 
   Map<String, dynamic> toJson() => {
-        'attempts': attempts,
-        'handsPlayed': handsPlayed,
-        'correct': correct,
-        'accuracy': accuracy,
-        'completed': completed,
-        'startedAt': startedAt?.toIso8601String(),
-        'completedAt': completedAt?.toIso8601String(),
-      };
+    'attempts': attempts,
+    'handsPlayed': handsPlayed,
+    'correct': correct,
+    'accuracy': accuracy,
+    'completed': completed,
+    'startedAt': startedAt?.toIso8601String(),
+    'completedAt': completedAt?.toIso8601String(),
+  };
 
   factory StageProgress.fromJson(Map<String, dynamic> json) {
     return StageProgress(

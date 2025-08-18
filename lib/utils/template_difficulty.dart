@@ -9,7 +9,8 @@ extension TemplateDifficulty on Object {
     }
     if (this is legacy.TrainingPackTemplate) {
       return int.tryParse(
-              (this as legacy.TrainingPackTemplate).difficulty ?? '') ??
+            (this as legacy.TrainingPackTemplate).difficulty ?? '',
+          ) ??
           0;
     }
     if (this is v2.TrainingPackTemplateV2) {

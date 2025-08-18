@@ -8,9 +8,7 @@ enum CompletionStatus { notStarted, inProgress, completed }
 class TheoryPathCompletionEvaluatorService {
   final UserProgressService userProgress;
 
-  const TheoryPathCompletionEvaluatorService({
-    required this.userProgress,
-  });
+  const TheoryPathCompletionEvaluatorService({required this.userProgress});
 
   /// Returns true if all lessons and packs in [block] are completed.
   Future<bool> isBlockCompleted(TheoryBlockModel block) async {

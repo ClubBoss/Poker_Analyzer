@@ -18,10 +18,12 @@ class StreakTrendChart extends StatelessWidget {
     }
     final spots = <FlSpot>[
       for (var i = 0; i < data.length; i++)
-        FlSpot(i.toDouble(), data[i].value.toDouble())
+        FlSpot(i.toDouble(), data[i].value.toDouble()),
     ];
-    final maxY =
-        data.map((e) => e.value).reduce((a, b) => a > b ? a : b).toDouble();
+    final maxY = data
+        .map((e) => e.value)
+        .reduce((a, b) => a > b ? a : b)
+        .toDouble();
     final interval = maxY <= 5 ? 1.0 : (maxY / 5).ceilToDouble();
     final step = (data.length / 6).ceil();
     return Container(
@@ -43,10 +45,12 @@ class StreakTrendChart extends StatelessWidget {
                 const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,

@@ -35,14 +35,15 @@ class DailyFocusRecapCard extends StatelessWidget {
                   final tpl = await service.recommendedPack();
                   await service.markShown();
                   if (tpl == null || !context.mounted) return;
-                  await context
-                      .read<TrainingSessionService>()
-                      .startSession(tpl);
+                  await context.read<TrainingSessionService>().startSession(
+                    tpl,
+                  );
                   if (context.mounted) {
                     await Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (_) => const TrainingSessionScreen()),
+                        builder: (_) => const TrainingSessionScreen(),
+                      ),
                     );
                   }
                 },

@@ -54,8 +54,10 @@ class _StarterPathCardState extends State<StarterPathCard> {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
-                const Text('Путь завершен!',
-                    style: TextStyle(color: Colors.white)),
+                const Text(
+                  'Путь завершен!',
+                  style: TextStyle(color: Colors.white),
+                ),
                 const SizedBox(height: 8),
                 Align(
                   alignment: Alignment.centerRight,
@@ -92,8 +94,10 @@ class _StarterPathCardState extends State<StarterPathCard> {
                 style: const TextStyle(color: Colors.white),
               ),
               if (tpl.description.isNotEmpty)
-                Text(tpl.description,
-                    style: const TextStyle(color: Colors.white70)),
+                Text(
+                  tpl.description,
+                  style: const TextStyle(color: Colors.white70),
+                ),
               const SizedBox(height: 8),
               Align(
                 alignment: Alignment.centerRight,
@@ -104,7 +108,9 @@ class _StarterPathCardState extends State<StarterPathCard> {
                       context,
                       MaterialPageRoute(
                         builder: (_) => TrainingPackPlayScreen(
-                            template: tpl, original: tpl),
+                          template: tpl,
+                          original: tpl,
+                        ),
                       ),
                     ).then((_) => setState(() => _future = _load()));
                   },

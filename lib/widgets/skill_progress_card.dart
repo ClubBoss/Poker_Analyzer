@@ -8,8 +8,11 @@ class SkillProgressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final stats =
-        context.watch<TrainingStatsService>().skillStats.values.toList();
+    final stats = context
+        .watch<TrainingStatsService>()
+        .skillStats
+        .values
+        .toList();
     if (stats.isEmpty) return const SizedBox.shrink();
     stats.sort((a, b) => b.evAvg.compareTo(a.evAvg));
     final top = stats.take(3).toList();
@@ -58,16 +61,20 @@ class SkillProgressCard extends StatelessWidget {
             children: [
               Icon(Icons.assessment, color: Colors.lightBlueAccent),
               SizedBox(width: 8),
-              Text('Skill Progress',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(
+                'Skill Progress',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
             ],
           ),
           const SizedBox(height: 8),
           for (final s in top) row(s),
           if (weak.isNotEmpty) ...[
             const SizedBox(height: 8),
-            const Text('Weakest',
-                style: TextStyle(color: Colors.white70, fontSize: 14)),
+            const Text(
+              'Weakest',
+              style: TextStyle(color: Colors.white70, fontSize: 14),
+            ),
             const SizedBox(height: 4),
             for (final s in weak) row(s),
           ],

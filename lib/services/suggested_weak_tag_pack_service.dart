@@ -10,8 +10,10 @@ import 'suggested_training_packs_history_service.dart';
 class SuggestedWeakTagPackResult {
   final TrainingPackTemplateV2? pack;
   final bool isFallback;
-  const SuggestedWeakTagPackResult(
-      {required this.pack, required this.isFallback});
+  const SuggestedWeakTagPackResult({
+    required this.pack,
+    required this.isFallback,
+  });
 }
 
 class SuggestedWeakTagPackService {
@@ -20,8 +22,8 @@ class SuggestedWeakTagPackService {
   const SuggestedWeakTagPackService({
     List<TrainingPackTemplateV2>? library,
     Future<List<TagPerformance>> Function()? detectWeakTags,
-  })  : _libraryOverride = library,
-        _detectWeakTags = detectWeakTags;
+  }) : _libraryOverride = library,
+       _detectWeakTags = detectWeakTags;
 
   Future<SuggestedWeakTagPackResult> suggestPack() async {
     final weak = _detectWeakTags != null
@@ -48,7 +50,8 @@ class SuggestedWeakTagPackService {
   }
 
   Future<TrainingPackTemplateV2?> _findFallback(
-      List<TrainingPackTemplateV2> library) async {
+    List<TrainingPackTemplateV2> library,
+  ) async {
     for (final p in library) {
       if (p.tags.contains('fundamentals') &&
           !await SuggestionCooldownManager.isUnderCooldown(p.id)) {
@@ -69,7 +72,8 @@ class SuggestedWeakTagPackService {
         return p;
       }
     }
-    final sorted = [...library]..sort((a, b) {
+    final sorted = [...library]
+      ..sort((a, b) {
         final pa = (a.meta['popularity'] as num?)?.toDouble() ?? 0;
         final pb = (b.meta['popularity'] as num?)?.toDouble() ?? 0;
         return pb.compareTo(pa);

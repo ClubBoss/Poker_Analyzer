@@ -40,9 +40,10 @@ class _LossFadeWidgetState extends State<LossFadeWidget>
       vsync: this,
       duration: const Duration(seconds: 1),
     );
-    _opacity = Tween(begin: 1.0, end: 0.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _opacity = Tween(
+      begin: 1.0,
+      end: 0.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         widget.onCompleted?.call();
@@ -70,7 +71,7 @@ class _LossFadeWidgetState extends State<LossFadeWidget>
             color: Colors.black.withValues(alpha: 0.25),
             blurRadius: 3 * widget.scale,
             offset: const Offset(1, 2),
-          )
+          ),
         ],
       ),
       alignment: Alignment.center,
@@ -108,9 +109,11 @@ class _LossFadeWidgetState extends State<LossFadeWidget>
                 scale: widget.scale * 0.9,
               ),
             ),
-            for (int i = 0;
-                i < widget.cardPositions.length && i < widget.cards.length;
-                i++)
+            for (
+              int i = 0;
+              i < widget.cardPositions.length && i < widget.cards.length;
+              i++
+            )
               Positioned(
                 left: widget.cardPositions[i].dx - 18 * widget.scale,
                 top: widget.cardPositions[i].dy - 26 * widget.scale,

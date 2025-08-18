@@ -7,11 +7,7 @@ class DecayHeatmapUISurface extends StatelessWidget {
   final List<DecayHeatmapEntry> data;
   final void Function(String tag)? onTap;
 
-  const DecayHeatmapUISurface({
-    super.key,
-    required this.data,
-    this.onTap,
-  });
+  const DecayHeatmapUISurface({super.key, required this.data, this.onTap});
 
   Color _colorForLevel(DecayLevel level) {
     switch (level) {
@@ -52,13 +48,17 @@ class DecayHeatmapUISurface extends StatelessWidget {
                     child: Chip(
                       label: Text(
                         e.tag,
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 11),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                        ),
                       ),
                       backgroundColor: _colorForLevel(e.level),
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      visualDensity:
-                          const VisualDensity(horizontal: -4, vertical: -4),
+                      visualDensity: const VisualDensity(
+                        horizontal: -4,
+                        vertical: -4,
+                      ),
                     ),
                   ),
                 ),

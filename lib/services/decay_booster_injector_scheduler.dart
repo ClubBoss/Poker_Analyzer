@@ -6,7 +6,7 @@ import 'decay_booster_spot_injector.dart';
 /// Schedules automatic injection of decay booster spots.
 class DecayBoosterInjectorScheduler {
   DecayBoosterInjectorScheduler({DecayBoosterSpotInjector? injector})
-      : injector = injector ?? DecayBoosterSpotInjector.instance;
+    : injector = injector ?? DecayBoosterSpotInjector.instance;
 
   final DecayBoosterSpotInjector injector;
 

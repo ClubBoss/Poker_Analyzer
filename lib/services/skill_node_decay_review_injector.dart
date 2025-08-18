@@ -16,9 +16,9 @@ class SkillNodeDecayReviewInjector {
     DecayTagRetentionTrackerService? retention,
     MiniLessonLibraryService? lessons,
     BoosterLibraryService? boosters,
-  })  : retention = retention ?? const DecayTagRetentionTrackerService(),
-        lessons = lessons ?? MiniLessonLibraryService.instance,
-        boosters = boosters ?? BoosterLibraryService.instance;
+  }) : retention = retention ?? const DecayTagRetentionTrackerService(),
+       lessons = lessons ?? MiniLessonLibraryService.instance,
+       boosters = boosters ?? BoosterLibraryService.instance;
 
   /// Returns review entries for decayed tags tied to [node].
   ///

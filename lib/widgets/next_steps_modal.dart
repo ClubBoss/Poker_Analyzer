@@ -73,10 +73,8 @@ class _NextStepsModalState extends State<NextStepsModal> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (_) => LearningPathScreen(
-          template: path,
-          highlightedStageId: null,
-        ),
+        builder: (_) =>
+            LearningPathScreen(template: path, highlightedStageId: null),
       ),
     );
   }
@@ -84,9 +82,9 @@ class _NextStepsModalState extends State<NextStepsModal> {
   Future<void> _startBooster(TrainingPackTemplate pack) async {
     Navigator.pop(context);
     await context.read<TrainingSessionService>().startSession(
-          pack,
-          persist: false,
-        );
+      pack,
+      persist: false,
+    );
     if (!mounted) return;
     Navigator.pushReplacement(
       context,
@@ -145,12 +143,7 @@ class _NextStepsModalState extends State<NextStepsModal> {
           );
         },
       ),
-      actions: [
-        TextButton(
-          onPressed: _skip,
-          child: const Text('Позже'),
-        ),
-      ],
+      actions: [TextButton(onPressed: _skip, child: const Text('Позже'))],
     );
   }
 }

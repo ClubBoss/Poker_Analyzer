@@ -18,13 +18,16 @@ import 'package:uuid/uuid.dart';
 class SavedHandViewerDialog extends StatelessWidget {
   final SavedHand hand;
   final BuildContext parentContext;
-  const SavedHandViewerDialog(
-      {super.key, required this.hand, required this.parentContext});
+  const SavedHandViewerDialog({
+    super.key,
+    required this.hand,
+    required this.parentContext,
+  });
 
   Map<int, String> _posMap() => {
-        for (int i = 0; i < hand.numberOfPlayers; i++)
-          i: hand.playerPositions[i] ?? 'P${i + 1}'
-      };
+    for (int i = 0; i < hand.numberOfPlayers; i++)
+      i: hand.playerPositions[i] ?? 'P${i + 1}',
+  };
 
   List<ActionEntry> _actions() => List<ActionEntry>.from(hand.actions);
 
@@ -57,11 +60,11 @@ class SavedHandViewerDialog extends StatelessWidget {
         .join(' ');
     final actions = <ActionEntry>[
       for (final a in hand.actions)
-        if (a.street == 0) a
+        if (a.street == 0) a,
     ];
     final stacks = <String, double>{
       for (int i = 0; i < hand.numberOfPlayers; i++)
-        '$i': (hand.stackSizes[i] ?? 0).toDouble()
+        '$i': (hand.stackSizes[i] ?? 0).toDouble(),
     };
     return TrainingPackSpot(
       id: const Uuid().v4(),
@@ -97,9 +100,9 @@ class SavedHandViewerDialog extends StatelessWidget {
     final spot = _spotFromHand(hand);
     selected.spots.add(spot);
     await TrainingPackStorage.save(templates);
-    ScaffoldMessenger.of(parentContext).showSnackBar(
-      SnackBar(content: Text('Spot added to ${selected.name}')),
-    );
+    ScaffoldMessenger.of(
+      parentContext,
+    ).showSnackBar(SnackBar(content: Text('Spot added to ${selected.name}')));
   }
 
   Widget _evCard() {
@@ -108,16 +111,20 @@ class SavedHandViewerDialog extends StatelessWidget {
     if (ev == null && icm == null) return const SizedBox.shrink();
     final rows = <Widget>[];
     if (ev != null) {
-      rows.add(Text(
-        'EV: ${ev >= 0 ? '+' : ''}${ev.toStringAsFixed(1)} BB',
-        style: const TextStyle(color: Colors.white),
-      ));
+      rows.add(
+        Text(
+          'EV: ${ev >= 0 ? '+' : ''}${ev.toStringAsFixed(1)} BB',
+          style: const TextStyle(color: Colors.white),
+        ),
+      );
     }
     if (icm != null) {
-      rows.add(Text(
-        'ICM EV: ${icm >= 0 ? '+' : ''}${icm.toStringAsFixed(3)}',
-        style: const TextStyle(color: Colors.white70),
-      ));
+      rows.add(
+        Text(
+          'ICM EV: ${icm >= 0 ? '+' : ''}${icm.toStringAsFixed(3)}',
+          style: const TextStyle(color: Colors.white70),
+        ),
+      );
     }
     return Container(
       margin: const EdgeInsets.only(top: 8),
@@ -126,8 +133,10 @@ class SavedHandViewerDialog extends StatelessWidget {
         color: Colors.grey.shade800,
         borderRadius: BorderRadius.circular(8),
       ),
-      child:
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: rows),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: rows,
+      ),
     );
   }
 
@@ -144,8 +153,10 @@ class SavedHandViewerDialog extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Рекомендуемые паки:',
-              style: TextStyle(color: Colors.white)),
+          const Text(
+            'Рекомендуемые паки:',
+            style: TextStyle(color: Colors.white),
+          ),
           const SizedBox(height: 4),
           for (final p in list)
             Text(p.name, style: const TextStyle(color: Colors.white70)),
@@ -167,7 +178,9 @@ class SavedHandViewerDialog extends StatelessWidget {
             tooltip: 'Add to Pack',
           ),
           IconButton(
-              onPressed: () => _edit(context), icon: const Icon(Icons.edit)),
+            onPressed: () => _edit(context),
+            icon: const Icon(Icons.edit),
+          ),
         ],
       ),
       content: SingleChildScrollView(
@@ -183,7 +196,9 @@ class SavedHandViewerDialog extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             ActionHistoryWidget(
-                actions: _actions(), playerPositions: _posMap()),
+              actions: _actions(),
+              playerPositions: _posMap(),
+            ),
             _evCard(),
             _recCard(context),
           ],

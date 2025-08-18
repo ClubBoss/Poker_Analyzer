@@ -24,10 +24,7 @@ class InlineTheoryLinkerWidget extends StatelessWidget {
         dense: true,
         leading: const Icon(Icons.school),
         title: Text('Review Theory: ${link.title}'),
-        trailing: TextButton(
-          onPressed: link.onTap,
-          child: const Text('Open'),
-        ),
+        trailing: TextButton(onPressed: link.onTap, child: const Text('Open')),
       ),
     );
   }

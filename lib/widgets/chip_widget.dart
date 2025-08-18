@@ -59,7 +59,7 @@ class ChipWidget extends StatelessWidget {
                         color: Colors.black.withValues(alpha: 0.6),
                         blurRadius: 3 * scale,
                         offset: const Offset(1, 2),
-                      )
+                      ),
                     ],
                   ),
                   child: i == chipCount - 1

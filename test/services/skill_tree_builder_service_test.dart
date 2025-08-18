@@ -11,13 +11,12 @@ void main() {
     String id, {
     List<String>? prereqs,
     String category = 'Push/Fold',
-  }) =>
-      SkillTreeNodeModel(
-        id: id,
-        title: id,
-        category: category,
-        prerequisites: prereqs,
-      );
+  }) => SkillTreeNodeModel(
+    id: id,
+    title: id,
+    category: category,
+    prerequisites: prereqs,
+  );
 
   test('builds tree with roots, children and ancestors', () {
     final nodes = [

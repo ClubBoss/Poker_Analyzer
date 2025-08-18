@@ -79,7 +79,9 @@ class _StreakMilestoneCelebrationOverlayState
 
 /// Display [StreakMilestoneCelebrationOverlay] above current screen.
 Future<void> showCelebrationOverlay(
-    BuildContext context, String message) async {
+  BuildContext context,
+  String message,
+) async {
   await showDialog(
     context: context,
     barrierDismissible: false,

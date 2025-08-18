@@ -52,7 +52,8 @@ class _TheoryLessonSearchBarState extends State<TheoryLessonSearchBar> {
     final tags = widget.tagsFilter.map((e) => e.toLowerCase()).toSet();
     final filtered = [
       for (final l in found)
-        if (tags.every((t) => l.tags.map((e) => e.toLowerCase()).contains(t))) l
+        if (tags.every((t) => l.tags.map((e) => e.toLowerCase()).contains(t)))
+          l,
     ];
     setState(() => _results = filtered);
   }

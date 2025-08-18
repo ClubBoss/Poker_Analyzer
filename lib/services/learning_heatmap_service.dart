@@ -13,8 +13,11 @@ class LearningHeatmapService {
       if (completedAt == null) continue;
       final tag = h.goalId.trim().toLowerCase();
       if (tag.isEmpty) continue;
-      final day =
-          DateTime(completedAt.year, completedAt.month, completedAt.day);
+      final day = DateTime(
+        completedAt.year,
+        completedAt.month,
+        completedAt.day,
+      );
       final tagMap = map.putIfAbsent(tag, () => <DateTime, int>{});
       tagMap.update(day, (v) => v + 1, ifAbsent: () => 1);
     }
@@ -23,7 +26,7 @@ class LearningHeatmapService {
     for (final entry in map.entries) {
       final list = [
         for (final e in entry.value.entries)
-          HeatmapEntry(date: e.key, count: e.value)
+          HeatmapEntry(date: e.key, count: e.value),
       ]..sort((a, b) => a.date.compareTo(b.date));
       result[entry.key] = list;
     }

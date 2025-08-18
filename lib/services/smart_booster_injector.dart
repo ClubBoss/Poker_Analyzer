@@ -22,11 +22,11 @@ class SmartBoosterInjector {
     RecapBoosterQueue? recapQueue,
     InboxBoosterTrackerService? inboxTracker,
     GoalQueue? goalQueue,
-  })  : recall = recall ?? const TheoryRecallEvaluator(),
-        allocator = allocator ?? BoosterSlotAllocator.instance,
-        recapQueue = recapQueue ?? RecapBoosterQueue.instance,
-        inboxTracker = inboxTracker ?? InboxBoosterTrackerService.instance,
-        goalQueue = goalQueue ?? GoalQueue.instance;
+  }) : recall = recall ?? const TheoryRecallEvaluator(),
+       allocator = allocator ?? BoosterSlotAllocator.instance,
+       recapQueue = recapQueue ?? RecapBoosterQueue.instance,
+       inboxTracker = inboxTracker ?? InboxBoosterTrackerService.instance,
+       goalQueue = goalQueue ?? GoalQueue.instance;
 
   static final SmartBoosterInjector instance = SmartBoosterInjector();
 

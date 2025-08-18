@@ -28,8 +28,9 @@ class GoalSuggestionRow extends StatelessWidget {
     );
     await engine.addGoal(goal);
     if (context.mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Цель добавлена!')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Цель добавлена!')));
     }
   }
 
@@ -48,8 +49,9 @@ class GoalSuggestionRow extends StatelessWidget {
           final rec = recommendations[index];
           final isDecay = rec.type == GoalRecommendationType.decay;
           final icon = isDecay ? '🧠' : '⚠️';
-          final buttonLabel =
-              isDecay ? 'Восстановить навык' : 'Исправить ошибку';
+          final buttonLabel = isDecay
+              ? 'Восстановить навык'
+              : 'Исправить ошибку';
           return Container(
             width: 200,
             padding: const EdgeInsets.all(12),
@@ -77,10 +79,7 @@ class GoalSuggestionRow extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  rec.reason,
-                  style: const TextStyle(color: Colors.white70),
-                ),
+                Text(rec.reason, style: const TextStyle(color: Colors.white70)),
                 const Spacer(),
                 Align(
                   alignment: Alignment.centerRight,

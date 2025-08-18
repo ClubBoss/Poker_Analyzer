@@ -54,8 +54,10 @@ class _LearningStageTileState extends State<LearningStageTile> {
     setState(() => _loading = true);
     _lastStartedId = null;
     for (final s in widget.stage.subStages) {
-      final prog = await TrainingProgressService.instance
-          .getSubStageProgress(widget.stage.id, s.packId);
+      final prog = await TrainingProgressService.instance.getSubStageProgress(
+        widget.stage.id,
+        s.packId,
+      );
       _progress[s.packId] = prog;
       final stat = await TrainingPackStatsService.getStats(s.packId);
       _accuracy[s.packId] = (stat?.accuracy ?? 0.0) * 100;
@@ -95,8 +97,10 @@ class _LearningStageTileState extends State<LearningStageTile> {
             children: [
               if (stage.description.isNotEmpty)
                 Text(stage.description, style: TextStyle(color: grey)),
-              Text(widget.subtitle,
-                  style: TextStyle(color: grey, fontSize: 12)),
+              Text(
+                widget.subtitle,
+                style: TextStyle(color: grey, fontSize: 12),
+              ),
               if (stage.tags.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
@@ -116,13 +120,13 @@ class _LearningStageTileState extends State<LearningStageTile> {
       final avgProg = _progress.isEmpty
           ? 0.0
           : _progress.values.fold(0.0, (a, b) => a + b) /
-              stage.subStages.length;
+                stage.subStages.length;
       final children = _loading
           ? const [
               Padding(
                 padding: EdgeInsets.all(16),
                 child: CircularProgressIndicator(),
-              )
+              ),
             ]
           : [for (final s in stage.subStages) _buildSubStageTile(s)];
       return Card(
@@ -135,7 +139,9 @@ class _LearningStageTileState extends State<LearningStageTile> {
           },
           title: Row(
             children: [
-              Expanded(child: Text(stage.title, style: TextStyle(color: grey))),
+              Expanded(
+                child: Text(stage.title, style: TextStyle(color: grey)),
+              ),
               SizedBox(
                 width: 80,
                 child: LinearProgressIndicator(value: avgProg),
@@ -155,8 +161,11 @@ class _LearningStageTileState extends State<LearningStageTile> {
     final prog = _progress[sub.packId] ?? 0.0;
     final done = prog >= 1.0;
     final highlight = sub.packId == _lastStartedId;
-    final unlocked =
-        _evaluator.isUnlocked(sub.unlockCondition, _progress, _accuracy);
+    final unlocked = _evaluator.isUnlocked(
+      sub.unlockCondition,
+      _progress,
+      _accuracy,
+    );
     final grey = unlocked ? null : Colors.white60;
     Widget trailing;
     if (!unlocked) {

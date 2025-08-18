@@ -17,8 +17,8 @@ class SavedHandExportService {
   SavedHandExportService({
     required SavedHandManagerService manager,
     required SavedHandStatsService stats,
-  })  : _manager = manager,
-        _stats = stats;
+  }) : _manager = manager,
+       _stats = stats;
 
   final SavedHandManagerService _manager;
   final SavedHandStatsService _stats;
@@ -58,11 +58,7 @@ class SavedHandExportService {
         build: (context) {
           return [
             for (final hand in _hands)
-              ...ExportUtils.handPdfWidgets(
-                hand,
-                regularFont,
-                boldFont,
-              ),
+              ...ExportUtils.handPdfWidgets(hand, regularFont, boldFont),
           ];
         },
       ),
@@ -145,22 +141,33 @@ class SavedHandExportService {
                 final note = notes[id];
 
                 return [
-                  pw.Text('Сессия $id',
-                      style: pw.TextStyle(font: boldFont, fontSize: 20)),
-                  pw.SizedBox(height: 4),
-                  pw.Text('Дата: ${formatDateTime(stats.end)}',
-                      style: pw.TextStyle(font: regularFont)),
-                  pw.Text('Длительность: ${durToStr(stats.duration)}',
-                      style: pw.TextStyle(font: regularFont)),
                   pw.Text(
-                      'Раздач: ${stats.count} • Верно: ${stats.correct} • Ошибки: ${stats.incorrect}',
-                      style: pw.TextStyle(font: regularFont)),
+                    'Сессия $id',
+                    style: pw.TextStyle(font: boldFont, fontSize: 20),
+                  ),
+                  pw.SizedBox(height: 4),
+                  pw.Text(
+                    'Дата: ${formatDateTime(stats.end)}',
+                    style: pw.TextStyle(font: regularFont),
+                  ),
+                  pw.Text(
+                    'Длительность: ${durToStr(stats.duration)}',
+                    style: pw.TextStyle(font: regularFont),
+                  ),
+                  pw.Text(
+                    'Раздач: ${stats.count} • Верно: ${stats.correct} • Ошибки: ${stats.incorrect}',
+                    style: pw.TextStyle(font: regularFont),
+                  ),
                   if (stats.winrate != null)
-                    pw.Text('Winrate: ${stats.winrate!.toStringAsFixed(1)}%',
-                        style: pw.TextStyle(font: regularFont)),
+                    pw.Text(
+                      'Winrate: ${stats.winrate!.toStringAsFixed(1)}%',
+                      style: pw.TextStyle(font: regularFont),
+                    ),
                   if (note != null && note.trim().isNotEmpty)
-                    pw.Text('Заметка: ${note.trim()}',
-                        style: pw.TextStyle(font: regularFont)),
+                    pw.Text(
+                      'Заметка: ${note.trim()}',
+                      style: pw.TextStyle(font: regularFont),
+                    ),
                   pw.SizedBox(height: 8),
                   for (final hand in sessionHands)
                     ...ExportUtils.handPdfWidgets(
@@ -187,7 +194,9 @@ class SavedHandExportService {
   }
 
   Future<String?> exportSessionsMarkdown(
-      List<int> sessionIds, Map<int, String> notes) async {
+    List<int> sessionIds,
+    Map<int, String> notes,
+  ) async {
     if (sessionIds.isEmpty) return null;
 
     String durToStr(Duration d) => formatDuration(d);
@@ -230,7 +239,9 @@ class SavedHandExportService {
   }
 
   Future<String?> exportSessionsPdf(
-      List<int> sessionIds, Map<int, String> notes) async {
+    List<int> sessionIds,
+    Map<int, String> notes,
+  ) async {
     if (sessionIds.isEmpty) return null;
 
     String durToStr(Duration d) => formatDuration(d);
@@ -256,22 +267,33 @@ class SavedHandExportService {
                   final note = notes[id];
 
                   return [
-                    pw.Text('Сессия $id',
-                        style: pw.TextStyle(font: boldFont, fontSize: 20)),
-                    pw.SizedBox(height: 4),
-                    pw.Text('Дата: ${formatDateTime(stats.end)}',
-                        style: pw.TextStyle(font: regularFont)),
-                    pw.Text('Длительность: ${durToStr(stats.duration)}',
-                        style: pw.TextStyle(font: regularFont)),
                     pw.Text(
-                        'Раздач: ${stats.count} • Верно: ${stats.correct} • Ошибки: ${stats.incorrect}',
-                        style: pw.TextStyle(font: regularFont)),
+                      'Сессия $id',
+                      style: pw.TextStyle(font: boldFont, fontSize: 20),
+                    ),
+                    pw.SizedBox(height: 4),
+                    pw.Text(
+                      'Дата: ${formatDateTime(stats.end)}',
+                      style: pw.TextStyle(font: regularFont),
+                    ),
+                    pw.Text(
+                      'Длительность: ${durToStr(stats.duration)}',
+                      style: pw.TextStyle(font: regularFont),
+                    ),
+                    pw.Text(
+                      'Раздач: ${stats.count} • Верно: ${stats.correct} • Ошибки: ${stats.incorrect}',
+                      style: pw.TextStyle(font: regularFont),
+                    ),
                     if (stats.winrate != null)
-                      pw.Text('Winrate: ${stats.winrate!.toStringAsFixed(1)}%',
-                          style: pw.TextStyle(font: regularFont)),
+                      pw.Text(
+                        'Winrate: ${stats.winrate!.toStringAsFixed(1)}%',
+                        style: pw.TextStyle(font: regularFont),
+                      ),
                     if (note != null && note.trim().isNotEmpty)
-                      pw.Text('Заметка: ${note.trim()}',
-                          style: pw.TextStyle(font: regularFont)),
+                      pw.Text(
+                        'Заметка: ${note.trim()}',
+                        style: pw.TextStyle(font: regularFont),
+                      ),
                     pw.SizedBox(height: 8),
                     for (final hand in handsList)
                       ...ExportUtils.handPdfWidgets(
@@ -302,7 +324,7 @@ class SavedHandExportService {
     final grouped = _stats.handsBySession().entries.toList()
       ..sort((a, b) => a.key.compareTo(b.key));
     final rows = <List<dynamic>>[
-      ['Дата', 'Длительность', 'Раздач', 'Верно', 'EV', 'ICM']
+      ['Дата', 'Длительность', 'Раздач', 'Верно', 'EV', 'ICM'],
     ];
 
     for (final entry in grouped) {
@@ -310,18 +332,21 @@ class SavedHandExportService {
         ..sort((a, b) => a.savedAt.compareTo(b.savedAt));
       if (list.isEmpty) continue;
       final stats = _stats.sessionStats(list);
-      rows.add(ExportUtils.csvRow(
-        stats.end,
-        stats.duration,
-        stats.count,
-        stats.correct,
-        stats.evAvg,
-        stats.icmAvg,
-      ));
+      rows.add(
+        ExportUtils.csvRow(
+          stats.end,
+          stats.duration,
+          stats.count,
+          stats.correct,
+          stats.evAvg,
+          stats.icmAvg,
+        ),
+      );
     }
 
-    final csv = const ListToCsvConverter(fieldDelimiter: ';')
-        .convert(rows, eol: '\r\n');
+    final csv = const ListToCsvConverter(
+      fieldDelimiter: ';',
+    ).convert(rows, eol: '\r\n');
     final dir = await getApplicationDocumentsDirectory();
     final file = File('${dir.path}/training_summary.csv');
     await file.writeAsString(csv);
@@ -329,13 +354,15 @@ class SavedHandExportService {
   }
 
   Future<String?> exportSessionsCsv(
-      List<int> sessionIds, Map<int, String> notes) async {
+    List<int> sessionIds,
+    Map<int, String> notes,
+  ) async {
     if (sessionIds.isEmpty) return null;
 
     final grouped = _stats.handsBySession();
     final ids = List<int>.from(sessionIds)..sort();
     final rows = <List<dynamic>>[
-      ['Дата', 'Длительность', 'Раздач', 'Верно', 'EV', 'ICM']
+      ['Дата', 'Длительность', 'Раздач', 'Верно', 'EV', 'ICM'],
     ];
 
     for (final id in ids) {
@@ -344,26 +371,31 @@ class SavedHandExportService {
       final list = List<SavedHand>.from(sessionHands)
         ..sort((a, b) => a.savedAt.compareTo(b.savedAt));
       final stats = _stats.sessionStats(list);
-      rows.add(ExportUtils.csvRow(
-        stats.end,
-        stats.duration,
-        stats.count,
-        stats.correct,
-        stats.evAvg,
-        stats.icmAvg,
-      ));
+      rows.add(
+        ExportUtils.csvRow(
+          stats.end,
+          stats.duration,
+          stats.count,
+          stats.correct,
+          stats.evAvg,
+          stats.icmAvg,
+        ),
+      );
     }
 
-    final csv = const ListToCsvConverter(fieldDelimiter: ';')
-        .convert(rows, eol: '\r\n');
+    final csv = const ListToCsvConverter(
+      fieldDelimiter: ';',
+    ).convert(rows, eol: '\r\n');
     final dir = await getApplicationDocumentsDirectory();
     final file = File('${dir.path}/training_summary_filtered.csv');
     await file.writeAsString(csv);
     return file.path;
   }
 
-  Future<String?> exportSessionHandsMarkdown(int sessionId,
-      {String? note}) async {
+  Future<String?> exportSessionHandsMarkdown(
+    int sessionId, {
+    String? note,
+  }) async {
     final sessionHands = _hands.where((h) => h.sessionId == sessionId).toList();
     if (sessionHands.isEmpty) return null;
     final buffer = StringBuffer();
@@ -398,11 +430,7 @@ class SavedHandExportService {
               pw.SizedBox(height: 12),
             ],
             for (final hand in sessionHands)
-              ...ExportUtils.handPdfWidgets(
-                hand,
-                regularFont,
-                boldFont,
-              )
+              ...ExportUtils.handPdfWidgets(hand, regularFont, boldFont),
           ];
         },
       ),
@@ -448,7 +476,8 @@ class SavedHandExportService {
     final bytes = ZipEncoder().encode(archive);
     final dir = await getApplicationDocumentsDirectory();
     final out = File(
-        '${dir.path}/saved_hands_archive_${DateTime.now().millisecondsSinceEpoch}.zip');
+      '${dir.path}/saved_hands_archive_${DateTime.now().millisecondsSinceEpoch}.zip',
+    );
     await out.writeAsBytes(bytes);
     return out.path;
   }

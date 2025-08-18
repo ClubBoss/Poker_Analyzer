@@ -44,13 +44,14 @@ class _BoosterBulkStatsDashboardState extends State<BoosterBulkStatsDashboard> {
       _quality
         ..clear()
         ..addAll([
-          for (final q in res['packs'] as List) (q[0] as String, q[1] as String)
+          for (final q in res['packs'] as List)
+            (q[0] as String, q[1] as String),
         ]);
       _tags
         ..clear()
         ..addAll([
           for (final t in res['tags'] as List)
-            (t[0] as String, (t[1] as num).toInt())
+            (t[0] as String, (t[1] as num).toInt()),
         ]);
     });
   }
@@ -67,9 +68,8 @@ class _BoosterBulkStatsDashboardState extends State<BoosterBulkStatsDashboard> {
             color: q.$2 == 'fail'
                 ? WidgetStateProperty.all(AppColors.errorBg)
                 : q.$2 == 'warning'
-                    ? WidgetStateProperty.all(
-                        Colors.orange.withValues(alpha: .2))
-                    : null,
+                ? WidgetStateProperty.all(Colors.orange.withValues(alpha: .2))
+                : null,
             cells: [DataCell(Text(q.$1)), DataCell(Text(q.$2))],
           ),
       ],
@@ -96,7 +96,7 @@ class _BoosterBulkStatsDashboardState extends State<BoosterBulkStatsDashboard> {
       appBar: AppBar(
         title: const Text('Booster Bulk Stats'),
         actions: [
-          IconButton(onPressed: _load, icon: const Icon(Icons.refresh))
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh)),
         ],
       ),
       backgroundColor: AppColors.background,
@@ -114,7 +114,8 @@ class _BoosterBulkStatsDashboardState extends State<BoosterBulkStatsDashboard> {
                         Text('Total packs: $_total'),
                         const SizedBox(height: 4),
                         Text(
-                            'Valid: $_valid (${_total == 0 ? 0 : (_valid * 100 / _total).toStringAsFixed(1)}%)'),
+                          'Valid: $_valid (${_total == 0 ? 0 : (_valid * 100 / _total).toStringAsFixed(1)}%)',
+                        ),
                         const SizedBox(height: 4),
                         Text('Invalid: ${_total - _valid}'),
                         const SizedBox(height: 4),
@@ -168,8 +169,9 @@ Future<Map<String, dynamic>> _statsTask(String dir) async {
       evSum += report.evAvg * report.totalSpots;
       evCount += report.totalSpots;
       empty += report.emptyExplanations;
-      duplicates +=
-          report.issues.where((i) => i.startsWith('duplicate_id')).length;
+      duplicates += report.issues
+          .where((i) => i.startsWith('duplicate_id'))
+          .length;
       if (report.issues.contains('duplicate_ids')) {
         if (!report.issues.any((i) => i.startsWith('duplicate_id'))) {
           duplicates++;
@@ -187,7 +189,7 @@ Future<Map<String, dynamic>> _statsTask(String dir) async {
   final tagList = tags.entries.toList()
     ..sort((a, b) => b.value.compareTo(a.value));
   final topTags = [
-    for (final e in tagList.take(10)) [e.key, e.value]
+    for (final e in tagList.take(10)) [e.key, e.value],
   ];
   return {
     'total': total,

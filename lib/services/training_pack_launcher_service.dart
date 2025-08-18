@@ -25,8 +25,9 @@ class TrainingPackLauncherService {
     if (node.dynamicMeta is Map<String, dynamic>) {
       final meta = Map<String, dynamic>.from(node.dynamicMeta!);
       if (meta['dynamicParams'] is Map) {
-        template.meta['dynamicParams'] =
-            Map<String, dynamic>.from(meta['dynamicParams'] as Map);
+        template.meta['dynamicParams'] = Map<String, dynamic>.from(
+          meta['dynamicParams'] as Map,
+        );
       }
     }
 

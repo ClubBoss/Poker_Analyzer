@@ -57,7 +57,7 @@ class _OnlinePluginCatalogScreenState extends State<OnlinePluginCatalogScreen> {
         if (data is List) {
           _plugins = [
             for (final e in data)
-              OnlinePlugin.fromJson(e as Map<String, dynamic>)
+              OnlinePlugin.fromJson(e as Map<String, dynamic>),
           ];
         }
       }
@@ -71,21 +71,25 @@ class _OnlinePluginCatalogScreenState extends State<OnlinePluginCatalogScreen> {
     final manager = PluginManager();
     await PluginLoader().loadAll(registry, manager, context: context);
     if (mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Plugins reloaded')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Plugins reloaded')));
     }
     await _load();
   }
 
   Future<void> _install(OnlinePlugin p) async {
     try {
-      final downloaded =
-          await PluginLoader().downloadFromUrl(p.url, checksum: p.checksum);
+      final downloaded = await PluginLoader().downloadFromUrl(
+        p.url,
+        checksum: p.checksum,
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content:
-                Text(downloaded ? 'Plugin installed' : 'Plugin up to date'),
+            content: Text(
+              downloaded ? 'Plugin installed' : 'Plugin up to date',
+            ),
             action: SnackBarAction(label: 'Reload', onPressed: _reload),
           ),
         );
@@ -93,8 +97,9 @@ class _OnlinePluginCatalogScreenState extends State<OnlinePluginCatalogScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Install failed: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Install failed: $e')));
       }
     }
   }
@@ -111,41 +116,47 @@ class _OnlinePluginCatalogScreenState extends State<OnlinePluginCatalogScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _plugins.isEmpty
-              ? const Center(child: Text('No plugins'))
-              : ListView.separated(
-                  itemCount: _plugins.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1),
-                  itemBuilder: (context, index) {
-                    final plugin = _plugins[index];
-                    final file = p.basename(Uri.parse(plugin.url).path);
-                    final localVersion = _status[file]?['version'] as String?;
-                    final installed = localVersion != null;
-                    final needsUpdate =
-                        installed && localVersion != plugin.version;
-                    final subtitle = <Widget>[Text('v${plugin.version}')];
-                    if (plugin.description != null)
-                      subtitle.add(Text(plugin.description!));
-                    if (needsUpdate)
-                      subtitle.add(Text('Installed v$localVersion',
-                          style: const TextStyle(color: Colors.red)));
-                    return ListTile(
-                      title: Text(plugin.name),
-                      subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: subtitle),
-                      trailing: TextButton(
-                        onPressed: installed && !needsUpdate
-                            ? null
-                            : () => _install(plugin),
-                        child: Text(needsUpdate
-                            ? 'Update'
-                            : installed
-                                ? 'Installed'
-                                : 'Install'),
-                      ),
-                    );
-                  },
-                ),
+          ? const Center(child: Text('No plugins'))
+          : ListView.separated(
+              itemCount: _plugins.length,
+              separatorBuilder: (_, __) => const Divider(height: 1),
+              itemBuilder: (context, index) {
+                final plugin = _plugins[index];
+                final file = p.basename(Uri.parse(plugin.url).path);
+                final localVersion = _status[file]?['version'] as String?;
+                final installed = localVersion != null;
+                final needsUpdate = installed && localVersion != plugin.version;
+                final subtitle = <Widget>[Text('v${plugin.version}')];
+                if (plugin.description != null)
+                  subtitle.add(Text(plugin.description!));
+                if (needsUpdate)
+                  subtitle.add(
+                    Text(
+                      'Installed v$localVersion',
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  );
+                return ListTile(
+                  title: Text(plugin.name),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: subtitle,
+                  ),
+                  trailing: TextButton(
+                    onPressed: installed && !needsUpdate
+                        ? null
+                        : () => _install(plugin),
+                    child: Text(
+                      needsUpdate
+                          ? 'Update'
+                          : installed
+                          ? 'Installed'
+                          : 'Install',
+                    ),
+                  ),
+                );
+              },
+            ),
     );
   }
 }

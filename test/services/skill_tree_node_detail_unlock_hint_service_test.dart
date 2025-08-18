@@ -7,18 +7,19 @@ import 'package:poker_analyzer/services/skill_tree_node_detail_unlock_hint_servi
 void main() {
   const builder = SkillTreeBuilderService();
 
-  SkillTreeNodeModel node(String id,
-          {List<String>? prerequisites,
-          List<String>? unlocks,
-          int level = 0}) =>
-      SkillTreeNodeModel(
-        id: id,
-        title: id,
-        category: 'cat',
-        prerequisites: prerequisites,
-        unlockedNodeIds: unlocks,
-        level: level,
-      );
+  SkillTreeNodeModel node(
+    String id, {
+    List<String>? prerequisites,
+    List<String>? unlocks,
+    int level = 0,
+  }) => SkillTreeNodeModel(
+    id: id,
+    title: id,
+    category: 'cat',
+    prerequisites: prerequisites,
+    unlockedNodeIds: unlocks,
+    level: level,
+  );
 
   SkillTree buildTree(List<SkillTreeNodeModel> nodes) =>
       builder.build(nodes).tree;

@@ -24,11 +24,7 @@ class BetDisplayWidget extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        ChipStackWidget(
-          amount: amount,
-          color: color,
-          scale: scale,
-        ),
+        ChipStackWidget(amount: amount, color: color, scale: scale),
         SizedBox(height: 2 * scale),
         Text(
           '+$amount',

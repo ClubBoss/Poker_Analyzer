@@ -21,8 +21,9 @@ class BoosterRecommendationResult {
 class TheoryBoosterRecommender {
   final BoosterLibraryService library;
 
-  const TheoryBoosterRecommender(
-      {this.library = BoosterLibraryService.instance});
+  const TheoryBoosterRecommender({
+    this.library = BoosterLibraryService.instance,
+  });
 
   Future<BoosterRecommendationResult?> recommend(
     TheoryMiniLessonNode lesson, {
@@ -33,8 +34,9 @@ class TheoryBoosterRecommender {
       ..removeWhere((t) => t.isEmpty);
     if (tags.isEmpty) return null;
 
-    recentMistakes ??=
-        await MistakeTagHistoryService.getRecentHistory(limit: 50);
+    recentMistakes ??= await MistakeTagHistoryService.getRecentHistory(
+      limit: 50,
+    );
 
     final tagImpact = <String, double>{};
     for (final entry in recentMistakes) {

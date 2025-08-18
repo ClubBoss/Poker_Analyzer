@@ -36,7 +36,7 @@ class PackImportService {
         stackList = [v, v];
       } else {
         stackList = [
-          for (final s in stacksStr.split('/')) _parseDouble(s) ?? 0
+          for (final s in stacksStr.split('/')) _parseDouble(s) ?? 0,
         ];
       }
       final heroIndex = int.tryParse(_cell(row, idx['HeroIndex'])) ?? 0;
@@ -53,8 +53,8 @@ class PackImportService {
               amount: stackList[heroIndex].toDouble(),
               ev: i == heroIndex ? ev : null,
               icmEv: i == heroIndex ? icmEv : null,
-            )
-        ]
+            ),
+        ],
       };
       final callsMask = _cell(row, idx['CallsMask']);
       if (callsMask.isNotEmpty) {
@@ -74,7 +74,7 @@ class PackImportService {
         }
       }
       final stacks = {
-        for (var i = 0; i < stackList.length; i++) '$i': stackList[i]
+        for (var i = 0; i < stackList.length; i++) '$i': stackList[i],
       };
       spots.add(
         TrainingPackSpot(
@@ -131,7 +131,7 @@ class PackImportService {
     return [
       for (final t in list)
         if (t.trim().isNotEmpty) t.trim(),
-      'imported'
+      'imported',
     ];
   }
 }

@@ -8,8 +8,8 @@ class TrainingProgressTrackerService {
   TrainingProgressTrackerService._({
     TrainingProgressStorageService? storage,
     TrainingProgressNotifier? notifier,
-  })  : _storage = storage ?? const TrainingProgressStorageService(),
-        notifier = notifier ?? TrainingProgressNotifier();
+  }) : _storage = storage ?? const TrainingProgressStorageService(),
+       notifier = notifier ?? TrainingProgressNotifier();
 
   static final instance = TrainingProgressTrackerService._();
 
@@ -39,8 +39,9 @@ class TrainingProgressTrackerService {
       if (acc < requiresAccuracy) return false;
     }
     if (requiresVolume != null) {
-      final completed =
-          await TrainingPackStatsService.getHandsCompleted(packId);
+      final completed = await TrainingPackStatsService.getHandsCompleted(
+        packId,
+      );
       if (completed < requiresVolume) return false;
     }
     return true;

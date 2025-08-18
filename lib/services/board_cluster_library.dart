@@ -12,8 +12,9 @@ class BoardClusterLibrary {
   /// `trap` for paired/monotone boards, `broadway-heavy` for broadway
   /// boards).
   static Set<String> getClusters(List<CardModel> board) {
-    final tags =
-        BoardAnalyzerUtils.tags(board).map((t) => t.toLowerCase()).toSet();
+    final tags = BoardAnalyzerUtils.tags(
+      board,
+    ).map((t) => t.toLowerCase()).toSet();
     final clusters = <String>{...tags};
 
     if (tags.contains('dry')) clusters.add('static');

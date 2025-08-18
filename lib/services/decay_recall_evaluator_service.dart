@@ -63,8 +63,10 @@ class DecayRecallEvaluatorService {
 
   /// Returns a list of tags within [block] that have decayed beyond
   /// [threshold] days since last review or booster completion.
-  Future<List<String>> getDecayedTags(TheoryBlockModel block,
-      {double threshold = 30}) async {
+  Future<List<String>> getDecayedTags(
+    TheoryBlockModel block, {
+    double threshold = 30,
+  }) async {
     final decayed = <String>[];
     for (final raw in block.tags) {
       final tag = raw.trim().toLowerCase();
@@ -79,8 +81,10 @@ class DecayRecallEvaluatorService {
 
   /// Whether [block] contains any tags that have decayed beyond
   /// [threshold] days.
-  Future<bool> hasDecayedTags(TheoryBlockModel block,
-      {double threshold = 30}) async {
+  Future<bool> hasDecayedTags(
+    TheoryBlockModel block, {
+    double threshold = 30,
+  }) async {
     final decayed = await getDecayedTags(block, threshold: threshold);
     return decayed.isNotEmpty;
   }

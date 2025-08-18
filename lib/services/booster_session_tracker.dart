@@ -25,7 +25,7 @@ class BoosterSessionTracker {
       if (data is Map) {
         return {
           for (final e in data.entries)
-            e.key.toString(): (e.value as num?)?.toInt() ?? 0
+            e.key.toString(): (e.value as num?)?.toInt() ?? 0,
         };
       }
     } catch (_) {}

@@ -34,16 +34,18 @@ class GoalSuggestionEngine {
     for (final e in weakEntries.take(3)) {
       final tag = e.key;
       if (!used.add('tag:$tag')) continue;
-      goals.add(UserGoal(
-        id: 'tag_${tag}_${now.millisecondsSinceEpoch}',
-        title: 'Тег $tag: цель 80%',
-        type: 'tag',
-        target: 80,
-        base: (e.value * 100).round(),
-        createdAt: now,
-        tag: tag,
-        targetAccuracy: 80.0,
-      ));
+      goals.add(
+        UserGoal(
+          id: 'tag_${tag}_${now.millisecondsSinceEpoch}',
+          title: 'Тег $tag: цель 80%',
+          type: 'tag',
+          target: 80,
+          base: (e.value * 100).round(),
+          createdAt: now,
+          tag: tag,
+          targetAccuracy: 80.0,
+        ),
+      );
     }
 
     await logs.load();
@@ -60,16 +62,18 @@ class GoalSuggestionEngine {
       if (tpl == null) continue;
       final key = 'pack:${tpl.id}';
       if (!used.add(key)) continue;
-      goals.add(UserGoal(
-        id: 'pack_${tpl.id}_${now.millisecondsSinceEpoch}',
-        title: 'Повтори ${tpl.name}',
-        type: 'pack',
-        target: 80,
-        base: (acc * 100).round(),
-        createdAt: now,
-        tag: tpl.id,
-        targetAccuracy: 80.0,
-      ));
+      goals.add(
+        UserGoal(
+          id: 'pack_${tpl.id}_${now.millisecondsSinceEpoch}',
+          title: 'Повтори ${tpl.name}',
+          type: 'pack',
+          target: 80,
+          base: (acc * 100).round(),
+          createdAt: now,
+          tag: tpl.id,
+          targetAccuracy: 80.0,
+        ),
+      );
     }
 
     _cache = goals.take(5).toList();

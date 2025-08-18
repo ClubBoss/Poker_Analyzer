@@ -21,11 +21,11 @@ class SideQuestModel {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'title': title,
-        'packId': packId,
-        if (type.isNotEmpty) 'type': type,
-      };
+    'id': id,
+    'title': title,
+    'packId': packId,
+    if (type.isNotEmpty) 'type': type,
+  };
 
   factory SideQuestModel.fromYaml(Map yaml) {
     final map = <String, dynamic>{};

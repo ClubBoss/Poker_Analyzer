@@ -38,8 +38,8 @@ class MiniLessonLibraryService {
   /// Suggests the next lesson that has not been completed yet.
   Future<TheoryMiniLessonNode?> getNextLesson() async {
     await loadAll();
-    final completions =
-        await TheoryLessonCompletionLogger.instance.getCompletions();
+    final completions = await TheoryLessonCompletionLogger.instance
+        .getCompletions();
     final completedIds = completions.map((e) => e.lessonId).toSet();
     for (final lesson in _lessons) {
       if (!completedIds.contains(lesson.id)) return lesson;
@@ -65,9 +65,7 @@ class MiniLessonLibraryService {
       try {
         final raw = await rootBundle.loadString(path);
         final map = const YamlReader().read(raw);
-        final node = factory.fromYaml(
-          Map<String, dynamic>.from(map),
-        );
+        final node = factory.fromYaml(Map<String, dynamic>.from(map));
         if (node.id.isEmpty) continue;
         _lessons.add(node);
         _byId[node.id] = node;
@@ -126,8 +124,8 @@ extension MiniLessonLibraryProgress on MiniLessonLibraryService {
 
   Future<int> getCompletedLessonCount() async {
     await loadAll();
-    final completed =
-        await TheoryLessonCompletionLogger.instance.getCompletedLessons();
+    final completed = await TheoryLessonCompletionLogger.instance
+        .getCompletedLessons();
     return completed.keys.where((id) => getById(id) != null).length;
   }
 }

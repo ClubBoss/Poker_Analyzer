@@ -13,13 +13,14 @@ class SmartDecayGoalGenerator {
     DecayTagRetentionTrackerService? retention,
     RecallSuccessLoggerService? logger,
     ReviewStreakEvaluatorService? streak,
-  })  : retention = retention ?? const DecayTagRetentionTrackerService(),
-        logger = logger ?? RecallSuccessLoggerService.instance,
-        streak = streak ?? const ReviewStreakEvaluatorService();
+  }) : retention = retention ?? const DecayTagRetentionTrackerService(),
+       logger = logger ?? RecallSuccessLoggerService.instance,
+       streak = streak ?? const ReviewStreakEvaluatorService();
 
   /// Returns recommended recovery goals for highly decayed tags.
-  Future<List<GoalRecommendation>> recommendDecayRecoveryGoals(
-      {int max = 5}) async {
+  Future<List<GoalRecommendation>> recommendDecayRecoveryGoals({
+    int max = 5,
+  }) async {
     if (max <= 0) return <GoalRecommendation>[];
     final decayScores = await retention.getAllDecayScores();
     final successLogs = await logger.getSuccesses();

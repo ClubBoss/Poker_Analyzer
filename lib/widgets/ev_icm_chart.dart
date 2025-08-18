@@ -18,7 +18,8 @@ class EvIcmChart extends StatelessWidget {
     final cards = h.playerCards[h.heroIndex];
     if (cards.length < 2) return null;
     return handCode(
-        '${cards[0].rank}${cards[0].suit} ${cards[1].rank}${cards[1].suit}');
+      '${cards[0].rank}${cards[0].suit} ${cards[1].rank}${cards[1].suit}',
+    );
   }
 
   double? _ev(SavedHand h) {
@@ -48,7 +49,7 @@ class EvIcmChart extends StatelessWidget {
       final code = _handCode(h);
       if (code != null && ev != null) {
         final stacks = [
-          for (int i = 0; i < h.numberOfPlayers; i++) h.stackSizes[i] ?? 0
+          for (int i = 0; i < h.numberOfPlayers; i++) h.stackSizes[i] ?? 0,
         ];
         icm = computeIcmPushEV(
           chipStacksBb: stacks,
@@ -105,10 +106,12 @@ class EvIcmChart extends StatelessWidget {
                 const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,

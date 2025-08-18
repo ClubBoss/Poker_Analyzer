@@ -27,8 +27,9 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
   int _totalAnswered = 0;
 
   Future<void> _saveResult() async {
-    final accuracy =
-        _totalAnswered > 0 ? _correctCount * 100 / _totalAnswered : 0.0;
+    final accuracy = _totalAnswered > 0
+        ? _correctCount * 100 / _totalAnswered
+        : 0.0;
     final result = TrainingResult(
       date: DateTime.now(),
       total: _totalAnswered,
@@ -68,13 +69,14 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
 
     Widget body;
     if (completed) {
-      final accuracy =
-          _totalAnswered > 0 ? _correctCount * 100 / _totalAnswered : 0.0;
+      final accuracy = _totalAnswered > 0
+          ? _correctCount * 100 / _totalAnswered
+          : 0.0;
       final message = _correctCount == _totalAnswered
           ? 'Perfect!'
           : accuracy >= 80
-              ? 'Great effort!'
-              : 'Keep training!';
+          ? 'Great effort!'
+          : 'Keep training!';
 
       body = Column(
         children: [
@@ -147,9 +149,13 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
                     DropdownMenuItem(value: 'Fold', child: Text('Fold')),
                     DropdownMenuItem(value: 'Call', child: Text('Call')),
                     DropdownMenuItem(
-                        value: 'Raise small', child: Text('Raise small')),
+                      value: 'Raise small',
+                      child: Text('Raise small'),
+                    ),
                     DropdownMenuItem(
-                        value: 'Raise big', child: Text('Raise big')),
+                      value: 'Raise big',
+                      child: Text('Raise big'),
+                    ),
                     DropdownMenuItem(value: 'All-in', child: Text('All-in')),
                   ],
                   onChanged: (value) {
@@ -193,10 +199,7 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
                       },
                 child: Text(_showCorrect ? 'Hide' : 'Show Correct Action'),
               ),
-              ElevatedButton(
-                onPressed: _next,
-                child: const Text('Next'),
-              ),
+              ElevatedButton(onPressed: _next, child: const Text('Next')),
             ],
           ),
           const SizedBox(height: 8),
@@ -216,10 +219,7 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
         actions: [SyncStatusIcon.of(context)],
       ),
       backgroundColor: AppColors.background,
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: body,
-      ),
+      body: Padding(padding: const EdgeInsets.all(16), child: body),
     );
   }
 }

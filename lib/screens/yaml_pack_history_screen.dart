@@ -69,8 +69,9 @@ class _YamlPackHistoryScreenState extends State<YamlPackHistoryScreen> {
       final yaml = await file.readAsString();
       y = yaml;
       final map = const YamlReader().read(yaml);
-      final tpl =
-          TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+      final tpl = TrainingPackTemplateV2.fromJson(
+        Map<String, dynamic>.from(map),
+      );
       md = const YamlPackMarkdownPreviewService().generateMarkdownPreview(tpl);
     } catch (_) {}
     if (!mounted) return;
@@ -126,7 +127,9 @@ class _YamlPackHistoryScreenState extends State<YamlPackHistoryScreen> {
     if (a == null || b == null || !mounted) return;
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => YamlPackDiffScreen(packA: a, packB: b)),
+      MaterialPageRoute(
+        builder: (_) => YamlPackDiffScreen(packA: a, packB: b),
+      ),
     );
   }
 
@@ -143,7 +146,9 @@ class _YamlPackHistoryScreenState extends State<YamlPackHistoryScreen> {
       appBar: AppBar(
         leading: _selectionMode
             ? IconButton(
-                icon: const Icon(Icons.close), onPressed: _clearSelection)
+                icon: const Icon(Icons.close),
+                onPressed: _clearSelection,
+              )
             : null,
         title: _selectionMode
             ? Text('${_selectedIndices.length}')
@@ -162,8 +167,9 @@ class _YamlPackHistoryScreenState extends State<YamlPackHistoryScreen> {
                   itemBuilder: (_, i) {
                     final f = _files[i];
                     final name = f.path.split(Platform.pathSeparator).last;
-                    final date = DateFormat('yyyy-MM-dd HH:mm')
-                        .format(f.statSync().modified);
+                    final date = DateFormat(
+                      'yyyy-MM-dd HH:mm',
+                    ).format(f.statSync().modified);
                     final selected = _selectedIndices.contains(i);
                     return SelectableListItem(
                       selectionMode: _selectionMode,
@@ -186,20 +192,20 @@ class _YamlPackHistoryScreenState extends State<YamlPackHistoryScreen> {
                   child: _preview == -1
                       ? const Text('Нет файла')
                       : _markdown != null
-                          ? SingleChildScrollView(
-                              controller: _ctrl,
-                              child: SelectableText(
-                                _markdown!,
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                            )
-                          : SingleChildScrollView(
-                              controller: _ctrl,
-                              child: SelectableText(
-                                _yaml ?? '',
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                            ),
+                      ? SingleChildScrollView(
+                          controller: _ctrl,
+                          child: SelectableText(
+                            _markdown!,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        )
+                      : SingleChildScrollView(
+                          controller: _ctrl,
+                          child: SelectableText(
+                            _yaml ?? '',
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
                 );
                 if (c.maxWidth > 600) {
                   return Row(

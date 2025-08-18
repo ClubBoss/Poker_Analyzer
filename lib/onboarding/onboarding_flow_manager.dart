@@ -110,9 +110,11 @@ class _CongratsStep implements OnboardingStep {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Поздравляем!'),
-        content: Text(showRepeat
-            ? 'Вы завершили первую тренировку. Хотите закрепить материал?'
-            : 'Вы завершили первую тренировку'),
+        content: Text(
+          showRepeat
+              ? 'Вы завершили первую тренировку. Хотите закрепить материал?'
+              : 'Вы завершили первую тренировку',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -128,8 +130,10 @@ class _MistakeRepeatStep implements OnboardingStep {
   @override
   Future<void> run(BuildContext context, OnboardingFlowManager manager) async {
     final templates = context.read<TemplateStorageService>();
-    final spots = await SmartReviewService.instance
-        .getMistakeSpots(templates, context: context);
+    final spots = await SmartReviewService.instance.getMistakeSpots(
+      templates,
+      context: context,
+    );
     if (spots.isEmpty) return;
     await Navigator.push(
       context,

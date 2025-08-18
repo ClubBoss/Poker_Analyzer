@@ -33,10 +33,7 @@ class SessionFilterBar extends StatelessWidget {
             style: const TextStyle(color: Colors.white),
             onChanged: onFilterChanged,
             items: [
-              const DropdownMenuItem(
-                value: 'all',
-                child: Text('Все сессии'),
-              ),
+              const DropdownMenuItem(value: 'all', child: Text('Все сессии')),
               const DropdownMenuItem(
                 value: 'success',
                 child: Text('Только успешные (>70%)'),
@@ -50,16 +47,13 @@ class SessionFilterBar extends StatelessWidget {
                   DropdownMenuItem(
                     value: 'pack:$name',
                     child: Text('Пакет: $name'),
-                  )
+                  ),
               ],
             ],
           ),
         ),
         const SizedBox(width: 8),
-        OutlinedButton(
-          onPressed: onPickDateRange,
-          child: Text(dateFilterText),
-        ),
+        OutlinedButton(onPressed: onPickDateRange, child: Text(dateFilterText)),
         const SizedBox(width: 8),
         const Text('Сортировка:', style: TextStyle(color: Colors.white)),
         const SizedBox(width: 8),
@@ -91,7 +85,7 @@ class SessionFilterBar extends StatelessWidget {
           onPressed: onReset,
           icon: const Icon(Icons.clear),
           tooltip: 'Сбросить',
-        )
+        ),
       ],
     );
   }

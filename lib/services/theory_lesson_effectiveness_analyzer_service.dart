@@ -35,9 +35,11 @@ class TheoryLessonEffectivenessAnalyzerService {
       try {
         final data = jsonDecode(raw);
         if (data is List) {
-          _sessions.addAll(data.whereType<Map>().map((e) {
-            return _ReviewSession.fromJson(Map<String, dynamic>.from(e));
-          }));
+          _sessions.addAll(
+            data.whereType<Map>().map((e) {
+              return _ReviewSession.fromJson(Map<String, dynamic>.from(e));
+            }),
+          );
         }
       } catch (_) {}
     }
@@ -55,8 +57,11 @@ class TheoryLessonEffectivenessAnalyzerService {
   /// Records a theory review for [tag] and [lessonId].
   ///
   /// The [time] parameter allows tests to control the timestamp.
-  Future<void> recordReview(String tag, String lessonId,
-      {DateTime? time}) async {
+  Future<void> recordReview(
+    String tag,
+    String lessonId, {
+    DateTime? time,
+  }) async {
     final normTag = tag.trim().toLowerCase();
     if (normTag.isEmpty) return;
     final reviewTime = time ?? DateTime.now();
@@ -109,8 +114,9 @@ class TheoryLessonEffectivenessAnalyzerService {
 
   /// Returns lessons sorted by average recall gain, requiring at least
   /// [minSessions] recorded reviews per lesson.
-  Future<Map<String, double>> getTopEffectiveLessons(
-      {int minSessions = 3}) async {
+  Future<Map<String, double>> getTopEffectiveLessons({
+    int minSessions = 3,
+  }) async {
     await _load();
     if (_sessions.isEmpty) return <String, double>{};
 
@@ -164,17 +170,16 @@ class _ReviewSession {
   });
 
   Map<String, dynamic> toJson() => {
-        'tag': tag,
-        'lessonId': lessonId,
-        'time': time.toIso8601String(),
-        'pre': preDecay,
-      };
+    'tag': tag,
+    'lessonId': lessonId,
+    'time': time.toIso8601String(),
+    'pre': preDecay,
+  };
 
   factory _ReviewSession.fromJson(Map<String, dynamic> json) => _ReviewSession(
-        tag: json['tag'] as String? ?? '',
-        lessonId: json['lessonId'] as String? ?? '',
-        time:
-            DateTime.tryParse(json['time'] as String? ?? '') ?? DateTime.now(),
-        preDecay: (json['pre'] as num?)?.toDouble() ?? 0.0,
-      );
+    tag: json['tag'] as String? ?? '',
+    lessonId: json['lessonId'] as String? ?? '',
+    time: DateTime.tryParse(json['time'] as String? ?? '') ?? DateTime.now(),
+    preDecay: (json['pre'] as num?)?.toDouble() ?? 0.0,
+  );
 }

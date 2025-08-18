@@ -18,8 +18,11 @@ class SmartInboxFeedbackLoggerService {
   /// Records [eventType] for [itemId] with current timestamp.
   ///
   /// Optional [source] can be provided to describe origin of the inbox item.
-  Future<void> logEvent(String itemId, String eventType,
-      {String? source}) async {
+  Future<void> logEvent(
+    String itemId,
+    String eventType, {
+    String? source,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
     final key = _key(itemId, eventType);
     await prefs.setInt(key, DateTime.now().millisecondsSinceEpoch);

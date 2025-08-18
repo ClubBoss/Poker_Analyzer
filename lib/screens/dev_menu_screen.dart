@@ -37,10 +37,7 @@ class DevMenuScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           for (final s in sections)
-            ExpansionTile(
-              title: Text(s.title),
-              children: [s.builder(context)],
-            ),
+            ExpansionTile(title: Text(s.title), children: [s.builder(context)]),
         ],
       ),
     );

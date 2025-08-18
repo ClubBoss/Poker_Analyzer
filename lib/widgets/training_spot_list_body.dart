@@ -73,14 +73,17 @@ class TrainingSpotListBody extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         ElevatedButton(
-                            onPressed: onAddTag,
-                            child: const Text('🏷 Add Tag')),
+                          onPressed: onAddTag,
+                          child: const Text('🏷 Add Tag'),
+                        ),
                         ElevatedButton(
-                            onPressed: onRemoveTag,
-                            child: const Text('❌ Remove Tag')),
+                          onPressed: onRemoveTag,
+                          child: const Text('❌ Remove Tag'),
+                        ),
                         ElevatedButton(
-                            onPressed: onExportCsv,
-                            child: const Text('📄 Export CSV')),
+                          onPressed: onExportCsv,
+                          child: const Text('📄 Export CSV'),
+                        ),
                       ],
                     ),
                   )

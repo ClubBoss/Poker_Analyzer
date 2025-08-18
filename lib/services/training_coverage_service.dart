@@ -10,7 +10,8 @@ class TrainingCoverageService {
   const TrainingCoverageService();
 
   Future<Map<String, dynamic>> analyzeCoverage(
-      List<TrainingPackTemplateV2> all) async {
+    List<TrainingPackTemplateV2> all,
+  ) async {
     final counts = <String, Map<String, int>>{};
     final dup = <String, int>{};
     for (final t in all) {
@@ -73,7 +74,8 @@ class TrainingCoverageService {
           for (final item in data) {
             if (item is Map) {
               final tpl = TrainingPackTemplateV2.fromJson(
-                  Map<String, dynamic>.from(item));
+                Map<String, dynamic>.from(item),
+              );
               if (tpl.meta['manualSource'] == true) continue;
               list.add(tpl);
             }

@@ -6,7 +6,7 @@ class TheoryLessonTagHeatmapService {
   final MiniLessonLibraryService library;
 
   TheoryLessonTagHeatmapService({MiniLessonLibraryService? library})
-      : library = library ?? MiniLessonLibraryService.instance;
+    : library = library ?? MiniLessonLibraryService.instance;
 
   /// Returns statistics for each tag found in [library].
   Future<Map<String, TheoryTagStats>> computeHeatmap() async {

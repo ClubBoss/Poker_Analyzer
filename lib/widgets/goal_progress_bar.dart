@@ -23,17 +23,26 @@ class GoalProgressBar extends StatelessWidget {
       children: [
         Row(
           children: [
-            Text(label,
-                style: const TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold)),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             const Spacer(),
-            Text('${progress.current} / ${progress.target}',
-                style: const TextStyle(color: Colors.white70)),
+            Text(
+              '${progress.current} / ${progress.target}',
+              style: const TextStyle(color: Colors.white70),
+            ),
             if (completed)
               const Padding(
                 padding: EdgeInsets.only(left: 4),
-                child: Icon(Icons.check_circle,
-                    color: Colors.greenAccent, size: 16),
+                child: Icon(
+                  Icons.check_circle,
+                  color: Colors.greenAccent,
+                  size: 16,
+                ),
               ),
           ],
         ),
@@ -62,11 +71,7 @@ class GoalCard extends StatelessWidget {
   final GoalProgress daily;
   final GoalProgress weekly;
 
-  const GoalCard({
-    super.key,
-    required this.daily,
-    required this.weekly,
-  });
+  const GoalCard({super.key, required this.daily, required this.weekly});
 
   @override
   Widget build(BuildContext context) {

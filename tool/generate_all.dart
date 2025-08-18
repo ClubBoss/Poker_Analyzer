@@ -27,7 +27,7 @@ Future<void> main() async {
       'run',
       'tool/generate_pack.dart',
       '--input=${file.path}',
-      '--output=$name.yaml'
+      '--output=$name.yaml',
     ]);
     var ok = res.exitCode == 0;
     if (ok) {
@@ -47,7 +47,8 @@ Future<void> main() async {
       }
     }
     stdout.writeln(
-        '[$index/${files.length}] $name.yaml  -  ${ok ? 'OK' : '[ERROR]'}');
+      '[$index/${files.length}] $name.yaml  -  ${ok ? 'OK' : '[ERROR]'}',
+    );
     if (!ok) {
       errors++;
       stderr.write(res.stdout);

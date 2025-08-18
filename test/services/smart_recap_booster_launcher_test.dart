@@ -18,12 +18,12 @@ import 'package:poker_analyzer/screens/training_session_screen.dart';
 class _FakeLinker extends SmartRecapBoosterLinker {
   final List<TrainingPackTemplateV2> packs;
   _FakeLinker(this.packs)
-      : super(storage: TrainingPackTemplateStorageService());
+    : super(storage: TrainingPackTemplateStorageService());
 
   @override
   Future<List<TrainingPackTemplateV2>> getBoostersForLesson(
-          TheoryMiniLessonNode lesson) async =>
-      packs;
+    TheoryMiniLessonNode lesson,
+  ) async => packs;
 }
 
 void main() {
@@ -54,8 +54,9 @@ void main() {
         ),
       ),
     );
-    await service.launchBoosterForLesson(const TheoryMiniLessonNode(
-        id: 'l', title: '', content: '', tags: ['t']));
+    await service.launchBoosterForLesson(
+      const TheoryMiniLessonNode(id: 'l', title: '', content: '', tags: ['t']),
+    );
     await tester.pumpAndSettle();
     expect(find.byType(TrainingSessionScreen), findsOneWidget);
   });
@@ -71,10 +72,13 @@ void main() {
         ),
       ),
     );
-    await service.launchBoosterForLesson(const TheoryMiniLessonNode(
-        id: 'l', title: '', content: '', tags: ['t']));
+    await service.launchBoosterForLesson(
+      const TheoryMiniLessonNode(id: 'l', title: '', content: '', tags: ['t']),
+    );
     await tester.pumpAndSettle();
     expect(
-        find.text('Нет тренировок по теме. Попробуйте позже'), findsOneWidget);
+      find.text('Нет тренировок по теме. Попробуйте позже'),
+      findsOneWidget,
+    );
   });
 }

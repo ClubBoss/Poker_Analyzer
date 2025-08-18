@@ -11,10 +11,12 @@ class TagSuggestionEngine {
       posSet.add(s.hand.position);
     }
     if (posSet.isNotEmpty &&
-        posSet.every((p) =>
-            p == HeroPosition.btn ||
-            p == HeroPosition.sb ||
-            p == HeroPosition.bb)) {
+        posSet.every(
+          (p) =>
+              p == HeroPosition.btn ||
+              p == HeroPosition.sb ||
+              p == HeroPosition.bb,
+        )) {
       set.add('blind_defense');
     }
     if (pack.spots.isNotEmpty &&

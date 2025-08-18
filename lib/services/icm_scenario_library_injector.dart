@@ -67,7 +67,8 @@ class ICMScenario {
       positions: [for (final v in (j['positions'] as List)) v.toString()],
       tags: [for (final v in (j['tags'] as List)) v.toString()],
       spot: TrainingPackSpot.fromJson(
-          Map<String, dynamic>.from(j['spot'] as Map)),
+        Map<String, dynamic>.from(j['spot'] as Map),
+      ),
       weight: (j['weight'] as num?)?.toDouble() ?? 1.0,
     );
   }
@@ -82,8 +83,8 @@ class ICMScenarioLibraryInjector {
     List<ICMScenario>? scenarios,
     String libraryPath = 'assets/icm_scenarios',
     PackNoveltyGuardService? noveltyGuard,
-  })  : _library = scenarios ?? _loadLibrary(libraryPath),
-        _noveltyGuard = noveltyGuard;
+  }) : _library = scenarios ?? _loadLibrary(libraryPath),
+       _noveltyGuard = noveltyGuard;
 
   /// Loads scenario files from [path]. Supports JSON and YAML formats.
   static List<ICMScenario> _loadLibrary(String path) {
@@ -102,8 +103,9 @@ class ICMScenarioLibraryInjector {
       if (raw is List) {
         for (final item in raw) {
           if (item is Map) {
-            scenarios
-                .add(ICMScenario.fromJson(Map<String, dynamic>.from(item)));
+            scenarios.add(
+              ICMScenario.fromJson(Map<String, dynamic>.from(item)),
+            );
           }
         }
       } else if (raw is Map) {
@@ -181,7 +183,9 @@ class ICMScenarioLibraryInjector {
   }
 
   TrainingPackModel _applyScenarios(
-      TrainingPackModel base, List<ICMScenario> scenarios) {
+    TrainingPackModel base,
+    List<ICMScenario> scenarios,
+  ) {
     if (scenarios.isEmpty) return base;
     final additions = <TrainingPackSpot>[];
     for (final sc in scenarios) {

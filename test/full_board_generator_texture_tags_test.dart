@@ -22,10 +22,9 @@ void main() {
       random: Random(1),
       classifier: classifier,
     );
-    final board = generator.generate(boardConstraints: {
-      'paired': true,
-      'aceHigh': true,
-    });
+    final board = generator.generate(
+      boardConstraints: {'paired': true, 'aceHigh': true},
+    );
     expect(board.textureTags.containsAll({'paired', 'aceHigh'}), isTrue);
 
     final yaml = board.toYAML();

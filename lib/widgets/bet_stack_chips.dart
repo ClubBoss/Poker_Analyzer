@@ -8,11 +8,8 @@ class BetStackChips extends StatelessWidget {
   /// Scale factor depending on table size.
   final double scale;
 
-  const BetStackChips({
-    Key? key,
-    required this.amount,
-    this.scale = 1.0,
-  }) : super(key: key);
+  const BetStackChips({Key? key, required this.amount, this.scale = 1.0})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +49,7 @@ class BetStackChips extends StatelessWidget {
                         color: Colors.black.withValues(alpha: 0.6),
                         blurRadius: 3,
                         offset: const Offset(1, 2),
-                      )
+                      ),
                     ],
                   ),
                 ),

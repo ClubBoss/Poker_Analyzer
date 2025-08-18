@@ -73,8 +73,9 @@ class WeakTheoryReviewLauncher {
       }
       final lessonId = const TheoryBoostRecapLinker().getLinkedLesson(tag.name);
       if (lessonId != null &&
-          await TheoryPromptDismissTracker.instance
-              .isRecentlyDismissed(lessonId)) {
+          await TheoryPromptDismissTracker.instance.isRecentlyDismissed(
+            lessonId,
+          )) {
         continue;
       }
       if (lessonId != null &&
@@ -91,8 +92,10 @@ class WeakTheoryReviewLauncher {
         trigger: 'weakness',
       );
       if (result != true && lessonId != null) {
-        await TheoryPromptDismissTracker.instance
-            .markDismissed(lessonId, trigger: 'weakness');
+        await TheoryPromptDismissTracker.instance.markDismissed(
+          lessonId,
+          trigger: 'weakness',
+        );
       }
       await TheoryRecapReviewTracker.instance.log(
         TheoryRecapReviewEntry(

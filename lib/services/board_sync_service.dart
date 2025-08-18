@@ -7,8 +7,8 @@ class BoardSyncService {
   BoardSyncService({
     required PlayerManagerService playerManager,
     required ActionSyncService actionSync,
-  })  : _playerManager = playerManager,
-        _actionSync = actionSync;
+  }) : _playerManager = playerManager,
+       _actionSync = actionSync;
 
   final PlayerManagerService _playerManager;
   final ActionSyncService _actionSync;
@@ -48,10 +48,14 @@ class BoardSyncService {
   ///
   /// When [showFullBoard] is true the board is shown up to [boardStreet]
   /// regardless of the current street.
-  void syncRevealState(
-      {required int revealStreet, bool showFullBoard = false}) {
-    final street =
-        (showFullBoard ? boardStreet : revealStreet).clamp(0, boardStreet);
+  void syncRevealState({
+    required int revealStreet,
+    bool showFullBoard = false,
+  }) {
+    final street = (showFullBoard ? boardStreet : revealStreet).clamp(
+      0,
+      boardStreet,
+    );
     final visibleCount = stageCardCounts[street];
     revealedBoardCards
       ..clear()

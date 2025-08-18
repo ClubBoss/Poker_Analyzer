@@ -27,8 +27,9 @@ class LearningPathNodeHistory {
           for (final entry in data.entries) {
             final m = entry.value;
             if (m is Map) {
-              _visits[entry.key.toString()] =
-                  NodeVisit.fromJson(Map<String, dynamic>.from(m));
+              _visits[entry.key.toString()] = NodeVisit.fromJson(
+                Map<String, dynamic>.from(m),
+              );
             }
           }
         }
@@ -68,8 +69,11 @@ class LearningPathNodeHistory {
     final now = DateTime.now();
     final visit = _visits[nodeId];
     if (visit == null) {
-      _visits[nodeId] =
-          NodeVisit(nodeId: nodeId, firstSeen: now, completedAt: now);
+      _visits[nodeId] = NodeVisit(
+        nodeId: nodeId,
+        firstSeen: now,
+        completedAt: now,
+      );
     } else if (visit.completedAt == null) {
       _visits[nodeId] = visit.copyWith(completedAt: now);
     }

@@ -63,7 +63,10 @@ void main() {
       bannerService: const _FakeBannerService(visual),
       progressService: _FakeProgressService(
         TrackProgressEntry(
-            tree: nextTree, completionRate: 0.0, isCompleted: false),
+          tree: nextTree,
+          completionRate: 0.0,
+          isCompleted: false,
+        ),
       ),
     ).compose(tree);
     expect(model.summary.title, 'A');

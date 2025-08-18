@@ -26,7 +26,7 @@ class StreetMistakeOverviewScreen extends StatelessWidget {
                 h.date.isAfter(now.subtract(const Duration(days: 7)))) ||
             (dateFilter == '30 дней' &&
                 h.date.isAfter(now.subtract(const Duration(days: 30)))))
-          h
+          h,
     ];
     final counts = {for (final s in kStreetNames) s: 0};
     for (final h in filtered) {
@@ -68,8 +68,10 @@ class StreetMistakeOverviewScreen extends StatelessWidget {
                     children: [
                       SizedBox(
                         width: 80,
-                        child: Text(s,
-                            style: const TextStyle(color: Colors.white)),
+                        child: Text(
+                          s,
+                          style: const TextStyle(color: Colors.white),
+                        ),
                       ),
                       Expanded(
                         child: Stack(

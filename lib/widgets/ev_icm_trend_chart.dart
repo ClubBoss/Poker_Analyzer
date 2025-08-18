@@ -78,8 +78,8 @@ class EvIcmTrendChart extends StatelessWidget {
         final start = dates[j];
         final end = j == dates.length - 1
             ? (mode == EvIcmTrendMode.weekly
-                ? start.add(const Duration(days: 7))
-                : DateTime(start.year, start.month + 1))
+                  ? start.add(const Duration(days: 7))
+                  : DateTime(start.year, start.month + 1))
             : dates[j + 1];
         if (!d.isBefore(start) && d.isBefore(end)) {
           verticalLines.add(
@@ -111,10 +111,12 @@ class EvIcmTrendChart extends StatelessWidget {
               const FlLine(color: Colors.white24, strokeWidth: 1),
         ),
         titlesData: FlTitlesData(
-          rightTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,

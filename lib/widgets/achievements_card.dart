@@ -33,12 +33,16 @@ class AchievementsCard extends StatelessWidget {
             const Expanded(
               child: Text(
                 'Achievements',
-                style:
-                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-            Text('$unlocked/$total',
-                style: const TextStyle(color: Colors.white70)),
+            Text(
+              '$unlocked/$total',
+              style: const TextStyle(color: Colors.white70),
+            ),
           ],
         ),
       ),

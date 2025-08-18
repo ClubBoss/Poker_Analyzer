@@ -13,9 +13,9 @@ class SmartMistakeGoalGenerator {
     MistakeAnalyticsService? analytics,
     RecallSuccessLoggerService? logger,
     ReviewStreakEvaluatorService? streak,
-  })  : analytics = analytics ?? const MistakeAnalyticsService(),
-        logger = logger ?? RecallSuccessLoggerService.instance,
-        streak = streak ?? const ReviewStreakEvaluatorService();
+  }) : analytics = analytics ?? const MistakeAnalyticsService(),
+       logger = logger ?? RecallSuccessLoggerService.instance,
+       streak = streak ?? const ReviewStreakEvaluatorService();
 
   /// Returns recommended recovery goals based on recent mistakes.
   Future<List<GoalRecommendation>> recommendMistakeRecoveryGoals({

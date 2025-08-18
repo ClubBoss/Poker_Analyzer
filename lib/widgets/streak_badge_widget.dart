@@ -37,8 +37,11 @@ class StreakBadgeWidget extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.local_fire_department,
-                  color: Colors.white, size: 20),
+              const Icon(
+                Icons.local_fire_department,
+                color: Colors.white,
+                size: 20,
+              ),
               const SizedBox(width: 6),
               Text(
                 label,

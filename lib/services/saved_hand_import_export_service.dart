@@ -33,9 +33,9 @@ import 'action_tag_service.dart';
 
 class SavedHandImportExportService {
   SavedHandImportExportService(this.manager, {ServiceRegistry? registry})
-      : _pipeline = registry?.contains<ConverterPipeline>() == true
-            ? registry!.get<ConverterPipeline>()
-            : null;
+    : _pipeline = registry?.contains<ConverterPipeline>() == true
+          ? registry!.get<ConverterPipeline>()
+          : null;
 
   final SavedHandManagerService manager;
   final ConverterPipeline? _pipeline;
@@ -56,7 +56,8 @@ class SavedHandImportExportService {
     String? gameType = hand.gameType;
     String? category = hand.category;
     if (gameType == null || gameType.isEmpty) {
-      gameType = (hand.buyIn != null ||
+      gameType =
+          (hand.buyIn != null ||
               hand.tournamentId?.isNotEmpty == true ||
               (hand.numberOfEntrants ?? 0) > 0)
           ? 'Tournament'
@@ -120,7 +121,7 @@ class SavedHandImportExportService {
       numberOfPlayers: playerManager.numberOfPlayers,
       playerCards: [
         for (int i = 0; i < playerManager.numberOfPlayers; i++)
-          List<CardModel>.from(playerManager.playerCards[i])
+          List<CardModel>.from(playerManager.playerCards[i]),
       ],
       boardCards: List<CardModel>.from(boardManager.boardCards),
       boardStreet: boardManager.boardStreet,
@@ -128,8 +129,8 @@ class SavedHandImportExportService {
         for (int i = 0; i < playerManager.numberOfPlayers; i++)
           [
             for (final c in playerManager.players[i].revealedCards)
-              if (c != null) c
-          ]
+              if (c != null) c,
+          ],
       ],
       opponentIndex: playerManager.opponentIndex,
       activePlayerIndex: activePlayerIndex,
@@ -137,11 +138,11 @@ class SavedHandImportExportService {
       stackSizes: Map<int, int>.from(stackService.initialStacks),
       currentBets: {
         for (int i = 0; i < playerManager.numberOfPlayers; i++)
-          i: playerManager.players[i].bet
+          i: playerManager.players[i].bet,
       },
       remainingStacks: {
         for (int i = 0; i < playerManager.numberOfPlayers; i++)
-          i: stackService.getStackForPlayer(i)
+          i: stackService.getStackForPlayer(i),
       },
       tournamentId: tournamentId,
       buyIn: buyIn,
@@ -175,9 +176,9 @@ class SavedHandImportExportService {
     if (hand == null) return;
     await Clipboard.setData(ClipboardData(text: serializeHand(hand)));
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Раздача скопирована.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Раздача скопирована.')));
     }
   }
 
@@ -212,9 +213,9 @@ class SavedHandImportExportService {
     }
     hand ??= _tryInternal(data.text!);
     if (hand == null && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Неверный формат данных.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Неверный формат данных.')));
     }
     return hand;
   }
@@ -223,9 +224,9 @@ class SavedHandImportExportService {
     final data = await Clipboard.getData('text/plain');
     if (data == null || data.text == null) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid data format')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Invalid data format')));
       }
       return 0;
     }
@@ -246,8 +247,9 @@ class SavedHandImportExportService {
       }
       if (count > 0) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('Imported $count hands')));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Imported $count hands')));
         }
         return count;
       }
@@ -275,9 +277,9 @@ class SavedHandImportExportService {
       return count;
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid data format')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Invalid data format')));
       }
       return 0;
     }
@@ -293,8 +295,9 @@ class SavedHandImportExportService {
     final file = await _defaultFile(fileName);
     await file.writeAsString(jsonEncode(hand.toJson()));
     if (context.mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Файл сохранён: $fileName')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Файл сохранён: $fileName')));
       OpenFilex.open(file.path);
     }
   }
@@ -304,13 +307,16 @@ class SavedHandImportExportService {
     final file = await _defaultFile(fileName);
     final buffer = StringBuffer()
       ..writeln(
-          'name,heroPosition,date,isFavorite,tags,comment,tournamentId,buyIn,totalPrizePool,numberOfEntrants,gameType')
+        'name,heroPosition,date,isFavorite,tags,comment,tournamentId,buyIn,totalPrizePool,numberOfEntrants,gameType',
+      )
       ..writeln(
-          '${hand.name},${hand.heroPosition},${hand.date.toIso8601String()},${hand.isFavorite},"${hand.tags.join('|')}","${hand.comment ?? ''}","${hand.tournamentId ?? ''}",${hand.buyIn ?? ''},${hand.totalPrizePool ?? ''},${hand.numberOfEntrants ?? ''},"${hand.gameType ?? ''}"');
+        '${hand.name},${hand.heroPosition},${hand.date.toIso8601String()},${hand.isFavorite},"${hand.tags.join('|')}","${hand.comment ?? ''}","${hand.tournamentId ?? ''}",${hand.buyIn ?? ''},${hand.totalPrizePool ?? ''},${hand.numberOfEntrants ?? ''},"${hand.gameType ?? ''}"',
+      );
     await file.writeAsString(buffer.toString());
     if (context.mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Файл сохранён: $fileName')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Файл сохранён: $fileName')));
       OpenFilex.open(file.path);
     }
   }
@@ -320,7 +326,8 @@ class SavedHandImportExportService {
     if (hands.isEmpty) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No saved hands to export')));
+          const SnackBar(content: Text('No saved hands to export')),
+        );
       }
       return;
     }
@@ -343,8 +350,9 @@ class SavedHandImportExportService {
     await file.writeAsBytes(bytes, flush: true);
     if (context.mounted) {
       final name = savePath.split(Platform.pathSeparator).last;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Archive saved: $name')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Archive saved: $name')));
     }
   }
 }

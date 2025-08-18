@@ -10,8 +10,9 @@ enum BoosterTheoryInjectionMode { preDrill, postDrill }
 /// Injects theory recap dialogs into booster drills based on weakness tags.
 class BoosterTheoryInjector {
   final BoosterTheoryInjectionMode mode;
-  const BoosterTheoryInjector(
-      {this.mode = BoosterTheoryInjectionMode.preDrill});
+  const BoosterTheoryInjector({
+    this.mode = BoosterTheoryInjectionMode.preDrill,
+  });
 
   /// Shows a [TheoryRecapDialog] when [spot] contains a tag in [weakTags].
   Future<void> maybeInject(

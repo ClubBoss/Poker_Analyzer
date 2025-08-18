@@ -21,7 +21,7 @@ class RangeImportExportService {
       if (decoded is List) {
         return [
           for (final e in decoded)
-            if (e is String) e
+            if (e is String) e,
         ];
       }
     } catch (_) {}

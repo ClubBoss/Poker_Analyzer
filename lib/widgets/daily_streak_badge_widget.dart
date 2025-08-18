@@ -55,15 +55,15 @@ class _DailyStreakBadgeWidgetState extends State<DailyStreakBadgeWidget> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.local_fire_department,
-                size: 16, color: Colors.deepOrange),
+            const Icon(
+              Icons.local_fire_department,
+              size: 16,
+              color: Colors.deepOrange,
+            ),
             const SizedBox(width: 4),
             Text(
               label,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
             ),
           ],
         ),

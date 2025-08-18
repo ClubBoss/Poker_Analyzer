@@ -13,14 +13,15 @@ class PackLibraryIndexLoader {
     final cached = _cache;
     if (cached != null) return cached;
     try {
-      final raw =
-          await rootBundle.loadString('assets/packs/v2/library_index.json');
+      final raw = await rootBundle.loadString(
+        'assets/packs/v2/library_index.json',
+      );
       final data = jsonDecode(raw);
       if (data is List) {
         _cache = [
           for (final item in data)
             if (item is Map)
-              TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(item))
+              TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(item)),
         ];
         return _cache!;
       }

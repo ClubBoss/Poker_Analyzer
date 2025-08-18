@@ -20,8 +20,9 @@ class _TrainingPackPreviewPanelState extends State<TrainingPackPreviewPanel> {
   @override
   void initState() {
     super.initState();
-    _future =
-        Future(() => TrainingPackPreviewService().getPreviewSpots(widget.tpl));
+    _future = Future(
+      () => TrainingPackPreviewService().getPreviewSpots(widget.tpl),
+    );
   }
 
   @override
@@ -45,8 +46,10 @@ class _TrainingPackPreviewPanelState extends State<TrainingPackPreviewPanel> {
           children: [
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
-              child:
-                  Text('Превью', style: TextStyle(fontWeight: FontWeight.bold)),
+              child: Text(
+                'Превью',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
             const SizedBox(height: 8),
             SizedBox(

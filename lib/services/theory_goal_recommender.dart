@@ -15,8 +15,8 @@ class TheoryGoalRecommender {
     TheoryLessonProgressTracker? progress,
     required this.mastery,
     List<double>? thresholds,
-  })  : progress = progress ?? const TheoryLessonProgressTracker(),
-        thresholds = thresholds ?? TheoryMilestoneUnlocker.thresholds;
+  }) : progress = progress ?? const TheoryLessonProgressTracker(),
+       thresholds = thresholds ?? TheoryMilestoneUnlocker.thresholds;
 
   /// Generates up to four theory goals from [clusters] and [lessons].
   Future<List<TheoryGoal>> recommend({
@@ -47,8 +47,9 @@ class TheoryGoalRecommender {
       if (prog < 0.25 || prog > 0.75) continue; // prefer mid progress
       final next = thresholds.firstWhere((t) => t > prog, orElse: () => 1.0);
       if (next <= prog) continue;
-      final name =
-          e.key.sharedTags.isNotEmpty ? e.key.sharedTags.join(', ') : 'cluster';
+      final name = e.key.sharedTags.isNotEmpty
+          ? e.key.sharedTags.join(', ')
+          : 'cluster';
       goals.add(
         TheoryGoal(
           title: '📚 Заверши кластер $name до ${(next * 100).round()}%',

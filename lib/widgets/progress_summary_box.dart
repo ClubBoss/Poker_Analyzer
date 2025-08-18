@@ -11,7 +11,7 @@ class ProgressSummaryBox extends StatelessWidget {
     final packs = context.watch<TrainingPackStorageService>().packs;
     final list = [
       for (final p in packs)
-        if (!p.isBuiltIn && p.history.isNotEmpty) p
+        if (!p.isBuiltIn && p.history.isNotEmpty) p,
     ];
     final count = list.length;
     final avg = count == 0
@@ -27,11 +27,15 @@ class ProgressSummaryBox extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Паков с прогрессом: $count',
-              style: const TextStyle(color: Colors.white)),
+          Text(
+            'Паков с прогрессом: $count',
+            style: const TextStyle(color: Colors.white),
+          ),
           const SizedBox(height: 4),
-          Text('Средний прогресс: ${(avg * 100).toStringAsFixed(0)}%',
-              style: const TextStyle(color: Colors.white70)),
+          Text(
+            'Средний прогресс: ${(avg * 100).toStringAsFixed(0)}%',
+            style: const TextStyle(color: Colors.white70),
+          ),
         ],
       ),
     );

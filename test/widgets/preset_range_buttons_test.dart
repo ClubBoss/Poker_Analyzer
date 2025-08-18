@@ -9,34 +9,36 @@ void main() {
   testWidgets('tight and slider presets work', (tester) async {
     final selected = <String>{};
     double percent = 0;
-    await tester.pumpWidget(MaterialApp(
-      home: StatefulBuilder(
-        builder: (context, setState) => Column(
-          children: [
-            PresetRangeButtons(
-              selected: selected,
-              onChanged: (v) => setState(() {
-                selected
-                  ..clear()
-                  ..addAll(v);
-                percent = selected.length / 169 * 100;
-              }),
-            ),
-            Slider(
-              value: percent,
-              min: 0,
-              max: 100,
-              onChanged: (v) => setState(() {
-                percent = v;
-                selected
-                  ..clear()
-                  ..addAll(PackGeneratorService.topNHands(v.round()));
-              }),
-            ),
-          ],
+    await tester.pumpWidget(
+      MaterialApp(
+        home: StatefulBuilder(
+          builder: (context, setState) => Column(
+            children: [
+              PresetRangeButtons(
+                selected: selected,
+                onChanged: (v) => setState(() {
+                  selected
+                    ..clear()
+                    ..addAll(v);
+                  percent = selected.length / 169 * 100;
+                }),
+              ),
+              Slider(
+                value: percent,
+                min: 0,
+                max: 100,
+                onChanged: (v) => setState(() {
+                  percent = v;
+                  selected
+                    ..clear()
+                    ..addAll(PackGeneratorService.topNHands(v.round()));
+                }),
+              ),
+            ],
+          ),
         ),
       ),
-    ));
+    );
 
     await tester.tap(find.text('Tight'));
     await tester.pump();

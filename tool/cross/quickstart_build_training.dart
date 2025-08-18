@@ -214,6 +214,7 @@ String _basename(String path) {
 
 void _usage() {
   stdout.writeln(
-      'usage: [--seed-base N] [--l2-per-kind N] [--l3-per-pack N] [--l3-max-packs K] [--l4-per-seed N] [--out-sessions DIR] [--out-feed FILE] [--bundle DIR] [--overwrite] [--format compact|pretty]');
+    'usage: [--seed-base N] [--l2-per-kind N] [--l3-per-pack N] [--l3-max-packs K] [--l4-per-seed N] [--out-sessions DIR] [--out-feed FILE] [--bundle DIR] [--overwrite] [--format compact|pretty]',
+  );
   exit(2);
 }

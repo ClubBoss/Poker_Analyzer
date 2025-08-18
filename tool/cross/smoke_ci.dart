@@ -94,15 +94,11 @@ void main(List<String> args) {
     '--format=$format',
   ]);
 
-  _run([
-    'dart',
-    'run',
-    'tool/cross/print_feed_summary.dart',
-    '--feed=$feed',
-  ]);
+  _run(['dart', 'run', 'tool/cross/print_feed_summary.dart', '--feed=$feed']);
 
   stdout.writeln(
-      'smoke ok: feed=$feed bundle=$bundle format=$format layout=$layout');
+    'smoke ok: feed=$feed bundle=$bundle format=$format layout=$layout',
+  );
 }
 
 List<String> _splitList(String? v) => v == null || v.isEmpty
@@ -137,6 +133,7 @@ String _join(String a, String b) => a.endsWith(Platform.pathSeparator)
 
 Never _usage() {
   stdout.writeln(
-      'usage: --l2 a.json[,..] [--l3 c.json[,..]] [--l4 e.json[,..]] [--feed FILE] [--bundle DIR] [--format compact|pretty] [--layout flat|bykind] [--overwrite]');
+    'usage: --l2 a.json[,..] [--l3 c.json[,..]] [--l4 e.json[,..]] [--feed FILE] [--bundle DIR] [--format compact|pretty] [--layout flat|bykind] [--overwrite]',
+  );
   exit(2);
 }

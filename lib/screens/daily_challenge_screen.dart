@@ -21,7 +21,8 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-          builder: (_) => DailyChallengeResultScreen(spot: updated)),
+        builder: (_) => DailyChallengeResultScreen(spot: updated),
+      ),
     );
   }
 
@@ -29,10 +30,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
   Widget build(BuildContext context) {
     final spot = widget.spot;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Daily Challenge'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Daily Challenge'), centerTitle: true),
       backgroundColor: const Color(0xFF121212),
       body: ListView(
         padding: const EdgeInsets.all(16),

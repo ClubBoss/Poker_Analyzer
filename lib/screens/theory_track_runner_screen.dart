@@ -43,9 +43,7 @@ class _TheoryTrackRunnerScreenState extends State<TheoryTrackRunnerScreen> {
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            Expanded(
-              child: SingleChildScrollView(child: Text(content)),
-            ),
+            Expanded(child: SingleChildScrollView(child: Text(content))),
             const SizedBox(height: 16),
             Align(
               alignment: Alignment.centerRight,

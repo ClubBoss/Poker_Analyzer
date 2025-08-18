@@ -30,10 +30,8 @@ class _ResumeTrainingCardState extends State<ResumeTrainingCard> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => TrainingPackPlayScreen(
-          template: p.template,
-          original: p.template,
-        ),
+        builder: (_) =>
+            TrainingPackPlayScreen(template: p.template, original: p.template),
       ),
     );
     await _load();

@@ -15,7 +15,7 @@ void main() {
     name: 'Pack 2',
     trainingType: TrainingType.pushFold,
     meta: {
-      'theme': ['3bet', 'ICM']
+      'theme': ['3bet', 'ICM'],
     },
   );
   final pack3 = TrainingPackTemplateV2(

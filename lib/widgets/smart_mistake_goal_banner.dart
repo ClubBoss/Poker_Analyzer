@@ -49,9 +49,9 @@ class _SmartMistakeGoalBannerState extends State<SmartMistakeGoalBanner> {
     );
     await context.read<UserGoalEngine>().addGoal(goal);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Цель добавлена!')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Цель добавлена!')));
     }
   }
 
@@ -87,10 +87,7 @@ class _SmartMistakeGoalBannerState extends State<SmartMistakeGoalBanner> {
             ],
           ),
           const SizedBox(height: 4),
-          Text(
-            rec.reason,
-            style: const TextStyle(color: Colors.white70),
-          ),
+          Text(rec.reason, style: const TextStyle(color: Colors.white70)),
           const SizedBox(height: 8),
           Align(
             alignment: Alignment.centerRight,

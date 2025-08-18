@@ -19,12 +19,14 @@ class _FakeBoosterEngine extends TargetedPackBoosterEngine {
     String triggerReason = 'cluster',
   }) async {
     return clusters
-        .map((c) => TrainingPackTemplateV2(
-              id: 'boost_${c.clusterId}',
-              name: 'Boost',
-              trainingType: TrainingType.booster,
-              tags: c.tags,
-            ))
+        .map(
+          (c) => TrainingPackTemplateV2(
+            id: 'boost_${c.clusterId}',
+            name: 'Boost',
+            trainingType: TrainingType.booster,
+            tags: c.tags,
+          ),
+        )
         .toList();
   }
 }
@@ -65,9 +67,14 @@ void main() {
 
     test('inject, persist, lifecycle and idempotence', () async {
       final cluster = SkillTagCluster(
-          tags: ['a', 'b'], clusterId: 'c1', themeName: 'Theme');
-      final modules =
-          await engine.injectForClusters(clusters: [cluster], userId: 'u1');
+        tags: ['a', 'b'],
+        clusterId: 'c1',
+        themeName: 'Theme',
+      );
+      final modules = await engine.injectForClusters(
+        clusters: [cluster],
+        userId: 'u1',
+      );
       expect(modules, hasLength(1));
       var stored = await store.listModules('u1');
       expect(stored.single.status, 'pending');
@@ -78,8 +85,10 @@ void main() {
       await engine.onModuleCompleted('u1', moduleId, passRate: 0.8);
       stored = await store.listModules('u1');
       expect(stored.single.status, 'completed');
-      final reinject =
-          await engine.injectForClusters(clusters: [cluster], userId: 'u1');
+      final reinject = await engine.injectForClusters(
+        clusters: [cluster],
+        userId: 'u1',
+      );
       expect(reinject, isEmpty);
       stored = await store.listModules('u1');
       expect(stored, hasLength(1));

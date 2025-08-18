@@ -73,7 +73,8 @@ class _AutogenMetricsDashboardScreenState
       if (kIsWeb || !(Platform.isAndroid || Platform.isIOS)) {
         await FileSaverService.instance.saveCsv('autogen_error_breakdown', csv);
       } else {
-        final dir = await getDownloadsDirectory() ??
+        final dir =
+            await getDownloadsDirectory() ??
             await getApplicationDocumentsDirectory();
         final file = File(p.join(dir.path, 'autogen_error_breakdown.csv'));
         await file.writeAsString(csv);

@@ -28,11 +28,13 @@ class CardPickerWidget extends StatelessWidget {
           onTap: () async {
             final disabled = {
               ...disabledCards,
-              for (final c in cards) '${c.rank}${c.suit}'
+              for (final c in cards) '${c.rank}${c.suit}',
             };
             if (card != null) disabled.remove('${card.rank}${card.suit}');
-            final selected =
-                await showCardSelector(context, disabledCards: disabled);
+            final selected = await showCardSelector(
+              context,
+              disabledCards: disabled,
+            );
             if (selected != null) onChanged(i, selected);
           },
           child: Container(
@@ -47,7 +49,7 @@ class CardPickerWidget extends StatelessWidget {
                   color: Colors.black.withValues(alpha: 0.25),
                   blurRadius: 3,
                   offset: const Offset(1, 2),
-                )
+                ),
               ],
             ),
             alignment: Alignment.center,

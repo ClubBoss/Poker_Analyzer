@@ -20,7 +20,12 @@ void main() {
 
   TrainingTrack track(String id, String goal) {
     return TrainingTrack(
-        id: id, title: id, goalId: goal, spots: const [], tags: const []);
+      id: id,
+      title: id,
+      goalId: goal,
+      spots: const [],
+      tags: const [],
+    );
   }
 
   test('prioritizes mistake replay over tracks', () {

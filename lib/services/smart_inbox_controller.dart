@@ -19,13 +19,13 @@ class SmartInboxController {
     SmartInboxItemDeduplicationService? deduplicator,
     SmartInboxPriorityScorerService? priorityScorer,
     SmartDecayInboxBoosterService? decayBooster,
-  })  : boosterProvider = boosterProvider ?? SmartPinnedBlockBoosterProvider(),
-        inboxLimiter = inboxLimiter ?? SmartBoosterInboxLimiterService(),
-        diversityScheduler =
-            diversityScheduler ?? SmartBoosterDiversitySchedulerService(),
-        deduplicator = deduplicator ?? SmartInboxItemDeduplicationService(),
-        priorityScorer = priorityScorer ?? SmartInboxPriorityScorerService(),
-        decayBooster = decayBooster ?? const SmartDecayInboxBoosterService();
+  }) : boosterProvider = boosterProvider ?? SmartPinnedBlockBoosterProvider(),
+       inboxLimiter = inboxLimiter ?? SmartBoosterInboxLimiterService(),
+       diversityScheduler =
+           diversityScheduler ?? SmartBoosterDiversitySchedulerService(),
+       deduplicator = deduplicator ?? SmartInboxItemDeduplicationService(),
+       priorityScorer = priorityScorer ?? SmartInboxPriorityScorerService(),
+       decayBooster = decayBooster ?? const SmartDecayInboxBoosterService();
 
   final SmartPinnedBlockBoosterProvider boosterProvider;
   final SmartBoosterInboxLimiterService inboxLimiter;
@@ -41,12 +41,14 @@ class SmartInboxController {
     boosters.addAll(await boosterProvider.getBoosters());
     final decayItems = await decayBooster.getItems();
     for (final item in decayItems) {
-      boosters.add(PinnedBlockBoosterSuggestion(
-        blockId: 'decay:${item.tag}',
-        blockTitle: 'Decay Recovery',
-        tag: item.tag,
-        action: 'decayBooster',
-      ));
+      boosters.add(
+        PinnedBlockBoosterSuggestion(
+          blockId: 'decay:${item.tag}',
+          blockTitle: 'Decay Recovery',
+          tag: item.tag,
+          action: 'decayBooster',
+        ),
+      );
     }
     var scheduled = <PinnedBlockBoosterSuggestion>[];
     var deduped = <PinnedBlockBoosterSuggestion>[];
@@ -64,14 +66,16 @@ class SmartInboxController {
     }
 
     final debugSvc = SmartInboxDebugService.instance;
-    debugSvc.update(SmartInboxDebugInfo(
-      raw: boosters,
-      scheduled: scheduled,
-      deduplicated: deduped,
-      sorted: sorted,
-      limited: allowed,
-      rendered: allowed,
-    ));
+    debugSvc.update(
+      SmartInboxDebugInfo(
+        raw: boosters,
+        scheduled: scheduled,
+        deduplicated: deduped,
+        sorted: sorted,
+        limited: allowed,
+        rendered: allowed,
+      ),
+    );
     if (debugSvc.enabled) {
       items.insert(0, const SmartInboxDebugBannerWidget());
     }
@@ -79,7 +83,8 @@ class SmartInboxController {
   }
 
   Future<List<PinnedBlockBoosterSuggestion>> _buildAllowedInboxBoosters(
-      List<PinnedBlockBoosterSuggestion> suggestions) async {
+    List<PinnedBlockBoosterSuggestion> suggestions,
+  ) async {
     final allowed = <PinnedBlockBoosterSuggestion>[];
     for (final b in suggestions) {
       if (await inboxLimiter.canShow(b.tag)) {

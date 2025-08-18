@@ -15,17 +15,19 @@ class LessonResumeEngine {
 
   Future<LessonStep?> getResumeStep(PlayerProfile profile) async {
     final steps = await LessonLoaderService.instance.loadAllLessons();
-    final filtered =
-        const LessonStepFilterEngine().applyFilters(steps, profile: profile);
+    final filtered = const LessonStepFilterEngine().applyFilters(
+      steps,
+      profile: profile,
+    );
     final completed = await LessonProgressService.instance.getCompletedSteps();
 
     final prefs = await SharedPreferences.getInstance();
     final trackId = prefs.getString('lesson_selected_track');
     LessonTrack? track;
     if (trackId != null) {
-      track = const LearningTrackEngine()
-          .getTracks()
-          .firstWhereOrNull((t) => t.id == trackId);
+      track = const LearningTrackEngine().getTracks().firstWhereOrNull(
+        (t) => t.id == trackId,
+      );
     }
 
     if (track != null) {

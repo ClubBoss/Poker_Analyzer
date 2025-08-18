@@ -16,30 +16,28 @@ import 'package:poker_analyzer/models/theory_mini_lesson_node.dart';
 
 class _FakeDetector implements RecapOpportunityDetector {
   final bool value;
-  _FakeDetector(this.value)
-      : super(
-          retention: FakeRetentionTracker([]),
-        );
+  _FakeDetector(this.value) : super(retention: FakeRetentionTracker([]));
   @override
   Future<bool> isGoodRecapMoment() async => value;
 }
 
 class FakeRetentionTracker extends TagRetentionTracker {
   FakeRetentionTracker(List<String> tags)
-      : super(
-          mastery: TagMasteryService(
-            logs: SessionLogService(sessions: TrainingSessionService()),
-          ),
-        ) {
+    : super(
+        mastery: TagMasteryService(
+          logs: SessionLogService(sessions: TrainingSessionService()),
+        ),
+      ) {
     _tags = tags;
   }
 
   late final List<String> _tags;
 
   @override
-  Future<List<String>> getDecayedTags(
-          {double threshold = 0.75, DateTime? now}) async =>
-      _tags;
+  Future<List<String>> getDecayedTags({
+    double threshold = 0.75,
+    DateTime? now,
+  }) async => _tags;
 }
 
 class _FakeEngine extends SmartTheoryRecapEngine {
@@ -53,9 +51,10 @@ class _FakeSuppression extends TheoryRecapSuppressionEngine {
   final bool value;
   _FakeSuppression(this.value) : super();
   @override
-  Future<bool> shouldSuppress(
-          {required String lessonId, required String trigger}) async =>
-      value;
+  Future<bool> shouldSuppress({
+    required String lessonId,
+    required String trigger,
+  }) async => value;
 }
 
 class _FakeDismissal extends SmartTheoryRecapDismissalMemory {
@@ -74,13 +73,17 @@ void main() {
 
   Future<void> pump(WidgetTester tester) async {
     await tester.pumpWidget(
-        MaterialApp(navigatorKey: navigatorKey, home: const SizedBox()));
+      MaterialApp(navigatorKey: navigatorKey, home: const SizedBox()),
+    );
   }
 
   testWidgets('injects recap when opportunity available', (tester) async {
     await pump(tester);
-    final lesson =
-        const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
+    final lesson = const TheoryMiniLessonNode(
+      id: 'l1',
+      title: 't',
+      content: '',
+    );
     final service = SmartRecapAutoInjector(
       detector: _FakeDetector(true),
       engine: _FakeEngine(lesson),
@@ -94,8 +97,11 @@ void main() {
 
   testWidgets('respects cooldown between injections', (tester) async {
     await pump(tester);
-    final lesson =
-        const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
+    final lesson = const TheoryMiniLessonNode(
+      id: 'l1',
+      title: 't',
+      content: '',
+    );
     final service = SmartRecapAutoInjector(
       detector: _FakeDetector(true),
       engine: _FakeEngine(lesson),

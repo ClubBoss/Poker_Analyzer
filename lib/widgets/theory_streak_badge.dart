@@ -43,10 +43,7 @@ class StreakBadge extends StatelessWidget {
                 ],
               ),
             );
-            return Tooltip(
-              message: 'Лучший стрик: $best',
-              child: badge,
-            );
+            return Tooltip(message: 'Лучший стрик: $best', child: badge);
           },
         );
       },

@@ -22,8 +22,9 @@ class PackLibraryValidatorService {
       try {
         final yaml = await rootBundle.loadString(path);
         final map = reader.read(yaml);
-        final tpl =
-            TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+        final tpl = TrainingPackTemplateV2.fromJson(
+          Map<String, dynamic>.from(map),
+        );
         final id = tpl.id.trim();
         if (id.isEmpty) {
           issues.add((file: path, message: 'empty_id'));

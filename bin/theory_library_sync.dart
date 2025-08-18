@@ -9,8 +9,9 @@ Future<void> main(List<String> args) async {
   final parser = ArgParser()..addFlag('help', abbr: 'h', negatable: false);
   final result = parser.parse(args);
   if (result['help'] as bool || result.rest.length < 2) {
-    stdout
-        .writeln('Usage: dart theory_library_sync.dart <export|import> <dir>');
+    stdout.writeln(
+      'Usage: dart theory_library_sync.dart <export|import> <dir>',
+    );
     return;
   }
 
@@ -30,7 +31,8 @@ Future<void> main(List<String> args) async {
       final exporter = const TheoryPackExporterService();
       final files = await exporter.export(lessons, dir);
       stdout.writeln(
-          'Exported ${lessons.length} lessons into ${files.length} files.');
+        'Exported ${lessons.length} lessons into ${files.length} files.',
+      );
       break;
     case 'import':
       final importer = const TheoryPackImporterService();

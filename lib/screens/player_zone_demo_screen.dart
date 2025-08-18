@@ -43,12 +43,11 @@ class _PlayerZoneDemoScreenState extends State<PlayerZoneDemoScreen> {
               itemBuilder: (context, index) {
                 final player = _players[index];
                 return Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
-                  child: PlayerZoneWidget(
-                    player: player,
-                    isHero: index == 0,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8.0,
+                    horizontal: 16,
                   ),
+                  child: PlayerZoneWidget(player: player, isHero: index == 0),
                 );
               },
             ),

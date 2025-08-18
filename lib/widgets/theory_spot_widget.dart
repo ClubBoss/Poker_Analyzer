@@ -10,11 +10,7 @@ class TheorySpotWidget extends StatelessWidget {
   /// Index of the spot to display.
   final int index;
 
-  const TheorySpotWidget({
-    super.key,
-    required this.spots,
-    required this.index,
-  });
+  const TheorySpotWidget({super.key, required this.spots, required this.index});
 
   TrainingPackSpot get _spot => spots[index];
 

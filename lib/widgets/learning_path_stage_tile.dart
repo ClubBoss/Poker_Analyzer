@@ -23,11 +23,13 @@ class LearningPathStageTile extends StatelessWidget {
 
   Future<double> _loadProgress() async {
     if (stage.type == StageType.theory || stage.type == StageType.booster) {
-      final done =
-          await TheoryStageProgressTracker.instance.isCompleted(stage.id);
+      final done = await TheoryStageProgressTracker.instance.isCompleted(
+        stage.id,
+      );
       if (done) return 1.0;
-      final mastery =
-          await TheoryStageProgressTracker.instance.getMastery(stage.id);
+      final mastery = await TheoryStageProgressTracker.instance.getMastery(
+        stage.id,
+      );
       return mastery.clamp(0.0, 1.0);
     }
     return TrainingProgressService.instance.getProgress(stage.packId);
@@ -98,7 +100,7 @@ class LearningPathStageTile extends StatelessWidget {
                           spacing: 4,
                           runSpacing: -4,
                           children: [
-                            for (final t in stage.tags) Chip(label: Text(t))
+                            for (final t in stage.tags) Chip(label: Text(t)),
                           ],
                         ),
                       ),
@@ -116,8 +118,9 @@ class LearningPathStageTile extends StatelessWidget {
                               child: LinearProgressIndicator(
                                 value: value.clamp(0.0, 1.0),
                                 backgroundColor: Colors.white24,
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(color),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  color,
+                                ),
                                 minHeight: 6,
                               ),
                             ),
@@ -127,13 +130,18 @@ class LearningPathStageTile extends StatelessWidget {
                                 Text(
                                   '$pct%',
                                   style: const TextStyle(
-                                      color: Colors.white70, fontSize: 12),
+                                    color: Colors.white70,
+                                    fontSize: 12,
+                                  ),
                                 ),
                                 if (value >= 1.0)
                                   const Padding(
                                     padding: EdgeInsets.only(left: 4),
-                                    child: Icon(Icons.check_circle,
-                                        color: Colors.green, size: 16),
+                                    child: Icon(
+                                      Icons.check_circle,
+                                      color: Colors.green,
+                                      size: 16,
+                                    ),
                                   ),
                               ],
                             ),

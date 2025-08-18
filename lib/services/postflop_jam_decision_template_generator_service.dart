@@ -24,9 +24,10 @@ class PostflopJamDecisionTemplateGeneratorService {
   PostflopJamDecisionTemplateGeneratorService({
     Random? random,
     FullBoardGeneratorService? boardGenerator,
-  })  : _random = random ?? Random(),
-        _boardGenerator = boardGenerator ??
-            FullBoardGeneratorService(random: random ?? Random());
+  }) : _random = random ?? Random(),
+       _boardGenerator =
+           boardGenerator ??
+           FullBoardGeneratorService(random: random ?? Random());
 
   /// Generates jam decision templates for river or delayed turn scenarios.
   List<TrainingPackTemplateV2> generate({
@@ -49,7 +50,9 @@ class PostflopJamDecisionTemplateGeneratorService {
     for (var i = 0; i < selected.length; i++) {
       final boardResult = delayedTurn
           ? _boardGenerator.generatePartialBoard(
-              stages: 4, boardFilterParams: boardFilter)
+              stages: 4,
+              boardFilterParams: boardFilter,
+            )
           : _boardGenerator.generateFullBoard(boardFilterParams: boardFilter);
       final board = boardResult.cards.map((c) => '${c.rank}${c.suit}').toList();
       final heroPos = _random.nextBool() ? HeroPosition.btn : HeroPosition.bb;
@@ -126,8 +129,12 @@ class PostflopJamDecisionTemplateGeneratorService {
     final actions = <int, List<ActionEntry>>{
       if (delayedTurn)
         2: [
-          ActionEntry(2, 0, 'bet',
-              amount: min(potSize.toDouble(), effectiveStack.toDouble())),
+          ActionEntry(
+            2,
+            0,
+            'bet',
+            amount: min(potSize.toDouble(), effectiveStack.toDouble()),
+          ),
           ActionEntry(2, 1, 'push', amount: effectiveStack.toDouble()),
           ActionEntry(2, 0, 'call', amount: effectiveStack.toDouble()),
           ActionEntry(2, 0, 'fold'),
@@ -160,8 +167,8 @@ class PostflopJamDecisionTemplateGeneratorService {
       heroOptions: delayedTurn
           ? const ['call', 'fold']
           : facingJam
-              ? const ['call', 'fold']
-              : const ['shove', 'fold'],
+          ? const ['call', 'fold']
+          : const ['shove', 'fold'],
       tags: delayedTurn
           ? const ['turn', 'jam', 'delayCbet', 'call', 'fold']
           : const ['river', 'jam', 'call', 'potOdds'],

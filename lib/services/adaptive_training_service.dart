@@ -59,7 +59,8 @@ class AdaptiveTrainingService extends ChangeNotifier {
     final f = forecast.forecast;
     if (f.accuracy < 0.6) {
       level -= 2;
-    } else if (f.accuracy < 0.75) level -= 1;
+    } else if (f.accuracy < 0.75)
+      level -= 1;
     if (f.ev < 0) level -= 1;
     if (f.icm < 0) level -= 1;
     if (f.accuracy > 0.9 && f.ev > 0 && f.icm > 0) level += 1;
@@ -204,9 +205,9 @@ class AdaptiveTrainingService extends ChangeNotifier {
     }
     if (range.length < 20) {
       range.addAll(
-        PackGeneratorService.topNHands(pct)
-            .where((h) => !range.contains(h))
-            .take(20 - range.length),
+        PackGeneratorService.topNHands(
+          pct,
+        ).where((h) => !range.contains(h)).take(20 - range.length),
       );
     }
     return PackGeneratorService.generatePushFoldPack(

@@ -45,8 +45,9 @@ class _TheoryQuickAccessBannerWidgetState
     });
     final lessons = await _linker.extractRelevantLessons(widget.tags);
     for (final l in lessons) {
-      final completed =
-          await TheoryLessonCompletionLogger.instance.isCompleted(l.id);
+      final completed = await TheoryLessonCompletionLogger.instance.isCompleted(
+        l.id,
+      );
       if (!completed) {
         _lesson = l;
         _isReview = false;
@@ -112,10 +113,7 @@ class _TheoryQuickAccessBannerWidgetState
               ],
             ),
           ),
-          TextButton(
-            onPressed: _openLesson,
-            child: const Text('Изучить'),
-          ),
+          TextButton(onPressed: _openLesson, child: const Text('Изучить')),
         ],
       ),
     );

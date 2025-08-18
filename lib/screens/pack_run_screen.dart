@@ -12,8 +12,11 @@ import 'v2/training_pack_play_screen.dart';
 class PackRunScreen extends StatefulWidget {
   final LearningPathController controller;
   final LearningPathStageModel stage;
-  const PackRunScreen(
-      {super.key, required this.controller, required this.stage});
+  const PackRunScreen({
+    super.key,
+    required this.controller,
+    required this.stage,
+  });
 
   @override
   State<PackRunScreen> createState() => _PackRunScreenState();
@@ -32,8 +35,9 @@ class _PackRunScreenState extends State<PackRunScreen> {
   }
 
   Future<void> _load() async {
-    final pack =
-        await PackRegistryService.instance.getById(widget.stage.packId);
+    final pack = await PackRegistryService.instance.getById(
+      widget.stage.packId,
+    );
     setState(() {
       _pack = pack;
       _loading = false;
@@ -55,9 +59,11 @@ class _PackRunScreenState extends State<PackRunScreen> {
   Future<void> _start() async {
     final tpl = _pack;
     if (tpl == null) return;
-    await Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => TrainingPackPlayScreen(template: tpl, original: tpl),
-    ));
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => TrainingPackPlayScreen(template: tpl, original: tpl),
+      ),
+    );
     widget.controller.recordHand(correct: true);
     setState(() {});
   }
@@ -91,8 +97,9 @@ class _PackRunScreenState extends State<PackRunScreen> {
     final requiredHands = widget.stage.requiredHands;
     final requiredAcc = widget.stage.requiredAccuracy * 100;
     final unlocked = widget.controller.isStageUnlocked(widget.stage.id);
-    final hasTheory = (_pack?.spots ?? const [])
-        .any((s) => (s.meta['theoryLinks'] as List?)?.isNotEmpty == true);
+    final hasTheory = (_pack?.spots ?? const []).any(
+      (s) => (s.meta['theoryLinks'] as List?)?.isNotEmpty == true,
+    );
     return Scaffold(
       appBar: AppBar(title: Text(widget.stage.title)),
       body: _loading
@@ -103,7 +110,8 @@ class _PackRunScreenState extends State<PackRunScreen> {
                 children: [
                   Text('Hands: ${progress.handsPlayed}/$requiredHands'),
                   Text(
-                      'Accuracy: ${(progress.accuracy * 100).toStringAsFixed(0)}% / ${requiredAcc.toStringAsFixed(0)}%'),
+                    'Accuracy: ${(progress.accuracy * 100).toStringAsFixed(0)}% / ${requiredAcc.toStringAsFixed(0)}%',
+                  ),
                   const SizedBox(height: 20),
                   if (_pack == null)
                     ElevatedButton(

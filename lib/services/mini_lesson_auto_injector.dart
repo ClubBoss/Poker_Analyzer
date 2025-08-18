@@ -24,14 +24,15 @@ class MiniLessonAutoInjector {
     TagMasteryService? masteryService,
     LearningPathEngine? engine,
     TheoryReinforcementLogService? logService,
-  })  : library = library ?? MiniLessonLibraryService.instance,
-        injector = injector ?? const MiniLessonBoosterEngine(),
-        masteryService = masteryService ??
-            TagMasteryService(
-              logs: SessionLogService(sessions: TrainingSessionService()),
-            ),
-        engine = engine ?? LearningPathEngine.instance,
-        logService = logService ?? TheoryReinforcementLogService.instance;
+  }) : library = library ?? MiniLessonLibraryService.instance,
+       injector = injector ?? const MiniLessonBoosterEngine(),
+       masteryService =
+           masteryService ??
+           TagMasteryService(
+             logs: SessionLogService(sessions: TrainingSessionService()),
+           ),
+       engine = engine ?? LearningPathEngine.instance,
+       logService = logService ?? TheoryReinforcementLogService.instance;
 
   static final MiniLessonAutoInjector instance = MiniLessonAutoInjector();
 
@@ -61,7 +62,7 @@ class MiniLessonAutoInjector {
     final recent = await logService.getRecent(within: cooldown);
     final recentIds = {
       for (final l in recent)
-        if (l.type == 'mini') l.id
+        if (l.type == 'mini') l.id,
     };
 
     int overlap(TheoryMiniLessonNode l) =>

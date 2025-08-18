@@ -12,8 +12,8 @@ class TheoryAutoInjectPanelWidget extends StatefulWidget {
     required this.libraryDir,
     TheoryGapDetector? detector,
     TheoryAutoInjector? injector,
-  })  : detector = detector ?? TheoryGapDetector(),
-        injector = injector ?? TheoryAutoInjector();
+  }) : detector = detector ?? TheoryGapDetector(),
+       injector = injector ?? TheoryAutoInjector();
 
   final TheoryGapDetector detector;
   final TheoryAutoInjector injector;

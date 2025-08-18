@@ -41,7 +41,9 @@ class SnapshotListDialog extends StatelessWidget {
 }
 
 Future<TemplateSnapshot?> showSnapshotListDialog(
-    BuildContext context, List<TemplateSnapshot> snapshots) {
+  BuildContext context,
+  List<TemplateSnapshot> snapshots,
+) {
   return showDialog<TemplateSnapshot>(
     context: context,
     builder: (_) => SnapshotListDialog(snapshots: snapshots),

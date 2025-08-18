@@ -44,10 +44,10 @@ class Achievement {
   }
 
   Achievement copyWith({int? progress}) => Achievement(
-        title: title,
-        description: description,
-        icon: icon,
-        progress: progress ?? this.progress,
-        thresholds: thresholds,
-      );
+    title: title,
+    description: description,
+    icon: icon,
+    progress: progress ?? this.progress,
+    thresholds: thresholds,
+  );
 }

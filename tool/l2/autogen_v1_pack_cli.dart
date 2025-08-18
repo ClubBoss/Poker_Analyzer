@@ -8,8 +8,11 @@ void main(List<String> args) {
     ..addOption('seed', help: 'required seed')
     ..addOption('count', defaultsTo: '40')
     ..addOption('preset', defaultsTo: 'mvs')
-    ..addOption('format',
-        defaultsTo: 'compact', allowed: ['compact', 'pretty']);
+    ..addOption(
+      'format',
+      defaultsTo: 'compact',
+      allowed: ['compact', 'pretty'],
+    );
   ArgResults opts;
   try {
     opts = parser.parse(args);
@@ -48,5 +51,6 @@ void main(List<String> args) {
 
 void _usage() {
   stderr.writeln(
-      'Usage: dart run tool/l2/autogen_v1_pack_cli.dart --seed <int> [--count <int>] [--preset mvs] [--format compact|pretty]');
+    'Usage: dart run tool/l2/autogen_v1_pack_cli.dart --seed <int> [--count <int>] [--preset mvs] [--format compact|pretty]',
+  );
 }

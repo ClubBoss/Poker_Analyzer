@@ -53,7 +53,7 @@ class _LearningPathValidationScreenState
       appBar: AppBar(
         title: const Text('Learning Path Validation'),
         actions: [
-          IconButton(onPressed: _load, icon: const Icon(Icons.refresh))
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh)),
         ],
       ),
       backgroundColor: AppColors.background,
@@ -76,7 +76,8 @@ class _LearningPathValidationScreenState
                             title: Text('${i.issueType.name}: ${i.message}'),
                             subtitle: i.stageId != null
                                 ? Text(
-                                    'stage: ${i.stageId}${i.subStageId != null ? ' / ${i.subStageId}' : ''}')
+                                    'stage: ${i.stageId}${i.subStageId != null ? ' / ${i.subStageId}' : ''}',
+                                  )
                                 : null,
                           ),
                       ],
@@ -91,7 +92,8 @@ class _LearningPathValidationScreenState
 }
 
 Future<List<Map<String, dynamic>>> _validateTask(
-    List<Map<String, dynamic>> json) async {
+  List<Map<String, dynamic>> json,
+) async {
   final paths = [for (final m in json) LearningPathTemplateV2.fromJson(m)];
   final issues = const SmartPathValidator().validateAll(paths);
   return [for (final i in issues) i.toJson()];

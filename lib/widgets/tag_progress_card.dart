@@ -99,8 +99,10 @@ class TagProgressCard extends StatelessWidget {
                     SizedBox(width: 8),
                     Text(
                       'Слабые навыки',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),

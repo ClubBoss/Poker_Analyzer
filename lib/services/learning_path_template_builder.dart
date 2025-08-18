@@ -12,9 +12,7 @@ class LearningPathTemplateBuilder {
     }
     final raw = file.readAsStringSync();
     final map = const YamlReader().read(raw);
-    return LearningPathTemplateV2.fromJson(
-      Map<String, dynamic>.from(map),
-    );
+    return LearningPathTemplateV2.fromJson(Map<String, dynamic>.from(map));
   }
 
   static void validate(LearningPathTemplateV2 template) {
@@ -31,7 +29,7 @@ class LearningPathTemplateBuilder {
       }
     }
     final packIds = {
-      for (final p in TrainingPackLibraryV2.instance.packs) p.id
+      for (final p in TrainingPackLibraryV2.instance.packs) p.id,
     };
     for (final s in template.stages) {
       if (!packIds.contains(s.packId)) {

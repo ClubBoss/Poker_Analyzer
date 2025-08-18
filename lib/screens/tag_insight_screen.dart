@@ -43,7 +43,7 @@ class _TagInsightScreenState extends State<TagInsightScreen> {
     final forecast = context.read<ProgressForecastService>();
     final series = forecast.tagSeries(tag);
     final history = {
-      tag: [for (final e in series) e.accuracy]
+      tag: [for (final e in series) e.accuracy],
     };
     final losses = const SkillLossDetector().detect(history);
     final trend = losses.isNotEmpty ? losses.first.trend : null;
@@ -68,15 +68,16 @@ class _TagInsightScreenState extends State<TagInsightScreen> {
     final review = items.firstWhereOrNull((e) => e.tag.toLowerCase() == tag);
 
     final hands = context.read<SavedHandManagerService>().hands;
-    final taggedHands =
-        hands.where((h) => h.tags.map((t) => t.toLowerCase()).contains(tag));
+    final taggedHands = hands.where(
+      (h) => h.tags.map((t) => t.toLowerCase()).contains(tag),
+    );
     final mistakes = [
       for (final h in taggedHands)
         if (h.expectedAction != null &&
             h.gtoAction != null &&
             h.expectedAction!.trim().toLowerCase() !=
                 h.gtoAction!.trim().toLowerCase())
-          h.name
+          h.name,
     ]..sort((a, b) => b.compareTo(a));
 
     setState(() {
@@ -103,8 +104,10 @@ class _TagInsightScreenState extends State<TagInsightScreen> {
     if (_mistakes.isEmpty) {
       return const Padding(
         padding: EdgeInsets.all(16),
-        child:
-            Text('Ошибок не найдено', style: TextStyle(color: Colors.white70)),
+        child: Text(
+          'Ошибок не найдено',
+          style: TextStyle(color: Colors.white70),
+        ),
       );
     }
     return Padding(
@@ -112,8 +115,10 @@ class _TagInsightScreenState extends State<TagInsightScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Последние ошибки',
-              style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text(
+            'Последние ошибки',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
           for (final m in _mistakes)
             Text(m, style: const TextStyle(color: Colors.white)),

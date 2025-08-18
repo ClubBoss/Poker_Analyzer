@@ -4,10 +4,14 @@ import '../models/card_model.dart';
 class BoardFilteringServiceV2 {
   const BoardFilteringServiceV2();
 
-  bool isMatch(BoardStages board, Set<String> requiredTags,
-      {Set<String>? excludedTags}) {
-    final tags =
-        board.textureTags.isNotEmpty ? board.textureTags : _evaluate(board);
+  bool isMatch(
+    BoardStages board,
+    Set<String> requiredTags, {
+    Set<String>? excludedTags,
+  }) {
+    final tags = board.textureTags.isNotEmpty
+        ? board.textureTags
+        : _evaluate(board);
     if (excludedTags != null && excludedTags.any(tags.contains)) {
       return false;
     }

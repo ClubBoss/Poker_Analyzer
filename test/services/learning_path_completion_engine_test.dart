@@ -10,49 +10,49 @@ void main() {
   const engine = LearningPathCompletionEngine();
 
   LearningPathTemplateV2 path0() => const LearningPathTemplateV2(
-        id: 'p',
-        title: 'Path',
+    id: 'p',
+    title: 'Path',
+    description: '',
+    stages: [
+      LearningPathStageModel(
+        id: 's1',
+        title: 'Stage 1',
         description: '',
-        stages: [
-          LearningPathStageModel(
-            id: 's1',
-            title: 'Stage 1',
-            description: '',
-            packId: 'pack1',
-            requiredAccuracy: 80,
-            minHands: 10,
-          ),
-          LearningPathStageModel(
-            id: 's2',
-            title: 'Stage 2',
-            description: '',
-            packId: 'pack2',
-            requiredAccuracy: 70,
-            minHands: 5,
-          ),
-        ],
-      );
+        packId: 'pack1',
+        requiredAccuracy: 80,
+        minHands: 10,
+      ),
+      LearningPathStageModel(
+        id: 's2',
+        title: 'Stage 2',
+        description: '',
+        packId: 'pack2',
+        requiredAccuracy: 70,
+        minHands: 5,
+      ),
+    ],
+  );
 
   Map<String, SessionLog> logs0(int c1, int m1, int c2, int m2) => {
-        'pack1': SessionLog(
-          tags: const [],
-          sessionId: 'l1',
-          templateId: 'pack1',
-          startedAt: DateTime.now(),
-          completedAt: DateTime.now(),
-          correctCount: c1,
-          mistakeCount: m1,
-        ),
-        'pack2': SessionLog(
-          tags: const [],
-          sessionId: 'l2',
-          templateId: 'pack2',
-          startedAt: DateTime.now(),
-          completedAt: DateTime.now(),
-          correctCount: c2,
-          mistakeCount: m2,
-        ),
-      };
+    'pack1': SessionLog(
+      tags: const [],
+      sessionId: 'l1',
+      templateId: 'pack1',
+      startedAt: DateTime.now(),
+      completedAt: DateTime.now(),
+      correctCount: c1,
+      mistakeCount: m1,
+    ),
+    'pack2': SessionLog(
+      tags: const [],
+      sessionId: 'l2',
+      templateId: 'pack2',
+      startedAt: DateTime.now(),
+      completedAt: DateTime.now(),
+      correctCount: c2,
+      mistakeCount: m2,
+    ),
+  };
 
   test('isCompleted true when all stages meet requirements', () {
     final path = path0();

@@ -49,8 +49,10 @@ class _GoalCardState extends State<GoalCard>
 
   @override
   Widget build(BuildContext context) {
-    final progress =
-        (widget.goal.currentXP / widget.goal.targetXP).clamp(0.0, 1.0);
+    final progress = (widget.goal.currentXP / widget.goal.targetXP).clamp(
+      0.0,
+      1.0,
+    );
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
@@ -67,7 +69,7 @@ class _GoalCardState extends State<GoalCard>
                       color: Colors.green.withValues(alpha: glow),
                       blurRadius: 20 * glow,
                       spreadRadius: 2 * glow,
-                    )
+                    ),
                   ]
                 : null,
           ),
@@ -99,7 +101,7 @@ class _GoalCardState extends State<GoalCard>
           Align(
             alignment: Alignment.centerRight,
             child: Text('${widget.goal.currentXP}/${widget.goal.targetXP}'),
-          )
+          ),
         ],
       ),
     );
@@ -179,10 +181,7 @@ class GoalsScreen extends StatelessWidget {
         centerTitle: true,
         actions: [SyncStatusIcon.of(context)],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: children,
-      ),
+      body: ListView(padding: const EdgeInsets.all(16), children: children),
     );
   }
 }

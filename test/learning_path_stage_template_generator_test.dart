@@ -14,12 +14,13 @@ void main() {
       packId: 'test_pack',
       subStages: const [
         SubStageTemplateInput(
-            id: 'a',
-            packId: 'a',
-            title: 'A',
-            description: 'desc A',
-            minHands: 5,
-            requiredAccuracy: 60),
+          id: 'a',
+          packId: 'a',
+          title: 'A',
+          description: 'desc A',
+          minHands: 5,
+          requiredAccuracy: 60,
+        ),
         SubStageTemplateInput(
           id: 'b',
           packId: 'b',
@@ -32,8 +33,9 @@ void main() {
       ],
     );
     final map = const YamlReader().read(yaml);
-    final stage =
-        LearningPathStageModel.fromJson(Map<String, dynamic>.from(map));
+    final stage = LearningPathStageModel.fromJson(
+      Map<String, dynamic>.from(map),
+    );
     expect(stage.id, 's1');
     expect(stage.subStages.length, 2);
     expect(stage.subStages.first.packId, 'a');
@@ -53,11 +55,13 @@ void main() {
       packId: 'pack1',
     );
     final mapFirst = const YamlReader().read(first);
-    final stageFirst =
-        LearningPathStageModel.fromJson(Map<String, dynamic>.from(mapFirst));
+    final stageFirst = LearningPathStageModel.fromJson(
+      Map<String, dynamic>.from(mapFirst),
+    );
     final mapSecond = const YamlReader().read(second);
-    final stageSecond =
-        LearningPathStageModel.fromJson(Map<String, dynamic>.from(mapSecond));
+    final stageSecond = LearningPathStageModel.fromJson(
+      Map<String, dynamic>.from(mapSecond),
+    );
     expect(stageFirst.order, 1);
     expect(stageSecond.order, 2);
     expect(stageSecond.unlockAfter, contains('first'));

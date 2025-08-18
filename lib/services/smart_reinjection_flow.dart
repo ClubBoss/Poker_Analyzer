@@ -24,15 +24,16 @@ class SmartReinjectionFlow {
     TagMasteryService? masteryService,
     TheoryReinforcementLogService? logService,
     LearningPathEngine? engine,
-  })  : reviewEngine = reviewEngine ?? AutoTheoryReviewEngine.instance,
-        weakPlanner = weakPlanner ?? SmartWeakReviewPlanner.instance,
-        injector = injector ?? TheoryBoosterInjector.instance,
-        masteryService = masteryService ??
-            TagMasteryService(
-              logs: SessionLogService(sessions: TrainingSessionService()),
-            ),
-        logService = logService ?? TheoryReinforcementLogService.instance,
-        engine = engine ?? LearningPathEngine.instance;
+  }) : reviewEngine = reviewEngine ?? AutoTheoryReviewEngine.instance,
+       weakPlanner = weakPlanner ?? SmartWeakReviewPlanner.instance,
+       injector = injector ?? TheoryBoosterInjector.instance,
+       masteryService =
+           masteryService ??
+           TagMasteryService(
+             logs: SessionLogService(sessions: TrainingSessionService()),
+           ),
+       logService = logService ?? TheoryReinforcementLogService.instance,
+       engine = engine ?? LearningPathEngine.instance;
 
   static final SmartReinjectionFlow instance = SmartReinjectionFlow();
 

@@ -64,9 +64,9 @@ class _AutogenPipelineDebugControlPanelState
   }
 
   void _showSnack(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   void _failStep(String name, Object e) {
@@ -232,10 +232,7 @@ class _AutogenPipelineDebugControlPanelState
               hint: const Text('Select Template Set'),
               items: [
                 for (final set in _sets)
-                  DropdownMenuItem(
-                    value: set,
-                    child: Text(set.baseSpot.id),
-                  ),
+                  DropdownMenuItem(value: set, child: Text(set.baseSpot.id)),
               ],
               onChanged: _busy ? null : (v) => setState(() => _selectedSet = v),
             ),

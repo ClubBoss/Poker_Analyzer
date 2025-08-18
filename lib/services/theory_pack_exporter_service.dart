@@ -9,7 +9,7 @@ class TheoryPackExporterService {
   final YamlEncoder _encoder;
 
   const TheoryPackExporterService({YamlEncoder? encoder})
-      : _encoder = encoder ?? const YamlEncoder();
+    : _encoder = encoder ?? const YamlEncoder();
 
   /// Saves [lessons] into [outputDir] grouped by [groupBy].
   ///
@@ -108,13 +108,13 @@ class TheoryPackExporterService {
   }
 
   Map<String, dynamic> _lessonToMap(TheoryMiniLessonNode l) => {
-        'id': l.id,
-        'title': l.title,
-        if (l.tags.isNotEmpty) 'tags': l.tags,
-        if (l.stage != null && l.stage!.isNotEmpty) 'stage': l.stage,
-        if (l.content.isNotEmpty) 'content': l.content,
-        if (l.linkedPackIds.isNotEmpty) 'linkedPackIds': l.linkedPackIds,
-      };
+    'id': l.id,
+    'title': l.title,
+    if (l.tags.isNotEmpty) 'tags': l.tags,
+    if (l.stage != null && l.stage!.isNotEmpty) 'stage': l.stage,
+    if (l.content.isNotEmpty) 'content': l.content,
+    if (l.linkedPackIds.isNotEmpty) 'linkedPackIds': l.linkedPackIds,
+  };
 
   String _sanitize(String input) =>
       input.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '_');

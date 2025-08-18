@@ -22,11 +22,23 @@ void main() {
     );
     final attempts = [
       TrainingSpotAttempt(
-          spot: spot1, userAction: 'fold', correctAction: 'call', evDiff: -1),
+        spot: spot1,
+        userAction: 'fold',
+        correctAction: 'call',
+        evDiff: -1,
+      ),
       TrainingSpotAttempt(
-          spot: spot2, userAction: 'fold', correctAction: 'call', evDiff: -1),
+        spot: spot2,
+        userAction: 'fold',
+        correctAction: 'call',
+        evDiff: -1,
+      ),
       TrainingSpotAttempt(
-          spot: spot1, userAction: 'call', correctAction: 'call', evDiff: 0),
+        spot: spot1,
+        userAction: 'call',
+        correctAction: 'call',
+        evDiff: 0,
+      ),
     ];
 
     final analyzer = RemedialAnalyzer();

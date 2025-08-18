@@ -84,16 +84,20 @@ class HandRestoreService {
       setActivePlayerIndex(hand.activePlayerIndex);
       actionSync.setAnalyzerActions(hand.actions);
       potSync.restoreFromHand(hand);
-      actionHistory.updateHistory(actionSync.analyzerActions,
-          visibleCount: playbackManager.playbackIndex);
+      actionHistory.updateHistory(
+        actionSync.analyzerActions,
+        visibleCount: playbackManager.playbackIndex,
+      );
       actionTags.restoreFromHand(hand);
       unawaited(queueService.setPending(hand.pendingEvaluations ?? []));
       foldedPlayers.restoreFromHand(hand);
       allInPlayers.restoreFromHand(hand);
       actionHistory.restoreFromCollapsed(hand.collapsedHistoryStreets);
       _autoCollapseStreets();
-      actionHistory.updateHistory(actionSync.analyzerActions,
-          visibleCount: playbackManager.playbackIndex);
+      actionHistory.updateHistory(
+        actionSync.analyzerActions,
+        visibleCount: playbackManager.playbackIndex,
+      );
       boardManager.boardStreet = hand.boardStreet;
       boardManager.currentStreet = hand.boardStreet;
       boardReveal.restoreFromHand(hand);

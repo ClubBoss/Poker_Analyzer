@@ -29,7 +29,8 @@ class BoosterPackValidatorService {
     }
 
     debugPrint(
-        'BoosterPackValidatorService: ${errors.length} errors, ${warnings.length} warnings');
+      'BoosterPackValidatorService: ${errors.length} errors, ${warnings.length} warnings',
+    );
     for (final e in errors) {
       debugPrint('Error: $e');
     }
@@ -56,7 +57,9 @@ class BoosterPackValidatorService {
   }
 
   BoosterValidationReport _validateSpot(
-      TrainingPackSpot spot, List<String> packPositions) {
+    TrainingPackSpot spot,
+    List<String> packPositions,
+  ) {
     final errors = <String>[];
     final warnings = <String>[];
 
@@ -66,8 +69,9 @@ class BoosterPackValidatorService {
     if (spot.hand.position == HeroPosition.unknown) {
       errors.add('bad_heroPosition:${spot.id}');
     } else if (packPositions.isNotEmpty) {
-      final matches =
-          packPositions.map(parseHeroPosition).contains(spot.hand.position);
+      final matches = packPositions
+          .map(parseHeroPosition)
+          .contains(spot.hand.position);
       if (!matches) warnings.add('position_mismatch:${spot.id}');
     }
 

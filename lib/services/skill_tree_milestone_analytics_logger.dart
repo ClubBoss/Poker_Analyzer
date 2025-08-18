@@ -13,8 +13,12 @@ class SkillTreeMilestoneAnalyticsLogger {
     required int stage,
     required String nodeId,
   }) async {
-    await _log('node_completed',
-        trackId: trackId, stage: stage, nodeId: nodeId);
+    await _log(
+      'node_completed',
+      trackId: trackId,
+      stage: stage,
+      nodeId: nodeId,
+    );
   }
 
   Future<void> logStageUnlocked({

@@ -30,8 +30,9 @@ class _TheoryPackReaderScreenState extends State<TheoryPackReaderScreen> {
     super.initState();
     _controller = ScrollController();
     _watcher = TheoryStageCompletionWatcher();
-    _completedFuture =
-        TheoryStageProgressTracker.instance.isCompleted(widget.stageId);
+    _completedFuture = TheoryStageProgressTracker.instance.isCompleted(
+      widget.stageId,
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _watcher.observe(
         widget.stageId,
@@ -44,8 +45,9 @@ class _TheoryPackReaderScreenState extends State<TheoryPackReaderScreen> {
 
   void _onCompleted() {
     setState(() {
-      _completedFuture =
-          TheoryStageProgressTracker.instance.isCompleted(widget.stageId);
+      _completedFuture = TheoryStageProgressTracker.instance.isCompleted(
+        widget.stageId,
+      );
     });
   }
 
@@ -97,8 +99,10 @@ class _TheoryPackReaderScreenState extends State<TheoryPackReaderScreen> {
                   duration: const Duration(milliseconds: 300),
                   opacity: completed ? 1.0 : 0.0,
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.green,
                       borderRadius: BorderRadius.circular(12),

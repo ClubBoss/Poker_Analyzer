@@ -11,14 +11,13 @@ class BoosterPreviewLauncher {
 
   Future<void> launch(BuildContext context, TrainingPackTemplateV2 pack) async {
     final template = TrainingPackTemplate.fromJson(pack.toJson());
-    await context
-        .read<TrainingSessionService>()
-        .startSession(template, persist: false);
+    await context.read<TrainingSessionService>().startSession(
+      template,
+      persist: false,
+    );
     await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => const TrainingSessionScreen(),
-      ),
+      MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
     );
   }
 }

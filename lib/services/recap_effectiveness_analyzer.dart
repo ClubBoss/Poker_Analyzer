@@ -5,7 +5,7 @@ class RecapEffectivenessAnalyzer {
   final RecapCompletionTracker tracker;
 
   RecapEffectivenessAnalyzer({RecapCompletionTracker? tracker})
-      : tracker = tracker ?? RecapCompletionTracker.instance;
+    : tracker = tracker ?? RecapCompletionTracker.instance;
 
   static final RecapEffectivenessAnalyzer instance =
       RecapEffectivenessAnalyzer();
@@ -28,7 +28,7 @@ class RecapEffectivenessAnalyzer {
       stat.timestamps.add(c.timestamp);
     }
     _stats = {
-      for (final e in map.entries) e.key: e.value.toEffectiveness(e.key)
+      for (final e in map.entries) e.key: e.value.toEffectiveness(e.key),
     };
   }
 
@@ -55,11 +55,13 @@ class RecapEffectivenessAnalyzer {
   }) {
     return [
       for (final t in _stats.keys)
-        if (isUnderperforming(t,
-            minCompletions: minCompletions,
-            minAvgDuration: minAvgDuration,
-            minRepeatRate: minRepeatRate))
-          t
+        if (isUnderperforming(
+          t,
+          minCompletions: minCompletions,
+          minAvgDuration: minAvgDuration,
+          minRepeatRate: minRepeatRate,
+        ))
+          t,
     ];
   }
 }
@@ -91,8 +93,9 @@ class _MutableTagStats {
       final diff = timestamps[i].difference(timestamps[i - 1]).inDays;
       if (diff <= 5) repeats++;
     }
-    final repeatRate =
-        timestamps.length > 1 ? repeats / (timestamps.length - 1) : 0.0;
+    final repeatRate = timestamps.length > 1
+        ? repeats / (timestamps.length - 1)
+        : 0.0;
     final avg = count > 0
         ? Duration(milliseconds: totalDuration.inMilliseconds ~/ count)
         : Duration.zero;

@@ -57,8 +57,9 @@ class _StreetActionListSimpleState extends State<StreetActionListSimple> {
                   onPressed: () {
                     Navigator.pop(ctx, {
                       'action': action,
-                      'amount':
-                          needAmount ? int.tryParse(controller.text) : null,
+                      'amount': needAmount
+                          ? int.tryParse(controller.text)
+                          : null,
                     });
                   },
                   child: const Text('Save'),
@@ -76,17 +77,20 @@ class _StreetActionListSimpleState extends State<StreetActionListSimple> {
         action: result['action'] as String,
         amount: result['amount'] as int?,
       );
-      context
-          .read<ActionSyncService>()
-          .updateAction(widget.street, index, newEntry);
+      context.read<ActionSyncService>().updateAction(
+        widget.street,
+        index,
+        newEntry,
+      );
     }
     controller.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, List<ActionEntry>> actions =
-        context.watch<ActionSyncService>().actions;
+    final Map<String, List<ActionEntry>> actions = context
+        .watch<ActionSyncService>()
+        .actions;
     final list = actions[widget.street] ?? [];
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -123,10 +127,7 @@ class _StreetActionListSimpleState extends State<StreetActionListSimple> {
             const SizedBox(width: 4),
             Text(
               widget.street,
-              style: TextStyle(
-                color: textColor(),
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(color: textColor(), fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -176,9 +177,9 @@ class _StreetActionListSimpleState extends State<StreetActionListSimple> {
               ),
               const SizedBox(width: 8),
               TextButton(
-                onPressed: () => context
-                    .read<ActionSyncService>()
-                    .clearStreet(widget.street),
+                onPressed: () => context.read<ActionSyncService>().clearStreet(
+                  widget.street,
+                ),
                 child: const Text('Clear Street'),
               ),
             ],

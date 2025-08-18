@@ -32,9 +32,7 @@ class DecayBadgeBanner extends StatelessWidget {
           ),
         ],
       ),
-      actions: [
-        TextButton(onPressed: onClose, child: const Text('Close')),
-      ],
+      actions: [TextButton(onPressed: onClose, child: const Text('Close'))],
     );
   }
 }

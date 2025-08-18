@@ -50,7 +50,9 @@ void main() {
     final board = svc.generateBoard(
       FullBoardRequest(stages: 3, boardFilterParams: params),
     );
-    expect(board.flop.any((c) => ['T', 'J', 'Q', 'K', 'A'].contains(c.rank)),
-        isTrue);
+    expect(
+      board.flop.any((c) => ['T', 'J', 'Q', 'K', 'A'].contains(c.rank)),
+      isTrue,
+    );
   });
 }

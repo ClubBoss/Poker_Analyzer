@@ -14,9 +14,9 @@ void main() {
       templateId: 't',
       templateName: 't',
     );
-    await tester.pumpWidget(MaterialApp(
-      home: TrainingPackSpotPreviewCard(spot: tpl.spots.first),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(home: TrainingPackSpotPreviewCard(spot: tpl.spots.first)),
+    );
     await tester.pump();
     expect(find.text('5-handed'), findsOneWidget);
   });

@@ -20,9 +20,11 @@ void main() {
   });
 
   testWidgets('shows streak progress toward next milestone', (tester) async {
-    await tester.pumpWidget(const MaterialApp(
-      home: DecayStreakProgressBarWidget(tracker: _FakeTracker(5)),
-    ));
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: DecayStreakProgressBarWidget(tracker: _FakeTracker(5)),
+      ),
+    );
     await tester.pump();
     expect(find.textContaining('5-day streak'), findsOneWidget);
     expect(find.text('5 / 7'), findsOneWidget);

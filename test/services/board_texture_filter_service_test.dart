@@ -26,13 +26,13 @@ void main() {
     expect(
       svc.isMatch(board, {
         'suitPattern': 'monotone',
-        'excludedRanks': ['K']
+        'excludedRanks': ['K'],
       }),
       true,
     );
     expect(
       svc.isMatch(board, {
-        'requiredRanks': ['K']
+        'requiredRanks': ['K'],
       }),
       false,
     );

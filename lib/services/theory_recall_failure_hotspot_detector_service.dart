@@ -25,14 +25,16 @@ class TheoryRecallFailureHotspotDetectorService {
         spotCounts.update(spot, (v) => v + 1, ifAbsent: () => 1);
       }
     }
-    final tags = tagCounts.entries
-        .map((e) => RecallHotspotEntry(id: e.key, count: e.value))
-        .toList()
-      ..sort((a, b) => b.count.compareTo(a.count));
-    final spots = spotCounts.entries
-        .map((e) => RecallHotspotEntry(id: e.key, count: e.value))
-        .toList()
-      ..sort((a, b) => b.count.compareTo(a.count));
+    final tags =
+        tagCounts.entries
+            .map((e) => RecallHotspotEntry(id: e.key, count: e.value))
+            .toList()
+          ..sort((a, b) => b.count.compareTo(a.count));
+    final spots =
+        spotCounts.entries
+            .map((e) => RecallHotspotEntry(id: e.key, count: e.value))
+            .toList()
+          ..sort((a, b) => b.count.compareTo(a.count));
     return RecallHotspotReport(
       topTags: tags.take(top).toList(),
       topSpotIds: spots.take(top).toList(),

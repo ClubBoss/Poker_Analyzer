@@ -18,10 +18,9 @@ void main(List<String> args) {
   }
 
   var hasError = false;
-  for (final file in dir
-      .listSync()
-      .whereType<File>()
-      .where((f) => f.path.endsWith('.yaml'))) {
+  for (final file in dir.listSync().whereType<File>().where(
+    (f) => f.path.endsWith('.yaml'),
+  )) {
     final content = loadYaml(file.readAsStringSync()) as Map;
     final subtype = content['subtype'];
     final street = content['street'];

@@ -53,7 +53,7 @@ class TagService extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final data = [
       for (final name in _tags)
-        {'name': name, 'color': _colors[name] ?? _defaultColor}
+        {'name': name, 'color': _colors[name] ?? _defaultColor},
     ];
     await prefs.setString(_prefsKey, jsonEncode(data));
   }
@@ -105,7 +105,7 @@ class TagService extends ChangeNotifier {
       const encoder = JsonEncoder.withIndent('  ');
       final data = [
         for (final name in _tags)
-          {'name': name, 'color': _colors[name] ?? _defaultColor}
+          {'name': name, 'color': _colors[name] ?? _defaultColor},
       ];
       final jsonStr = encoder.convert(data);
       final fileName = 'tags_${DateTime.now().millisecondsSinceEpoch}.json';
@@ -120,9 +120,9 @@ class TagService extends ChangeNotifier {
       await file.writeAsString(jsonStr);
       if (context.mounted) {
         final name = savePath.split(Platform.pathSeparator).last;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Файл сохранён: $name')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
       }
     } catch (_) {
       if (context.mounted) {
@@ -182,15 +182,15 @@ class TagService extends ChangeNotifier {
       notifyListeners();
       if (context.mounted) {
         final name = path.split(Platform.pathSeparator).last;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Импортировано из $name')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Импортировано из $name')));
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ошибка импорта файла')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Ошибка импорта файла')));
       }
     }
   }

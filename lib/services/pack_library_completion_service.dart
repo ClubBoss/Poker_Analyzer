@@ -19,16 +19,17 @@ class PackCompletionData {
   });
 
   Map<String, dynamic> toJson() => {
-        'completedAt': completedAt.toIso8601String(),
-        'correct': correct,
-        'total': total,
-        'accuracy': accuracy,
-        'elapsed': elapsed.inSeconds,
-      };
+    'completedAt': completedAt.toIso8601String(),
+    'correct': correct,
+    'total': total,
+    'accuracy': accuracy,
+    'elapsed': elapsed.inSeconds,
+  };
 
   factory PackCompletionData.fromJson(Map<String, dynamic> json) =>
       PackCompletionData(
-        completedAt: DateTime.tryParse(json['completedAt'] as String? ?? '') ??
+        completedAt:
+            DateTime.tryParse(json['completedAt'] as String? ?? '') ??
             DateTime.fromMillisecondsSinceEpoch(0),
         correct: (json['correct'] as num?)?.toInt() ?? 0,
         total: (json['total'] as num?)?.toInt() ?? 0,
@@ -57,7 +58,8 @@ class PackLibraryCompletionService {
     if (existingRaw != null) {
       try {
         final data = PackCompletionData.fromJson(
-            jsonDecode(existingRaw) as Map<String, dynamic>);
+          jsonDecode(existingRaw) as Map<String, dynamic>,
+        );
         var should = false;
         if (now.isAfter(data.completedAt)) {
           should = true;
@@ -103,8 +105,9 @@ class PackLibraryCompletionService {
           final data = jsonDecode(raw);
           if (data is Map) {
             final id = k.substring(_prefix.length);
-            result[id] =
-                PackCompletionData.fromJson(Map<String, dynamic>.from(data));
+            result[id] = PackCompletionData.fromJson(
+              Map<String, dynamic>.from(data),
+            );
           }
         } catch (_) {}
       }

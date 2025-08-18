@@ -28,8 +28,8 @@ class _DecayHeatmapScreenState extends State<DecayHeatmapScreen> {
 
   Future<void> _load() async {
     setState(() => _loading = true);
-    final scores =
-        await const DecayTagRetentionTrackerService().getAllDecayScores();
+    final scores = await const DecayTagRetentionTrackerService()
+        .getAllDecayScores();
     final boosterStats = await BoosterPathHistoryService.instance.getTagStats();
     final list = <TagDecayEntry>[];
     scores.forEach((tag, score) {
@@ -76,9 +76,9 @@ class _DecayHeatmapScreenState extends State<DecayHeatmapScreen> {
     final textColor = _textColor(color);
     return GestureDetector(
       onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Selected ${e.tag}')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Selected ${e.tag}')));
       },
       child: Container(
         decoration: BoxDecoration(
@@ -91,18 +91,19 @@ class _DecayHeatmapScreenState extends State<DecayHeatmapScreen> {
           children: [
             Text(
               e.tag,
-              style: TextStyle(
-                color: textColor,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 4),
-            Text('${(e.decay * 100).toStringAsFixed(0)}%',
-                style: TextStyle(color: textColor)),
+            Text(
+              '${(e.decay * 100).toStringAsFixed(0)}%',
+              style: TextStyle(color: textColor),
+            ),
             if (e.boosters > 0)
-              Text('x${e.boosters}',
-                  style: TextStyle(color: textColor, fontSize: 10)),
+              Text(
+                'x${e.boosters}',
+                style: TextStyle(color: textColor, fontSize: 10),
+              ),
           ],
         ),
       ),
@@ -136,15 +137,15 @@ class _DecayHeatmapScreenState extends State<DecayHeatmapScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _entries.isEmpty
-              ? const Center(child: Text('No tags'))
-              : GridView.count(
-                  padding: const EdgeInsets.all(16),
-                  crossAxisCount: count,
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 8,
-                  childAspectRatio: 1,
-                  children: _entries.map(_buildTile).toList(),
-                ),
+          ? const Center(child: Text('No tags'))
+          : GridView.count(
+              padding: const EdgeInsets.all(16),
+              crossAxisCount: count,
+              crossAxisSpacing: 8,
+              mainAxisSpacing: 8,
+              childAspectRatio: 1,
+              children: _entries.map(_buildTile).toList(),
+            ),
     );
   }
 }

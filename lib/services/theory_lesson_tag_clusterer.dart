@@ -6,7 +6,7 @@ class TheoryLessonTagClusterer {
   final MiniLessonLibraryService library;
 
   TheoryLessonTagClusterer({MiniLessonLibraryService? library})
-      : library = library ?? MiniLessonLibraryService.instance;
+    : library = library ?? MiniLessonLibraryService.instance;
 
   /// Returns clusters of lessons connected by tag overlap or next links.
   Future<List<TheoryLessonCluster>> clusterLessons() async {
@@ -16,7 +16,7 @@ class TheoryLessonTagClusterer {
 
     final byId = {for (final l in lessons) l.id: l};
     final adj = <String, Set<String>>{
-      for (final l in lessons) l.id: <String>{}
+      for (final l in lessons) l.id: <String>{},
     };
 
     // Build edges based on shared tags.

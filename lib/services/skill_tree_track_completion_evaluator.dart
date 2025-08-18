@@ -9,8 +9,8 @@ class SkillTreeTrackCompletionEvaluator {
   SkillTreeTrackCompletionEvaluator({
     SkillTreeLibraryService? library,
     SkillTreeNodeProgressTracker? progress,
-  })  : library = library ?? SkillTreeLibraryService.instance,
-        progress = progress ?? SkillTreeNodeProgressTracker.instance;
+  }) : library = library ?? SkillTreeLibraryService.instance,
+       progress = progress ?? SkillTreeNodeProgressTracker.instance;
 
   Future<void> _ensureLoaded() async {
     if (library.getAllNodes().isEmpty) {

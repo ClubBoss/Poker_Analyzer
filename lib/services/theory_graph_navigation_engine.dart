@@ -6,7 +6,7 @@ class TheoryGraphNavigationEngine {
   final MiniLessonLibraryService library;
 
   TheoryGraphNavigationEngine({MiniLessonLibraryService? library})
-      : library = library ?? MiniLessonLibraryService.instance;
+    : library = library ?? MiniLessonLibraryService.instance;
 
   final Map<String, TheoryMiniLessonNode> _byId = {};
   final Map<String, String?> _nextIndex = {};
@@ -41,7 +41,7 @@ class TheoryGraphNavigationEngine {
     final visited = <String>{};
     final roots = [
       for (final id in _byId.keys)
-        if ((incoming[id] ?? 0) == 0) id
+        if ((incoming[id] ?? 0) == 0) id,
     ];
 
     for (final root in roots) {

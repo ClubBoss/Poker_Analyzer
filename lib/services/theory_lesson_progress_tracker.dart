@@ -8,7 +8,7 @@ class TheoryLessonProgressTracker {
 
   /// Creates a tracker using [progress] to determine completed lessons.
   const TheoryLessonProgressTracker({MiniLessonProgressTracker? progress})
-      : progress = progress ?? MiniLessonProgressTracker.instance;
+    : progress = progress ?? MiniLessonProgressTracker.instance;
 
   /// Returns completion ratio (0.0 - 1.0) for [lessons].
   Future<double> progressForLessons(List<TheoryMiniLessonNode> lessons) async {

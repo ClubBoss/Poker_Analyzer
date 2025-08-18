@@ -17,25 +17,24 @@ class PlayerProfileImportExportService {
 
   /// Convert the current player profile to a serializable map.
   Map<String, dynamic> toMap() => {
-        'heroIndex': profile.heroIndex,
-        'heroPosition': profile.heroPosition,
-        'numberOfPlayers': profile.numberOfPlayers,
-        if (profile.opponentIndex != null)
-          'opponentIndex': profile.opponentIndex,
-        'playerPositions': [
-          for (int i = 0; i < profile.numberOfPlayers; i++)
-            profile.playerPositions[i]
-        ],
-        'playerTypes': [
-          for (int i = 0; i < profile.numberOfPlayers; i++)
-            profile.playerTypes[i]?.name ?? PlayerType.unknown.name
-        ],
-        'playerNames': [for (final p in profile.players) p.name],
-        'playerNotes': [
-          for (int i = 0; i < profile.numberOfPlayers; i++)
-            profile.playerNotes[i] ?? ''
-        ],
-      };
+    'heroIndex': profile.heroIndex,
+    'heroPosition': profile.heroPosition,
+    'numberOfPlayers': profile.numberOfPlayers,
+    if (profile.opponentIndex != null) 'opponentIndex': profile.opponentIndex,
+    'playerPositions': [
+      for (int i = 0; i < profile.numberOfPlayers; i++)
+        profile.playerPositions[i],
+    ],
+    'playerTypes': [
+      for (int i = 0; i < profile.numberOfPlayers; i++)
+        profile.playerTypes[i]?.name ?? PlayerType.unknown.name,
+    ],
+    'playerNames': [for (final p in profile.players) p.name],
+    'playerNotes': [
+      for (int i = 0; i < profile.numberOfPlayers; i++)
+        profile.playerNotes[i] ?? '',
+    ],
+  };
 
   /// Load player profile information from a previously serialized map.
   void loadFromMap(Map<String, dynamic> data) {
@@ -54,8 +53,8 @@ class PlayerProfileImportExportService {
     profile.heroPosition = heroPosition;
     profile.opponentIndex =
         opponent != null && opponent < profile.numberOfPlayers
-            ? opponent
-            : null;
+        ? opponent
+        : null;
 
     profile.playerPositions.clear();
     for (int i = 0; i < posList.length && i < profile.numberOfPlayers; i++) {
@@ -64,8 +63,10 @@ class PlayerProfileImportExportService {
 
     profile.playerTypes.clear();
     for (int i = 0; i < typeList.length && i < profile.numberOfPlayers; i++) {
-      final type = PlayerType.values.firstWhere((e) => e.name == typeList[i],
-          orElse: () => PlayerType.unknown);
+      final type = PlayerType.values.firstWhere(
+        (e) => e.name == typeList[i],
+        orElse: () => PlayerType.unknown,
+      );
       profile.playerTypes[i] = type;
     }
 
@@ -101,7 +102,8 @@ class PlayerProfileImportExportService {
     await Clipboard.setData(ClipboardData(text: serialize()));
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile copied to clipboard')));
+        const SnackBar(content: Text('Profile copied to clipboard')),
+      );
     }
   }
 
@@ -111,18 +113,21 @@ class PlayerProfileImportExportService {
       if (data == null || data.text == null || !deserialize(data.text!)) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Invalid clipboard data')));
+            const SnackBar(content: Text('Invalid clipboard data')),
+          );
         }
         return;
       }
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Profile loaded from clipboard')));
+          const SnackBar(content: Text('Profile loaded from clipboard')),
+        );
       }
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Failed to read clipboard')));
+          const SnackBar(content: Text('Failed to read clipboard')),
+        );
       }
     }
   }
@@ -154,8 +159,9 @@ class PlayerProfileImportExportService {
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Failed to save file')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Failed to save file')));
       }
     }
   }
@@ -173,20 +179,26 @@ class PlayerProfileImportExportService {
       final content = await file.readAsString();
       if (!deserialize(content)) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Invalid file format')));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Invalid file format')));
         }
         return;
       }
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
             content: Text(
-                'File loaded: ${file.path.split(Platform.pathSeparator).last}')));
+              'File loaded: ${file.path.split(Platform.pathSeparator).last}',
+            ),
+          ),
+        );
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Failed to read file')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Failed to read file')));
       }
     }
   }
@@ -211,13 +223,15 @@ class PlayerProfileImportExportService {
       await file.writeAsBytes(bytes, flush: true);
       if (context.mounted) {
         final displayName = savePath.split(Platform.pathSeparator).last;
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Archive saved: $displayName')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Archive saved: $displayName')));
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Failed to save archive')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Failed to save archive')));
       }
     }
   }

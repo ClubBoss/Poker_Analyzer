@@ -17,7 +17,7 @@ class PackRatingService {
         if (data is Map) {
           _ratings = {
             for (final e in data.entries)
-              e.key.toString(): (e.value as num).toInt()
+              e.key.toString(): (e.value as num).toInt(),
           };
         }
       } catch (_) {}

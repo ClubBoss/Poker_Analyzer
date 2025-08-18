@@ -19,14 +19,18 @@ class TagCoverageTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = max > 0 ? count / max : 0.0;
-    final color =
-        Color.lerp(const Color(0xFF444444), const Color(0xFFFFA500), t)!;
+    final color = Color.lerp(
+      const Color(0xFF444444),
+      const Color(0xFFFFA500),
+      t,
+    )!;
     return GestureDetector(
-      onTap: onTap ??
+      onTap:
+          onTap ??
           () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => TagInsightScreen(tag: tag)),
-              ),
+            context,
+            MaterialPageRoute(builder: (_) => TagInsightScreen(tag: tag)),
+          ),
       child: Container(
         decoration: BoxDecoration(
           color: color,
@@ -46,10 +50,7 @@ class TagCoverageTile extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 4),
-            Text(
-              '$count',
-              style: const TextStyle(color: Colors.white70),
-            ),
+            Text('$count', style: const TextStyle(color: Colors.white70)),
           ],
         ),
       ),

@@ -19,14 +19,13 @@ class PinnedLearningItem {
     int? lastPosition,
     int? lastSeen,
     int? openCount,
-  }) =>
-      PinnedLearningItem(
-        type: type ?? this.type,
-        id: id ?? this.id,
-        lastPosition: lastPosition ?? this.lastPosition,
-        lastSeen: lastSeen ?? this.lastSeen,
-        openCount: openCount ?? this.openCount,
-      );
+  }) => PinnedLearningItem(
+    type: type ?? this.type,
+    id: id ?? this.id,
+    lastPosition: lastPosition ?? this.lastPosition,
+    lastSeen: lastSeen ?? this.lastSeen,
+    openCount: openCount ?? this.openCount,
+  );
 
   factory PinnedLearningItem.fromJson(Map<String, dynamic> json) =>
       PinnedLearningItem(
@@ -38,10 +37,10 @@ class PinnedLearningItem {
       );
 
   Map<String, dynamic> toJson() => {
-        'type': type,
-        'id': id,
-        if (lastPosition != null) 'lastPosition': lastPosition,
-        if (lastSeen != null) 'lastSeen': lastSeen,
-        'openCount': openCount,
-      };
+    'type': type,
+    'id': id,
+    if (lastPosition != null) 'lastPosition': lastPosition,
+    if (lastSeen != null) 'lastSeen': lastSeen,
+    'openCount': openCount,
+  };
 }

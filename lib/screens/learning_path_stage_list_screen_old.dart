@@ -148,8 +148,9 @@ class _LearningPathStageListScreenState
             }
           }),
           title: Text(section.title),
-          subtitle:
-              section.description.isNotEmpty ? Text(section.description) : null,
+          subtitle: section.description.isNotEmpty
+              ? Text(section.description)
+              : null,
           childrenPadding: const EdgeInsets.symmetric(horizontal: 16),
           children: children,
         ),

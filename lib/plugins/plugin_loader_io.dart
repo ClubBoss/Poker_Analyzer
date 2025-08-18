@@ -50,8 +50,12 @@ class PluginLoader {
   }
 
   Future<File> _cacheFile() async {
-    return File(p.join(
-        (await getApplicationSupportDirectory()).path, 'plugin_cache.json'));
+    return File(
+      p.join(
+        (await getApplicationSupportDirectory()).path,
+        'plugin_cache.json',
+      ),
+    );
   }
 
   Future<Map<String, dynamic>?> _loadCache() async {
@@ -72,12 +76,14 @@ class PluginLoader {
     Map<String, String> checksums,
   ) async {
     final file = await _cacheFile();
-    await file.writeAsString(jsonEncode(<String, dynamic>{
-      'files': files,
-      'config': config,
-      'plugins': plugins,
-      'checksums': checksums,
-    }));
+    await file.writeAsString(
+      jsonEncode(<String, dynamic>{
+        'files': files,
+        'config': config,
+        'plugins': plugins,
+        'checksums': checksums,
+      }),
+    );
   }
 
   /// Returns all built-in plug-ins included with the application.
@@ -133,7 +139,8 @@ class PluginLoader {
   Future<Map<String, bool>> loadConfig() async {
     if (_config != null) return _config!;
     final dir = Directory(
-        p.join((await getApplicationSupportDirectory()).path, 'plugins'));
+      p.join((await getApplicationSupportDirectory()).path, 'plugins'),
+    );
     final file = File(p.join(dir.path, 'plugin_config.json'));
     if (await file.exists()) {
       try {
@@ -200,20 +207,22 @@ class PluginLoader {
       throw Exception('Invalid plugin file');
     }
     final dir = Directory(
-        p.join((await getApplicationSupportDirectory()).path, 'plugins'));
+      p.join((await getApplicationSupportDirectory()).path, 'plugins'),
+    );
     await dir.create(recursive: true);
     final file = File(p.join(dir.path, name));
     final cached = await _loadCache();
-    final cachedDigest =
-        (cached?['checksums'] as Map?)?.cast<String, String>()[name];
+    final cachedDigest = (cached?['checksums'] as Map?)
+        ?.cast<String, String>()[name];
     if (checksum != null &&
         cachedDigest != null &&
         cachedDigest == checksum.toLowerCase() &&
         await file.exists()) {
       final ctx = navigatorKey.currentState?.context;
       if (ctx != null && ctx.mounted) {
-        ScaffoldMessenger.of(ctx)
-            .showSnackBar(const SnackBar(content: Text('Plugin up to date')));
+        ScaffoldMessenger.of(
+          ctx,
+        ).showSnackBar(const SnackBar(content: Text('Plugin up to date')));
       }
       return false;
     }
@@ -234,7 +243,8 @@ class PluginLoader {
         throw Exception('Checksum mismatch');
       }
       final cache = cached ?? <String, dynamic>{};
-      final checksums = (cache['checksums'] as Map?)?.cast<String, String>() ??
+      final checksums =
+          (cache['checksums'] as Map?)?.cast<String, String>() ??
           <String, String>{};
       checksums[name] = digest;
       cache['checksums'] = checksums;
@@ -249,7 +259,8 @@ class PluginLoader {
 
   Future<void> delete(String name) async {
     final supportDir = Directory(
-        p.join((await getApplicationSupportDirectory()).path, 'plugins'));
+      p.join((await getApplicationSupportDirectory()).path, 'plugins'),
+    );
     final supportFile = File(p.join(supportDir.path, name));
     if (await supportFile.exists()) await supportFile.delete();
     final rootFile = File(p.join('plugins', name));
@@ -266,7 +277,8 @@ class PluginLoader {
     final files =
         (cache['files'] as List?)?.cast<String>().toList() ?? <String>[];
     files.remove(name);
-    final checksums = (cache['checksums'] as Map?)?.cast<String, String>() ??
+    final checksums =
+        (cache['checksums'] as Map?)?.cast<String, String>() ??
         <String, String>{};
     checksums.remove(name);
     cache['files'] = files;
@@ -305,12 +317,13 @@ class PluginLoader {
     final cached = await _loadCache();
     final cachedFiles =
         (cached?['files'] as List?)?.cast<String>() ?? <String>[];
-    final cachedConfig = (cached?['config'] as Map?)?.cast<String, dynamic>() ??
+    final cachedConfig =
+        (cached?['config'] as Map?)?.cast<String, dynamic>() ??
         <String, dynamic>{};
-    final match = const DeepCollectionEquality().equals(
-          cachedFiles,
-          [for (final f in files) p.basename(f.path)],
-        ) &&
+    final match =
+        const DeepCollectionEquality().equals(cachedFiles, [
+          for (final f in files) p.basename(f.path),
+        ]) &&
         const DeepCollectionEquality().equals(
           config,
           cachedConfig.map((k, v) => MapEntry(k, v == true)),
@@ -320,8 +333,9 @@ class PluginLoader {
     final loadedPlugins = <Plugin>[];
 
     if (match) {
-      pluginNames
-          .addAll((cached?['plugins'] as List?)?.cast<String>() ?? <String>[]);
+      pluginNames.addAll(
+        (cached?['plugins'] as List?)?.cast<String>() ?? <String>[],
+      );
       for (final name in pluginNames) {
         final plugin = _createByName(name);
         if (plugin != null) {
@@ -369,7 +383,8 @@ class PluginLoader {
       if (context != null && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text('Duplicate plugins: ${duplicates.join(', ')}')),
+            content: Text('Duplicate plugins: ${duplicates.join(', ')}'),
+          ),
         );
       }
     }

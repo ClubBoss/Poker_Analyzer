@@ -16,9 +16,7 @@ class GoalCelebrationBanner extends StatelessWidget {
     return MaterialBanner(
       leading: const Icon(Icons.emoji_events, color: Colors.amber),
       content: Text('🎉 Цель #$tag достигнута!'),
-      actions: [
-        TextButton(onPressed: onClose, child: const Text('Закрыть')),
-      ],
+      actions: [TextButton(onPressed: onClose, child: const Text('Закрыть'))],
     );
   }
 }

@@ -15,8 +15,9 @@ class LearningPathNodeGraphSnapshotService {
 
   /// Returns a formatted multiline snapshot of all nodes.
   String debugSnapshot() {
-    final autoInjected =
-        LearningPathNodeHistory.instance.getAutoInjectedIds().toSet();
+    final autoInjected = LearningPathNodeHistory.instance
+        .getAutoInjectedIds()
+        .toSet();
     final buffer = StringBuffer();
     for (final node in engine.allNodes.sortedBy((n) => n.id)) {
       final marker = autoInjected.contains(node.id) ? '*' : '';
@@ -24,7 +25,8 @@ class LearningPathNodeGraphSnapshotService {
       final next = _nextIds(node).join(', ');
       final depends = _dependsOn(node).join(', ');
       buffer.writeln(
-          '${node.id}$marker [$type] nextIds: [$next] dependsOn: [$depends]');
+        '${node.id}$marker [$type] nextIds: [$next] dependsOn: [$depends]',
+      );
     }
     return buffer.toString();
   }

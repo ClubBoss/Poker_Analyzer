@@ -43,7 +43,7 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
             (_categoryFilter == 'Все' || h.category == _categoryFilter) &&
             (_fromDate == null || !h.date.isBefore(_fromDate!)) &&
             (_toDate == null || !h.date.isAfter(_toDate!)))
-          h
+          h,
     ]..sort((a, b) => b.date.compareTo(a.date));
   }
 
@@ -61,14 +61,18 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
       '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
 
   Future<void> _renameHand(
-      SavedHand hand, SavedHandManagerService manager) async {
+    SavedHand hand,
+    SavedHandManagerService manager,
+  ) async {
     final controller = TextEditingController(text: hand.name);
     final name = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.cardBackground,
-        title:
-            const Text('Переименовать', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Переименовать',
+          style: TextStyle(color: Colors.white),
+        ),
         content: TextField(
           controller: controller,
           autofocus: true,
@@ -98,11 +102,11 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
     final allHands = manager.hands;
     final gameTypes = {
       for (final h in allHands)
-        if (h.gameType != null && h.gameType!.isNotEmpty) h.gameType!
+        if (h.gameType != null && h.gameType!.isNotEmpty) h.gameType!,
     };
     final categories = {
       for (final h in allHands)
-        if (h.category != null && h.category!.isNotEmpty) h.category!
+        if (h.category != null && h.category!.isNotEmpty) h.category!,
     };
 
     final filteredAll = _applyFilters(allHands);
@@ -164,7 +168,8 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
                           setState(() => _gameTypeFilter = v ?? 'Все'),
                       items: ['Все', ...gameTypes]
                           .map(
-                              (g) => DropdownMenuItem(value: g, child: Text(g)))
+                            (g) => DropdownMenuItem(value: g, child: Text(g)),
+                          )
                           .toList(),
                     ),
                   if (gameTypes.isNotEmpty && categories.isNotEmpty)
@@ -177,15 +182,18 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
                           setState(() => _categoryFilter = v ?? 'Все'),
                       items: ['Все', ...categories]
                           .map(
-                              (c) => DropdownMenuItem(value: c, child: Text(c)))
+                            (c) => DropdownMenuItem(value: c, child: Text(c)),
+                          )
                           .toList(),
                     ),
                   const SizedBox(width: 12),
                   OutlinedButton.icon(
                     icon: const Icon(Icons.date_range),
-                    label: Text(_fromDate == null && _toDate == null
-                        ? 'Период'
-                        : '${_fromDate == null ? '...' : _dateStr(_fromDate!)} - ${_toDate == null ? '...' : _dateStr(_toDate!)}'),
+                    label: Text(
+                      _fromDate == null && _toDate == null
+                          ? 'Период'
+                          : '${_fromDate == null ? '...' : _dateStr(_fromDate!)} - ${_toDate == null ? '...' : _dateStr(_toDate!)}',
+                    ),
                     onPressed: () async {
                       final picked = await showDateRangePicker(
                         context: context,
@@ -194,9 +202,11 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
                         initialDateRange: _fromDate == null && _toDate == null
                             ? null
                             : DateTimeRange(
-                                start: _fromDate ??
-                                    DateTime.now()
-                                        .subtract(const Duration(days: 30)),
+                                start:
+                                    _fromDate ??
+                                    DateTime.now().subtract(
+                                      const Duration(days: 30),
+                                    ),
                                 end: _toDate ?? DateTime.now(),
                               ),
                       );

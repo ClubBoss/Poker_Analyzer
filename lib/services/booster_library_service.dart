@@ -13,8 +13,9 @@ class BoosterLibraryService {
 
   Future<void> loadAll({int limit = 500}) async {
     if (_loaded) return;
-    await TrainingPackLibraryLoaderService.instance
-        .preloadLibrary(limit: limit);
+    await TrainingPackLibraryLoaderService.instance.preloadLibrary(
+      limit: limit,
+    );
     final all = TrainingPackLibraryLoaderService.instance.loadedTemplates;
     _boosters.clear();
     _index.clear();
@@ -50,7 +51,7 @@ class BoosterLibraryService {
     final lc = tag.toLowerCase();
     return [
       for (final p in _boosters)
-        if (p.meta['tag']?.toString().toLowerCase() == lc) p
+        if (p.meta['tag']?.toString().toLowerCase() == lc) p,
     ];
   }
 }

@@ -36,9 +36,7 @@ class TheoryRecallImpactTracker {
   Future<void> record(String tag, String lessonId) async {
     final norm = tag.trim();
     if (norm.isEmpty) return;
-    _logs.add(
-      _Entry(tag: norm, lessonId: lessonId, timestamp: DateTime.now()),
-    );
+    _logs.add(_Entry(tag: norm, lessonId: lessonId, timestamp: DateTime.now()));
     if (_logs.length > maxEntries) {
       _logs.removeRange(0, _logs.length - maxEntries);
     }
@@ -105,14 +103,14 @@ class _Entry {
   final DateTime timestamp;
 
   factory _Entry.fromJson(Map<String, dynamic> json) => _Entry(
-        tag: json['tag'] as String,
-        lessonId: json['lessonId'] as String,
-        timestamp: DateTime.parse(json['timestamp'] as String),
-      );
+    tag: json['tag'] as String,
+    lessonId: json['lessonId'] as String,
+    timestamp: DateTime.parse(json['timestamp'] as String),
+  );
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'tag': tag,
-        'lessonId': lessonId,
-        'timestamp': timestamp.toIso8601String(),
-      };
+    'tag': tag,
+    'lessonId': lessonId,
+    'timestamp': timestamp.toIso8601String(),
+  };
 }

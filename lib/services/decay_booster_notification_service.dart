@@ -22,10 +22,10 @@ class DecayBoosterNotificationService with WidgetsBindingObserver {
     MiniLessonProgressTracker? progress,
     MiniLessonLibraryService? lessons,
     AppUsageTracker? usage,
-  })  : decay = decay ?? TheoryTagDecayTracker(),
-        progress = progress ?? MiniLessonProgressTracker.instance,
-        lessons = lessons ?? MiniLessonLibraryService.instance,
-        usage = usage ?? AppUsageTracker.instance;
+  }) : decay = decay ?? TheoryTagDecayTracker(),
+       progress = progress ?? MiniLessonProgressTracker.instance,
+       lessons = lessons ?? MiniLessonLibraryService.instance,
+       usage = usage ?? AppUsageTracker.instance;
 
   final TheoryTagDecayTracker decay;
   final MiniLessonProgressTracker progress;

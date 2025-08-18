@@ -8,14 +8,16 @@ void main() {
 
   testWidgets('icm badge colors', (tester) async {
     final tpl = PackGeneratorService.generateFinalTablePack();
-    await tester.pumpWidget(MaterialApp(
-      home: Column(
-        children: [
-          for (final s in tpl.spots.take(10))
-            TrainingPackSpotPreviewCard(spot: s),
-        ],
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Column(
+          children: [
+            for (final s in tpl.spots.take(10))
+              TrainingPackSpotPreviewCard(spot: s),
+          ],
+        ),
       ),
-    ));
+    );
     await tester.pump();
     final icmBadges = tester
         .widgetList<Container>(find.byKey(const ValueKey('icmBadge')))

@@ -35,9 +35,11 @@ class TrainingSessionCompletionScreen extends StatelessWidget {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () async {
-                await context
-                    .read<TrainingSessionService>()
-                    .startSession(template, persist: false, startIndex: 0);
+                await context.read<TrainingSessionService>().startSession(
+                  template,
+                  persist: false,
+                  startIndex: 0,
+                );
                 if (!context.mounted) return;
                 Navigator.pushReplacement(
                   context,

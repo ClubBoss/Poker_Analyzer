@@ -7,16 +7,16 @@ import 'package:poker_analyzer/models/v2/hero_position.dart';
 import 'package:poker_analyzer/services/training_pack_template_multi_set_expander_service.dart';
 
 TrainingPackSpot _base({required String id}) => TrainingPackSpot(
-      id: id,
-      hand: HandData(
-        heroCards: 'Ah Kh',
-        position: HeroPosition.btn,
-        heroIndex: 0,
-        playerCount: 2,
-        board: [],
-      ),
-      board: [],
-    );
+  id: id,
+  hand: HandData(
+    heroCards: 'Ah Kh',
+    position: HeroPosition.btn,
+    heroIndex: 0,
+    playerCount: 2,
+    board: [],
+  ),
+  board: [],
+);
 
 void main() {
   test('returns empty list when no sets provided', () {
@@ -29,21 +29,25 @@ void main() {
     final set1 = TrainingPackTemplateSet(
       baseSpot: _base(id: 's1'),
       variations: [
-        ConstraintSet(overrides: {
-          'board': [
-            ['As', 'Kd', 'Qc'],
-          ],
-        }),
+        ConstraintSet(
+          overrides: {
+            'board': [
+              ['As', 'Kd', 'Qc'],
+            ],
+          },
+        ),
       ],
     );
     final set2 = TrainingPackTemplateSet(
       baseSpot: _base(id: 's2'),
       variations: [
-        ConstraintSet(overrides: {
-          'board': [
-            ['2h', '3d', '4c'],
-          ],
-        }),
+        ConstraintSet(
+          overrides: {
+            'board': [
+              ['2h', '3d', '4c'],
+            ],
+          },
+        ),
       ],
     );
     final svc = TrainingPackTemplateMultiSetExpanderService();
@@ -57,19 +61,23 @@ void main() {
     final invalid = TrainingPackTemplateSet(
       baseSpot: _base(id: 'bad'),
       variations: [
-        ConstraintSet(overrides: {
-          'board': [123],
-        }),
+        ConstraintSet(
+          overrides: {
+            'board': [123],
+          },
+        ),
       ],
     );
     final valid = TrainingPackTemplateSet(
       baseSpot: _base(id: 'good'),
       variations: [
-        ConstraintSet(overrides: {
-          'board': [
-            ['5h', '6d', '7c'],
-          ],
-        }),
+        ConstraintSet(
+          overrides: {
+            'board': [
+              ['5h', '6d', '7c'],
+            ],
+          },
+        ),
       ],
     );
     final svc = TrainingPackTemplateMultiSetExpanderService();

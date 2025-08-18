@@ -9,9 +9,17 @@ void main() {
   test('builder links lessons and spots into graph', () {
     final lessons = [
       TheoryMiniLessonNode(
-          id: 'l1', title: '', content: '', tags: ['btn', 'flopCbet']),
+        id: 'l1',
+        title: '',
+        content: '',
+        tags: ['btn', 'flopCbet'],
+      ),
       TheoryMiniLessonNode(
-          id: 'l2', title: '', content: '', tags: ['btn', 'turnCheck']),
+        id: 'l2',
+        title: '',
+        content: '',
+        tags: ['btn', 'turnCheck'],
+      ),
     ];
     final spot = TrainingPackSpot(
       id: 's1',
@@ -36,6 +44,8 @@ void main() {
     final next = engine.findNextOptions(start);
     expect(next.length, 1);
     expect(
-        engine.findLinkedLessons(next.first).map((l) => l.id), contains('l2'));
+      engine.findLinkedLessons(next.first).map((l) => l.id),
+      contains('l2'),
+    );
   });
 }

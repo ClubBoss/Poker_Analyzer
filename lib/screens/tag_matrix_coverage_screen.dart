@@ -45,7 +45,7 @@ class _TagMatrixCoverageScreenState extends State<TagMatrixCoverageScreen> {
       appBar: AppBar(
         title: const Text('Tag Matrix Coverage'),
         actions: [
-          IconButton(onPressed: _load, icon: const Icon(Icons.refresh))
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh)),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),

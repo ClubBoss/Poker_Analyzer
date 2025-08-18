@@ -4,7 +4,7 @@ class MiniChip extends StatelessWidget {
   final Color color;
   final double size;
   const MiniChip({Key? key, required this.color, this.size = 12})
-      : super(key: key);
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,10 +19,7 @@ class MiniChip extends StatelessWidget {
           end: Alignment.bottomCenter,
         ),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.6),
-            blurRadius: 4,
-          ),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.6), blurRadius: 4),
         ],
       ),
     );
@@ -57,8 +54,10 @@ class ChipTrail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final control =
-        Offset((start.dx + end.dx) / 2, (start.dy + end.dy) / 2 - 40 * scale);
+    final control = Offset(
+      (start.dx + end.dx) / 2,
+      (start.dy + end.dy) / 2 - 40 * scale,
+    );
     return IgnorePointer(
       child: Stack(
         children: List.generate(chipCount, (i) {

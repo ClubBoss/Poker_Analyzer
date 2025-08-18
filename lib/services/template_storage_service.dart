@@ -86,8 +86,9 @@ class TemplateStorageService extends ChangeNotifier {
       if (json is! Map<String, dynamic>) return 'неверный JSON';
       final error = validateTemplateJson(Map<String, dynamic>.from(json));
       if (error != null) return error;
-      final template =
-          TrainingPackTemplate.fromJson(Map<String, dynamic>.from(json));
+      final template = TrainingPackTemplate.fromJson(
+        Map<String, dynamic>.from(json),
+      );
       final index = _templates.indexWhere((t) => t.id == template.id);
       if (index == -1) {
         _templates.add(template);
@@ -110,12 +111,19 @@ class TemplateStorageService extends ChangeNotifier {
       if (stored != null && stored.isNotEmpty) {
         _templates
           ..clear()
-          ..addAll(stored.map((e) => TrainingPackTemplate.fromJson(
-              jsonDecode(e) as Map<String, dynamic>)));
+          ..addAll(
+            stored.map(
+              (e) => TrainingPackTemplate.fromJson(
+                jsonDecode(e) as Map<String, dynamic>,
+              ),
+            ),
+          );
       } else {
         final manifest = await _manifestFuture;
-        final paths = manifest.keys.where((e) =>
-            e.startsWith('assets/training_templates/') && e.endsWith('.json'));
+        final paths = manifest.keys.where(
+          (e) =>
+              e.startsWith('assets/training_templates/') && e.endsWith('.json'),
+        );
         _templates.clear();
         for (final p in paths) {
           final data = jsonDecode(await rootBundle.loadString(p));
@@ -134,7 +142,8 @@ class TemplateStorageService extends ChangeNotifier {
   }
 
   Future<TrainingPackTemplate?> importTemplateFromFile(
-      BuildContext context) async {
+    BuildContext context,
+  ) async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['json'],
@@ -148,8 +157,11 @@ class TemplateStorageService extends ChangeNotifier {
       final data = jsonDecode(content);
       if (data is! Map<String, dynamic>) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text('Неверный формат шаблона: неверный JSON')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Неверный формат шаблона: неверный JSON'),
+            ),
+          );
         }
         return null;
       }
@@ -157,12 +169,14 @@ class TemplateStorageService extends ChangeNotifier {
       if (error != null) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Неверный формат шаблона: $error')));
+            SnackBar(content: Text('Неверный формат шаблона: $error')),
+          );
         }
         return null;
       }
-      var template =
-          TrainingPackTemplate.fromJson(Map<String, dynamic>.from(data));
+      var template = TrainingPackTemplate.fromJson(
+        Map<String, dynamic>.from(data),
+      );
       final index = _templates.indexWhere((t) => t.id == template.id);
       if (index != -1) {
         final existing = _templates[index];
@@ -275,16 +289,16 @@ class TemplateStorageService extends ChangeNotifier {
       _resort();
       notifyListeners();
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Шаблон импортирован')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Шаблон импортирован')));
       }
       return template;
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ошибка импорта файла')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Ошибка импорта файла')));
       }
       return null;
     }
@@ -292,16 +306,16 @@ class TemplateStorageService extends ChangeNotifier {
 
   Future<void> saveAll() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(
-      _prefsKey,
-      [for (final t in _templates) jsonEncode(t.toJson())],
-    );
+    await prefs.setStringList(_prefsKey, [
+      for (final t in _templates) jsonEncode(t.toJson()),
+    ]);
   }
 
   Future<void> importYamlLibrary() async {
     final manifest = await _manifestFuture;
-    final paths = manifest.keys
-        .where((e) => e.startsWith('assets/packs/') && e.endsWith('.yaml'));
+    final paths = manifest.keys.where(
+      (e) => e.startsWith('assets/packs/') && e.endsWith('.yaml'),
+    );
     if (paths.isEmpty) return;
     const reader = YamlReader();
     for (final p in paths) {
@@ -319,10 +333,13 @@ class TemplateStorageService extends ChangeNotifier {
   }
 
   Future<void> exportTemplateToFile(
-      BuildContext context, TrainingPackTemplate template) async {
+    BuildContext context,
+    TrainingPackTemplate template,
+  ) async {
     if (template.isBuiltIn) return;
     try {
-      final dir = await getDownloadsDirectory() ??
+      final dir =
+          await getDownloadsDirectory() ??
           await getApplicationDocumentsDirectory();
       final safeName = template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
       final file = File('${dir.path}/$safeName.json');

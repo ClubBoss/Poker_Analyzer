@@ -27,7 +27,7 @@ Map<String, dynamic> spotForHand(String cards) {
 Future<String> _writeReport(Directory dir, String name, String hand) async {
   final file = File('${dir.path}/$name.json');
   final map = {
-    'spots': [spotForHand(hand)]
+    'spots': [spotForHand(hand)],
   };
   await file.writeAsString(const JsonEncoder.withIndent('  ').convert(map));
   return file.path;
@@ -35,11 +35,16 @@ Future<String> _writeReport(Directory dir, String name, String hand) async {
 
 Future<String> _capturePrint(Future<void> Function() fn) async {
   final buffer = StringBuffer();
-  await runZoned(() async {
-    await fn();
-  }, zoneSpecification: ZoneSpecification(print: (self, parent, zone, line) {
-    buffer.writeln(line);
-  }));
+  await runZoned(
+    () async {
+      await fn();
+    },
+    zoneSpecification: ZoneSpecification(
+      print: (self, parent, zone, line) {
+        buffer.writeln(line);
+      },
+    ),
+  );
   return buffer.toString();
 }
 

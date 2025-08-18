@@ -17,7 +17,7 @@ void main() {
     final spots = <TrainingPackSpot>[];
     for (var i = 0; i < 10; i++) {
       final acts = {
-        0: [ActionEntry(0, 0, 'push', amount: 10, ev: i < 4 ? 1.0 : null)]
+        0: [ActionEntry(0, 0, 'push', amount: 10, ev: i < 4 ? 1.0 : null)],
       };
       spots.add(
         TrainingPackSpot(
@@ -45,10 +45,16 @@ void main() {
     expect(tpl.evCovered, 4);
     expect(tpl.icmCovered, 0);
     late BuildContext ctx;
-    await tester.pumpWidget(MaterialApp(home: Builder(builder: (c) {
-      ctx = c;
-      return const SizedBox();
-    })));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (c) {
+            ctx = c;
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
     const service = TrainingPackTemplateUiService();
     final generated = await service.generateMissingSpotsWithProgress(ctx, tpl);
     tpl.spots.addAll(generated);

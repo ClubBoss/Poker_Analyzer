@@ -71,7 +71,9 @@ mixin TrainingPackTemplateFilterPanel on State<TrainingPackTemplateListScreen> {
                 onChanged: (v) => _setStackFilter(v == 'any' ? null : v),
                 items: [
                   const DropdownMenuItem(
-                      value: 'any', child: Text('Any Stack')),
+                    value: 'any',
+                    child: Text('Any Stack'),
+                  ),
                   for (final r in _stackRanges)
                     DropdownMenuItem(value: r, child: Text('${r}bb')),
                 ],
@@ -111,29 +113,38 @@ mixin TrainingPackTemplateFilterPanel on State<TrainingPackTemplateListScreen> {
     final items = <Widget>[];
     final pos = t.posRangeLabel();
     if (pos.isNotEmpty) {
-      items.add(Text(pos,
-          style: const TextStyle(fontSize: 12, color: Colors.white70)));
+      items.add(
+        Text(pos, style: const TextStyle(fontSize: 12, color: Colors.white70)),
+      );
       items.add(const SizedBox(height: 4));
     }
-    final progVal =
-        total > 0 ? (_progress[t.id]?.clamp(0, total) ?? 0) / total : 0.0;
+    final progVal = total > 0
+        ? (_progress[t.id]?.clamp(0, total) ?? 0) / total
+        : 0.0;
     final progColor = t.goalAchieved ? Colors.green : Colors.orange;
-    items.add(LinearProgressIndicator(
-      value: progVal,
-      color: progColor,
-      backgroundColor: progColor.withValues(alpha: 0.3),
-    ));
+    items.add(
+      LinearProgressIndicator(
+        value: progVal,
+        color: progColor,
+        backgroundColor: progColor.withValues(alpha: 0.3),
+      ),
+    );
     items.add(const SizedBox(height: 4));
     if (t.targetStreet != null && t.streetGoal > 0) {
       final val =
           (_streetProgress[t.id]?.clamp(0, t.streetGoal) ?? 0) / t.streetGoal;
-      items.add(Row(
-        children: [
-          Expanded(child: LinearProgressIndicator(value: val)),
-          const SizedBox(width: 8),
-          Text('${(val * 100).round()}%', style: const TextStyle(fontSize: 12)),
-        ],
-      ));
+      items.add(
+        Row(
+          children: [
+            Expanded(child: LinearProgressIndicator(value: val)),
+            const SizedBox(width: 8),
+            Text(
+              '${(val * 100).round()}%',
+              style: const TextStyle(fontSize: 12),
+            ),
+          ],
+        ),
+      );
       items.add(const SizedBox(height: 4));
     }
     if (t.focusHandTypes.isNotEmpty) {
@@ -144,20 +155,24 @@ mixin TrainingPackTemplateFilterPanel on State<TrainingPackTemplateListScreen> {
         if (total > 0) {
           final done = progress[g.label]?.clamp(0, total) ?? 0;
           final val = done / total;
-          items.add(Row(
-            children: [
-              Expanded(
-                child: LinearProgressIndicator(
-                  value: val,
-                  color: Colors.purpleAccent,
-                  backgroundColor: Colors.purpleAccent.withValues(alpha: 0.3),
+          items.add(
+            Row(
+              children: [
+                Expanded(
+                  child: LinearProgressIndicator(
+                    value: val,
+                    color: Colors.purpleAccent,
+                    backgroundColor: Colors.purpleAccent.withValues(alpha: 0.3),
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Text('${g.label} ${(val * 100).round()}%',
-                  style: const TextStyle(fontSize: 12)),
-            ],
-          ));
+                const SizedBox(width: 8),
+                Text(
+                  '${g.label} ${(val * 100).round()}%',
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ],
+            ),
+          );
           items.add(const SizedBox(height: 4));
         }
       }
@@ -166,59 +181,77 @@ mixin TrainingPackTemplateFilterPanel on State<TrainingPackTemplateListScreen> {
         ? (t.goalProgress / t.goalTarget).clamp(0.0, 1.0)
         : 0.0;
     if (t.goalTarget > 0) {
-      items.add(Row(
-        children: [
-          Expanded(child: LinearProgressIndicator(value: ratio)),
-          const SizedBox(width: 8),
-          Text('${(ratio * 100).round()}%',
-              style: const TextStyle(fontSize: 12)),
-        ],
-      ));
+      items.add(
+        Row(
+          children: [
+            Expanded(child: LinearProgressIndicator(value: ratio)),
+            const SizedBox(width: 8),
+            Text(
+              '${(ratio * 100).round()}%',
+              style: const TextStyle(fontSize: 12),
+            ),
+          ],
+        ),
+      );
     }
     final prog = _progress[t.id];
     if (prog != null) {
-      items.add(Text(
-        '${prog.clamp(0, total)}/$total done',
-        style: const TextStyle(fontSize: 12, color: Colors.white54),
-      ));
+      items.add(
+        Text(
+          '${prog.clamp(0, total)}/$total done',
+          style: const TextStyle(fontSize: 12, color: Colors.white54),
+        ),
+      );
     }
     if (t.description.trim().isNotEmpty) {
-      items.add(Text(
-        t.description.split('\n').first,
-        style: const TextStyle(fontSize: 12),
-      ));
+      items.add(
+        Text(
+          t.description.split('\n').first,
+          style: const TextStyle(fontSize: 12),
+        ),
+      );
     }
     final tags = _topTags(t);
     if (tags.isNotEmpty) {
-      items.add(Text(
-        'Tags: ${tags.join(', ')}',
-        style: const TextStyle(fontSize: 12, color: Colors.white70),
-      ));
+      items.add(
+        Text(
+          'Tags: ${tags.join(', ')}',
+          style: const TextStyle(fontSize: 12, color: Colors.white70),
+        ),
+      );
     }
     if (t.focusTags.isNotEmpty) {
-      items.add(Text(
-        '🎯 Focus: ${t.focusTags.join(', ')}',
-        style: const TextStyle(fontSize: 12, color: Colors.white70),
-      ));
+      items.add(
+        Text(
+          '🎯 Focus: ${t.focusTags.join(', ')}',
+          style: const TextStyle(fontSize: 12, color: Colors.white70),
+        ),
+      );
     }
     if (t.focusHandTypes.isNotEmpty) {
-      items.add(Text(
-        '🃏 Hand Goal: ${t.focusHandTypes.join(', ')}',
-        style: const TextStyle(fontSize: 12, color: Colors.white70),
-      ));
+      items.add(
+        Text(
+          '🃏 Hand Goal: ${t.focusHandTypes.join(', ')}',
+          style: const TextStyle(fontSize: 12, color: Colors.white70),
+        ),
+      );
     }
     final stat = _stats[t.id];
     if (stat != null) {
-      items.add(Text(
-        'Accuracy ${(stat.accuracy * 100).toStringAsFixed(0)}% • EV ${stat.evSum.toStringAsFixed(1)} • ICM ${stat.icmSum.toStringAsFixed(1)}',
-        style: const TextStyle(fontSize: 12, color: Colors.white70),
-      ));
+      items.add(
+        Text(
+          'Accuracy ${(stat.accuracy * 100).toStringAsFixed(0)}% • EV ${stat.evSum.toStringAsFixed(1)} • ICM ${stat.icmSum.toStringAsFixed(1)}',
+          style: const TextStyle(fontSize: 12, color: Colors.white70),
+        ),
+      );
     }
     if (t.lastGeneratedAt != null) {
-      items.add(Text(
-        'Last generated: ${timeago.format(t.lastGeneratedAt!)}',
-        style: const TextStyle(fontSize: 12, color: Colors.white54),
-      ));
+      items.add(
+        Text(
+          'Last generated: ${timeago.format(t.lastGeneratedAt!)}',
+          style: const TextStyle(fontSize: 12, color: Colors.white54),
+        ),
+      );
     }
     if (items.isEmpty) return const SizedBox.shrink();
     if (items.length == 1) return items.first;

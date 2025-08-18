@@ -9,13 +9,29 @@ void main() {
 
   final lessons = <String, TheoryMiniLessonNode>{
     'l1': const TheoryMiniLessonNode(
-        id: 'l1', title: 'L1', content: '', tags: ['a', 'b']),
+      id: 'l1',
+      title: 'L1',
+      content: '',
+      tags: ['a', 'b'],
+    ),
     'l2': const TheoryMiniLessonNode(
-        id: 'l2', title: 'L2', content: '', tags: ['a']),
+      id: 'l2',
+      title: 'L2',
+      content: '',
+      tags: ['a'],
+    ),
     'l3': const TheoryMiniLessonNode(
-        id: 'l3', title: 'L3', content: '', tags: ['b']),
+      id: 'l3',
+      title: 'L3',
+      content: '',
+      tags: ['b'],
+    ),
     'l4': const TheoryMiniLessonNode(
-        id: 'l4', title: 'L4', content: '', tags: ['c']),
+      id: 'l4',
+      title: 'L4',
+      content: '',
+      tags: ['c'],
+    ),
   };
 
   test('detectWeakTags ranks by accuracy and coverage', () {
@@ -39,9 +55,15 @@ void main() {
     );
     final clusters = [
       const TheoryClusterSummary(
-          size: 2, entryPointIds: ['l1'], sharedTags: {'a'}),
+        size: 2,
+        entryPointIds: ['l1'],
+        sharedTags: {'a'},
+      ),
       const TheoryClusterSummary(
-          size: 2, entryPointIds: ['l3'], sharedTags: {'b'}),
+        size: 2,
+        entryPointIds: ['l3'],
+        sharedTags: {'b'},
+      ),
     ];
 
     const service = WeakTheoryZoneHighlighter();

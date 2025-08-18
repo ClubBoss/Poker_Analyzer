@@ -42,16 +42,15 @@ class Goal {
     DateTime? createdAt,
     DateTime? completedAt,
     bool Function(SavedHand hand)? rule,
-  }) =>
-      Goal(
-        title: title,
-        progress: progress ?? this.progress,
-        target: target ?? this.target,
-        createdAt: createdAt ?? this.createdAt,
-        icon: icon,
-        completedAt: completedAt ?? this.completedAt,
-        rule: rule ?? this.rule,
-      );
+  }) => Goal(
+    title: title,
+    progress: progress ?? this.progress,
+    target: target ?? this.target,
+    createdAt: createdAt ?? this.createdAt,
+    icon: icon,
+    completedAt: completedAt ?? this.completedAt,
+    rule: rule ?? this.rule,
+  );
 }
 
 class GoalsService extends ChangeNotifier {
@@ -92,7 +91,8 @@ class GoalsService extends ChangeNotifier {
     return null;
   }
 
-  Goal? get dailyGoal => _dailyGoalIndex != null &&
+  Goal? get dailyGoal =>
+      _dailyGoalIndex != null &&
           _dailyGoalIndex! >= 0 &&
           _dailyGoalIndex! < _goals.length
       ? _goals[_dailyGoalIndex!]
@@ -227,8 +227,11 @@ class GoalsService extends ChangeNotifier {
   bool _isSameDay(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month && a.day == b.day;
 
-  Future<void> setProgress(int index, int progress,
-      {BuildContext? context}) async {
+  Future<void> setProgress(
+    int index,
+    int progress, {
+    BuildContext? context,
+  }) async {
     if (index < 0 || index >= _goals.length) return;
     final goal = _goals[index];
     final time = DateTime.now();
@@ -247,10 +250,16 @@ class GoalsService extends ChangeNotifier {
     }
     _history[index].add(GoalProgressEntry(date: time, progress: progress));
     await _persistence.saveProgress(
-        index, _goals[index].progress, _goals[index].createdAt, date);
+      index,
+      _goals[index].progress,
+      _goals[index].createdAt,
+      date,
+    );
     await _persistence.saveHistory(index, _history[index]);
     _achievementManager.refreshCompletedGoalsAchievement(
-        _goals.where((g) => g.progress >= g.target).length, _goals.length);
+      _goals.where((g) => g.progress >= g.target).length,
+      _goals.length,
+    );
     notifyListeners();
     if (context != null) _achievementManager.checkAchievements(context);
   }
@@ -294,22 +303,27 @@ class GoalsService extends ChangeNotifier {
     }
   }
 
-  Future<void> updateMistakeReviewStreak(bool mistake,
-      {BuildContext? context}) async {
+  Future<void> updateMistakeReviewStreak(
+    bool mistake, {
+    BuildContext? context,
+  }) async {
     if (mistake) {
       _mistakeReviewStreak += 1;
     } else {
       _mistakeReviewStreak = 0;
     }
     await _persistence.saveMistakeReviewStreak(_mistakeReviewStreak);
-    _achievementManager
-        .updateMistakeReviewStreakAchievement(_mistakeReviewStreak);
+    _achievementManager.updateMistakeReviewStreakAchievement(
+      _mistakeReviewStreak,
+    );
     notifyListeners();
     if (context != null) _achievementManager.checkAchievements(context);
   }
 
-  Future<void> updateErrorFreeStreak(bool mistake,
-      {BuildContext? context}) async {
+  Future<void> updateErrorFreeStreak(
+    bool mistake, {
+    BuildContext? context,
+  }) async {
     if (mistake) {
       _errorFreeStreak = 0;
     } else {
@@ -338,8 +352,10 @@ class GoalsService extends ChangeNotifier {
     if (changed) notifyListeners();
   }
 
-  Future<void> saveDrillResult(DrillSessionResult r,
-      {BuildContext? context}) async {
+  Future<void> saveDrillResult(
+    DrillSessionResult r, {
+    BuildContext? context,
+  }) async {
     _drillResults.add(r);
     await _persistence.saveDrillResults(_drillResults);
     _achievementManager.updateDrillAchievement(_drillResults);
@@ -389,8 +405,11 @@ class GoalsService extends ChangeNotifier {
     final set = {for (final d in history) DateTime(d.year, d.month, d.day)};
     final now = DateTime.now();
     for (int i = 0; i < 7; i++) {
-      final day =
-          DateTime(now.year, now.month, now.day).subtract(Duration(days: i));
+      final day = DateTime(
+        now.year,
+        now.month,
+        now.day,
+      ).subtract(Duration(days: i));
       if (!set.contains(day)) return false;
     }
     return true;
@@ -412,12 +431,15 @@ class GoalsService extends ChangeNotifier {
 
   double weeklyAccuracyProgress() {
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day)
-        .subtract(Duration(days: now.weekday - 1));
+    final start = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(Duration(days: now.weekday - 1));
     final end = start.add(const Duration(days: 7));
     final list = [
       for (final r in _drillResults)
-        if (!r.date.isBefore(start) && r.date.isBefore(end)) r
+        if (!r.date.isBefore(start) && r.date.isBefore(end)) r,
     ];
     if (list.isEmpty) return 0;
     final sum = list.map((e) => e.accuracy).reduce((a, b) => a + b);
@@ -426,12 +448,15 @@ class GoalsService extends ChangeNotifier {
 
   double weeklyAccuracyPrevious() {
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day)
-        .subtract(Duration(days: now.weekday - 1));
+    final start = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(Duration(days: now.weekday - 1));
     final prevStart = start.subtract(const Duration(days: 7));
     final list = [
       for (final r in _drillResults)
-        if (!r.date.isBefore(prevStart) && r.date.isBefore(start)) r
+        if (!r.date.isBefore(prevStart) && r.date.isBefore(start)) r,
     ];
     if (list.isEmpty) return 0;
     final sum = list.map((e) => e.accuracy).reduce((a, b) => a + b);

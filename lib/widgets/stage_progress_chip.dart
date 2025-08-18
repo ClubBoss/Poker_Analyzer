@@ -76,10 +76,7 @@ class StageProgressChip extends StatelessWidget {
                 text,
                 style: const TextStyle(color: Colors.black, fontSize: 12),
               ),
-              if (chart != null) ...[
-                const SizedBox(height: 2),
-                chart,
-              ],
+              if (chart != null) ...[const SizedBox(height: 2), chart],
             ],
           ),
         ),

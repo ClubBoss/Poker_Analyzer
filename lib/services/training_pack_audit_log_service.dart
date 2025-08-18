@@ -8,7 +8,7 @@ class TrainingPackAuditLogService {
   final AuditLogStorageService _storage;
 
   TrainingPackAuditLogService({AuditLogStorageService? storage})
-      : _storage = storage ?? AuditLogStorageService();
+    : _storage = storage ?? AuditLogStorageService();
 
   Future<void> recordChange(
     TrainingPackModel oldPack,
@@ -35,10 +35,7 @@ class TrainingPackAuditLogService {
     }
     if (!_mapEquals(oldPack.metadata, newPack.metadata)) {
       changedFields.add('metadata');
-      diff['metadata'] = {
-        'old': oldPack.metadata,
-        'new': newPack.metadata,
-      };
+      diff['metadata'] = {'old': oldPack.metadata, 'new': newPack.metadata};
     }
     if (changedFields.isEmpty) {
       return;

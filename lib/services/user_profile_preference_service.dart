@@ -17,7 +17,8 @@ class UserProfilePreferenceService {
     final prefs = await SharedPreferences.getInstance();
     _preferredTags = prefs.getStringList(_tagsKey)?.toSet() ?? {};
     _preferredAudiences = prefs.getStringList(_audKey)?.toSet() ?? {};
-    _preferredDifficulties = prefs
+    _preferredDifficulties =
+        prefs
             .getStringList(_diffKey)
             ?.map(int.tryParse)
             .whereType<int>()
@@ -45,6 +46,8 @@ class UserProfilePreferenceService {
     _preferredDifficulties = difficulties.toSet();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(
-        _diffKey, _preferredDifficulties.map((e) => e.toString()).toList());
+      _diffKey,
+      _preferredDifficulties.map((e) => e.toString()).toList(),
+    );
   }
 }

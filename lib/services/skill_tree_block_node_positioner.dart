@@ -22,8 +22,9 @@ class SkillTreeBlockNodePositioner {
     final totalWidth =
         nodes.length * nodeWidth + math.max(0, nodes.length - 1) * spacing;
     var x = center ? -totalWidth / 2 : 0.0;
-    final ordered =
-        direction == TextDirection.ltr ? nodes : nodes.reversed.toList();
+    final ordered = direction == TextDirection.ltr
+        ? nodes
+        : nodes.reversed.toList();
 
     for (final node in ordered) {
       rects[node.id] = Rect.fromLTWH(x, 0, nodeWidth, nodeHeight);

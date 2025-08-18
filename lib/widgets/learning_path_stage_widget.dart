@@ -72,7 +72,9 @@ class LearningPathStageWidget extends StatelessWidget {
                           child: Text(
                             stage.description,
                             style: const TextStyle(
-                                color: Colors.white70, fontSize: 12),
+                              color: Colors.white70,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
                     ],
@@ -81,10 +83,14 @@ class LearningPathStageWidget extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text('$handsPlayed/${stage.minHands}',
-                        style: const TextStyle(color: Colors.white70)),
-                    Text(pctText,
-                        style: const TextStyle(color: Colors.white70)),
+                    Text(
+                      '$handsPlayed/${stage.minHands}',
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                    Text(
+                      pctText,
+                      style: const TextStyle(color: Colors.white70),
+                    ),
                   ],
                 ),
               ],
@@ -105,8 +111,9 @@ class LearningPathStageWidget extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: progress.clamp(0.0, 1.0),
                   backgroundColor: Colors.white24,
-                  valueColor:
-                      AlwaysStoppedAnimation<Color>(_progressColor(context)),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    _progressColor(context),
+                  ),
                   minHeight: 6,
                 ),
               ),

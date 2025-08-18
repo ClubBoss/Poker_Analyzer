@@ -151,15 +151,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     final favIds = PackFavoriteService.instance.allFavorites.toSet();
     final baseTemplates = _favoritesOnly
         ? [
             for (final p in _packs)
-              if (favIds.contains(p.id)) p
+              if (favIds.contains(p.id)) p,
           ]
         : _packs;
 
@@ -168,8 +166,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
       themes: _selectedThemes.isEmpty ? null : _selectedThemes,
       tags: _selectedTags.isEmpty ? null : _selectedTags,
       types: _selectedTypes.isEmpty ? null : _selectedTypes,
-      difficulties:
-          _selectedDifficulties.isEmpty ? null : _selectedDifficulties,
+      difficulties: _selectedDifficulties.isEmpty
+          ? null
+          : _selectedDifficulties,
       audiences: _selectedAudiences.isEmpty ? null : _selectedAudiences,
       level: _levelFilter,
       goal: _selectedGoal.isEmpty ? null : _selectedGoal,
@@ -209,7 +208,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (_) => const PackLibrarySearchScreen()),
+                  builder: (_) => const PackLibrarySearchScreen(),
+                ),
               );
             },
           ),
@@ -414,7 +414,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
                         const DropdownMenuItem(value: null, child: Text('All')),
                         for (final l in TrainingPackLevel.values)
                           DropdownMenuItem(
-                              value: l, child: Text(_levelLabel(l))),
+                            value: l,
+                            child: Text(_levelLabel(l)),
+                          ),
                       ],
                       onChanged: (v) => setState(() => _levelFilter = v),
                     ),
@@ -436,14 +438,17 @@ class _LibraryScreenState extends State<LibraryScreen> {
                       value: _sort,
                       items: const [
                         DropdownMenuItem(
-                            value: _SortOption.newest,
-                            child: Text('Сначала новые')),
+                          value: _SortOption.newest,
+                          child: Text('Сначала новые'),
+                        ),
                         DropdownMenuItem(
-                            value: _SortOption.rating,
-                            child: Text('По рейтингу')),
+                          value: _SortOption.rating,
+                          child: Text('По рейтингу'),
+                        ),
                         DropdownMenuItem(
-                            value: _SortOption.difficulty,
-                            child: Text('По сложности')),
+                          value: _SortOption.difficulty,
+                          child: Text('По сложности'),
+                        ),
                       ],
                       onChanged: (v) {
                         if (v != null) _setSort(v);
@@ -477,9 +482,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
                         _levelFilter != null ||
                         _selectedGoal.isNotEmpty)
                       const SizedBox(width: 12),
-                    Text('Найдено: ${visible.length}')
+                    Text('Найдено: ${visible.length}'),
                   ],
-                )
+                ),
               ],
             ),
           ),
@@ -522,7 +527,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
                           child: Text(
                             'Встроенные тренировки',
                             style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         );
                       }
@@ -538,7 +545,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
-                                    fontSize: 12, color: Colors.white60),
+                                  fontSize: 12,
+                                  color: Colors.white60,
+                                ),
                               ),
                             if (pack.tags.isNotEmpty) ...[
                               if (_goalText(pack).isNotEmpty)
@@ -550,7 +559,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
                                   for (final tag in pack.tags.take(3))
                                     Container(
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 6, vertical: 2),
+                                        horizontal: 6,
+                                        vertical: 2,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: Colors.grey[800],
                                         borderRadius: BorderRadius.circular(8),
@@ -558,14 +569,17 @@ class _LibraryScreenState extends State<LibraryScreen> {
                                       child: Text(
                                         tag,
                                         style: const TextStyle(
-                                            fontSize: 11,
-                                            color: Colors.white70),
+                                          fontSize: 11,
+                                          color: Colors.white70,
+                                        ),
                                       ),
                                     ),
                                   if (pack.tags.length > 3)
                                     Container(
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 6, vertical: 2),
+                                        horizontal: 6,
+                                        vertical: 2,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: Colors.grey[800],
                                         borderRadius: BorderRadius.circular(8),
@@ -573,13 +587,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
                                       child: Text(
                                         '+${pack.tags.length - 3}',
                                         style: const TextStyle(
-                                            fontSize: 11,
-                                            color: Colors.white70),
+                                          fontSize: 11,
+                                          color: Colors.white70,
+                                        ),
                                       ),
                                     ),
                                 ],
-                              )
-                            ]
+                              ),
+                            ],
                           ],
                         ),
                         trailing: Row(
@@ -589,7 +604,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
                             const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 2),
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: AppColors.cardBackground,
                                 borderRadius: BorderRadius.circular(4),

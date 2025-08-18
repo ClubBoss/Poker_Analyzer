@@ -108,10 +108,12 @@ void main() {
     const y2 = 'b: 2\\na: 1';
     await w.write(path: path1, yaml: y1, schema: 'raw');
     await w.write(path: path2, yaml: y2, schema: 'raw');
-    final h1 =
-        TheoryYamlSafeWriter.extractHash(await File(path1).readAsString());
-    final h2 =
-        TheoryYamlSafeWriter.extractHash(await File(path2).readAsString());
+    final h1 = TheoryYamlSafeWriter.extractHash(
+      await File(path1).readAsString(),
+    );
+    final h2 = TheoryYamlSafeWriter.extractHash(
+      await File(path2).readAsString(),
+    );
     expect(h1, h2);
   });
 

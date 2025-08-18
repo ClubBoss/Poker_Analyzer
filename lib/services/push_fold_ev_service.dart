@@ -6,7 +6,7 @@ import 'icm_push_ev_service.dart';
 final Map<String, double> _equity = {
   for (int i = 0; i < PackGeneratorService.handRanking.length; i++)
     PackGeneratorService.handRanking[i]:
-        0.85 - i * (0.55 / (PackGeneratorService.handRanking.length - 1))
+        0.85 - i * (0.55 / (PackGeneratorService.handRanking.length - 1)),
 };
 
 final Map<String, double> _evCache = {};
@@ -66,8 +66,11 @@ class PushFoldEvService {
     }
   }
 
-  Future<void> evaluateIcm(TrainingPackSpot spot,
-      {int anteBb = 0, List<double> payouts = const [0.5, 0.3, 0.2]}) async {
+  Future<void> evaluateIcm(
+    TrainingPackSpot spot, {
+    int anteBb = 0,
+    List<double> payouts = const [0.5, 0.3, 0.2],
+  }) async {
     final hero = spot.hand.heroIndex;
     final hand = handCode(spot.hand.heroCards);
     final stack = spot.hand.stacks['$hero']?.round();
@@ -75,12 +78,13 @@ class PushFoldEvService {
     final acts = spot.hand.actions[0] ?? [];
     final stacks = [
       for (var i = 0; i < spot.hand.playerCount; i++)
-        spot.hand.stacks['$i']?.round() ?? 0
+        spot.hand.stacks['$i']?.round() ?? 0,
     ];
     for (var i = 0; i < acts.length; i++) {
       final a = acts[i];
       if (a.playerIndex == hero && a.action == 'push') {
-        final chipEv = a.ev ??
+        final chipEv =
+            a.ev ??
             computePushEV(
               heroBbStack: stack,
               bbCount: spot.hand.playerCount - 1,

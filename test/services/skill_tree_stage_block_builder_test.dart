@@ -11,8 +11,9 @@ void main() {
   SkillTreeNodeModel node(String id) =>
       SkillTreeNodeModel(id: id, title: id, category: 'PF', level: 1);
 
-  testWidgets('locked stage hides nodes and shows lock overlay',
-      (tester) async {
+  testWidgets('locked stage hides nodes and shows lock overlay', (
+    tester,
+  ) async {
     const builder = SkillTreeStageBlockBuilder();
     final widget = builder.build(
       level: 1,

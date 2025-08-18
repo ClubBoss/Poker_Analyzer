@@ -10,23 +10,24 @@ import 'package:poker_analyzer/helpers/poker_position_helper.dart';
 
 class GGPokerHandHistoryConverter extends ConverterPlugin {
   GGPokerHandHistoryConverter()
-      : super(
-          formatId: 'ggpoker_hand_history',
-          description: 'GGPoker hand history format',
-          capabilities: const ConverterFormatCapabilities(
-            supportsImport: true,
-            supportsExport: false,
-            requiresBoard: false,
-            supportsMultiStreet: true,
-          ),
-        );
+    : super(
+        formatId: 'ggpoker_hand_history',
+        description: 'GGPoker hand history format',
+        capabilities: const ConverterFormatCapabilities(
+          supportsImport: true,
+          supportsExport: false,
+          requiresBoard: false,
+          supportsMultiStreet: true,
+        ),
+      );
 
   double _amount(String s) => double.tryParse(s.replaceAll(',', '')) ?? 0;
 
   @override
   SavedHand? convertFrom(String externalData) {
-    final lines =
-        LineSplitter.split(externalData).map((e) => e.trim()).toList();
+    final lines = LineSplitter.split(
+      externalData,
+    ).map((e) => e.trim()).toList();
     if (lines.isEmpty) return null;
     final idMatch = RegExp(r'^Hand #(\d+)').firstMatch(lines.first);
     if (idMatch == null) return null;
@@ -35,8 +36,10 @@ class GGPokerHandHistoryConverter extends ConverterPlugin {
     final seatEntries = <Map<String, dynamic>>[];
     final seatRegex = RegExp(r'^Seat (\d+):\s*(.+?)\s*\(([^)]+)\)');
     for (final line in lines) {
-      final tm =
-          RegExp(r"^Table '([^']+)'", caseSensitive: false).firstMatch(line);
+      final tm = RegExp(
+        r"^Table '([^']+)'",
+        caseSensitive: false,
+      ).firstMatch(line);
       if (tm != null) tableName = tm.group(1)!.trim();
       final sm = seatRegex.firstMatch(line);
       if (sm != null) {
@@ -101,7 +104,8 @@ class GGPokerHandHistoryConverter extends ConverterPlugin {
         final idx = nameToIndex[m.group(1)!.toLowerCase()];
         if (idx != null)
           actions.add(
-              ActionEntry(street, idx, 'call', amount: _amount(m.group(2)!)));
+            ActionEntry(street, idx, 'call', amount: _amount(m.group(2)!)),
+          );
         continue;
       }
       m = RegExp(r'^(.+?): bets ([\d,.]+)').firstMatch(line);
@@ -109,7 +113,8 @@ class GGPokerHandHistoryConverter extends ConverterPlugin {
         final idx = nameToIndex[m.group(1)!.toLowerCase()];
         if (idx != null)
           actions.add(
-              ActionEntry(street, idx, 'bet', amount: _amount(m.group(2)!)));
+            ActionEntry(street, idx, 'bet', amount: _amount(m.group(2)!)),
+          );
         continue;
       }
       m = RegExp(r'^(.+?): raises .* to ([\d,.]+)').firstMatch(line);
@@ -117,7 +122,8 @@ class GGPokerHandHistoryConverter extends ConverterPlugin {
         final idx = nameToIndex[m.group(1)!.toLowerCase()];
         if (idx != null)
           actions.add(
-              ActionEntry(street, idx, 'raise', amount: _amount(m.group(2)!)));
+            ActionEntry(street, idx, 'raise', amount: _amount(m.group(2)!)),
+          );
         continue;
       }
     }
@@ -145,7 +151,7 @@ class GGPokerHandHistoryConverter extends ConverterPlugin {
       playerPositions: positions,
       comment: tableName,
       playerTypes: {
-        for (var i = 0; i < playerCount; i++) i: PlayerType.unknown
+        for (var i = 0; i < playerCount; i++) i: PlayerType.unknown,
       },
     );
   }

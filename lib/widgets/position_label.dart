@@ -4,8 +4,12 @@ class PositionLabel extends StatelessWidget {
   final String label;
   final bool isHero;
   final double scale;
-  const PositionLabel(
-      {super.key, required this.label, required this.isHero, this.scale = 1.0});
+  const PositionLabel({
+    super.key,
+    required this.label,
+    required this.isHero,
+    this.scale = 1.0,
+  });
 
   @override
   Widget build(BuildContext context) {

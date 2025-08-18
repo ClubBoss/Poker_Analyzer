@@ -4,8 +4,11 @@ import '../models/view_preset.dart';
 class ViewManagerDialog extends StatefulWidget {
   final List<ViewPreset> views;
   final ValueChanged<List<ViewPreset>> onChanged;
-  const ViewManagerDialog(
-      {super.key, required this.views, required this.onChanged});
+  const ViewManagerDialog({
+    super.key,
+    required this.views,
+    required this.onChanged,
+  });
 
   @override
   State<ViewManagerDialog> createState() => _ViewManagerDialogState();
@@ -32,10 +35,13 @@ class _ViewManagerDialogState extends State<ViewManagerDialog> {
         content: TextField(controller: c, autofocus: true),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(ctx, c.text.trim()),
-              child: const Text('Save')),
+            onPressed: () => Navigator.pop(ctx, c.text.trim()),
+            child: const Text('Save'),
+          ),
         ],
       ),
     );
@@ -52,11 +58,13 @@ class _ViewManagerDialogState extends State<ViewManagerDialog> {
         title: const Text('Delete View?'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancel')),
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Delete')),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete'),
+          ),
         ],
       ),
     );
@@ -88,7 +96,7 @@ class _ViewManagerDialogState extends State<ViewManagerDialog> {
     final query = _filter.toLowerCase();
     final filtered = [
       for (final v in _views)
-        if (v.name.toLowerCase().contains(query)) v
+        if (v.name.toLowerCase().contains(query)) v,
     ];
     return AlertDialog(
       title: const Text('Views'),
@@ -118,11 +126,13 @@ class _ViewManagerDialogState extends State<ViewManagerDialog> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () => _rename(filtered[i])),
+                            icon: const Icon(Icons.edit),
+                            onPressed: () => _rename(filtered[i]),
+                          ),
                           IconButton(
-                              icon: const Icon(Icons.delete),
-                              onPressed: () => _delete(filtered[i])),
+                            icon: const Icon(Icons.delete),
+                            onPressed: () => _delete(filtered[i]),
+                          ),
                         ],
                       ),
                     ),
@@ -134,8 +144,9 @@ class _ViewManagerDialogState extends State<ViewManagerDialog> {
       ),
       actions: [
         TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close')),
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Close'),
+        ),
       ],
     );
   }

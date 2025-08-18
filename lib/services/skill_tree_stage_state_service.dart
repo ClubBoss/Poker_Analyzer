@@ -17,18 +17,24 @@ class SkillTreeStageStateService {
     required Set<String> unlocked,
     required Set<String> completed,
   }) {
-    final states = nodes.map((n) => nodeStateService.getNodeState(
-          node: n,
-          unlocked: unlocked,
-          completed: completed,
-        ));
+    final states = nodes.map(
+      (n) => nodeStateService.getNodeState(
+        node: n,
+        unlocked: unlocked,
+        completed: completed,
+      ),
+    );
 
-    final isCompleted = states.every((s) =>
-        s == SkillTreeNodeState.completed || s == SkillTreeNodeState.optional);
+    final isCompleted = states.every(
+      (s) =>
+          s == SkillTreeNodeState.completed || s == SkillTreeNodeState.optional,
+    );
     if (isCompleted) return SkillTreeStageState.completed;
 
-    final isUnlocked = states.any((s) =>
-        s == SkillTreeNodeState.unlocked || s == SkillTreeNodeState.completed);
+    final isUnlocked = states.any(
+      (s) =>
+          s == SkillTreeNodeState.unlocked || s == SkillTreeNodeState.completed,
+    );
     if (isUnlocked) return SkillTreeStageState.unlocked;
 
     return SkillTreeStageState.locked;

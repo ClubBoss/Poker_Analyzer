@@ -16,9 +16,7 @@ class TrainingHistoryController {
       try {
         final data = jsonDecode(item);
         if (data is Map<String, dynamic>) {
-          results.add(
-            TrainingResult.fromJson(Map<String, dynamic>.from(data)),
-          );
+          results.add(TrainingResult.fromJson(Map<String, dynamic>.from(data)));
         }
       } catch (_) {}
     }

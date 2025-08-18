@@ -34,8 +34,8 @@ class BoosterCooldownScheduler {
               if (e.value is List)
                 e.key.toString(): [
                   for (final v in e.value as List)
-                    if (v is Map) _Event.fromJson(Map<String, dynamic>.from(v))
-                ]
+                    if (v is Map) _Event.fromJson(Map<String, dynamic>.from(v)),
+                ],
           };
         }
       } catch (_) {}
@@ -49,7 +49,7 @@ class BoosterCooldownScheduler {
       _prefsKey,
       jsonEncode({
         for (final e in _cache.entries)
-          e.key: [for (final ev in e.value) ev.toJson()]
+          e.key: [for (final ev in e.value) ev.toJson()],
       }),
     );
   }
@@ -157,12 +157,12 @@ class _Event {
   _Event(this.kind, this.timestamp);
 
   Map<String, dynamic> toJson() => {
-        'k': kind,
-        't': timestamp.toIso8601String(),
-      };
+    'k': kind,
+    't': timestamp.toIso8601String(),
+  };
 
   factory _Event.fromJson(Map<String, dynamic> json) => _Event(
-        json['k'] as String? ?? '',
-        DateTime.tryParse(json['t'] as String? ?? '') ?? DateTime.now(),
-      );
+    json['k'] as String? ?? '',
+    DateTime.tryParse(json['t'] as String? ?? '') ?? DateTime.now(),
+  );
 }

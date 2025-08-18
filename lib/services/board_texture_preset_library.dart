@@ -64,8 +64,11 @@ class BoardTexturePresetLibrary {
     };
 
     final stages = _toBoardStages(board);
-    return _boardFilter.isMatch(stages, requiredTags,
-        excludedTags: excludedTags);
+    return _boardFilter.isMatch(
+      stages,
+      requiredTags,
+      excludedTags: excludedTags,
+    );
   }
 
   static BoardStages _toBoardStages(List<CardModel> board) {

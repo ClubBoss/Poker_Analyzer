@@ -18,8 +18,11 @@ class _Stats {
   final int packs;
   final double progress;
 
-  const _Stats(
-      {required this.stages, required this.packs, required this.progress});
+  const _Stats({
+    required this.stages,
+    required this.packs,
+    required this.progress,
+  });
 }
 
 class _LearningPathCompletionScreenState
@@ -36,8 +39,8 @@ class _LearningPathCompletionScreenState
   }
 
   Future<_Stats> _loadStats() async {
-    final stages =
-        await LearningPathProgressService.instance.getCurrentStageState();
+    final stages = await LearningPathProgressService.instance
+        .getCurrentStageState();
     final int stageCount = stages.length;
     int total = 0;
     double sum = 0.0;
@@ -95,7 +98,8 @@ class _LearningPathCompletionScreenState
                     Text('Кол-во стадий: ${stats.stages}'),
                     Text('Всего паков: ${stats.packs}'),
                     Text(
-                        'Средний % прогресса: ${(stats.progress * 100).toStringAsFixed(1)}%'),
+                      'Средний % прогресса: ${(stats.progress * 100).toStringAsFixed(1)}%',
+                    ),
                     const SizedBox(height: 24),
                   ],
                   ElevatedButton.icon(

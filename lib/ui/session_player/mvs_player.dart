@@ -27,9 +27,6 @@ import '../coverage/coverage_dashboard.dart';
 import '../modules/modules_screen.dart';
 import 'package:poker_analyzer/infra/telemetry_builder.dart';
 import 'package:poker_analyzer/ui/session_player/l3_jsonl_export.dart';
-import 'package:poker_analyzer/ui/modules/cash_packs.dart';
-import 'package:poker_analyzer/ui/modules/icm_bb_packs.dart';
-import 'package:poker_analyzer/ui/modules/icm_packs.dart';
 
 void _assertSpotKindIntegrity(Set<SpotKind> usedKinds) {
   assert(() {
@@ -337,14 +334,6 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         _timeLeftMs = _timeLimitMs = p.timeLimitMs;
       });
     });
-    unawaited(Telemetry.logEvent(
-      'session_start',
-      buildTelemetry(
-        sessionId: _sessionId,
-        packId: widget.packId,
-        data: {'count': widget.spots.length},
-      ),
-    ));
   }
 
   @override
@@ -356,23 +345,6 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     _answerPulseCtrl.dispose();
     _autoNextAnim?.dispose();
     _focusNode.dispose();
-    if (_index < _spots.length && !_clearedAtSummary) {
-      unawaited(Telemetry.logEvent(
-        'session_abort',
-        buildTelemetry(
-          sessionId: _sessionId,
-          packId: widget.packId,
-          data: {
-            'answered': _answers.length,
-            'remaining': _spots.length - _index,
-            'elapsedMs': _answers.fold<int>(
-              0,
-              (s, a) => s + a.elapsed.inMilliseconds,
-            ),
-          },
-        ),
-      ));
-    }
     unawaited(SessionResume.clear());
     super.dispose();
   }
@@ -881,10 +853,12 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       _spots.insertAll(_index, picks);
       _replayed.addAll(picks);
     });
-    unawaited(Telemetry.logEvent(
-      'quick_replay_l3_errors',
-      buildTelemetry(sessionId: _sessionId, packId: widget.packId),
-    ));
+    unawaited(
+      Telemetry.logEvent(
+        'quick_replay_l3_errors',
+        buildTelemetry(sessionId: _sessionId, packId: widget.packId),
+      ),
+    );
     _next();
   }
 
@@ -952,33 +926,19 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         context,
         'Exported ${rows.length} spots${dups > 0 ? ' (dups $dups)' : ''} to out/packs/l3_jam_errors.jsonl',
       );
-      unawaited(Telemetry.logEvent(
-        'export_l3_errors_file',
-        buildTelemetry(
-          sessionId: _sessionId,
-          packId: widget.packId,
-          data: {'count': rows.length},
-        ),
-      ));
     } catch (_) {
-      unawaited(Telemetry.logEvent(
-        'export_l3_errors_failed',
-        buildTelemetry(
-          sessionId: _sessionId,
-          packId: widget.packId,
-          data: {'count': rows.length, 'reason': kIsWeb ? 'web' : 'io'},
-        ),
-      ));
       Clipboard.setData(ClipboardData(text: text));
       showMiniToast(context, 'Copied L3 errors to clipboard');
-      unawaited(Telemetry.logEvent(
-        'export_l3_errors_clipboard',
-        buildTelemetry(
-          sessionId: _sessionId,
-          packId: widget.packId,
-          data: {'count': rows.length},
+      unawaited(
+        Telemetry.logEvent(
+          'export_l3_errors_clipboard',
+          buildTelemetry(
+            sessionId: _sessionId,
+            packId: widget.packId,
+            data: {'count': rows.length},
+          ),
         ),
-      ));
+      );
     }
   }
 
@@ -1004,88 +964,6 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           ),
         ) ??
         false;
-  }
-
-  Future<void> _pasteSpots() async {
-    final data = await Clipboard.getData('text/plain');
-    final content = data?.text?.trim();
-    if (content == null || content.isEmpty) {
-      showMiniToast(context, 'Clipboard is empty');
-      return;
-    }
-    try {
-      // Tolerant path: 'json' also accepts JSONL via importer fallback.
-      final report = SpotImporter.parse(content, format: 'json');
-      final dupToast = report.skippedDuplicates > 0
-          ? ', dups ${report.skippedDuplicates}'
-          : '';
-      showMiniToast(
-        context,
-        'Imported ${report.added} (skipped ${report.skipped}$dupToast)',
-      );
-      for (final e in report.errors) {
-        showMiniToast(context, e);
-      }
-      if (report.spots.isEmpty) return;
-      _lastLoadedSpots = report.spots;
-        if (!await _confirmRestartIfInProgress(context)) return;
-        if (!await _confirmRestartIfInProgress(context)) return;
-        final dup = report.skippedDuplicates > 0
-            ? ' (dups ${report.skippedDuplicates})'
-            : '';
-        unawaited(Telemetry.logEvent(
-          'import_confirm_shown',
-          buildTelemetry(
-            sessionId: _sessionId,
-            packId: widget.packId,
-            data: {
-              'total': report.spots.length,
-              'added': report.added,
-              'skipped': report.skipped,
-              'dups': report.skippedDuplicates,
-            },
-          ),
-        ));
-        final start = await showDialog<bool>(
-          context: context,
-          barrierDismissible: true,
-          builder: (_) => AlertDialog(
-            title: const Text('Import summary'),
-            content: Text(
-              'Found ${report.spots.length} spots \u2022 added ${report.added} \u2022 skipped ${report.skipped}$dup',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(_, false),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(_, true),
-                child: const Text('Start'),
-              ),
-            ],
-          ),
-        ) ??
-            false;
-        unawaited(Telemetry.logEvent(
-          'import_confirm_result',
-          buildTelemetry(
-            sessionId: _sessionId,
-            packId: widget.packId,
-            data: {
-              'result': start ? 'start' : 'cancel',
-              'total': report.spots.length,
-              'added': report.added,
-              'skipped': report.skipped,
-              'dups': report.skippedDuplicates,
-            },
-          ),
-        ));
-      if (!start) return;
-      _restart(report.spots);
-    } catch (_) {
-      showMiniToast(context, 'Import failed');
-    }
   }
 
   Future<void> _importSpots() async {
@@ -1119,57 +997,51 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       if (report.spots.isEmpty) return;
       _lastLoadedSpots = report.spots;
       if (!await _confirmRestartIfInProgress(context)) return;
-        final dup = report.skippedDuplicates > 0
-            ? ' (dups ${report.skippedDuplicates})'
-            : '';
-        unawaited(Telemetry.logEvent(
+      final dup = report.skippedDuplicates > 0
+          ? ' (dups ${report.skippedDuplicates})'
+          : '';
+      unawaited(
+        Telemetry.logEvent(
           'import_confirm_shown',
           buildTelemetry(
             sessionId: _sessionId,
             packId: widget.packId,
-            data: {
-              'total': report.spots.length,
-              'added': report.added,
-              'skipped': report.skipped,
-              'dups': report.skippedDuplicates,
-            },
+            data: {'count': report.spots.length},
           ),
-        ));
-        final start = await showDialog<bool>(
-          context: context,
-          barrierDismissible: true,
-          builder: (_) => AlertDialog(
-            title: const Text('Import summary'),
-            content: Text(
-              'Found ${report.spots.length} spots \u2022 added ${report.added} \u2022 skipped ${report.skipped}$dup',
+        ),
+      );
+      final start =
+          await showDialog<bool>(
+            context: context,
+            barrierDismissible: true,
+            builder: (_) => AlertDialog(
+              title: const Text('Import summary'),
+              content: Text(
+                'Found ${report.spots.length} spots \u2022 added ${report.added} \u2022 skipped ${report.skipped}$dup',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(_, false),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(_, true),
+                  child: const Text('Start'),
+                ),
+              ],
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(_, false),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(_, true),
-                child: const Text('Start'),
-              ),
-            ],
-          ),
-        ) ??
-            false;
-        unawaited(Telemetry.logEvent(
+          ) ??
+          false;
+      unawaited(
+        Telemetry.logEvent(
           'import_confirm_result',
           buildTelemetry(
             sessionId: _sessionId,
             packId: widget.packId,
-            data: {
-              'result': start ? 'start' : 'cancel',
-              'total': report.spots.length,
-              'added': report.added,
-              'skipped': report.skipped,
-              'dups': report.skippedDuplicates,
-            },
+            data: {'result': start ? 'start' : 'cancel'},
           ),
-        ));
+        ),
+      );
       if (!start) return;
       _restart(report.spots);
     } catch (_) {
@@ -1181,43 +1053,12 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   Widget build(BuildContext context) {
     if (_index >= _spots.length && !_clearedAtSummary) {
       _clearedAtSummary = true;
-      unawaited(Telemetry.logEvent(
-        'session_end',
-        buildTelemetry(
-          sessionId: _sessionId,
-          packId: widget.packId,
-          data: {
-            'total': _answers.length,
-            'correct': _answers.where((a) => a.correct).length,
-            'wrong':
-                _answers.length - _answers.where((a) => a.correct).length,
-            'skipped': _answers.where((a) => a.chosen == '(skip)').length,
-            'timeouts':
-                _answers.where((a) => a.chosen == '(timeout)').length,
-            'elapsedMs': _answers.fold<int>(
-              0,
-              (s, a) => s + a.elapsed.inMilliseconds,
-            ),
-          },
-        ),
-      ));
       unawaited(_clearSaved());
       unawaited(SessionResume.clear());
     }
     final Widget child;
     if (_index >= _spots.length) {
       final l3Candidates = _l3JamErrorCandidates();
-      final total = _answers.length;
-      final correct = _answers.where((a) => a.correct).length;
-      final wrong = total - correct;
-      final skipped = _answers.where((a) => a.chosen == '(skip)').length;
-      final timeouts = _answers.where((a) => a.chosen == '(timeout)').length;
-      final elapsedMs = _answers.fold<int>(
-        0,
-        (s, a) => s + a.elapsed.inMilliseconds,
-      );
-      final acc = total > 0 ? (100.0 * correct / total) : 0.0;
-      final avgMs = total > 0 ? (elapsedMs / total).round() : 0;
       child = Column(
         children: [
           Expanded(
@@ -1244,27 +1085,6 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 4,
-                  children: [
-                    Chip(label: Text('Total: $total')),
-                    Chip(label: Text('Correct: $correct')),
-                    Chip(label: Text('Wrong: $wrong')),
-                    Chip(label: Text('Skipped: $skipped')),
-                    Chip(label: Text('Timeouts: $timeouts')),
-                    Chip(label: Text('Acc: ${acc.toStringAsFixed(1)}%')),
-                    Chip(label: Text('Avg ms: $avgMs')),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: Wrap(
               spacing: 8,
@@ -1284,86 +1104,6 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                 ActionChip(
                   label: const Text('Import spots'),
                   onPressed: _importSpots,
-                ),
-                ActionChip(
-                  label: const Text('Start Cash L3'),
-                  onPressed: () {
-                    final spots = loadCashL3V1();
-                    if (spots.isEmpty) {
-                      showMiniToast(context, 'Pack is empty');
-                    } else {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => MvsSessionPlayer(
-                            spots: spots,
-                            packId: 'cash:l3:v1',
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                ),
-                ActionChip(
-                  label: const Text('Start ICM L4 SB'),
-                  onPressed: () {
-                    final spots = loadIcmL4SbV1();
-                    if (spots.isEmpty) {
-                      showMiniToast(context, 'Pack is empty');
-                    } else {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => MvsSessionPlayer(
-                            spots: spots,
-                            packId: 'icm:l4:sb:v1',
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                ),
-                ActionChip(
-                  label: const Text('Start ICM L4 BB'),
-                  onPressed: () {
-                    final spots = loadIcmL4BbV1();
-                    if (spots.isEmpty) {
-                      showMiniToast(context, 'Pack is empty');
-                    } else {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => MvsSessionPlayer(
-                            spots: spots,
-                            packId: 'icm:l4:bb:v1',
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                ),
-                ActionChip(
-                  label: const Text('Start last import'),
-                  onPressed: () {
-                    final spots = _lastLoadedSpots ?? const <UiSpot>[];
-                    if (spots.isEmpty) {
-                      showMiniToast(context, 'Import spots first');
-                    } else {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => MvsSessionPlayer(
-                            spots: spots,
-                            packId: 'import:last',
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                ),
-                ActionChip(
-                  label: const Text('Paste spots'),
-                  onPressed: _pasteSpots,
                 ),
               ],
             ),

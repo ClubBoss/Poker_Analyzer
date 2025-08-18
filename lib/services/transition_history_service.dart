@@ -50,7 +50,9 @@ class TransitionHistoryService {
   }
 
   void _restoreWithSnapshot(
-      TransitionLockSnapshot snap, void Function() restore) {
+    TransitionLockSnapshot snap,
+    void Function() restore,
+  ) {
     lockService.lock();
     try {
       restore();

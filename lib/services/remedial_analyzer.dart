@@ -7,10 +7,12 @@ class RemedialAnalyzer {
   final BoardTextureClassifier _classifier;
 
   RemedialAnalyzer({BoardTextureClassifier? classifier})
-      : _classifier = classifier ?? const BoardTextureClassifier();
+    : _classifier = classifier ?? const BoardTextureClassifier();
 
-  RemedialSpec analyze(Iterable<TrainingSpotAttempt> attempts,
-      {double targetAccuracy = 0.0}) {
+  RemedialSpec analyze(
+    Iterable<TrainingSpotAttempt> attempts, {
+    double targetAccuracy = 0.0,
+  }) {
     final tagMisses = <String, int>{};
     final textureMisses = <String, int>{};
     final streetMisses = <int, int>{};
@@ -45,8 +47,8 @@ class RemedialAnalyzer {
       streetBias: streetMisses.isEmpty
           ? 0
           : streetMisses.entries
-              .reduce((a, b) => a.value >= b.value ? a : b)
-              .key,
+                .reduce((a, b) => a.value >= b.value ? a : b)
+                .key,
       minAccuracyTarget: targetAccuracy > 0 ? targetAccuracy : accuracy,
     );
 

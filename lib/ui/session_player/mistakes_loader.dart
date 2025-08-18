@@ -3,8 +3,9 @@ import 'dart:io';
 
 import 'models.dart';
 
-Future<List<UiSpot>> loadMistakeSpotsFromLogs(
-    {String dir = 'out/session_logs'}) async {
+Future<List<UiSpot>> loadMistakeSpotsFromLogs({
+  String dir = 'out/session_logs',
+}) async {
   final directory = Directory(dir);
   if (!await directory.exists()) return [];
   final files = await directory
@@ -27,16 +28,18 @@ Future<List<UiSpot>> loadMistakeSpotsFromLogs(
           if (raw['correct'] == true) continue;
           final kind = _spotKindFromString(raw['kind'] as String?);
           if (kind == null) continue;
-          spots.add(UiSpot(
-            kind: kind,
-            hand: raw['hand'] as String? ?? '',
-            pos: raw['pos'] as String? ?? '',
-            stack: raw['stack'] as String? ?? '',
-            action: raw['expected'] as String? ?? '',
-            vsPos: raw['vsPos']?.toString(),
-            limpers: raw['limpers']?.toString(),
-            explain: null,
-          ));
+          spots.add(
+            UiSpot(
+              kind: kind,
+              hand: raw['hand'] as String? ?? '',
+              pos: raw['pos'] as String? ?? '',
+              stack: raw['stack'] as String? ?? '',
+              action: raw['expected'] as String? ?? '',
+              vsPos: raw['vsPos']?.toString(),
+              limpers: raw['limpers']?.toString(),
+              explain: null,
+            ),
+          );
         } catch (_) {
           // skip malformed item
         }

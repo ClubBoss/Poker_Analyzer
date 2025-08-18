@@ -33,11 +33,15 @@ class _YamlPackArchiveValidatorScreenState
     setState(() {
       _errors
         ..clear()
-        ..addAll(data.map((e) => _ErrorEntry(
+        ..addAll(
+          data.map(
+            (e) => _ErrorEntry(
               path: e['path'] as String,
               error: e['error'] as String,
               time: DateTime.fromMillisecondsSinceEpoch(e['time'] as int),
-            )));
+            ),
+          ),
+        );
       _loading = false;
     });
   }
@@ -51,7 +55,7 @@ class _YamlPackArchiveValidatorScreenState
       appBar: AppBar(
         title: const Text('Валидатор YAML-паков'),
         actions: [
-          IconButton(onPressed: _load, icon: const Icon(Icons.refresh))
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh)),
         ],
       ),
       backgroundColor: AppColors.background,
@@ -94,8 +98,11 @@ class _ErrorEntry {
   final String path;
   final String error;
   final DateTime time;
-  const _ErrorEntry(
-      {required this.path, required this.error, required this.time});
+  const _ErrorEntry({
+    required this.path,
+    required this.error,
+    required this.time,
+  });
 }
 
 Future<List<Map<String, dynamic>>> _validateTask(String _) async {

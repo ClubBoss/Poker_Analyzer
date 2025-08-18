@@ -5,8 +5,12 @@ import '../models/pack_spec.dart';
 import 'learning_path_telemetry.dart';
 
 class RemedialPackGenerator {
-  AutogenPreset build(String pathId, String stageId, PackSpec spec,
-      {int? spotsPerPack}) {
+  AutogenPreset build(
+    String pathId,
+    String stageId,
+    PackSpec spec, {
+    int? spotsPerPack,
+  }) {
     final bounded = (spotsPerPack ?? 6).clamp(6, 12);
     final total = spec.textureCounts.values.fold<int>(0, (a, b) => a + b);
     final mix = <String, double>{};

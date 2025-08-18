@@ -12,7 +12,7 @@ class TrainingPackMetadataEnricherService {
   final TrainingPackAuditLogService _audit;
 
   TrainingPackMetadataEnricherService({TrainingPackAuditLogService? audit})
-      : _audit = audit ?? TrainingPackAuditLogService();
+    : _audit = audit ?? TrainingPackAuditLogService();
 
   /// Returns a new [TrainingPackModel] with the metadata field populated
   /// with derived attributes. If the metadata changes, an audit entry is
@@ -61,8 +61,9 @@ class TrainingPackMetadataEnricherService {
       if (preflop.any((a) => a.action == 'limp')) {
         hasLimp = true;
       } else {
-        final hasRaise =
-            preflop.any((a) => a.action == 'raise' || a.action == 'bet');
+        final hasRaise = preflop.any(
+          (a) => a.action == 'raise' || a.action == 'bet',
+        );
         final hasCall = preflop.any((a) => a.action == 'call');
         if (!hasRaise && hasCall) hasLimp = true;
       }
@@ -80,38 +81,38 @@ class TrainingPackMetadataEnricherService {
       // stack spread using hero stack
       final heroKey = s.hand.heroIndex.toString();
       final stack = s.hand.stacks[heroKey] ?? 0;
-      minStack =
-          (minStack == null) ? stack : (stack < minStack ? stack : minStack);
-      maxStack =
-          (maxStack == null) ? stack : (stack > maxStack ? stack : maxStack);
+      minStack = (minStack == null)
+          ? stack
+          : (stack < minStack ? stack : minStack);
+      maxStack = (maxStack == null)
+          ? stack
+          : (stack > maxStack ? stack : maxStack);
       stackTotal += stack;
       stackCount++;
     }
 
     final avgStack = stackCount > 0 ? stackTotal / stackCount : 0.0;
-    final difficultyScore = (avgStack > 40 ? 1 : 0) +
+    final difficultyScore =
+        (avgStack > 40 ? 1 : 0) +
         (maxStreet >= 2 ? 1 : 0) +
         (complexActions ? 1 : 0);
 
     final difficulty = difficultyScore >= 3
         ? 'hard'
         : difficultyScore >= 1
-            ? 'medium'
-            : 'easy';
+        ? 'medium'
+        : 'easy';
 
     final streets = maxStreet >= 3
         ? 'river'
         : maxStreet >= 1
-            ? 'flop+turn'
-            : 'preflop';
+        ? 'flop+turn'
+        : 'preflop';
 
     return {
       'difficulty': difficulty,
       'streets': streets,
-      'stackSpread': {
-        'min': minStack ?? 0,
-        'max': maxStack ?? 0,
-      },
+      'stackSpread': {'min': minStack ?? 0, 'max': maxStack ?? 0},
       'hasLimpedPots': hasLimp,
     };
   }

@@ -43,10 +43,12 @@ class SmartReviewService {
       ..addAll(prefs.getStringList(_prefsKey) ?? <String>[]);
     _results
       ..clear()
-      ..addAll([
-        for (final r in prefs.getStringList(_resultsKey) ?? <String>[])
-          _parseResult(r)
-      ].whereType<List<double>>());
+      ..addAll(
+        [
+          for (final r in prefs.getStringList(_resultsKey) ?? <String>[])
+            _parseResult(r),
+        ].whereType<List<double>>(),
+      );
   }
 
   /// Records a mistake for the given [spot].
@@ -86,7 +88,7 @@ class SmartReviewService {
       final tag = decision.targetTag!.toLowerCase();
       final filtered = [
         for (final s in result)
-          if (s.tags.any((t) => t.toLowerCase() == tag)) s
+          if (s.tags.any((t) => t.toLowerCase() == tag)) s,
       ];
       if (filtered.isNotEmpty) result = filtered;
     }
@@ -107,9 +109,10 @@ class SmartReviewService {
           ],
         ),
       );
-      await context
-          .read<TrainingSessionService>()
-          .startSession(tpl, persist: false);
+      await context.read<TrainingSessionService>().startSession(
+        tpl,
+        persist: false,
+      );
       await Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
@@ -135,7 +138,8 @@ class SmartReviewService {
 
   /// Builds a [MistakeProfile] based on recorded mistakes.
   Future<MistakeProfile> getMistakeProfile(
-      TemplateStorageService templates) async {
+    TemplateStorageService templates,
+  ) async {
     final spots = await getMistakeSpots(templates);
     final counts = <String, int>{};
     for (final s in spots) {
@@ -162,9 +166,10 @@ class SmartReviewService {
       createdAt: DateTime.now(),
       spots: spots,
     );
-    await context
-        .read<TrainingSessionService>()
-        .startSession(tpl, persist: false);
+    await context.read<TrainingSessionService>().startSession(
+      tpl,
+      persist: false,
+    );
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
@@ -195,10 +200,12 @@ class SmartReviewService {
       _results.removeAt(0);
     }
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(
-        _resultsKey, [for (final r in _results) '${r[0]},${r[1]},${r[2]}']);
+    await prefs.setStringList(_resultsKey, [
+      for (final r in _results) '${r[0]},${r[1]},${r[2]}',
+    ]);
 
-    final ready = _results.length >= 3 &&
+    final ready =
+        _results.length >= 3 &&
         _results.every((r) => r[0] >= 0.9 && r[1] >= 0.85 && r[2] >= 0.85);
     if (ready && context != null) {
       final confirm = await showDialog<bool>(
@@ -207,11 +214,13 @@ class SmartReviewService {
           title: const Text('Хотите попробовать более сложный уровень?'),
           actions: [
             TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Нет')),
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Нет'),
+            ),
             TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Да')),
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Да'),
+            ),
           ],
         ),
       );
@@ -219,9 +228,10 @@ class SmartReviewService {
         const builder = TrainingPackTemplateBuilder();
         final mastery = context.read<TagMasteryService>();
         final tpl = await builder.buildAdvancedPack(mastery);
-        await context
-            .read<TrainingSessionService>()
-            .startSession(tpl, persist: false);
+        await context.read<TrainingSessionService>().startSession(
+          tpl,
+          persist: false,
+        );
         await Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
@@ -232,7 +242,8 @@ class SmartReviewService {
       return;
     }
 
-    final weakReady = _results.length >= 3 &&
+    final weakReady =
+        _results.length >= 3 &&
         _results.every((r) => r[0] <= 0.7 || r[1] < 0.6 || r[2] < 0.6);
     if (weakReady && context != null) {
       final confirm = await showDialog<bool>(
@@ -241,11 +252,13 @@ class SmartReviewService {
           title: const Text('Хотите поработать над уязвимыми зонами?'),
           actions: [
             TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Нет')),
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Нет'),
+            ),
             TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Да')),
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Да'),
+            ),
           ],
         ),
       );
@@ -253,9 +266,10 @@ class SmartReviewService {
         const builder = TrainingPackTemplateBuilder();
         final mastery = context.read<TagMasteryService>();
         final tpl = await builder.buildWeaknessPack(mastery);
-        await context
-            .read<TrainingSessionService>()
-            .startSession(tpl, persist: false);
+        await context.read<TrainingSessionService>().startSession(
+          tpl,
+          persist: false,
+        );
         await Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),

@@ -13,9 +13,9 @@ class SmartSkillGapBoosterEngine {
     SkillGapDetectorService? detector,
     MiniLessonLibraryService? library,
     MiniLessonProgressTracker? progress,
-  })  : detector = detector ?? SkillGapDetectorService(),
-        library = library ?? MiniLessonLibraryService.instance,
-        progress = progress ?? MiniLessonProgressTracker.instance;
+  }) : detector = detector ?? SkillGapDetectorService(),
+       library = library ?? MiniLessonLibraryService.instance,
+       progress = progress ?? MiniLessonProgressTracker.instance;
 
   /// Returns up to [max] mini lessons that fill skill gaps.
   Future<List<TheoryMiniLessonNode>> recommend({int max = 3}) async {

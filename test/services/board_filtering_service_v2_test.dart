@@ -13,10 +13,7 @@ void main() {
         river: '2♥',
       );
 
-      expect(
-        svc.isMatch(board, {'broadwayHeavy', 'flushDraw'}),
-        isTrue,
-      );
+      expect(svc.isMatch(board, {'broadwayHeavy', 'flushDraw'}), isTrue);
       expect(
         svc.isMatch(board, {'broadwayHeavy'}, excludedTags: {'fourToFlush'}),
         isFalse,

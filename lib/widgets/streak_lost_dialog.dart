@@ -8,8 +8,9 @@ class StreakLostDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('Стрик прерван'),
-      content:
-          Text('Ты был в серии из $previous дней. Попробуем начать заново?'),
+      content: Text(
+        'Ты был в серии из $previous дней. Попробуем начать заново?',
+      ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),

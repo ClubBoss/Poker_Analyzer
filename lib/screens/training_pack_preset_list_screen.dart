@@ -82,8 +82,9 @@ class _TrainingPackPresetListScreenState
               Future.microtask(() async {
                 for (final p in list) {
                   if (cancel) break;
-                  final tpl =
-                      await PackGeneratorService.generatePackFromPreset(p);
+                  final tpl = await PackGeneratorService.generatePackFromPreset(
+                    p,
+                  );
                   final model = TrainingPackTemplateModel(
                     id: tpl.id,
                     name: tpl.name,
@@ -114,16 +115,14 @@ class _TrainingPackPresetListScreenState
                 children: [
                   LinearProgressIndicator(value: done / total),
                   const SizedBox(height: 12),
-                  Text(
-                    'Generated $done / $total',
-                    textAlign: TextAlign.center,
-                  ),
+                  Text('Generated $done / $total', textAlign: TextAlign.center),
                 ],
               ),
               actions: [
                 TextButton(
-                    onPressed: () => cancel = true,
-                    child: const Text('Cancel')),
+                  onPressed: () => cancel = true,
+                  child: const Text('Cancel'),
+                ),
               ],
             );
           },
@@ -131,9 +130,9 @@ class _TrainingPackPresetListScreenState
       },
     );
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Generated $done of $total packs')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Generated $done of $total packs')));
   }
 
   Future<void> _import() async {
@@ -153,7 +152,8 @@ class _TrainingPackPresetListScreenState
           if (e is Map) {
             try {
               list.add(
-                  TrainingPackPreset.fromJson(Map<String, dynamic>.from(e)));
+                TrainingPackPreset.fromJson(Map<String, dynamic>.from(e)),
+              );
             } catch (_) {}
           }
         }
@@ -167,8 +167,10 @@ class _TrainingPackPresetListScreenState
     if (ok) setState(() => _presets.addAll(list));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-          content:
-              Text(ok ? 'Импортировано ${list.length}' : '⚠️ Ошибка импорта')),
+        content: Text(
+          ok ? 'Импортировано ${list.length}' : '⚠️ Ошибка импорта',
+        ),
+      ),
     );
   }
 
@@ -179,7 +181,9 @@ class _TrainingPackPresetListScreenState
         title: const Text('Presets'),
         actions: [
           IconButton(
-              onPressed: _generateAll, icon: const Icon(Icons.playlist_play)),
+            onPressed: _generateAll,
+            icon: const Icon(Icons.playlist_play),
+          ),
           IconButton(onPressed: _import, icon: const Icon(Icons.upload_file)),
         ],
       ),
@@ -211,11 +215,13 @@ class _TrainingPackPresetListScreenState
                             title: const Text('Regenerate?'),
                             actions: [
                               TextButton(
-                                  onPressed: () => Navigator.pop(ctx, false),
-                                  child: const Text('Cancel')),
+                                onPressed: () => Navigator.pop(ctx, false),
+                                child: const Text('Cancel'),
+                              ),
                               TextButton(
-                                  onPressed: () => Navigator.pop(ctx, true),
-                                  child: const Text('OK')),
+                                onPressed: () => Navigator.pop(ctx, true),
+                                child: const Text('OK'),
+                              ),
                             ],
                           ),
                         );

@@ -15,16 +15,20 @@ void main() {
     AutoAdvancePackEngine.instance
       ..mock = true
       ..resetMock()
-      ..registerMockTemplate(TrainingPackTemplateV2(
-        id: 'starter_pushfold_10bb',
-        name: 'A',
-        trainingType: TrainingType.pushFold,
-      ))
-      ..registerMockTemplate(TrainingPackTemplateV2(
-        id: 'starter_pushfold_15bb',
-        name: 'B',
-        trainingType: TrainingType.pushFold,
-      ));
+      ..registerMockTemplate(
+        TrainingPackTemplateV2(
+          id: 'starter_pushfold_10bb',
+          name: 'A',
+          trainingType: TrainingType.pushFold,
+        ),
+      )
+      ..registerMockTemplate(
+        TrainingPackTemplateV2(
+          id: 'starter_pushfold_15bb',
+          name: 'B',
+          trainingType: TrainingType.pushFold,
+        ),
+      );
   });
 
   test('returns first pack when none completed', () async {
@@ -33,8 +37,9 @@ void main() {
   });
 
   test('returns next pack after completion', () async {
-    await LearningPathProgressService.instance
-        .markCompleted('starter_pushfold_10bb');
+    await LearningPathProgressService.instance.markCompleted(
+      'starter_pushfold_10bb',
+    );
     final tpl = await AutoAdvancePackEngine.instance.getNextRecommendedPack();
     expect(tpl?.id, 'starter_pushfold_15bb');
   });

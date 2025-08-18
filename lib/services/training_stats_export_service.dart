@@ -47,15 +47,7 @@ class TrainingStatsExportService {
       final date = log.completedAt.toIso8601String().split('T').first;
       final tagStr = tags.join('|');
       for (final pos in positions) {
-        rows.add([
-          date,
-          tpl.id,
-          bb,
-          pos.label,
-          '',
-          '$correct/$total',
-          tagStr,
-        ]);
+        rows.add([date, tpl.id, bb, pos.label, '', '$correct/$total', tagStr]);
       }
     }
     return rows;
@@ -80,7 +72,8 @@ class TrainingStatsExportService {
     final csvStr = const ListToCsvConverter().convert(rows, eol: '\r\n');
     final dir = await getTemporaryDirectory();
     final file = File(
-        '${dir.path}/training_stats_${DateTime.now().millisecondsSinceEpoch}.csv');
+      '${dir.path}/training_stats_${DateTime.now().millisecondsSinceEpoch}.csv',
+    );
     await file.writeAsString(csvStr, encoding: utf8);
     return file;
   }
@@ -147,7 +140,8 @@ class TrainingStatsExportService {
     final bytes = await pdf.save();
     final dir = await getTemporaryDirectory();
     final file = File(
-        '${dir.path}/training_stats_${DateTime.now().millisecondsSinceEpoch}.pdf');
+      '${dir.path}/training_stats_${DateTime.now().millisecondsSinceEpoch}.pdf',
+    );
     await file.writeAsBytes(bytes);
     return file;
   }

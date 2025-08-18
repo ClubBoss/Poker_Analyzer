@@ -12,8 +12,8 @@ class SmartPackRecommenderV2 {
   const SmartPackRecommenderV2({
     TrainingPathUnlockService? unlockService,
     WeaknessClusterEngine? clusterEngine,
-  })  : _unlockService = unlockService ?? const TrainingPathUnlockService(),
-        _clusterEngine = clusterEngine ?? const WeaknessClusterEngine();
+  }) : _unlockService = unlockService ?? const TrainingPathUnlockService(),
+       _clusterEngine = clusterEngine ?? const WeaknessClusterEngine();
 
   TrainingPackTemplateV2? recommendNext({
     required List<TrainingPackTemplateV2> allPacks,

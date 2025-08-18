@@ -27,10 +27,10 @@ class ScheduledAutogenJob {
       );
 
   Map<String, dynamic> toJson() => {
-        'templateId': templateId,
-        'target': target,
-        'lastRun': lastRun?.toUtc().toIso8601String(),
-      };
+    'templateId': templateId,
+    'target': target,
+    'lastRun': lastRun?.toUtc().toIso8601String(),
+  };
 }
 
 /// Service that schedules automatic training pack generation jobs.
@@ -43,9 +43,9 @@ class AutoPackGenerationSchedulerService {
     String filePath = 'scheduledJobs.json',
     TrainingPackAutoGenerator? generator,
     TrainingPackTemplateRegistryService? registry,
-  })  : _filePath = filePath,
-        _generator = generator ?? TrainingPackAutoGenerator(),
-        _registry = registry ?? TrainingPackTemplateRegistryService();
+  }) : _filePath = filePath,
+       _generator = generator ?? TrainingPackAutoGenerator(),
+       _registry = registry ?? TrainingPackTemplateRegistryService();
 
   Future<List<ScheduledAutogenJob>> _loadJobs() async {
     final file = File(_filePath);
@@ -56,8 +56,9 @@ class AutoPackGenerationSchedulerService {
       if (data is List) {
         return data
             .whereType<Map>()
-            .map((e) =>
-                ScheduledAutogenJob.fromJson(Map<String, dynamic>.from(e)))
+            .map(
+              (e) => ScheduledAutogenJob.fromJson(Map<String, dynamic>.from(e)),
+            )
             .toList();
       }
     } catch (_) {}
@@ -92,7 +93,8 @@ class AutoPackGenerationSchedulerService {
     }
     await _saveJobs(jobs);
     AppLogger.log(
-        'AutoPackGenerationSchedulerService: executed $completed jobs, errors: $errors, templates: ${templates.join(', ')}');
+      'AutoPackGenerationSchedulerService: executed $completed jobs, errors: $errors, templates: ${templates.join(', ')}',
+    );
   }
 
   /// Adds a new scheduled job.

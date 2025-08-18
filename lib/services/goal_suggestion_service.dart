@@ -7,14 +7,13 @@ class GoalSuggestionService {
   final SmartRecommenderEngine engine;
   final TagMasteryService mastery;
 
-  GoalSuggestionService({
-    SmartRecommenderEngine? engine,
-    required this.mastery,
-  }) : engine = engine ?? SmartRecommenderEngine(masteryService: mastery);
+  GoalSuggestionService({SmartRecommenderEngine? engine, required this.mastery})
+    : engine = engine ?? SmartRecommenderEngine(masteryService: mastery);
 
   /// Returns a list of up to three high-impact goals sorted by weakness severity.
-  Future<List<TrainingGoal>> suggestGoals(
-      {required UserProgress progress}) async {
+  Future<List<TrainingGoal>> suggestGoals({
+    required UserProgress progress,
+  }) async {
     final masteryMap = await mastery.computeMastery();
     final clusters = engine.clusterEngine.detectWeaknesses(
       results: progress.history,

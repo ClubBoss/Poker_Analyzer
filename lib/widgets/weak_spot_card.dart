@@ -26,8 +26,10 @@ class WeakSpotCard extends StatelessWidget {
             children: [
               Icon(Icons.school, color: Colors.orange),
               SizedBox(width: 8),
-              Text('Слабые места',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(
+                'Слабые места',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
             ],
           ),
           const SizedBox(height: 8),
@@ -47,14 +49,15 @@ class WeakSpotCard extends StatelessWidget {
                     onPressed: () async {
                       final tpl = await service.buildPack(r.position);
                       if (tpl == null) return;
-                      await context
-                          .read<TrainingSessionService>()
-                          .startSession(tpl);
+                      await context.read<TrainingSessionService>().startSession(
+                        tpl,
+                      );
                       if (context.mounted) {
                         await Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const TrainingSessionScreen()),
+                            builder: (_) => const TrainingSessionScreen(),
+                          ),
                         );
                       }
                     },
@@ -62,7 +65,7 @@ class WeakSpotCard extends StatelessWidget {
                   ),
                 ],
               ),
-            )
+            ),
         ],
       ),
     );

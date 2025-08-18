@@ -12,10 +12,7 @@ class AchievementsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final achievements = context.watch<AchievementsEngine>().achievements;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Достижения'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Достижения'), centerTitle: true),
       body: LayoutBuilder(
         builder: (context, constraints) {
           final compact = constraints.maxWidth < 360;
@@ -66,8 +63,10 @@ class _AchievementCard extends StatelessWidget {
               const Spacer(),
               if (date != null)
                 Text(
-                  DateFormat('dd.MM.yyyy', Intl.getCurrentLocale())
-                      .format(date),
+                  DateFormat(
+                    'dd.MM.yyyy',
+                    Intl.getCurrentLocale(),
+                  ).format(date),
                   style: const TextStyle(color: Colors.white70, fontSize: 12),
                 ),
             ],

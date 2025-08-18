@@ -20,7 +20,7 @@ import 'package:poker_analyzer/services/path_map_engine.dart';
 class _FakeMastery extends TagMasteryService {
   final Map<String, double> map;
   _FakeMastery(this.map)
-      : super(logs: SessionLogService(sessions: TrainingSessionService()));
+    : super(logs: SessionLogService(sessions: TrainingSessionService()));
   @override
   Future<Map<String, double>> computeMastery({bool force = false}) async => map;
 }
@@ -34,9 +34,9 @@ class _FakeInventory extends BoosterInventoryService {
 
   @override
   List<TrainingPackTemplateV2> findByTag(String tag) => [
-        for (final b in items)
-          if (b.tags.contains(tag)) b
-      ];
+    for (final b in items)
+      if (b.tags.contains(tag)) b,
+  ];
 
   @override
   TrainingPackTemplateV2? getById(String id) =>
@@ -99,15 +99,13 @@ void main() {
   test('returns boosters matching weak tags', () async {
     final orch = BoosterInjectionOrchestrator(
       mastery: _FakeMastery({'push': 0.4}),
-      inventory: _FakeInventory([
-        _pack('b1', 'push'),
-        _pack('b2', 'call'),
-      ]),
+      inventory: _FakeInventory([_pack('b1', 'push'), _pack('b2', 'call')]),
       gaps: _FakeGapDetector([]),
       recall: _FakeRecall([]),
     );
-    final blocks =
-        await orch.getInjectableBoosters(const TrainingStageNode(id: 's1'));
+    final blocks = await orch.getInjectableBoosters(
+      const TrainingStageNode(id: 's1'),
+    );
     expect(blocks.length, 1);
     expect(blocks.first.id, 'b1');
   });
@@ -115,15 +113,13 @@ void main() {
   test('prioritizes recallable types', () async {
     final orch = BoosterInjectionOrchestrator(
       mastery: _FakeMastery({'push': 0.8}),
-      inventory: _FakeInventory([
-        _pack('b1', 'push'),
-        _pack('b2', 'call'),
-      ]),
+      inventory: _FakeInventory([_pack('b1', 'push'), _pack('b2', 'call')]),
       gaps: _FakeGapDetector([]),
       recall: _FakeRecall(['call']),
     );
-    final blocks =
-        await orch.getInjectableBoosters(const TrainingStageNode(id: 's1'));
+    final blocks = await orch.getInjectableBoosters(
+      const TrainingStageNode(id: 's1'),
+    );
     expect(blocks.length, 1);
     expect(blocks.first.id, 'b2');
   });
@@ -131,16 +127,16 @@ void main() {
   test('avoids duplicates in same session', () async {
     final orch = BoosterInjectionOrchestrator(
       mastery: _FakeMastery({'push': 0.4}),
-      inventory: _FakeInventory([
-        _pack('b1', 'push'),
-      ]),
+      inventory: _FakeInventory([_pack('b1', 'push')]),
       gaps: _FakeGapDetector([]),
       recall: _FakeRecall([]),
     );
-    final first =
-        await orch.getInjectableBoosters(const TrainingStageNode(id: 's1'));
-    final second =
-        await orch.getInjectableBoosters(const TrainingStageNode(id: 's1'));
+    final first = await orch.getInjectableBoosters(
+      const TrainingStageNode(id: 's1'),
+    );
+    final second = await orch.getInjectableBoosters(
+      const TrainingStageNode(id: 's1'),
+    );
     expect(first.length, 1);
     expect(second, isEmpty);
   });
@@ -148,15 +144,14 @@ void main() {
   test('skips completed boosters', () async {
     final orch = BoosterInjectionOrchestrator(
       mastery: _FakeMastery({'push': 0.4}),
-      inventory: _FakeInventory([
-        _pack('b1', 'push'),
-      ]),
+      inventory: _FakeInventory([_pack('b1', 'push')]),
       gaps: _FakeGapDetector([]),
       recall: _FakeRecall([]),
     );
     await BoosterCompletionTracker.instance.markBoosterCompleted('b1');
-    final blocks =
-        await orch.getInjectableBoosters(const TrainingStageNode(id: 's1'));
+    final blocks = await orch.getInjectableBoosters(
+      const TrainingStageNode(id: 's1'),
+    );
     expect(blocks, isEmpty);
   });
 }

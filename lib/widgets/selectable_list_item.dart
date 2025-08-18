@@ -28,10 +28,7 @@ class SelectableListItem extends StatelessWidget {
         child: Row(
           children: [
             if (selectionMode)
-              Checkbox(
-                value: selected,
-                onChanged: (_) => onTap?.call(),
-              ),
+              Checkbox(value: selected, onChanged: (_) => onTap?.call()),
             Expanded(child: child),
           ],
         ),

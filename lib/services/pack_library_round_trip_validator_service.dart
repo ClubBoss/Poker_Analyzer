@@ -18,8 +18,8 @@ class PackLibraryRoundTripValidatorService {
   PackLibraryRoundTripValidatorService({
     TrainingPackLibraryExporter? exporter,
     TrainingPackLibraryImporter? importer,
-  })  : exporter = exporter ?? const TrainingPackLibraryExporter(),
-        importer = importer ?? TrainingPackLibraryImporter();
+  }) : exporter = exporter ?? const TrainingPackLibraryExporter(),
+       importer = importer ?? TrainingPackLibraryImporter();
 
   RoundTripResult validate(List<TrainingPackModel> packs) {
     final files = exporter.exportToMap(packs);

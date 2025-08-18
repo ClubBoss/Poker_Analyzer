@@ -129,17 +129,18 @@ class DailyChallengeService extends ChangeNotifier {
         .map((e) => CardModel(rank: e[0], suit: e.substring(1)))
         .toList();
     final playerCards = [
-      for (int i = 0; i < hand.playerCount; i++) <CardModel>[]
+      for (int i = 0; i < hand.playerCount; i++) <CardModel>[],
     ];
     if (heroCards.length >= 2 && hand.heroIndex < playerCards.length) {
       playerCards[hand.heroIndex] = heroCards;
     }
     final boardCards = [
-      for (final c in hand.board) CardModel(rank: c[0], suit: c.substring(1))
+      for (final c in hand.board) CardModel(rank: c[0], suit: c.substring(1)),
     ];
     final actions = hand.actions.values.expand((l) => l).toList();
     final stacks = [
-      for (var i = 0; i < hand.playerCount; i++) hand.stacks['$i']?.round() ?? 0
+      for (var i = 0; i < hand.playerCount; i++)
+        hand.stacks['$i']?.round() ?? 0,
     ];
     final positions = List.generate(hand.playerCount, (_) => '');
     if (hand.heroIndex < positions.length) {

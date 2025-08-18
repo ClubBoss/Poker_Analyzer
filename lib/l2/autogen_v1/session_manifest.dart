@@ -47,12 +47,12 @@ class L2SessionManifest {
   });
 
   Map<String, dynamic> toJson() => {
-        'version': version,
-        'baseSeed': baseSeed,
-        'perKind': perKind,
-        'kinds': kinds,
-        'items': [for (final i in items) i.toJson()],
-      };
+    'version': version,
+    'baseSeed': baseSeed,
+    'perKind': perKind,
+    'kinds': kinds,
+    'items': [for (final i in items) i.toJson()],
+  };
 }
 
 String encodeL2ManifestCompact(L2SessionManifest m) => jsonEncode(m.toJson());

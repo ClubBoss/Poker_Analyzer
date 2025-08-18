@@ -15,8 +15,11 @@ class EvStatsChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final hands = context.watch<SavedHandManagerService>().hands;
     final now = DateTime.now().toLocal();
-    final start = DateTime(now.year, now.month, now.day)
-        .subtract(Duration(days: days - 1));
+    final start = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(Duration(days: days - 1));
     final dates = [for (int i = 0; i < days; i++) start.add(Duration(days: i))];
     final map = <DateTime, _DayStat>{};
     for (final h in hands) {
@@ -69,10 +72,12 @@ class EvStatsChart extends StatelessWidget {
                 const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,

@@ -22,10 +22,14 @@ class LessonReviewInsightsService {
         final data = jsonDecode(raw);
         if (data is Map) {
           _history = data.map((key, value) {
-            final list = (value as List?)
+            final list =
+                (value as List?)
                     ?.whereType<Map>()
-                    .map((e) => _LessonReviewEntry.fromJson(
-                        Map<String, dynamic>.from(e)))
+                    .map(
+                      (e) => _LessonReviewEntry.fromJson(
+                        Map<String, dynamic>.from(e),
+                      ),
+                    )
                     .toList() ??
                 [];
             list.sort((a, b) => a.timestamp.compareTo(b.timestamp));
@@ -40,7 +44,8 @@ class LessonReviewInsightsService {
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
     final data = _history.map(
-        (key, value) => MapEntry(key, value.map((e) => e.toJson()).toList()));
+      (key, value) => MapEntry(key, value.map((e) => e.toJson()).toList()),
+    );
     await prefs.setString(_prefsKey, jsonEncode(data));
   }
 
@@ -101,8 +106,10 @@ class _LessonReviewEntry {
 
   _LessonReviewEntry({required this.timestamp, required this.success});
 
-  Map<String, dynamic> toJson() =>
-      {'timestamp': timestamp.toIso8601String(), 'success': success};
+  Map<String, dynamic> toJson() => {
+    'timestamp': timestamp.toIso8601String(),
+    'success': success,
+  };
 
   factory _LessonReviewEntry.fromJson(Map<String, dynamic> json) {
     return _LessonReviewEntry(

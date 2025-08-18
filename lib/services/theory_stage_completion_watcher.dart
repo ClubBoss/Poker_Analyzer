@@ -63,9 +63,9 @@ class TheoryStageCompletionWatcher {
     tracker.markCompleted(id);
     _onCompleted?.call();
     if (context != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('✓ Completed')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('✓ Completed')));
     }
   }
 

@@ -11,18 +11,18 @@ class ShopScreen extends StatelessWidget {
   Future<void> _buy(BuildContext context, ShopItem item) async {
     final coins = context.read<CoinsService>();
     if (coins.coins < item.price) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Недостаточно монет')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Недостаточно монет')));
       return;
     }
     final ok = await coins.spendCoins(item.price);
     if (!ok) return;
     await item.onPurchase(context);
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Куплено: ${item.name}')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Куплено: ${item.name}')));
     }
   }
 
@@ -30,16 +30,14 @@ class ShopScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final balance = context.watch<CoinsService>().coins;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Shop'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Shop'), centerTitle: true),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text('Монеты: $balance',
-              style:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text(
+            'Монеты: $balance',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 16),
           for (final item in shopItems)
             Card(

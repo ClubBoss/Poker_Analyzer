@@ -79,8 +79,9 @@ class AchievementsEngine extends ChangeNotifier {
         title: 'Первая повтор ошибок',
         description: 'Используйте повтор ошибок',
         isUnlocked: prefs.getBool('${_pref}first_mistake_review') ?? false,
-        unlockDate:
-            _parse(prefs.getString('${_pref}first_mistake_review_date')),
+        unlockDate: _parse(
+          prefs.getString('${_pref}first_mistake_review_date'),
+        ),
         rewardXp: XPTrackerService.achievementXp,
       ),
     ]);
@@ -94,7 +95,9 @@ class AchievementsEngine extends ChangeNotifier {
     await prefs.setBool('$_pref${a.id}', a.isUnlocked);
     if (a.unlockDate != null) {
       await prefs.setString(
-          '$_pref${a.id}_date', a.unlockDate!.toIso8601String());
+        '$_pref${a.id}_date',
+        a.unlockDate!.toIso8601String(),
+      );
     }
   }
 

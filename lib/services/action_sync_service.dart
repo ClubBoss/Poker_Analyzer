@@ -115,7 +115,9 @@ class ActionSyncService extends ChangeNotifier {
   }
 
   ActionSnapshot buildSnapshot(
-      List<CardModel> board, Set<int> expandedStreets) {
+    List<CardModel> board,
+    Set<int> expandedStreets,
+  ) {
     return ActionSnapshot(
       street: currentStreet,
       boardStreet: boardStreet,

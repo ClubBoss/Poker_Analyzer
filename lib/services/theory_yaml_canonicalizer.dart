@@ -17,9 +17,7 @@ class TheoryYamlCanonicalizer {
   dynamic _canon(dynamic value) {
     if (value is Map) {
       final keys = value.keys.map((e) => e.toString()).toList()..sort();
-      return {
-        for (final k in keys) k: _canon(value[k]),
-      };
+      return {for (final k in keys) k: _canon(value[k])};
     } else if (value is List) {
       return value.map(_canon).toList();
     } else if (value is num || value is bool || value == null) {

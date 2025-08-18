@@ -18,8 +18,8 @@ class TheoryInjectionSchedulerService {
   TheoryInjectionSchedulerService._({
     LearningPathStore? store,
     AutogenStatusDashboardService? dashboard,
-  })  : _store = store ?? const LearningPathStore(),
-        _dashboard = dashboard ?? AutogenStatusDashboardService.instance;
+  }) : _store = store ?? const LearningPathStore(),
+       _dashboard = dashboard ?? AutogenStatusDashboardService.instance;
 
   static final TheoryInjectionSchedulerService instance =
       TheoryInjectionSchedulerService._();

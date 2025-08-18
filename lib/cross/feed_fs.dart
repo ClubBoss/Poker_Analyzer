@@ -6,11 +6,7 @@ class FeedRef {
   final String path;
   final int count;
 
-  const FeedRef({
-    required this.kind,
-    required this.path,
-    required this.count,
-  });
+  const FeedRef({required this.kind, required this.path, required this.count});
 }
 
 List<FeedRef> readFeedRefs(File feedFile) {
@@ -46,7 +42,8 @@ String normFileName(String original) {
   }
   final buffer = StringBuffer();
   for (final code in base.codeUnits) {
-    final ok = (code >= 0x30 && code <= 0x39) ||
+    final ok =
+        (code >= 0x30 && code <= 0x39) ||
         (code >= 0x41 && code <= 0x5A) ||
         (code >= 0x61 && code <= 0x7A) ||
         code == 0x2D ||

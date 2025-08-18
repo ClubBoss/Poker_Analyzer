@@ -86,7 +86,8 @@ class _BoosterArchiveScreenState extends State<BoosterArchiveScreen> {
     final list = _entries.where((e) {
       final tagOk = _tagFilter.isEmpty || e.tags.contains(_tagFilter);
       final originOk = _originFilter.isEmpty || e.origin == _originFilter;
-      final dateOk = _dateRange == null ||
+      final dateOk =
+          _dateRange == null ||
           (!e.date.isBefore(_dateRange!.start) &&
               !e.date.isAfter(_dateRange!.end));
       return tagOk && originOk && dateOk;
@@ -97,8 +98,11 @@ class _BoosterArchiveScreenState extends State<BoosterArchiveScreen> {
         list.sort((a, b) => b.date.compareTo(a.date));
         break;
       case _SortMode.tag:
-        list.sort((a, b) => (a.tags.isEmpty ? '' : a.tags.first)
-            .compareTo(b.tags.isEmpty ? '' : b.tags.first));
+        list.sort(
+          (a, b) => (a.tags.isEmpty ? '' : a.tags.first).compareTo(
+            b.tags.isEmpty ? '' : b.tags.first,
+          ),
+        );
         break;
       case _SortMode.mostUsed:
         final counts = <String, int>{};
@@ -117,7 +121,8 @@ class _BoosterArchiveScreenState extends State<BoosterArchiveScreen> {
 
   Future<void> _pickDateRange() async {
     final now = DateTime.now();
-    final initial = _dateRange ??
+    final initial =
+        _dateRange ??
         DateTimeRange(start: now.subtract(const Duration(days: 7)), end: now);
     final picked = await showDateRangePicker(
       context: context,
@@ -170,23 +175,29 @@ class _BoosterArchiveScreenState extends State<BoosterArchiveScreen> {
                         children: [
                           TextButton(
                             onPressed: _pickDateRange,
-                            child: Text(_dateRange == null
-                                ? 'Any Date'
-                                : '${_dateRange!.start.year}-${_dateRange!.start.month}-${_dateRange!.start.day} '
-                                    'to ${_dateRange!.end.year}-${_dateRange!.end.month}-${_dateRange!.end.day}'),
+                            child: Text(
+                              _dateRange == null
+                                  ? 'Any Date'
+                                  : '${_dateRange!.start.year}-${_dateRange!.start.month}-${_dateRange!.start.day} '
+                                        'to ${_dateRange!.end.year}-${_dateRange!.end.month}-${_dateRange!.end.day}',
+                            ),
                           ),
                           const SizedBox(width: 16),
                           DropdownButton<_SortMode>(
                             value: _sort,
                             items: const [
                               DropdownMenuItem(
-                                  value: _SortMode.recent,
-                                  child: Text('Recent')),
+                                value: _SortMode.recent,
+                                child: Text('Recent'),
+                              ),
                               DropdownMenuItem(
-                                  value: _SortMode.mostUsed,
-                                  child: Text('Most Used')),
+                                value: _SortMode.mostUsed,
+                                child: Text('Most Used'),
+                              ),
                               DropdownMenuItem(
-                                  value: _SortMode.tag, child: Text('Tag')),
+                                value: _SortMode.tag,
+                                child: Text('Tag'),
+                              ),
                             ],
                             onChanged: (v) => setState(() => _sort = v!),
                           ),
@@ -207,7 +218,8 @@ class _BoosterArchiveScreenState extends State<BoosterArchiveScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                                '${e.date.year}-${e.date.month.toString().padLeft(2, '0')}-${e.date.day.toString().padLeft(2, '0')}'),
+                              '${e.date.year}-${e.date.month.toString().padLeft(2, '0')}-${e.date.day.toString().padLeft(2, '0')}',
+                            ),
                             if (e.tags.isNotEmpty)
                               Wrap(
                                 spacing: 4,
@@ -216,8 +228,10 @@ class _BoosterArchiveScreenState extends State<BoosterArchiveScreen> {
                                 ],
                               ),
                             if (e.origin != null)
-                              Text('Origin: ${e.origin!}',
-                                  style: const TextStyle(fontSize: 12)),
+                              Text(
+                                'Origin: ${e.origin!}',
+                                style: const TextStyle(fontSize: 12),
+                              ),
                           ],
                         ),
                       );

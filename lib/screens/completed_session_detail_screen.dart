@@ -44,8 +44,8 @@ class _CompletedSessionDetailScreenState
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _data == null
-              ? const Center(child: Text('Session not found'))
-              : _buildContent(context),
+          ? const Center(child: Text('Session not found'))
+          : _buildContent(context),
     );
   }
 
@@ -82,17 +82,19 @@ class _CompletedSessionDetailScreenState
         ? DateFormat.yMMMd(Intl.getCurrentLocale()).add_Hm().format(ts)
         : 'Unknown';
 
-    final accuracyStr =
-        accuracy != null ? '${(accuracy * 100).toStringAsFixed(0)}%' : 'N/A';
+    final accuracyStr = accuracy != null
+        ? '${(accuracy * 100).toStringAsFixed(0)}%'
+        : 'N/A';
 
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(name,
-              style:
-                  const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(
+            name,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
           Text('Training Type: $typeLabel'),
           Text('Accuracy: $accuracyStr'),
@@ -133,7 +135,8 @@ class _CompletedSessionDetailScreenState
                       return AlertDialog(
                         title: const Text('Delete Session?'),
                         content: const Text(
-                            'Are you sure you want to delete this session?'),
+                          'Are you sure you want to delete this session?',
+                        ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context, false),
@@ -148,8 +151,9 @@ class _CompletedSessionDetailScreenState
                     },
                   );
                   if (confirm == true) {
-                    await CompletedTrainingPackRegistry()
-                        .deleteCompletedPack(widget.fingerprint);
+                    await CompletedTrainingPackRegistry().deleteCompletedPack(
+                      widget.fingerprint,
+                    );
                     if (context.mounted) {
                       Navigator.pop(context);
                     }

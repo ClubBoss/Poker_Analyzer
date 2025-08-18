@@ -61,6 +61,7 @@ class UndoRedoService {
     return snap;
   }
 
-  List<TrainingPackSpot> _clone(List<TrainingPackSpot> src) =>
-      [for (final s in src) TrainingPackSpot.fromJson(s.toJson())];
+  List<TrainingPackSpot> _clone(List<TrainingPackSpot> src) => [
+    for (final s in src) TrainingPackSpot.fromJson(s.toJson()),
+  ];
 }

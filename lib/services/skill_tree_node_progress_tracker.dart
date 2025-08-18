@@ -53,11 +53,13 @@ class SkillTreeNodeProgressTracker {
       completedNodeIds.value = Set<String>.from(set);
       await _save();
       try {
-        final trackId =
-            await SkillTreeTrackResolver.instance.getTrackIdForNode(nodeId);
+        final trackId = await SkillTreeTrackResolver.instance.getTrackIdForNode(
+          nodeId,
+        );
         if (trackId != null && trackId.isNotEmpty) {
-          await StageCompletionCelebrationService.instance
-              .checkAndCelebrate(trackId);
+          await StageCompletionCelebrationService.instance.checkAndCelebrate(
+            trackId,
+          );
           await StageCompletionCelebrationService.instance
               .checkAndCelebrateTrackCompletion(trackId);
         }

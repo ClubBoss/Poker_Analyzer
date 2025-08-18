@@ -67,14 +67,11 @@ final List<MistakeTagRule> mistakeTagRules = [
         a.correctAction.toLowerCase() == 'fold' &&
         a.evDiff < 0,
   ),
-  MistakeTagRule(
-    MistakeTag.overfoldShortStack,
-    (a) {
-      final heroIndex = a.spot.hand.heroIndex;
-      final stack = a.spot.hand.stacks['$heroIndex'] ?? 0;
-      return stack <= 10 &&
-          a.userAction.toLowerCase() == 'fold' &&
-          a.correctAction.toLowerCase() != 'fold';
-    },
-  ),
+  MistakeTagRule(MistakeTag.overfoldShortStack, (a) {
+    final heroIndex = a.spot.hand.heroIndex;
+    final stack = a.spot.hand.stacks['$heroIndex'] ?? 0;
+    return stack <= 10 &&
+        a.userAction.toLowerCase() == 'fold' &&
+        a.correctAction.toLowerCase() != 'fold';
+  }),
 ];

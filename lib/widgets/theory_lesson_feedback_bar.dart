@@ -23,8 +23,9 @@ class _TheoryLessonFeedbackBarState extends State<TheoryLessonFeedbackBar> {
   }
 
   Future<void> _load() async {
-    final fb =
-        await TheoryFeedbackStorage.instance.getFeedback(widget.lessonId);
+    final fb = await TheoryFeedbackStorage.instance.getFeedback(
+      widget.lessonId,
+    );
     if (mounted) setState(() => _choice = fb?.choice);
   }
 
@@ -32,14 +33,17 @@ class _TheoryLessonFeedbackBarState extends State<TheoryLessonFeedbackBar> {
     await TheoryFeedbackStorage.instance.record(widget.lessonId, choice);
     if (mounted) {
       setState(() => _choice = choice);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Спасибо за отзыв!')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Спасибо за отзыв!')));
     }
   }
 
   Widget _button(
-      TheoryLessonFeedbackChoice choice, String label, IconData icon) {
+    TheoryLessonFeedbackChoice choice,
+    String label,
+    IconData icon,
+  ) {
     final accent = Theme.of(context).colorScheme.secondary;
     final selected = _choice == choice;
     return Expanded(
@@ -72,14 +76,23 @@ class _TheoryLessonFeedbackBarState extends State<TheoryLessonFeedbackBar> {
           const SizedBox(height: 8),
           Row(
             children: [
-              _button(TheoryLessonFeedbackChoice.useful, 'Полезно',
-                  Icons.thumb_up_alt_outlined),
+              _button(
+                TheoryLessonFeedbackChoice.useful,
+                'Полезно',
+                Icons.thumb_up_alt_outlined,
+              ),
               const SizedBox(width: 8),
-              _button(TheoryLessonFeedbackChoice.unclear, 'Непонятно',
-                  Icons.help_outline),
+              _button(
+                TheoryLessonFeedbackChoice.unclear,
+                'Непонятно',
+                Icons.help_outline,
+              ),
               const SizedBox(width: 8),
-              _button(TheoryLessonFeedbackChoice.hard, 'Сложно',
-                  Icons.whatshot_outlined),
+              _button(
+                TheoryLessonFeedbackChoice.hard,
+                'Сложно',
+                Icons.whatshot_outlined,
+              ),
             ],
           ),
         ],

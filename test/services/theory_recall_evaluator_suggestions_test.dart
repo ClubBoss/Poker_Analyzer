@@ -26,7 +26,7 @@ class _FakeMiniLibrary implements MiniLessonLibraryService {
     final set = tags.map((e) => e.toLowerCase()).toSet();
     return [
       for (final l in lessons)
-        if (l.tags.any((t) => set.contains(t))) l
+        if (l.tags.any((t) => set.contains(t))) l,
     ];
   }
 
@@ -48,7 +48,7 @@ TrainingPackTemplateV2 _booster(String id, String tag) =>
       positions: const [],
       meta: {
         'type': 'booster',
-        'tags': [tag]
+        'tags': [tag],
       },
     );
 
@@ -69,7 +69,11 @@ void main() {
     final boosters = [_booster('b1', 'push')];
     final lessons = [
       const TheoryMiniLessonNode(
-          id: 'l1', title: 'Push', content: '', tags: ['push'])
+        id: 'l1',
+        title: 'Push',
+        content: '',
+        tags: ['push'],
+      ),
     ];
     final lib = _FakeMiniLibrary(lessons);
     final eval = const TheoryRecallEvaluator();

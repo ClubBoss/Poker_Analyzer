@@ -83,7 +83,7 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
               : log.correctCount / (log.correctCount + log.mistakeCount),
           ev: 0,
           icm: 0,
-        )
+        ),
     ];
     final progress = TrainingProgressService.instance.computeOverallProgress(
       attempts: attempts,
@@ -111,9 +111,7 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
     final deltas = await context.read<TagMasteryService>().computeDelta();
     final top = deltas.entries.where((e) => e.value > 0).toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    final improvements = {
-      for (final e in top.take(3)) e.key: e.value,
-    };
+    final improvements = {for (final e in top.take(3)) e.key: e.value};
 
     final reviewItems = const WeaknessReviewEngine().analyze(
       attempts: attempts,
@@ -170,11 +168,14 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
         children: [
           Text(title, style: const TextStyle(color: Colors.white70)),
           const SizedBox(height: 4),
-          Text(value,
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20)),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
+          ),
         ],
       ),
     );
@@ -193,8 +194,10 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('📈 Top Improvements',
-              style: TextStyle(color: Colors.white70)),
+          const Text(
+            '📈 Top Improvements',
+            style: TextStyle(color: Colors.white70),
+          ),
           const SizedBox(height: 4),
           for (final e in data.entries)
             Padding(
@@ -220,8 +223,9 @@ class _LearningDashboardScreenState extends State<LearningDashboardScreen> {
           );
         }
         final data = snapshot.data!;
-        final completion =
-            (data.progress.completionRate * 100).toStringAsFixed(0);
+        final completion = (data.progress.completionRate * 100).toStringAsFixed(
+          0,
+        );
         return Scaffold(
           appBar: AppBar(title: const Text('Learning Dashboard')),
           body: ListView(

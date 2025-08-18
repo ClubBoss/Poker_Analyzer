@@ -22,16 +22,28 @@ void main() {
       'a': [
         TagXpHistoryEntry(date: start, xp: 10, source: ''),
         TagXpHistoryEntry(
-            date: start.add(const Duration(days: 1)), xp: 8, source: ''),
+          date: start.add(const Duration(days: 1)),
+          xp: 8,
+          source: '',
+        ),
         TagXpHistoryEntry(
-            date: start.add(const Duration(days: 2)), xp: 4, source: ''),
+          date: start.add(const Duration(days: 2)),
+          xp: 4,
+          source: '',
+        ),
       ],
       'b': [
         TagXpHistoryEntry(date: start, xp: 5, source: ''),
         TagXpHistoryEntry(
-            date: start.add(const Duration(days: 1)), xp: 5, source: ''),
+          date: start.add(const Duration(days: 1)),
+          xp: 5,
+          source: '',
+        ),
         TagXpHistoryEntry(
-            date: start.add(const Duration(days: 2)), xp: 5, source: ''),
+          date: start.add(const Duration(days: 2)),
+          xp: 5,
+          source: '',
+        ),
       ],
     };
     final engine = TagInsightReminderEngine(history: _FakeHistoryService(hist));

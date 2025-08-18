@@ -60,7 +60,8 @@ class _TrainingPackLoaderState extends State<TrainingPackLoader> {
     ScaffoldMessenger.of(rootCtx).showSnackBar(
       SnackBar(
         content: Text(
-            'Stack ${tpl.heroBbStack}bb • Range ${tpl.heroRange?.length ?? 0}'),
+          'Stack ${tpl.heroBbStack}bb • Range ${tpl.heroRange?.length ?? 0}',
+        ),
       ),
     );
     Navigator.pushReplacement(
@@ -85,8 +86,6 @@ class _TrainingPackLoaderState extends State<TrainingPackLoader> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
-    );
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

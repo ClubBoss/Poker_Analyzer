@@ -8,16 +8,16 @@ import 'package:poker_analyzer/models/player_model.dart';
 /// Converter for a very simple hand history text format.
 class SimpleHandHistoryConverter extends ConverterPlugin {
   SimpleHandHistoryConverter()
-      : super(
-          formatId: 'simple_hand_history',
-          description: 'Basic hand history text format',
-          capabilities: const ConverterFormatCapabilities(
-            supportsImport: true,
-            supportsExport: false,
-            requiresBoard: false,
-            supportsMultiStreet: false,
-          ),
-        );
+    : super(
+        formatId: 'simple_hand_history',
+        description: 'Basic hand history text format',
+        capabilities: const ConverterFormatCapabilities(
+          supportsImport: true,
+          supportsExport: false,
+          requiresBoard: false,
+          supportsMultiStreet: false,
+        ),
+      );
 
   @override
   SavedHand? convertFrom(String externalData) {
@@ -76,7 +76,7 @@ class SimpleHandHistoryConverter extends ConverterPlugin {
       playerPositions: {for (var i = 0; i < playerCount; i++) i: ''},
       comment: tableName,
       playerTypes: {
-        for (var i = 0; i < playerCount; i++) i: PlayerType.unknown
+        for (var i = 0; i < playerCount; i++) i: PlayerType.unknown,
       },
     );
   }

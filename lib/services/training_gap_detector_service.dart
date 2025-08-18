@@ -14,8 +14,9 @@ class TrainingGapDetectorService {
   static Duration _dormantCacheGap = const Duration(days: 14);
   static int _dormantCacheLimit = 0;
 
-  Future<List<String>> detectNeglectedTags(
-      {Duration maxAge = const Duration(days: 7)}) async {
+  Future<List<String>> detectNeglectedTags({
+    Duration maxAge = const Duration(days: 7),
+  }) async {
     final history = await TrainingHistoryServiceV2.getHistory(limit: 200);
     final map = <String, DateTime>{};
     for (final e in history) {
@@ -36,17 +37,20 @@ class TrainingGapDetectorService {
     return list;
   }
 
-  Future<Set<String>> detectNeglectedCategories(
-      {Duration maxAge = const Duration(days: 7)}) async {
+  Future<Set<String>> detectNeglectedCategories({
+    Duration maxAge = const Duration(days: 7),
+  }) async {
     final tags = await detectNeglectedTags(maxAge: maxAge);
     return {
       for (final t in tags)
-        if (t.startsWith('cat:')) t
+        if (t.startsWith('cat:')) t,
     };
   }
 
-  Future<String?> detectWeakCategory(
-      {int minHands = 10, double evThreshold = 50}) async {
+  Future<String?> detectWeakCategory({
+    int minHands = 10,
+    double evThreshold = 50,
+  }) async {
     await TrainingPackStatsService.getCategoryStats();
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_skillKey);
@@ -92,10 +96,12 @@ class TrainingGapDetectorService {
 
     final stats = await TrainingTagPerformanceEngine.computeTagStats();
     final list = stats.values
-        .where((e) =>
-            e.totalAttempts >= 5 &&
-            e.lastTrained != null &&
-            now.difference(e.lastTrained!) >= gap)
+        .where(
+          (e) =>
+              e.totalAttempts >= 5 &&
+              e.lastTrained != null &&
+              now.difference(e.lastTrained!) >= gap,
+        )
         .toList();
 
     list.sort((a, b) {

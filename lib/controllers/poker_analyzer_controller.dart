@@ -92,8 +92,9 @@ class PokerAnalyzerController extends ChangeNotifier {
         ..addAll({for (var i = 0; i < playerCount; i++) i: spot.positions[i]});
       _playerTypes
         ..clear()
-        ..addAll(
-            {for (var i = 0; i < playerCount; i++) i: spot.playerTypes[i]});
+        ..addAll({
+          for (var i = 0; i < playerCount; i++) i: spot.playerTypes[i],
+        });
       _players
         ..clear()
         ..addAll([
@@ -102,7 +103,7 @@ class PokerAnalyzerController extends ChangeNotifier {
               name: 'Player ${i + 1}',
               type: spot.playerTypes[i],
               stack: spot.stacks[i],
-            )
+            ),
         ]);
     });
   }

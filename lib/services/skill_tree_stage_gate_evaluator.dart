@@ -9,7 +9,7 @@ class SkillTreeStageGateEvaluator {
   const SkillTreeStageGateEvaluator({
     SkillTreeStageCompletionEvaluator? completionEvaluator,
   }) : completionEvaluator =
-            completionEvaluator ?? const SkillTreeStageCompletionEvaluator();
+           completionEvaluator ?? const SkillTreeStageCompletionEvaluator();
 
   /// Returns `true` if [level] is unlocked based on [completedNodeIds].
   bool isStageUnlocked(
@@ -30,10 +30,7 @@ class SkillTreeStageGateEvaluator {
   }
 
   /// Returns a sorted list of unlocked levels in [tree].
-  List<int> getUnlockedStages(
-    SkillTree tree,
-    Set<String> completedNodeIds,
-  ) {
+  List<int> getUnlockedStages(SkillTree tree, Set<String> completedNodeIds) {
     final levels = <int>{for (final n in tree.nodes.values) n.level};
     final sorted = levels.toList()..sort();
     final unlocked = <int>[];

@@ -21,7 +21,8 @@ class SkillTreeTrackHeaderBuilder {
   }) {
     final visual = bannerService.getVisual(root.category);
     final accent = visual.color;
-    final iconWidget = iconMap?[root.category] ??
+    final iconWidget =
+        iconMap?[root.category] ??
         Text(visual.emoji, style: const TextStyle(fontSize: 20));
     final pct = (progress.completionRate.clamp(0.0, 1.0) * 100).round();
 
@@ -66,14 +67,18 @@ class SkillTreeTrackHeaderBuilder {
                   const SizedBox(height: 4),
                   progressBar,
                   const SizedBox(height: 4),
-                  Text('$pct%',
-                      style:
-                          const TextStyle(color: Colors.white70, fontSize: 12)),
+                  Text(
+                    '$pct%',
+                    style: const TextStyle(color: Colors.white70, fontSize: 12),
+                  ),
                 ] else
                   const Padding(
                     padding: EdgeInsets.only(top: 4),
-                    child:
-                        Icon(Icons.check_circle, color: Colors.green, size: 16),
+                    child: Icon(
+                      Icons.check_circle,
+                      color: Colors.green,
+                      size: 16,
+                    ),
                   ),
               ],
             ),
@@ -111,10 +116,7 @@ class SkillTreeTrackHeaderBuilder {
             status,
           ],
         ),
-        if (!progress.isCompleted) ...[
-          const SizedBox(height: 8),
-          progressBar,
-        ],
+        if (!progress.isCompleted) ...[const SizedBox(height: 8), progressBar],
       ],
     );
   }

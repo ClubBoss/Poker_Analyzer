@@ -4,7 +4,8 @@ String buildHistoryCsv(List<Map<String, String?>> rows) {
   final b = StringBuffer()..writeln('timestamp,args,outPath,logPath');
   for (final r in rows) {
     b.writeln(
-        '${_csv(r['ts'] ?? '-')},${_csv(r['args'] ?? '-')},${_csv(r['out'] ?? '-')},${_csv(r['log'] ?? '-')}');
+      '${_csv(r['ts'] ?? '-')},${_csv(r['args'] ?? '-')},${_csv(r['out'] ?? '-')},${_csv(r['log'] ?? '-')}',
+    );
   }
   return b.toString();
 }

@@ -31,8 +31,8 @@ class _MasterModeScreenState extends State<MasterModeScreen> {
   }
 
   Future<Map<String, dynamic>> _load() async {
-    final date =
-        await LearningPathCompletionService.instance.getCompletionDate();
+    final date = await LearningPathCompletionService.instance
+        .getCompletionDate();
     final tracks = const LearningTrackEngine().getTracks();
     var completedTracks = 0;
     for (final t in tracks) {
@@ -51,10 +51,7 @@ class _MasterModeScreenState extends State<MasterModeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('🔥 Мастер-режим'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('🔥 Мастер-режим'), centerTitle: true),
       backgroundColor: const Color(0xFF121212),
       body: FutureBuilder<Map<String, dynamic>>(
         future: _future,
@@ -75,15 +72,9 @@ class _MasterModeScreenState extends State<MasterModeScreen> {
               const DailyChallengeStreakBannerWidget(),
               const StreakBadgeWidget(),
               const RewardBannerWidget(),
-              Text(
-                dateText,
-                style: const TextStyle(color: Colors.white70),
-              ),
+              Text(dateText, style: const TextStyle(color: Colors.white70)),
               const SizedBox(height: 4),
-              Text(
-                stats,
-                style: const TextStyle(color: Colors.white70),
-              ),
+              Text(stats, style: const TextStyle(color: Colors.white70)),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () {},

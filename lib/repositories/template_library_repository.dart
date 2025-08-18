@@ -24,8 +24,9 @@ class TemplateLibraryRepository {
   /// Returns the number of templates added.
   Future<int> importInitialTemplates() async {
     final manifest = await AssetManifest.instance;
-    final paths = manifest.keys.where((e) =>
-        e.startsWith('assets/templates/initial/') && e.endsWith('.json'));
+    final paths = manifest.keys.where(
+      (e) => e.startsWith('assets/templates/initial/') && e.endsWith('.json'),
+    );
     var added = 0;
     for (final p in paths) {
       final data =

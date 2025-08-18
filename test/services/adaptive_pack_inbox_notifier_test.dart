@@ -22,14 +22,15 @@ class _FakeRecommender extends AdaptivePackRecommenderService {
   final List<AdaptivePackRecommendation> recs;
   _FakeRecommender(this.recs) : super(masteryService: _FakeMastery());
   @override
-  Future<List<AdaptivePackRecommendation>> recommend(
-          {int count = 3, DateTime? now}) async =>
-      recs.take(count).toList();
+  Future<List<AdaptivePackRecommendation>> recommend({
+    int count = 3,
+    DateTime? now,
+  }) async => recs.take(count).toList();
 }
 
 class _FakeMastery extends TagMasteryService {
   _FakeMastery()
-      : super(logs: SessionLogService(sessions: TrainingSessionService()));
+    : super(logs: SessionLogService(sessions: TrainingSessionService()));
   @override
   Future<Map<String, double>> computeMastery({bool force = false}) async => {};
 }
@@ -43,15 +44,13 @@ void main() {
   });
 
   TrainingPackTemplateV2 pack(String id) => TrainingPackTemplateV2(
-        id: id,
-        name: id,
-        trainingType: TrainingType.pushFold,
-      );
+    id: id,
+    name: id,
+    trainingType: TrainingType.pushFold,
+  );
 
   test('adds high score pack to inbox', () async {
-    final recs = [
-      AdaptivePackRecommendation(pack: pack('p1'), score: 4.5),
-    ];
+    final recs = [AdaptivePackRecommendation(pack: pack('p1'), score: 4.5)];
     final notifier = AdaptivePackInboxNotifier(
       recommender: _FakeRecommender(recs),
       orchestrator: _FakeOrchestrator([]),
@@ -64,14 +63,14 @@ void main() {
   });
 
   test('skips when memory reminders exist', () async {
-    final recs = [
-      AdaptivePackRecommendation(pack: pack('p1'), score: 4.5),
-    ];
+    final recs = [AdaptivePackRecommendation(pack: pack('p1'), score: 4.5)];
     final notifier = AdaptivePackInboxNotifier(
       recommender: _FakeRecommender(recs),
       orchestrator: _FakeOrchestrator([
         const MemoryReminder(
-            type: MemoryReminderType.decayBooster, priority: 3),
+          type: MemoryReminderType.decayBooster,
+          priority: 3,
+        ),
       ]),
       inbox: InboxBoosterTrackerService.instance,
       cooldown: Duration.zero,

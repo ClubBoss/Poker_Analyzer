@@ -24,10 +24,11 @@ class PackLibraryRefactorService {
     final seen = <String, String>{};
     var refactored = 0;
     var removed = 0;
-    for (final f in dir
-        .listSync(recursive: true)
-        .whereType<File>()
-        .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
+    for (final f
+        in dir
+            .listSync(recursive: true)
+            .whereType<File>()
+            .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
       Map<String, dynamic> map;
       try {
         final yaml = await f.readAsString();
@@ -37,7 +38,7 @@ class PackLibraryRefactorService {
       }
       final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
       final tags = <String>{
-        for (final t in tpl.tags) t.toString().trim().toLowerCase()
+        for (final t in tpl.tags) t.toString().trim().toLowerCase(),
       }..removeWhere((t) => t.isEmpty);
       tpl.tags
         ..clear()
@@ -54,11 +55,13 @@ class PackLibraryRefactorService {
         tpl.meta['icmScore'] = map['icmScore'];
       }
       final meta = Map<String, dynamic>.from(tpl.meta)
-        ..removeWhere((k, v) =>
-            v == null ||
-            (v is String && v.isEmpty) ||
-            (v is List && v.isEmpty) ||
-            (v is Map && v.isEmpty));
+        ..removeWhere(
+          (k, v) =>
+              v == null ||
+              (v is String && v.isEmpty) ||
+              (v is List && v.isEmpty) ||
+              (v is Map && v.isEmpty),
+        );
       for (final k in ['createdAt', 'source', 'notes']) {
         final v = meta[k];
         if (v == null || (v is String && v.isEmpty)) meta.remove(k);
@@ -68,7 +71,7 @@ class PackLibraryRefactorService {
         ..addAll(meta);
       final spotHashes = [
         for (final s in tpl.spots)
-          sha1.convert(utf8.encode(jsonEncode(s.hand.toJson()))).toString()
+          sha1.convert(utf8.encode(jsonEncode(s.hand.toJson()))).toString(),
       ]..sort();
       final key = '${tpl.tags.join(',')}-${spotHashes.join()}';
       if (seen.containsKey(key)) {
@@ -86,7 +89,9 @@ class PackLibraryRefactorService {
   }
 
   String? _detectAudience(
-      List<String> tags, List<(String, List<String>)> matrix) {
+    List<String> tags,
+    List<(String, List<String>)> matrix,
+  ) {
     final res = <String>{};
     for (final item in matrix) {
       for (final t in item.$2) {

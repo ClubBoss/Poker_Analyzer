@@ -12,8 +12,8 @@ class SkillTagSessionCoverageTrackerService {
   SkillTagSessionCoverageTrackerService({
     TrainingSessionFingerprintLoggerService? logger,
     SharedPreferences? prefs,
-  })  : logger = logger ?? TrainingSessionFingerprintLoggerService(),
-        _prefs = prefs;
+  }) : logger = logger ?? TrainingSessionFingerprintLoggerService(),
+       _prefs = prefs;
 
   SharedPreferences? _prefs;
   static const _coverageKey = 'skill_tag_coverage_map';
@@ -30,7 +30,7 @@ class SkillTagSessionCoverageTrackerService {
       final data = jsonDecode(raw) as Map<String, dynamic>;
       return {
         for (final entry in data.entries)
-          entry.key: (entry.value as num).toInt()
+          entry.key: (entry.value as num).toInt(),
       };
     } catch (_) {
       return {};
@@ -75,7 +75,7 @@ class SkillTagSessionCoverageTrackerService {
     final coverage = await computeCoverage(sessions);
     return [
       for (final entry in coverage.entries)
-        if (entry.value < threshold) entry.key
+        if (entry.value < threshold) entry.key,
     ];
   }
 }

@@ -9,9 +9,10 @@ void main() {
   test('round trip and corrupt fallback', () async {
     SharedPreferences.setMockInitialValues({});
     final service = LearningPathProgressService.instance;
-    final progress = LearningPathProgress(stages: {
-      's': const StageProgress(handsPlayed: 1),
-    }, currentStageId: 's');
+    final progress = LearningPathProgress(
+      stages: {'s': const StageProgress(handsPlayed: 1)},
+      currentStageId: 's',
+    );
     await service.save('p', progress);
     final loaded = await service.load('p');
     expect(loaded.stages['s']?.handsPlayed, 1);

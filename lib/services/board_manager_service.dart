@@ -24,10 +24,10 @@ class BoardManagerService extends ChangeNotifier {
     required this.lockService,
     required BoardSyncService boardSync,
     required this.boardReveal,
-  })  : _playerManager = playerManager,
-        _actionSync = actionSync,
-        _playbackManager = playbackManager,
-        _boardSync = boardSync {
+  }) : _playerManager = playerManager,
+       _actionSync = actionSync,
+       _playbackManager = playbackManager,
+       _boardSync = boardSync {
     _playerManager.addListener(_onPlayerManagerChanged);
     boardReveal.setRevealStreet(currentStreet);
   }
@@ -85,8 +85,10 @@ class BoardManagerService extends ChangeNotifier {
     _actionSync.changeStreet(street);
     _boardSync.updateRevealedBoardCards();
     startBoardTransition();
-    _playbackManager.animatedPlayersPerStreet
-        .putIfAbsent(street, () => <int>{});
+    _playbackManager.animatedPlayersPerStreet.putIfAbsent(
+      street,
+      () => <int>{},
+    );
     boardReveal.setRevealStreet(currentStreet);
     _jumpPlaybackToStreet(street);
     notifyListeners();

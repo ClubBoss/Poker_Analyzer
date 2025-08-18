@@ -42,18 +42,21 @@ class ActionEntry {
   /// Создает запись о действии игрока на определенной улице.
   /// [amount] заполняется только для действий bet, raise или call.
   /// [generated] помечает автоматически добавленные действия.
-  ActionEntry(this.street, this.playerIndex, this.action,
-      {this.amount,
-      this.generated = false,
-      this.manualEvaluation,
-      this.customLabel,
-      DateTime? timestamp,
-      this.potAfter = 0,
-      this.potOdds,
-      this.equity,
-      this.ev,
-      this.icmEv})
-      : timestamp = timestamp ?? DateTime.now();
+  ActionEntry(
+    this.street,
+    this.playerIndex,
+    this.action, {
+    this.amount,
+    this.generated = false,
+    this.manualEvaluation,
+    this.customLabel,
+    DateTime? timestamp,
+    this.potAfter = 0,
+    this.potOdds,
+    this.equity,
+    this.ev,
+    this.icmEv,
+  }) : timestamp = timestamp ?? DateTime.now();
 
   factory ActionEntry.fromJson(Map<String, dynamic> j) =>
       _$ActionEntryFromJson(j);
@@ -77,22 +80,21 @@ class ActionEntry {
     double? equity,
     double? ev,
     double? icmEv,
-  }) =>
-      ActionEntry(
-        street ?? this.street,
-        playerIndex ?? this.playerIndex,
-        action ?? this.action,
-        amount: amount ?? this.amount,
-        generated: generated ?? this.generated,
-        manualEvaluation: manualEvaluation ?? this.manualEvaluation,
-        customLabel: customLabel ?? this.customLabel,
-        timestamp: timestamp ?? this.timestamp,
-        potAfter: potAfter ?? this.potAfter,
-        potOdds: potOdds ?? this.potOdds,
-        equity: equity ?? this.equity,
-        ev: ev ?? this.ev,
-        icmEv: icmEv ?? this.icmEv,
-      );
+  }) => ActionEntry(
+    street ?? this.street,
+    playerIndex ?? this.playerIndex,
+    action ?? this.action,
+    amount: amount ?? this.amount,
+    generated: generated ?? this.generated,
+    manualEvaluation: manualEvaluation ?? this.manualEvaluation,
+    customLabel: customLabel ?? this.customLabel,
+    timestamp: timestamp ?? this.timestamp,
+    potAfter: potAfter ?? this.potAfter,
+    potOdds: potOdds ?? this.potOdds,
+    equity: equity ?? this.equity,
+    ev: ev ?? this.ev,
+    icmEv: icmEv ?? this.icmEv,
+  );
 
   @override
   bool operator ==(Object other) {
@@ -115,18 +117,18 @@ class ActionEntry {
 
   @override
   int get hashCode => Object.hash(
-        street,
-        playerIndex,
-        action,
-        amount,
-        generated,
-        manualEvaluation,
-        customLabel,
-        potAfter,
-        potOdds,
-        equity,
-        ev,
-        icmEv,
-        timestamp,
-      );
+    street,
+    playerIndex,
+    action,
+    amount,
+    generated,
+    manualEvaluation,
+    customLabel,
+    potAfter,
+    potOdds,
+    equity,
+    ev,
+    icmEv,
+    timestamp,
+  );
 }
