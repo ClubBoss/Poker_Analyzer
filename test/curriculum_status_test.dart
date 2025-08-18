@@ -9,8 +9,8 @@ void main() {
     expect(file.existsSync(), isTrue);
 
     final data = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
-    expect(data['modules_done'], isA<List>());
     final modulesDone = (data['modules_done'] as List).cast<String>();
+    expect(modulesDone, isA<List<String>>());
 
     expect(modulesDone.last, equals('cash:l3:v1'));
 
