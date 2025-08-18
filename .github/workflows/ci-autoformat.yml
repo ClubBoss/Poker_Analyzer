@@ -1,5 +1,5 @@
+cat > .github/workflows/ci-autoformat.yml <<'YML'
 name: autoformat-fix
-
 on:
   pull_request:
     branches: [main]
@@ -16,19 +16,21 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.head_ref }}
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Normalize ASCII in archived docs
+        run: python3 scripts/normalize_ascii.py
+
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
 
-      - name: Get deps
-        run: flutter pub get
-
-      - name: Format (write changes)
+      - name: Format Dart
         run: dart format .
 
-      - name: Auto-commit formatting
-        uses: stefanzweifel/git-auto-commit-action@v5
+      - uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "ci: autoformat"
-          skip_dirty_check: false
-        continue-on-error: true
+          commit_message: "ci: autoformat + normalize docs"
+YML
