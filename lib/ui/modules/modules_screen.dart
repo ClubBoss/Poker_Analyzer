@@ -263,6 +263,23 @@ class _ModulesScreenState extends State<ModulesScreen> {
                             }
                             return;
                           }
+                          if (moduleId == 'icm:l4:ladder:v1') {
+                            final spots = loadIcmL4LadderV1();
+                            if (spots.isEmpty) {
+                              showMiniToast(context, 'Pack is empty');
+                            } else {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => MvsSessionPlayer(
+                                    spots: spots,
+                                    packId: 'icm:l4:ladder:v1',
+                                  ),
+                                ),
+                              );
+                            }
+                            return;
+                          }
                           // fallback for other modules until wired
                           showMiniToast(context, moduleId);
                         }
