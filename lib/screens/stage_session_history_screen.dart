@@ -19,12 +19,13 @@ class _StageSessionHistoryScreenState extends State<StageSessionHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final logs = context
-        .watch<SessionLogService>()
-        .logs
-        .where((l) => l.templateId == widget.stageId)
-        .toList()
-      ..sort((a, b) => b.completedAt.compareTo(a.completedAt));
+    final logs =
+        context
+            .watch<SessionLogService>()
+            .logs
+            .where((l) => l.templateId == widget.stageId)
+            .toList()
+          ..sort((a, b) => b.completedAt.compareTo(a.completedAt));
 
     final tags = <String>{for (final l in logs) ...l.categories.keys};
     var visibleLogs = logs;
@@ -36,10 +37,7 @@ class _StageSessionHistoryScreenState extends State<StageSessionHistoryScreen> {
 
     final Widget body = visibleLogs.isEmpty
         ? const Center(
-            child: Text(
-              'No sessions',
-              style: TextStyle(color: Colors.white54),
-            ),
+            child: Text('No sessions', style: TextStyle(color: Colors.white54)),
           )
         : ListView.builder(
             itemCount: visibleLogs.length,

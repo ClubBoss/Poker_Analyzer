@@ -39,10 +39,9 @@ meta:
         .where((d) => d.path.contains('cluster_'))
         .toList();
     expect(clusters.isNotEmpty, true);
-    final copied = clusters.first
-        .listSync()
-        .whereType<File>()
-        .any((f) => f.path.endsWith('p1.yaml'));
+    final copied = clusters.first.listSync().whereType<File>().any(
+      (f) => f.path.endsWith('p1.yaml'),
+    );
     expect(copied, true);
   });
 }

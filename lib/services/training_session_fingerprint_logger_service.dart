@@ -40,10 +40,10 @@ class TrainingSessionFingerprint {
     this.totalSpots = 0,
     this.correct = 0,
     this.incorrect = 0,
-  })  : startTime = startTime ?? endTime ?? completedAt ?? DateTime.now(),
-        endTime = endTime ?? completedAt ?? DateTime.now(),
-        sessionId = sessionId ?? _generateSessionId(packId),
-        tagsCovered = tagsCovered ?? tags ?? const [];
+  }) : startTime = startTime ?? endTime ?? completedAt ?? DateTime.now(),
+       endTime = endTime ?? completedAt ?? DateTime.now(),
+       sessionId = sessionId ?? _generateSessionId(packId),
+       tagsCovered = tagsCovered ?? tags ?? const [];
 
   /// Legacy accessor for [tagsCovered].
   List<String> get tags => tagsCovered;
@@ -52,16 +52,16 @@ class TrainingSessionFingerprint {
   DateTime get completedAt => endTime;
 
   Map<String, dynamic> toJson() => {
-        'sessionId': sessionId,
-        'packId': packId,
-        'startTime': startTime.toIso8601String(),
-        'endTime': endTime.toIso8601String(),
-        'tagsCovered': tagsCovered,
-        if (deviceId != null) 'deviceId': deviceId,
-        'totalSpots': totalSpots,
-        'correct': correct,
-        'incorrect': incorrect,
-      };
+    'sessionId': sessionId,
+    'packId': packId,
+    'startTime': startTime.toIso8601String(),
+    'endTime': endTime.toIso8601String(),
+    'tagsCovered': tagsCovered,
+    if (deviceId != null) 'deviceId': deviceId,
+    'totalSpots': totalSpots,
+    'correct': correct,
+    'incorrect': incorrect,
+  };
 
   factory TrainingSessionFingerprint.fromJson(Map<String, dynamic> json) {
     return TrainingSessionFingerprint(
@@ -70,7 +70,7 @@ class TrainingSessionFingerprint {
       startTime: DateTime.tryParse(json['startTime'] ?? '') ?? DateTime.now(),
       endTime: DateTime.tryParse(json['endTime'] ?? '') ?? DateTime.now(),
       tagsCovered: [
-        for (final t in (json['tagsCovered'] as List? ?? [])) t.toString()
+        for (final t in (json['tagsCovered'] as List? ?? [])) t.toString(),
       ],
       deviceId: json['deviceId']?.toString(),
       totalSpots: json['totalSpots'] as int? ?? 0,
@@ -84,7 +84,7 @@ class TrainingSessionFingerprint {
 /// entries. Fingerprints are persisted in [SharedPreferences].
 class TrainingSessionFingerprintLoggerService {
   TrainingSessionFingerprintLoggerService({SharedPreferences? prefs})
-      : _prefs = prefs;
+    : _prefs = prefs;
 
   SharedPreferences? _prefs;
   static const _key = 'training_session_fingerprints';
@@ -124,10 +124,7 @@ class TrainingSessionFingerprintLoggerService {
     }
     // If no matching start found, log a complete session directly.
     await logSession(
-      TrainingSessionFingerprint(
-        packId: packId,
-        tagsCovered: tagsCovered,
-      ),
+      TrainingSessionFingerprint(packId: packId, tagsCovered: tagsCovered),
     );
   }
 
@@ -173,10 +170,7 @@ class TrainingSessionFingerprintLoggerService {
 
   Future<void> _saveAll(List<TrainingSessionFingerprint> list) async {
     final prefs = await _sp;
-    await prefs.setString(
-      _key,
-      jsonEncode([for (final s in list) s.toJson()]),
-    );
+    await prefs.setString(_key, jsonEncode([for (final s in list) s.toJson()]));
   }
 }
 

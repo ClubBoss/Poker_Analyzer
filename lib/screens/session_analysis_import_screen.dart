@@ -82,15 +82,16 @@ class _SessionAnalysisImportScreenState
     if (plugin == null) {
       if (mounted) {
         setState(() => _loading = false);
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Unsupported format')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Unsupported format')));
       }
       return;
     }
     final parts = text.split(RegExp(r'\n\s*\n'));
     final parsed = [
       for (final p in parts)
-        if (plugin.convertFrom(p.trim()) != null) plugin.convertFrom(p.trim())!
+        if (plugin.convertFrom(p.trim()) != null) plugin.convertFrom(p.trim())!,
     ];
     final service = context.read<SessionAnalysisService>();
     final result = await service.analyze(parsed);
@@ -108,7 +109,7 @@ class _SessionAnalysisImportScreenState
             h.gtoAction != null &&
             h.expectedAction!.trim().toLowerCase() !=
                 h.gtoAction!.trim().toLowerCase())
-          h
+          h,
     ];
     if (mistakes.isNotEmpty) {
       await _createPack(mistakes);
@@ -121,14 +122,16 @@ class _SessionAnalysisImportScreenState
     var ev = act.ev;
     if (ev == null && act.action.toLowerCase() == 'push') {
       final code = handCode(
-          '${h.playerCards[h.heroIndex][0].rank}${h.playerCards[h.heroIndex][0].suit} ${h.playerCards[h.heroIndex][1].rank}${h.playerCards[h.heroIndex][1].suit}');
+        '${h.playerCards[h.heroIndex][0].rank}${h.playerCards[h.heroIndex][0].suit} ${h.playerCards[h.heroIndex][1].rank}${h.playerCards[h.heroIndex][1].suit}',
+      );
       final stack = h.stackSizes[h.heroIndex];
       if (code != null && stack != null) {
         ev = computePushEV(
-            heroBbStack: stack,
-            bbCount: h.numberOfPlayers - 1,
-            heroHand: code,
-            anteBb: h.anteBb);
+          heroBbStack: stack,
+          bbCount: h.numberOfPlayers - 1,
+          heroHand: code,
+          anteBb: h.anteBb,
+        );
       }
     }
     return ev;
@@ -140,16 +143,18 @@ class _SessionAnalysisImportScreenState
     var icm = act.icmEv;
     if (icm == null && act.action.toLowerCase() == 'push') {
       final code = handCode(
-          '${h.playerCards[h.heroIndex][0].rank}${h.playerCards[h.heroIndex][0].suit} ${h.playerCards[h.heroIndex][1].rank}${h.playerCards[h.heroIndex][1].suit}');
+        '${h.playerCards[h.heroIndex][0].rank}${h.playerCards[h.heroIndex][0].suit} ${h.playerCards[h.heroIndex][1].rank}${h.playerCards[h.heroIndex][1].suit}',
+      );
       if (code != null && ev != null) {
         final stacks = [
-          for (int i = 0; i < h.numberOfPlayers; i++) h.stackSizes[i] ?? 0
+          for (int i = 0; i < h.numberOfPlayers; i++) h.stackSizes[i] ?? 0,
         ];
         icm = computeIcmPushEV(
-            chipStacksBb: stacks,
-            heroIndex: h.heroIndex,
-            heroHand: code,
-            chipPushEv: ev);
+          chipStacksBb: stacks,
+          heroIndex: h.heroIndex,
+          heroHand: code,
+          chipPushEv: ev,
+        );
       }
     }
     return icm;
@@ -159,7 +164,7 @@ class _SessionAnalysisImportScreenState
     final spots = <TrainingPackSpot>[];
     for (final h in mistakes) {
       final actions = <int, List<ActionEntry>>{
-        for (var s = 0; s < 4; s++) s: []
+        for (var s = 0; s < 4; s++) s: [],
       };
       for (final a in h.actions) {
         actions[a.street] = [...(actions[a.street] ?? []), a];
@@ -175,7 +180,7 @@ class _SessionAnalysisImportScreenState
         playerCount: h.numberOfPlayers,
         board: [for (final c in h.boardCards) c.toString()],
         stacks: {
-          for (final e in h.stackSizes.entries) '${e.key}': e.value.toDouble()
+          for (final e in h.stackSizes.entries) '${e.key}': e.value.toDouble(),
         },
         actions: actions,
         anteBb: h.anteBb,
@@ -184,27 +189,36 @@ class _SessionAnalysisImportScreenState
     }
     if (spots.isEmpty) return;
     final template = TrainingPackTemplate(
-        id: const Uuid().v4(), name: 'Review Imported', spots: spots);
+      id: const Uuid().v4(),
+      name: 'Review Imported',
+      spots: spots,
+    );
     context.read<TemplateStorageService>().addTemplate(template);
     MistakeReviewPackService.setLatestTemplate(template);
-    await context
-        .read<MistakeReviewPackService>()
-        .addPack([for (final s in spots) s.id], templateId: template.id);
+    await context.read<MistakeReviewPackService>().addPack([
+      for (final s in spots) s.id,
+    ], templateId: template.id);
     final start = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.cardBackground,
-        title: const Text('Review mistakes',
-            style: TextStyle(color: Colors.white)),
-        content: Text('Start ${spots.length} mistakes now?',
-            style: const TextStyle(color: Colors.white70)),
+        title: const Text(
+          'Review mistakes',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: Text(
+          'Start ${spots.length} mistakes now?',
+          style: const TextStyle(color: Colors.white70),
+        ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(_, false),
-              child: const Text('No')),
+            onPressed: () => Navigator.pop(_, false),
+            child: const Text('No'),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(_, true),
-              child: const Text('Yes')),
+            onPressed: () => Navigator.pop(_, true),
+            child: const Text('Yes'),
+          ),
         ],
       ),
     );
@@ -227,7 +241,7 @@ class _SessionAnalysisImportScreenState
         if (h.expectedAction != null &&
             h.gtoAction != null &&
             h.expectedAction!.toLowerCase() != h.gtoAction!.toLowerCase())
-          h
+          h,
     ];
     if (mistakes.isEmpty) return;
     await _createPack(mistakes);
@@ -275,8 +289,9 @@ class _SessionAnalysisImportScreenState
     }
     await PackExportService.exportSessionCsv(list, evs, icms);
     if (mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('CSV exported')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('CSV exported')));
     }
   }
 
@@ -293,8 +308,9 @@ class _SessionAnalysisImportScreenState
     }
     await PackExportService.exportSessionPdf(list, evs, icms);
     if (mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('PDF exported')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('PDF exported')));
     }
   }
 
@@ -302,8 +318,9 @@ class _SessionAnalysisImportScreenState
     if (_hands.isEmpty) return;
     await context.read<SavedHandManagerService>().addHands(_hands);
     if (mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Hands saved')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Hands saved')));
     }
   }
 
@@ -316,10 +333,14 @@ class _SessionAnalysisImportScreenState
         mainAxisSize: MainAxisSize.min,
         children: [
           FloatingActionButton.extended(
-              onPressed: _paste, label: const Text('📋 Paste')),
+            onPressed: _paste,
+            label: const Text('📋 Paste'),
+          ),
           const SizedBox(height: 8),
           FloatingActionButton.extended(
-              onPressed: _pickFile, label: const Text('📂 File')),
+            onPressed: _pickFile,
+            label: const Text('📂 File'),
+          ),
         ],
       ),
       body: Padding(
@@ -335,47 +356,63 @@ class _SessionAnalysisImportScreenState
             const SizedBox(height: 8),
             const SizedBox(height: 8),
             ElevatedButton(
-                onPressed: _parse, child: const Text('Parse & Analyze')),
+              onPressed: _parse,
+              child: const Text('Parse & Analyze'),
+            ),
             const SizedBox(height: 16),
             if (_loading) const CircularProgressIndicator(),
             if (_summary != null) ...[
-              Text('Hands: ${_summary!.totalHands}',
-                  style: const TextStyle(color: Colors.white)),
+              Text(
+                'Hands: ${_summary!.totalHands}',
+                style: const TextStyle(color: Colors.white),
+              ),
               const SizedBox(height: 4),
-              Text('Accuracy: ${_summary!.accuracy.toStringAsFixed(1)}%',
-                  style: const TextStyle(color: Colors.white)),
+              Text(
+                'Accuracy: ${_summary!.accuracy.toStringAsFixed(1)}%',
+                style: const TextStyle(color: Colors.white),
+              ),
               const SizedBox(height: 16),
               EvIcmChart(hands: _hands),
               const SizedBox(height: 16),
               ElevatedButton(
-                  onPressed: _replay, child: const Text('Replay Session')),
+                onPressed: _replay,
+                child: const Text('Replay Session'),
+              ),
               const SizedBox(height: 16),
               ElevatedButton(
-                  onPressed: _saveHands,
-                  child: const Text('💾 Save to My Hands')),
+                onPressed: _saveHands,
+                child: const Text('💾 Save to My Hands'),
+              ),
               const SizedBox(height: 16),
               Row(
                 children: [
                   Expanded(
-                      child: ElevatedButton(
-                          onPressed: _exportPdf,
-                          child: const Text('Export PDF'))),
+                    child: ElevatedButton(
+                      onPressed: _exportPdf,
+                      child: const Text('Export PDF'),
+                    ),
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
-                      child: ElevatedButton(
-                          onPressed: _exportCsv,
-                          child: const Text('Export CSV'))),
+                    child: ElevatedButton(
+                      onPressed: _exportCsv,
+                      child: const Text('Export CSV'),
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
-              if (_hands.any((h) =>
-                  h.expectedAction != null &&
-                  h.gtoAction != null &&
-                  h.expectedAction!.toLowerCase() !=
-                      h.gtoAction!.toLowerCase()))
+              if (_hands.any(
+                (h) =>
+                    h.expectedAction != null &&
+                    h.gtoAction != null &&
+                    h.expectedAction!.toLowerCase() !=
+                        h.gtoAction!.toLowerCase(),
+              ))
                 ElevatedButton(
-                    onPressed: _review,
-                    child: const Text('🔥 Review mistakes')),
+                  onPressed: _review,
+                  child: const Text('🔥 Review mistakes'),
+                ),
             ],
             const SizedBox(height: 16),
             Expanded(
@@ -398,10 +435,14 @@ class _SessionAnalysisImportScreenState
                               ? AppColors.errorBg
                               : AppColors.cardBackground,
                           child: ListTile(
-                            title: Text(h.name,
-                                style: const TextStyle(color: Colors.white)),
-                            subtitle: Text('You: $act • GTO: $gto • $diff',
-                                style: const TextStyle(color: Colors.white70)),
+                            title: Text(
+                              h.name,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            subtitle: Text(
+                              'You: $act • GTO: $gto • $diff',
+                              style: const TextStyle(color: Colors.white70),
+                            ),
                             onTap: () => showSavedHandViewerDialog(context, h),
                           ),
                         );

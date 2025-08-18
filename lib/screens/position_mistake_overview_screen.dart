@@ -46,8 +46,11 @@ class _PositionMistakeOverviewScreenState
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
-  Future<void> _exportPdf(BuildContext context, SummaryResult summary,
-      List<MapEntry<String, int>> entries) async {
+  Future<void> _exportPdf(
+    BuildContext context,
+    SummaryResult summary,
+    List<MapEntry<String, int>> entries,
+  ) async {
     final regularFont = await pw.PdfGoogleFonts.robotoRegular();
     final boldFont = await pw.PdfGoogleFonts.robotoBold();
 
@@ -57,7 +60,7 @@ class _PositionMistakeOverviewScreenState
     final service = context.read<EvaluationExecutorService>();
     final rows = [
       for (final e in entries)
-        [e.key, e.value.toString(), service.classifySeverity(e.value).label]
+        [e.key, e.value.toString(), service.classifySeverity(e.value).label],
     ];
 
     if (entries.isEmpty) {
@@ -65,13 +68,17 @@ class _PositionMistakeOverviewScreenState
         pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
           build: (ctx) => [
-            pw.Text('Ошибки по позициям',
-                style: pw.TextStyle(font: boldFont, fontSize: 24)),
+            pw.Text(
+              'Ошибки по позициям',
+              style: pw.TextStyle(font: boldFont, fontSize: 24),
+            ),
             pw.SizedBox(height: 8),
             pw.Text(date, style: pw.TextStyle(font: regularFont)),
             pw.SizedBox(height: 16),
-            pw.Text('Ошибок не найдено за выбранный период.',
-                style: pw.TextStyle(font: regularFont)),
+            pw.Text(
+              'Ошибок не найдено за выбранный период.',
+              style: pw.TextStyle(font: regularFont),
+            ),
           ],
         ),
       );
@@ -85,20 +92,27 @@ class _PositionMistakeOverviewScreenState
         pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
           build: (ctx) => [
-            pw.Text('Ошибки по позициям',
-                style: pw.TextStyle(font: boldFont, fontSize: 24)),
+            pw.Text(
+              'Ошибки по позициям',
+              style: pw.TextStyle(font: boldFont, fontSize: 24),
+            ),
             pw.SizedBox(height: 8),
             pw.Text(date, style: pw.TextStyle(font: regularFont)),
             pw.SizedBox(height: 16),
-            pw.Text('Ошибки: $mistakes',
-                style: pw.TextStyle(font: regularFont)),
-            pw.SizedBox(height: 4),
-            pw.Text('Средняя точность: ${accuracy.toStringAsFixed(1)}%',
-                style: pw.TextStyle(font: regularFont)),
+            pw.Text(
+              'Ошибки: $mistakes',
+              style: pw.TextStyle(font: regularFont),
+            ),
             pw.SizedBox(height: 4),
             pw.Text(
-                'Доля рук с ошибками: ${mistakePercent.toStringAsFixed(1)}%',
-                style: pw.TextStyle(font: regularFont)),
+              'Средняя точность: ${accuracy.toStringAsFixed(1)}%',
+              style: pw.TextStyle(font: regularFont),
+            ),
+            pw.SizedBox(height: 4),
+            pw.Text(
+              'Доля рук с ошибками: ${mistakePercent.toStringAsFixed(1)}%',
+              style: pw.TextStyle(font: regularFont),
+            ),
             pw.SizedBox(height: 16),
             pw.Table.fromTextArray(
               headers: const ['Позиция', 'Ошибки', 'Уровень'],
@@ -129,10 +143,11 @@ class _PositionMistakeOverviewScreenState
                 h.date.isAfter(now.subtract(const Duration(days: 7)))) ||
             (widget.dateFilter == '30 дней' &&
                 h.date.isAfter(now.subtract(const Duration(days: 30)))))
-          h
+          h,
     ];
-    final summary =
-        context.read<EvaluationExecutorService>().summarizeHands(hands);
+    final summary = context.read<EvaluationExecutorService>().summarizeHands(
+      hands,
+    );
     final ignored = context.watch<IgnoredMistakeService>().ignored;
     final service = context.read<EvaluationExecutorService>();
     final entries = summary.positionMistakeFrequencies.entries
@@ -199,11 +214,13 @@ class _PositionMistakeOverviewScreenState
                 style: const TextStyle(color: Colors.white),
                 items: const [
                   DropdownMenuItem(
-                      value: MistakeSortOption.count,
-                      child: Text('По количеству')),
+                    value: MistakeSortOption.count,
+                    child: Text('По количеству'),
+                  ),
                   DropdownMenuItem(
-                      value: MistakeSortOption.severity,
-                      child: Text('По уровню')),
+                    value: MistakeSortOption.severity,
+                    child: Text('По уровню'),
+                  ),
                 ],
                 onChanged: (v) =>
                     setState(() => _sort = v ?? MistakeSortOption.count),
@@ -220,57 +237,61 @@ class _PositionMistakeOverviewScreenState
           SliverPadding(
             padding: const EdgeInsets.all(AppConstants.defaultPadding),
             sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final e = entries[index];
-                  final severity = context
-                      .read<EvaluationExecutorService>()
-                      .classifySeverity(e.value);
-                  return ListTile(
-                    title: Text(e.key,
-                        style: const TextStyle(color: Colors.white)),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Tooltip(
-                          message: severity.tooltip,
-                          child: Container(
-                            width: 10,
-                            height: 10,
-                            decoration: BoxDecoration(
-                              color: severity.color,
-                              shape: BoxShape.circle,
-                            ),
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final e = entries[index];
+                final severity = context
+                    .read<EvaluationExecutorService>()
+                    .classifySeverity(e.value);
+                return ListTile(
+                  title: Text(
+                    e.key,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Tooltip(
+                        message: severity.tooltip,
+                        child: Container(
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: severity.color,
+                            shape: BoxShape.circle,
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        Text(e.value.toString(),
-                            style: const TextStyle(color: Colors.white)),
-                        IconButton(
-                          icon: const Icon(Icons.cleaning_services,
-                              size: 20, color: Colors.white54),
-                          tooltip: 'Игнорировать',
-                          onPressed: () => context
-                              .read<IgnoredMistakeService>()
-                              .ignore('position:${e.key}'),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        e.value.toString(),
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.cleaning_services,
+                          size: 20,
+                          color: Colors.white54,
                         ),
-                      ],
-                    ),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => _PositionMistakeHandsScreen(
-                            position: e.key,
-                            dateFilter: widget.dateFilter,
-                          ),
+                        tooltip: 'Игнорировать',
+                        onPressed: () => context
+                            .read<IgnoredMistakeService>()
+                            .ignore('position:${e.key}'),
+                      ),
+                    ],
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => _PositionMistakeHandsScreen(
+                          position: e.key,
+                          dateFilter: widget.dateFilter,
                         ),
-                      );
-                    },
-                  );
-                },
-                childCount: entries.length,
-              ),
+                      ),
+                    );
+                  },
+                );
+              }, childCount: entries.length),
             ),
           ),
       ],
@@ -281,8 +302,10 @@ class _PositionMistakeOverviewScreenState
 class _PositionMistakeHandsScreen extends StatelessWidget {
   final String position;
   final String dateFilter;
-  const _PositionMistakeHandsScreen(
-      {required this.position, required this.dateFilter});
+  const _PositionMistakeHandsScreen({
+    required this.position,
+    required this.dateFilter,
+  });
 
   bool _sameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
@@ -300,7 +323,7 @@ class _PositionMistakeHandsScreen extends StatelessWidget {
                 h.date.isAfter(now.subtract(const Duration(days: 7)))) ||
             (dateFilter == '30 дней' &&
                 h.date.isAfter(now.subtract(const Duration(days: 30)))))
-          h
+          h,
     ];
 
     return Scaffold(

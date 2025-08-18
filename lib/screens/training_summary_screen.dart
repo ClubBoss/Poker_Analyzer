@@ -31,8 +31,9 @@ class TrainingSummaryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final rate = total == 0 ? 0 : correct * 100 / total;
     final history = context.watch<ProgressForecastService>().history;
-    final data =
-        history.length >= 2 ? history.sublist(history.length - 2) : history;
+    final data = history.length >= 2
+        ? history.sublist(history.length - 2)
+        : history;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Center(
@@ -41,17 +42,24 @@ class TrainingSummaryScreen extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('$correct/$total',
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold)),
+              Text(
+                '$correct/$total',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 8),
-              Text('Accuracy: ${rate.toStringAsFixed(1)}%',
-                  style: const TextStyle(color: Colors.white70)),
+              Text(
+                'Accuracy: ${rate.toStringAsFixed(1)}%',
+                style: const TextStyle(color: Colors.white70),
+              ),
               const SizedBox(height: 8),
-              Text('Time: ${_format(elapsed)}',
-                  style: const TextStyle(color: Colors.white70)),
+              Text(
+                'Time: ${_format(elapsed)}',
+                style: const TextStyle(color: Colors.white70),
+              ),
               const SizedBox(height: 24),
               EvIcmTrendChart(data: data),
               const SizedBox(height: 24),

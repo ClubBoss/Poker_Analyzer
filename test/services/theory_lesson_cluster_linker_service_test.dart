@@ -24,8 +24,9 @@ class _FakeLibrary implements MiniLessonLibraryService {
   Future<void> reload() async {}
 
   @override
-  List<TheoryMiniLessonNode> findByTags(List<String> tags) =>
-      [for (final t in tags) ...lessons.where((l) => l.tags.contains(t))];
+  List<TheoryMiniLessonNode> findByTags(List<String> tags) => [
+    for (final t in tags) ...lessons.where((l) => l.tags.contains(t)),
+  ];
 
   @override
   List<TheoryMiniLessonNode> getByTags(Set<String> tags) =>
@@ -54,8 +55,8 @@ class _FakeTracker implements TheorySuggestionEngagementTrackerService {
 
   @override
   Future<List<TheorySuggestionEngagementEvent>> eventsByAction(
-          String action) async =>
-      events.where((e) => e.action == action).toList();
+    String action,
+  ) async => events.where((e) => e.action == action).toList();
 }
 
 void main() {
@@ -102,10 +103,20 @@ void main() {
     final events = <TheorySuggestionEngagementEvent>[];
     for (var i = 0; i < 3; i++) {
       final t = now.add(Duration(minutes: i));
-      events.add(TheorySuggestionEngagementEvent(
-          lessonId: 'l4', action: 'suggested', timestamp: t));
-      events.add(TheorySuggestionEngagementEvent(
-          lessonId: 'l5', action: 'suggested', timestamp: t));
+      events.add(
+        TheorySuggestionEngagementEvent(
+          lessonId: 'l4',
+          action: 'suggested',
+          timestamp: t,
+        ),
+      );
+      events.add(
+        TheorySuggestionEngagementEvent(
+          lessonId: 'l5',
+          action: 'suggested',
+          timestamp: t,
+        ),
+      );
     }
 
     final library = _FakeLibrary(lessons);
@@ -131,18 +142,8 @@ void main() {
 
   test('loads clusters from cache when available', () async {
     final lessons = [
-      TheoryMiniLessonNode(
-        id: 'a',
-        title: 'A',
-        content: '',
-        tags: const ['x'],
-      ),
-      TheoryMiniLessonNode(
-        id: 'b',
-        title: 'B',
-        content: '',
-        tags: const ['x'],
-      ),
+      TheoryMiniLessonNode(id: 'a', title: 'A', content: '', tags: const ['x']),
+      TheoryMiniLessonNode(id: 'b', title: 'B', content: '', tags: const ['x']),
     ];
 
     final tracker = _FakeTracker([]);

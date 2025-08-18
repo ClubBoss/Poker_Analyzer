@@ -43,15 +43,15 @@ class TrainingPackAutoGenerator {
     this.spotsPerPack = 12,
     this.streets = 1,
     this.theoryRatio = 0.5,
-  })  : _engine = engine ?? TrainingPackGeneratorEngineV2(),
-        _dedup = dedup ?? AutoDeduplicationEngine(),
-        _errorClassifier =
-            errorClassifier ?? const AutogenPackErrorClassifierService(),
-        _errorStats = errorStats ?? AutogenErrorStatsLogger(),
-        _registry = registry ?? TrainingPackTemplateRegistryService(),
-        _boardClassifier = boardClassifier ?? const BoardTextureClassifier(),
-        textureFilters = textureFilters,
-        _textureEngine = textureEngine ?? TextureFilterEngine();
+  }) : _engine = engine ?? TrainingPackGeneratorEngineV2(),
+       _dedup = dedup ?? AutoDeduplicationEngine(),
+       _errorClassifier =
+           errorClassifier ?? const AutogenPackErrorClassifierService(),
+       _errorStats = errorStats ?? AutogenErrorStatsLogger(),
+       _registry = registry ?? TrainingPackTemplateRegistryService(),
+       _boardClassifier = boardClassifier ?? const BoardTextureClassifier(),
+       textureFilters = textureFilters,
+       _textureEngine = textureEngine ?? TextureFilterEngine();
 
   /// Generates spots from [template] and optionally deduplicates them based on
   /// fingerprints.
@@ -129,8 +129,10 @@ class TrainingPackAutoGenerator {
         return filtered;
       }
 
-      final deduped =
-          _dedup.deduplicateSpots(filtered, source: set.baseSpot.id);
+      final deduped = _dedup.deduplicateSpots(
+        filtered,
+        source: set.baseSpot.id,
+      );
       if (filtered.isNotEmpty && deduped.isEmpty) {
         final pack = _buildPack(set, spots);
         final type = _errorClassifier.classify(

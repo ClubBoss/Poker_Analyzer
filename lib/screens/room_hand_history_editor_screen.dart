@@ -16,8 +16,11 @@ import '../theme/app_colors.dart';
 class RoomHandHistoryEditorScreen extends StatefulWidget {
   final TrainingPack pack;
   final List<SavedHand> hands;
-  const RoomHandHistoryEditorScreen(
-      {super.key, required this.pack, required this.hands});
+  const RoomHandHistoryEditorScreen({
+    super.key,
+    required this.pack,
+    required this.hands,
+  });
 
   @override
   State<RoomHandHistoryEditorScreen> createState() =>
@@ -125,11 +128,13 @@ class _SpotDialogState extends State<_SpotDialog> {
             DropdownButtonFormField<int>(
               value: _heroIndex,
               decoration: const InputDecoration(
-                  labelText: 'Hero', border: OutlineInputBorder()),
+                labelText: 'Hero',
+                border: OutlineInputBorder(),
+              ),
               dropdownColor: AppColors.cardBackground,
               items: [
                 for (int i = 0; i < positions.length; i++)
-                  DropdownMenuItem(value: i, child: Text(positions[i]))
+                  DropdownMenuItem(value: i, child: Text(positions[i])),
               ],
               onChanged: (v) => setState(() => _heroIndex = v ?? 0),
             ),

@@ -46,11 +46,11 @@ void main() {
           'deltaEV': -0.02,
           'spotsTracked': 8,
           'timestamp': now.toIso8601String(),
-        }
-      ])
+        },
+      ]),
     });
-    final list =
-        await TheoryBoosterEffectivenessService.instance.getImpactStats('b');
+    final list = await TheoryBoosterEffectivenessService.instance
+        .getImpactStats('b');
     expect(list.length, 1);
     expect(list.first.id, 'b');
     expect(list.first.deltaEV, -0.02);

@@ -10,9 +10,7 @@ class SmartPathPreviewLauncher {
   Future<void> launch(BuildContext context, LearningPathTemplateV2 path) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => SmartPathPreviewScreen(path: path),
-      ),
+      MaterialPageRoute(builder: (_) => SmartPathPreviewScreen(path: path)),
     );
   }
 }

@@ -36,10 +36,7 @@ class SessionVolumeAccuracyChart extends StatelessWidget {
     }
     final scaledVolumeSpots = [
       for (final spot in volumeSpots)
-        FlSpot(
-          spot.x,
-          maxVolume > 0 ? spot.y / maxVolume * 100 : 0,
-        )
+        FlSpot(spot.x, maxVolume > 0 ? spot.y / maxVolume * 100 : 0),
     ];
 
     final step = (sorted.length / 6).ceil();
@@ -83,8 +80,9 @@ class SessionVolumeAccuracyChart extends StatelessWidget {
                   const FlLine(color: Colors.white24, strokeWidth: 1),
             ),
             titlesData: FlTitlesData(
-              topTitles:
-                  const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              topTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
               leftTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,

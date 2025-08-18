@@ -54,8 +54,8 @@ void main() {
     ]);
     final res = await controller.getInboxGoals();
     expect(res.length, 1);
-    final stats =
-        await InboxBoosterTrackerService.instance.getInteractionStats();
+    final stats = await InboxBoosterTrackerService.instance
+        .getInteractionStats();
     expect(stats['g1']?['shows'], 1);
   });
 }

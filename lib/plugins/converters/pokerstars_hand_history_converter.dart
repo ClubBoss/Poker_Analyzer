@@ -11,16 +11,16 @@ import 'package:poker_analyzer/helpers/poker_position_helper.dart';
 /// Converter for PokerStars text hand histories.
 class PokerStarsHandHistoryConverter extends ConverterPlugin {
   PokerStarsHandHistoryConverter()
-      : super(
-          formatId: 'pokerstars_hand_history',
-          description: 'PokerStars hand history format',
-          capabilities: const ConverterFormatCapabilities(
-            supportsImport: true,
-            supportsExport: false,
-            requiresBoard: false,
-            supportsMultiStreet: true,
-          ),
-        );
+    : super(
+        formatId: 'pokerstars_hand_history',
+        description: 'PokerStars hand history format',
+        capabilities: const ConverterFormatCapabilities(
+          supportsImport: true,
+          supportsExport: false,
+          requiresBoard: false,
+          supportsMultiStreet: true,
+        ),
+      );
 
   double _parseAmount(String s) => double.tryParse(s.replaceAll(',', '')) ?? 0;
 
@@ -52,9 +52,11 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
     List<ActionEntry> actions,
     Map<int, String?> actionTags,
   ) {
-    for (int i = startIndex;
-        i < lines.length && (endIndex == -1 || i < endIndex);
-        i++) {
+    for (
+      int i = startIndex;
+      i < lines.length && (endIndex == -1 || i < endIndex);
+      i++
+    ) {
       final line = lines[i].trim();
       if (line.isEmpty) continue;
       Match? m;
@@ -69,14 +71,17 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
         continue;
       }
 
-      m = RegExp(r'^(.+?): calls [\$€£]?([\d,.]+)(.*)', caseSensitive: false)
-          .firstMatch(line);
+      m = RegExp(
+        r'^(.+?): calls [\$€£]?([\d,.]+)(.*)',
+        caseSensitive: false,
+      ).firstMatch(line);
       if (m != null) {
         final idx = nameToIndex[m.group(1)!.toLowerCase()];
         if (idx != null) {
           final amt = _parseAmount(m.group(2)!);
-          final amount =
-              bigBlind != null && bigBlind > 0 ? (amt / bigBlind) : amt;
+          final amount = bigBlind != null && bigBlind > 0
+              ? (amt / bigBlind)
+              : amt;
           final isAllIn = m.group(3)!.toLowerCase().contains('all-in');
           final action = isAllIn ? 'all-in' : 'call';
           actions.add(ActionEntry(street, idx, action, amount: amount));
@@ -85,15 +90,17 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
         continue;
       }
 
-      m = RegExp(r'^(.+?): raises [\$€£]?([\d,.]+) to [\$€£]?([\d,.]+)(.*)',
-              caseSensitive: false)
-          .firstMatch(line);
+      m = RegExp(
+        r'^(.+?): raises [\$€£]?([\d,.]+) to [\$€£]?([\d,.]+)(.*)',
+        caseSensitive: false,
+      ).firstMatch(line);
       if (m != null) {
         final idx = nameToIndex[m.group(1)!.toLowerCase()];
         if (idx != null) {
           final amt = _parseAmount(m.group(3)!);
-          final amount =
-              bigBlind != null && bigBlind > 0 ? (amt / bigBlind) : amt;
+          final amount = bigBlind != null && bigBlind > 0
+              ? (amt / bigBlind)
+              : amt;
           final isAllIn = m.group(4)!.toLowerCase().contains('all-in');
           final action = isAllIn ? 'all-in' : 'raise';
           actions.add(ActionEntry(street, idx, action, amount: amount));
@@ -113,8 +120,10 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
     if (headerMatch == null) return null;
     final handId = headerMatch.group(1)!;
 
-    final tableMatch =
-        RegExp(r"^Table '([^']+)'", caseSensitive: false).firstMatch(lines[1]);
+    final tableMatch = RegExp(
+      r"^Table '([^']+)'",
+      caseSensitive: false,
+    ).firstMatch(lines[1]);
     if (tableMatch == null) return null;
     final tableName = tableMatch.group(1)!.trim();
 
@@ -125,15 +134,16 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
     int? numberOfEntrants;
     String? gameType;
 
-    final tourneyHeader =
-        RegExp(r'Tournament #(\d+),\s*(.+?)\s*-', caseSensitive: false)
-            .firstMatch(lines[0]);
+    final tourneyHeader = RegExp(
+      r'Tournament #(\d+),\s*(.+?)\s*-',
+      caseSensitive: false,
+    ).firstMatch(lines[0]);
     if (tourneyHeader != null) {
       tournamentId = tourneyHeader.group(1);
       final info = tourneyHeader.group(2)!.trim();
-      final buyInMatch =
-          RegExp(r'(?:\$|€|£)?([\d,.]+)(?:\s*\+\s*(?:\$|€|£)?([\d,.]+))?')
-              .firstMatch(info);
+      final buyInMatch = RegExp(
+        r'(?:\$|€|£)?([\d,.]+)(?:\s*\+\s*(?:\$|€|£)?([\d,.]+))?',
+      ).firstMatch(info);
       if (buyInMatch != null) {
         double amount = _parseAmount(buyInMatch.group(1)!);
         if (buyInMatch.group(2) != null) {
@@ -142,28 +152,29 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
         buyIn = amount.round();
       }
       final gameMatch = RegExp(
-              r"(Hold'em|Omaha|Stud|Razz|Badugi|Draw|HORSE|8-Game|2-7)",
-              caseSensitive: false)
-          .firstMatch(info);
+        r"(Hold'em|Omaha|Stud|Razz|Badugi|Draw|HORSE|8-Game|2-7)",
+        caseSensitive: false,
+      ).firstMatch(info);
       if (gameMatch != null) {
         gameType = info.substring(gameMatch.start).trim();
       }
     }
     for (final line in lines) {
       final prizeMatch = RegExp(
-              r'Total prize pool\s*[:\-]?\s*(?:\$|€|£)?([\d,.]+)',
-              caseSensitive: false)
-          .firstMatch(line);
+        r'Total prize pool\s*[:\-]?\s*(?:\$|€|£)?([\d,.]+)',
+        caseSensitive: false,
+      ).firstMatch(line);
       if (prizeMatch != null) {
         totalPrizePool = _parseAmount(prizeMatch.group(1)!).round();
       }
       final entrantsMatch = RegExp(
-              r'(?:Entrants|Players|Number of entrants)\s*[:\-]?\s*([\d,]+)',
-              caseSensitive: false)
-          .firstMatch(line);
+        r'(?:Entrants|Players|Number of entrants)\s*[:\-]?\s*([\d,]+)',
+        caseSensitive: false,
+      ).firstMatch(line);
       if (entrantsMatch != null) {
-        numberOfEntrants =
-            int.tryParse(entrantsMatch.group(1)!.replaceAll(',', ''));
+        numberOfEntrants = int.tryParse(
+          entrantsMatch.group(1)!.replaceAll(',', ''),
+        );
       }
       if (totalPrizePool != null && numberOfEntrants != null) {
         break;
@@ -172,8 +183,10 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
 
     // Determine which seat has the dealer button.
     int? buttonSeat;
-    final buttonRegex =
-        RegExp(r'Seat #?(\d+) is the button', caseSensitive: false);
+    final buttonRegex = RegExp(
+      r'Seat #?(\d+) is the button',
+      caseSensitive: false,
+    );
     for (var i = 0; i < lines.length && i < 5; i++) {
       final m = buttonRegex.firstMatch(lines[i]);
       if (m != null) {
@@ -184,17 +197,18 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
 
     // Attempt to determine blind amounts from the header or post lines.
     double? bigBlind;
-    final blindHeaderMatch =
-        RegExp(r'\((?:\$|€|£)?([\d,.]+)/(?:\$|€|£)?([\d,.]+)')
-            .firstMatch(lines[0]);
+    final blindHeaderMatch = RegExp(
+      r'\((?:\$|€|£)?([\d,.]+)/(?:\$|€|£)?([\d,.]+)',
+    ).firstMatch(lines[0]);
     if (blindHeaderMatch != null) {
       bigBlind = _parseAmount(blindHeaderMatch.group(2)!);
     }
     if (bigBlind == null) {
       for (final line in lines) {
-        final bbMatch =
-            RegExp(r'posts big blind [\$€£]?([\d,.]+)', caseSensitive: false)
-                .firstMatch(line);
+        final bbMatch = RegExp(
+          r'posts big blind [\$€£]?([\d,.]+)',
+          caseSensitive: false,
+        ).firstMatch(line);
         if (bbMatch != null) {
           bigBlind = _parseAmount(bbMatch.group(1)!);
           break;
@@ -203,8 +217,9 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
     }
 
     final seatRegex = RegExp(
-        r'^Seat (\d+):\s*(.+?)\s*\((?:\$|€|£)?([\d,.]+) in chips\)',
-        caseSensitive: false);
+      r'^Seat (\d+):\s*(.+?)\s*\((?:\$|€|£)?([\d,.]+) in chips\)',
+      caseSensitive: false,
+    );
     final seatEntries = <Map<String, dynamic>>[];
     for (var i = 2; i < lines.length; i++) {
       final match = seatRegex.firstMatch(lines[i]);
@@ -227,12 +242,14 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
     final playerCards = List.generate(playerCount, (_) => <CardModel>[]);
     String? heroName;
     List<CardModel> heroCards = [];
-    final holeIndex =
-        lines.indexWhere((l) => l.startsWith('*** HOLE CARDS ***'));
+    final holeIndex = lines.indexWhere(
+      (l) => l.startsWith('*** HOLE CARDS ***'),
+    );
     if (holeIndex != -1) {
       for (var i = holeIndex + 1; i < lines.length; i++) {
-        final dealtMatch =
-            RegExp(r'^Dealt to (.+?) \[(.+?) (.+?)\]').firstMatch(lines[i]);
+        final dealtMatch = RegExp(
+          r'^Dealt to (.+?) \[(.+?) (.+?)\]',
+        ).firstMatch(lines[i]);
         if (dealtMatch != null) {
           heroName = dealtMatch.group(1)!.trim();
           final c1 = parseCard(dealtMatch.group(2)!);
@@ -245,8 +262,9 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
       }
     }
     if (heroName != null) {
-      heroIndex = seatEntries.indexWhere((e) =>
-          (e['name'] as String).toLowerCase() == heroName!.toLowerCase());
+      heroIndex = seatEntries.indexWhere(
+        (e) => (e['name'] as String).toLowerCase() == heroName!.toLowerCase(),
+      );
       if (heroIndex < 0) heroIndex = 0;
     }
     if (heroCards.isNotEmpty && heroIndex >= 0 && heroIndex < playerCount) {
@@ -256,8 +274,9 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
     // Parse board streets.
     final boardCards = <CardModel>[];
     int boardStreet = 0;
-    final boardLineRegex =
-        RegExp(r'^\*\*\*\s+(FLOP|TURN|RIVER)\s+\*\*\*\s+(.*)');
+    final boardLineRegex = RegExp(
+      r'^\*\*\*\s+(FLOP|TURN|RIVER)\s+\*\*\*\s+(.*)',
+    );
     for (final line in lines) {
       final match = boardLineRegex.firstMatch(line);
       if (match != null) {
@@ -285,8 +304,10 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
         for (var i = summaryIndex + 1; i < lines.length; i++) {
           final line = lines[i].trim();
           if (line.startsWith('***')) break;
-          final m = RegExp(r'^Board \[(.+?)\]', caseSensitive: false)
-              .firstMatch(line);
+          final m = RegExp(
+            r'^Board \[(.+?)\]',
+            caseSensitive: false,
+          ).firstMatch(line);
           if (m != null) {
             final parsed = _parseBoardCards(m.group(1)!);
             boardCards
@@ -309,12 +330,14 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
 
     // Phase 24: parse uncalled bet lines from the summary section.
     final Map<String, double> uncalledReturned = {};
-    final summaryIndexForUncalled =
-        lines.indexWhere((l) => l.startsWith('*** SUMMARY'));
+    final summaryIndexForUncalled = lines.indexWhere(
+      (l) => l.startsWith('*** SUMMARY'),
+    );
     if (summaryIndexForUncalled != -1) {
       final uncalledRegex = RegExp(
-          r'^Uncalled bet \((?:\$|€|£)?([\d,.]+)\) returned to (.+)',
-          caseSensitive: false);
+        r'^Uncalled bet \((?:\$|€|£)?([\d,.]+)\) returned to (.+)',
+        caseSensitive: false,
+      );
       for (var i = summaryIndexForUncalled + 1; i < lines.length; i++) {
         final line = lines[i].trim();
         if (line.startsWith('***')) break;
@@ -331,52 +354,95 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
     // Parse preflop actions between HOLE CARDS and FLOP.
     final Map<String, int> nameToIndex = {
       for (int i = 0; i < seatEntries.length; i++)
-        (seatEntries[i]['name'] as String).toLowerCase(): i
+        (seatEntries[i]['name'] as String).toLowerCase(): i,
     };
     final actions = <ActionEntry>[];
     final actionTags = <int, String?>{};
     if (holeIndex != -1) {
-      final endIndex =
-          lines.indexWhere((l) => l.startsWith('*** FLOP ***'), holeIndex + 1);
-      _parseStreetActions(0, lines, holeIndex + 1, endIndex, nameToIndex,
-          bigBlind, actions, actionTags);
+      final endIndex = lines.indexWhere(
+        (l) => l.startsWith('*** FLOP ***'),
+        holeIndex + 1,
+      );
+      _parseStreetActions(
+        0,
+        lines,
+        holeIndex + 1,
+        endIndex,
+        nameToIndex,
+        bigBlind,
+        actions,
+        actionTags,
+      );
     }
 
     // Parse flop actions between FLOP and TURN.
     final flopIndex = lines.indexWhere((l) => l.startsWith('*** FLOP ***'));
     if (flopIndex != -1) {
-      final endIndex =
-          lines.indexWhere((l) => l.startsWith('*** TURN ***'), flopIndex + 1);
-      _parseStreetActions(1, lines, flopIndex + 1, endIndex, nameToIndex,
-          bigBlind, actions, actionTags);
+      final endIndex = lines.indexWhere(
+        (l) => l.startsWith('*** TURN ***'),
+        flopIndex + 1,
+      );
+      _parseStreetActions(
+        1,
+        lines,
+        flopIndex + 1,
+        endIndex,
+        nameToIndex,
+        bigBlind,
+        actions,
+        actionTags,
+      );
     }
 
     // Parse turn actions between TURN and RIVER.
-    final turnIndex =
-        lines.indexWhere((l) => l.startsWith('*** TURN'), flopIndex + 1);
+    final turnIndex = lines.indexWhere(
+      (l) => l.startsWith('*** TURN'),
+      flopIndex + 1,
+    );
     if (turnIndex != -1) {
-      final endIndex =
-          lines.indexWhere((l) => l.startsWith('*** RIVER'), turnIndex + 1);
-      _parseStreetActions(2, lines, turnIndex + 1, endIndex, nameToIndex,
-          bigBlind, actions, actionTags);
+      final endIndex = lines.indexWhere(
+        (l) => l.startsWith('*** RIVER'),
+        turnIndex + 1,
+      );
+      _parseStreetActions(
+        2,
+        lines,
+        turnIndex + 1,
+        endIndex,
+        nameToIndex,
+        bigBlind,
+        actions,
+        actionTags,
+      );
     }
 
     // Parse river actions after RIVER line.
     final riverIndex = lines.indexWhere((l) => l.startsWith('*** RIVER'));
     if (riverIndex != -1) {
       final endIndex = lines.indexWhere(
-          (l) => l.startsWith('*** SHOW') || l.startsWith('*** SUMMARY'),
-          riverIndex + 1);
-      _parseStreetActions(3, lines, riverIndex + 1, endIndex, nameToIndex,
-          bigBlind, actions, actionTags);
+        (l) => l.startsWith('*** SHOW') || l.startsWith('*** SUMMARY'),
+        riverIndex + 1,
+      );
+      _parseStreetActions(
+        3,
+        lines,
+        riverIndex + 1,
+        endIndex,
+        nameToIndex,
+        bigBlind,
+        actions,
+        actionTags,
+      );
     }
 
     // Parse showdown section for revealed hole cards.
     final showdownIndex = lines.indexWhere((l) => l.startsWith('*** SHOW'));
     final Map<int, String> showdownDescriptions = {};
     if (showdownIndex != -1) {
-      final showRegex = RegExp(r'^([^:]+?):\s*shows? \[(.+?)\](?:\s*\((.+)\))?',
-          caseSensitive: false);
+      final showRegex = RegExp(
+        r'^([^:]+?):\s*shows? \[(.+?)\](?:\s*\((.+)\))?',
+        caseSensitive: false,
+      );
       for (var i = showdownIndex + 1; i < lines.length; i++) {
         final line = lines[i].trim();
         if (line.startsWith('***')) break;
@@ -423,22 +489,30 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
     final Map<int, int> eliminatedPositions = {};
     int? totalPotBb;
     int? rakeBb;
-    final summaryIndexForWinnings =
-        lines.indexWhere((l) => l.startsWith('*** SUMMARY'));
+    final summaryIndexForWinnings = lines.indexWhere(
+      (l) => l.startsWith('*** SUMMARY'),
+    );
     if (summaryIndexForWinnings != -1) {
-      final collectRegex = RegExp(r'^(.+?) collected (?:\$|€|£)?([\d,.]+)',
-          caseSensitive: false);
-      final winsRegex =
-          RegExp(r'^(.+?) wins (?:\$|€|£)?([\d,.]+)', caseSensitive: false);
+      final collectRegex = RegExp(
+        r'^(.+?) collected (?:\$|€|£)?([\d,.]+)',
+        caseSensitive: false,
+      );
+      final winsRegex = RegExp(
+        r'^(.+?) wins (?:\$|€|£)?([\d,.]+)',
+        caseSensitive: false,
+      );
       final seatFinishRegex = RegExp(
-          r'^Seat (\d+):\s*(.+?) finished(?: the tournament)? in (\d+)[a-z]{2} place',
-          caseSensitive: false);
+        r'^Seat (\d+):\s*(.+?) finished(?: the tournament)? in (\d+)[a-z]{2} place',
+        caseSensitive: false,
+      );
       final nameFinishRegex = RegExp(
-          r'^(.+?) finished(?: the tournament)? in (\d+)[a-z]{2} place',
-          caseSensitive: false);
+        r'^(.+?) finished(?: the tournament)? in (\d+)[a-z]{2} place',
+        caseSensitive: false,
+      );
       final potRakeRegex = RegExp(
-          r'^Total pot (?:\$|€|£)?([\d,.]+).*?\|\s*Rake (?:\$|€|£)?([\d,.]+)',
-          caseSensitive: false);
+        r'^Total pot (?:\$|€|£)?([\d,.]+).*?\|\s*Rake (?:\$|€|£)?([\d,.]+)',
+        caseSensitive: false,
+      );
       double? totalPot;
       double? rake;
       for (var i = summaryIndexForWinnings + 1; i < lines.length; i++) {
@@ -503,7 +577,7 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
       final btnPosIdx = positionOrder.indexOf('BTN');
       final orderFromBtn = [
         ...positionOrder.sublist(btnPosIdx),
-        ...positionOrder.sublist(0, btnPosIdx)
+        ...positionOrder.sublist(0, btnPosIdx),
       ];
       int buttonIndex = -1;
       if (buttonSeat != null) {
@@ -539,16 +613,18 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
       totalPrizePool: totalPrizePool,
       numberOfEntrants: numberOfEntrants,
       gameType: gameType,
-      eliminatedPositions:
-          eliminatedPositions.isEmpty ? null : eliminatedPositions,
+      eliminatedPositions: eliminatedPositions.isEmpty
+          ? null
+          : eliminatedPositions,
       playerPositions: playerPositions,
       playerTypes: {
-        for (var i = 0; i < playerCount; i++) i: PlayerType.unknown
+        for (var i = 0; i < playerCount; i++) i: PlayerType.unknown,
       },
       comment: tableName,
       actionTags: actionTags.isEmpty ? null : actionTags,
-      showdownDescriptions:
-          showdownDescriptions.isEmpty ? null : showdownDescriptions,
+      showdownDescriptions: showdownDescriptions.isEmpty
+          ? null
+          : showdownDescriptions,
     );
   }
 }

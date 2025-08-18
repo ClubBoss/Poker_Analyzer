@@ -21,31 +21,35 @@ class PackCloudService {
     final doc = _db.collection('bundles').doc(tpl.id);
     final exists = await doc.get().then((d) => d.exists);
     if (exists) return false;
-    await CloudRetryPolicy.execute(() => doc.set({
-          'name': tpl.name,
-          'description': tpl.description,
-          'spots': tpl.spots.length,
-          'evCovered': tpl.evCovered,
-          'icmCovered': tpl.icmCovered,
-          'createdAt': tpl.createdAt.toIso8601String(),
-          if (tpl.lastGeneratedAt != null)
-            'lastGenerated': tpl.lastGeneratedAt!.toIso8601String(),
-          'bundle': bytes,
-        }));
+    await CloudRetryPolicy.execute(
+      () => doc.set({
+        'name': tpl.name,
+        'description': tpl.description,
+        'spots': tpl.spots.length,
+        'evCovered': tpl.evCovered,
+        'icmCovered': tpl.icmCovered,
+        'createdAt': tpl.createdAt.toIso8601String(),
+        if (tpl.lastGeneratedAt != null)
+          'lastGenerated': tpl.lastGeneratedAt!.toIso8601String(),
+        'bundle': bytes,
+      }),
+    );
     return true;
   }
 
   Future<List<Map<String, dynamic>>> listBundles() async {
-    final snap =
-        await CloudRetryPolicy.execute(() => _db.collection('bundles').get());
+    final snap = await CloudRetryPolicy.execute(
+      () => _db.collection('bundles').get(),
+    );
     return [
-      for (final d in snap.docs) {...d.data(), 'id': d.id}
+      for (final d in snap.docs) {...d.data(), 'id': d.id},
     ];
   }
 
   Future<Uint8List?> downloadBundle(String id) async {
     final doc = await CloudRetryPolicy.execute(
-        () => _db.collection('bundles').doc(id).get());
+      () => _db.collection('bundles').doc(id).get(),
+    );
     if (!doc.exists) return null;
     final data = doc.data();
     final bytes = data?['bundle'];

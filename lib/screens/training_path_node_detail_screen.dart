@@ -48,8 +48,9 @@ class _TrainingPathNodeDetailScreenState
     final isCompleted = completed.contains(widget.node.id);
     final isUnlocked = unlocked.contains(widget.node.id);
     final breadcrumb = _breadcrumbService.getBreadcrumb(widget.node);
-    final recommendations =
-        await _recommendationService.getRecommendations(widget.node);
+    final recommendations = await _recommendationService.getRecommendations(
+      widget.node,
+    );
     return _NodeDetailData(
       templates: templates,
       isCompleted: isCompleted,
@@ -122,17 +123,17 @@ class _TrainingPathNodeDetailScreenState
                 ),
           bottomNavigationBar:
               snapshot.connectionState != ConnectionState.done ||
-                      !(data?.isUnlocked ?? false)
-                  ? null
-                  : SafeArea(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: ElevatedButton(
-                          onPressed: _startTraining,
-                          child: const Text('Start Training'),
-                        ),
-                      ),
+                  !(data?.isUnlocked ?? false)
+              ? null
+              : SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: ElevatedButton(
+                      onPressed: _startTraining,
+                      child: const Text('Start Training'),
                     ),
+                  ),
+                ),
         );
       },
     );
@@ -154,14 +155,15 @@ class _TrainingPathNodeDetailScreenState
                           Text(
                             node.title,
                             style: node.id == widget.node.id
-                                ? const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  )
+                                ? const TextStyle(fontWeight: FontWeight.bold)
                                 : null,
                           ),
                           const SizedBox(width: 4),
-                          const Icon(Icons.check,
-                              size: 16, color: Colors.green),
+                          const Icon(
+                            Icons.check,
+                            size: 16,
+                            color: Colors.green,
+                          ),
                         ],
                       )
                     : Text(
@@ -170,15 +172,16 @@ class _TrainingPathNodeDetailScreenState
                             ? const TextStyle(fontWeight: FontWeight.bold)
                             : null,
                       ),
-                onPressed: node.id == widget.node.id ||
+                onPressed:
+                    node.id == widget.node.id ||
                         !data.unlockedNodeIds.contains(node.id)
                     ? null
                     : () => _openNode(node),
                 backgroundColor: node.id == widget.node.id
                     ? Colors.blue.shade300
                     : data.unlockedNodeIds.contains(node.id)
-                        ? null
-                        : Colors.grey.shade300,
+                    ? null
+                    : Colors.grey.shade300,
                 shape: node.id == widget.node.id
                     ? RoundedRectangleBorder(
                         side: BorderSide(color: Colors.blue.shade700),

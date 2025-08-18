@@ -12,9 +12,9 @@ class UnlockCondition {
   }
 
   Map<String, dynamic> toJson() => {
-        if (dependsOn != null) 'dependsOn': dependsOn,
-        if (minAccuracy != null) 'minAccuracy': minAccuracy,
-      };
+    if (dependsOn != null) 'dependsOn': dependsOn,
+    if (minAccuracy != null) 'minAccuracy': minAccuracy,
+  };
 
   factory UnlockCondition.fromYaml(Map yaml) {
     final map = <String, dynamic>{};

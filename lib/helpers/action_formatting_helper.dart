@@ -76,8 +76,9 @@ class ActionFormattingHelper {
     final label = entry.action == 'custom'
         ? (entry.customLabel ?? 'custom')
         : entry.action;
-    final cap =
-        label.isNotEmpty ? label[0].toUpperCase() + label.substring(1) : label;
+    final cap = label.isNotEmpty
+        ? label[0].toUpperCase() + label.substring(1)
+        : label;
     return entry.amount != null ? '$cap ${entry.amount}' : cap;
   }
 }

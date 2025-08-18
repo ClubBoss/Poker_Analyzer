@@ -34,7 +34,7 @@ class _SelectableCardsState extends State<SelectableCards> {
     'J',
     'Q',
     'K',
-    'A'
+    'A',
   ];
   static const List<String> suits = ['♠', '♥', '♦', '♣'];
 
@@ -68,10 +68,10 @@ class _SelectableCardsState extends State<SelectableCards> {
                   value: selectedRank,
                   decoration: const InputDecoration(labelText: 'Ранг'),
                   items: ranks
-                      .map((rank) => DropdownMenuItem(
-                            value: rank,
-                            child: Text(rank),
-                          ))
+                      .map(
+                        (rank) =>
+                            DropdownMenuItem(value: rank, child: Text(rank)),
+                      )
                       .toList(),
                   onChanged: alreadyTwoCards
                       ? null
@@ -84,10 +84,10 @@ class _SelectableCardsState extends State<SelectableCards> {
                   value: selectedSuit,
                   decoration: const InputDecoration(labelText: 'Масть'),
                   items: suits
-                      .map((suit) => DropdownMenuItem(
-                            value: suit,
-                            child: Text(suit),
-                          ))
+                      .map(
+                        (suit) =>
+                            DropdownMenuItem(value: suit, child: Text(suit)),
+                      )
                       .toList(),
                   onChanged: alreadyTwoCards
                       ? null
@@ -97,8 +97,9 @@ class _SelectableCardsState extends State<SelectableCards> {
               const SizedBox(width: 12),
               ElevatedButton(
                 onPressed: alreadyTwoCards ? null : addCard,
-                style:
-                    ElevatedButton.styleFrom(padding: const EdgeInsets.all(16)),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.all(16),
+                ),
                 child: const Text('Добавить'),
               ),
             ],

@@ -27,10 +27,10 @@ class BoosterInjectionOrchestrator {
     SmartBoosterRecallEngine? recall,
     BoosterRecallScheduler? recallScheduler,
     BoosterCompletionTracker? completion,
-  })  : gaps = gaps ?? SkillGapDetectorService(),
-        recall = recall ?? SmartBoosterRecallEngine.instance,
-        recallScheduler = recallScheduler ?? BoosterRecallScheduler.instance,
-        completion = completion ?? BoosterCompletionTracker.instance;
+  }) : gaps = gaps ?? SkillGapDetectorService(),
+       recall = recall ?? SmartBoosterRecallEngine.instance,
+       recallScheduler = recallScheduler ?? BoosterRecallScheduler.instance,
+       completion = completion ?? BoosterCompletionTracker.instance;
 
   /// Returns booster blocks relevant to [stage].
   Future<List<LearningPathBlock>> getInjectableBoosters(StageNode stage) async {
@@ -40,7 +40,7 @@ class BoosterInjectionOrchestrator {
     if (model == null) return [];
 
     final stageTags = <String>{
-      for (final t in model.tags) t.trim().toLowerCase()
+      for (final t in model.tags) t.trim().toLowerCase(),
     }..removeWhere((t) => t.isEmpty);
     if (stageTags.isEmpty) return [];
 
@@ -98,7 +98,7 @@ class BoosterInjectionOrchestrator {
           ctaLabel: 'Начать',
           lessonId: b.id,
           injectedInStageId: stage.id,
-        )
+        ),
     ];
   }
 }

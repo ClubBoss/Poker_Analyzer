@@ -67,13 +67,15 @@ class AssetSyncService {
     }
     for (var i = 0; i < toDownload.length; i += 8) {
       final batch = toDownload.skip(i).take(8).toList();
-      await Future.wait(batch.map((png) async {
-        final data = await storage.ref('${_prefix}preview/$png').getData();
-        if (data != null) {
-          final out = File(p.join(previewDir.path, png));
-          await out.writeAsBytes(data, flush: true);
-        }
-      }));
+      await Future.wait(
+        batch.map((png) async {
+          final data = await storage.ref('${_prefix}preview/$png').getData();
+          if (data != null) {
+            final out = File(p.join(previewDir.path, png));
+            await out.writeAsBytes(data, flush: true);
+          }
+        }),
+      );
     }
     await prefs.setInt(_tsKey, DateTime.now().millisecondsSinceEpoch);
     ErrorLogger.instance.logError('Asset sync complete');

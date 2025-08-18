@@ -21,10 +21,10 @@ class RunMetricsEntry {
   }
 
   Map<String, dynamic> toJson() => {
-        'timestamp': timestamp.toUtc().toIso8601String(),
-        'avgQualityScore': avgQualityScore,
-        'acceptanceRate': acceptanceRate,
-      };
+    'timestamp': timestamp.toUtc().toIso8601String(),
+    'avgQualityScore': avgQualityScore,
+    'acceptanceRate': acceptanceRate,
+  };
 }
 
 class AutogenMetricsHistoryService {
@@ -35,14 +35,18 @@ class AutogenMetricsHistoryService {
   }) : _filePath = filePath;
 
   Future<void> recordRunMetrics(
-      double avgQuality, double acceptanceRate) async {
+    double avgQuality,
+    double acceptanceRate,
+  ) async {
     final file = File(_filePath);
     final entries = await loadHistory();
-    entries.add(RunMetricsEntry(
-      timestamp: DateTime.now().toUtc(),
-      avgQualityScore: avgQuality,
-      acceptanceRate: acceptanceRate,
-    ));
+    entries.add(
+      RunMetricsEntry(
+        timestamp: DateTime.now().toUtc(),
+        avgQualityScore: avgQuality,
+        acceptanceRate: acceptanceRate,
+      ),
+    );
     await file.writeAsString(
       jsonEncode(entries.map((e) => e.toJson()).toList()),
       flush: true,

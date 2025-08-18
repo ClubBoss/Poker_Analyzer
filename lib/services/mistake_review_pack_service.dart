@@ -31,7 +31,8 @@ class MistakeReviewPackService extends ChangeNotifier {
   static TrainingPackTemplate? get cachedTemplate => _latestTemplate;
 
   static Future<TrainingPackTemplate?> latestTemplate(
-      BuildContext context) async {
+    BuildContext context,
+  ) async {
     if (_latestTemplate != null) return _latestTemplate;
     final service = context.read<MistakeReviewPackService>();
     if (service.packs.isEmpty) return null;
@@ -117,8 +118,11 @@ class MistakeReviewPackService extends ChangeNotifier {
     final list = prefs.getStringList(_packsKey) ?? [];
     _packs
       ..clear()
-      ..addAll(list.map(
-          (e) => MistakePack.fromJson(jsonDecode(e) as Map<String, dynamic>)));
+      ..addAll(
+        list.map(
+          (e) => MistakePack.fromJson(jsonDecode(e) as Map<String, dynamic>),
+        ),
+      );
     _packSpots.clear();
     for (final p in _packs) {
       final set = _packSpots.putIfAbsent(p.templateId, () => <String>{});
@@ -137,7 +141,7 @@ class MistakeReviewPackService extends ChangeNotifier {
             h.gtoAction != null &&
             h.expectedAction!.trim().toLowerCase() !=
                 h.gtoAction!.trim().toLowerCase())
-          h
+          h,
     ];
     list.sort((a, b) => (b.evLoss ?? 0).compareTo(a.evLoss ?? 0));
     return list.take(10).toList();
@@ -166,10 +170,9 @@ class MistakeReviewPackService extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_progressKey, _progress);
     await prefs.setString(_dateKey, _date!.toIso8601String());
-    await prefs.setStringList(
-      _packsKey,
-      [for (final p in _packs) jsonEncode(p.toJson())],
-    );
+    await prefs.setStringList(_packsKey, [
+      for (final p in _packs) jsonEncode(p.toJson()),
+    ]);
   }
 
   Future<void> setProgress(int value) async {
@@ -181,18 +184,24 @@ class MistakeReviewPackService extends ChangeNotifier {
     }
   }
 
-  Future<void> addPack(List<String> spotIds,
-      {required String templateId, String note = ''}) async {
+  Future<void> addPack(
+    List<String> spotIds, {
+    required String templateId,
+    String note = '',
+  }) async {
     (_packSpots[templateId] ??= <String>{}).addAll(spotIds);
-    _packs
-        .add(MistakePack(templateId: templateId, spotIds: spotIds, note: note));
+    _packs.add(
+      MistakePack(templateId: templateId, spotIds: spotIds, note: note),
+    );
     await _save();
     await syncUp();
     _generate();
   }
 
   Future<void> addSpot(
-      TrainingPackTemplate template, TrainingPackSpot spot) async {
+    TrainingPackTemplate template,
+    TrainingPackSpot spot,
+  ) async {
     await addPack([spot.id], templateId: template.id, note: template.name);
   }
 
@@ -202,7 +211,9 @@ class MistakeReviewPackService extends ChangeNotifier {
   int mistakeCount(String templateId) => _packSpots[templateId]?.length ?? 0;
 
   Future<TrainingPackTemplate?> review(
-      BuildContext context, String templateId) async {
+    BuildContext context,
+    String templateId,
+  ) async {
     if (_busy) return null;
     _busy = true;
     final ids = _packSpots[templateId];
@@ -220,7 +231,7 @@ class MistakeReviewPackService extends ChangeNotifier {
     }
     final spots = [
       for (final s in tpl.spots)
-        if (ids.contains(s.id)) TrainingPackSpot.fromJson(s.toJson())
+        if (ids.contains(s.id)) TrainingPackSpot.fromJson(s.toJson()),
     ];
     if (spots.isEmpty) {
       _busy = false;
@@ -241,7 +252,7 @@ class MistakeReviewPackService extends ChangeNotifier {
       ..clear()
       ..addAll([
         for (final p in remote)
-          if (now.difference(p.createdAt).inDays <= 30) p
+          if (now.difference(p.createdAt).inDays <= 30) p,
       ]);
     _trim();
     await _save();
@@ -258,8 +269,9 @@ class MistakeReviewPackService extends ChangeNotifier {
         _packs.remove(p);
         // cleanup orphaned cached entries
         try {
-          await SharedPreferences.getInstance()
-              .then((prefs) => prefs.remove('mistake_pack_${p.id}'));
+          await SharedPreferences.getInstance().then(
+            (prefs) => prefs.remove('mistake_pack_${p.id}'),
+          );
           if (_box != null) await _box!.delete('mistake_pack_${p.id}');
         } catch (_) {}
       }

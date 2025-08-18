@@ -20,13 +20,7 @@ void main() {
   });
 
   test('target mix enforcement with tolerance', () {
-    final spots = [
-      'KsQsJs',
-      'AsKsQs',
-      'AhKhQh',
-      '2c3d5h',
-      '4c5d6h',
-    ];
+    final spots = ['KsQsJs', 'AsKsQs', 'AhKhQh', '2c3d5h', '4c5d6h'];
     final rejects = <String>[];
     final result = engine.filter<String>(
       spots,

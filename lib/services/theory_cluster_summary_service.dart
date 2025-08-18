@@ -24,7 +24,7 @@ class TheoryClusterSummaryService {
 
     final entryPoints = <String>[
       for (final l in lessons)
-        if ((incoming[l.id] ?? 0) == 0) l.id
+        if ((incoming[l.id] ?? 0) == 0) l.id,
     ];
 
     final tagCounts = <String, int>{};
@@ -35,8 +35,10 @@ class TheoryClusterSummaryService {
         tagCounts[trimmed] = (tagCounts[trimmed] ?? 0) + 1;
       }
     }
-    final sharedTags =
-        tagCounts.entries.where((e) => e.value >= 2).map((e) => e.key).toSet();
+    final sharedTags = tagCounts.entries
+        .where((e) => e.value >= 2)
+        .map((e) => e.key)
+        .toSet();
 
     return TheoryClusterSummary(
       size: lessons.length,

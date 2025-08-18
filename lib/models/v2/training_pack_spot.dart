@@ -109,59 +109,59 @@ class TrainingPackSpot
     this.isTheoryNote = false,
     this.theoryNote,
     this.isInjected = false,
-  })  : hand = hand ?? HandData(),
-        tags = tags != null ? List<String>.from(tags) : <String>[],
-        categories =
-            categories != null ? List<String>.from(categories) : <String>[],
-        board = board != null ? List<String>.from(board) : <String>[],
-        heroOptions =
-            heroOptions != null ? List<String>.from(heroOptions) : <String>[],
-        meta = meta != null
-            ? Map<String, dynamic>.from(meta)
-            : <String, dynamic>{},
-        editedAt = editedAt ?? DateTime.now(),
-        createdAt = createdAt ?? DateTime.now(),
-        theoryRefs =
-            theoryRefs != null ? List<String>.from(theoryRefs) : <String>[];
+  }) : hand = hand ?? HandData(),
+       tags = tags != null ? List<String>.from(tags) : <String>[],
+       categories = categories != null
+           ? List<String>.from(categories)
+           : <String>[],
+       board = board != null ? List<String>.from(board) : <String>[],
+       heroOptions = heroOptions != null
+           ? List<String>.from(heroOptions)
+           : <String>[],
+       meta = meta != null
+           ? Map<String, dynamic>.from(meta)
+           : <String, dynamic>{},
+       editedAt = editedAt ?? DateTime.now(),
+       createdAt = createdAt ?? DateTime.now(),
+       theoryRefs = theoryRefs != null
+           ? List<String>.from(theoryRefs)
+           : <String>[];
 
   factory TrainingPackSpot.fromJson(Map<String, dynamic> j) => TrainingPackSpot(
-        id: j['id']?.toString() ?? '',
-        hand: j['hand'] != null
-            ? HandData.fromJson(Map<String, dynamic>.from(j['hand']))
-            : null,
-        tags: (j['tags'] as List?)?.map((e) => e.toString()).toList(),
-        categories:
-            (j['categories'] as List?)?.map((e) => e.toString()).toList(),
-        type: j['type']?.toString() ?? 'quiz',
-        title: j['title']?.toString() ?? '',
-        note: j['note']?.toString() ?? '',
-        pinned: j['pinned'] == true,
-        priority: (j['priority'] as num?)?.toInt() ?? 3,
-        evalResult: j['evalResult'] != null
-            ? EvaluationResult.fromJson(
-                Map<String, dynamic>.from(j['evalResult']))
-            : null,
-        correctAction: j['correctAction']?.toString(),
-        explanation: j['explanation']?.toString(),
-        board: (j['board'] as List?)?.map((c) => c.toString()).toList(),
-        street: (j['street'] as num?)?.toInt(),
-        villainAction: j['villainAction']?.toString(),
-        heroOptions:
-            (j['heroOptions'] as List?)?.map((a) => a.toString()).toList(),
-        meta: j['meta'] is Map ? Map<String, dynamic>.from(j['meta']) : null,
-        editedAt: DateTime.tryParse(j['editedAt']?.toString() ?? ''),
-        createdAt: DateTime.tryParse(j['createdAt']?.toString() ?? ''),
-        templateSourceId: j['templateSourceId']?.toString(),
-        inlineLessonId:
-            j['inlineLessonId']?.toString() ?? j['inlineTheoryId']?.toString(),
-        isTheoryNote: j['isTheoryNote'] == true,
-        theoryNote: j['theoryNote'] is Map
-            ? TheoryNoteEntry(
-                tag: j['theoryNote']['tag']?.toString() ?? '',
-                text: j['theoryNote']['text']?.toString() ?? '',
-              )
-            : null,
-      );
+    id: j['id']?.toString() ?? '',
+    hand: j['hand'] != null
+        ? HandData.fromJson(Map<String, dynamic>.from(j['hand']))
+        : null,
+    tags: (j['tags'] as List?)?.map((e) => e.toString()).toList(),
+    categories: (j['categories'] as List?)?.map((e) => e.toString()).toList(),
+    type: j['type']?.toString() ?? 'quiz',
+    title: j['title']?.toString() ?? '',
+    note: j['note']?.toString() ?? '',
+    pinned: j['pinned'] == true,
+    priority: (j['priority'] as num?)?.toInt() ?? 3,
+    evalResult: j['evalResult'] != null
+        ? EvaluationResult.fromJson(Map<String, dynamic>.from(j['evalResult']))
+        : null,
+    correctAction: j['correctAction']?.toString(),
+    explanation: j['explanation']?.toString(),
+    board: (j['board'] as List?)?.map((c) => c.toString()).toList(),
+    street: (j['street'] as num?)?.toInt(),
+    villainAction: j['villainAction']?.toString(),
+    heroOptions: (j['heroOptions'] as List?)?.map((a) => a.toString()).toList(),
+    meta: j['meta'] is Map ? Map<String, dynamic>.from(j['meta']) : null,
+    editedAt: DateTime.tryParse(j['editedAt']?.toString() ?? ''),
+    createdAt: DateTime.tryParse(j['createdAt']?.toString() ?? ''),
+    templateSourceId: j['templateSourceId']?.toString(),
+    inlineLessonId:
+        j['inlineLessonId']?.toString() ?? j['inlineTheoryId']?.toString(),
+    isTheoryNote: j['isTheoryNote'] == true,
+    theoryNote: j['theoryNote'] is Map
+        ? TheoryNoteEntry(
+            tag: j['theoryNote']['tag']?.toString() ?? '',
+            text: j['theoryNote']['text']?.toString() ?? '',
+          )
+        : null,
+  );
 
   factory TrainingPackSpot.fromTrainingSpot(
     TrainingSpot spot, {
@@ -201,29 +201,29 @@ class TrainingPackSpot
   }
 
   Map<String, dynamic> _serialize({bool includeInlineLessonId = false}) => {
-        'id': id,
-        'type': type,
-        'title': title,
-        'note': note,
-        'hand': hand.toJson(),
-        if (tags.isNotEmpty) 'tags': tags,
-        if (categories.isNotEmpty) 'categories': categories,
-        'editedAt': editedAt.toIso8601String(),
-        'createdAt': createdAt.toIso8601String(),
-        if (pinned) 'pinned': true,
-        if (priority != 3) 'priority': priority,
-        if (evalResult != null) 'evalResult': evalResult!.toJson(),
-        if (correctAction != null) 'correctAction': correctAction,
-        if (explanation != null) 'explanation': explanation,
-        if (board.isNotEmpty) 'board': board,
-        if (street > 0) 'street': street,
-        if (villainAction != null) 'villainAction': villainAction,
-        if (heroOptions.isNotEmpty) 'heroOptions': heroOptions,
-        if (meta.isNotEmpty) 'meta': meta,
-        if (templateSourceId != null) 'templateSourceId': templateSourceId,
-        if (includeInlineLessonId && inlineLessonId != null)
-          'inlineLessonId': inlineLessonId,
-      };
+    'id': id,
+    'type': type,
+    'title': title,
+    'note': note,
+    'hand': hand.toJson(),
+    if (tags.isNotEmpty) 'tags': tags,
+    if (categories.isNotEmpty) 'categories': categories,
+    'editedAt': editedAt.toIso8601String(),
+    'createdAt': createdAt.toIso8601String(),
+    if (pinned) 'pinned': true,
+    if (priority != 3) 'priority': priority,
+    if (evalResult != null) 'evalResult': evalResult!.toJson(),
+    if (correctAction != null) 'correctAction': correctAction,
+    if (explanation != null) 'explanation': explanation,
+    if (board.isNotEmpty) 'board': board,
+    if (street > 0) 'street': street,
+    if (villainAction != null) 'villainAction': villainAction,
+    if (heroOptions.isNotEmpty) 'heroOptions': heroOptions,
+    if (meta.isNotEmpty) 'meta': meta,
+    if (templateSourceId != null) 'templateSourceId': templateSourceId,
+    if (includeInlineLessonId && inlineLessonId != null)
+      'inlineLessonId': inlineLessonId,
+  };
 
   @override
   Map<String, dynamic> toJson() => _serialize();
@@ -274,8 +274,9 @@ class TrainingPackSpot
       map['villainAction'] = villain;
     }
 
-    final heroOptions =
-        (yaml['heroOptions'] as List?)?.map((o) => o.toString()).toList();
+    final heroOptions = (yaml['heroOptions'] as List?)
+        ?.map((o) => o.toString())
+        .toList();
     if (heroOptions != null && heroOptions.isNotEmpty) {
       map['heroOptions'] = heroOptions;
     }
@@ -284,7 +285,8 @@ class TrainingPackSpot
       map['meta'] = Map<String, dynamic>.from(yaml['meta']);
     }
 
-    final inlineId = yaml['inlineLessonId']?.toString() ??
+    final inlineId =
+        yaml['inlineLessonId']?.toString() ??
         yaml['inlineTheoryId']?.toString();
     if (inlineId?.isNotEmpty == true) {
       map['inlineLessonId'] = inlineId;
@@ -337,27 +339,27 @@ class TrainingPackSpot
 
   @override
   int get hashCode => Object.hashAll([
-        id,
-        type,
-        title,
-        note,
-        hand,
-        const ListEquality().hash(tags),
-        const ListEquality().hash(categories),
-        pinned,
-        priority,
-        isNew,
-        evalResult,
-        correctAction,
-        explanation,
-        const ListEquality().hash(board),
-        street,
-        villainAction,
-        const ListEquality().hash(heroOptions),
-        const DeepCollectionEquality().hash(meta),
-        templateSourceId,
-        inlineLessonId,
-      ]);
+    id,
+    type,
+    title,
+    note,
+    hand,
+    const ListEquality().hash(tags),
+    const ListEquality().hash(categories),
+    pinned,
+    priority,
+    isNew,
+    evalResult,
+    correctAction,
+    explanation,
+    const ListEquality().hash(board),
+    street,
+    villainAction,
+    const ListEquality().hash(heroOptions),
+    const DeepCollectionEquality().hash(meta),
+    templateSourceId,
+    inlineLessonId,
+  ]);
 }
 
 extension TrainingPackSpotStreet on TrainingPackSpot {

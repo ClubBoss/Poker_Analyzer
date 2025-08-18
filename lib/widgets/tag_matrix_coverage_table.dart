@@ -33,12 +33,15 @@ class TagMatrixCoverageTable extends StatelessWidget {
         content: SizedBox(
           width: 300,
           child: ListView(
-              shrinkWrap: true, children: [for (final p in list) Text(p)]),
+            shrinkWrap: true,
+            children: [for (final p in list) Text(p)],
+          ),
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Close')),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
         ],
       ),
     );
@@ -46,21 +49,25 @@ class TagMatrixCoverageTable extends StatelessWidget {
 
   DataRow _row(BuildContext context, String x) {
     final yVals = axes[1].values;
-    return DataRow(cells: [
-      DataCell(Text(x)),
-      ...[
-        for (final y in yVals)
-          DataCell(GestureDetector(
-            onTap: () => _show(context, x, y),
-            child: Container(
-              color: _color(data[x]?[y]?.count ?? 0),
-              alignment: Alignment.center,
-              padding: const EdgeInsets.all(8),
-              child: Text('${data[x]?[y]?.count ?? 0}'),
+    return DataRow(
+      cells: [
+        DataCell(Text(x)),
+        ...[
+          for (final y in yVals)
+            DataCell(
+              GestureDetector(
+                onTap: () => _show(context, x, y),
+                child: Container(
+                  color: _color(data[x]?[y]?.count ?? 0),
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.all(8),
+                  child: Text('${data[x]?[y]?.count ?? 0}'),
+                ),
+              ),
             ),
-          )),
-      ]
-    ]);
+        ],
+      ],
+    );
   }
 
   @override
@@ -73,7 +80,7 @@ class TagMatrixCoverageTable extends StatelessWidget {
       child: DataTable(
         columns: [
           DataColumn(label: Text(axes[0].name)),
-          ...[for (final y in yVals) DataColumn(label: Text(y))]
+          ...[for (final y in yVals) DataColumn(label: Text(y))],
         ],
         rows: [for (final x in xVals) _row(context, x)],
       ),

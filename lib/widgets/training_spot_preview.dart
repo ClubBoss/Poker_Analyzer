@@ -83,9 +83,7 @@ class TrainingSpotPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (final a in spot.actions) _buildAction(a),
-      ],
+      children: [for (final a in spot.actions) _buildAction(a)],
     );
   }
 }

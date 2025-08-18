@@ -28,8 +28,10 @@ class ExplanationText extends StatelessWidget {
         ),
         if (category != null) ...[
           const SizedBox(height: 8),
-          Text('Категория: $category',
-              style: const TextStyle(fontSize: 12, color: Colors.grey)),
+          Text(
+            'Категория: $category',
+            style: const TextStyle(fontSize: 12, color: Colors.grey),
+          ),
           if (evLoss != null)
             Padding(
               padding: const EdgeInsets.only(top: 2),

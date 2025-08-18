@@ -24,8 +24,10 @@ class TrainingSessionFingerprintService {
     return _currentSessionId!;
   }
 
-  Future<void> logAttempt(TrainingSpotAttempt attempt,
-      {List<String> shownTheoryTags = const []}) async {
+  Future<void> logAttempt(
+    TrainingSpotAttempt attempt, {
+    List<String> shownTheoryTags = const [],
+  }) async {
     if (_currentSessionId == null) return;
     final prefs = await SharedPreferences.getInstance();
     final sessions = _loadSessions(prefs);
@@ -34,13 +36,15 @@ class TrainingSessionFingerprintService {
     final summary = SpotAttemptSummary(
       spotId: attempt.spot.id,
       userAction: attempt.userAction,
-      isCorrect: attempt.userAction.toLowerCase() ==
+      isCorrect:
+          attempt.userAction.toLowerCase() ==
           attempt.correctAction.toLowerCase(),
       evDiff: attempt.evDiff,
       shownTheoryTags: shownTheoryTags,
     ).toJson();
-    final attempts =
-        List<Map<String, dynamic>>.from(sessions[idx]['attempts'] as List);
+    final attempts = List<Map<String, dynamic>>.from(
+      sessions[idx]['attempts'] as List,
+    );
     attempts.add(summary);
     sessions[idx]['attempts'] = attempts;
     await prefs.setString(_storageKey, jsonEncode(sessions));
@@ -49,10 +53,7 @@ class TrainingSessionFingerprintService {
   Future<Map<String, dynamic>?> getSessionSummary(String id) async {
     final prefs = await SharedPreferences.getInstance();
     final sessions = _loadSessions(prefs);
-    return sessions.firstWhere(
-      (e) => e['sessionId'] == id,
-      orElse: () => null,
-    );
+    return sessions.firstWhere((e) => e['sessionId'] == id, orElse: () => null);
   }
 
   Future<List<Map<String, dynamic>>> getSessionsByDate(DateTime date) async {

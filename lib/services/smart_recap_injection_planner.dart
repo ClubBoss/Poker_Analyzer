@@ -13,9 +13,9 @@ class RecapInjectionPlan {
   const RecapInjectionPlan({required this.tagIds, required this.plannedAt});
 
   Map<String, dynamic> toJson() => {
-        'tags': tagIds,
-        'time': plannedAt.toIso8601String(),
-      };
+    'tags': tagIds,
+    'time': plannedAt.toIso8601String(),
+  };
 
   factory RecapInjectionPlan.fromJson(Map<String, dynamic> json) {
     final tags = <String>[];
@@ -38,8 +38,8 @@ class SmartRecapInjectionPlanner {
   SmartRecapInjectionPlanner({
     BoosterPathHistoryService? history,
     RecapEffectivenessAnalyzer? analyzer,
-  })  : history = history ?? BoosterPathHistoryService.instance,
-        analyzer = analyzer ?? RecapEffectivenessAnalyzer.instance;
+  }) : history = history ?? BoosterPathHistoryService.instance,
+       analyzer = analyzer ?? RecapEffectivenessAnalyzer.instance;
 
   static final SmartRecapInjectionPlanner instance =
       SmartRecapInjectionPlanner();
@@ -83,7 +83,8 @@ class SmartRecapInjectionPlanner {
       if (now.difference(hist.lastInteraction) < excludeRecent) {
         return;
       }
-      final urgency = (1 - eff.repeatRate) +
+      final urgency =
+          (1 - eff.repeatRate) +
           1 / (eff.count + 1) +
           1 / (eff.averageDuration.inSeconds + 1);
       final recency = hist == null

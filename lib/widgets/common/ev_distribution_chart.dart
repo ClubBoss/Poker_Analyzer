@@ -48,7 +48,7 @@ class EvDistributionChart extends StatelessWidget {
       '5...10',
       '10...15',
       '15...20',
-      '≥20'
+      '≥20',
     ];
     final maxCount = bins.reduce(max);
     final groups = <BarChartGroupData>[];
@@ -100,10 +100,12 @@ class EvDistributionChart extends StatelessWidget {
                   const FlLine(color: Colors.white24, strokeWidth: 1),
             ),
             titlesData: FlTitlesData(
-              topTitles:
-                  const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              leftTitles:
-                  const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              topTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              leftTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
               bottomTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
@@ -132,8 +134,10 @@ class EvDistributionChart extends StatelessWidget {
                       angle: -pi / 2,
                       child: Text(
                         text,
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 10),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                        ),
                       ),
                     );
                   },

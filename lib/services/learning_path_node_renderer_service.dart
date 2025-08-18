@@ -17,14 +17,17 @@ class LearningPathNodeRendererService {
     LearningPathEntryRenderer? entryRenderer,
     LearningPathNodeAnalyticsLogger? analyticsLogger,
     TheoryAutoRecallInjector? autoRecall,
-  })  : entryRenderer = entryRenderer ?? const LearningPathEntryRenderer(),
-        analyticsLogger =
-            analyticsLogger ?? const LearningPathNodeAnalyticsLogger(),
-        autoRecall = autoRecall ?? const TheoryAutoRecallInjector();
+  }) : entryRenderer = entryRenderer ?? const LearningPathEntryRenderer(),
+       analyticsLogger =
+           analyticsLogger ?? const LearningPathNodeAnalyticsLogger(),
+       autoRecall = autoRecall ?? const TheoryAutoRecallInjector();
 
   /// Builds a column widget displaying [groups] with headers and entry cards.
-  Widget build(BuildContext context, String nodeId,
-      List<LearningPathEntryGroup> groups) {
+  Widget build(
+    BuildContext context,
+    String nodeId,
+    List<LearningPathEntryGroup> groups,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -34,20 +37,24 @@ class LearningPathNodeRendererService {
   }
 
   Widget _buildGroup(
-      BuildContext context, String nodeId, LearningPathEntryGroup group) {
+    BuildContext context,
+    String nodeId,
+    LearningPathEntryGroup group,
+  ) {
     unawaited(analyticsLogger.logGroupViewed(nodeId, group.title));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding:
-              const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 8),
+          padding: const EdgeInsets.only(
+            top: 16,
+            left: 16,
+            right: 16,
+            bottom: 8,
+          ),
           child: Text(
             group.title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ),
         for (final entry in group.entries) ...[

@@ -10,7 +10,7 @@ import 'evaluation_executor_service.dart';
 class SpotTemplateEngine {
   final EvaluationExecutorService executor;
   SpotTemplateEngine({EvaluationExecutorService? executor})
-      : executor = executor ?? EvaluationExecutorService();
+    : executor = executor ?? EvaluationExecutorService();
 
   Future<TrainingPackTemplate> generate({
     required HeroPosition heroPosition,
@@ -29,17 +29,20 @@ class SpotTemplateEngine {
         position: heroPosition,
         heroIndex: 0,
         playerCount: 2,
-        stacks: {
-          '0': stack.toDouble(),
-          '1': stack.toDouble(),
-        },
+        stacks: {'0': stack.toDouble(), '1': stack.toDouble()},
         actions: actions,
       );
       spots.add(TrainingPackSpot(id: uuid.v4(), hand: hand));
     }
-    final templateName = name ??
+    final templateName =
+        name ??
         _buildName(
-            actionType, heroPosition, villainPosition, stackRange, withIcm);
+          actionType,
+          heroPosition,
+          villainPosition,
+          stackRange,
+          withIcm,
+        );
     final template = TrainingPackTemplate(
       id: uuid.v4(),
       name: templateName,
@@ -52,8 +55,12 @@ class SpotTemplateEngine {
       heroPos: heroPosition,
       spotCount: spots.length,
     );
-    await executor.bulkEvaluate(spots,
-        template: template, anteBb: 0, withIcm: withIcm);
+    await executor.bulkEvaluate(
+      spots,
+      template: template,
+      anteBb: 0,
+      withIcm: withIcm,
+    );
     return template;
   }
 

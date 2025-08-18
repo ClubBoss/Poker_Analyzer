@@ -14,7 +14,8 @@ void main() {
         final spots = doc['spots'] as YamlList?;
         if (spots == null || spots.isEmpty) {
           stderr.writeln(
-              '::error file=' + file.path + '::empty spots in ' + entry.key);
+            '::error file=' + file.path + '::empty spots in ' + entry.key,
+          );
           exit(1);
         }
       }

@@ -54,21 +54,29 @@ class MistakeClusterAnalyticsService {
     return results;
   }
 
-  List<ClusterAnalytics> sortByMistakes(List<ClusterAnalytics> list,
-      {bool descending = true}) {
+  List<ClusterAnalytics> sortByMistakes(
+    List<ClusterAnalytics> list, {
+    bool descending = true,
+  }) {
     final result = List<ClusterAnalytics>.from(list);
-    result.sort((a, b) => descending
-        ? b.totalMistakes.compareTo(a.totalMistakes)
-        : a.totalMistakes.compareTo(b.totalMistakes));
+    result.sort(
+      (a, b) => descending
+          ? b.totalMistakes.compareTo(a.totalMistakes)
+          : a.totalMistakes.compareTo(b.totalMistakes),
+    );
     return result;
   }
 
-  List<ClusterAnalytics> sortByEvLoss(List<ClusterAnalytics> list,
-      {bool descending = true}) {
+  List<ClusterAnalytics> sortByEvLoss(
+    List<ClusterAnalytics> list, {
+    bool descending = true,
+  }) {
     final result = List<ClusterAnalytics>.from(list);
-    result.sort((a, b) => descending
-        ? b.totalEvLoss.compareTo(a.totalEvLoss)
-        : a.totalEvLoss.compareTo(b.totalEvLoss));
+    result.sort(
+      (a, b) => descending
+          ? b.totalEvLoss.compareTo(a.totalEvLoss)
+          : a.totalEvLoss.compareTo(b.totalEvLoss),
+    );
     return result;
   }
 }

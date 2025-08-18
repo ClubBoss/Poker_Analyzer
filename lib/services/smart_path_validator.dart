@@ -11,7 +11,7 @@ class SmartPathValidator {
       final subStageIds = <String>{};
       final orders = <int>[];
       final sectionStages = <String>{
-        for (final s in path.sections) ...s.stageIds
+        for (final s in path.sections) ...s.stageIds,
       };
 
       for (final stage in path.stages) {

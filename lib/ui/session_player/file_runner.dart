@@ -19,8 +19,10 @@ class PlayFromFilePage extends StatelessWidget {
       case 'l2':
         return decodeL2SessionJson(jsonStr);
       case 'l3':
-        return await decodeL3SessionJson(jsonStr,
-            baseDir: File(path).parent.path);
+        return await decodeL3SessionJson(
+          jsonStr,
+          baseDir: File(path).parent.path,
+        );
       case 'l4':
         return decodeL4IcmSessionJson(jsonStr);
       default:

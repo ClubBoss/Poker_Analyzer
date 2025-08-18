@@ -41,7 +41,8 @@ Future<void> main(List<String> args) async {
       final file = File(path);
       if (file.existsSync() && file.lengthSync() == bytes.length) {
         stdout.writeln(
-            '[$index/${items.length}] ${p.basename(path)}  -  SKIP (up-to-date)');
+          '[$index/${items.length}] ${p.basename(path)}  -  SKIP (up-to-date)',
+        );
         continue;
       }
       file.writeAsBytesSync(bytes);

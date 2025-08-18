@@ -69,9 +69,9 @@ class _SmartRecapSuggestionBannerState
     final pack = await BoosterPackFactory.buildFromTags([tag]);
     if (pack == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Нет тренировок по тегу')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Нет тренировок по тегу')));
       }
       return;
     }

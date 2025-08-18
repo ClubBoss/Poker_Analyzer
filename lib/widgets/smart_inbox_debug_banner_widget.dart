@@ -35,11 +35,7 @@ class _SmartInboxDebugBannerWidgetState
       title: Text('$label (${list.length})'),
       children: [
         for (final b in list)
-          ListTile(
-            dense: true,
-            title: Text(b.tag),
-            subtitle: Text(b.action),
-          ),
+          ListTile(dense: true, title: Text(b.tag), subtitle: Text(b.action)),
       ],
     );
   }

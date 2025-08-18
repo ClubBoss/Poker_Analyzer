@@ -15,8 +15,9 @@ class TrainingProgressAnalyticsScreen extends StatelessWidget {
   const TrainingProgressAnalyticsScreen({super.key});
 
   Future<void> _exportCsv(BuildContext context) async {
-    final file =
-        await context.read<ProgressForecastService>().exportForecastCsv();
+    final file = await context
+        .read<ProgressForecastService>()
+        .exportForecastCsv();
     context.ifMounted(() {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Файл сохранён: ${file.path.split('/').last}')),
@@ -49,16 +50,18 @@ class TrainingProgressAnalyticsScreen extends StatelessWidget {
                 const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            topTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
                 interval:
                     data.map((e) => e.value).reduce((a, b) => a > b ? a : b) /
-                        4,
+                    4,
                 reservedSize: 30,
                 getTitlesWidget: (v, meta) => Text(
                   v.toInt().toString(),
@@ -128,9 +131,9 @@ class TrainingProgressAnalyticsScreen extends StatelessWidget {
                   children: [
                     Icon(a.icon, color: a.level.color),
                     const SizedBox(height: 4),
-                    Text('${a.progress}/${a.nextTarget}')
+                    Text('${a.progress}/${a.nextTarget}'),
                   ],
-                )
+                ),
             ],
           ),
           const SizedBox(height: 12),

@@ -14,10 +14,10 @@ class BoardEditingService {
     required BoardSyncService boardSync,
     required PlayerManagerService playerManager,
     required PlayerProfileService profile,
-  })  : _boardManager = boardManager,
-        _boardSync = boardSync,
-        _playerManager = playerManager,
-        _profile = profile;
+  }) : _boardManager = boardManager,
+       _boardSync = boardSync,
+       _playerManager = playerManager,
+       _profile = profile;
 
   final BoardManagerService _boardManager;
   final BoardSyncService _boardSync;
@@ -93,7 +93,10 @@ class BoardEditingService {
   }
 
   void _showBoardSkipWarning(
-      BuildContext context, int prevStage, int nextStage) {
+    BuildContext context,
+    int prevStage,
+    int nextStage,
+  ) {
     final prevName = _stageNames[prevStage];
     final nextName = _stageNames[nextStage];
     final count = BoardSyncService.stageCardCounts[prevStage];
@@ -131,8 +134,12 @@ class BoardEditingService {
 
   /// Select or add a board card at [index]. Duplicate and stage order checks
   /// are enforced. Returns true if the card was applied.
-  bool selectBoardCard(BuildContext context, int index, CardModel card,
-      {CardModel? current}) {
+  bool selectBoardCard(
+    BuildContext context,
+    int index,
+    CardModel card, {
+    CardModel? current,
+  }) {
     if (!isBoardEditAllowed(context, index)) return false;
     if (isDuplicateSelection(card, current)) {
       showDuplicateCardMessage(context);

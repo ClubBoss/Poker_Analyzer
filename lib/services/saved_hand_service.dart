@@ -16,8 +16,11 @@ class SavedHandService extends ChangeNotifier {
     final raw = prefs.getStringList(_storageKey) ?? [];
     _hands
       ..clear()
-      ..addAll(raw.map(
-          (e) => SavedHand.fromJson(jsonDecode(e) as Map<String, dynamic>)));
+      ..addAll(
+        raw.map(
+          (e) => SavedHand.fromJson(jsonDecode(e) as Map<String, dynamic>),
+        ),
+      );
     notifyListeners();
   }
 

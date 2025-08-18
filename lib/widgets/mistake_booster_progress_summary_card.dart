@@ -61,8 +61,10 @@ class _MistakeBoosterProgressSummaryCardState
                     const SizedBox(height: 4),
                     Text(
                       '✅ ${l.mistakeBoosterRecovered(data.recovered)}',
-                      style:
-                          TextStyle(color: accent, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        color: accent,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),

@@ -10,16 +10,14 @@ class LearningPathPreviewLauncher {
   Future<void> launch(BuildContext context, String id) async {
     final template = LearningPathLibrary.staging.getById(id);
     if (template == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Path not found: $id')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Path not found: $id')));
       return;
     }
     await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => LearningPathScreen(template: template),
-      ),
+      MaterialPageRoute(builder: (_) => LearningPathScreen(template: template)),
     );
   }
 }

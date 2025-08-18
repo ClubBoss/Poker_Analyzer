@@ -27,17 +27,19 @@ void main() {
       ],
     });
 
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: SizedBox(
-          height: 200,
-          child: BoosterProgressChartWidget(
-            tags: const ['btn', 'bbVsBtn'],
-            service: service,
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            height: 200,
+            child: BoosterProgressChartWidget(
+              tags: const ['btn', 'bbVsBtn'],
+              service: service,
+            ),
           ),
         ),
       ),
-    ));
+    );
     await tester.pumpAndSettle();
 
     expect(find.text('btn'), findsOneWidget);

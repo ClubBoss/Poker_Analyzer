@@ -20,9 +20,7 @@ class DailyLearningGoalBanner extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => const DailyGoalStreakScreen(),
-          ),
+          MaterialPageRoute(builder: (_) => const DailyGoalStreakScreen()),
         );
       },
       child: Container(

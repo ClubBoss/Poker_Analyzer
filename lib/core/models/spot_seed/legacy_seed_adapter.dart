@@ -4,7 +4,7 @@ import 'unified_spot_seed_format.dart';
 /// Converts legacy seed maps into [SpotSeed] instances.
 class LegacySeedAdapter {
   const LegacySeedAdapter({SpotSeedCodec? codec})
-      : _codec = codec ?? const SpotSeedCodec();
+    : _codec = codec ?? const SpotSeedCodec();
 
   final SpotSeedCodec _codec;
 
@@ -24,8 +24,10 @@ class LegacySeedAdapter {
     }
 
     final tags = _normaliseTags(
-        (legacy['tags'] as List?)?.cast<String>() ?? const <String>[]);
-    final id = legacy['id']?.toString() ??
+      (legacy['tags'] as List?)?.cast<String>() ?? const <String>[],
+    );
+    final id =
+        legacy['id']?.toString() ??
         'legacy_${DateTime.now().millisecondsSinceEpoch}';
     final heroPos = legacy['position']?.toString() ?? 'btn';
 
@@ -36,9 +38,7 @@ class LegacySeedAdapter {
       stackBB: (legacy['stackBB'] as num?)?.toDouble() ?? 0.0,
       positions: SpotPositions(hero: heroPos),
       ranges: const SpotRanges(),
-      board: SpotBoard(
-        preflop: (legacy['board'] as List?)?.cast<String>(),
-      ),
+      board: SpotBoard(preflop: (legacy['board'] as List?)?.cast<String>()),
       pot: (legacy['pot'] as num?)?.toDouble() ?? 0.0,
       tags: tags,
     );

@@ -36,8 +36,9 @@ class _StageCompletionBannerState extends State<StageCompletionBanner>
   }
 
   Future<void> _check() async {
-    final show = await BlockCompletionRewardService.instance
-        .isStageCompleted(widget.title);
+    final show = await BlockCompletionRewardService.instance.isStageCompleted(
+      widget.title,
+    );
     if (show && mounted) {
       setState(() => _visible = true);
       _controller.forward();

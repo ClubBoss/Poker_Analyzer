@@ -9,17 +9,19 @@ class SmartTagSuggestor {
       'blind battle',
       'sb vs bb',
       'sb vs bb battle',
-      'blind vs blind'
+      'blind vs blind',
     ],
     'icm': ['icm', 'bubble', 'payout'],
     'limp pot': ['limp pot', 'limped pot', 'limp', 'limped'],
   };
 
-  List<(String, double)> suggestTags(TrainingPackTemplateV2 pack,
-      {int max = 5}) {
+  List<(String, double)> suggestTags(
+    TrainingPackTemplateV2 pack, {
+    int max = 5,
+  }) {
     final nameText = '${pack.name} ${pack.description}'.toLowerCase();
     final spotText = [
-      for (final s in pack.spots) s.explanation?.toLowerCase() ?? ''
+      for (final s in pack.spots) s.explanation?.toLowerCase() ?? '',
     ].join(' ');
 
     final scores = <String, double>{};

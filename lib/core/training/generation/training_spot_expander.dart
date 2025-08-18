@@ -10,8 +10,8 @@ class TrainingSpotExpander {
   final BoardSimilarityEngine _boardEngine;
 
   const TrainingSpotExpander({Uuid? uuid, BoardSimilarityEngine? boardEngine})
-      : _uuid = uuid ?? const Uuid(),
-        _boardEngine = boardEngine ?? const BoardSimilarityEngine();
+    : _uuid = uuid ?? const Uuid(),
+      _boardEngine = boardEngine ?? const BoardSimilarityEngine();
 
   List<TrainingPackSpot> expand(TrainingPackSpot spot) {
     final results = <TrainingPackSpot>[spot];
@@ -38,15 +38,13 @@ class TrainingSpotExpander {
   }
 
   TrainingPackSpot _clone(TrainingPackSpot spot) {
-    final hand =
-        HandData.fromJson(Map<String, dynamic>.from(spot.hand.toJson()));
+    final hand = HandData.fromJson(
+      Map<String, dynamic>.from(spot.hand.toJson()),
+    );
     final copy = spot.copyWith(
       id: _uuid.v4(),
       hand: hand,
-      meta: {
-        ...spot.meta,
-        'variation': true,
-      },
+      meta: {...spot.meta, 'variation': true},
     );
     return copy;
   }
@@ -69,7 +67,7 @@ class TrainingSpotExpander {
   TrainingPackSpot _stackVariant(TrainingPackSpot spot, {int diff = 2}) {
     final clone = _clone(spot);
     clone.hand.stacks = {
-      for (final e in spot.hand.stacks.entries) e.key: e.value + diff
+      for (final e in spot.hand.stacks.entries) e.key: e.value + diff,
     };
     return clone;
   }

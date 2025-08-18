@@ -31,8 +31,10 @@ class ReviewPastMistakesCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Review Past Mistakes',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const Text(
+            'Review Past Mistakes',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -58,7 +60,7 @@ class ReviewPastMistakesCard extends StatelessWidget {
                   child: Text('${e.key.name} (${e.value})'),
                 ),
             ],
-          )
+          ),
         ],
       ),
     );

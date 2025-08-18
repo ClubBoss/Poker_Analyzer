@@ -41,35 +41,34 @@ class PlayerModel with CopyWithMixin<PlayerModel> {
     this.stack = 0,
     this.bet = 0,
     List<CardModel?>? revealedCards,
-  })  : cards = [],
-        revealedCards =
-            revealedCards ?? List<CardModel?>.filled(2, null, growable: false),
-        actions = {
-          PokerStreet.preflop: [],
-          PokerStreet.flop: [],
-          PokerStreet.turn: [],
-          PokerStreet.river: [],
-        };
+  }) : cards = [],
+       revealedCards =
+           revealedCards ?? List<CardModel?>.filled(2, null, growable: false),
+       actions = {
+         PokerStreet.preflop: [],
+         PokerStreet.flop: [],
+         PokerStreet.turn: [],
+         PokerStreet.river: [],
+       };
 
   @override
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'cards': cards,
-        'revealedCards': [
-          for (final c in revealedCards)
-            c != null ? {'rank': c.rank, 'suit': c.suit} : null
-        ],
-        'actions': actions.map((k, v) => MapEntry(pokerStreetToString(k), [
-              for (final a in v)
-                {
-                  'type': a.type.name,
-                  if (a.size != null) 'size': a.size,
-                }
-            ])),
-        'type': type.name,
-        'stack': stack,
-        'bet': bet,
-      };
+    'name': name,
+    'cards': cards,
+    'revealedCards': [
+      for (final c in revealedCards)
+        c != null ? {'rank': c.rank, 'suit': c.suit} : null,
+    ],
+    'actions': actions.map(
+      (k, v) => MapEntry(pokerStreetToString(k), [
+        for (final a in v)
+          {'type': a.type.name, if (a.size != null) 'size': a.size},
+      ]),
+    ),
+    'type': type.name,
+    'stack': stack,
+    'bet': bet,
+  };
 
   factory PlayerModel.fromJson(Map<String, dynamic> json) {
     final model = PlayerModel(
@@ -85,11 +84,14 @@ class PlayerModel with CopyWithMixin<PlayerModel> {
           item == null
               ? null
               : CardModel(
-                  rank: item['rank'] as String, suit: item['suit'] as String)
+                  rank: item['rank'] as String,
+                  suit: item['suit'] as String,
+                ),
       ],
     );
-    model.cards
-        .addAll([for (final c in (json['cards'] as List? ?? [])) c as String]);
+    model.cards.addAll([
+      for (final c in (json['cards'] as List? ?? [])) c as String,
+    ]);
     final acts = json['actions'] as Map? ?? {};
     acts.forEach((key, value) {
       final street = pokerStreetFromString(key as String);
@@ -101,7 +103,7 @@ class PlayerModel with CopyWithMixin<PlayerModel> {
               orElse: () => PlayerActionType.check,
             ),
             size: (a['size'] as num?)?.toDouble(),
-          )
+          ),
       ];
     });
     return model;

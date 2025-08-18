@@ -29,9 +29,9 @@ class GiftDropService {
     await CoinsService.instance.addCoins(amount);
 
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('🎁 Подарок: +$amount монет!')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('🎁 Подарок: +$amount монет!')));
     }
   }
 }

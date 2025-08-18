@@ -34,15 +34,9 @@ class SummaryCard extends StatelessWidget {
               style: const TextStyle(color: Colors.white, fontSize: 16),
             ),
             const SizedBox(height: 8),
-            Text(
-              message,
-              style: const TextStyle(color: Colors.white70),
-            ),
+            Text(message, style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: onRetry,
-              child: const Text('Retry'),
-            ),
+            ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
           ],
         ),
       ),

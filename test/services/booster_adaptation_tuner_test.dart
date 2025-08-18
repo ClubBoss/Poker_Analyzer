@@ -43,9 +43,7 @@ void main() {
   });
 
   test('loadAdaptations reads saved values', () async {
-    final tuner = BoosterAdaptationTuner(
-      analyzer: _FakeAnalyzer({'a': 0.6}),
-    );
+    final tuner = BoosterAdaptationTuner(analyzer: _FakeAnalyzer({'a': 0.6}));
     await tuner.computeAdaptations();
 
     tuner.resetForTest();

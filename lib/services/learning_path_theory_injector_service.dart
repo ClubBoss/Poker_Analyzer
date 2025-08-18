@@ -32,19 +32,22 @@ class LearningPathTheoryInjectorService {
     if (tags.isEmpty) return [];
     final index = await _loadIndex();
     final lower = tags.map((e) => e.toLowerCase()).toSet();
-    final matches = index
-        .where((e) => e.tags.any((t) => lower.contains(t.toLowerCase())))
-        .toList()
-      ..sort((a, b) => a.title.compareTo(b.title));
+    final matches =
+        index
+            .where((e) => e.tags.any((t) => lower.contains(t.toLowerCase())))
+            .toList()
+          ..sort((a, b) => a.title.compareTo(b.title));
     final result = <TheorySnippet>[];
     for (final m in matches) {
       final md = await _loadMarkdown(m.uri);
-      result.add(TheorySnippet(
-        id: m.id,
-        title: m.title,
-        markdownContent: md,
-        mediaRefs: m.media,
-      ));
+      result.add(
+        TheorySnippet(
+          id: m.id,
+          title: m.title,
+          markdownContent: md,
+          mediaRefs: m.media,
+        ),
+      );
     }
     return result;
   }
@@ -64,13 +67,15 @@ class LearningPathTheoryInjectorService {
           final media =
               (e['media'] as List?)?.cast<String>() ?? const <String>[];
           if (id != null && title != null && uri != null && tags.isNotEmpty) {
-            items.add(_IndexEntry(
-              id: id,
-              title: title,
-              uri: uri,
-              tags: tags,
-              media: media,
-            ));
+            items.add(
+              _IndexEntry(
+                id: id,
+                title: title,
+                uri: uri,
+                tags: tags,
+                media: media,
+              ),
+            );
           }
         }
       }

@@ -14,9 +14,17 @@ void main() {
 
     const fmt = FormatMeta(spotsPerPack: 12, streets: 1, theoryRatio: 0.5);
     await service.logRun(
-        generated: 10, rejected: 3, avgScore: 0.8, format: fmt);
+      generated: 10,
+      rejected: 3,
+      avgScore: 0.8,
+      format: fmt,
+    );
     await service.logRun(
-        generated: 20, rejected: 5, avgScore: 0.9, format: fmt);
+      generated: 20,
+      rejected: 5,
+      avgScore: 0.9,
+      format: fmt,
+    );
 
     final history = await service.getHistory();
     expect(history.length, 2);

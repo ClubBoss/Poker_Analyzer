@@ -30,8 +30,10 @@ class CentralPotWidget extends StatelessWidget {
       ),
       child: Container(
         key: ValueKey(text),
-        padding:
-            EdgeInsets.symmetric(horizontal: 12 * scale, vertical: 6 * scale),
+        padding: EdgeInsets.symmetric(
+          horizontal: 12 * scale,
+          vertical: 6 * scale,
+        ),
         decoration: BoxDecoration(
           color: Colors.black87,
           borderRadius: BorderRadius.circular(12 * scale),

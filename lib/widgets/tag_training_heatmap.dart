@@ -52,28 +52,26 @@ class TagTrainingHeatmap extends StatelessWidget {
           Row(
             children: [
               for (int col = 0; col < weeks; col++)
-                Builder(builder: (context) {
-                  final idx = col * 7 + row;
-                  if (idx >= cells.length) {
-                    return const SizedBox(width: 10, height: 10);
-                  }
-                  final date = first.add(Duration(days: idx));
-                  final val = cells[idx];
-                  final color = _color(context, val, maxVal);
-                  final tooltip =
-                      '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')} - $val XP';
-                  return Padding(
-                    padding: const EdgeInsets.all(1),
-                    child: Tooltip(
-                      message: tooltip,
-                      child: Container(
-                        width: 10,
-                        height: 10,
-                        color: color,
+                Builder(
+                  builder: (context) {
+                    final idx = col * 7 + row;
+                    if (idx >= cells.length) {
+                      return const SizedBox(width: 10, height: 10);
+                    }
+                    final date = first.add(Duration(days: idx));
+                    final val = cells[idx];
+                    final color = _color(context, val, maxVal);
+                    final tooltip =
+                        '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')} - $val XP';
+                    return Padding(
+                      padding: const EdgeInsets.all(1),
+                      child: Tooltip(
+                        message: tooltip,
+                        child: Container(width: 10, height: 10, color: color),
                       ),
-                    ),
-                  );
-                }),
+                    );
+                  },
+                ),
             ],
           ),
       ],

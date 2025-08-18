@@ -4,8 +4,11 @@ import '../services/smart_resume_engine.dart';
 class PackProgressOverlay extends StatelessWidget {
   final String templateId;
   final double size;
-  const PackProgressOverlay(
-      {super.key, required this.templateId, this.size = 24});
+  const PackProgressOverlay({
+    super.key,
+    required this.templateId,
+    this.size = 24,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,12 +29,12 @@ class PackProgressOverlay extends StatelessWidget {
         );
         final child = Stack(
           alignment: Alignment.center,
-          children: [ring, Text('$pct%', style: const TextStyle(fontSize: 10))],
+          children: [
+            ring,
+            Text('$pct%', style: const TextStyle(fontSize: 10)),
+          ],
         );
-        return Tooltip(
-          message: 'Completed $pct% of this pack',
-          child: child,
-        );
+        return Tooltip(message: 'Completed $pct% of this pack', child: child);
       },
     );
   }

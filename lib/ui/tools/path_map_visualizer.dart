@@ -68,10 +68,7 @@ class PathMapVisualizer extends StatelessWidget {
       boundaryMargin: const EdgeInsets.all(100),
       minScale: 0.1,
       maxScale: 2.0,
-      child: GraphView(
-        graph: graph,
-        algorithm: builder,
-      ),
+      child: GraphView(graph: graph, algorithm: builder),
     );
   }
 

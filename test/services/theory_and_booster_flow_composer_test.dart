@@ -26,17 +26,17 @@ class _FakeTheory extends SmartTheoryInjectionEngine {
 class _FakeOrch extends BoosterInjectionOrchestrator {
   final List<LearningPathBlock> blocks;
   _FakeOrch(this.blocks)
-      : super(
-          mastery: TagMasteryService(
-            logs: SessionLogService(sessions: TrainingSessionService()),
-          ),
-          inventory: BoosterInventoryService(),
-        );
+    : super(
+        mastery: TagMasteryService(
+          logs: SessionLogService(sessions: TrainingSessionService()),
+        ),
+        inventory: BoosterInventoryService(),
+      );
 
   @override
   Future<List<LearningPathBlock>> getInjectableBoosters(
-          StageNode stage) async =>
-      blocks;
+    StageNode stage,
+  ) async => blocks;
 }
 
 LearningPathBlock _booster(String id) {
@@ -73,14 +73,12 @@ void main() {
     const lesson = TheoryMiniLessonNode(id: 't1', title: 't', content: 'c');
     final composer = TheoryAndBoosterFlowComposer(
       theoryEngine: const _FakeTheory(lesson),
-      boosterOrchestrator: _FakeOrch([
-        _booster('b1'),
-        _booster('b2'),
-      ]),
+      boosterOrchestrator: _FakeOrch([_booster('b1'), _booster('b2')]),
       assembler: const InjectionBlockAssembler(),
     );
-    final blocks =
-        await composer.buildStageFlow(const TrainingStageNode(id: 's1'));
+    final blocks = await composer.buildStageFlow(
+      const TrainingStageNode(id: 's1'),
+    );
     expect(blocks.length, 3);
     expect(blocks.first.id, 't1');
     expect(blocks[1].id, 'b1');
@@ -97,8 +95,9 @@ void main() {
       ]),
       assembler: const InjectionBlockAssembler(),
     );
-    final blocks =
-        await composer.buildStageFlow(const TrainingStageNode(id: 's1'));
+    final blocks = await composer.buildStageFlow(
+      const TrainingStageNode(id: 's1'),
+    );
     expect(blocks.length, 2);
     expect(blocks[0].id, 'b1');
     expect(blocks[1].id, 'b2');
@@ -110,8 +109,9 @@ void main() {
       boosterOrchestrator: _FakeOrch([]),
       assembler: const InjectionBlockAssembler(),
     );
-    final blocks =
-        await composer.buildStageFlow(const TrainingStageNode(id: 's1'));
+    final blocks = await composer.buildStageFlow(
+      const TrainingStageNode(id: 's1'),
+    );
     expect(blocks, isEmpty);
   });
 }

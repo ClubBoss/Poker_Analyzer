@@ -42,10 +42,7 @@ class WeakSpotRecommendationService extends ChangeNotifier {
   List<WeakSpotRecommendation> _list = [];
   WeakSpotRecommendation? get recommendation => _rec;
   List<WeakSpotRecommendation> get recommendations => List.unmodifiable(_list);
-  WeakSpotRecommendationService({
-    required this.hands,
-    required this.progress,
-  }) {
+  WeakSpotRecommendationService({required this.hands, required this.progress}) {
     _update();
     hands.addListener(_update);
     progress.addListener(_update);
@@ -123,8 +120,9 @@ class WeakSpotRecommendationService extends ChangeNotifier {
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final now = DateTime.now();
-    final cacheTime =
-        DateTime.tryParse(prefs.getString('weak_training_type_time') ?? '');
+    final cacheTime = DateTime.tryParse(
+      prefs.getString('weak_training_type_time') ?? '',
+    );
     final cacheVal = prefs.getString('weak_training_type_val');
     if (cacheVal != null &&
         cacheTime != null &&
@@ -145,12 +143,21 @@ class WeakSpotRecommendationService extends ChangeNotifier {
     for (final pack in library) {
       final s = await statsService.getStatsForPack(pack.id);
       if (s.launches == 0) continue;
-      launches.update(pack.trainingType, (v) => v + s.launches,
-          ifAbsent: () => s.launches);
-      hands.update(pack.trainingType, (v) => v + s.totalTrained,
-          ifAbsent: () => s.totalTrained);
-      mistakes.update(pack.trainingType, (v) => v + s.mistakes,
-          ifAbsent: () => s.mistakes);
+      launches.update(
+        pack.trainingType,
+        (v) => v + s.launches,
+        ifAbsent: () => s.launches,
+      );
+      hands.update(
+        pack.trainingType,
+        (v) => v + s.totalTrained,
+        ifAbsent: () => s.totalTrained,
+      );
+      mistakes.update(
+        pack.trainingType,
+        (v) => v + s.mistakes,
+        ifAbsent: () => s.mistakes,
+      );
     }
 
     final accuracy = <TrainingType, double>{};

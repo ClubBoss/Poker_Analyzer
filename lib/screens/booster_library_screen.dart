@@ -29,7 +29,7 @@ class _BoosterLibraryScreenState extends State<BoosterLibraryScreen> {
     final all = TrainingPackLibraryLoaderService.instance.loadedTemplates;
     final boosters = [
       for (final p in all)
-        if (p.meta['type'] == 'booster') p
+        if (p.meta['type'] == 'booster') p,
     ];
     setState(() {
       _packs = boosters;
@@ -54,7 +54,7 @@ class _BoosterLibraryScreenState extends State<BoosterLibraryScreen> {
             (_difficultyFilter == null ||
                 (p.meta['difficulty'] as num?)?.toInt() == _difficultyFilter) &&
             (!_recommendedOnly || p.recommended))
-          p
+          p,
     ];
   }
 
@@ -67,10 +67,12 @@ class _BoosterLibraryScreenState extends State<BoosterLibraryScreen> {
   }
 
   Future<void> _launch(TrainingPackTemplateV2 pack) async {
-    final progress =
-        await BoosterProgressTrackerService.instance.getLastIndex(pack.id);
-    final completed =
-        await BoosterProgressTrackerService.instance.isCompleted(pack.id);
+    final progress = await BoosterProgressTrackerService.instance.getLastIndex(
+      pack.id,
+    );
+    final completed = await BoosterProgressTrackerService.instance.isCompleted(
+      pack.id,
+    );
     var start = 0;
     if (!completed &&
         progress != null &&
@@ -83,11 +85,13 @@ class _BoosterLibraryScreenState extends State<BoosterLibraryScreen> {
           content: Text('Continue from spot ${progress + 1}?'),
           actions: [
             TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Restart')),
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Restart'),
+            ),
             TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Continue')),
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Continue'),
+            ),
           ],
         ),
       );
@@ -116,27 +120,33 @@ class _BoosterLibraryScreenState extends State<BoosterLibraryScreen> {
           title: Row(
             children: [
               Expanded(child: Text(p.name)),
-              if (p.recommended) const Text('🔥')
+              if (p.recommended) const Text('🔥'),
             ],
           ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (p.description.isNotEmpty)
-                Text(p.description,
-                    maxLines: 2, overflow: TextOverflow.ellipsis),
+                Text(
+                  p.description,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
               Wrap(
                 spacing: 4,
                 children: [
                   if (tag != null)
                     Chip(
-                        label: Text(tag), visualDensity: VisualDensity.compact),
+                      label: Text(tag),
+                      visualDensity: VisualDensity.compact,
+                    ),
                   if (diff != null)
                     Chip(
-                        label: Text(diff),
-                        visualDensity: VisualDensity.compact),
+                      label: Text(diff),
+                      visualDensity: VisualDensity.compact,
+                    ),
                 ],
-              )
+              ),
             ],
           ),
           trailing: Column(
@@ -156,9 +166,11 @@ class _BoosterLibraryScreenState extends State<BoosterLibraryScreen> {
               if (!completed && idx != null && idx > 0 && idx < p.spotCount)
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
-                  child: Text('${idx + 1}/${p.spotCount}',
-                      style: const TextStyle(fontSize: 12)),
-                )
+                  child: Text(
+                    '${idx + 1}/${p.spotCount}',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                ),
             ],
           ),
         );

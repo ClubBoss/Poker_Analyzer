@@ -14,9 +14,9 @@ class SkillTreeCompletionBannerComposer {
     SkillTreeTrackSummaryBuilder? summaryBuilder,
     SkillTreeCategoryBannerService? bannerService,
     SkillTreeTrackProgressService? progressService,
-  })  : summaryBuilder = summaryBuilder ?? SkillTreeTrackSummaryBuilder(),
-        bannerService = bannerService ?? const SkillTreeCategoryBannerService(),
-        progressService = progressService ?? SkillTreeTrackProgressService();
+  }) : summaryBuilder = summaryBuilder ?? SkillTreeTrackSummaryBuilder(),
+       bannerService = bannerService ?? const SkillTreeCategoryBannerService(),
+       progressService = progressService ?? SkillTreeTrackProgressService();
 
   /// Builds the completion banner model for [tree].
   Future<SkillTreeCompletionBannerModel> compose(SkillTree tree) async {

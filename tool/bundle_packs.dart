@@ -10,7 +10,8 @@ import 'package:poker_analyzer/services/pack_export_service.dart';
 Future<void> main(List<String> args) async {
   if (args.isEmpty) {
     stderr.writeln(
-        'Usage: dart run tool/bundle_packs.dart <templatesDir> [outputDir] [--keep-original] [--index]');
+      'Usage: dart run tool/bundle_packs.dart <templatesDir> [outputDir] [--keep-original] [--index]',
+    );
     exit(1);
   }
   final srcPath = args[0];
@@ -58,7 +59,8 @@ Future<void> main(List<String> args) async {
         } catch (_) {}
       }
       stdout.writeln(
-          '[${j + 1}/${files.length}] ${p.basename(dest.path)}  -  OK');
+        '[${j + 1}/${files.length}] ${p.basename(dest.path)}  -  OK',
+      );
       if (buildIndex) {
         indexRows.add([
           tpl.id,
@@ -67,12 +69,13 @@ Future<void> main(List<String> args) async {
           tpl.evCovered,
           tpl.icmCovered,
           tpl.createdAt.toIso8601String(),
-          tpl.lastGeneratedAt?.toIso8601String() ?? ''
+          tpl.lastGeneratedAt?.toIso8601String() ?? '',
         ]);
       }
     } catch (e) {
       stdout.writeln(
-          '[${j + 1}/${files.length}] ${p.basename(file.path)}  -  [ERROR]');
+        '[${j + 1}/${files.length}] ${p.basename(file.path)}  -  [ERROR]',
+      );
     }
   }
   if (buildIndex) {
@@ -84,9 +87,9 @@ Future<void> main(List<String> args) async {
         'evCovered',
         'icmCovered',
         'createdAt',
-        'lastGeneratedAt'
+        'lastGeneratedAt',
       ],
-      ...indexRows
+      ...indexRows,
     ];
     final csvStr = const ListToCsvConverter().convert(rows);
     File(p.join(outDir.path, 'index.csv')).writeAsStringSync(csvStr);

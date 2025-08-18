@@ -59,8 +59,11 @@ class _BoosterInjectionTrackerWidgetState
       case 'auto':
         return const Icon(Icons.flash_on, color: Colors.amberAccent, size: 16);
       case 'smart':
-        return const Icon(Icons.lightbulb,
-            color: Colors.lightBlueAccent, size: 16);
+        return const Icon(
+          Icons.lightbulb,
+          color: Colors.lightBlueAccent,
+          size: 16,
+        );
       default:
         return const Icon(Icons.edit, color: Colors.greenAccent, size: 16);
     }

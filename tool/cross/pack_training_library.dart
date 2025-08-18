@@ -107,8 +107,9 @@ void main(List<String> args) {
   final encoder = format == 'pretty'
       ? const JsonEncoder.withIndent('  ')
       : const JsonEncoder();
-  File(_join(outDir, 'bundle_index.json'))
-      .writeAsStringSync(encoder.convert(index));
+  File(
+    _join(outDir, 'bundle_index.json'),
+  ).writeAsStringSync(encoder.convert(index));
 
   stdout.writeln(
     'packed training_v1 out=$outDir files=${files.length} l2=$l2 l3=$l3 l4=$l4 layout=$layout',

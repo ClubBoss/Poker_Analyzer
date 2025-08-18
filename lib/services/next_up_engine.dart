@@ -25,12 +25,12 @@ class NextUpEngine {
     LessonTrackMetaService? metaService,
     LearningTrackEngine trackEngine = const LearningTrackEngine(),
     YamlLessonTrackLoader? yamlLoader,
-  })  : unlockEngine = unlockEngine ?? LearningPathUnlockEngine.instance,
-        progressService =
-            progressService ?? LessonProgressTrackerService.instance,
-        metaService = metaService ?? LessonTrackMetaService.instance,
-        trackEngine = trackEngine,
-        yamlLoader = yamlLoader ?? YamlLessonTrackLoader.instance;
+  }) : unlockEngine = unlockEngine ?? LearningPathUnlockEngine.instance,
+       progressService =
+           progressService ?? LessonProgressTrackerService.instance,
+       metaService = metaService ?? LessonTrackMetaService.instance,
+       trackEngine = trackEngine,
+       yamlLoader = yamlLoader ?? YamlLessonTrackLoader.instance;
 
   Future<List<LessonTrack>> _loadTracks() async {
     final builtIn = trackEngine.getTracks();
@@ -60,11 +60,13 @@ class NextUpEngine {
         continue; // skip completed tracks
       }
       final meta = await metaService.load(track.id);
-      entries.add(_TrackEntry(
-        track: track,
-        mastery: mastery[track.id] ?? 0.0,
-        lastActivity: _lastActivity(meta),
-      ));
+      entries.add(
+        _TrackEntry(
+          track: track,
+          mastery: mastery[track.id] ?? 0.0,
+          lastActivity: _lastActivity(meta),
+        ),
+      );
     }
 
     if (entries.isEmpty) return null;
@@ -78,8 +80,10 @@ class NextUpEngine {
     });
 
     final best = entries.first;
-    final stepId = best.track.stepIds.firstWhere((id) => progress[id] != true,
-        orElse: () => best.track.stepIds.last);
+    final stepId = best.track.stepIds.firstWhere(
+      (id) => progress[id] != true,
+      orElse: () => best.track.stepIds.last,
+    );
     return LessonStepRef(trackId: best.track.id, stepId: stepId);
   }
 
@@ -96,6 +100,9 @@ class _TrackEntry {
   final double mastery;
   final DateTime lastActivity;
 
-  _TrackEntry(
-      {required this.track, required this.mastery, required this.lastActivity});
+  _TrackEntry({
+    required this.track,
+    required this.mastery,
+    required this.lastActivity,
+  });
 }

@@ -21,10 +21,10 @@ class _FakeLogService extends SessionLogService {
 }
 
 TrainingPackTemplateV2 _tpl(String id) => TrainingPackTemplateV2(
-      id: id,
-      name: id,
-      trainingType: TrainingType.pushFold,
-    );
+  id: id,
+  name: id,
+  trainingType: TrainingType.pushFold,
+);
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -34,14 +34,15 @@ void main() {
   });
 
   test('returns pack with highest engagement', () async {
-    final old =
-        DateTime.now().subtract(const Duration(days: 20)).toIso8601String();
+    final old = DateTime.now()
+        .subtract(const Duration(days: 20))
+        .toIso8601String();
     SharedPreferences.setMockInitialValues({
       'suggested_pack_history': jsonEncode([
         {'id': 'a', 'source': 't', 'ts': old},
         {'id': 'a', 'source': 't', 'ts': old},
         {'id': 'b', 'source': 't', 'ts': old},
-      ])
+      ]),
     });
 
     final engine = SmartReSuggestionEngine(
@@ -53,13 +54,14 @@ void main() {
   });
 
   test('respects cooldown window', () async {
-    final recent =
-        DateTime.now().subtract(const Duration(days: 5)).toIso8601String();
+    final recent = DateTime.now()
+        .subtract(const Duration(days: 5))
+        .toIso8601String();
     SharedPreferences.setMockInitialValues({
       'suggested_pack_history': jsonEncode([
         {'id': 'a', 'source': 't', 'ts': recent},
         {'id': 'a', 'source': 't', 'ts': recent},
-      ])
+      ]),
     });
 
     final engine = SmartReSuggestionEngine(

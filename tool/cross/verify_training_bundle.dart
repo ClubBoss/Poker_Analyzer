@@ -114,7 +114,7 @@ void main(List<String> args) {
       'bytes': length,
       'h32': h32,
       'kind': kind,
-      'count': count
+      'count': count,
     });
     totalFiles++;
     totalBytes += length;
@@ -130,13 +130,14 @@ void main(List<String> args) {
       'l2': totalL2,
       'l3': totalL3,
       'l4': totalL4,
-    }
+    },
   };
   final encoder = format == 'pretty'
       ? const JsonEncoder.withIndent('  ')
       : const JsonEncoder();
-  File(_join(bundle, 'bundle_checks_v1.json'))
-      .writeAsStringSync(encoder.convert(checks));
+  File(
+    _join(bundle, 'bundle_checks_v1.json'),
+  ).writeAsStringSync(encoder.convert(checks));
 
   stdout.writeln(
     'verify ok: files=$totalFiles bytes=$totalBytes l2=$totalL2 l3=$totalL3 l4=$totalL4 checks=bundle_checks_v1.json',

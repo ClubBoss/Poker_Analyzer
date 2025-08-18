@@ -18,17 +18,17 @@ class PublishReport {
     List<String>? packsSkipped,
     List<String>? paths,
     List<String>? pathsSkipped,
-  })  : packs = packs ?? <String>[],
-        packsSkipped = packsSkipped ?? <String>[],
-        paths = paths ?? <String>[],
-        pathsSkipped = pathsSkipped ?? <String>[];
+  }) : packs = packs ?? <String>[],
+       packsSkipped = packsSkipped ?? <String>[],
+       paths = paths ?? <String>[],
+       pathsSkipped = pathsSkipped ?? <String>[];
 
   Map<String, dynamic> toJson() => {
-        'packs': packs,
-        'packsSkipped': packsSkipped,
-        'paths': paths,
-        'pathsSkipped': pathsSkipped,
-      };
+    'packs': packs,
+    'packsSkipped': packsSkipped,
+    'paths': paths,
+    'pathsSkipped': pathsSkipped,
+  };
 }
 
 class PackLibraryAutoPublisher {
@@ -114,10 +114,9 @@ class PackLibraryAutoPublisher {
   }) async {
     final srcDir = Directory(pathsSrc);
     if (!srcDir.existsSync()) return;
-    final files = srcDir
-        .listSync()
-        .whereType<File>()
-        .where((f) => f.path.toLowerCase().endsWith('.txt'));
+    final files = srcDir.listSync().whereType<File>().where(
+      (f) => f.path.toLowerCase().endsWith('.txt'),
+    );
     final compiler = SmartPathCompiler(
       validator: const LearningPathPackValidator(),
     );

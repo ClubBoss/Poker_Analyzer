@@ -28,11 +28,12 @@ class StreakCalendarScreen extends StatelessWidget {
   }
 
   Set<DateTime> _longest(Map<DateTime, int> map) {
-    final days = map.entries
-        .where((e) => e.value > 0)
-        .map((e) => DateTime(e.key.year, e.key.month, e.key.day))
-        .toList()
-      ..sort();
+    final days =
+        map.entries
+            .where((e) => e.value > 0)
+            .map((e) => DateTime(e.key.year, e.key.month, e.key.day))
+            .toList()
+          ..sort();
     if (days.isEmpty) return {};
     var best = <DateTime>[days.first];
     var current = <DateTime>[days.first];
@@ -53,8 +54,11 @@ class StreakCalendarScreen extends StatelessWidget {
     final stats = context.watch<TrainingStatsService>();
     final map = stats.handsPerDay;
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day)
-        .subtract(const Duration(days: 41));
+    final start = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(const Duration(days: 41));
     final days = [for (var i = 0; i < 42; i++) start.add(Duration(days: i))];
     final currentStreak = _current(map);
     final longestStreak = _longest(map);
@@ -79,8 +83,8 @@ class StreakCalendarScreen extends StatelessWidget {
           final borderColor = currentStreak.contains(key)
               ? Colors.greenAccent
               : longestStreak.contains(key)
-                  ? AppColors.accent
-                  : Colors.transparent;
+              ? AppColors.accent
+              : Colors.transparent;
           return Container(
             alignment: Alignment.center,
             decoration: BoxDecoration(

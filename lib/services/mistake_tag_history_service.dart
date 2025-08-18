@@ -23,9 +23,7 @@ class MistakeTagHistoryService {
         return [
           for (final e in data)
             if (e is Map)
-              MistakeTagHistoryEntry.fromJson(
-                Map<String, dynamic>.from(e),
-              )
+              MistakeTagHistoryEntry.fromJson(Map<String, dynamic>.from(e)),
         ];
       }
     } catch (_) {}
@@ -85,15 +83,12 @@ class MistakeTagHistoryService {
     final list = await _history();
     final filtered = [
       for (final e in list)
-        if (e.tags.contains(tag)) e
+        if (e.tags.contains(tag)) e,
     ];
     return filtered.take(limit).toList();
   }
 
-  static Future<TagTrend> getTrend(
-    MistakeTag tag, {
-    int days = 14,
-  }) async {
+  static Future<TagTrend> getTrend(MistakeTag tag, {int days = 14}) async {
     final list = await getRecentMistakesByTag(tag, limit: 1000);
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -122,8 +117,9 @@ class MistakeTagHistoryService {
     final sumX = xs.reduce((a, b) => a + b);
     final sumX2 = xs.map((e) => e * e).reduce((a, b) => a + b);
     final sumY = smoothed.reduce((a, b) => a + b);
-    final sumXY = [for (var i = 0; i < n; i++) xs[i] * smoothed[i]]
-        .reduce((a, b) => a + b);
+    final sumXY = [
+      for (var i = 0; i < n; i++) xs[i] * smoothed[i],
+    ].reduce((a, b) => a + b);
     final denom = n * sumX2 - sumX * sumX;
     double slope = 0;
     if (denom != 0) {
@@ -136,8 +132,9 @@ class MistakeTagHistoryService {
   }
 
   /// Returns the most recent mistake history entries.
-  static Future<List<MistakeTagHistoryEntry>> getRecentHistory(
-      {int limit = 20}) async {
+  static Future<List<MistakeTagHistoryEntry>> getRecentHistory({
+    int limit = 20,
+  }) async {
     final list = await _history();
     return list.take(limit).toList();
   }

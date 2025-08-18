@@ -45,10 +45,7 @@ class BetChipAnimation extends StatelessWidget {
           child: child!,
         );
       },
-      child: ChipStackWidget(
-        amount: amount,
-        scale: 0.8 * scale,
-      ),
+      child: ChipStackWidget(amount: amount, scale: 0.8 * scale),
     );
   }
 }

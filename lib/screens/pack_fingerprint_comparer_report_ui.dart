@@ -75,9 +75,11 @@ class _PackFingerprintComparerReportUIState
           candName.contains(q) ||
           existName.contains(q);
     }).toList();
-    filtered.sort((a, b) => _sortAscending
-        ? a.similarity.compareTo(b.similarity)
-        : b.similarity.compareTo(a.similarity));
+    filtered.sort(
+      (a, b) => _sortAscending
+          ? a.similarity.compareTo(b.similarity)
+          : b.similarity.compareTo(a.similarity),
+    );
     return filtered;
   }
 
@@ -125,10 +127,13 @@ class _PackFingerprintComparerReportUIState
                   items: const [
                     DropdownMenuItem(value: 'All', child: Text('All')),
                     DropdownMenuItem(
-                        value: 'duplicate', child: Text('duplicate')),
+                      value: 'duplicate',
+                      child: Text('duplicate'),
+                    ),
                     DropdownMenuItem(
-                        value: 'high_similarity',
-                        child: Text('high_similarity')),
+                      value: 'high_similarity',
+                      child: Text('high_similarity'),
+                    ),
                   ],
                   onChanged: (v) => setState(() {
                     _reasonFilter = v!;

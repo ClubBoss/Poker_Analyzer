@@ -27,7 +27,7 @@ class AdaptiveTheoryScheduler {
 
     // Build incoming edge map to check prerequisites.
     final incoming = <String, Set<String>>{
-      for (final l in lessons) l.id: <String>{}
+      for (final l in lessons) l.id: <String>{},
     };
     for (final l in lessons) {
       for (final next in l.nextIds) {

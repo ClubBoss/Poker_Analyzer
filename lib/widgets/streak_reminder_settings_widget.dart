@@ -56,7 +56,8 @@ class _StreakReminderSettingsWidgetState
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Please select an hour between 6 and 22.')),
+            content: Text('Please select an hour between 6 and 22.'),
+          ),
         );
         return;
       }
@@ -80,10 +81,14 @@ class _StreakReminderSettingsWidgetState
           activeColor: Colors.orange,
         ),
         ListTile(
-          title: const Text('Reminder Hour',
-              style: TextStyle(color: Colors.white)),
-          subtitle:
-              Text(timeText, style: const TextStyle(color: Colors.white70)),
+          title: const Text(
+            'Reminder Hour',
+            style: TextStyle(color: Colors.white),
+          ),
+          subtitle: Text(
+            timeText,
+            style: const TextStyle(color: Colors.white70),
+          ),
           enabled: _enabled,
           onTap: _enabled ? _pickHour : null,
         ),

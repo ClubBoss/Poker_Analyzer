@@ -103,8 +103,9 @@ class AchievementEngine extends ChangeNotifier {
       _unseen += 1;
       _save(key, level);
       UserActionLogger.instance.log('unlocked_achievement:${ach.title}_$level');
-      RewardSystemService.instance
-          .applyAchievementReward(AchievementProgress(level));
+      RewardSystemService.instance.applyAchievementReward(
+        AchievementProgress(level),
+      );
       final ctx = navigatorKey.currentContext;
       if (ctx != null) {
         showConfettiOverlay(ctx);

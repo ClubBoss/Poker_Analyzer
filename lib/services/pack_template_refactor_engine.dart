@@ -31,11 +31,13 @@ class PackTemplateRefactorEngine {
     } else {
       meta['keywords'] = keywords.toList()..sort();
     }
-    meta.removeWhere((k, v) =>
-        v == null ||
-        (v is String && v.isEmpty) ||
-        (v is List && v.isEmpty) ||
-        (v is Map && v.isEmpty));
+    meta.removeWhere(
+      (k, v) =>
+          v == null ||
+          (v is String && v.isEmpty) ||
+          (v is List && v.isEmpty) ||
+          (v is Map && v.isEmpty),
+    );
     meta['schemaVersion'] = '2.0.0';
     pack.meta
       ..clear()

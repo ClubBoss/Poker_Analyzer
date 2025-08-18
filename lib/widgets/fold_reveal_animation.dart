@@ -43,9 +43,10 @@ class _FoldRevealAnimationState extends State<FoldRevealAnimation>
       begin: Offset.zero,
       end: Offset(widget.direction * 60 * widget.scale, 80 * widget.scale),
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
-    _scaleAnim = Tween<double>(begin: 1.0, end: 0.7).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
-    );
+    _scaleAnim = Tween<double>(
+      begin: 1.0,
+      end: 0.7,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         widget.onCompleted?.call();
@@ -74,10 +75,7 @@ class _FoldRevealAnimationState extends State<FoldRevealAnimation>
           top: pos.dy - height / 2,
           child: FadeTransition(
             opacity: _opacity,
-            child: Transform.scale(
-              scale: _scaleAnim.value,
-              child: child,
-            ),
+            child: Transform.scale(scale: _scaleAnim.value, child: child),
           ),
         );
       },

@@ -21,7 +21,7 @@ class OpenLimpedSpotTemplateGeneratorService {
   final Random _random;
 
   OpenLimpedSpotTemplateGeneratorService({Random? random})
-      : _random = random ?? Random();
+    : _random = random ?? Random();
 
   /// Generates a list of [TrainingPackTemplateSet] objects representing
   /// SB limp spots vs BB.
@@ -96,7 +96,7 @@ class OpenLimpedSpotTemplateGeneratorService {
               'name': e.name,
               if (e.tags.isNotEmpty) 'tags': e.tags,
               'constraints': e.constraints.toJson(),
-            }
+            },
         ],
       if (set.linePatterns.isNotEmpty)
         'linePatterns': [for (final p in set.linePatterns) p.toJson()],
@@ -123,10 +123,7 @@ class OpenLimpedSpotTemplateGeneratorService {
       position: HeroPosition.bb,
       heroIndex: 0,
       playerCount: 2,
-      stacks: {
-        '0': effectiveStack.toDouble(),
-        '1': effectiveStack.toDouble(),
-      },
+      stacks: {'0': effectiveStack.toDouble(), '1': effectiveStack.toDouble()},
       actions: actions,
     );
 
@@ -136,9 +133,7 @@ class OpenLimpedSpotTemplateGeneratorService {
       villainAction: 'limp',
       heroOptions: const ['isoRaise', 'check'],
       tags: const ['preflop', 'limp', 'sbvsbb', 'LevelII'],
-      meta: {
-        'bbResponseTendencies': bbResponseTendencies,
-      },
+      meta: {'bbResponseTendencies': bbResponseTendencies},
     );
   }
 

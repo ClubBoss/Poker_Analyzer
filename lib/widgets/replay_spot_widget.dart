@@ -95,8 +95,10 @@ class _ReplaySpotWidgetState extends State<ReplaySpotWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (widget.gtoAction != null)
-              Text(widget.gtoAction!,
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                widget.gtoAction!,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
             if (widget.feedbackText != null) ...[
               const SizedBox(height: 8),
               Text(widget.feedbackText!),
@@ -138,13 +140,17 @@ class _ReplaySpotWidgetState extends State<ReplaySpotWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Вы выбрали',
-                    style: TextStyle(color: Colors.white70, fontSize: 12)),
+                const Text(
+                  'Вы выбрали',
+                  style: TextStyle(color: Colors.white70, fontSize: 12),
+                ),
                 const SizedBox(height: 4),
                 Text(
                   widget.expectedAction ?? '-',
                   style: const TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold),
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -153,13 +159,17 @@ class _ReplaySpotWidgetState extends State<ReplaySpotWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Оптимально',
-                    style: TextStyle(color: Colors.white70, fontSize: 12)),
+                const Text(
+                  'Оптимально',
+                  style: TextStyle(color: Colors.white70, fontSize: 12),
+                ),
                 const SizedBox(height: 4),
                 Text(
                   widget.gtoAction ?? '-',
                   style: const TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold),
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -184,7 +194,7 @@ class _ReplaySpotWidgetState extends State<ReplaySpotWidget> {
           if (a.amount != null) 'amount': a.amount,
           if (a.manualEvaluation != null)
             'manualEvaluation': a.manualEvaluation,
-        }
+        },
     ];
     final subset = TrainingSpot.fromJson(json);
 
@@ -200,14 +210,9 @@ class _ReplaySpotWidgetState extends State<ReplaySpotWidget> {
               alignment: Alignment.center,
               children: [
                 Positioned.fill(
-                  child: CustomPaint(
-                    painter: PokerTablePainter(),
-                  ),
+                  child: CustomPaint(painter: PokerTablePainter()),
                 ),
-                TrainingSpotDiagram(
-                  spot: subset,
-                  size: 220,
-                ),
+                TrainingSpotDiagram(spot: subset, size: 220),
                 Positioned.fill(
                   child: BoardCardsWidget(
                     currentStreet: street,
@@ -236,7 +241,9 @@ class _ReplaySpotWidgetState extends State<ReplaySpotWidget> {
               label: Text(widget.spot.positions[widget.spot.heroIndex]),
               backgroundColor: Theme.of(context).colorScheme.secondary,
               labelStyle: const TextStyle(
-                  color: Colors.black, fontWeight: FontWeight.bold),
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           Row(
@@ -258,7 +265,7 @@ class _ReplaySpotWidgetState extends State<ReplaySpotWidget> {
               onPressed: _showGto,
               child: const Text('Показать GTO'),
             ),
-          ]
+          ],
         ],
       ),
     );

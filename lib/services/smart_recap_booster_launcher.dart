@@ -20,13 +20,15 @@ class SmartRecapBoosterLauncher {
   });
 
   /// Opens the best booster pack for [lesson] or shows a fallback dialog.
-  Future<void> launchBoosterForLesson(TheoryMiniLessonNode lesson,
-      {List<String>? sessionTags}) async {
+  Future<void> launchBoosterForLesson(
+    TheoryMiniLessonNode lesson, {
+    List<String>? sessionTags,
+  }) async {
     final ctx = navigation.context;
     if (ctx == null) return;
 
-    final List<TrainingPackTemplateV2> packs =
-        await linker.getBoostersForLesson(lesson);
+    final List<TrainingPackTemplateV2> packs = await linker
+        .getBoostersForLesson(lesson);
     if (packs.isEmpty) {
       await showDialog<void>(
         context: ctx,
@@ -38,9 +40,11 @@ class SmartRecapBoosterLauncher {
     }
 
     final template = TrainingPackTemplate.fromJson(packs.first.toJson());
-    await ctx
-        .read<TrainingSessionService>()
-        .startSession(template, persist: false, sessionTags: sessionTags);
+    await ctx.read<TrainingSessionService>().startSession(
+      template,
+      persist: false,
+      sessionTags: sessionTags,
+    );
     await navigation.push(
       MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
     );

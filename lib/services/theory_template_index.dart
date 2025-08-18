@@ -26,8 +26,10 @@ class TheoryTemplateIndex {
     final list = <Map<String, dynamic>>[];
     for (final file in files) {
       try {
-        final map = await TheoryYamlSafeReader()
-            .read(path: file.path, schema: 'TemplateSet');
+        final map = await TheoryYamlSafeReader().read(
+          path: file.path,
+          schema: 'TemplateSet',
+        );
         final tpl = TrainingPackTemplateV2.fromJson(map);
         list.add({
           'id': tpl.id,

@@ -32,7 +32,9 @@ class WeeklyChallengeCard extends StatelessWidget {
                 Text(
                   challenge.title,
                   style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 ClipRRect(
@@ -47,13 +49,21 @@ class WeeklyChallengeCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Text('$progressValue/$target',
-                        style: const TextStyle(
-                            color: Colors.white70, fontSize: 12)),
+                    Text(
+                      '$progressValue/$target',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
+                    ),
                     const Spacer(),
-                    Text('${service.daysLeft} days left',
-                        style: const TextStyle(
-                            color: Colors.white70, fontSize: 12)),
+                    Text(
+                      '${service.daysLeft} days left',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -67,8 +77,10 @@ class WeeklyChallengeCard extends StatelessWidget {
                 color: Colors.green,
                 borderRadius: BorderRadius.circular(4),
               ),
-              child: const Text('Completed ✅',
-                  style: TextStyle(color: Colors.white)),
+              child: const Text(
+                'Completed ✅',
+                style: TextStyle(color: Colors.white),
+              ),
             )
           else
             ElevatedButton(

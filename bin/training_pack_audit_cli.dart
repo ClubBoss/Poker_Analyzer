@@ -23,6 +23,7 @@ void main(List<String> args) async {
   }
   for (final e in logs) {
     stdout.writeln(
-        '${e.timestamp.toIso8601String()} [${e.packId}] ${e.userId}: ${e.changedFields.join(', ')}');
+      '${e.timestamp.toIso8601String()} [${e.packId}] ${e.userId}: ${e.changedFields.join(', ')}',
+    );
   }
 }

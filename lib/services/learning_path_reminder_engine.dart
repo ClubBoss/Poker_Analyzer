@@ -11,8 +11,9 @@ class LearningPathReminderEngine {
   final LearningPathSummaryCache cache;
 
   /// Initializes the singleton with required dependencies.
-  factory LearningPathReminderEngine(
-      {required LearningPathSummaryCache cache}) {
+  factory LearningPathReminderEngine({
+    required LearningPathSummaryCache cache,
+  }) {
     return _instance ??= LearningPathReminderEngine._(cache);
   }
 

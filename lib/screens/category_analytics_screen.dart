@@ -13,8 +13,10 @@ class CategoryAnalyticsScreen extends StatelessWidget {
   static const route = '/category_analytics';
   const CategoryAnalyticsScreen({super.key});
 
-  Widget _chart(List<MapEntry<DateTime, double>> ev,
-      List<MapEntry<DateTime, double>> icm) {
+  Widget _chart(
+    List<MapEntry<DateTime, double>> ev,
+    List<MapEntry<DateTime, double>> icm,
+  ) {
     final dates = {...ev.map((e) => e.key), ...icm.map((e) => e.key)}.toList()
       ..sort();
     if (dates.length < 2) return SizedBox(height: responsiveSize(context, 200));
@@ -64,10 +66,12 @@ class CategoryAnalyticsScreen extends StatelessWidget {
                 const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -133,9 +137,8 @@ class CategoryAnalyticsScreen extends StatelessWidget {
     final hands = context.watch<SavedHandManagerService>().hands;
     final categories = <String>{
       for (final h in hands)
-        if (h.category != null && h.category!.isNotEmpty) h.category!
-    }.toList()
-      ..sort();
+        if (h.category != null && h.category!.isNotEmpty) h.category!,
+    }.toList()..sort();
     if (categories.isEmpty) {
       return Scaffold(
         appBar: AppBar(

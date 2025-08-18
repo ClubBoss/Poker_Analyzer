@@ -42,11 +42,7 @@ void main() {
     });
 
     test('respects minScore threshold', () {
-      final spot = TrainingPackSpot(
-        id: 's1',
-        hand: HandData(),
-        tags: ['x'],
-      );
+      final spot = TrainingPackSpot(id: 's1', hand: HandData(), tags: ['x']);
       final index = {
         't1': InlineTheoryEntry(
           tag: 't1',
@@ -63,11 +59,7 @@ void main() {
     });
 
     test('idempotent on re-run', () {
-      final spot = TrainingPackSpot(
-        id: 's1',
-        hand: HandData(),
-        tags: ['a'],
-      );
+      final spot = TrainingPackSpot(id: 's1', hand: HandData(), tags: ['a']);
       final index = {
         't1': InlineTheoryEntry(
           tag: 't1',

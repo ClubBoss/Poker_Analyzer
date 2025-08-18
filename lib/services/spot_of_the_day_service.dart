@@ -48,7 +48,8 @@ class SpotOfTheDayService extends ChangeNotifier {
         final data = jsonDecode(item);
         if (data is Map<String, dynamic>) {
           _history.add(
-              SpotOfDayHistoryEntry.fromJson(Map<String, dynamic>.from(data)));
+            SpotOfDayHistoryEntry.fromJson(Map<String, dynamic>.from(data)),
+          );
         }
       } catch (_) {}
     }
@@ -65,7 +66,7 @@ class SpotOfTheDayService extends ChangeNotifier {
     final list = jsonDecode(data) as List;
     return [
       for (final e in list)
-        TrainingSpot.fromJson(Map<String, dynamic>.from(e as Map))
+        TrainingSpot.fromJson(Map<String, dynamic>.from(e as Map)),
     ];
   }
 
@@ -85,10 +86,13 @@ class SpotOfTheDayService extends ChangeNotifier {
       }
       final idx = _history.indexWhere((e) => _isSameDay(e.date, _date!));
       if (idx < 0) {
-        _history.add(SpotOfDayHistoryEntry(
+        _history.add(
+          SpotOfDayHistoryEntry(
             date: _date!,
             spotIndex: index,
-            recommendedAction: _spot?.recommendedAction));
+            recommendedAction: _spot?.recommendedAction,
+          ),
+        );
         await _saveHistory();
       } else if (_history[idx].recommendedAction == null &&
           _spot?.recommendedAction != null) {
@@ -105,7 +109,8 @@ class SpotOfTheDayService extends ChangeNotifier {
           _history[idx].recommendedAction != null) {
         final entry = _history[idx];
         _history[idx] = entry.copyWith(
-            correct: entry.userAction == entry.recommendedAction);
+          correct: entry.userAction == entry.recommendedAction,
+        );
         await _saveHistory();
       }
     }
@@ -123,10 +128,13 @@ class SpotOfTheDayService extends ChangeNotifier {
     _spot = spots[rnd];
     _date = DateTime.now();
     _result = null;
-    _history.add(SpotOfDayHistoryEntry(
+    _history.add(
+      SpotOfDayHistoryEntry(
         date: _date!,
         spotIndex: rnd,
-        recommendedAction: _spot?.recommendedAction));
+        recommendedAction: _spot?.recommendedAction,
+      ),
+    );
     await _saveHistory();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_dateKey, _date!.toIso8601String());
@@ -145,20 +153,24 @@ class SpotOfTheDayService extends ChangeNotifier {
       if (idx >= 0) {
         final entry = _history[idx];
         _history[idx] = entry.copyWith(
-            userAction: action,
-            recommendedAction:
-                entry.recommendedAction ?? _spot?.recommendedAction,
-            correct: _spot?.recommendedAction != null
-                ? action == _spot!.recommendedAction
-                : null);
+          userAction: action,
+          recommendedAction:
+              entry.recommendedAction ?? _spot?.recommendedAction,
+          correct: _spot?.recommendedAction != null
+              ? action == _spot!.recommendedAction
+              : null,
+        );
         await _saveHistory();
       }
     }
     notifyListeners();
   }
 
-  Future<void> updateHistoryEntry(DateTime date, String action,
-      {String? recommendedAction}) async {
+  Future<void> updateHistoryEntry(
+    DateTime date,
+    String action, {
+    String? recommendedAction,
+  }) async {
     final idx = _history.indexWhere((e) => _isSameDay(e.date, date));
     if (idx < 0) return;
     final entry = _history[idx];

@@ -45,8 +45,9 @@ class _BoosterSectionState extends State<BoosterSection> {
     final count = await const BoosterRefinerEngine().refineAll();
     if (!mounted) return;
     setState(() => _refineLoading = false);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Обновлено: $count')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Обновлено: $count')));
   }
 
   Future<void> _pruneDuplicates() async {
@@ -55,8 +56,9 @@ class _BoosterSectionState extends State<BoosterSection> {
     final count = await const BoosterSimilarityPruner().pruneAndSaveAll();
     if (!mounted) return;
     setState(() => _pruneLoading = false);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Обновлено: $count')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Обновлено: $count')));
   }
 
   @override

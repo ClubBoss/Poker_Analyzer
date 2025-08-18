@@ -62,8 +62,9 @@ class ActionTagService {
   void setTag(int playerIndex, String? tag) => _tags[playerIndex] = tag;
 
   /// Serializes tags to a JSON-friendly map.
-  Map<String, String?> toJson() =>
-      {for (final e in _tags.entries) e.key.toString(): e.value};
+  Map<String, String?> toJson() => {
+    for (final e in _tags.entries) e.key.toString(): e.value,
+  };
 
   /// Restores tags from a JSON map produced by [toJson].
   void restoreFromJson(Map<String, dynamic>? json) {
@@ -73,8 +74,9 @@ class ActionTagService {
     }
     _tags
       ..clear()
-      ..addAll(
-          {for (final e in json.entries) int.parse(e.key): e.value as String?});
+      ..addAll({
+        for (final e in json.entries) int.parse(e.key): e.value as String?,
+      });
   }
 
   /// Returns a copy of the current tags map.

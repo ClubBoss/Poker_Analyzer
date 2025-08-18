@@ -50,19 +50,21 @@ class _FakeFormatSelector extends AutoFormatSelector {
 class _PassGatekeeper extends PackQualityGatekeeperService {
   const _PassGatekeeper();
   @override
-  bool isQualityAcceptable(pack,
-          {double minScore = 0.7, seedIssues = const {}}) =>
-      true;
+  bool isQualityAcceptable(
+    pack, {
+    double minScore = 0.7,
+    seedIssues = const {},
+  }) => true;
 }
 
 class _SlowExecutor extends AdaptivePlanExecutor {
   _SlowExecutor({required LearningPathStore store})
-      : super(
-          boosterEngine: _FakeBoosterEngine(),
-          formatSelector: _FakeFormatSelector(),
-          gatekeeper: const _PassGatekeeper(),
-          store: store,
-        );
+    : super(
+        boosterEngine: _FakeBoosterEngine(),
+        formatSelector: _FakeFormatSelector(),
+        gatekeeper: const _PassGatekeeper(),
+        store: store,
+      );
   @override
   Future<List<InjectedPathModule>> execute({
     required String userId,
@@ -90,8 +92,9 @@ void main() {
 
   test('one run injects, other locked-skip', () async {
     const user = 'u1';
-    await UserSkillModelService.instance
-        .recordAttempt(user, ['tag'], correct: false);
+    await UserSkillModelService.instance.recordAttempt(user, [
+      'tag',
+    ], correct: false);
     final tempDir = await Directory.systemTemp.createTemp('lock');
     final store = LearningPathStore(rootDir: tempDir.path);
     final exec = AutogenPipelineExecutor();
@@ -102,13 +105,10 @@ void main() {
       executor: slow,
     );
     await Future.delayed(const Duration(milliseconds: 100));
-    await exec.planAndInjectForUser(
-      user,
-      durationMinutes: 40,
-      executor: slow,
+    await exec.planAndInjectForUser(user, durationMinutes: 40, executor: slow);
+    final status = AutogenStatusDashboardService.instance.getStatus(
+      'PathHardening',
     );
-    final status =
-        AutogenStatusDashboardService.instance.getStatus('PathHardening');
     expect(status, isNotNull);
     final data = jsonDecode(status!.currentStage) as Map<String, dynamic>;
     expect(data['action'], 'locked');

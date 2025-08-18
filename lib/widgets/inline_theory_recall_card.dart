@@ -27,7 +27,9 @@ class _InlineTheoryRecallCardState extends State<InlineTheoryRecallCard>
   void initState() {
     super.initState();
     _controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 300));
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
     _controller.forward();
     _timer = Timer(const Duration(seconds: 12), _handleDismiss);
   }
@@ -56,9 +58,13 @@ class _InlineTheoryRecallCardState extends State<InlineTheoryRecallCard>
                 padding: const EdgeInsets.all(16),
                 child: ListView(
                   children: [
-                    Text(s.title,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 18)),
+                    Text(
+                      s.title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     for (final b in s.bullets)
                       Text('• $b', style: const TextStyle(fontSize: 14)),
@@ -78,8 +84,10 @@ class _InlineTheoryRecallCardState extends State<InlineTheoryRecallCard>
   Widget build(BuildContext context) {
     final snippet = widget.snippet;
     return SlideTransition(
-      position: Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
-          .animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut)),
+      position: Tween<Offset>(
+        begin: const Offset(0, 1),
+        end: Offset.zero,
+      ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut)),
       child: GestureDetector(
         onTap: _handleDismiss,
         child: Card(
@@ -89,9 +97,13 @@ class _InlineTheoryRecallCardState extends State<InlineTheoryRecallCard>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(snippet.title,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.white)),
+                Text(
+                  snippet.title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
                 for (final b in snippet.bullets)
                   Text('• $b', style: const TextStyle(color: Colors.white70)),
                 if (snippet.uri != null)

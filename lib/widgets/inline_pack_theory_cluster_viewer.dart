@@ -62,13 +62,11 @@ class InlinePackTheoryClusterViewer extends StatelessWidget {
                 final matched = clusterTags.where(normPackTags.contains).length;
                 return ExpansionTile(
                   title: Text(
-                      '${_tagSummary(cluster)} • $matched/${cluster.sharedTags.length}'),
+                    '${_tagSummary(cluster)} • $matched/${cluster.sharedTags.length}',
+                  ),
                   children: [
                     for (final lesson in cluster.lessons.take(maxLessons))
-                      ListTile(
-                        dense: true,
-                        title: Text(lesson.title),
-                      ),
+                      ListTile(dense: true, title: Text(lesson.title)),
                   ],
                 );
               },

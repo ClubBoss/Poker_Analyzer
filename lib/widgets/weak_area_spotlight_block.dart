@@ -39,8 +39,9 @@ class _WeakAreaSpotlightBlockState extends State<WeakAreaSpotlightBlock> {
 
     // Determine weakest cluster by improvement
     MistakeTagCluster? cluster;
-    for (final e in (improvement.entries.toList()
-      ..sort((a, b) => a.value.compareTo(b.value)))) {
+    for (final e
+        in (improvement.entries.toList()
+          ..sort((a, b) => a.value.compareTo(b.value)))) {
       final c = MistakeTagCluster.values.firstWhere(
         (cl) => cl.label.toLowerCase() == e.key.toLowerCase(),
         orElse: () => MistakeTagCluster.aggressiveMistakes,
@@ -53,8 +54,9 @@ class _WeakAreaSpotlightBlockState extends State<WeakAreaSpotlightBlock> {
       return;
     }
 
-    final insights = await const MistakeTagInsightsService()
-        .buildInsights(sortByEvLoss: true);
+    final insights = await const MistakeTagInsightsService().buildInsights(
+      sortByEvLoss: true,
+    );
     const clusterService = MistakeTagClusterService();
     double loss = 0.0;
     for (final i in insights) {

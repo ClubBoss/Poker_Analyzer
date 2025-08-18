@@ -110,9 +110,7 @@ class _GoalScreenState extends State<GoalScreen> {
   Widget build(BuildContext context) {
     final accent = Theme.of(context).colorScheme.secondary;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('🎯 Цели'),
-      ),
+      appBar: AppBar(title: const Text('🎯 Цели')),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
@@ -121,8 +119,10 @@ class _GoalScreenState extends State<GoalScreen> {
                 padding: const EdgeInsets.all(16),
                 children: [
                   if (_activeGoals.isNotEmpty) ...[
-                    const Text('🎯 Активные цели',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text(
+                      '🎯 Активные цели',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(height: 8),
                     for (final g in _activeGoals) ...[
                       _activeTile(g, accent),
@@ -131,8 +131,10 @@ class _GoalScreenState extends State<GoalScreen> {
                   ],
                   if (_suggestedGoals.isNotEmpty) ...[
                     if (_activeGoals.isNotEmpty) const SizedBox(height: 16),
-                    const Text('✨ Предложенные цели',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text(
+                      '✨ Предложенные цели',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(height: 8),
                     for (final g in _suggestedGoals) ...[
                       _suggestedTile(g, accent),

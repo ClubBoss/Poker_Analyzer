@@ -151,10 +151,12 @@ class _PackCompletionBarChartState extends State<PackCompletionBarChart>
                 },
               ),
               titlesData: FlTitlesData(
-                leftTitles:
-                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                topTitles:
-                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                leftTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                topTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
                 bottomTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
@@ -174,15 +176,18 @@ class _PackCompletionBarChartState extends State<PackCompletionBarChart>
                     },
                   ),
                 ),
-                rightTitles:
-                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                rightTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
               ),
             ),
           ),
           if (_index != null && _pos != null && _index! < filtered.length)
             _BarTooltip(
-              position: (context.findRenderObject() as RenderBox)
-                      .globalToLocal(_pos!) -
+              position:
+                  (context.findRenderObject() as RenderBox).globalToLocal(
+                    _pos!,
+                  ) -
                   const Offset(40, 60),
               stats: filtered[_index!],
               animation: _anim,
@@ -215,8 +220,9 @@ class _BarTooltipState extends State<_BarTooltip> {
     final completed = s.total - s.mistakes;
     final percent = s.total > 0 ? completed * 100 / s.total : 0.0;
     final remain = s.total - completed;
-    final last =
-        s.lastSession != null ? formatDate(s.lastSession!) : 'нет данных';
+    final last = s.lastSession != null
+        ? formatDate(s.lastSession!)
+        : 'нет данных';
     return Positioned(
       left: widget.position.dx,
       top: widget.position.dy,

@@ -62,9 +62,9 @@ class _PackMergeDuplicatesScreenState extends State<PackMergeDuplicatesScreen> {
     if (ok != true) return;
     await compute(_saveTask, merged.toJson());
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Шаблон сохранён')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Шаблон сохранён')));
   }
 
   @override
@@ -79,13 +79,16 @@ class _PackMergeDuplicatesScreenState extends State<PackMergeDuplicatesScreen> {
               padding: const EdgeInsets.all(16),
               children: [
                 ElevatedButton(
-                    onPressed: _load, child: const Text('🔄 Обновить')),
+                  onPressed: _load,
+                  child: const Text('🔄 Обновить'),
+                ),
                 const SizedBox(height: 16),
                 for (final c in _items)
                   ListTile(
                     title: Text('${c.packA.name} ↔ ${c.packB.name}'),
                     subtitle: Text(
-                        '${c.type} ${(c.similarityScore * 100).toStringAsFixed(0)}%'),
+                      '${c.type} ${(c.similarityScore * 100).toStringAsFixed(0)}%',
+                    ),
                     onTap: () => _merge(c),
                   ),
               ],
@@ -100,10 +103,11 @@ Future<List<YamlPackConflict>> _conflictTask(String _) async {
   if (!dir.existsSync()) return [];
   const reader = YamlReader();
   final packs = <TrainingPackTemplateV2>[];
-  for (final f in dir
-      .listSync(recursive: true)
-      .whereType<File>()
-      .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
+  for (final f
+      in dir
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
     try {
       final yaml = await f.readAsString();
       packs.add(TrainingPackTemplateV2.fromYamlAuto(yaml));
@@ -112,7 +116,7 @@ Future<List<YamlPackConflict>> _conflictTask(String _) async {
   final res = const YamlPackConflictDetector().detectConflicts(packs);
   return [
     for (final c in res)
-      if (c.type.startsWith('duplicate_') || c.similarityScore > 0.9) c
+      if (c.type.startsWith('duplicate_') || c.similarityScore > 0.9) c,
   ];
 }
 

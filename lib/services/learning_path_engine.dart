@@ -25,8 +25,8 @@ class LearningPathEngine {
     required this.masteryService,
     TrainingPackGeneratorV2? generator,
     TheoryStageProgressTracker? theoryTracker,
-  })  : generator = generator ?? const TrainingPackGeneratorV2(),
-        theoryTracker = theoryTracker ?? TheoryStageProgressTracker.instance;
+  }) : generator = generator ?? const TrainingPackGeneratorV2(),
+       theoryTracker = theoryTracker ?? TheoryStageProgressTracker.instance;
 
   /// Returns the next training pack for [stage].
   ///
@@ -43,7 +43,7 @@ class LearningPathEngine {
     if (stage.type == StageType.theory) {
       final ids = MiniLessonLibraryService.instance.linkedPacksFor(stage.id);
       final linked = [
-        for (final id in ids) allPacks.firstWhereOrNull((p) => p.id == id)
+        for (final id in ids) allPacks.firstWhereOrNull((p) => p.id == id),
       ].whereType<TrainingPackTemplateV2>().toList();
       if (linked.isEmpty) return defaultPack;
       if (linked.length == 1) return linked.first;

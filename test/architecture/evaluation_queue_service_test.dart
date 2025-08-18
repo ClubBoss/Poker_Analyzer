@@ -45,10 +45,7 @@ void main() {
         _req('b', 1, 1, 'raise'),
         _req('a', 0, 1, 'bet'),
       ]);
-      service.failed.addAll([
-        _req('b', 2, 0, 'fold'),
-        _req('c', 2, 0, 'call'),
-      ]);
+      service.failed.addAll([_req('b', 2, 0, 'fold'), _req('c', 2, 0, 'call')]);
       service.completed.addAll([
         _req('c', 3, 0, 'bet'),
         _req('a', 1, 0, 'raise'),

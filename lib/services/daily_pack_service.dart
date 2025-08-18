@@ -28,10 +28,7 @@ class DailyPackService extends ChangeNotifier {
     final dateStr = prefs.getString(_dateKey);
     _date = dateStr != null ? DateTime.tryParse(dateStr) : null;
     _template = id != null
-        ? templates.templates.firstWhere(
-            (t) => t.id == id,
-            orElse: () => null,
-          )
+        ? templates.templates.firstWhere((t) => t.id == id, orElse: () => null)
         : null;
     await ensureToday();
   }
@@ -55,7 +52,8 @@ class DailyPackService extends ChangeNotifier {
       final completed =
           stat != null && stat.accuracy >= .9 && ev >= 80 && icm >= 80;
       if (completed || (ev >= 90 && icm >= 90)) continue;
-      final target = (t.recommended ||
+      final target =
+          (t.recommended ||
               t.tags.contains('starter') ||
               now.difference(t.created).inDays < 7)
           ? preferred

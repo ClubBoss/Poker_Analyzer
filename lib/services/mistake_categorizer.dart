@@ -34,8 +34,9 @@ class MistakeCategorizer {
         expectedEquity: 0,
       ),
     );
-    final strength =
-        const MistakeCategorizationEngine().computeHandStrength(cards);
+    final strength = const MistakeCategorizationEngine().computeHandStrength(
+      cards,
+    );
     final m = Mistake(
       spot: spot,
       action: _parseAction(act),

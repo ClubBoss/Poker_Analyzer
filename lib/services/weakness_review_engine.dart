@@ -75,8 +75,9 @@ class WeaknessReviewEngine {
       if (matchedTag == null) continue;
 
       final recentAttempts = attemptsByPack[p.id] ?? [];
-      final recAcc =
-          recentAttempts.isNotEmpty ? avgAcc(recentAttempts) : stat.accuracy;
+      final recAcc = recentAttempts.isNotEmpty
+          ? avgAcc(recentAttempts)
+          : stat.accuracy;
       if (recAcc >= 0.6) continue;
 
       final score = (-delta!) + (0.6 - recAcc);

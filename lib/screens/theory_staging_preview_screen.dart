@@ -61,7 +61,8 @@ class _TheoryStagingPreviewScreenState
           return ListTile(
             title: Text(tpl.name),
             subtitle: Text(
-                '${tpl.trainingType.name} • ${tpl.id}\n${tpl.tags.join(', ')}'),
+              '${tpl.trainingType.name} • ${tpl.id}\n${tpl.tags.join(', ')}',
+            ),
             isThreeLine: true,
             trailing: Wrap(
               spacing: 8,

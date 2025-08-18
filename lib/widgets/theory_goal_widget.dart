@@ -11,11 +11,7 @@ class TheoryGoalWidget extends StatefulWidget {
   final TheoryGoal goal;
   final VoidCallback? onTap;
 
-  const TheoryGoalWidget({
-    super.key,
-    required this.goal,
-    this.onTap,
-  });
+  const TheoryGoalWidget({super.key, required this.goal, this.onTap});
 
   @override
   State<TheoryGoalWidget> createState() => _TheoryGoalWidgetState();

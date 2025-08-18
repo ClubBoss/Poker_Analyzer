@@ -17,8 +17,10 @@ class CloudTrainingSession {
     this.handTags,
   });
 
-  factory CloudTrainingSession.fromJson(Map<String, dynamic> json,
-      {required String path}) {
+  factory CloudTrainingSession.fromJson(
+    Map<String, dynamic> json, {
+    required String path,
+  }) {
     final results = <ResultEntry>[];
     final list = json['results'];
     if (list is List) {
@@ -47,7 +49,7 @@ class CloudTrainingSession {
         if (key is String && value is List) {
           tags![key] = [
             for (final t in value)
-              if (t is String) t
+              if (t is String) t,
           ];
         }
       });
@@ -64,12 +66,12 @@ class CloudTrainingSession {
   }
 
   Map<String, dynamic> toJson() => {
-        'date': date.toIso8601String(),
-        'results': [for (final r in results) r.toJson()],
-        if (comment != null && comment!.isNotEmpty) 'comment': comment,
-        if (handNotes != null && handNotes!.isNotEmpty) 'handNotes': handNotes,
-        if (handTags != null && handTags!.isNotEmpty) 'handTags': handTags,
-      };
+    'date': date.toIso8601String(),
+    'results': [for (final r in results) r.toJson()],
+    if (comment != null && comment!.isNotEmpty) 'comment': comment,
+    if (handNotes != null && handNotes!.isNotEmpty) 'handNotes': handNotes,
+    if (handTags != null && handTags!.isNotEmpty) 'handTags': handTags,
+  };
 
   int get total => results.length;
   int get correct => results.where((r) => r.correct).length;

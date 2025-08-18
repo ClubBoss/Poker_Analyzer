@@ -31,8 +31,9 @@ class _SnapshotManagerScreenState extends State<SnapshotManagerScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Snapshots'),
-          leading:
-              BackButton(onPressed: () => Navigator.pop(context, _changed)),
+          leading: BackButton(
+            onPressed: () => Navigator.pop(context, _changed),
+          ),
         ),
         body: ListView.builder(
           itemCount: snaps.length,
@@ -58,8 +59,9 @@ class _SnapshotManagerScreenState extends State<SnapshotManagerScreen> {
               confirmDismiss: (dir) async {
                 if (dir == DismissDirection.startToEnd) {
                   final prefs = await SharedPreferences.getInstance();
-                  final last =
-                      prefs.getString('pack_editor_last_snapshot_restored');
+                  final last = prefs.getString(
+                    'pack_editor_last_snapshot_restored',
+                  );
                   if (last == s.id) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Already restored')),
@@ -98,8 +100,12 @@ class _SnapshotManagerScreenState extends State<SnapshotManagerScreen> {
                           onPressed: () {
                             context
                                 .read<TrainingPackStorageService>()
-                                .saveSnapshot(widget.pack, removed.hands,
-                                    removed.tags, removed.comment);
+                                .saveSnapshot(
+                                  widget.pack,
+                                  removed.hands,
+                                  removed.tags,
+                                  removed.comment,
+                                );
                           },
                         ),
                       ),

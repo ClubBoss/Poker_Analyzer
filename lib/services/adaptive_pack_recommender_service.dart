@@ -26,8 +26,10 @@ class AdaptivePackRecommenderService {
     this.mistakeHistory,
   });
 
-  Future<List<AdaptivePackRecommendation>> recommend(
-      {int count = 3, DateTime? now}) async {
+  Future<List<AdaptivePackRecommendation>> recommend({
+    int count = 3,
+    DateTime? now,
+  }) async {
     if (count <= 0) return const [];
     final current = now ?? DateTime.now();
     await TrainingPackLibraryV2.instance.loadFromFolder();
@@ -38,8 +40,9 @@ class AdaptivePackRecommenderService {
     final mistakeFreq = mistakeHistory == null
         ? <MistakeTag, int>{}
         : await mistakeHistory!.getTagsByFrequency();
-    final maxMistakes =
-        mistakeFreq.values.isEmpty ? 0 : mistakeFreq.values.reduce(max);
+    final maxMistakes = mistakeFreq.values.isEmpty
+        ? 0
+        : mistakeFreq.values.reduce(max);
 
     final recommendations = <AdaptivePackRecommendation>[];
 
@@ -81,8 +84,9 @@ class AdaptivePackRecommenderService {
       }
 
       if (score > 0) {
-        recommendations
-            .add(AdaptivePackRecommendation(pack: pack, score: score));
+        recommendations.add(
+          AdaptivePackRecommendation(pack: pack, score: score),
+        );
       }
     }
 

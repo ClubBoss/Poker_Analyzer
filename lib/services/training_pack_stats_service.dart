@@ -27,29 +27,30 @@ class TrainingPackStat {
   });
 
   Map<String, dynamic> toJson() => {
-        'accuracy': accuracy,
-        'last': last.millisecondsSinceEpoch,
-        if (lastIndex > 0) 'idx': lastIndex,
-        if (preEvPct > 0) 'preEv': preEvPct,
-        if (preIcmPct > 0) 'preIcm': preIcmPct,
-        if (postEvPct > 0) 'postEv': postEvPct,
-        if (postIcmPct > 0) 'postIcm': postIcmPct,
-        if (evSum != 0) 'evSum': evSum,
-        if (icmSum != 0) 'icmSum': icmSum,
-      };
+    'accuracy': accuracy,
+    'last': last.millisecondsSinceEpoch,
+    if (lastIndex > 0) 'idx': lastIndex,
+    if (preEvPct > 0) 'preEv': preEvPct,
+    if (preIcmPct > 0) 'preIcm': preIcmPct,
+    if (postEvPct > 0) 'postEv': postEvPct,
+    if (postIcmPct > 0) 'postIcm': postIcmPct,
+    if (evSum != 0) 'evSum': evSum,
+    if (icmSum != 0) 'icmSum': icmSum,
+  };
 
   factory TrainingPackStat.fromJson(Map<String, dynamic> j) => TrainingPackStat(
-        accuracy: (j['accuracy'] as num?)?.toDouble() ?? 0,
-        last: DateTime.fromMillisecondsSinceEpoch(
-            (j['last'] as num?)?.toInt() ?? 0),
-        lastIndex: (j['idx'] as num?)?.toInt() ?? 0,
-        preEvPct: (j['preEv'] as num?)?.toDouble() ?? 0,
-        preIcmPct: (j['preIcm'] as num?)?.toDouble() ?? 0,
-        postEvPct: (j['postEv'] as num?)?.toDouble() ?? 0,
-        postIcmPct: (j['postIcm'] as num?)?.toDouble() ?? 0,
-        evSum: (j['evSum'] as num?)?.toDouble() ?? 0,
-        icmSum: (j['icmSum'] as num?)?.toDouble() ?? 0,
-      );
+    accuracy: (j['accuracy'] as num?)?.toDouble() ?? 0,
+    last: DateTime.fromMillisecondsSinceEpoch(
+      (j['last'] as num?)?.toInt() ?? 0,
+    ),
+    lastIndex: (j['idx'] as num?)?.toInt() ?? 0,
+    preEvPct: (j['preEv'] as num?)?.toDouble() ?? 0,
+    preIcmPct: (j['preIcm'] as num?)?.toDouble() ?? 0,
+    postEvPct: (j['postEv'] as num?)?.toDouble() ?? 0,
+    postIcmPct: (j['postIcm'] as num?)?.toDouble() ?? 0,
+    evSum: (j['evSum'] as num?)?.toDouble() ?? 0,
+    icmSum: (j['icmSum'] as num?)?.toDouble() ?? 0,
+  );
 }
 
 class GlobalPackStats {
@@ -135,7 +136,9 @@ class TrainingPackStatsService {
             !data.containsKey('preIcm') &&
             !data.containsKey('postIcm')) {
           await prefs.setString(
-              '$_prefix$templateId', jsonEncode(stat.toJson()));
+            '$_prefix$templateId',
+            jsonEncode(stat.toJson()),
+          );
         }
         return stat;
       }
@@ -208,7 +211,9 @@ class TrainingPackStatsService {
   }
 
   static Future<List<TrainingPackTemplate>> mostPlayedTemplates(
-      List<TrainingPackTemplate> templates, int limit) async {
+    List<TrainingPackTemplate> templates,
+    int limit,
+  ) async {
     if (!Hive.isBoxOpen('session_logs')) {
       await Hive.initFlutter();
       await Hive.openBox('session_logs');
@@ -221,7 +226,7 @@ class TrainingPackStatsService {
     }
     final list = [
       for (final t in templates)
-        if (count[t.id] != null) t
+        if (count[t.id] != null) t,
     ];
     list.sort((a, b) {
       final r = (count[b.id] ?? 0).compareTo(count[a.id] ?? 0);
@@ -259,7 +264,7 @@ class TrainingPackStatsService {
         return [
           for (final e in data)
             if (e is Map)
-              TrainingPackStat.fromJson(Map<String, dynamic>.from(e))
+              TrainingPackStat.fromJson(Map<String, dynamic>.from(e)),
         ];
       }
     } catch (_) {}
@@ -321,8 +326,9 @@ class TrainingPackStatsService {
         try {
           final data = jsonDecode(raw);
           if (data is Map) {
-            final stat =
-                TrainingPackStat.fromJson(Map<String, dynamic>.from(data));
+            final stat = TrainingPackStat.fromJson(
+              Map<String, dynamic>.from(data),
+            );
             acc += stat.accuracy;
             ev += stat.evSum;
             count++;
@@ -333,7 +339,8 @@ class TrainingPackStatsService {
     final completed = prefs
         .getKeys()
         .where(
-            (k) => k.startsWith('completed_tpl_') && prefs.getBool(k) == true)
+          (k) => k.startsWith('completed_tpl_') && prefs.getBool(k) == true,
+        )
         .length;
     final streak = prefs.getInt('training_streak_count') ?? 0;
     final result = GlobalPackStats(

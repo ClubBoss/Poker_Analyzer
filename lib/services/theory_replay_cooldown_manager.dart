@@ -38,16 +38,14 @@ class TheoryReplayCooldownManager {
     final map = _cache ?? <String, DateTime>{};
     await prefs.setString(
       _prefsKey,
-      jsonEncode(
-          {for (final e in map.entries) e.key: e.value.toIso8601String()}),
+      jsonEncode({
+        for (final e in map.entries) e.key: e.value.toIso8601String(),
+      }),
     );
   }
 
   /// Returns true if [tag] was suggested within [cooldown].
-  static Future<bool> isUnderCooldown(
-    String tag, {
-    Duration? cooldown,
-  }) async {
+  static Future<bool> isUnderCooldown(String tag, {Duration? cooldown}) async {
     final map = await _load();
     final last = map[tag];
     if (last == null) return false;

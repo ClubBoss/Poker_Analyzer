@@ -7,8 +7,8 @@ class TheoryBlockReviewStreakEvaluator {
   TheoryBlockReviewStreakEvaluator({
     DecayTagRetentionTrackerService? retention,
     TheoryBlockLibraryService? library,
-  })  : retention = retention ?? const DecayTagRetentionTrackerService(),
-        library = library ?? TheoryBlockLibraryService.instance;
+  }) : retention = retention ?? const DecayTagRetentionTrackerService(),
+       library = library ?? TheoryBlockLibraryService.instance;
 
   final DecayTagRetentionTrackerService retention;
   final TheoryBlockLibraryService library;

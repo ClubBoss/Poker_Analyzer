@@ -34,13 +34,15 @@ class SettingsPlaceholderScreen extends StatelessWidget {
       ['Time', 'Event'],
       for (final e in events)
         [
-          DateFormat('yyyy-MM-dd HH:mm:ss')
-              .format(DateTime.parse(e['time'] as String)),
-          e['event']
-        ]
+          DateFormat(
+            'yyyy-MM-dd HH:mm:ss',
+          ).format(DateTime.parse(e['time'] as String)),
+          e['event'],
+        ],
     ];
-    final csv = const ListToCsvConverter(fieldDelimiter: ';')
-        .convert(rows, eol: '\r\n');
+    final csv = const ListToCsvConverter(
+      fieldDelimiter: ';',
+    ).convert(rows, eol: '\r\n');
     final bytes = Uint8List.fromList(utf8.encode(csv));
     final name =
         'user_log_${DateFormat('yyyy-MM-dd_HH-mm').format(DateTime.now())}';
@@ -52,13 +54,14 @@ class SettingsPlaceholderScreen extends StatelessWidget {
         mimeType: MimeType.csv,
       );
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Файл сохранён: $name.csv')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Файл сохранён: $name.csv')));
     } catch (_) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Ошибка экспорта CSV')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Ошибка экспорта CSV')));
     }
   }
 
@@ -69,8 +72,9 @@ class SettingsPlaceholderScreen extends StatelessWidget {
     await Share.shareXFiles([XFile(path)], text: 'saved_hands_archive.zip');
     if (!context.mounted) return;
     final name = path.split(Platform.pathSeparator).last;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
   }
 
   Future<void> _exportSummary(BuildContext context) async {
@@ -79,8 +83,9 @@ class SettingsPlaceholderScreen extends StatelessWidget {
     final path = await manager.exportAllSessionsPdf(notes);
     if (path == null || !context.mounted) return;
     final name = path.split(Platform.pathSeparator).last;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
   }
 
   Future<void> _exportSummaryCsv(BuildContext context) async {
@@ -91,8 +96,9 @@ class SettingsPlaceholderScreen extends StatelessWidget {
     await Share.shareXFiles([XFile(path)], text: 'training_summary.csv');
     if (!context.mounted) return;
     final name = path.split(Platform.pathSeparator).last;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
   }
 
   @override
@@ -132,10 +138,7 @@ class SettingsPlaceholderScreen extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Text(
-              info,
-              style: const TextStyle(color: Colors.white70),
-            ),
+            child: Text(info, style: const TextStyle(color: Colors.white70)),
           ),
           SwitchListTile(
             value: dailyReminder.enabled,
@@ -157,8 +160,10 @@ class SettingsPlaceholderScreen extends StatelessWidget {
           ),
           ListTile(
             title: const Text('Time', style: TextStyle(color: Colors.white)),
-            subtitle:
-                Text(drInfo, style: const TextStyle(color: Colors.white70)),
+            subtitle: Text(
+              drInfo,
+              style: const TextStyle(color: Colors.white70),
+            ),
             onTap: () async {
               final picked = await showTimePicker(
                 context: context,
@@ -170,14 +175,17 @@ class SettingsPlaceholderScreen extends StatelessWidget {
             },
           ),
           ListTile(
-            title: const Text('Push Reminder',
-                style: TextStyle(color: Colors.white)),
+            title: const Text(
+              'Push Reminder',
+              style: TextStyle(color: Colors.white),
+            ),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (_) => const NotificationSettingsScreen()),
+                  builder: (_) => const NotificationSettingsScreen(),
+                ),
               );
             },
           ),
@@ -205,8 +213,10 @@ class SettingsPlaceholderScreen extends StatelessWidget {
             ),
           ),
           ListTile(
-            title: const Text('Goal Overview',
-                style: TextStyle(color: Colors.white)),
+            title: const Text(
+              'Goal Overview',
+              style: TextStyle(color: Colors.white),
+            ),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
               Navigator.push(
@@ -223,7 +233,8 @@ class SettingsPlaceholderScreen extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (_) => const WeaknessOverviewScreen()),
+                  builder: (_) => const WeaknessOverviewScreen(),
+                ),
               );
             },
           ),

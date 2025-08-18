@@ -45,14 +45,17 @@ class _TrainingSpotAnalysisScreenState
       investments.addAction(a);
     }
     final ante = widget.spot.anteBb * widget.spot.numberOfPlayers;
-    return PotCalculator()
-        .calculatePots(widget.spot.actions, investments, initialPot: ante);
+    return PotCalculator().calculatePots(
+      widget.spot.actions,
+      investments,
+      initialPot: ante,
+    );
   }
 
   Map<int, int> _computeStacks() {
     final initial = {
       for (int i = 0; i < widget.spot.numberOfPlayers; i++)
-        i: widget.spot.stacks[i]
+        i: widget.spot.stacks[i],
     };
     final manager = StackManager(initial);
     manager.applyActions(widget.spot.actions);
@@ -60,9 +63,9 @@ class _TrainingSpotAnalysisScreenState
   }
 
   Map<int, String> _posMap() => {
-        for (int i = 0; i < widget.spot.numberOfPlayers; i++)
-          i: widget.spot.positions[i]
-      };
+    for (int i = 0; i < widget.spot.numberOfPlayers; i++)
+      i: widget.spot.positions[i],
+  };
 
   String _overrideQuality(ActionEntry entry) {
     return entry.manualEvaluation ?? _evaluateActionQuality(entry);
@@ -97,8 +100,10 @@ class _TrainingSpotAnalysisScreenState
           collapsedIconColor: Colors.white,
           iconColor: Colors.white,
           textColor: Colors.white,
-          childrenPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          childrenPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 4,
+          ),
           children: [
             SizedBox(
               height: 180,
@@ -114,10 +119,12 @@ class _TrainingSpotAnalysisScreenState
                 onInsert: (_, __) {},
                 onDuplicate: (_) {},
                 visibleCount: widget.spot.actions.length,
-                evaluateActionQuality:
-                    prefs.coachMode ? _overrideQuality : null,
-                onManualEvaluationChanged:
-                    prefs.coachMode ? _setManualEvaluation : null,
+                evaluateActionQuality: prefs.coachMode
+                    ? _overrideQuality
+                    : null,
+                onManualEvaluationChanged: prefs.coachMode
+                    ? _setManualEvaluation
+                    : null,
               ),
             ),
           ],
@@ -132,10 +139,7 @@ class _TrainingSpotAnalysisScreenState
         actions: [SyncStatusIcon.of(context)],
       ),
       backgroundColor: Colors.black,
-      body: ListView(
-        padding: const EdgeInsets.all(8),
-        children: tiles,
-      ),
+      body: ListView(padding: const EdgeInsets.all(8), children: tiles),
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.all(8),
         child: ElevatedButton(

@@ -47,11 +47,16 @@ class StreetActionsList extends StatelessWidget {
   });
 
   Widget _buildTile(
-      BuildContext context, ActionEntry a, int globalIndex, int index) {
+    BuildContext context,
+    ActionEntry a,
+    int globalIndex,
+    int index,
+  ) {
     final color = actionColor(a.action);
     final pos = playerPositions[a.playerIndex] ?? 'P${a.playerIndex + 1}';
-    final actLabel =
-        a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action;
+    final actLabel = a.action == 'custom'
+        ? (a.customLabel ?? 'custom')
+        : a.action;
     final baseTitle = '$pos - $actLabel';
     final title = a.generated ? '$baseTitle (auto)' : baseTitle;
 
@@ -81,17 +86,15 @@ class StreetActionsList extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if (a.amount != null) ...[
-            ChipStackWidget(
-              amount: a.amount!,
-              scale: 0.7,
-              color: color,
-            ),
+            ChipStackWidget(amount: a.amount!, scale: 0.7, color: color),
             const SizedBox(width: 6),
           ],
           if (a.amount != null)
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8.0,
+                vertical: 4.0,
+              ),
               decoration: BoxDecoration(
                 color: color,
                 borderRadius: BorderRadius.circular(16),
@@ -153,8 +156,11 @@ class StreetActionsList extends StatelessWidget {
           if (onReorder != null)
             ReorderableDragStartListener(
               index: index,
-              child: const Icon(Icons.drag_handle,
-                  color: Colors.white70, size: 20),
+              child: const Icon(
+                Icons.drag_handle,
+                color: Colors.white70,
+                size: 20,
+              ),
             ),
           if (!a.generated)
             Padding(
@@ -202,7 +208,9 @@ class StreetActionsList extends StatelessWidget {
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: qualityColor,
                         borderRadius: BorderRadius.circular(8),
@@ -263,13 +271,15 @@ class StreetActionsList extends StatelessWidget {
 
   String _buildTooltipMessage(ActionEntry a, int index, String? qualityLabel) {
     final buffer = StringBuffer(
-        'Время: ${DateFormat('HH:mm:ss', Intl.getCurrentLocale()).format(a.timestamp)}');
+      'Время: ${DateFormat('HH:mm:ss', Intl.getCurrentLocale()).format(a.timestamp)}',
+    );
     if (index > 0) {
       final prev = actions[index - 1];
       final diffMs = a.timestamp.difference(prev.timestamp).inMilliseconds;
       final diffSec = diffMs / 1000;
       buffer.writeln(
-          '\nС момента прошлого действия: +${diffSec.toStringAsFixed(1)} сек');
+        '\nС момента прошлого действия: +${diffSec.toStringAsFixed(1)} сек',
+      );
     }
     if (qualityLabel != null) {
       buffer.writeln('\nОценка: $qualityLabel');
@@ -295,8 +305,10 @@ class StreetActionsList extends StatelessWidget {
         if (streetActions.isEmpty)
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 8.0),
-            child:
-                Text('Действий нет', style: TextStyle(color: Colors.white54)),
+            child: Text(
+              'Действий нет',
+              style: TextStyle(color: Colors.white54),
+            ),
           )
         else
           ConstrainedBox(
@@ -311,8 +323,10 @@ class StreetActionsList extends StatelessWidget {
                 if (newIndex >= streetActions.length) {
                   newGlobal = actions.indexOf(streetActions.last) + 1;
                 } else {
-                  final target = streetActions[
-                      newIndex > oldIndex ? newIndex - 1 : newIndex];
+                  final target =
+                      streetActions[newIndex > oldIndex
+                          ? newIndex - 1
+                          : newIndex];
                   newGlobal = actions.indexOf(target);
                   if (newIndex > oldIndex) newGlobal += 1;
                 }
@@ -321,7 +335,8 @@ class StreetActionsList extends StatelessWidget {
               itemCount: streetActions.length,
               itemBuilder: (context, index) {
                 final entry = streetActions[index];
-                final showDivider = index > 0 &&
+                final showDivider =
+                    index > 0 &&
                     (entry.action == 'bet' || entry.action == 'raise');
                 return Dismissible(
                   key: ValueKey(entry.timestamp.microsecondsSinceEpoch),

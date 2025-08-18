@@ -27,12 +27,12 @@ void main() {
     test('aggregates converters from multiple plugins', () {
       final registry = ServiceRegistry();
       final manager = PluginManager();
-      manager.load(ConverterDiscoveryPlugin(<ConverterPlugin>[
-        _DummyConverter('a'),
-      ]));
-      manager.load(ConverterDiscoveryPlugin(<ConverterPlugin>[
-        _DummyConverter('b'),
-      ]));
+      manager.load(
+        ConverterDiscoveryPlugin(<ConverterPlugin>[_DummyConverter('a')]),
+      );
+      manager.load(
+        ConverterDiscoveryPlugin(<ConverterPlugin>[_DummyConverter('b')]),
+      );
 
       manager.initializeAll(registry);
 

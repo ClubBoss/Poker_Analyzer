@@ -99,8 +99,10 @@ class _TheoryClusterDetailScreenState extends State<TheoryClusterDetailScreen> {
               padding: const EdgeInsets.only(bottom: 8),
               child: Text(
                 tags,
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           TheoryPathProgressBar(

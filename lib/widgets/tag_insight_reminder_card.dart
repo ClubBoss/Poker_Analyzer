@@ -79,7 +79,9 @@ class _TagInsightReminderCardState extends State<TagInsightReminderCard> {
                                 Text(
                                   l.trend,
                                   style: const TextStyle(
-                                      color: Colors.white70, fontSize: 12),
+                                    color: Colors.white70,
+                                    fontSize: 12,
+                                  ),
                                 ),
                             ],
                           ),
@@ -87,8 +89,9 @@ class _TagInsightReminderCardState extends State<TagInsightReminderCard> {
                       ),
                       ElevatedButton(
                         onPressed: () => _open(l.tag),
-                        style:
-                            ElevatedButton.styleFrom(backgroundColor: accent),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: accent,
+                        ),
                         child: const Text('Review now'),
                       ),
                     ],

@@ -27,15 +27,15 @@ class _FakeLibrary implements MiniLessonLibraryService {
 
   @override
   List<TheoryMiniLessonNode> findByTags(List<String> tags) => [
-        for (final t in tags)
-          if (byTag[t] != null) byTag[t]!,
-      ];
+    for (final t in tags)
+      if (byTag[t] != null) byTag[t]!,
+  ];
 
   @override
   List<TheoryMiniLessonNode> getByTags(Set<String> tags) => [
-        for (final t in tags)
-          if (byTag[t] != null) byTag[t]!,
-      ];
+    for (final t in tags)
+      if (byTag[t] != null) byTag[t]!,
+  ];
 }
 
 class _FakeNavigator extends TheoryMiniLessonNavigator {
@@ -56,15 +56,21 @@ void main() {
 
   testWidgets('shows card and navigates via navigator', (tester) async {
     const lesson = TheoryMiniLessonNode(
-        id: 'l1', title: 'Intro', content: '', tags: ['t']);
+      id: 'l1',
+      title: 'Intro',
+      content: '',
+      tags: ['t'],
+    );
     final library = _FakeLibrary({'t': lesson});
     final nav = _FakeNavigator();
-    await tester.pumpWidget(MaterialApp(
-      home: InlineTheoryLinkerWidget(
-        tags: const ['t'],
-        linker: InlineTheoryLinker(library: library, navigator: nav),
+    await tester.pumpWidget(
+      MaterialApp(
+        home: InlineTheoryLinkerWidget(
+          tags: const ['t'],
+          linker: InlineTheoryLinker(library: library, navigator: nav),
+        ),
       ),
-    ));
+    );
     expect(find.byType(Card), findsOneWidget);
     expect(find.text('Review Theory: Intro'), findsOneWidget);
     await tester.tap(find.text('Open'));
@@ -73,13 +79,17 @@ void main() {
 
   testWidgets('renders nothing when no link found', (tester) async {
     final library = _FakeLibrary({});
-    await tester.pumpWidget(MaterialApp(
-      home: InlineTheoryLinkerWidget(
-        tags: const ['x'],
-        linker:
-            InlineTheoryLinker(library: library, navigator: _FakeNavigator()),
+    await tester.pumpWidget(
+      MaterialApp(
+        home: InlineTheoryLinkerWidget(
+          tags: const ['x'],
+          linker: InlineTheoryLinker(
+            library: library,
+            navigator: _FakeNavigator(),
+          ),
+        ),
       ),
-    ));
+    );
     expect(find.byType(Card), findsNothing);
   });
 }

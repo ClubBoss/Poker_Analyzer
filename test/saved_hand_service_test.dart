@@ -20,7 +20,7 @@ void main() {
       numberOfPlayers: 2,
       playerCards: [
         [CardModel(rank: 'A', suit: '♠'), CardModel(rank: 'K', suit: '♦')],
-        []
+        [],
       ],
       boardCards: [],
       boardStreet: 0,

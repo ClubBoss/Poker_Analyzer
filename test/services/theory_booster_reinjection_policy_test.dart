@@ -21,8 +21,8 @@ void main() {
           'deltaEV': 0.005,
           'spotsTracked': 3,
           'timestamp': now.toIso8601String(),
-        }
-      ])
+        },
+      ]),
     });
     final policy = TheoryBoosterReinjectionPolicy();
     expect(await policy.shouldReinject('b1'), false);
@@ -38,8 +38,8 @@ void main() {
           'deltaEV': 0.1,
           'spotsTracked': 10,
           'timestamp': now.toIso8601String(),
-        }
-      ])
+        },
+      ]),
     });
     final policy = TheoryBoosterReinjectionPolicy();
     expect(await policy.shouldReinject('b2'), true);
@@ -55,8 +55,8 @@ void main() {
           'deltaEV': 0.0,
           'spotsTracked': 4,
           'timestamp': now.toIso8601String(),
-        }
-      ])
+        },
+      ]),
     });
     final policy = TheoryBoosterReinjectionPolicy();
     expect(await policy.shouldReinject('b3'), false);
@@ -69,8 +69,8 @@ void main() {
           'deltaEV': 0.2,
           'spotsTracked': 10,
           'timestamp': now.toIso8601String(),
-        }
-      ])
+        },
+      ]),
     });
     // Should still be false because id is cached
     expect(await policy.shouldReinject('b3'), false);

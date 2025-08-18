@@ -15,8 +15,8 @@ class TheoryAutoRecallInjector {
   const TheoryAutoRecallInjector({
     DecayTagRetentionTrackerService? retention,
     MiniLessonLibraryService? lessons,
-  })  : retention = retention ?? const DecayTagRetentionTrackerService(),
-        lessons = lessons ?? MiniLessonLibraryService.instance;
+  }) : retention = retention ?? const DecayTagRetentionTrackerService(),
+       lessons = lessons ?? MiniLessonLibraryService.instance;
 
   /// Builds a widget that conditionally injects a theory snippet below [entry].
   Widget build(BuildContext context, String nodeId, Object entry) {
@@ -57,8 +57,10 @@ class TheoryAutoRecallInjector {
               const Divider(color: Colors.white24, height: 16),
               Text(
                 lesson.resolvedTitle,
-                style:
-                    const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 2),
               Text(
@@ -108,8 +110,11 @@ class _RecallBoostSnippetState extends State<_RecallBoostSnippet> {
     final duration = DateTime.now().difference(_visibleAt!).inMilliseconds;
     if (duration >= 1000) {
       _logged = true;
-      RecallBoostInteractionLogger.instance
-          .logView(widget.tag, widget.nodeId, duration);
+      RecallBoostInteractionLogger.instance.logView(
+        widget.tag,
+        widget.nodeId,
+        duration,
+      );
     }
     _visibleAt = null;
   }

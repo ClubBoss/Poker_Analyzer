@@ -20,8 +20,12 @@ class DecayRewardAnalyticsService {
       try {
         final data = jsonDecode(raw);
         if (data is List) {
-          _log.addAll(data.whereType<Map>().map((e) =>
-              RewardAnalyticsEntry.fromJson(Map<String, dynamic>.from(e))));
+          _log.addAll(
+            data.whereType<Map>().map(
+              (e) =>
+                  RewardAnalyticsEntry.fromJson(Map<String, dynamic>.from(e)),
+            ),
+          );
         }
       } catch (_) {}
     }
@@ -56,7 +60,7 @@ class DecayRewardAnalyticsService {
     final key = tag.toLowerCase();
     return [
       for (final e in _log)
-        if (e.tag == key) e
+        if (e.tag == key) e,
     ];
   }
 

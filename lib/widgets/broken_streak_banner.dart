@@ -80,10 +80,7 @@ class _BrokenStreakBannerState extends State<BrokenStreakBanner> {
             children: [
               const Text(
                 'Возобновите серию тренировок',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               for (int i = 0; i < items.length; i++) ...[

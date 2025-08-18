@@ -10,11 +10,12 @@ class TemplatePreviewDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final parts = template.version.split('.');
-    final version =
-        parts.length >= 2 ? '${parts[0]}.${parts[1]}' : template.version;
+    final version = parts.length >= 2
+        ? '${parts[0]}.${parts[1]}'
+        : template.version;
     final names = [
       for (final h in template.hands.take(5))
-        h.name.isEmpty ? 'Без названия' : h.name
+        h.name.isEmpty ? 'Без названия' : h.name,
     ];
     final rest = template.hands.length - names.length;
     return AlertDialog(
@@ -43,7 +44,8 @@ class TemplatePreviewDialog extends StatelessWidget {
             if (template.author.isNotEmpty) Text('Автор: ${template.author}'),
             const SizedBox(height: 8),
             Text(
-                '${template.hands.length} раздач / ${template.tags.length} тегов'),
+              '${template.hands.length} раздач / ${template.tags.length} тегов',
+            ),
             const SizedBox(height: 8),
             for (final n in names)
               Text('• $n', overflow: TextOverflow.ellipsis),

@@ -77,7 +77,8 @@ class _CreatePackFromTemplateScreenState
     setState(() {
       _prefs = prefs;
       _color = colorFromHex(
-          prefs.getString(_colorKey) ?? widget.template.defaultColor);
+        prefs.getString(_colorKey) ?? widget.template.defaultColor,
+      );
       _addTags = prefs.getBool(_tagsKey) ?? true;
       final cat = prefs.getString(_lastCategoryKey);
       if (cat != null && cat.isNotEmpty) _categoryController.text = cat;
@@ -110,8 +111,9 @@ class _CreatePackFromTemplateScreenState
       builder: (context) => StatefulBuilder(
         builder: (context, setStateDialog) {
           Future<void> rename(int index) async {
-            final controller =
-                TextEditingController(text: _selected[index].name);
+            final controller = TextEditingController(
+              text: _selected[index].name,
+            );
             final name = await showDialog<String>(
               context: context,
               builder: (context) => AlertDialog(
@@ -135,8 +137,9 @@ class _CreatePackFromTemplateScreenState
               ),
             );
             if (name != null && name.isNotEmpty) {
-              setStateDialog(() =>
-                  _selected[index] = _selected[index].copyWith(name: name));
+              setStateDialog(
+                () => _selected[index] = _selected[index].copyWith(name: name),
+              );
               setState(() {});
             }
           }
@@ -241,7 +244,7 @@ class _CreatePackFromTemplateScreenState
             _estimateDifficulty(h) <= _maxDifficulty &&
             (!_onlySelectedMode || _selected.contains(h)) &&
             (query.isEmpty || h.name.toLowerCase().contains(query)))
-          h
+          h,
     ];
     return Scaffold(
       appBar: AppBar(title: Text(widget.template.name)),
@@ -251,8 +254,9 @@ class _CreatePackFromTemplateScreenState
         child: Column(
           children: [
             TextField(
-                controller: _name,
-                decoration: const InputDecoration(labelText: 'Название')),
+              controller: _name,
+              decoration: const InputDecoration(labelText: 'Название'),
+            ),
             const SizedBox(height: 16),
             TextField(
               controller: _categoryController,
@@ -263,7 +267,9 @@ class _CreatePackFromTemplateScreenState
               leading: CircleAvatar(backgroundColor: _color),
               title: const Text('Цвет'),
               trailing: IconButton(
-                  icon: const Icon(Icons.color_lens), onPressed: _pickColor),
+                icon: const Icon(Icons.color_lens),
+                onPressed: _pickColor,
+              ),
             ),
             CheckboxListTile(
               value: _addTags,

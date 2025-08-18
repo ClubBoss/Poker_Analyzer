@@ -6,7 +6,7 @@ import 'decay_spot_booster_engine.dart';
 /// Background job that periodically enqueues decay boosters.
 class DecayBoosterCronJob with WidgetsBindingObserver {
   DecayBoosterCronJob({DecaySpotBoosterEngine? engine})
-      : engine = engine ?? DecaySpotBoosterEngine();
+    : engine = engine ?? DecaySpotBoosterEngine();
 
   final DecaySpotBoosterEngine engine;
 

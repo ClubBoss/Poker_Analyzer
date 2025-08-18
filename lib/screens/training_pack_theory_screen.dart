@@ -19,10 +19,7 @@ class TrainingPackTheoryScreen extends StatelessWidget {
         children: [
           if (template.description.isNotEmpty)
             _linker
-                .link(
-                  template.description,
-                  contextTags: template.tags,
-                )
+                .link(template.description, contextTags: template.tags)
                 .toRichText(
                   style: const TextStyle(color: Colors.white, fontSize: 12),
                   linkStyle: const TextStyle(color: Colors.lightBlueAccent),
@@ -30,10 +27,7 @@ class TrainingPackTheoryScreen extends StatelessWidget {
           if (template.goal.isNotEmpty) ...[
             const SizedBox(height: 8),
             _linker
-                .link(
-                  template.goal,
-                  contextTags: template.tags,
-                )
+                .link(template.goal, contextTags: template.tags)
                 .toRichText(
                   style: const TextStyle(color: Colors.white, fontSize: 12),
                   linkStyle: const TextStyle(color: Colors.lightBlueAccent),

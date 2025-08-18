@@ -28,8 +28,9 @@ class PackFilterController extends ChangeNotifier {
     difficulties
       ..clear()
       ..addAll(
-          _prefs!.getStringList(_diffKey)?.map(int.tryParse).whereType<int>() ??
-              {});
+        _prefs!.getStringList(_diffKey)?.map(int.tryParse).whereType<int>() ??
+            {},
+      );
   }
 
   void _save() {

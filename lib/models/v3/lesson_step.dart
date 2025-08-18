@@ -18,7 +18,7 @@ class Quiz {
   factory Quiz.fromYaml(Map yaml) {
     final question = yaml['question']?.toString() ?? '';
     final options = [
-      for (final o in (yaml['options'] as List? ?? [])) o.toString()
+      for (final o in (yaml['options'] as List? ?? [])) o.toString(),
     ];
     final index = (yaml['correctIndex'] as num?)?.toInt() ?? 0;
     return Quiz(question: question, options: options, correctIndex: index);

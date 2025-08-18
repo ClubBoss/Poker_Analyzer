@@ -27,8 +27,9 @@ class TagMasteryHistoryService {
           if (list is List) {
             for (final item in list) {
               if (item is Map) {
-                entries.add(TagXpHistoryEntry.fromJson(
-                    Map<String, dynamic>.from(item)));
+                entries.add(
+                  TagXpHistoryEntry.fromJson(Map<String, dynamic>.from(item)),
+                );
               }
             }
           }
@@ -68,7 +69,10 @@ class TagMasteryHistoryService {
       final byWeek = SplayTreeMap<DateTime, int>();
       for (final e in entry.value) {
         final monday = DateTime.utc(
-            e.date.year, e.date.month, e.date.day - (e.date.weekday - 1));
+          e.date.year,
+          e.date.month,
+          e.date.day - (e.date.weekday - 1),
+        );
         byWeek[monday] = (byWeek[monday] ?? 0) + e.xp;
       }
       result[entry.key] = byWeek;
@@ -96,7 +100,8 @@ class TagMasteryHistoryService {
 
   /// Returns a normalized cumulative mastery timeline for [tag].
   Future<List<MapEntry<DateTime, double>>> getMasteryTimeline(
-      String tag) async {
+    String tag,
+  ) async {
     final hist = await getHistory();
     final list = hist[tag.toLowerCase()] ?? <TagXpHistoryEntry>[];
     if (list.isEmpty) return <MapEntry<DateTime, double>>[];
@@ -112,7 +117,7 @@ class TagMasteryHistoryService {
     if (maxVal > minVal) {
       return [
         for (final e in timeline)
-          MapEntry(e.key, (e.value - minVal) / (maxVal - minVal))
+          MapEntry(e.key, (e.value - minVal) / (maxVal - minVal)),
       ];
     } else {
       return [for (final e in timeline) MapEntry(e.key, 1.0)];

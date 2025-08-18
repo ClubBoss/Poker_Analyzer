@@ -21,10 +21,9 @@ class MyAchievementsScreen extends StatelessWidget {
       body: Builder(
         builder: (context) {
           final service = context.watch<GoalsService>();
-          final completed = service.achievements
-              .where((a) => a.completed)
-              .toList()
-            ..sort((a, b) => b.completedAt!.compareTo(a.completedAt!));
+          final completed =
+              service.achievements.where((a) => a.completed).toList()
+                ..sort((a, b) => b.completedAt!.compareTo(a.completedAt!));
 
           if (completed.isEmpty) {
             return const Center(child: Text('Достижения еще не получены'));
@@ -46,11 +45,14 @@ class MyAchievementsScreen extends StatelessWidget {
                   final item = completed[index];
                   return Container(
                     padding: responsiveAll(
-                        context, AppConstants.defaultPadding * 0.75),
+                      context,
+                      AppConstants.defaultPadding * 0.75,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.grey[850],
-                      borderRadius:
-                          BorderRadius.circular(AppConstants.cardCornerRadius),
+                      borderRadius: BorderRadius.circular(
+                        AppConstants.cardCornerRadius,
+                      ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,9 +61,7 @@ class MyAchievementsScreen extends StatelessWidget {
                         const SizedBox(height: 8),
                         Text(
                           item.title,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         const Spacer(),
                         Row(
@@ -72,8 +72,9 @@ class MyAchievementsScreen extends StatelessWidget {
                                 child: LinearProgressIndicator(
                                   value: 1.0,
                                   backgroundColor: Colors.white24,
-                                  valueColor:
-                                      AlwaysStoppedAnimation<Color>(accent),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    accent,
+                                  ),
                                   minHeight: 6,
                                 ),
                               ),

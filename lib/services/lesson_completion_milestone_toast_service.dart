@@ -15,7 +15,9 @@ class LessonCompletionMilestoneToastService {
   };
 
   Future<void> showIfMilestoneReached(
-      BuildContext context, int completionCount) async {
+    BuildContext context,
+    int completionCount,
+  ) async {
     final message = _messages[completionCount];
     if (message == null) return;
 
@@ -29,10 +31,7 @@ class LessonCompletionMilestoneToastService {
     await prefs.setString(key, todayStr);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 2),
-      ),
+      SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
     );
   }
 }

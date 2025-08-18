@@ -7,14 +7,14 @@ import 'package:poker_analyzer/models/v2/training_pack_template_v2.dart';
 import 'package:poker_analyzer/core/training/engine/training_type_engine.dart';
 
 WeakClusterInfo _cluster(String tag) => WeakClusterInfo(
-      cluster: TheoryClusterSummary(
-        size: 1,
-        entryPointIds: const ['l1'],
-        sharedTags: {tag},
-      ),
-      coverage: 1.0,
-      score: 1.0,
-    );
+  cluster: TheoryClusterSummary(
+    size: 1,
+    entryPointIds: const ['l1'],
+    sharedTags: {tag},
+  ),
+  coverage: 1.0,
+  score: 1.0,
+);
 
 TrainingPackTemplateV2 _booster(String id, String tag) =>
     TrainingPackTemplateV2(
@@ -52,11 +52,7 @@ void main() {
   test('scheduleBoosters skips mastered tags', () {
     final clusters = [_cluster('a')];
     final boosters = [_booster('b1', 'a')];
-    final profile = PlayerProfile(
-      xp: 0,
-      tags: {'a'},
-      tagAccuracy: {'a': 0.9},
-    );
+    final profile = PlayerProfile(xp: 0, tags: {'a'}, tagAccuracy: {'a': 0.9});
 
     const engine = BoosterInjectionEngine();
     final result = engine.scheduleBoosters(

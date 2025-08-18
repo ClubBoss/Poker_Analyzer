@@ -86,7 +86,7 @@ class _YamlPackArchiveStatsScreenState
       appBar: AppBar(
         title: const Text('Статистика архива'),
         actions: [
-          IconButton(onPressed: _load, icon: const Icon(Icons.refresh))
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh)),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
@@ -95,21 +95,30 @@ class _YamlPackArchiveStatsScreenState
             children: [
               TextButton(
                 onPressed: () => setState(() => _sort = 'id'),
-                child: Text('ID',
-                    style: TextStyle(
-                        color: _sort == 'id' ? Colors.amber : Colors.white)),
+                child: Text(
+                  'ID',
+                  style: TextStyle(
+                    color: _sort == 'id' ? Colors.amber : Colors.white,
+                  ),
+                ),
               ),
               TextButton(
                 onPressed: () => setState(() => _sort = 'date'),
-                child: Text('Дата',
-                    style: TextStyle(
-                        color: _sort == 'date' ? Colors.amber : Colors.white)),
+                child: Text(
+                  'Дата',
+                  style: TextStyle(
+                    color: _sort == 'date' ? Colors.amber : Colors.white,
+                  ),
+                ),
               ),
               TextButton(
                 onPressed: () => setState(() => _sort = 'size'),
-                child: Text('Размер',
-                    style: TextStyle(
-                        color: _sort == 'size' ? Colors.amber : Colors.white)),
+                child: Text(
+                  'Размер',
+                  style: TextStyle(
+                    color: _sort == 'size' ? Colors.amber : Colors.white,
+                  ),
+                ),
               ),
             ],
           ),
@@ -132,19 +141,25 @@ class _YamlPackArchiveStatsScreenState
                     ],
                     rows: [
                       for (final e in _sorted())
-                        DataRow(cells: [
-                          DataCell(Text(e.key)),
-                          DataCell(Text('${e.value.count}')),
-                          DataCell(Text(_sizeStr(e.value.size))),
-                          DataCell(Text(
-                              '${DateFormat('yyyy-MM-dd').format(e.value.first)} - ${DateFormat('yyyy-MM-dd').format(e.value.last)}')),
-                        ]),
+                        DataRow(
+                          cells: [
+                            DataCell(Text(e.key)),
+                            DataCell(Text('${e.value.count}')),
+                            DataCell(Text(_sizeStr(e.value.size))),
+                            DataCell(
+                              Text(
+                                '${DateFormat('yyyy-MM-dd').format(e.value.first)} - ${DateFormat('yyyy-MM-dd').format(e.value.last)}',
+                              ),
+                            ),
+                          ],
+                        ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 16),
                 Text(
-                    '📊 Архив: $_totalFiles файлов, ${_sizeStr(_totalSize)}, ${_stats.length} паков'),
+                  '📊 Архив: $_totalFiles файлов, ${_sizeStr(_totalSize)}, ${_stats.length} паков',
+                ),
               ],
             ),
     );

@@ -9,8 +9,9 @@ import 'package:poker_analyzer/widgets/pack_card.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('shows almost unlocked badge when halfway to requirements',
-      (tester) async {
+  testWidgets('shows almost unlocked badge when halfway to requirements', (
+    tester,
+  ) async {
     SharedPreferences.setMockInitialValues({
       'tpl_stat_pack': '{"accuracy":0.6,"last":0}',
       'tpl_prog_pack': 5,
@@ -25,9 +26,11 @@ void main() {
       spotCount: 20,
     );
 
-    await tester.pumpWidget(MaterialApp(
-      home: PackCard(template: tpl, onTap: () {}),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: PackCard(template: tpl, onTap: () {}),
+      ),
+    );
     await tester.pumpAndSettle();
 
     expect(find.text('Почти разблокировано'), findsOneWidget);

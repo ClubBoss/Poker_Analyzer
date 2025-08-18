@@ -25,14 +25,14 @@ class TheoryPackLibraryService {
           'title': 'When to push',
           'text':
               'Short stack play revolves around pushing all-in when under 15BBs.',
-          'type': 'info'
+          'type': 'info',
         },
         {
           'title': 'Ranges',
           'text': 'Push widest from BTN and SB, tighten in early positions.',
-          'type': 'tip'
+          'type': 'tip',
         },
-      ]
+      ],
     },
     {
       'id': 'icm_essentials',
@@ -42,14 +42,14 @@ class TheoryPackLibraryService {
         {
           'title': 'What is ICM',
           'text': 'ICM evaluates chip value based on payout structure.',
-          'type': 'info'
+          'type': 'info',
         },
         {
           'title': 'Bubble play',
           'text': 'Near the money bubble tighten your calling ranges.',
-          'type': 'tip'
+          'type': 'tip',
         },
-      ]
+      ],
     },
     {
       'id': 'tournament_tips',
@@ -59,14 +59,14 @@ class TheoryPackLibraryService {
         {
           'title': 'Before you play',
           'text': 'Get rest, review ranges and plan your session.',
-          'type': 'info'
+          'type': 'info',
         },
         {
           'title': 'During breaks',
           'text': 'Check big hands quickly and stay hydrated.',
-          'type': 'tip'
+          'type': 'tip',
         },
-      ]
+      ],
     },
   ];
 
@@ -128,7 +128,11 @@ class TheoryPackLibraryService {
           }
         }
         final pack = TheoryPackModel(
-            id: id, title: title, sections: sections, tags: tags);
+          id: id,
+          title: title,
+          sections: sections,
+          tags: tags,
+        );
         _packs.add(pack);
         _index[id] = pack;
       } catch (_) {}

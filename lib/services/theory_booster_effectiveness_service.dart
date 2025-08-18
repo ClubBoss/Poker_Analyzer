@@ -59,7 +59,7 @@ class TheoryBoosterEffectivenessService {
     final list = await _load();
     return [
       for (final l in list)
-        if (l.id == id) l
+        if (l.id == id) l,
     ];
   }
 }

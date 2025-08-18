@@ -34,8 +34,10 @@ class ShowdownTab extends StatelessWidget {
                 : cards.map((c) => '${c.rank}${c.suit}').join(' ');
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 2),
-              child: Text('Player ${i + 1} - $text',
-                  style: const TextStyle(color: Colors.white70)),
+              child: Text(
+                'Player ${i + 1} - $text',
+                style: const TextStyle(color: Colors.white70),
+              ),
             );
           }),
           const SizedBox(height: 16),
@@ -43,8 +45,10 @@ class ShowdownTab extends StatelessWidget {
           if (pot > 0)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text('Unclaimed pot: ${pot.toStringAsFixed(1)} BB',
-                  style: const TextStyle(color: Colors.white38)),
+              child: Text(
+                'Unclaimed pot: ${pot.toStringAsFixed(1)} BB',
+                style: const TextStyle(color: Colors.white38),
+              ),
             ),
           const SizedBox(height: 8),
           ...List.generate(names.length, (i) {

@@ -7,9 +7,7 @@ class TrainingGenerator {
   /// Converts [hand] into a [TrainingSpot] preserving tournament metadata.
   TrainingSpot generateFromSavedHand(SavedHand hand) {
     return TrainingSpot(
-      playerCards: [
-        for (final list in hand.playerCards) List.of(list),
-      ],
+      playerCards: [for (final list in hand.playerCards) List.of(list)],
       boardCards: List.of(hand.boardCards),
       actions: List.of(hand.actions),
       heroIndex: hand.heroIndex,

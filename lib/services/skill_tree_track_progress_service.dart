@@ -31,9 +31,9 @@ class SkillTreeTrackProgressService {
     SkillTreeLibraryService? library,
     SkillTreeNodeProgressTracker? progress,
     SkillTreeFinalNodeCompletionDetector? detector,
-  })  : library = library ?? SkillTreeLibraryService.instance,
-        progress = progress ?? SkillTreeNodeProgressTracker.instance,
-        detector = detector ?? SkillTreeFinalNodeCompletionDetector();
+  }) : library = library ?? SkillTreeLibraryService.instance,
+       progress = progress ?? SkillTreeNodeProgressTracker.instance,
+       detector = detector ?? SkillTreeFinalNodeCompletionDetector();
 
   Future<void> _ensureLoaded() async {
     if (library.getAllNodes().isEmpty) {
@@ -54,7 +54,8 @@ class SkillTreeTrackProgressService {
     final results = <TrackProgressEntry>[];
     final categories = byCategory.keys.toList()..sort();
     for (final cat in categories) {
-      final tree = library.getTree(cat)?.tree ??
+      final tree =
+          library.getTree(cat)?.tree ??
           builder.build(byCategory[cat]!, category: cat).tree;
       final compIds = progress.completedNodeIds.value;
       var total = 0;

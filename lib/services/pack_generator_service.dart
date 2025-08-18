@@ -28,7 +28,7 @@ class PackGeneratorService {
     '5',
     '4',
     '3',
-    '2'
+    '2',
   ];
 
   static final List<String> handRanking = (() {
@@ -130,7 +130,8 @@ class PackGeneratorService {
   }
 
   static Future<TrainingPackTemplate> generatePackFromPreset(
-      TrainingPackPreset p) async {
+    TrainingPackPreset p,
+  ) async {
     List<String>? range = p.heroRange;
     if (range == null || range.isEmpty) {
       final loaded = await RangeLibraryService.instance.getRange(p.id);
@@ -140,7 +141,7 @@ class PackGeneratorService {
     if (p.spots.isNotEmpty) {
       spots = [
         for (var i = 0; i < p.spots.length; i++)
-          _fromTrainingSpot(p.spots[i], '${p.id}_${i + 1}')
+          _fromTrainingSpot(p.spots[i], '${p.id}_${i + 1}'),
       ];
     } else {
       spots = await autoGenerateSpots(
@@ -205,11 +206,11 @@ class PackGeneratorService {
               ActionEntry(0, j, 'call', amount: heroBbStack.toDouble())
             else
               ActionEntry(0, j, 'fold'),
-        ]
+        ],
       };
       final stacks = {
         for (var j = 0; j < playerStacksBb.length; j++)
-          '$j': playerStacksBb[j].toDouble()
+          '$j': playerStacksBb[j].toDouble(),
       };
       final spot = TrainingPackSpot(
         id: '${id}_${i + 1}',
@@ -263,7 +264,7 @@ class PackGeneratorService {
     final spots = <TrainingPackSpot>[];
     final diffs = [
       for (var i = 0; i < playerStacksBb.length; i++)
-        playerStacksBb[i] - playerStacksBb.first
+        playerStacksBb[i] - playerStacksBb.first,
     ];
     for (var bb = minBb; bb <= maxBb; bb++) {
       final players = [for (final d in diffs) bb + d];
@@ -318,7 +319,7 @@ class PackGeneratorService {
   static Set<String> parseRangeString(String raw) {
     return {
       for (final t in raw.split(RegExp('[,;s]+')))
-        if (t.trim().isNotEmpty) t.trim()
+        if (t.trim().isNotEmpty) t.trim(),
     };
   }
 
@@ -332,15 +333,19 @@ class PackGeneratorService {
     final board = [for (final c in spot.boardCards) '${c.rank}${c.suit}'];
     final actions = <int, List<ActionEntry>>{};
     for (final a in spot.actions) {
-      actions.putIfAbsent(a.street, () => []).add(ActionEntry(
-            a.street,
-            a.playerIndex,
-            a.action,
-            amount: a.amount,
-            generated: a.generated,
-            manualEvaluation: a.manualEvaluation,
-            customLabel: a.customLabel,
-          ));
+      actions
+          .putIfAbsent(a.street, () => [])
+          .add(
+            ActionEntry(
+              a.street,
+              a.playerIndex,
+              a.action,
+              amount: a.amount,
+              generated: a.generated,
+              manualEvaluation: a.manualEvaluation,
+              customLabel: a.customLabel,
+            ),
+          );
     }
     final stacks = <String, double>{};
     for (var i = 0; i < spot.stacks.length; i++) {
@@ -375,14 +380,18 @@ class PackGeneratorService {
     for (var i = 0; i < range.length; i++) {
       final actions = {
         0: [
-          ActionEntry(0, heroIndex, 'push',
-              amount: stacks[heroIndex].toDouble()),
+          ActionEntry(
+            0,
+            heroIndex,
+            'push',
+            amount: stacks[heroIndex].toDouble(),
+          ),
           for (var j = 0; j < stacks.length; j++)
             if (j != heroIndex) ActionEntry(0, j, 'fold'),
-        ]
+        ],
       };
       final stacksMap = {
-        for (var j = 0; j < stacks.length; j++) '$j': stacks[j].toDouble()
+        for (var j = 0; j < stacks.length; j++) '$j': stacks[j].toDouble(),
       };
       final chipEv = computePushEV(
         heroBbStack: stacks[heroIndex],
@@ -427,7 +436,9 @@ class PackGeneratorService {
   }
 
   static Future<TrainingPackSpot> generateExampleSpot(
-      TrainingPackTemplate template, TrainingPackVariant variant) async {
+    TrainingPackTemplate template,
+    TrainingPackVariant variant,
+  ) async {
     var range = <String>[];
     if (variant.rangeId != null) {
       range = await RangeLibraryService.instance.getRange(variant.rangeId!);
@@ -463,7 +474,7 @@ class PackGeneratorService {
       0: [
         ActionEntry(0, 0, 'raise', amount: 3),
         ActionEntry(0, 1, 'call', amount: 3),
-      ]
+      ],
     };
     return TrainingPackSpot(
       id: const Uuid().v4(),

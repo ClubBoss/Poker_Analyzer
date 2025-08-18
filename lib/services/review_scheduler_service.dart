@@ -13,8 +13,8 @@ class ReviewSchedulerService {
 
   /// Returns true if [lessonId] was completed and is due for review.
   Future<bool> isDueForReview(String lessonId) async {
-    final completedLessons =
-        await TheoryLessonCompletionLogger.instance.getCompletedLessons();
+    final completedLessons = await TheoryLessonCompletionLogger.instance
+        .getCompletedLessons();
     final completedAt = completedLessons[lessonId];
     if (completedAt == null) return false;
 
@@ -23,8 +23,9 @@ class ReviewSchedulerService {
     final scheduleIndex = reviewCount < _scheduleDays.length
         ? reviewCount
         : _scheduleDays.length - 1;
-    final dueDate =
-        completedAt.add(Duration(days: _scheduleDays[scheduleIndex]));
+    final dueDate = completedAt.add(
+      Duration(days: _scheduleDays[scheduleIndex]),
+    );
     return DateTime.now().isAfter(dueDate);
   }
 

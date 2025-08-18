@@ -6,14 +6,10 @@ import 'package:poker_analyzer/models/v2/training_pack_template_v2.dart';
 import 'package:poker_analyzer/core/training/engine/training_type_engine.dart';
 
 WeakClusterInfo _cluster(String id, Set<String> tags) => WeakClusterInfo(
-      cluster: TheoryClusterSummary(
-        size: 1,
-        entryPointIds: [id],
-        sharedTags: tags,
-      ),
-      coverage: 1.0,
-      score: 1.0,
-    );
+  cluster: TheoryClusterSummary(size: 1, entryPointIds: [id], sharedTags: tags),
+  coverage: 1.0,
+  score: 1.0,
+);
 
 TrainingPackTemplateV2 _booster(String tag, {String? clusterId}) =>
     TrainingPackTemplateV2(
@@ -31,7 +27,7 @@ void main() {
 
   test('links booster by cluster id', () {
     final clusters = [
-      _cluster('c1', {'push'})
+      _cluster('c1', {'push'}),
     ];
     final booster = _booster('push', clusterId: 'c1');
 
@@ -46,7 +42,7 @@ void main() {
   test('links booster by tag overlap', () {
     final clusters = [
       _cluster('c1', {'push'}),
-      _cluster('c2', {'call'})
+      _cluster('c2', {'call'}),
     ];
     final booster = _booster('call');
 

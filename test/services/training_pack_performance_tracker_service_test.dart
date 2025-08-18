@@ -12,18 +12,27 @@ void main() {
     });
     final service = TrainingPackPerformanceTrackerService.instance;
     expect(
-      await service.meetsRequirements('prev',
-          requiredAccuracy: 0.8, minHands: 50),
+      await service.meetsRequirements(
+        'prev',
+        requiredAccuracy: 0.8,
+        minHands: 50,
+      ),
       isTrue,
     );
     expect(
-      await service.meetsRequirements('prev',
-          requiredAccuracy: 0.85, minHands: 50),
+      await service.meetsRequirements(
+        'prev',
+        requiredAccuracy: 0.85,
+        minHands: 50,
+      ),
       isFalse,
     );
     expect(
-      await service.meetsRequirements('prev',
-          requiredAccuracy: 0.8, minHands: 60),
+      await service.meetsRequirements(
+        'prev',
+        requiredAccuracy: 0.8,
+        minHands: 60,
+      ),
       isFalse,
     );
   });

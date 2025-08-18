@@ -18,15 +18,15 @@ class EvaluationRequestTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final data = Map<String, dynamic>.from(request.toJson());
     final metadata = data.remove('metadata') as Map<String, dynamic>?;
-    final extras = <String, dynamic>{
-      if (metadata != null) ...metadata,
-      ...data,
-    }..removeWhere((key, value) =>
-        key == 'playerIndex' ||
-        key == 'street' ||
-        key == 'action' ||
-        key == 'amount' ||
-        key == 'id');
+    final extras = <String, dynamic>{if (metadata != null) ...metadata, ...data}
+      ..removeWhere(
+        (key, value) =>
+            key == 'playerIndex' ||
+            key == 'street' ||
+            key == 'action' ||
+            key == 'amount' ||
+            key == 'id',
+      );
 
     final expected = metadata?['expectedAction'] ?? data['expectedAction'];
     final feedback = metadata?['feedbackText'] ?? data['feedbackText'];
@@ -47,8 +47,10 @@ class EvaluationRequestTile extends StatelessWidget {
         ),
         children: [
           Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -59,7 +61,7 @@ class EvaluationRequestTile extends StatelessWidget {
                 if (expected != null) Text('expectedAction: $expected'),
                 if (feedback != null) Text('feedbackText: $feedback'),
                 for (final entry in extras.entries)
-                  Text('${entry.key}: ${entry.value}')
+                  Text('${entry.key}: ${entry.value}'),
               ],
             ),
           ),

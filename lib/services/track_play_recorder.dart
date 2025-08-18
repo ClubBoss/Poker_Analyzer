@@ -20,8 +20,11 @@ class TrackPlayRecorder {
       try {
         final data = jsonDecode(raw);
         if (data is List) {
-          _history.addAll(data.whereType<Map>().map(
-              (e) => TrackPlayHistory.fromJson(Map<String, dynamic>.from(e))));
+          _history.addAll(
+            data.whereType<Map>().map(
+              (e) => TrackPlayHistory.fromJson(Map<String, dynamic>.from(e)),
+            ),
+          );
         }
       } catch (_) {}
     }
@@ -54,8 +57,9 @@ class TrackPlayRecorder {
     required int mistakes,
   }) async {
     await _load();
-    final index =
-        _history.indexWhere((e) => e.goalId == goalId && e.completedAt == null);
+    final index = _history.indexWhere(
+      (e) => e.goalId == goalId && e.completedAt == null,
+    );
     final now = DateTime.now();
     if (index != -1) {
       final entry = _history[index];

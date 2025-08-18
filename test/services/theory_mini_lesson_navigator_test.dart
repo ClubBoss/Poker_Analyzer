@@ -27,15 +27,15 @@ class _FakeLibrary implements MiniLessonLibraryService {
 
   @override
   List<TheoryMiniLessonNode> findByTags(List<String> tags) => [
-        for (final t in tags)
-          if (byTag[t] != null) byTag[t]!,
-      ];
+    for (final t in tags)
+      if (byTag[t] != null) byTag[t]!,
+  ];
 
   @override
   List<TheoryMiniLessonNode> getByTags(Set<String> tags) => [
-        for (final t in tags)
-          if (byTag[t] != null) byTag[t]!,
-      ];
+    for (final t in tags)
+      if (byTag[t] != null) byTag[t]!,
+  ];
 }
 
 void main() {
@@ -47,35 +47,45 @@ void main() {
 
   testWidgets('opens lesson using provided context', (tester) async {
     const lesson = TheoryMiniLessonNode(
-        id: 'l1', title: 'Intro', content: '', tags: ['t']);
+      id: 'l1',
+      title: 'Intro',
+      content: '',
+      tags: ['t'],
+    );
     final library = _FakeLibrary({'t': lesson});
     final nav = TheoryMiniLessonNavigator(library: library);
 
-    await tester.pumpWidget(MaterialApp(
-      home: Builder(
-        builder: (ctx) => ElevatedButton(
-          onPressed: () => nav.openLessonByTag('t', ctx),
-          child: const Text('open'),
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (ctx) => ElevatedButton(
+            onPressed: () => nav.openLessonByTag('t', ctx),
+            child: const Text('open'),
+          ),
         ),
       ),
-    ));
+    );
 
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
     expect(find.byType(MiniLessonScreen), findsOneWidget);
   });
 
-  testWidgets('opens lesson using global navigator when no context',
-      (tester) async {
+  testWidgets('opens lesson using global navigator when no context', (
+    tester,
+  ) async {
     const lesson = TheoryMiniLessonNode(
-        id: 'l1', title: 'Intro', content: '', tags: ['t']);
+      id: 'l1',
+      title: 'Intro',
+      content: '',
+      tags: ['t'],
+    );
     final library = _FakeLibrary({'t': lesson});
     final nav = TheoryMiniLessonNavigator(library: library);
 
-    await tester.pumpWidget(MaterialApp(
-      navigatorKey: navigatorKey,
-      home: const SizedBox.shrink(),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(navigatorKey: navigatorKey, home: const SizedBox.shrink()),
+    );
 
     await nav.openLessonByTag('t');
     await tester.pumpAndSettle();
@@ -86,10 +96,9 @@ void main() {
     final library = _FakeLibrary({});
     final nav = TheoryMiniLessonNavigator(library: library);
 
-    await tester.pumpWidget(MaterialApp(
-      navigatorKey: navigatorKey,
-      home: const SizedBox.shrink(),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(navigatorKey: navigatorKey, home: const SizedBox.shrink()),
+    );
 
     await nav.openLessonByTag('missing');
     await tester.pumpAndSettle();

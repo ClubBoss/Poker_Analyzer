@@ -81,11 +81,13 @@ class AutoSkillGapClusterer {
       final trimmed = sorted.take(maxClusterSize).toList();
       final top = trimmed.first;
       final theme = themeMap[top] ?? top;
-      clusters.add(SkillTagCluster(
-        tags: trimmed,
-        clusterId: 'cluster_${idx++}',
-        themeName: theme,
-      ));
+      clusters.add(
+        SkillTagCluster(
+          tags: trimmed,
+          clusterId: 'cluster_${idx++}',
+          themeName: theme,
+        ),
+      );
     }
     return clusters;
   }

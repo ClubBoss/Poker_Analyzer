@@ -38,8 +38,9 @@ void main() {
     await svc.init();
     await svc.recordMistake('a', 'p1');
     await svc.recordMistake('b', 'p1');
-    svc.debugEntry('b')!.due =
-        svc.debugEpochDay(DateTime.now().subtract(const Duration(days: 1)));
+    svc.debugEntry('b')!.due = svc.debugEpochDay(
+      DateTime.now().subtract(const Duration(days: 1)),
+    );
     final dueToday = svc.dueSpotIds(DateTime.now());
     expect(dueToday, contains('b'));
     expect(dueToday, isNot(contains('a')));
@@ -50,7 +51,11 @@ void main() {
     await svc.init();
     for (var i = 0; i < 3; i++) {
       await UserErrorRateService.instance.recordAttempt(
-          packId: 'p2', tags: {'t'}, isCorrect: false, ts: DateTime.now());
+        packId: 'p2',
+        tags: {'t'},
+        isCorrect: false,
+        ts: DateTime.now(),
+      );
     }
     await svc.recordMistake('s2', 'p2');
     await svc.recordReviewOutcome('s2', 'p2', true);

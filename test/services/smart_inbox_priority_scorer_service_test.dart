@@ -14,11 +14,23 @@ void main() {
     final service = SmartInboxPriorityScorerService();
     final input = [
       const PinnedBlockBoosterSuggestion(
-          blockId: '1', blockTitle: 'b1', tag: 'a', action: 'resumePack'),
+        blockId: '1',
+        blockTitle: 'b1',
+        tag: 'a',
+        action: 'resumePack',
+      ),
       const PinnedBlockBoosterSuggestion(
-          blockId: '2', blockTitle: 'b2', tag: 'b', action: 'reviewTheory'),
+        blockId: '2',
+        blockTitle: 'b2',
+        tag: 'b',
+        action: 'reviewTheory',
+      ),
       const PinnedBlockBoosterSuggestion(
-          blockId: '3', blockTitle: 'b3', tag: 'c', action: 'decayBooster'),
+        blockId: '3',
+        blockTitle: 'b3',
+        tag: 'c',
+        action: 'decayBooster',
+      ),
     ];
     final result = await service.sort(input);
     expect(result.map((e) => e.blockId).toList(), ['3', '2', '1']);
@@ -27,19 +39,35 @@ void main() {
   test('older last shown wins tie', () async {
     final now = DateTime.now();
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('booster_inbox_last_a',
-        now.subtract(const Duration(days: 1)).millisecondsSinceEpoch);
-    await prefs.setInt('booster_inbox_last_b',
-        now.subtract(const Duration(days: 3)).millisecondsSinceEpoch);
+    await prefs.setInt(
+      'booster_inbox_last_a',
+      now.subtract(const Duration(days: 1)).millisecondsSinceEpoch,
+    );
+    await prefs.setInt(
+      'booster_inbox_last_b',
+      now.subtract(const Duration(days: 3)).millisecondsSinceEpoch,
+    );
 
     final service = SmartInboxPriorityScorerService();
     final input = [
       const PinnedBlockBoosterSuggestion(
-          blockId: '1', blockTitle: 'b1', tag: 'a', action: 'reviewTheory'),
+        blockId: '1',
+        blockTitle: 'b1',
+        tag: 'a',
+        action: 'reviewTheory',
+      ),
       const PinnedBlockBoosterSuggestion(
-          blockId: '2', blockTitle: 'b2', tag: 'b', action: 'reviewTheory'),
+        blockId: '2',
+        blockTitle: 'b2',
+        tag: 'b',
+        action: 'reviewTheory',
+      ),
       const PinnedBlockBoosterSuggestion(
-          blockId: '3', blockTitle: 'b3', tag: 'c', action: 'reviewTheory'),
+        blockId: '3',
+        blockTitle: 'b3',
+        tag: 'c',
+        action: 'reviewTheory',
+      ),
     ];
     final result = await service.sort(input);
     expect(result.map((e) => e.blockId).toList(), ['3', '2', '1']);

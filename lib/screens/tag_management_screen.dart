@@ -10,11 +10,15 @@ class TagManagementScreen extends StatelessWidget {
   const TagManagementScreen({super.key});
 
   Future<MapEntry<String, String>?> _showTagDialog(
-      BuildContext context, String title,
-      {String? initialName, String? initialColor}) {
+    BuildContext context,
+    String title, {
+    String? initialName,
+    String? initialColor,
+  }) {
     final controller = TextEditingController(text: initialName ?? '');
-    Color pickerColor =
-        initialColor != null ? colorFromHex(initialColor) : Colors.blue;
+    Color pickerColor = initialColor != null
+        ? colorFromHex(initialColor)
+        : Colors.blue;
     return showDialog<MapEntry<String, String>>(
       context: context,
       builder: (context) => AlertDialog(
@@ -44,8 +48,10 @@ class TagManagementScreen extends StatelessWidget {
             child: const Text('Отмена'),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(context,
-                MapEntry(controller.text.trim(), colorToHex(pickerColor))),
+            onPressed: () => Navigator.pop(
+              context,
+              MapEntry(controller.text.trim(), colorToHex(pickerColor)),
+            ),
             child: const Text('OK'),
           ),
         ],
@@ -61,14 +67,23 @@ class TagManagementScreen extends StatelessWidget {
   }
 
   Future<void> _renameTag(
-      BuildContext context, int index, String current) async {
+    BuildContext context,
+    int index,
+    String current,
+  ) async {
     final color = context.read<TagService>().colorOf(current);
-    final result = await _showTagDialog(context, 'Переименовать тег',
-        initialName: current, initialColor: color);
+    final result = await _showTagDialog(
+      context,
+      'Переименовать тег',
+      initialName: current,
+      initialColor: color,
+    );
     if (result != null && result.key.isNotEmpty) {
-      await context
-          .read<TagService>()
-          .renameTag(index, result.key, color: result.value);
+      await context.read<TagService>().renameTag(
+        index,
+        result.key,
+        color: result.value,
+      );
     }
   }
 
@@ -108,7 +123,8 @@ class TagManagementScreen extends StatelessWidget {
                     height: 16,
                     decoration: BoxDecoration(
                       color: colorFromHex(
-                          context.read<TagService>().colorOf(tags[i])),
+                        context.read<TagService>().colorOf(tags[i]),
+                      ),
                       shape: BoxShape.circle,
                     ),
                   ),

@@ -70,14 +70,12 @@ class _FirstLaunchTutorialState extends State<FirstLaunchTutorial> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    TextButton(
-                      onPressed: _skip,
-                      child: const Text('Skip'),
-                    ),
+                    TextButton(onPressed: _skip, child: const Text('Skip')),
                     ElevatedButton(
                       onPressed: _next,
-                      child:
-                          Text(_index == _steps.length - 1 ? 'Got it' : 'Next'),
+                      child: Text(
+                        _index == _steps.length - 1 ? 'Got it' : 'Next',
+                      ),
                     ),
                   ],
                 ),
@@ -94,8 +92,6 @@ void showFirstLaunchTutorial(BuildContext context) {
   final overlay = Overlay.of(context);
   late OverlayEntry entry;
   void close() => entry.remove();
-  entry = OverlayEntry(
-    builder: (_) => FirstLaunchTutorial(onComplete: close),
-  );
+  entry = OverlayEntry(builder: (_) => FirstLaunchTutorial(onComplete: close));
   overlay.insert(entry);
 }

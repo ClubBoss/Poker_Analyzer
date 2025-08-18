@@ -131,7 +131,7 @@ class _SavedHandListViewState extends State<SavedHandListView> {
             (_gameTypeFilter == 'Все' || h.gameType == _gameTypeFilter) &&
             (_categoryFilter == 'Все' || h.category == _categoryFilter) &&
             _matchesAccuracy(h))
-          h
+          h,
     ]..sort((a, b) => b.date.compareTo(a.date));
   }
 
@@ -155,8 +155,9 @@ class _SavedHandListViewState extends State<SavedHandListView> {
   Widget _buildSummaryCard(BuildContext context, int mistakes) {
     final service = context.read<EvaluationExecutorService>();
     final severity = service.classifySeverity(mistakes);
-    final advice =
-        widget.filterKey != null ? kMistakeAdvice[widget.filterKey!] : null;
+    final advice = widget.filterKey != null
+        ? kMistakeAdvice[widget.filterKey!]
+        : null;
 
     return Container(
       margin: const EdgeInsets.symmetric(
@@ -177,16 +178,21 @@ class _SavedHandListViewState extends State<SavedHandListView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Ошибок: $mistakes',
-                    style: const TextStyle(color: Colors.white)),
+                Text(
+                  'Ошибок: $mistakes',
+                  style: const TextStyle(color: Colors.white),
+                ),
                 const SizedBox(height: 2),
-                Text('Уровень: ${severity.label}',
-                    style: TextStyle(color: severity.color)),
+                Text(
+                  'Уровень: ${severity.label}',
+                  style: TextStyle(color: severity.color),
+                ),
                 if (advice != null) ...[
                   const SizedBox(height: 4),
-                  Text(advice,
-                      style:
-                          const TextStyle(color: Colors.white70, fontSize: 12)),
+                  Text(
+                    advice,
+                    style: const TextStyle(color: Colors.white70, fontSize: 12),
+                  ),
                 ],
               ],
             ),
@@ -241,9 +247,10 @@ class _SavedHandListViewState extends State<SavedHandListView> {
               value: _gameTypeFilter,
               dropdownColor: const Color(0xFF2A2B2E),
               onChanged: (v) => setState(() => _gameTypeFilter = v ?? 'Все'),
-              items: ['Все', ...games]
-                  .map((g) => DropdownMenuItem(value: g, child: Text(g)))
-                  .toList(),
+              items: [
+                'Все',
+                ...games,
+              ].map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
             ),
           if (games.isNotEmpty && categories.isNotEmpty)
             const SizedBox(width: 12),
@@ -252,9 +259,10 @@ class _SavedHandListViewState extends State<SavedHandListView> {
               value: _categoryFilter,
               dropdownColor: const Color(0xFF2A2B2E),
               onChanged: (v) => setState(() => _categoryFilter = v ?? 'Все'),
-              items: ['Все', ...categories]
-                  .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-                  .toList(),
+              items: [
+                'Все',
+                ...categories,
+              ].map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
             ),
         ],
       ),
@@ -298,7 +306,7 @@ class _SavedHandListViewState extends State<SavedHandListView> {
                   onRename: widget.onRename == null
                       ? null
                       : () => widget.onRename!(h),
-                )
+                ),
             ],
           ),
         );
@@ -312,11 +320,11 @@ class _SavedHandListViewState extends State<SavedHandListView> {
     final counts = _summary(filtered);
     final games = {
       for (final h in widget.hands)
-        if (h.gameType != null && h.gameType!.isNotEmpty) h.gameType!
+        if (h.gameType != null && h.gameType!.isNotEmpty) h.gameType!,
     };
     final categories = {
       for (final h in widget.hands)
-        if (h.category != null && h.category!.isNotEmpty) h.category!
+        if (h.category != null && h.category!.isNotEmpty) h.category!,
     };
 
     return Column(
@@ -334,8 +342,9 @@ class _SavedHandListViewState extends State<SavedHandListView> {
           ),
         ),
         Padding(
-          padding:
-              const EdgeInsets.symmetric(horizontal: AppConstants.padding16),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppConstants.padding16,
+          ),
           child: Text(
             'Раздач: ${filtered.length} • Верно: ${counts['correct']} • Ошибки: ${counts['mistakes']}',
             style: const TextStyle(color: Colors.white70),

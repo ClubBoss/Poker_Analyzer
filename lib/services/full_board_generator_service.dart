@@ -24,9 +24,9 @@ class FullBoardGeneratorService {
     Random? random,
     CardDeckService? deckService,
     BoardTextureFilterService? textureFilter,
-  })  : _random = random ?? Random(),
-        _deckService = deckService ?? const CardDeckService(),
-        _textureFilter = textureFilter ?? const BoardTextureFilterService();
+  }) : _random = random ?? Random(),
+       _deckService = deckService ?? const CardDeckService(),
+       _textureFilter = textureFilter ?? const BoardTextureFilterService();
 
   final Random _random;
   final CardDeckService _deckService;
@@ -75,27 +75,25 @@ class FullBoardGeneratorService {
   BoardResult generateFullBoard({
     List<CardModel> excludedCards = const [],
     Map<String, dynamic>? boardFilterParams,
-  }) =>
-      generateBoard(
-        FullBoardRequest(
-          stages: 5,
-          excludedCards: excludedCards,
-          boardFilterParams: boardFilterParams,
-        ),
-      );
+  }) => generateBoard(
+    FullBoardRequest(
+      stages: 5,
+      excludedCards: excludedCards,
+      boardFilterParams: boardFilterParams,
+    ),
+  );
 
   BoardResult generatePartialBoard({
     required int stages,
     List<CardModel> excludedCards = const [],
     Map<String, dynamic>? boardFilterParams,
-  }) =>
-      generateBoard(
-        FullBoardRequest(
-          stages: stages,
-          excludedCards: excludedCards,
-          boardFilterParams: boardFilterParams,
-        ),
-      );
+  }) => generateBoard(
+    FullBoardRequest(
+      stages: stages,
+      excludedCards: excludedCards,
+      boardFilterParams: boardFilterParams,
+    ),
+  );
 
   List<CardModel> _buildDeck(
     List<CardModel> excludedCards,

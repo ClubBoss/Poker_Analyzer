@@ -13,8 +13,8 @@ class TheoryBoosterGoalCompletionHandler {
   TheoryBoosterGoalCompletionHandler({
     MiniLessonProgressTracker? tracker,
     XpGoalPanelController? panel,
-  })  : tracker = tracker ?? MiniLessonProgressTracker.instance,
-        panel = panel ?? XpGoalPanelController.instance {
+  }) : tracker = tracker ?? MiniLessonProgressTracker.instance,
+       panel = panel ?? XpGoalPanelController.instance {
     _sub = this.tracker.onLessonCompleted.listen(_handle);
   }
 

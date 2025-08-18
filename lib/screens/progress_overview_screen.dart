@@ -32,7 +32,7 @@ class _ProgressOverviewScreenState extends State<ProgressOverviewScreen> {
           total: 0,
           correct: 0,
           accuracy: e.accuracy * 100,
-        )
+        ),
     ];
   }
 
@@ -67,7 +67,7 @@ class _ProgressOverviewScreenState extends State<ProgressOverviewScreen> {
               ),
             ],
           ),
-          SyncStatusIcon.of(context)
+          SyncStatusIcon.of(context),
         ],
       ),
       body: ListView(
@@ -75,16 +75,17 @@ class _ProgressOverviewScreenState extends State<ProgressOverviewScreen> {
         children: [
           EvIcmTrendChart(
             mode: _mode,
-            sessionDates: context
-                .watch<TrainingStatsService>()
-                .sessionHistory(context.watch<SavedHandManagerService>().hands),
+            sessionDates: context.watch<TrainingStatsService>().sessionHistory(
+              context.watch<SavedHandManagerService>().hands,
+            ),
           ),
           const SizedBox(height: 16),
           if (hasData) AccuracyChart(sessions: sessions) else _placeholder(),
           if (hasData) AverageAccuracyChart(sessions: sessions),
           if (hasData)
             common.EvIcmTrendChart(
-                data: context.watch<ProgressForecastService>().evIcmSeries),
+              data: context.watch<ProgressForecastService>().evIcmSeries,
+            ),
         ],
       ),
     );
@@ -98,8 +99,10 @@ class _ProgressOverviewScreenState extends State<ProgressOverviewScreen> {
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: const Text('Недостаточно данных',
-          style: TextStyle(color: Colors.white70)),
+      child: const Text(
+        'Недостаточно данных',
+        style: TextStyle(color: Colors.white70),
+      ),
     );
   }
 }

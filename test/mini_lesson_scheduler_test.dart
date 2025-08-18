@@ -54,10 +54,7 @@ void main() {
     );
 
     final scheduler = MiniLessonScheduler();
-    final res = await scheduler.schedule(
-      ['a', 'b', 'c'],
-      excludeIds: ['b'],
-    );
+    final res = await scheduler.schedule(['a', 'b', 'c'], excludeIds: ['b']);
     expect(res, ['c']);
   });
 }

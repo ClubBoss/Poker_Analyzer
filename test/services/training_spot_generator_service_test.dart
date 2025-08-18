@@ -9,7 +9,7 @@ void main() {
       street: 'flop',
       boardFilter: {
         'suitPattern': 'rainbow',
-        'excludedRanks': ['A']
+        'excludedRanks': ['A'],
       },
     );
     expect(board.length, 3);
@@ -22,7 +22,7 @@ void main() {
     final board = svc.generateRandomBoard(
       street: 'river',
       boardFilter: {
-        'requiredRanks': ['A', 'K']
+        'requiredRanks': ['A', 'K'],
       },
     );
     final ranks = board.map((c) => c.rank).toSet();
@@ -34,31 +34,36 @@ void main() {
   test('generate builds board up to targetStreet without card overlap', () {
     final svc = TrainingSpotGeneratorService(random: Random(3));
     final spot = svc
-        .generate(SpotGenerationParams(
-          position: 'btn',
-          villainAction: 'check',
-          handGroup: ['AKs'],
-          count: 1,
-          targetStreet: 'turn',
-        ))
+        .generate(
+          SpotGenerationParams(
+            position: 'btn',
+            villainAction: 'check',
+            handGroup: ['AKs'],
+            count: 1,
+            targetStreet: 'turn',
+          ),
+        )
         .first;
     expect(spot.boardCards.length, 4);
     final hero = spot.playerCards[spot.heroIndex];
-    final clash = spot.boardCards
-        .any((b) => hero.any((h) => h.rank == b.rank && h.suit == b.suit));
+    final clash = spot.boardCards.any(
+      (b) => hero.any((h) => h.rank == b.rank && h.suit == b.suit),
+    );
     expect(clash, false);
   });
 
   test('boardStages generates river board when set to 5', () {
     final svc = TrainingSpotGeneratorService(random: Random(4));
     final spot = svc
-        .generate(SpotGenerationParams(
-          position: 'btn',
-          villainAction: 'check',
-          handGroup: ['AKs'],
-          count: 1,
-          boardStages: 5,
-        ))
+        .generate(
+          SpotGenerationParams(
+            position: 'btn',
+            villainAction: 'check',
+            handGroup: ['AKs'],
+            count: 1,
+            boardStages: 5,
+          ),
+        )
         .first;
     expect(spot.boardCards.length, 5);
   });

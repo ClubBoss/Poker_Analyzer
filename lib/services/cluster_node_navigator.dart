@@ -17,9 +17,9 @@ class ClusterNodeNavigator {
   ) async {
     final unlocked = await _isUnlocked(node.id, profile);
     if (!unlocked) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Урок пока недоступен')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Урок пока недоступен')));
       return;
     }
 
@@ -33,7 +33,9 @@ class ClusterNodeNavigator {
 
   /// Returns true if the lesson is reachable based on [profile] progress.
   static Future<bool> _isUnlocked(
-      String lessonId, PlayerProfile profile) async {
+    String lessonId,
+    PlayerProfile profile,
+  ) async {
     await MiniLessonLibraryService.instance.loadAll();
     final lessons = MiniLessonLibraryService.instance.all;
     if (lessons.isEmpty) return false;

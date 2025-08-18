@@ -58,7 +58,7 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
       for (final r in all)
         if ((d == null || r.date.isAfter(now.subtract(d))) &&
             (_result == 'Все' || r.action == _result.toLowerCase()))
-          r
+          r,
     ];
     int compare(HandAnalysisRecord a, HandAnalysisRecord b) {
       int r;
@@ -101,50 +101,51 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
   }
 
   Widget _list(List<HandAnalysisRecord> data) => ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: data.length,
-        itemBuilder: (context, index) {
-          final r = data[index];
-          final d = r.date;
-          final label =
-              '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            decoration: BoxDecoration(
-              color: AppColors.cardBackground,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.3),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+    padding: const EdgeInsets.all(16),
+    itemCount: data.length,
+    itemBuilder: (context, index) {
+      final r = data[index];
+      final d = r.date;
+      final label =
+          '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
+      return Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: AppColors.cardBackground,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.3),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
             ),
-            child: ListTile(
-              leading: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [for (final c in r.cards) _card(c)],
+          ],
+        ),
+        child: ListTile(
+          leading: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [for (final c in r.cards) _card(c)],
+          ),
+          title: Text(
+            'EV ${r.ev.toStringAsFixed(2)} BB • ICM ${r.icm.toStringAsFixed(2)}',
+            style: const TextStyle(color: Colors.white),
+          ),
+          subtitle: Text(
+            '${r.action} • $label\n${r.hint}',
+            style: const TextStyle(color: Colors.white70),
+          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => QuickHandAnalysisScreen(record: r),
               ),
-              title: Text(
-                'EV ${r.ev.toStringAsFixed(2)} BB • ICM ${r.icm.toStringAsFixed(2)}',
-                style: const TextStyle(color: Colors.white),
-              ),
-              subtitle: Text(
-                '${r.action} • $label\n${r.hint}',
-                style: const TextStyle(color: Colors.white70),
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => QuickHandAnalysisScreen(record: r)),
-                );
-              },
-            ),
-          );
-        },
+            );
+          },
+        ),
       );
+    },
+  );
 
   Widget _summary(List<HandAnalysisRecord> data) {
     if (data.isEmpty) return const SizedBox.shrink();
@@ -198,7 +199,9 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
             itemBuilder: (_) => const [
               PopupMenuItem(value: _SortField.date, child: Text('По дате')),
               PopupMenuItem(
-                  value: _SortField.result, child: Text('По результату')),
+                value: _SortField.result,
+                child: Text('По результату'),
+              ),
             ],
           ),
           IconButton(
@@ -216,8 +219,11 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
         builder: (context, data, _) {
           return _service.records.isEmpty
               ? const Center(
-                  child: Text('История пуста',
-                      style: TextStyle(color: Colors.white70)))
+                  child: Text(
+                    'История пуста',
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                )
               : Column(
                   children: [
                     _overallSummary(_service.records),
@@ -262,8 +268,11 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
                     Expanded(
                       child: data.isEmpty
                           ? const Center(
-                              child: Text('Нет результатов',
-                                  style: TextStyle(color: Colors.white70)))
+                              child: Text(
+                                'Нет результатов',
+                                style: TextStyle(color: Colors.white70),
+                              ),
+                            )
                           : _list(data),
                     ),
                   ],

@@ -13,8 +13,10 @@ class BoosterPackFactory {
 
   /// Returns a training pack containing spots matching [tags].
   /// The result may be `null` if no suitable spots are found.
-  static Future<TrainingPackTemplateV2?> buildFromTags(List<String> tags,
-      {int spotsPerTag = 3}) async {
+  static Future<TrainingPackTemplateV2?> buildFromTags(
+    List<String> tags, {
+    int spotsPerTag = 3,
+  }) async {
     final lib = TrainingSpotLibrary();
     final spots = <TrainingPackSpot>[];
     final used = <String>{};

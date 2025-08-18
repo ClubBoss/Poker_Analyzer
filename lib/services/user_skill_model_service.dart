@@ -23,27 +23,26 @@ class TagSkill {
     double? confidence,
     DateTime? lastSeen,
     int? seenCount,
-  }) =>
-      TagSkill(
-        mastery: mastery ?? this.mastery,
-        confidence: confidence ?? this.confidence,
-        lastSeen: lastSeen ?? this.lastSeen,
-        seenCount: seenCount ?? this.seenCount,
-      );
+  }) => TagSkill(
+    mastery: mastery ?? this.mastery,
+    confidence: confidence ?? this.confidence,
+    lastSeen: lastSeen ?? this.lastSeen,
+    seenCount: seenCount ?? this.seenCount,
+  );
 
   Map<String, dynamic> toJson() => {
-        'mastery': mastery,
-        'confidence': confidence,
-        'lastSeen': lastSeen.toIso8601String(),
-        'seenCount': seenCount,
-      };
+    'mastery': mastery,
+    'confidence': confidence,
+    'lastSeen': lastSeen.toIso8601String(),
+    'seenCount': seenCount,
+  };
 
   static TagSkill fromJson(Map<String, dynamic> json) => TagSkill(
-        mastery: (json['mastery'] as num).toDouble(),
-        confidence: (json['confidence'] as num).toDouble(),
-        lastSeen: DateTime.parse(json['lastSeen'] as String),
-        seenCount: json['seenCount'] as int,
-      );
+    mastery: (json['mastery'] as num).toDouble(),
+    confidence: (json['confidence'] as num).toDouble(),
+    lastSeen: DateTime.parse(json['lastSeen'] as String),
+    seenCount: json['seenCount'] as int,
+  );
 }
 
 class UserSkillModelService {
@@ -58,10 +57,12 @@ class UserSkillModelService {
     if (raw == null) return {};
     try {
       final data = jsonDecode(raw) as Map;
-      return data.map((k, v) => MapEntry(
-            k as String,
-            TagSkill.fromJson(Map<String, dynamic>.from(v as Map)),
-          ));
+      return data.map(
+        (k, v) => MapEntry(
+          k as String,
+          TagSkill.fromJson(Map<String, dynamic>.from(v as Map)),
+        ),
+      );
     } catch (_) {
       return {};
     }
@@ -76,8 +77,11 @@ class UserSkillModelService {
     await prefs.setString('$_prefix$userId', json);
   }
 
-  Future<void> recordAttempt(String userId, List<String> tags,
-      {required bool correct}) async {
+  Future<void> recordAttempt(
+    String userId,
+    List<String> tags, {
+    required bool correct,
+  }) async {
     final skills = await getSkills(userId);
     final now = DateTime.now();
     for (final t in tags) {
@@ -92,10 +96,11 @@ class UserSkillModelService {
       const gamma = 0.02;
       const delta = 0.002;
       const epsilon = 0.15;
-      final confPrime = (confidence +
-              ((result - mPrime).abs() < epsilon ? gamma : 0.0) -
-              delta)
-          .clamp(0.0, 1.0);
+      final confPrime =
+          (confidence +
+                  ((result - mPrime).abs() < epsilon ? gamma : 0.0) -
+                  delta)
+              .clamp(0.0, 1.0);
       skills[tag] = TagSkill(
         mastery: mPrime,
         confidence: confPrime,

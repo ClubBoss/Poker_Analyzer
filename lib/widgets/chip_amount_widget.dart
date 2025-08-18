@@ -36,8 +36,10 @@ class ChipAmountWidget extends StatelessWidget {
       ),
       child: Container(
         key: ValueKey(text),
-        padding:
-            EdgeInsets.symmetric(horizontal: 8 * scale, vertical: 4 * scale),
+        padding: EdgeInsets.symmetric(
+          horizontal: 8 * scale,
+          vertical: 4 * scale,
+        ),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(12 * scale),

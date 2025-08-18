@@ -53,15 +53,18 @@ class _SkillTreeNodeDetailScreenState extends State<SkillTreeNodeDetailScreen> {
   Future<void> _load() async {
     if (widget.node.theoryLessonId.isNotEmpty) {
       await MiniLessonLibraryService.instance.loadAll();
-      _lesson =
-          MiniLessonLibraryService.instance.getById(widget.node.theoryLessonId);
+      _lesson = MiniLessonLibraryService.instance.getById(
+        widget.node.theoryLessonId,
+      );
     }
     if (widget.node.trainingPackId.isNotEmpty) {
-      _progress = await TrainingProgressService.instance
-          .getProgress(widget.node.trainingPackId);
+      _progress = await TrainingProgressService.instance.getProgress(
+        widget.node.trainingPackId,
+      );
     } else {
-      final done = await SkillTreeNodeProgressTracker.instance
-          .isCompleted(widget.node.id);
+      final done = await SkillTreeNodeProgressTracker.instance.isCompleted(
+        widget.node.id,
+      );
       if (done) _progress = 1.0;
     }
     _groups = await LearningPathEntryGroupBuilder().build(widget.node);
@@ -84,8 +87,9 @@ class _SkillTreeNodeDetailScreenState extends State<SkillTreeNodeDetailScreen> {
         ),
       );
     } else if (widget.node.trainingPackId.isNotEmpty) {
-      final tpl =
-          await PackLibraryService.instance.getById(widget.node.trainingPackId);
+      final tpl = await PackLibraryService.instance.getById(
+        widget.node.trainingPackId,
+      );
       if (tpl != null) {
         await const TrainingSessionLauncher().launch(tpl);
       }
@@ -109,8 +113,9 @@ class _SkillTreeNodeDetailScreenState extends State<SkillTreeNodeDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final visual =
-        const SkillTreeCategoryBannerService().getVisual(widget.node.category);
+    final visual = const SkillTreeCategoryBannerService().getVisual(
+      widget.node.category,
+    );
     final accent = visual.color;
     final pct = (_progress.clamp(0.0, 1.0) * 100).round();
 
@@ -127,14 +132,18 @@ class _SkillTreeNodeDetailScreenState extends State<SkillTreeNodeDetailScreen> {
                   children: [
                     Row(
                       children: [
-                        Text(visual.emoji,
-                            style: const TextStyle(fontSize: 32)),
+                        Text(
+                          visual.emoji,
+                          style: const TextStyle(fontSize: 32),
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             widget.node.title,
                             style: const TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ],
@@ -144,7 +153,9 @@ class _SkillTreeNodeDetailScreenState extends State<SkillTreeNodeDetailScreen> {
                       Text(
                         _lesson!.resolvedTitle,
                         style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       if (_lesson!.tags.isNotEmpty)
                         Padding(
@@ -153,7 +164,8 @@ class _SkillTreeNodeDetailScreenState extends State<SkillTreeNodeDetailScreen> {
                             spacing: 4,
                             runSpacing: -4,
                             children: [
-                              for (final t in _lesson!.tags.take(3)) TagBadge(t)
+                              for (final t in _lesson!.tags.take(3))
+                                TagBadge(t),
                             ],
                           ),
                         ),
@@ -177,9 +189,13 @@ class _SkillTreeNodeDetailScreenState extends State<SkillTreeNodeDetailScreen> {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text('$pct%',
-                        style: const TextStyle(
-                            color: Colors.white70, fontSize: 12)),
+                    Text(
+                      '$pct%',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
+                    ),
                     if (!widget.unlocked &&
                         widget.track != null &&
                         widget.unlockedNodeIds != null &&
@@ -193,19 +209,24 @@ class _SkillTreeNodeDetailScreenState extends State<SkillTreeNodeDetailScreen> {
                     if (_groups.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.only(top: 16),
-                        child: LearningPathNodeRendererService()
-                            .build(context, widget.node.id, _groups),
+                        child: LearningPathNodeRendererService().build(
+                          context,
+                          widget.node.id,
+                          _groups,
+                        ),
                       ),
                     const Spacer(),
                     Tooltip(
-                      message:
-                          widget.unlocked ? '' : 'Этап ещё не разблокирован',
+                      message: widget.unlocked
+                          ? ''
+                          : 'Этап ещё не разблокирован',
                       child: SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: widget.unlocked ? _start : null,
-                          style:
-                              ElevatedButton.styleFrom(backgroundColor: accent),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: accent,
+                          ),
                           child: const Text('Начать'),
                         ),
                       ),

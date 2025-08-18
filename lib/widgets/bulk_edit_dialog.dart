@@ -23,8 +23,10 @@ Future<(String, Color?)?> showBulkEditDialog(BuildContext context) {
                   : Container(
                       width: 24,
                       height: 24,
-                      decoration:
-                          BoxDecoration(color: color, shape: BoxShape.circle),
+                      decoration: BoxDecoration(
+                        color: color,
+                        shape: BoxShape.circle,
+                      ),
                     ),
               title: const Text('Color'),
               trailing: Row(
@@ -33,8 +35,10 @@ Future<(String, Color?)?> showBulkEditDialog(BuildContext context) {
                   IconButton(
                     icon: const Icon(Icons.color_lens),
                     onPressed: () async {
-                      final c = await showColorPickerDialog(ctx,
-                          initialColor: color ?? Colors.blue);
+                      final c = await showColorPickerDialog(
+                        ctx,
+                        initialColor: color ?? Colors.blue,
+                      );
                       if (c != null) setState(() => color = c);
                     },
                   ),
@@ -50,11 +54,14 @@ Future<(String, Color?)?> showBulkEditDialog(BuildContext context) {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
           TextButton(
-              onPressed: () =>
-                  Navigator.pop(ctx, (controller.text.trim(), color)),
-              child: const Text('Apply')),
+            onPressed: () =>
+                Navigator.pop(ctx, (controller.text.trim(), color)),
+            child: const Text('Apply'),
+          ),
         ],
       ),
     ),

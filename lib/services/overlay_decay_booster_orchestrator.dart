@@ -31,11 +31,11 @@ class OverlayDecayBoosterOrchestrator {
     this.threshold = 55,
     this.recency = const Duration(days: 7),
     this.idleThreshold = const Duration(minutes: 2),
-  })  : decay = decay ?? TheoryTagDecayTracker(),
-        lessons = lessons ?? MiniLessonLibraryService.instance,
-        progress = progress ?? MiniLessonProgressTracker.instance,
-        inbox = inbox ?? InboxBoosterService.instance,
-        usage = usage ?? AppUsageTracker.instance;
+  }) : decay = decay ?? TheoryTagDecayTracker(),
+       lessons = lessons ?? MiniLessonLibraryService.instance,
+       progress = progress ?? MiniLessonProgressTracker.instance,
+       inbox = inbox ?? InboxBoosterService.instance,
+       usage = usage ?? AppUsageTracker.instance;
 
   static final OverlayDecayBoosterOrchestrator instance =
       OverlayDecayBoosterOrchestrator();

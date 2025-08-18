@@ -9,9 +9,7 @@ class TheoryPackQuickView extends StatelessWidget {
   static Future<void> launch(BuildContext context, TheoryPackModel pack) async {
     await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => TheoryPackQuickView(pack: pack),
-      ),
+      MaterialPageRoute(builder: (_) => TheoryPackQuickView(pack: pack)),
     );
   }
 
@@ -22,8 +20,10 @@ class TheoryPackQuickView extends StatelessWidget {
 
   String _estimateReadTime() {
     const wpm = 150; // average words per minute
-    final words =
-        pack.sections.fold<int>(0, (sum, s) => sum + _wordCount(s.text));
+    final words = pack.sections.fold<int>(
+      0,
+      (sum, s) => sum + _wordCount(s.text),
+    );
     if (words == 0) return '1 мин';
     final minutes = words / wpm;
     final min = minutes.ceil();
@@ -60,8 +60,10 @@ class TheoryPackQuickView extends StatelessWidget {
         separatorBuilder: (_, __) => const SizedBox(height: 12),
         itemBuilder: (_, i) {
           if (i == 0) {
-            return Text('⏱ $readTime',
-                style: const TextStyle(color: Colors.white70));
+            return Text(
+              '⏱ $readTime',
+              style: const TextStyle(color: Colors.white70),
+            );
           }
           final section = pack.sections[i - 1];
           return Row(
@@ -76,7 +78,9 @@ class TheoryPackQuickView extends StatelessWidget {
                     Text(
                       section.title,
                       style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     if (section.text.isNotEmpty)
                       Padding(

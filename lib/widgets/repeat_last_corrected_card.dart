@@ -33,9 +33,13 @@ class RepeatLastCorrectedCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(cat,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(
+                  cat,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Text(
                   '+${ev.toStringAsFixed(1)} EV восстановлено',
@@ -47,15 +51,17 @@ class RepeatLastCorrectedCard extends StatelessWidget {
           const SizedBox(width: 8),
           ElevatedButton(
             onPressed: () async {
-              final tpl =
-                  await TrainingPackService.createRepeatForCorrected(context);
+              final tpl = await TrainingPackService.createRepeatForCorrected(
+                context,
+              );
               if (tpl == null) return;
               await context.read<TrainingSessionService>().startSession(tpl);
               if (context.mounted) {
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (_) => const TrainingSessionScreen()),
+                    builder: (_) => const TrainingSessionScreen(),
+                  ),
                 );
               }
             },

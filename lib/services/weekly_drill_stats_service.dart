@@ -35,16 +35,19 @@ class WeeklyDrillStatsService extends ChangeNotifier {
   void _compute() {
     final list = history.stats;
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day)
-        .subtract(const Duration(days: 6));
+    final start = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(const Duration(days: 6));
     final prevStart = start.subtract(const Duration(days: 7));
     final lastWeek = <MixedDrillStat>[
       for (final s in list)
-        if (!s.date.isBefore(start)) s
+        if (!s.date.isBefore(start)) s,
     ];
     final prevWeek = <MixedDrillStat>[
       for (final s in list)
-        if (!s.date.isBefore(prevStart) && s.date.isBefore(start)) s
+        if (!s.date.isBefore(prevStart) && s.date.isBefore(start)) s,
     ];
     if (lastWeek.isEmpty || prevWeek.isEmpty) {
       _stats = null;
@@ -64,13 +67,18 @@ class WeeklyDrillStatsService extends ChangeNotifier {
     }
     final pAcc = pTotal > 0 ? pCorrect * 100 / pTotal : 0.0;
     int streak = 0;
-    for (int i = 0;; i++) {
-      final d =
-          DateTime(now.year, now.month, now.day).subtract(Duration(days: i));
-      final any = list.any((s) =>
-          s.date.year == d.year &&
-          s.date.month == d.month &&
-          s.date.day == d.day);
+    for (int i = 0; ; i++) {
+      final d = DateTime(
+        now.year,
+        now.month,
+        now.day,
+      ).subtract(Duration(days: i));
+      final any = list.any(
+        (s) =>
+            s.date.year == d.year &&
+            s.date.month == d.month &&
+            s.date.day == d.day,
+      );
       if (any) {
         streak += 1;
       } else {

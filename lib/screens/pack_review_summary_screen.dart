@@ -25,8 +25,9 @@ class PackReviewSummaryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accuracy =
-        result.total == 0 ? 0.0 : result.correct * 100 / result.total;
+    final accuracy = result.total == 0
+        ? 0.0
+        : result.correct * 100 / result.total;
     return Scaffold(
       appBar: AppBar(title: Text(template.name)),
       backgroundColor: AppColors.background,
@@ -39,17 +40,24 @@ class PackReviewSummaryScreen extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('${result.correct} / ${result.total}',
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold)),
+                  Text(
+                    '${result.correct} / ${result.total}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(height: 8),
-                  Text('Accuracy: ${accuracy.toStringAsFixed(1)}%',
-                      style: const TextStyle(color: Colors.white70)),
+                  Text(
+                    'Accuracy: ${accuracy.toStringAsFixed(1)}%',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
                   const SizedBox(height: 8),
-                  Text('Time: ${_format(elapsed)}',
-                      style: const TextStyle(color: Colors.white70)),
+                  Text(
+                    'Time: ${_format(elapsed)}',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
                 ],
               ),
             ),
@@ -64,8 +72,10 @@ class PackReviewSummaryScreen extends StatelessWidget {
                       t.correct ? Icons.check : Icons.close,
                       color: t.correct ? Colors.green : Colors.red,
                     ),
-                    title: Text(t.question,
-                        style: const TextStyle(color: Colors.white)),
+                    title: Text(
+                      t.question,
+                      style: const TextStyle(color: Colors.white),
+                    ),
                     subtitle: Text(
                       'Your: ${t.selectedAnswer} • Correct: ${t.correctAnswer}',
                       style: const TextStyle(color: Colors.white70),

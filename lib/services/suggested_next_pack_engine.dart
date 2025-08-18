@@ -11,15 +11,17 @@ class SuggestedNextPackEngine {
   final TagMasteryService mastery;
   final List<TrainingPackTemplateV2>? _libraryOverride;
 
-  SuggestedNextPackEngine(
-      {required this.mastery, List<TrainingPackTemplateV2>? library})
-      : _libraryOverride = library;
+  SuggestedNextPackEngine({
+    required this.mastery,
+    List<TrainingPackTemplateV2>? library,
+  }) : _libraryOverride = library;
 
   final Map<String, TrainingPackTemplateV2?> _cache = {};
   final Map<String, DateTime> _cacheTime = {};
 
-  Future<TrainingPackTemplateV2?> suggestNextPack(
-      {required String currentPackId}) async {
+  Future<TrainingPackTemplateV2?> suggestNextPack({
+    required String currentPackId,
+  }) async {
     final cached = _cache[currentPackId];
     final time = _cacheTime[currentPackId];
     if (cached != null &&

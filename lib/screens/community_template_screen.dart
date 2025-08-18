@@ -42,9 +42,9 @@ class _CommunityTemplateScreenState extends State<CommunityTemplateScreen> {
       await storage.add(tpl);
     }
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(exists ? 'Обновлено' : 'Загружено')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(exists ? 'Обновлено' : 'Загружено')));
   }
 
   Widget _rating(double value) {
@@ -56,8 +56,8 @@ class _CommunityTemplateScreenState extends State<CommunityTemplateScreen> {
           r >= 1
               ? Icons.star
               : r >= 0.5
-                  ? Icons.star_half
-                  : Icons.star_border,
+              ? Icons.star_half
+              : Icons.star_border,
           size: 16,
           color: Colors.amber,
         );
@@ -81,8 +81,10 @@ class _CommunityTemplateScreenState extends State<CommunityTemplateScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (t.description.isNotEmpty)
-                        Text(t.description,
-                            style: const TextStyle(color: Colors.white70)),
+                        Text(
+                          t.description,
+                          style: const TextStyle(color: Colors.white70),
+                        ),
                       _rating(t.rating),
                     ],
                   ),

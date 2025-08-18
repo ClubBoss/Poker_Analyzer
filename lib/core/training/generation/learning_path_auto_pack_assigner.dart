@@ -44,27 +44,31 @@ class LearningPathAutoPackAssigner {
         final packId = sub.packId.isNotEmpty
             ? sub.packId
             : (strategy.resolve(sub.id) ?? sub.id);
-        updatedSubs.add(SubStageTemplateInput(
-          id: sub.id,
-          packId: packId,
-          title: sub.title,
-          description: sub.description,
-          minHands: sub.minHands,
-          requiredAccuracy: sub.requiredAccuracy,
-          unlockCondition: sub.unlockCondition,
-        ));
+        updatedSubs.add(
+          SubStageTemplateInput(
+            id: sub.id,
+            packId: packId,
+            title: sub.title,
+            description: sub.description,
+            minHands: sub.minHands,
+            requiredAccuracy: sub.requiredAccuracy,
+            unlockCondition: sub.unlockCondition,
+          ),
+        );
       }
-      result.add(LearningPathStageTemplateInput(
-        id: stage.id,
-        title: stage.title,
-        packId: stage.packId,
-        description: stage.description,
-        requiredAccuracy: stage.requiredAccuracy,
-        minHands: stage.minHands,
-        subStages: updatedSubs,
-        unlockCondition: stage.unlockCondition,
-        tags: stage.tags,
-      ));
+      result.add(
+        LearningPathStageTemplateInput(
+          id: stage.id,
+          title: stage.title,
+          packId: stage.packId,
+          description: stage.description,
+          requiredAccuracy: stage.requiredAccuracy,
+          minHands: stage.minHands,
+          subStages: updatedSubs,
+          unlockCondition: stage.unlockCondition,
+          tags: stage.tags,
+        ),
+      );
     }
     return result;
   }

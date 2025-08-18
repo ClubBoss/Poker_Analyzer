@@ -22,7 +22,7 @@ class ComplexEVCalculationService {
     );
     final stacks = [
       for (var i = 0; i < spot.hand.playerCount; i++)
-        spot.hand.stacks['$i']?.round() ?? 0
+        spot.hand.stacks['$i']?.round() ?? 0,
     ];
     return computeIcmPushEV(
       chipStacksBb: stacks,
@@ -57,6 +57,8 @@ class ComplexEVCalculationService {
       );
     }
     return RangeAnalysis(
-        hero / heroRange.length, villain / villainRange.length);
+      hero / heroRange.length,
+      villain / villainRange.length,
+    );
   }
 }

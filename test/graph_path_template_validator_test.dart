@@ -34,8 +34,9 @@ nodes:
 ''';
 
   test('validator detects structural issues', () async {
-    final issues =
-        await const GraphPathTemplateValidator().validateYaml(badYaml);
+    final issues = await const GraphPathTemplateValidator().validateYaml(
+      badYaml,
+    );
     final messages = issues.map((e) => e.message).toList();
     expect(messages, contains('unknown_next:a:missing'));
     expect(messages, contains('unknown_target:b:orphan'));
@@ -44,8 +45,9 @@ nodes:
   });
 
   test('validator passes for valid path', () async {
-    final issues =
-        await const GraphPathTemplateValidator().validateYaml(goodYaml);
+    final issues = await const GraphPathTemplateValidator().validateYaml(
+      goodYaml,
+    );
     expect(issues, isEmpty);
   });
 

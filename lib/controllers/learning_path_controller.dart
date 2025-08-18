@@ -14,10 +14,10 @@ class LearningPathController extends ChangeNotifier {
     LearningPathLoader? loader,
     LearningPathProgressService? progressService,
     LearningPathTelemetry? telemetry,
-  })  : _loader = loader ?? const LearningPathLoader(),
-        _progressService =
-            progressService ?? LearningPathProgressService.instance,
-        _telemetry = telemetry ?? LearningPathTelemetry.instance;
+  }) : _loader = loader ?? const LearningPathLoader(),
+       _progressService =
+           progressService ?? LearningPathProgressService.instance,
+       _telemetry = telemetry ?? LearningPathTelemetry.instance;
 
   final LearningPathLoader _loader;
   final LearningPathProgressService _progressService;
@@ -30,9 +30,10 @@ class LearningPathController extends ChangeNotifier {
 
   LearningPathTemplateV2? get path => _path;
   String? get currentStageId => _progress.currentStageId;
-  LearningPathStageModel? get currentStage =>
-      _path?.stages.firstWhere((s) => s.id == _progress.currentStageId,
-          orElse: () => _path!.stages.first);
+  LearningPathStageModel? get currentStage => _path?.stages.firstWhere(
+    (s) => s.id == _progress.currentStageId,
+    orElse: () => _path!.stages.first,
+  );
 
   StageProgress stageProgress(String stageId) =>
       _progress.stages[stageId] ?? const StageProgress();
@@ -52,8 +53,9 @@ class LearningPathController extends ChangeNotifier {
       }
       return true;
     }
-    return stage.unlockAfter
-        .every((id) => _progress.stages[id]?.completed ?? false);
+    return stage.unlockAfter.every(
+      (id) => _progress.stages[id]?.completed ?? false,
+    );
   }
 
   Future<void> load(String pathId) async {
@@ -77,10 +79,7 @@ class LearningPathController extends ChangeNotifier {
     );
     _progress = _progress.copyWith(
       currentStageId: stageId,
-      stages: {
-        ..._progress.stages,
-        stageId: updated,
-      },
+      stages: {..._progress.stages, stageId: updated},
     );
     _persist();
     notifyListeners();
@@ -95,16 +94,15 @@ class LearningPathController extends ChangeNotifier {
       return;
     }
     _lastRecord = now;
-    final stage = _path!.stages
-        .firstWhere((s) => s.id == stageId, orElse: () => _path!.stages.first);
+    final stage = _path!.stages.firstWhere(
+      (s) => s.id == stageId,
+      orElse: () => _path!.stages.first,
+    );
     final current = stageProgress(stageId).recordHand(correct: correct);
     var updated = current;
     if (current.handsPlayed >= stage.requiredHands &&
         current.accuracy >= stage.requiredAccuracy) {
-      updated = current.copyWith(
-        completed: true,
-        completedAt: DateTime.now(),
-      );
+      updated = current.copyWith(completed: true, completedAt: DateTime.now());
       _unlockNext(stageId);
       final id = _pathId;
       if (id != null) {
@@ -117,10 +115,7 @@ class LearningPathController extends ChangeNotifier {
       }
     }
     _progress = _progress.copyWith(
-      stages: {
-        ..._progress.stages,
-        stageId: updated,
-      },
+      stages: {..._progress.stages, stageId: updated},
     );
     _persist();
     notifyListeners();
@@ -165,14 +160,17 @@ class LearningPathController extends ChangeNotifier {
   void dispose() {
     final id = _pathId;
     if (id != null) {
-      final stagesCompleted =
-          _progress.stages.values.where((s) => s.completed).length;
-      final handsPlayed =
-          _progress.stages.values.fold<int>(0, (a, b) => a + b.handsPlayed);
+      final stagesCompleted = _progress.stages.values
+          .where((s) => s.completed)
+          .length;
+      final handsPlayed = _progress.stages.values.fold<int>(
+        0,
+        (a, b) => a + b.handsPlayed,
+      );
       final avgAcc = _progress.stages.isEmpty
           ? 0.0
           : _progress.stages.values.fold<double>(0, (a, b) => a + b.accuracy) /
-              _progress.stages.length;
+                _progress.stages.length;
       _telemetry.log('path_summary', {
         'pathId': id,
         'stagesCompleted': stagesCompleted,

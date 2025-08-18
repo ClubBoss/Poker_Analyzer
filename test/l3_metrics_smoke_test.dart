@@ -45,9 +45,9 @@ spots:
     ]);
     final stdout = (res.stdout as String).toLowerCase();
     expect(stdout, contains('jam rate'));
-    final md = File('build/reports/l3_report_test.md')
-        .readAsStringSync()
-        .toLowerCase();
+    final md = File(
+      'build/reports/l3_report_test.md',
+    ).readAsStringSync().toLowerCase();
     expect(md, contains('twotone'));
     expect(md, contains('rainbow'));
   });

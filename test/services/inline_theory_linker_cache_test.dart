@@ -47,12 +47,7 @@ class _FakeLibrary implements MiniLessonLibraryService {
 void main() {
   test('ensureReady loads library only once', () async {
     final lib = _FakeLibrary(const [
-      TheoryMiniLessonNode(
-        id: 'l1',
-        title: 'A',
-        content: '',
-        tags: ['tag'],
-      ),
+      TheoryMiniLessonNode(id: 'l1', title: 'A', content: '', tags: ['tag']),
     ]);
     final cache = InlineTheoryLinkerCache(library: lib);
     await cache.ensureReady();

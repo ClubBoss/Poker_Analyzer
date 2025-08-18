@@ -27,15 +27,15 @@ class ABArmResult {
   });
 
   Map<String, dynamic> toJson() => {
-        'armId': armId,
-        'n': n,
-        'accuracy': accuracy,
-        'dropoffRate': dropoffRate,
-        'timeToComplete': timeToComplete,
-        'novelty': novelty,
-        'compositeScore': compositeScore,
-        'confidence': confidence,
-      };
+    'armId': armId,
+    'n': n,
+    'accuracy': accuracy,
+    'dropoffRate': dropoffRate,
+    'timeToComplete': timeToComplete,
+    'novelty': novelty,
+    'compositeScore': compositeScore,
+    'confidence': confidence,
+  };
 }
 
 class TrainingRunABComparator {
@@ -45,8 +45,10 @@ class TrainingRunABComparator {
   static const _weightsKey = 'ab.metric_weights';
   static const _controlKey = 'ab.control_arm';
 
-  Future<List<ABArmResult>> compare(List<TrainingRunRecord> runs,
-      {String? audience}) async {
+  Future<List<ABArmResult>> compare(
+    List<TrainingRunRecord> runs, {
+    String? audience,
+  }) async {
     if (runs.isEmpty) return [];
     final prefs = await SharedPreferences.getInstance();
     final armsConfig = await _loadArms(prefs);
@@ -77,37 +79,46 @@ class TrainingRunABComparator {
       final dropZ = -_zScore(s.dropoff, means.dropoff, stds.dropoff);
       final timeZ = -_zScore(s.time, means.time, stds.time);
       final noveltyZ = _zScore(s.novelty, means.novelty, stds.novelty);
-      final composite = weights['accuracy']! * accZ +
+      final composite =
+          weights['accuracy']! * accZ +
           weights['dropoff']! * dropZ +
           weights['time']! * timeZ +
           weights['novelty']! * noveltyZ;
       final confidence = s.n / (s.n + 10);
-      results.add(ABArmResult(
-        armId: id,
-        n: s.n,
-        accuracy: s.accuracy,
-        dropoffRate: s.dropoff,
-        timeToComplete: s.time,
-        novelty: s.novelty,
-        compositeScore: composite,
-        confidence: confidence,
-      ));
+      results.add(
+        ABArmResult(
+          armId: id,
+          n: s.n,
+          accuracy: s.accuracy,
+          dropoffRate: s.dropoff,
+          timeToComplete: s.time,
+          novelty: s.novelty,
+          compositeScore: composite,
+          confidence: confidence,
+        ),
+      );
     }
     results.sort((a, b) => b.compositeScore.compareTo(a.compositeScore));
 
     await prefs.setString(
-        _reportKey, jsonEncode(results.map((e) => e.toJson()).toList()));
+      _reportKey,
+      jsonEncode(results.map((e) => e.toJson()).toList()),
+    );
     if (results.isNotEmpty) {
       final best = results.first;
-      final arm = armsConfig.firstWhere((a) => a['id'] == best.armId,
-          orElse: () => null);
+      final arm = armsConfig.firstWhere(
+        (a) => a['id'] == best.armId,
+        orElse: () => null,
+      );
       await prefs.setString(_recommendedKey, jsonEncode(arm['format'] ?? {}));
     }
     return results;
   }
 
-  Future<ABArmResult?> best(List<TrainingRunRecord> runs,
-      {String? audience}) async {
+  Future<ABArmResult?> best(
+    List<TrainingRunRecord> runs, {
+    String? audience,
+  }) async {
     final results = await compare(runs, audience: audience);
     return results.isEmpty ? null : results.first;
   }
@@ -129,7 +140,7 @@ class TrainingRunABComparator {
       'accuracy': 0.4,
       'dropoff': 0.25,
       'time': 0.2,
-      'novelty': 0.15
+      'novelty': 0.15,
     };
     final raw = prefs.getString(_weightsKey);
     if (raw == null) return def;
@@ -209,11 +220,12 @@ class _MetricAverages {
   final double time;
   final double novelty;
 
-  _MetricAverages(
-      {required this.accuracy,
-      required this.dropoff,
-      required this.time,
-      required this.novelty});
+  _MetricAverages({
+    required this.accuracy,
+    required this.dropoff,
+    required this.time,
+    required this.novelty,
+  });
 
   factory _MetricAverages.from(Iterable<_ArmStats> stats) {
     double avg(Iterable<double> xs) =>
@@ -233,11 +245,12 @@ class _MetricStd {
   final double time;
   final double novelty;
 
-  _MetricStd(
-      {required this.accuracy,
-      required this.dropoff,
-      required this.time,
-      required this.novelty});
+  _MetricStd({
+    required this.accuracy,
+    required this.dropoff,
+    required this.time,
+    required this.novelty,
+  });
 
   factory _MetricStd.from(Iterable<_ArmStats> stats, _MetricAverages means) {
     double variance(Iterable<double> xs, double mean) {

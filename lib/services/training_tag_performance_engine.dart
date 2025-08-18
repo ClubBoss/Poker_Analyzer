@@ -65,7 +65,7 @@ class TrainingTagPerformanceEngine {
 
     final entries = [
       for (final e in stats.entries)
-        MapEntry(e.key, e.value.toPerformance(e.key))
+        MapEntry(e.key, e.value.toPerformance(e.key)),
     ]..sort((a, b) => b.value.totalAttempts.compareTo(a.value.totalAttempts));
 
     final result = <String, TagPerformance>{};
@@ -85,10 +85,10 @@ class _MutableStat {
   DateTime? lastTrained;
 
   TagPerformance toPerformance(String tag) => TagPerformance(
-        tag: tag,
-        totalAttempts: total,
-        correct: correct,
-        accuracy: total > 0 ? correct / total : 0,
-        lastTrained: lastTrained,
-      );
+    tag: tag,
+    totalAttempts: total,
+    correct: correct,
+    accuracy: total > 0 ? correct / total : 0,
+    lastTrained: lastTrained,
+  );
 }

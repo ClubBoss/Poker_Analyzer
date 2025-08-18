@@ -28,8 +28,9 @@ class _FakeLibrary implements MiniLessonLibraryService {
   @override
   List<TheoryMiniLessonNode> findByTags(List<String> tags) => [];
   @override
-  List<TheoryMiniLessonNode> getByTags(Set<String> tags) =>
-      [for (final t in tags) ...lessons.where((l) => l.tags.contains(t))];
+  List<TheoryMiniLessonNode> getByTags(Set<String> tags) => [
+    for (final t in tags) ...lessons.where((l) => l.tags.contains(t)),
+  ];
 }
 
 void main() {
@@ -42,11 +43,23 @@ void main() {
   test('recommend returns lessons covering missing tags', () async {
     final lessons = [
       const TheoryMiniLessonNode(
-          id: 'l1', title: 'A', content: '', tags: ['push']),
+        id: 'l1',
+        title: 'A',
+        content: '',
+        tags: ['push'],
+      ),
       const TheoryMiniLessonNode(
-          id: 'l2', title: 'B', content: '', tags: ['call']),
+        id: 'l2',
+        title: 'B',
+        content: '',
+        tags: ['call'],
+      ),
       const TheoryMiniLessonNode(
-          id: 'l3', title: 'C', content: '', tags: ['push', 'call']),
+        id: 'l3',
+        title: 'C',
+        content: '',
+        tags: ['push', 'call'],
+      ),
     ];
     final engine = SmartSkillGapBoosterEngine(
       detector: _FakeDetector(['push', 'call']),
@@ -61,11 +74,23 @@ void main() {
   test('deduplicates by tag and prefers less viewed lessons', () async {
     final lessons = [
       const TheoryMiniLessonNode(
-          id: 'l1', title: 'A', content: '', tags: ['push']),
+        id: 'l1',
+        title: 'A',
+        content: '',
+        tags: ['push'],
+      ),
       const TheoryMiniLessonNode(
-          id: 'l2', title: 'B', content: '', tags: ['call']),
+        id: 'l2',
+        title: 'B',
+        content: '',
+        tags: ['call'],
+      ),
       const TheoryMiniLessonNode(
-          id: 'l3', title: 'C', content: '', tags: ['push']),
+        id: 'l3',
+        title: 'C',
+        content: '',
+        tags: ['push'],
+      ),
     ];
     await MiniLessonProgressTracker.instance.markViewed('l1');
 

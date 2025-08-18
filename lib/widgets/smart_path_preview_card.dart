@@ -38,9 +38,7 @@ class SmartPathPreviewCard extends StatelessWidget {
   void _open(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => PathOverviewScreen(pathId: pathId),
-      ),
+      MaterialPageRoute(builder: (_) => PathOverviewScreen(pathId: pathId)),
     );
   }
 
@@ -83,8 +81,11 @@ class SmartPathPreviewCard extends StatelessWidget {
                   ),
                 ),
                 alignment: Alignment.center,
-                child:
-                    const Icon(Icons.school, size: 48, color: Colors.white54),
+                child: const Icon(
+                  Icons.school,
+                  size: 48,
+                  color: Colors.white54,
+                ),
               ),
             Padding(
               padding: const EdgeInsets.all(12),
@@ -115,8 +116,10 @@ class SmartPathPreviewCard extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 6),
                     child: Text(
                       '$stageCount стадий · $packCount паков',
-                      style:
-                          const TextStyle(color: Colors.white70, fontSize: 12),
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                   Padding(

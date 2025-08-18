@@ -59,9 +59,7 @@ class DevMenuPage extends StatelessWidget {
             title: const Text('Daily quick play'),
             onTap: () {
               Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => const QuickDailyPlayPage(),
-                ),
+                MaterialPageRoute(builder: (_) => const QuickDailyPlayPage()),
               );
             },
           ),

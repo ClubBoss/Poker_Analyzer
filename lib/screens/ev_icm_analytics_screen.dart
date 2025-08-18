@@ -20,9 +20,7 @@ class EvIcmAnalyticsScreen extends StatelessWidget {
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
-        children: const [
-          DailyEvIcmChart(),
-        ],
+        children: const [DailyEvIcmChart()],
       ),
     );
   }

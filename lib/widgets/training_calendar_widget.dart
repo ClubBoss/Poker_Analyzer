@@ -20,8 +20,11 @@ class TrainingCalendarWidget extends StatelessWidget {
     final stats = context.watch<TrainingStatsService>();
     final map = stats.handsPerDay;
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day)
-        .subtract(const Duration(days: 41));
+    final start = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(const Duration(days: 41));
     final days = [for (var i = 0; i < 42; i++) start.add(Duration(days: i))];
 
     return Container(

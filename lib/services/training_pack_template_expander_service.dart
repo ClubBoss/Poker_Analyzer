@@ -35,11 +35,11 @@ class TrainingPackTemplateExpanderService {
     FullBoardGeneratorV2? boardGenerator,
     LineGraphEngine? lineEngine,
     InlineTheoryNodeLinker? theoryLinker,
-  })  : _engine = engine ?? const ConstraintResolverEngine(),
-        _injector = injector ?? AutoSpotTheoryInjectorService(),
-        _boardGenerator = boardGenerator ?? const FullBoardGeneratorV2(),
-        _lineEngine = lineEngine ?? LineGraphEngine(),
-        _theoryLinker = theoryLinker ?? const InlineTheoryNodeLinker();
+  }) : _engine = engine ?? const ConstraintResolverEngine(),
+       _injector = injector ?? AutoSpotTheoryInjectorService(),
+       _boardGenerator = boardGenerator ?? const FullBoardGeneratorV2(),
+       _lineEngine = lineEngine ?? LineGraphEngine(),
+       _theoryLinker = theoryLinker ?? const InlineTheoryNodeLinker();
 
   bool _isManual(TrainingPackTemplateSet set) =>
       set.baseSpot.meta['manualSource'] == true;
@@ -217,8 +217,7 @@ class TrainingPackTemplateExpanderService {
   List<SpotSeedFormat> expandLines(
     TrainingPackTemplateSet set, {
     Map<String, InlineTheoryEntry> theoryIndex = const {},
-  }) =>
-      expandLinePatterns(set, theoryIndex: theoryIndex);
+  }) => expandLinePatterns(set, theoryIndex: theoryIndex);
 
   /// Generates [SpotSeed]s from [TrainingPackTemplateSet.postflopLines].
   ///

@@ -24,11 +24,12 @@ class EvSummaryCard extends StatelessWidget {
   final List<double> values;
   final bool isIcm;
   final VoidCallback onToggle;
-  const EvSummaryCard(
-      {super.key,
-      required this.values,
-      required this.isIcm,
-      required this.onToggle});
+  const EvSummaryCard({
+    super.key,
+    required this.values,
+    required this.isIcm,
+    required this.onToggle,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +63,9 @@ class EvSummaryCard extends StatelessWidget {
             children: [
               Expanded(child: Text(isIcm ? 'ICM mode' : 'EV mode')),
               IconButton(
-                  icon: const Icon(Icons.swap_horiz), onPressed: onToggle),
+                icon: const Icon(Icons.swap_horiz),
+                onPressed: onToggle,
+              ),
             ],
           ),
           Row(
@@ -73,7 +76,8 @@ class EvSummaryCard extends StatelessWidget {
                 ),
               ),
               Text(
-                  '+EV: ${(pos / values.length * 100).round()} %   -EV: ${(neg / values.length * 100).round()} %'),
+                '+EV: ${(pos / values.length * 100).round()} %   -EV: ${(neg / values.length * 100).round()} %',
+              ),
             ],
           ),
           const SizedBox(height: 8),

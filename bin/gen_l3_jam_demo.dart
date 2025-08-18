@@ -22,7 +22,7 @@ void main(List<String> args) {
       'pos': 'BTN',
       'vsPos': 'BB',
       'stack': '20bb',
-      'action': 'jam'
+      'action': 'jam',
     },
     {
       'kind': 'l3_flop_jam_vs_bet',
@@ -30,7 +30,7 @@ void main(List<String> args) {
       'pos': 'SB',
       'vsPos': 'BB',
       'stack': '25bb',
-      'action': 'fold'
+      'action': 'fold',
     },
     {
       'kind': 'l3_flop_jam_vs_raise',
@@ -38,7 +38,7 @@ void main(List<String> args) {
       'pos': 'BB',
       'vsPos': 'BTN',
       'stack': '30bb',
-      'action': 'jam'
+      'action': 'jam',
     },
     {
       'kind': 'l3_flop_jam_vs_raise',
@@ -46,7 +46,7 @@ void main(List<String> args) {
       'pos': 'BTN',
       'vsPos': 'BB',
       'stack': '30bb',
-      'action': 'fold'
+      'action': 'fold',
     },
     {
       'kind': 'l3_turn_jam_vs_bet',
@@ -54,7 +54,7 @@ void main(List<String> args) {
       'pos': 'CO',
       'vsPos': 'BB',
       'stack': '22bb',
-      'action': 'jam'
+      'action': 'jam',
     },
     {
       'kind': 'l3_turn_jam_vs_bet',
@@ -62,7 +62,7 @@ void main(List<String> args) {
       'pos': 'SB',
       'vsPos': 'BB',
       'stack': '25bb',
-      'action': 'fold'
+      'action': 'fold',
     },
     {
       'kind': 'l3_turn_jam_vs_raise',
@@ -70,7 +70,7 @@ void main(List<String> args) {
       'pos': 'BTN',
       'vsPos': 'BB',
       'stack': '28bb',
-      'action': 'jam'
+      'action': 'jam',
     },
     {
       'kind': 'l3_turn_jam_vs_raise',
@@ -78,7 +78,7 @@ void main(List<String> args) {
       'pos': 'BB',
       'vsPos': 'BTN',
       'stack': '18bb',
-      'action': 'fold'
+      'action': 'fold',
     },
     {
       'kind': 'l3_river_jam_vs_bet',
@@ -86,7 +86,7 @@ void main(List<String> args) {
       'pos': 'UTG',
       'vsPos': 'BB',
       'stack': '40bb',
-      'action': 'jam'
+      'action': 'jam',
     },
     {
       'kind': 'l3_river_jam_vs_bet',
@@ -94,7 +94,7 @@ void main(List<String> args) {
       'pos': 'BTN',
       'vsPos': 'BB',
       'stack': '15bb',
-      'action': 'fold'
+      'action': 'fold',
     },
     {
       'kind': 'l3_river_jam_vs_raise',
@@ -102,7 +102,7 @@ void main(List<String> args) {
       'pos': 'CO',
       'vsPos': 'BB',
       'stack': '35bb',
-      'action': 'jam'
+      'action': 'jam',
     },
     {
       'kind': 'l3_river_jam_vs_raise',
@@ -110,8 +110,8 @@ void main(List<String> args) {
       'pos': 'BB',
       'vsPos': 'BTN',
       'stack': '20bb',
-      'action': 'fold'
-    }
+      'action': 'fold',
+    },
   ];
 
   final file = File(outPath);

@@ -10,8 +10,9 @@ import 'stack_manager_service.dart';
 
 class PlayerManagerService extends ChangeNotifier {
   PlayerManagerService(this.profileService)
-      : profileImportExportService =
-            PlayerProfileImportExportService(profileService);
+    : profileImportExportService = PlayerProfileImportExportService(
+        profileService,
+      );
 
   final PlayerProfileService profileService;
   final PlayerProfileImportExportService profileImportExportService;
@@ -231,10 +232,12 @@ class PlayerManagerService extends ChangeNotifier {
         for (var j = 0; j < list.length && j < 2; j++) {
           final cardMap = list[j];
           if (cardMap is Map) {
-            newCards[i].add(CardModel(
-              rank: cardMap['rank'] as String,
-              suit: cardMap['suit'] as String,
-            ));
+            newCards[i].add(
+              CardModel(
+                rank: cardMap['rank'] as String,
+                suit: cardMap['suit'] as String,
+              ),
+            );
           }
         }
       }
@@ -317,8 +320,10 @@ class PlayerManagerService extends ChangeNotifier {
     playerCards[numberOfPlayers - 1] = [];
     players[numberOfPlayers - 1] = PlayerModel(name: 'Player $numberOfPlayers');
     initialStacks.remove(numberOfPlayers - 1);
-    profileService.actionTagService
-        .shiftAfterPlayerRemoval(index, numberOfPlayers);
+    profileService.actionTagService.shiftAfterPlayerRemoval(
+      index,
+      numberOfPlayers,
+    );
     profileService.playerPositions.remove(numberOfPlayers - 1);
     profileService.playerTypes.remove(numberOfPlayers - 1);
     hintFlags[numberOfPlayers - 1] = true;
@@ -385,8 +390,10 @@ class PlayerManagerService extends ChangeNotifier {
       ..addAll(hand.playerPositions);
     profileService.playerTypes
       ..clear()
-      ..addAll(hand.playerTypes ??
-          {for (final k in hand.playerPositions.keys) k: PlayerType.unknown});
+      ..addAll(
+        hand.playerTypes ??
+            {for (final k in hand.playerPositions.keys) k: PlayerType.unknown},
+      );
     profileService.updatePositions();
     notifyListeners();
   }

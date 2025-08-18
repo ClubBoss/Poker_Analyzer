@@ -98,8 +98,10 @@ class _PackPreviewScreenState extends State<PackPreviewScreen> {
           if (_related.isNotEmpty) ...[
             const Padding(
               padding: EdgeInsets.all(16),
-              child: Text('🎯 Похожее по теме',
-                  style: TextStyle(color: Colors.white, fontSize: 16)),
+              child: Text(
+                '🎯 Похожее по теме',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
             ),
             for (final r in _related)
               ListTile(
@@ -117,7 +119,7 @@ class _PackPreviewScreenState extends State<PackPreviewScreen> {
                   );
                 },
               ),
-          ]
+          ],
         ],
       ),
     );

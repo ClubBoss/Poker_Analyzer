@@ -22,7 +22,7 @@ class _FakeOrchestrator extends LearningPathGraphOrchestrator {
 class _FakeProgress extends TrainingPathProgressServiceV2 {
   final Set<String> completed;
   _FakeProgress(this.completed)
-      : super(logs: SessionLogService(sessions: TrainingSessionService()));
+    : super(logs: SessionLogService(sessions: TrainingSessionService()));
   @override
   Future<void> loadProgress(String pathId) async {}
   @override
@@ -49,8 +49,12 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     final start = TrainingStageNode(id: 'start', nextIds: ['end']);
     final end = TrainingStageNode(id: 'end');
-    final review =
-        TheoryLessonNode(id: 't1', title: 'T', content: '', nextIds: []);
+    final review = TheoryLessonNode(
+      id: 't1',
+      title: 'T',
+      content: '',
+      nextIds: [],
+    );
 
     final orch = _FakeOrchestrator([start, end, review]);
     final progress = _FakeProgress({'start'});

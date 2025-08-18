@@ -18,8 +18,5 @@ class DecayHotspotStats {
   final List<DecayHotspotStat> topTags;
   final List<DecayHotspotStat> topSpotIds;
 
-  const DecayHotspotStats({
-    required this.topTags,
-    required this.topSpotIds,
-  });
+  const DecayHotspotStats({required this.topTags, required this.topSpotIds});
 }

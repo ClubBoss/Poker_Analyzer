@@ -15,8 +15,8 @@ class DrillPreviewBlock extends StatefulWidget {
     required this.block,
     BoosterInventoryService? inventory,
     this.launcher = const TrainingSessionLauncher(),
-  })  : inventory = inventory ?? BoosterInventoryService(),
-        super(key: key);
+  }) : inventory = inventory ?? BoosterInventoryService(),
+       super(key: key);
 
   @override
   State<DrillPreviewBlock> createState() => _DrillPreviewBlockState();

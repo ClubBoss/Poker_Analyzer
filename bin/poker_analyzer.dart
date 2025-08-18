@@ -74,7 +74,8 @@ Future<void> main(List<String> args) async {
       manifestPath: result['manifest'] as String?,
       check: true,
     );
-    final bad = (report.counters['needs_upgrade'] ?? 0) +
+    final bad =
+        (report.counters['needs_upgrade'] ?? 0) +
         (report.counters['needs_heal'] ?? 0) +
         (report.counters['failed'] ?? 0);
     if (result['ci'] as bool && bad > 0) {

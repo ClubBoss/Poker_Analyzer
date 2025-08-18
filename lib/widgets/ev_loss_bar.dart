@@ -49,8 +49,10 @@ class EvLossBar extends StatelessWidget {
 
     return Container(
       margin: const EdgeInsets.only(top: 8),
-      decoration:
-          BoxDecoration(border: border, borderRadius: BorderRadius.circular(4)),
+      decoration: BoxDecoration(
+        border: border,
+        borderRadius: BorderRadius.circular(4),
+      ),
       height: 8,
       child: LayoutBuilder(
         builder: (context, constraints) {

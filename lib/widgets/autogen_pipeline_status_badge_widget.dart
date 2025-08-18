@@ -19,10 +19,7 @@ class AutogenPipelineStatusBadgeWidget extends StatelessWidget {
             color: color,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Text(
-            label,
-            style: const TextStyle(color: Colors.white),
-          ),
+          child: Text(label, style: const TextStyle(color: Colors.white)),
         );
       },
     );

@@ -39,7 +39,7 @@ class MainMenuDailyGoalCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Text('${goal.progress}/${goal.target}')
+              Text('${goal.progress}/${goal.target}'),
             ],
           ),
           const SizedBox(height: 8),
@@ -50,7 +50,8 @@ class MainMenuDailyGoalCard extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (_) => const GoalsOverviewScreen()),
+                    builder: (_) => const GoalsOverviewScreen(),
+                  ),
                 );
               },
               child: const Text('Перейти'),
@@ -98,18 +99,16 @@ class MainMenuDailyGoalCard extends StatelessWidget {
         color: cardColor,
         borderRadius: BorderRadius.circular(8),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 4,
-            offset: Offset(0, 2),
-          ),
+          BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
         ],
       ),
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 500),
         transitionBuilder: (child, animation) {
-          final curved =
-              CurvedAnimation(parent: animation, curve: Curves.easeInOut);
+          final curved = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeInOut,
+          );
           final scale = Tween<double>(begin: 0.95, end: 1.0).animate(curved);
           return FadeTransition(
             opacity: curved,

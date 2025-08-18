@@ -20,8 +20,9 @@ class LazyPackLoaderService {
 
   /// Loads basic information (id, name, tags, meta) for all packs found in the
   /// asset manifest. Spot details are discarded to avoid large allocations.
-  Future<void> preloadMetadata(
-      {String path = TrainingPackLibraryV2.packsDir}) async {
+  Future<void> preloadMetadata({
+    String path = TrainingPackLibraryV2.packsDir,
+  }) async {
     if (_metadata.isNotEmpty) return;
     final manifest = await AssetManifest.instance;
     final reader = const YamlReader();
@@ -68,8 +69,8 @@ class LazyPackLoaderService {
 /// training drills.
 class SpotStreamingEngine {
   SpotStreamingEngine(this._template, {this.prefetch = 5})
-      : _index = 0,
-        _cache = [];
+    : _index = 0,
+      _cache = [];
 
   final TrainingPackTemplateV2 _template;
   final int prefetch;

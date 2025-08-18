@@ -43,8 +43,10 @@ class _GoalListSectionState extends State<GoalListSection> {
         if (goals.isEmpty) {
           return Padding(
             padding: const EdgeInsets.all(16),
-            child: Text(widget.emptyMessage,
-                style: const TextStyle(color: Colors.white70)),
+            child: Text(
+              widget.emptyMessage,
+              style: const TextStyle(color: Colors.white70),
+            ),
           );
         }
         return ListView.separated(

@@ -31,8 +31,9 @@ class BoosterRecallScheduler {
         final data = jsonDecode(raw);
         if (data is Map) {
           for (final e in data.entries) {
-            final record =
-                _MissRecord.fromJson(Map<String, dynamic>.from(e.value));
+            final record = _MissRecord.fromJson(
+              Map<String, dynamic>.from(e.value),
+            );
             _missed[e.key.toString()] = record;
           }
         }
@@ -131,12 +132,12 @@ class _MissRecord {
   }
 
   Map<String, dynamic> toJson() => {
-        'c': count,
-        't': lastMiss.toIso8601String(),
-      };
+    'c': count,
+    't': lastMiss.toIso8601String(),
+  };
 
   factory _MissRecord.fromJson(Map<String, dynamic> json) => _MissRecord(
-        json['c'] as int? ?? 0,
-        DateTime.tryParse(json['t'] as String? ?? '') ?? DateTime.now(),
-      );
+    json['c'] as int? ?? 0,
+    DateTime.tryParse(json['t'] as String? ?? '') ?? DateTime.now(),
+  );
 }

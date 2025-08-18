@@ -10,10 +10,10 @@ class TagXpHistoryEntry {
   });
 
   Map<String, dynamic> toJson() => {
-        'date': date.toIso8601String(),
-        'xp': xp,
-        'source': source,
-      };
+    'date': date.toIso8601String(),
+    'xp': xp,
+    'source': source,
+  };
 
   factory TagXpHistoryEntry.fromJson(Map<String, dynamic> json) =>
       TagXpHistoryEntry(

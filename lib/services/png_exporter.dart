@@ -74,12 +74,14 @@ class PngExporter {
   }
 
   static Future<Uint8List?> exportTemplatePreview(
-      TrainingPackTemplate template) {
+    TrainingPackTemplate template,
+  ) {
     return _capture(_TemplatePreview(template));
   }
 
   static Future<Uint8List?> captureBoundary(
-      RenderRepaintBoundary boundary) async {
+    RenderRepaintBoundary boundary,
+  ) async {
     final view = WidgetsBinding.instance.platformDispatcher.implicitView!;
     final image = await boundary.toImage(pixelRatio: view.devicePixelRatio);
     final data = await image.toByteData(format: ui.ImageByteFormat.png);
@@ -118,7 +120,7 @@ class _TemplatePreview extends StatelessWidget {
     '5',
     '4',
     '3',
-    '2'
+    '2',
   ];
 
   List<List<double>> _matrix() {
@@ -161,9 +163,13 @@ class _TemplatePreview extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(template.name,
-                    style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.bold)),
+                Text(
+                  template.name,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 Text('ID: ${template.id}'),
                 Text('Spots: ${template.spots.length}'),
                 Text('Position: ${template.heroPos.label}'),

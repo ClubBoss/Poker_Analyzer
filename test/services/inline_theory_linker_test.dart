@@ -24,15 +24,15 @@ class _FakeLibrary implements MiniLessonLibraryService {
 
   @override
   List<TheoryMiniLessonNode> findByTags(List<String> tags) => [
-        for (final t in tags)
-          if (byTag[t] != null) byTag[t]!,
-      ];
+    for (final t in tags)
+      if (byTag[t] != null) byTag[t]!,
+  ];
 
   @override
   List<TheoryMiniLessonNode> getByTags(Set<String> tags) => [
-        for (final t in tags)
-          if (byTag[t] != null) byTag[t]!,
-      ];
+    for (final t in tags)
+      if (byTag[t] != null) byTag[t]!,
+  ];
 }
 
 class _FakeNavigator extends TheoryMiniLessonNavigator {
@@ -48,9 +48,17 @@ void main() {
   test('returns prioritized link and triggers navigator', () {
     final library = _FakeLibrary({
       'cbet': const TheoryMiniLessonNode(
-          id: '1', title: 'CBet', content: '', tags: ['cbet']),
+        id: '1',
+        title: 'CBet',
+        content: '',
+        tags: ['cbet'],
+      ),
       'probe': const TheoryMiniLessonNode(
-          id: '2', title: 'Probe', content: '', tags: ['probe']),
+        id: '2',
+        title: 'Probe',
+        content: '',
+        tags: ['probe'],
+      ),
     });
     final nav = _FakeNavigator();
     final linker = InlineTheoryLinker(library: library, navigator: nav);
@@ -62,8 +70,10 @@ void main() {
 
   test('returns null when no lesson matches', () {
     final library = _FakeLibrary({});
-    final linker =
-        InlineTheoryLinker(library: library, navigator: _FakeNavigator());
+    final linker = InlineTheoryLinker(
+      library: library,
+      navigator: _FakeNavigator(),
+    );
     final link = linker.getLink(['cbet']);
     expect(link, isNull);
   });

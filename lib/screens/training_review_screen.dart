@@ -84,32 +84,42 @@ class TrainingReviewScreen extends StatelessWidget {
     final tournamentRows = <Widget>[];
     if (spot.tournamentId != null && spot.tournamentId!.isNotEmpty) {
       tournamentRows.add(
-        Text('ID: ${spot.tournamentId}',
-            style: const TextStyle(color: Colors.white70)),
+        Text(
+          'ID: ${spot.tournamentId}',
+          style: const TextStyle(color: Colors.white70),
+        ),
       );
     }
     if (spot.buyIn != null) {
       tournamentRows.add(
-        Text('Buy-In: ${spot.buyIn}',
-            style: const TextStyle(color: Colors.white70)),
+        Text(
+          'Buy-In: ${spot.buyIn}',
+          style: const TextStyle(color: Colors.white70),
+        ),
       );
     }
     if (spot.totalPrizePool != null) {
       tournamentRows.add(
-        Text('Prize Pool: ${spot.totalPrizePool}',
-            style: const TextStyle(color: Colors.white70)),
+        Text(
+          'Prize Pool: ${spot.totalPrizePool}',
+          style: const TextStyle(color: Colors.white70),
+        ),
       );
     }
     if (spot.numberOfEntrants != null) {
       tournamentRows.add(
-        Text('Entrants: ${spot.numberOfEntrants}',
-            style: const TextStyle(color: Colors.white70)),
+        Text(
+          'Entrants: ${spot.numberOfEntrants}',
+          style: const TextStyle(color: Colors.white70),
+        ),
       );
     }
     if (spot.gameType != null && spot.gameType!.isNotEmpty) {
       tournamentRows.add(
-        Text('Game: ${spot.gameType}',
-            style: const TextStyle(color: Colors.white70)),
+        Text(
+          'Game: ${spot.gameType}',
+          style: const TextStyle(color: Colors.white70),
+        ),
       );
     }
 
@@ -118,8 +128,10 @@ class TrainingReviewScreen extends StatelessWidget {
       final stack = spot.stacks[i];
       final bb = (stack / 12.5).round();
       stackRows.add(
-        Text('Stack: $stack ($bb BB)',
-            style: const TextStyle(color: Colors.white70)),
+        Text(
+          'Stack: $stack ($bb BB)',
+          style: const TextStyle(color: Colors.white70),
+        ),
       );
     }
 

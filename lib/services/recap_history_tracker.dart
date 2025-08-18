@@ -28,9 +28,11 @@ class RecapHistoryTracker {
       try {
         final data = jsonDecode(raw);
         if (data is List) {
-          _events.addAll(data.whereType<Map>().map((e) {
-            return RecapEvent.fromJson(Map<String, dynamic>.from(e));
-          }));
+          _events.addAll(
+            data.whereType<Map>().map((e) {
+              return RecapEvent.fromJson(Map<String, dynamic>.from(e));
+            }),
+          );
         }
       } catch (_) {}
     }

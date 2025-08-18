@@ -40,8 +40,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _importHands() async {
-    final manager =
-        Provider.of<SavedHandManagerService>(context, listen: false);
+    final manager = Provider.of<SavedHandManagerService>(
+      context,
+      listen: false,
+    );
     final service = await HandHistoryFileService.create(manager);
     await service.importFromFiles(context);
   }
@@ -50,7 +52,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final tpl =
         _selected ?? TrainingPackTemplateService.starterPushfold10bb(context);
     final hands = [
-      for (final s in tpl.spots) handFromPackSpot(s, anteBb: tpl.anteBb)
+      for (final s in tpl.spots) handFromPackSpot(s, anteBb: tpl.anteBb),
     ];
     Navigator.push(
       context,
@@ -101,8 +103,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       _page('Шаг 4', 'Следите за ежедневными целями и достижениями'),
       _page('Шаг 5', 'Отслеживайте результаты в дашбордах прогресса'),
       _page('Шаг 6', 'Получайте персональные рекомендации для тренировок'),
-      _page('Шаг 7',
-          'Подключите облачную синхронизацию для сохранения прогресса'),
+      _page(
+        'Шаг 7',
+        'Подключите облачную синхронизацию для сохранения прогресса',
+      ),
       Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -115,9 +119,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               for (final t in _templates)
                 DropdownMenuItem(
                   value: t,
-                  child:
-                      Text(t.name, style: const TextStyle(color: Colors.white)),
-                )
+                  child: Text(
+                    t.name,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
             ],
             onChanged: (v) => setState(() => _selected = v),
           ),
@@ -138,10 +144,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         actions: [
-          TextButton(
-            onPressed: _finish,
-            child: const Text('Пропустить'),
-          ),
+          TextButton(onPressed: _finish, child: const Text('Пропустить')),
         ],
       ),
       body: Column(
@@ -188,9 +191,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               onPressed: _index == pages.length - 1
                   ? _finish
                   : () => _controller.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      ),
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    ),
               child: Text(_index == pages.length - 1 ? 'Готово' : 'Далее'),
             ),
           ),

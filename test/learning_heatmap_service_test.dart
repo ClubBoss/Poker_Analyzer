@@ -27,10 +27,7 @@ void main() {
         startedAt: DateTime(2023, 1, 2),
         completedAt: DateTime(2023, 1, 2),
       ),
-      TrackPlayHistory(
-        goalId: 'push',
-        startedAt: DateTime(2023, 1, 3),
-      ),
+      TrackPlayHistory(goalId: 'push', startedAt: DateTime(2023, 1, 3)),
     ];
 
     final result = service.buildHeatmap(history);

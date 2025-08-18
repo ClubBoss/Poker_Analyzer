@@ -17,13 +17,14 @@ class ConverterDiscoveryPlugin implements Plugin {
   @override
   void register(ServiceRegistry registry) {
     registry.registerIfAbsent<ConverterRegistry>(ConverterRegistry());
-    final ConverterRegistry converterRegistry =
-        registry.get<ConverterRegistry>();
+    final ConverterRegistry converterRegistry = registry
+        .get<ConverterRegistry>();
     for (final ConverterPlugin plugin in plugins) {
       converterRegistry.register(plugin);
     }
     registry.registerIfAbsent<ConverterPipeline>(
-        ConverterPipeline(converterRegistry));
+      ConverterPipeline(converterRegistry),
+    );
   }
 
   @override

@@ -11,14 +11,8 @@ class TheoryPackGeneratorService {
   const TheoryPackGeneratorService();
 
   static const Map<String, Map<String, String>> _titles = {
-    'pushFold': {
-      'en': 'Push/Fold Basics',
-      'ru': 'Основы пуш/фолда',
-    },
-    'icm': {
-      'en': 'ICM Pressure',
-      'ru': 'ICM давление',
-    },
+    'pushFold': {'en': 'Push/Fold Basics', 'ru': 'Основы пуш/фолда'},
+    'icm': {'en': 'ICM Pressure', 'ru': 'ICM давление'},
   };
 
   static const Map<String, Map<String, String>> _explanations = {
@@ -37,10 +31,8 @@ class TheoryPackGeneratorService {
   };
 
   /// List of all supported theory tags.
-  static List<String> get tags => {
-        ..._titles.keys,
-        ..._explanations.keys,
-      }.toSet().toList();
+  static List<String> get tags =>
+      {..._titles.keys, ..._explanations.keys}.toSet().toList();
 
   TrainingPackTemplateV2 generateForTag(String tag, {String lang = 'en'}) {
     final titleMap = _titles[tag];

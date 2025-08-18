@@ -9,7 +9,7 @@ class TheoryLessonAutoLinker {
   /// Creates a new auto linker using [MiniLessonLibraryService.instance] by
   /// default.
   const TheoryLessonAutoLinker({MiniLessonLibraryService? library})
-      : library = library ?? MiniLessonLibraryService.instance;
+    : library = library ?? MiniLessonLibraryService.instance;
 
   /// Automatically links all loaded lessons in [library].
   ///
@@ -27,8 +27,10 @@ class TheoryLessonAutoLinker {
   }
 
   /// Returns a map of lesson id to suggested next lesson ids.
-  Map<String, List<String>> suggestLinks(List<TheoryMiniLessonNode> lessons,
-      {int maxNext = 3}) {
+  Map<String, List<String>> suggestLinks(
+    List<TheoryMiniLessonNode> lessons, {
+    int maxNext = 3,
+  }) {
     final result = <String, List<String>>{};
     for (final lesson in lessons) {
       if (lesson.nextIds.isNotEmpty) continue;

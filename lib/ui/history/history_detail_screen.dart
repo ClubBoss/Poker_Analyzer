@@ -36,16 +36,18 @@ class HistoryDetailScreen extends StatelessWidget {
               p is String &&
               st is String &&
               act is String) {
-            spots.add(UiSpot(
-              kind: SpotKind.values[k],
-              hand: h,
-              pos: p,
-              stack: st,
-              action: act,
-              vsPos: e['v'] as String?,
-              limpers: e['l'] as String?,
-              explain: e['e'] as String?,
-            ));
+            spots.add(
+              UiSpot(
+                kind: SpotKind.values[k],
+                hand: h,
+                pos: p,
+                stack: st,
+                action: act,
+                vsPos: e['v'] as String?,
+                limpers: e['l'] as String?,
+                explain: e['e'] as String?,
+              ),
+            );
           }
         }
       }
@@ -62,7 +64,7 @@ class HistoryDetailScreen extends StatelessWidget {
         ? spots
         : [
             for (final i in wrongIdx)
-              if (i >= 0 && i < spots.length) spots[i]
+              if (i >= 0 && i < spots.length) spots[i],
           ];
 
     final canReplay = spots.isNotEmpty;
@@ -114,10 +116,7 @@ class HistoryDetailScreen extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ListTile(
-            title: const Text('Date'),
-            subtitle: Text(dateStr),
-          ),
+          ListTile(title: const Text('Date'), subtitle: Text(dateStr)),
           ListTile(
             title: const Text('Accuracy'),
             subtitle: Text('${(acc * 100).toStringAsFixed(0)}%'),
@@ -137,7 +136,8 @@ class HistoryDetailScreen extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (_) => Scaffold(
-                                body: MvsSessionPlayer(spots: wrongOnly)),
+                              body: MvsSessionPlayer(spots: wrongOnly),
+                            ),
                           ),
                         );
                       }

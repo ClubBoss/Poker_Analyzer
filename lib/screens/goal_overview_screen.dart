@@ -47,12 +47,16 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
     final categories = tipService.categories;
     final streak = streakService.count;
     final history = streakService.history;
-    final maxStreak =
-        history.isEmpty ? streak : history.map((e) => e.value).reduce(math.max);
+    final maxStreak = history.isEmpty
+        ? streak
+        : history.map((e) => e.value).reduce(math.max);
     final target = targetService.target;
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day)
-        .subtract(const Duration(days: 6));
+    final start = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(const Duration(days: 6));
     final days = [for (var i = 0; i < 7; i++) start.add(Duration(days: i))];
     final challenge = challengeService.current;
     final challengeProgress = challengeService.progressValue;
@@ -123,15 +127,21 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
                                     .read<DailyTipService>()
                                     .setCategory(v!),
                                 items: categories
-                                    .map((c) => DropdownMenuItem(
-                                        value: c, child: Text(c)))
+                                    .map(
+                                      (c) => DropdownMenuItem(
+                                        value: c,
+                                        child: Text(c),
+                                      ),
+                                    )
                                     .toList(),
                               ),
                             ],
                           ),
                           const SizedBox(height: 4),
-                          Text(tip,
-                              style: const TextStyle(color: Colors.white)),
+                          Text(
+                            tip,
+                            style: const TextStyle(color: Colors.white),
+                          ),
                         ],
                       ),
                     ),
@@ -149,19 +159,27 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Streak: $streak',
-                    style: const TextStyle(color: Colors.white)),
+                Text(
+                  'Streak: $streak',
+                  style: const TextStyle(color: Colors.white),
+                ),
                 const SizedBox(height: 4),
-                Text('Max: $maxStreak',
-                    style: const TextStyle(color: Colors.white70)),
+                Text(
+                  'Max: $maxStreak',
+                  style: const TextStyle(color: Colors.white70),
+                ),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Level ${xpService.level}',
-                        style: const TextStyle(color: Colors.white)),
-                    Text('${xpService.xp}/${xpService.nextLevelXp} XP',
-                        style: const TextStyle(color: Colors.white)),
+                    Text(
+                      'Level ${xpService.level}',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    Text(
+                      '${xpService.xp}/${xpService.nextLevelXp} XP',
+                      style: const TextStyle(color: Colors.white),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 4),
@@ -170,8 +188,9 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
                   child: LinearProgressIndicator(
                     value: xpService.progress.clamp(0.0, 1.0),
                     backgroundColor: Colors.white24,
-                    valueColor:
-                        const AlwaysStoppedAnimation<Color>(Colors.blueAccent),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      Colors.blueAccent,
+                    ),
                     minHeight: 6,
                   ),
                 ),
@@ -188,22 +207,27 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(challenge.title,
-                    style: const TextStyle(color: Colors.white)),
+                Text(
+                  challenge.title,
+                  style: const TextStyle(color: Colors.white),
+                ),
                 const SizedBox(height: 8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
                   child: LinearProgressIndicator(
                     value: challengeService.progress,
                     backgroundColor: Colors.white24,
-                    valueColor:
-                        const AlwaysStoppedAnimation<Color>(Colors.greenAccent),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      Colors.greenAccent,
+                    ),
                     minHeight: 6,
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text('$challengeProgress/${challenge.target}',
-                    style: const TextStyle(color: Colors.white70)),
+                Text(
+                  '$challengeProgress/${challenge.target}',
+                  style: const TextStyle(color: Colors.white70),
+                ),
               ],
             ),
           ),
@@ -217,14 +241,18 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Daily Target: $target',
-                    style: const TextStyle(color: Colors.white)),
+                Text(
+                  'Daily Target: $target',
+                  style: const TextStyle(color: Colors.white),
+                ),
                 const SizedBox(height: 8),
                 if (streak >= 7)
                   Container(
                     margin: const EdgeInsets.only(bottom: 8),
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 12,
+                    ),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
                         colors: [AppColors.accent, Colors.redAccent],
@@ -234,7 +262,9 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
                     child: const Text(
                       '🔥 Streak Bonus!',
                       style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 GridView.builder(
@@ -257,8 +287,10 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
                         color: color,
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: Text('${d.day}',
-                          style: const TextStyle(color: Colors.white)),
+                      child: Text(
+                        '${d.day}',
+                        style: const TextStyle(color: Colors.white),
+                      ),
                     );
                   },
                 ),
@@ -267,15 +299,18 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
                   alignment: Alignment.centerRight,
                   child: ElevatedButton(
                     onPressed: () async {
-                      final controller =
-                          TextEditingController(text: target.toString());
+                      final controller = TextEditingController(
+                        text: target.toString(),
+                      );
                       final int? value = await showDialog<int>(
                         context: context,
                         builder: (context) {
                           return AlertDialog(
                             backgroundColor: AppColors.cardBackground,
-                            title: const Text('Daily Goal',
-                                style: TextStyle(color: Colors.white)),
+                            title: const Text(
+                              'Daily Goal',
+                              style: TextStyle(color: Colors.white),
+                            ),
                             content: TextField(
                               controller: controller,
                               keyboardType: TextInputType.number,

@@ -48,9 +48,17 @@ void main() {
   test('prefers unfinished lesson matching focus tag', () async {
     final lessons = [
       const TheoryMiniLessonNode(
-          id: 'l1', title: 'A', content: '', tags: ['a']),
+        id: 'l1',
+        title: 'A',
+        content: '',
+        tags: ['a'],
+      ),
       const TheoryMiniLessonNode(
-          id: 'l2', title: 'B', content: '', tags: ['b']),
+        id: 'l2',
+        title: 'B',
+        content: '',
+        tags: ['b'],
+      ),
     ];
     final selector = TheorySmartEntryPointSelector(
       library: _FakeLibrary(lessons),
@@ -67,14 +75,22 @@ void main() {
       'mini_lesson_progress_l2': jsonEncode({
         'completed': true,
         'viewCount': 1,
-        'lastViewed': now.toIso8601String()
+        'lastViewed': now.toIso8601String(),
       }),
     });
     final lessons = [
       const TheoryMiniLessonNode(
-          id: 'l1', title: 'A', content: '', tags: ['a']),
+        id: 'l1',
+        title: 'A',
+        content: '',
+        tags: ['a'],
+      ),
       const TheoryMiniLessonNode(
-          id: 'l2', title: 'B', content: '', tags: ['b']),
+        id: 'l2',
+        title: 'B',
+        content: '',
+        tags: ['b'],
+      ),
     ];
     final selector = TheorySmartEntryPointSelector(
       library: _FakeLibrary(lessons),
@@ -88,9 +104,17 @@ void main() {
   test('returns random unfinished lesson when no data', () async {
     final lessons = [
       const TheoryMiniLessonNode(
-          id: 'l1', title: 'A', content: '', tags: ['a']),
+        id: 'l1',
+        title: 'A',
+        content: '',
+        tags: ['a'],
+      ),
       const TheoryMiniLessonNode(
-          id: 'l2', title: 'B', content: '', tags: ['b']),
+        id: 'l2',
+        title: 'B',
+        content: '',
+        tags: ['b'],
+      ),
     ];
     final selector = TheorySmartEntryPointSelector(
       library: _FakeLibrary(lessons),

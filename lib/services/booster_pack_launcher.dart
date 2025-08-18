@@ -36,9 +36,9 @@ class BoosterPackLauncher {
     if (pack != null) {
       await launcher.launch(pack);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Нет подходящих бустеров')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Нет подходящих бустеров')));
     }
   }
 }

@@ -61,8 +61,8 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
       _packController = widget.packController;
     } else {
       final training = context.read<TrainingSessionController>();
-      final fpService =
-          AppBootstrap.registry.get<TrainingSessionFingerprintService>();
+      final fpService = AppBootstrap.registry
+          .get<TrainingSessionFingerprintService>();
       fpService.startSession().then((sessionId) {
         final packId = training.template?.id ?? training.packId;
         final key = PackRunSessionState.keyFor(
@@ -163,15 +163,15 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
     );
     if (!res.correct) {
       await context.read<SpacedReviewService>().recordMistake(
-            spot.id,
-            controller.template?.id ?? controller.packId,
-          );
+        spot.id,
+        controller.template?.id ?? controller.packId,
+      );
     }
     await context.read<SpacedReviewService>().recordReviewOutcome(
-          spot.id,
-          controller.template?.id ?? controller.packId,
-          res.correct,
-        );
+      spot.id,
+      controller.template?.id ?? controller.packId,
+      res.correct,
+    );
     await AppBootstrap.registry
         .get<TrainingSessionFingerprintService>()
         .logAttempt(attempt, shownTheoryTags: tags.toList());
@@ -249,25 +249,29 @@ class _TrainingPlayScreenState extends State<TrainingPlayScreen> {
                 children: spot.actionType == SpotActionType.callPush
                     ? [
                         ElevatedButton(
-                          onPressed:
-                              actionsEnabled ? () => _choose('CALL') : null,
+                          onPressed: actionsEnabled
+                              ? () => _choose('CALL')
+                              : null,
                           child: const Text('CALL'),
                         ),
                         ElevatedButton(
-                          onPressed:
-                              actionsEnabled ? () => _choose('FOLD') : null,
+                          onPressed: actionsEnabled
+                              ? () => _choose('FOLD')
+                              : null,
                           child: const Text('FOLD'),
                         ),
                       ]
                     : [
                         ElevatedButton(
-                          onPressed:
-                              actionsEnabled ? () => _choose('PUSH') : null,
+                          onPressed: actionsEnabled
+                              ? () => _choose('PUSH')
+                              : null,
                           child: const Text('PUSH'),
                         ),
                         ElevatedButton(
-                          onPressed:
-                              actionsEnabled ? () => _choose('FOLD') : null,
+                          onPressed: actionsEnabled
+                              ? () => _choose('FOLD')
+                              : null,
                           child: const Text('FOLD'),
                         ),
                       ],

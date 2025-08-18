@@ -25,7 +25,7 @@ void main() {
       linkedPackId: 'p',
       meta: const {
         'schemaVersion': '3.0.0',
-        'tags': ['a']
+        'tags': ['a'],
       },
     ),
     LessonStep(
@@ -35,7 +35,7 @@ void main() {
       linkedPackId: 'p',
       meta: const {
         'schemaVersion': '3.0.0',
-        'tags': ['b']
+        'tags': ['b'],
       },
     ),
     LessonStep(
@@ -57,9 +57,7 @@ void main() {
   ];
 
   test('suggestNextStep prefers track steps', () async {
-    SharedPreferences.setMockInitialValues({
-      'lesson_selected_track': 't1',
-    });
+    SharedPreferences.setMockInitialValues({'lesson_selected_track': 't1'});
     await LessonProgressTrackerService.instance.load();
     final provider = _FakeTagProvider({
       's1': ['a'],

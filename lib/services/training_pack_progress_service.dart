@@ -4,8 +4,10 @@ import 'training_progress_tracker_service.dart';
 class TrainingPackProgressStats {
   final int completedCount;
   final int totalCount;
-  const TrainingPackProgressStats(
-      {required this.completedCount, required this.totalCount});
+  const TrainingPackProgressStats({
+    required this.completedCount,
+    required this.totalCount,
+  });
 }
 
 /// Provides per-pack completion stats.
@@ -22,17 +24,21 @@ class TrainingPackProgressService {
       _cache[packId] = null;
       return null;
     }
-    final total =
-        template.spots.isNotEmpty ? template.spots.length : template.spotCount;
+    final total = template.spots.isNotEmpty
+        ? template.spots.length
+        : template.spotCount;
     if (total <= 0) {
       _cache[packId] = null;
       return null;
     }
-    final completed = (await TrainingProgressTrackerService.instance
-            .getCompletedSpotIds(packId))
-        .length;
-    final stats =
-        TrainingPackProgressStats(completedCount: completed, totalCount: total);
+    final completed =
+        (await TrainingProgressTrackerService.instance.getCompletedSpotIds(
+          packId,
+        )).length;
+    final stats = TrainingPackProgressStats(
+      completedCount: completed,
+      totalCount: total,
+    );
     _cache[packId] = stats;
     return stats;
   }

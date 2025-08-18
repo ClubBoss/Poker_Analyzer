@@ -24,20 +24,28 @@ class TheoryCompletionEventDispatcher {
     });
     addListener((event) {
       if (event.wasSuccessful) {
-        unawaited(TheoryReinforcementScheduler.instance
-            .registerSuccess(event.lessonId));
+        unawaited(
+          TheoryReinforcementScheduler.instance.registerSuccess(event.lessonId),
+        );
       } else {
-        unawaited(TheoryReinforcementScheduler.instance
-            .registerFailure(event.lessonId));
+        unawaited(
+          TheoryReinforcementScheduler.instance.registerFailure(event.lessonId),
+        );
       }
     });
     addListener((event) {
       if (event.wasSuccessful) {
-        unawaited(TheoryReinforcementQueueService.instance
-            .registerSuccess(event.lessonId));
+        unawaited(
+          TheoryReinforcementQueueService.instance.registerSuccess(
+            event.lessonId,
+          ),
+        );
       } else {
-        unawaited(TheoryReinforcementQueueService.instance
-            .registerFailure(event.lessonId));
+        unawaited(
+          TheoryReinforcementQueueService.instance.registerFailure(
+            event.lessonId,
+          ),
+        );
       }
     });
     addListener((event) {
@@ -63,8 +71,9 @@ class TheoryCompletionEventDispatcher {
   }
 
   void dispatch(TheoryCompletionEvent event) {
-    for (final l
-        in List<void Function(TheoryCompletionEvent)>.from(_listeners)) {
+    for (final l in List<void Function(TheoryCompletionEvent)>.from(
+      _listeners,
+    )) {
       try {
         l(event);
       } catch (_) {}

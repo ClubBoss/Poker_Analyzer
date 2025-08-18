@@ -81,14 +81,18 @@ class _LearningPathDashboardBlockState
             children: [
               Text(
                 data.track.title,
-                style:
-                    const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 4),
               Text(
                 data.path.title,
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               if (data.path.description.isNotEmpty)
                 Padding(
@@ -131,6 +135,9 @@ class _BlockData {
   final LearningPathTrackModel track;
   final LearningPathTemplateV2 path;
   final double progress;
-  const _BlockData(
-      {required this.track, required this.path, required this.progress});
+  const _BlockData({
+    required this.track,
+    required this.path,
+    required this.progress,
+  });
 }

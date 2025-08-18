@@ -17,8 +17,11 @@ class _RecapData {
   final int streak;
   final int completedToday;
   final TheoryMiniLessonNode? next;
-  const _RecapData(
-      {required this.streak, required this.completedToday, this.next});
+  const _RecapData({
+    required this.streak,
+    required this.completedToday,
+    this.next,
+  });
 }
 
 class _DailyTrainingRecapCardState extends State<DailyTrainingRecapCard> {
@@ -55,15 +58,21 @@ class _DailyTrainingRecapCardState extends State<DailyTrainingRecapCard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Текущий стрик: ${data.streak}',
-                  style: const TextStyle(color: Colors.white)),
+              Text(
+                'Текущий стрик: ${data.streak}',
+                style: const TextStyle(color: Colors.white),
+              ),
               const SizedBox(height: 4),
-              Text('Уроков сегодня: ${data.completedToday}',
-                  style: const TextStyle(color: Colors.white)),
+              Text(
+                'Уроков сегодня: ${data.completedToday}',
+                style: const TextStyle(color: Colors.white),
+              ),
               if (data.next != null) ...[
                 const SizedBox(height: 8),
-                Text('Следующий урок: ${data.next!.resolvedTitle}',
-                    style: const TextStyle(color: Colors.white)),
+                Text(
+                  'Следующий урок: ${data.next!.resolvedTitle}',
+                  style: const TextStyle(color: Colors.white),
+                ),
                 const SizedBox(height: 8),
                 Align(
                   alignment: Alignment.centerRight,

@@ -22,23 +22,23 @@ class ManifestEntry {
   });
 
   Map<String, dynamic> toJson() => {
-        'algo': algo,
-        'hash': hash,
-        'ver': ver,
-        'ts': ts.toIso8601String(),
-      };
+    'algo': algo,
+    'hash': hash,
+    'ver': ver,
+    'ts': ts.toIso8601String(),
+  };
 
   static ManifestEntry fromJson(Map<String, dynamic> json) => ManifestEntry(
-        algo: json['algo'] as String,
-        hash: json['hash'] as String,
-        ver: json['ver'] as int,
-        ts: DateTime.parse(json['ts'] as String),
-      );
+    algo: json['algo'] as String,
+    hash: json['hash'] as String,
+    ver: json['ver'] as int,
+    ts: DateTime.parse(json['ts'] as String),
+  );
 }
 
 class TheoryManifestService {
   TheoryManifestService({String? path})
-      : _path = path ?? 'theory_manifest.json';
+    : _path = path ?? 'theory_manifest.json';
 
   final String _path;
   int version = 1;
@@ -69,10 +69,11 @@ class TheoryManifestService {
     for (final dir in dirs) {
       final d = Directory(dir);
       if (!await d.exists()) continue;
-      for (final f in d
-          .listSync(recursive: true)
-          .whereType<File>()
-          .where((e) => e.path.endsWith('.yaml'))) {
+      for (final f
+          in d
+              .listSync(recursive: true)
+              .whereType<File>()
+              .where((e) => e.path.endsWith('.yaml'))) {
         final rel = p.relative(f.path);
         final lines = await f.readAsLines();
         final body = lines.skip(1).join('\n');

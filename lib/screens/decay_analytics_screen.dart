@@ -52,18 +52,26 @@ class _DecayAnalyticsScreenState extends State<DecayAnalyticsScreen> {
         list.sort((a, b) => compare(a.decay, b.decay));
         break;
       case 3:
-        list.sort((a, b) => compare(
-              a.lastInteraction?.millisecondsSinceEpoch ?? 0,
-              b.lastInteraction?.millisecondsSinceEpoch ?? 0,
-            ));
+        list.sort(
+          (a, b) => compare(
+            a.lastInteraction?.millisecondsSinceEpoch ?? 0,
+            b.lastInteraction?.millisecondsSinceEpoch ?? 0,
+          ),
+        );
         break;
       case 4:
-        list.sort((a, b) => compare(
-            a.recommendedDaysUntilReview, b.recommendedDaysUntilReview));
+        list.sort(
+          (a, b) => compare(
+            a.recommendedDaysUntilReview,
+            b.recommendedDaysUntilReview,
+          ),
+        );
         break;
       default:
-        list.sort((a, b) =>
-            _ascending ? a.tag.compareTo(b.tag) : b.tag.compareTo(a.tag));
+        list.sort(
+          (a, b) =>
+              _ascending ? a.tag.compareTo(b.tag) : b.tag.compareTo(a.tag),
+        );
     }
   }
 
@@ -73,7 +81,7 @@ class _DecayAnalyticsScreenState extends State<DecayAnalyticsScreen> {
       for (final e in _data)
         if ((query.isEmpty || e.tag.toLowerCase().contains(query)) &&
             (_adaptation == null || e.adaptation == _adaptation))
-          e
+          e,
     ];
   }
 
@@ -96,25 +104,35 @@ class _DecayAnalyticsScreenState extends State<DecayAnalyticsScreen> {
       columns: [
         DataColumn(label: const Text('Tag'), onSort: _onSort),
         DataColumn(
-            label: const Text('Decay %'), numeric: true, onSort: _onSort),
+          label: const Text('Decay %'),
+          numeric: true,
+          onSort: _onSort,
+        ),
         const DataColumn(label: Text('Adaptation')),
         DataColumn(label: const Text('Last Interaction'), onSort: _onSort),
         DataColumn(
-            label: const Text('Recommended Days'),
-            numeric: true,
-            onSort: _onSort),
+          label: const Text('Recommended Days'),
+          numeric: true,
+          onSort: _onSort,
+        ),
       ],
       rows: [
         for (final e in _filtered)
-          DataRow(cells: [
-            DataCell(Text(e.tag)),
-            DataCell(Text((e.decay * 100).toStringAsFixed(0))),
-            DataCell(Text(_adaptationLabel(e.adaptation))),
-            DataCell(Text(e.lastInteraction != null
-                ? DateFormat('yyyy-MM-dd').format(e.lastInteraction!)
-                : '-')),
-            DataCell(Text('${e.recommendedDaysUntilReview}')),
-          ]),
+          DataRow(
+            cells: [
+              DataCell(Text(e.tag)),
+              DataCell(Text((e.decay * 100).toStringAsFixed(0))),
+              DataCell(Text(_adaptationLabel(e.adaptation))),
+              DataCell(
+                Text(
+                  e.lastInteraction != null
+                      ? DateFormat('yyyy-MM-dd').format(e.lastInteraction!)
+                      : '-',
+                ),
+              ),
+              DataCell(Text('${e.recommendedDaysUntilReview}')),
+            ],
+          ),
       ],
     );
   }
@@ -125,7 +143,7 @@ class _DecayAnalyticsScreenState extends State<DecayAnalyticsScreen> {
       appBar: AppBar(
         title: const Text('Decay Analytics'),
         actions: [
-          IconButton(onPressed: _load, icon: const Icon(Icons.refresh))
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh)),
         ],
       ),
       body: _loading
@@ -138,8 +156,9 @@ class _DecayAnalyticsScreenState extends State<DecayAnalyticsScreen> {
                     Expanded(
                       child: TextField(
                         controller: _searchController,
-                        decoration:
-                            const InputDecoration(hintText: 'Filter tag'),
+                        decoration: const InputDecoration(
+                          hintText: 'Filter tag',
+                        ),
                         onChanged: (_) => setState(() {}),
                       ),
                     ),
@@ -151,13 +170,17 @@ class _DecayAnalyticsScreenState extends State<DecayAnalyticsScreen> {
                       items: const [
                         DropdownMenuItem(value: null, child: Text('All')),
                         DropdownMenuItem(
-                            value: BoosterAdaptation.increase,
-                            child: Text('Increase')),
+                          value: BoosterAdaptation.increase,
+                          child: Text('Increase'),
+                        ),
                         DropdownMenuItem(
-                            value: BoosterAdaptation.reduce,
-                            child: Text('Reduce')),
+                          value: BoosterAdaptation.reduce,
+                          child: Text('Reduce'),
+                        ),
                         DropdownMenuItem(
-                            value: BoosterAdaptation.keep, child: Text('Keep')),
+                          value: BoosterAdaptation.keep,
+                          child: Text('Keep'),
+                        ),
                       ],
                       onChanged: (v) => setState(() => _adaptation = v),
                     ),

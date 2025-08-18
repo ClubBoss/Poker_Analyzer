@@ -20,7 +20,7 @@ class HeroRangeGridWidget extends StatelessWidget {
     '5',
     '4',
     '3',
-    '2'
+    '2',
   ];
 
   String _label(int row, int col) {

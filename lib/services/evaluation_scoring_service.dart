@@ -15,10 +15,11 @@ class EvaluationScoringService {
     const reader = YamlReader();
     const writer = YamlWriter();
     var count = 0;
-    for (final file in dir
-        .listSync(recursive: true)
-        .whereType<File>()
-        .where((f) => f.path.toLowerCase().endsWith('.yaml'))) {
+    for (final file
+        in dir
+            .listSync(recursive: true)
+            .whereType<File>()
+            .where((f) => f.path.toLowerCase().endsWith('.yaml'))) {
       try {
         final yaml = await file.readAsString();
         final map = reader.read(yaml);
@@ -47,12 +48,14 @@ class EvaluationScoringService {
         }
         final meta = Map<String, dynamic>.from(map['meta'] as Map? ?? {});
         if (evCount > 0) {
-          meta['evScore'] =
-              double.parse((100 - (evSum / evCount) * 100).toStringAsFixed(2));
+          meta['evScore'] = double.parse(
+            (100 - (evSum / evCount) * 100).toStringAsFixed(2),
+          );
         }
         if (icmCount > 0) {
           meta['icmScore'] = double.parse(
-              (100 - (icmSum / icmCount) * 100).toStringAsFixed(2));
+            (100 - (icmSum / icmCount) * 100).toStringAsFixed(2),
+          );
         }
         map['meta'] = meta;
         await writer.write(map, file.path);

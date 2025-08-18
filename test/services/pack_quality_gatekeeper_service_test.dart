@@ -48,7 +48,7 @@ void main() {
       final issues = {
         pack.id: [
           const SeedIssue(code: 'bad', severity: 'error', message: 'oops'),
-        ]
+        ],
       };
       final result = gatekeeper.isQualityAcceptable(pack, seedIssues: issues);
       expect(result, isFalse);
@@ -60,7 +60,7 @@ void main() {
       final issues = {
         pack.id: [
           const SeedIssue(code: 'warn', severity: 'warn', message: 'meh'),
-        ]
+        ],
       };
       final result = gatekeeper.isQualityAcceptable(pack, seedIssues: issues);
       expect(result, isTrue);

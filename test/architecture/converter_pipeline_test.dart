@@ -9,13 +9,16 @@ import 'package:poker_analyzer/models/action_entry.dart';
 import 'package:poker_analyzer/models/player_model.dart';
 
 class _MockConverter implements ConverterPlugin {
-  _MockConverter(this.formatId, this.description,
-      [this.capabilities = const ConverterFormatCapabilities(
-        supportsImport: true,
-        supportsExport: true,
-        requiresBoard: false,
-        supportsMultiStreet: true,
-      )]);
+  _MockConverter(
+    this.formatId,
+    this.description, [
+    this.capabilities = const ConverterFormatCapabilities(
+      supportsImport: true,
+      supportsExport: true,
+      requiresBoard: false,
+      supportsMultiStreet: true,
+    ),
+  ]);
 
   @override
   final String formatId;
@@ -48,7 +51,7 @@ SavedHand _dummyHand() {
     playerCards: <List<CardModel>>[
       <CardModel>[
         CardModel(rank: 'A', suit: '♠'),
-        CardModel(rank: 'K', suit: '♦')
+        CardModel(rank: 'K', suit: '♦'),
       ],
       <CardModel>[],
     ],
@@ -59,7 +62,7 @@ SavedHand _dummyHand() {
     playerPositions: <int, String>{0: 'BTN', 1: 'BB'},
     playerTypes: <int, PlayerType>{
       0: PlayerType.unknown,
-      1: PlayerType.unknown
+      1: PlayerType.unknown,
     },
   );
 }
@@ -137,12 +140,16 @@ void main() {
       final pipeline = ConverterPipeline(registry);
 
       final exportList = pipeline.availableConverters(
-          supportsExport: true, supportsImport: false);
+        supportsExport: true,
+        supportsImport: false,
+      );
       expect(exportList.map((c) => c.formatId), contains('exp'));
       expect(exportList.map((c) => c.formatId), isNot(contains('imp')));
 
       final importList = pipeline.availableConverters(
-          supportsImport: true, supportsExport: false);
+        supportsImport: true,
+        supportsExport: false,
+      );
       expect(importList.map((c) => c.formatId), contains('imp'));
       expect(importList.map((c) => c.formatId), isNot(contains('exp')));
     });

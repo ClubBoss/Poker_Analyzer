@@ -46,7 +46,9 @@ void main() {
     final service = TheoryLessonUnlockNotificationService(library: library);
     final key = GlobalKey();
     await tester.pumpWidget(
-      MaterialApp(home: Scaffold(body: Container(key: key))),
+      MaterialApp(
+        home: Scaffold(body: Container(key: key)),
+      ),
     );
     final ctx = key.currentContext!;
     await service.checkAndNotify(['a', 'b'], ctx);
@@ -69,7 +71,9 @@ void main() {
     final service = TheoryLessonUnlockNotificationService(library: library);
     final key = GlobalKey();
     await tester.pumpWidget(
-      MaterialApp(home: Scaffold(body: Container(key: key))),
+      MaterialApp(
+        home: Scaffold(body: Container(key: key)),
+      ),
     );
     final ctx = key.currentContext!;
     await service.checkAndNotify(['a'], ctx);

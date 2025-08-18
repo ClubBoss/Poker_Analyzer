@@ -35,10 +35,7 @@ class EVGoalBanner extends StatelessWidget {
         children: [
           const Text(
             'Следующая цель EV',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
           Text(

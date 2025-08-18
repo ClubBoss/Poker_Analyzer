@@ -27,7 +27,8 @@ Future<String> saveAnswerLogJson({
     final spot = spots[i];
     final ans = answers[i];
     buffer.writeln(
-        '${spot.kind.name}|${spot.hand}|${spot.pos}|${spot.stack}|${ans.expected}|${ans.chosen}|${ans.elapsed.inMilliseconds}');
+      '${spot.kind.name}|${spot.hand}|${spot.pos}|${spot.stack}|${ans.expected}|${ans.chosen}|${ans.elapsed.inMilliseconds}',
+    );
   }
   final hash = fnv32Hex(buffer.toString());
   final dir = Directory(outDir);

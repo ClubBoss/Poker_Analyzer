@@ -9,28 +9,28 @@ void main() {
   const engine = LearningPathStageCompletionEngine();
 
   LearningPathTemplateV2 samplePath() => const LearningPathTemplateV2(
-        id: 'p',
-        title: 'Path',
+    id: 'p',
+    title: 'Path',
+    description: '',
+    stages: [
+      LearningPathStageModel(
+        id: 's1',
+        title: 'Stage 1',
         description: '',
-        stages: [
-          LearningPathStageModel(
-            id: 's1',
-            title: 'Stage 1',
-            description: '',
-            packId: 'pack1',
-            requiredAccuracy: 0,
-            minHands: 10,
-          ),
-          LearningPathStageModel(
-            id: 's2',
-            title: 'Stage 2',
-            description: '',
-            packId: 'pack2',
-            requiredAccuracy: 0,
-            minHands: 5,
-          ),
-        ],
-      );
+        packId: 'pack1',
+        requiredAccuracy: 0,
+        minHands: 10,
+      ),
+      LearningPathStageModel(
+        id: 's2',
+        title: 'Stage 2',
+        description: '',
+        packId: 'pack2',
+        requiredAccuracy: 0,
+        minHands: 5,
+      ),
+    ],
+  );
 
   test('isStageComplete checks minHands', () {
     final stage = samplePath().stages.first;

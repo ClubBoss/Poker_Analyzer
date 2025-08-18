@@ -12,8 +12,11 @@ class AccuracyTrendChart extends StatelessWidget {
   final List<TrainingResult> sessions;
   final ChartMode mode;
 
-  const AccuracyTrendChart(
-      {super.key, required this.sessions, required this.mode});
+  const AccuracyTrendChart({
+    super.key,
+    required this.sessions,
+    required this.mode,
+  });
 
   String _formatLabel(DateTime d) {
     switch (mode) {
@@ -68,10 +71,12 @@ class AccuracyTrendChart extends StatelessWidget {
                   const FlLine(color: Colors.white24, strokeWidth: 1),
             ),
             titlesData: FlTitlesData(
-              rightTitles:
-                  const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              topTitles:
-                  const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              rightTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              topTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
               leftTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,

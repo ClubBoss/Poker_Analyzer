@@ -15,8 +15,11 @@ class DailyProgressHistoryScreen extends StatelessWidget {
     final target = context.watch<DailyTargetService>().target;
     final map = stats.handsPerDay;
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day)
-        .subtract(const Duration(days: 29));
+    final start = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(const Duration(days: 29));
     final days = [for (var i = 0; i < 30; i++) start.add(Duration(days: i))];
     return Scaffold(
       appBar: AppBar(
@@ -47,11 +50,14 @@ class DailyProgressHistoryScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('${d.day}',
-                    style: const TextStyle(color: Colors.white, fontSize: 12)),
-                Text('$count',
-                    style:
-                        const TextStyle(color: Colors.white70, fontSize: 10)),
+                Text(
+                  '${d.day}',
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                ),
+                Text(
+                  '$count',
+                  style: const TextStyle(color: Colors.white70, fontSize: 10),
+                ),
               ],
             ),
           );

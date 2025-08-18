@@ -7,7 +7,7 @@ class ActionHistoryService {
 
   /// Internal map of actions per street. Indexes correspond to street numbers.
   final Map<int, List<ActionEntry>> _actionsByStreet = {
-    for (var i = 0; i < 4; i++) i: <ActionEntry>[]
+    for (var i = 0; i < 4; i++) i: <ActionEntry>[],
   };
 
   /// Complete list of actions in their original order.
@@ -20,8 +20,9 @@ class ActionHistoryService {
     for (final list in _actionsByStreet.values) {
       list.clear();
     }
-    final source =
-        visibleCount != null ? actions.take(visibleCount).toList() : actions;
+    final source = visibleCount != null
+        ? actions.take(visibleCount).toList()
+        : actions;
     for (final a in source) {
       _actionsByStreet[a.street]?.add(a);
     }
@@ -37,8 +38,11 @@ class ActionHistoryService {
 
   /// Returns the list of actions for [street]. If [collapsed] is true and the
   /// list is longer than [limit], only the last [limit] actions are returned.
-  List<ActionEntry> actionsForStreet(int street,
-      {bool collapsed = false, int limit = 5}) {
+  List<ActionEntry> actionsForStreet(
+    int street, {
+    bool collapsed = false,
+    int limit = 5,
+  }) {
     final list = _actionsByStreet[street] ?? const <ActionEntry>[];
     if (!collapsed || list.length <= limit) return List.unmodifiable(list);
     return List.unmodifiable(list.sublist(list.length - limit));
@@ -48,8 +52,11 @@ class ActionHistoryService {
   Map<int, List<ActionEntry>> hudView({int limit = 5}) {
     return {
       for (int i = 0; i < 4; i++)
-        i: actionsForStreet(i,
-            collapsed: !expandedStreets.contains(i), limit: limit)
+        i: actionsForStreet(
+          i,
+          collapsed: !expandedStreets.contains(i),
+          limit: limit,
+        ),
     };
   }
 
@@ -88,12 +95,10 @@ class ActionHistoryService {
 
   /// Restores expanded streets based on [collapsed] list from a saved hand.
   void restoreFromCollapsed(List<int>? collapsed) {
-    setExpandedStreets(
-      [
-        for (int i = 0; i < 4; i++)
-          if (collapsed == null || !collapsed.contains(i)) i
-      ],
-    );
+    setExpandedStreets([
+      for (int i = 0; i < 4; i++)
+        if (collapsed == null || !collapsed.contains(i)) i,
+    ]);
   }
 
   /// Collapses streets that have no actions.
@@ -110,7 +115,7 @@ class ActionHistoryService {
   List<int> collapsedStreets({int count = 4}) {
     return [
       for (int i = 0; i < count; i++)
-        if (!expandedStreets.contains(i)) i
+        if (!expandedStreets.contains(i)) i,
     ];
   }
 

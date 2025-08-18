@@ -20,8 +20,11 @@ void main() {
 
   testWidgets('shows recap when tag matches weakness', (tester) async {
     await pump(tester);
-    final spot =
-        TrainingPackSpot(id: 's1', hand: HandData(), tags: ['overfoldBtn']);
+    final spot = TrainingPackSpot(
+      id: 's1',
+      hand: HandData(),
+      tags: ['overfoldBtn'],
+    );
     const injector = BoosterTheoryInjector();
     await injector.maybeInject(
       tester.element(find.byType(SizedBox)),
@@ -34,8 +37,11 @@ void main() {
 
   testWidgets('respects cooldown per tag', (tester) async {
     await pump(tester);
-    final spot =
-        TrainingPackSpot(id: 's1', hand: HandData(), tags: ['overfoldBtn']);
+    final spot = TrainingPackSpot(
+      id: 's1',
+      hand: HandData(),
+      tags: ['overfoldBtn'],
+    );
     const injector = BoosterTheoryInjector();
     await injector.maybeInject(
       tester.element(find.byType(SizedBox)),

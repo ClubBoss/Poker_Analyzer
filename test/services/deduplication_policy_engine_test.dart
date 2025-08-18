@@ -20,9 +20,9 @@ TrainingPackTemplateV2 _pack(String id, List<TrainingPackSpot> spots) =>
     );
 
 TrainingPackSpot _spot(String id, String cards) => TrainingPackSpot(
-      id: id,
-      hand: HandData.fromSimpleInput(cards, HeroPosition.btn, 10),
-    );
+  id: id,
+  hand: HandData.fromSimpleInput(cards, HeroPosition.btn, 10),
+);
 
 void main() {
   late Directory dir;
@@ -55,10 +55,12 @@ void main() {
       _spot('b', 'AhAs'),
       _spot('c', 'KdQc'),
     ]);
-    await File('${dir.path}/existing.yaml')
-        .writeAsString(existing.toYamlString());
-    await File('${dir.path}/candidate.yaml')
-        .writeAsString(candidate.toYamlString());
+    await File(
+      '${dir.path}/existing.yaml',
+    ).writeAsString(existing.toYamlString());
+    await File(
+      '${dir.path}/candidate.yaml',
+    ).writeAsString(candidate.toYamlString());
 
     final d = DuplicatePackInfo(
       candidateId: 'candidate',
@@ -93,10 +95,12 @@ void main() {
 
     final existing = _pack('existing', [_spot('a', 'AhAs')]);
     final candidate = _pack('candidate', [_spot('b', 'KdQc')]);
-    await File('${dir.path}/existing.yaml')
-        .writeAsString(existing.toYamlString());
-    await File('${dir.path}/candidate.yaml')
-        .writeAsString(candidate.toYamlString());
+    await File(
+      '${dir.path}/existing.yaml',
+    ).writeAsString(existing.toYamlString());
+    await File(
+      '${dir.path}/candidate.yaml',
+    ).writeAsString(candidate.toYamlString());
 
     final d = DuplicatePackInfo(
       candidateId: 'candidate',

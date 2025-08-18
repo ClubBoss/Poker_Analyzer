@@ -24,11 +24,7 @@ class InteractiveLineChart extends StatelessWidget {
       panAxis: PanAxis.horizontal,
       minScale: minScale,
       maxScale: maxScale,
-      child: AnimatedLineChart(
-        data: data,
-        duration: duration,
-        curve: curve,
-      ),
+      child: AnimatedLineChart(data: data, duration: duration, curve: curve),
     );
   }
 }

@@ -27,8 +27,10 @@ class SmartBoosterInboxLimiterService {
       count = 0;
     }
     if (count >= maxPerDay) {
-      await SmartBoosterExclusionTrackerService()
-          .logExclusion(tag, 'rateLimited');
+      await SmartBoosterExclusionTrackerService().logExclusion(
+        tag,
+        'rateLimited',
+      );
       return false;
     }
 
@@ -36,8 +38,10 @@ class SmartBoosterInboxLimiterService {
     if (lastMillis != null) {
       final last = DateTime.fromMillisecondsSinceEpoch(lastMillis);
       if (now.difference(last) < tagCooldown) {
-        await SmartBoosterExclusionTrackerService()
-            .logExclusion(tag, 'rateLimited');
+        await SmartBoosterExclusionTrackerService().logExclusion(
+          tag,
+          'rateLimited',
+        );
         return false;
       }
     }

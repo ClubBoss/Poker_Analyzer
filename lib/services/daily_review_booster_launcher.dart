@@ -27,10 +27,6 @@ class DailyReviewBoosterLauncher {
       return;
     }
 
-    Navigator.pushNamed(
-      context,
-      TrainingSessionScreen.route,
-      arguments: pack,
-    );
+    Navigator.pushNamed(context, TrainingSessionScreen.route, arguments: pack);
   }
 }

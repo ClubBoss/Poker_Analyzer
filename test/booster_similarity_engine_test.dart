@@ -24,12 +24,27 @@ TrainingPackSpot _spot(
 
 void main() {
   test('analyzeSpots detects similar pair', () {
-    final s1 = _spot('a', 'AhKh', HeroPosition.btn,
-        board: ['Kd', 'Qs', 'Js'], ev: 0.5);
-    final s2 = _spot('b', 'AhKh', HeroPosition.btn,
-        board: ['Kd', 'Qs', 'Js'], ev: 0.52);
-    final s3 = _spot('c', '9c8c', HeroPosition.sb,
-        board: ['2h', '3d', '4s'], ev: -0.3);
+    final s1 = _spot(
+      'a',
+      'AhKh',
+      HeroPosition.btn,
+      board: ['Kd', 'Qs', 'Js'],
+      ev: 0.5,
+    );
+    final s2 = _spot(
+      'b',
+      'AhKh',
+      HeroPosition.btn,
+      board: ['Kd', 'Qs', 'Js'],
+      ev: 0.52,
+    );
+    final s3 = _spot(
+      'c',
+      '9c8c',
+      HeroPosition.sb,
+      board: ['2h', '3d', '4s'],
+      ev: -0.3,
+    );
 
     const engine = BoosterSimilarityEngine();
     final res = engine.analyzeSpots([s1, s2, s3], threshold: 0.8);

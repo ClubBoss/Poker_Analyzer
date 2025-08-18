@@ -14,15 +14,17 @@ class BoosterPackAutoUploader {
   /// valid packs into [PackLibrary.staging].
   ///
   /// Returns the list of imported templates.
-  Future<List<TrainingPackTemplateV2>> uploadAll(
-      {String dir = 'yaml_out/theory'}) async {
+  Future<List<TrainingPackTemplateV2>> uploadAll({
+    String dir = 'yaml_out/theory',
+  }) async {
     await PackLibraryLoaderService.instance.loadLibrary();
     final directory = Directory(dir);
     if (!directory.existsSync()) return <TrainingPackTemplateV2>[];
 
     // Collect validation errors to know which files to skip.
-    final validation =
-        await const TheoryExportValidator().validateAll(dir: dir);
+    final validation = await const TheoryExportValidator().validateAll(
+      dir: dir,
+    );
     final errorsByFile = <String, List<String>>{};
     for (final e in validation) {
       errorsByFile.putIfAbsent(e.$1, () => <String>[]).add(e.$2);

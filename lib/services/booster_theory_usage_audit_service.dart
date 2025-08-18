@@ -33,7 +33,8 @@ class BoosterTheoryUsageAuditService {
     for (final pack in allTheoryPacks) {
       if (!referenced.contains(pack.id)) {
         issues.add(
-            TheoryUsageIssue(id: pack.id, title: pack.title, reason: 'unused'));
+          TheoryUsageIssue(id: pack.id, title: pack.title, reason: 'unused'),
+        );
       }
     }
     return issues;

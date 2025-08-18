@@ -64,8 +64,11 @@ void main() {
       launcher: launcher,
     );
     final key = GlobalKey();
-    await tester
-        .pumpWidget(MaterialApp(home: Scaffold(body: Container(key: key))));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(body: Container(key: key)),
+      ),
+    );
     await service.launchNext();
     expect(launcher.launched?.id, 'p1');
     expect(queue.queue.isEmpty, true);

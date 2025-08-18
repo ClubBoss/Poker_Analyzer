@@ -50,24 +50,34 @@ class _TheoryCoverageDashboardState extends State<TheoryCoverageDashboard> {
     int compareDouble(double a, double b) => a.compareTo(b);
     switch (_sortColumnIndex) {
       case 1:
-        list.sort((a, b) => _ascending
-            ? compareInt(a.lessonCount, b.lessonCount)
-            : compareInt(b.lessonCount, a.lessonCount));
+        list.sort(
+          (a, b) => _ascending
+              ? compareInt(a.lessonCount, b.lessonCount)
+              : compareInt(b.lessonCount, a.lessonCount),
+        );
         break;
       case 2:
-        list.sort((a, b) => _ascending
-            ? compareDouble(a.avgLength, b.avgLength)
-            : compareDouble(b.avgLength, a.avgLength));
+        list.sort(
+          (a, b) => _ascending
+              ? compareDouble(a.avgLength, b.avgLength)
+              : compareDouble(b.avgLength, a.avgLength),
+        );
         break;
       case 3:
-        list.sort((a, b) => _ascending
-            ? compareInt(a.exampleCount, b.exampleCount)
-            : compareInt(b.exampleCount, a.exampleCount));
+        list.sort(
+          (a, b) => _ascending
+              ? compareInt(a.exampleCount, b.exampleCount)
+              : compareInt(b.exampleCount, a.exampleCount),
+        );
         break;
       case 4:
-        list.sort((a, b) => _ascending
-            ? (a.connectedToPath ? 1 : 0).compareTo(b.connectedToPath ? 1 : 0)
-            : (b.connectedToPath ? 1 : 0).compareTo(a.connectedToPath ? 1 : 0));
+        list.sort(
+          (a, b) => _ascending
+              ? (a.connectedToPath ? 1 : 0).compareTo(b.connectedToPath ? 1 : 0)
+              : (b.connectedToPath ? 1 : 0).compareTo(
+                  a.connectedToPath ? 1 : 0,
+                ),
+        );
         break;
       default:
         list.sort((a, b) => a.tag.compareTo(b.tag));
@@ -96,10 +106,7 @@ class _TheoryCoverageDashboardState extends State<TheoryCoverageDashboard> {
       sortColumnIndex: _sortColumnIndex,
       sortAscending: _ascending,
       columns: [
-        DataColumn(
-          label: const Text('Tag'),
-          onSort: (i, a) => _onSort(i, a),
-        ),
+        DataColumn(label: const Text('Tag'), onSort: (i, a) => _onSort(i, a)),
         DataColumn(
           label: const Text('Lessons'),
           numeric: true,
@@ -115,25 +122,24 @@ class _TheoryCoverageDashboardState extends State<TheoryCoverageDashboard> {
           numeric: true,
           onSort: (i, a) => _onSort(i, a),
         ),
-        DataColumn(
-          label: const Text('Path'),
-          onSort: (i, a) => _onSort(i, a),
-        ),
+        DataColumn(label: const Text('Path'), onSort: (i, a) => _onSort(i, a)),
       ],
       rows: [
         for (final s in _filtered)
-          DataRow(cells: [
-            DataCell(Text(s.tag)),
-            DataCell(Text('${s.lessonCount}')),
-            DataCell(Text(s.avgLength.toStringAsFixed(1))),
-            DataCell(Text('${s.exampleCount}')),
-            DataCell(
-              Icon(
-                s.connectedToPath ? Icons.check : Icons.close,
-                color: s.connectedToPath ? Colors.green : Colors.red,
+          DataRow(
+            cells: [
+              DataCell(Text(s.tag)),
+              DataCell(Text('${s.lessonCount}')),
+              DataCell(Text(s.avgLength.toStringAsFixed(1))),
+              DataCell(Text('${s.exampleCount}')),
+              DataCell(
+                Icon(
+                  s.connectedToPath ? Icons.check : Icons.close,
+                  color: s.connectedToPath ? Colors.green : Colors.red,
+                ),
               ),
-            ),
-          ]),
+            ],
+          ),
       ],
     );
   }
@@ -145,7 +151,7 @@ class _TheoryCoverageDashboardState extends State<TheoryCoverageDashboard> {
       appBar: AppBar(
         title: const Text('Theory Coverage'),
         actions: [
-          IconButton(onPressed: _load, icon: const Icon(Icons.refresh))
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh)),
         ],
       ),
       backgroundColor: AppColors.background,

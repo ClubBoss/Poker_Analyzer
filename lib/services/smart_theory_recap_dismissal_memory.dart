@@ -24,8 +24,9 @@ class SmartTheoryRecapDismissalMemory {
         if (data is Map) {
           data.forEach((key, value) {
             if (value is Map) {
-              final info =
-                  _DismissInfo.fromJson(Map<String, dynamic>.from(value));
+              final info = _DismissInfo.fromJson(
+                Map<String, dynamic>.from(value),
+              );
               _cache[key.toString()] = info;
             }
           });
@@ -104,9 +105,9 @@ class _DismissInfo {
   const _DismissInfo({required this.count, required this.timestamp});
 
   Map<String, dynamic> toJson() => {
-        'count': count,
-        'ts': timestamp.toIso8601String(),
-      };
+    'count': count,
+    'ts': timestamp.toIso8601String(),
+  };
 
   factory _DismissInfo.fromJson(Map<String, dynamic> json) {
     final ts = DateTime.tryParse(json['ts'] as String? ?? '') ?? DateTime.now();

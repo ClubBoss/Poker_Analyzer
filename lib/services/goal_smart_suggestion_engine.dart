@@ -69,10 +69,14 @@ class GoalSmartSuggestionEngine {
           xp: 25,
           source: 'smart',
           onComplete: () {
-            BoosterPathHistoryService.instance
-                .markCompleted(c.lesson.id, c.tag);
-            GoalProgressPersistenceService.instance
-                .markCompleted(c.lesson.id, DateTime.now());
+            BoosterPathHistoryService.instance.markCompleted(
+              c.lesson.id,
+              c.tag,
+            );
+            GoalProgressPersistenceService.instance.markCompleted(
+              c.lesson.id,
+              DateTime.now(),
+            );
           },
         ),
       );

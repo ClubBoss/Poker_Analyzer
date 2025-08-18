@@ -22,7 +22,7 @@ void main() {
 
   test('tag cooldown is respected', () async {
     final service = _FakeTheoryIndexService({
-      't': [const TheorySnippet(id: '1', title: 't', bullets: [])]
+      't': [const TheorySnippet(id: '1', title: 't', bullets: [])],
     });
     final state = PackRunSessionState(scopeKey: 'k1');
     final controller = PackRunController(theoryIndex: service, state: state);
@@ -47,7 +47,7 @@ void main() {
         const TheorySnippet(id: '1', title: 'a', bullets: []),
         const TheorySnippet(id: '2', title: 'b', bullets: []),
         const TheorySnippet(id: '3', title: 'c', bullets: []),
-      ]
+      ],
     });
     final state = PackRunSessionState(scopeKey: 'k2');
     final controller = PackRunController(theoryIndex: service, state: state);
@@ -73,7 +73,7 @@ void main() {
       lastShownAt: 2,
       tagLastShown: {'a': 1},
       recallHistory: {
-        'a': ['1']
+        'a': ['1'],
       },
       recallShownBySpot: {'s1': true},
       attemptsBySpot: {'s1': 2},

@@ -92,8 +92,9 @@ class SkillTagCoverageGuardService {
     if (modeStr == null && uniqueStr == null && pctStr == null) {
       return null;
     }
-    final mode =
-        modeStr == 'strict' ? CoverageGuardMode.strict : CoverageGuardMode.soft;
+    final mode = modeStr == 'strict'
+        ? CoverageGuardMode.strict
+        : CoverageGuardMode.soft;
     int? minUnique;
     double? minPct;
     if (uniqueStr != null) {
@@ -126,8 +127,9 @@ class SkillTagCoverageGuardService {
     String? audience,
   }) async {
     final prefs = await PreferencesService.getInstance();
-    final keyUnique =
-        audience == null ? _uniqueKey : _audKey(_uniqueKey, audience);
+    final keyUnique = audience == null
+        ? _uniqueKey
+        : _audKey(_uniqueKey, audience);
     final keyPct = audience == null ? _pctKey : _audKey(_pctKey, audience);
     if (minUniqueTags != null) {
       await prefs.setInt(keyUnique, minUniqueTags);
@@ -139,12 +141,14 @@ class SkillTagCoverageGuardService {
 
   static Future<_Thresholds> getThresholds({String? audience}) async {
     final prefs = await PreferencesService.getInstance();
-    final unique = prefs.getInt(
+    final unique =
+        prefs.getInt(
           audience == null ? _uniqueKey : _audKey(_uniqueKey, audience),
         ) ??
         prefs.getInt(_uniqueKey) ??
         _defaultMinUniqueTags;
-    final pct = prefs.getDouble(
+    final pct =
+        prefs.getDouble(
           audience == null ? _pctKey : _audKey(_pctKey, audience),
         ) ??
         prefs.getDouble(_pctKey) ??

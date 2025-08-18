@@ -47,9 +47,11 @@ class _FakeFormatSelector extends AutoFormatSelector {
 class _PassGatekeeper extends PackQualityGatekeeperService {
   const _PassGatekeeper();
   @override
-  bool isQualityAcceptable(pack,
-          {double minScore = 0.7, seedIssues = const {}}) =>
-      true;
+  bool isQualityAcceptable(
+    pack, {
+    double minScore = 0.7,
+    seedIssues = const {},
+  }) => true;
 }
 
 void main() {
@@ -57,51 +59,56 @@ void main() {
     SharedPreferences.setMockInitialValues({'planner.budgetPaddingMins': 0});
   });
 
-  test('planAndInjectForUser creates modules with artifacts and is idempotent',
-      () async {
-    const user = 'u3';
-    await UserSkillModelService.instance
-        .recordAttempt(user, ['tag'], correct: false);
-    await UserSkillModelService.instance
-        .recordAttempt(user, ['tag'], correct: false);
+  test(
+    'planAndInjectForUser creates modules with artifacts and is idempotent',
+    () async {
+      const user = 'u3';
+      await UserSkillModelService.instance.recordAttempt(user, [
+        'tag',
+      ], correct: false);
+      await UserSkillModelService.instance.recordAttempt(user, [
+        'tag',
+      ], correct: false);
 
-    final tempDir = await Directory.systemTemp.createTemp('e2e');
-    final store = LearningPathStore(rootDir: tempDir.path);
-    final planExec = AdaptivePlanExecutor(
-      boosterEngine: _FakeBoosterEngine(),
-      formatSelector: _FakeFormatSelector(),
-      gatekeeper: const _PassGatekeeper(),
-      store: store,
-    );
-    final exec = AutogenPipelineExecutor();
-    await exec.planAndInjectForUser(
-      user,
-      durationMinutes: 40,
-      executor: planExec,
-    );
-    final modules1 = await store.listModules(user);
-    expect(modules1, isNotEmpty);
-    final m = modules1.first;
-    expect(m.boosterPackIds, isNotEmpty);
-    expect(m.assessmentPackId, isNotEmpty);
-    expect(m.itemsDurations?['boosterMins'], greaterThan(0));
-    expect(m.itemsDurations?['assessmentMins'], greaterThan(0));
+      final tempDir = await Directory.systemTemp.createTemp('e2e');
+      final store = LearningPathStore(rootDir: tempDir.path);
+      final planExec = AdaptivePlanExecutor(
+        boosterEngine: _FakeBoosterEngine(),
+        formatSelector: _FakeFormatSelector(),
+        gatekeeper: const _PassGatekeeper(),
+        store: store,
+      );
+      final exec = AutogenPipelineExecutor();
+      await exec.planAndInjectForUser(
+        user,
+        durationMinutes: 40,
+        executor: planExec,
+      );
+      final modules1 = await store.listModules(user);
+      expect(modules1, isNotEmpty);
+      final m = modules1.first;
+      expect(m.boosterPackIds, isNotEmpty);
+      expect(m.assessmentPackId, isNotEmpty);
+      expect(m.itemsDurations?['boosterMins'], greaterThan(0));
+      expect(m.itemsDurations?['assessmentMins'], greaterThan(0));
 
-    final prefs = await SharedPreferences.getInstance();
-    final lastRun = prefs.getString('theoryScheduler.lastRun.$user');
-    expect(lastRun, isNotNull);
+      final prefs = await SharedPreferences.getInstance();
+      final lastRun = prefs.getString('theoryScheduler.lastRun.$user');
+      expect(lastRun, isNotNull);
 
-    final status =
-        AutogenStatusDashboardService.instance.getStatus('PlannerV2');
-    expect(status, isNotNull);
+      final status = AutogenStatusDashboardService.instance.getStatus(
+        'PlannerV2',
+      );
+      expect(status, isNotNull);
 
-    await exec.planAndInjectForUser(
-      user,
-      durationMinutes: 40,
-      executor: planExec,
-    );
-    final modules2 = await store.listModules(user);
-    expect(modules2.length, modules1.length);
-    await tempDir.delete(recursive: true);
-  });
+      await exec.planAndInjectForUser(
+        user,
+        durationMinutes: 40,
+        executor: planExec,
+      );
+      final modules2 = await store.listModules(user);
+      expect(modules2.length, modules1.length);
+      await tempDir.delete(recursive: true);
+    },
+  );
 }

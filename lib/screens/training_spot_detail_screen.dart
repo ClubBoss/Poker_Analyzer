@@ -16,9 +16,9 @@ class TrainingSpotDetailScreen extends StatelessWidget {
   const TrainingSpotDetailScreen({super.key, required this.spot});
 
   Map<int, String> _posMap() => {
-        for (int i = 0; i < spot.numberOfPlayers; i++)
-          if (i < spot.positions.length) i: spot.positions[i]
-      };
+    for (int i = 0; i < spot.numberOfPlayers; i++)
+      if (i < spot.positions.length) i: spot.positions[i],
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -42,48 +42,62 @@ class TrainingSpotDetailScreen extends StatelessWidget {
               onPressed: () => TheoryMiniLessonNavigator.instance
                   .openLessonById(spot.inlineLessons.first),
             ),
-          SyncStatusIcon.of(context)
+          SyncStatusIcon.of(context),
         ],
       ),
       backgroundColor: Colors.black,
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text(l.heroPosition(pos),
-              style: const TextStyle(color: Colors.white)),
+          Text(
+            l.heroPosition(pos),
+            style: const TextStyle(color: Colors.white),
+          ),
           if (heroCards.isNotEmpty)
-            Text(l.heroCards(heroCards),
-                style: const TextStyle(color: Colors.white)),
+            Text(
+              l.heroCards(heroCards),
+              style: const TextStyle(color: Colors.white),
+            ),
           if (board.isNotEmpty)
-            Text(l.boardLabel(board),
-                style: const TextStyle(color: Colors.white)),
+            Text(
+              l.boardLabel(board),
+              style: const TextStyle(color: Colors.white),
+            ),
           const SizedBox(height: 16),
           ActionHistoryWidget(
-              actions: spot.actions, playerPositions: _posMap()),
+            actions: spot.actions,
+            playerPositions: _posMap(),
+          ),
           if (user != null) ...[
             const SizedBox(height: 16),
-            Text(l.yourAction(user),
-                style: const TextStyle(color: Colors.white)),
+            Text(
+              l.yourAction(user),
+              style: const TextStyle(color: Colors.white),
+            ),
           ],
-          Builder(builder: (context) {
-            double? ev;
-            double? icm;
-            for (final a in spot.actions) {
-              if (a.playerIndex == spot.heroIndex && a.street == 0) {
-                ev ??= a.ev;
-                icm ??= a.icmEv;
+          Builder(
+            builder: (context) {
+              double? ev;
+              double? icm;
+              for (final a in spot.actions) {
+                if (a.playerIndex == spot.heroIndex && a.street == 0) {
+                  ev ??= a.ev;
+                  icm ??= a.icmEv;
+                }
               }
-            }
-            if (ev == null && icm == null) return const SizedBox.shrink();
-            return Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                l.evIcm(ev?.toStringAsFixed(2) ?? '-',
-                    icm?.toStringAsFixed(2) ?? '-'),
-                style: const TextStyle(color: Colors.white70),
-              ),
-            );
-          }),
+              if (ev == null && icm == null) return const SizedBox.shrink();
+              return Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  l.evIcm(
+                    ev?.toStringAsFixed(2) ?? '-',
+                    icm?.toStringAsFixed(2) ?? '-',
+                  ),
+                  style: const TextStyle(color: Colors.white70),
+                ),
+              );
+            },
+          ),
           if (spot.recommendedAction != null) ...[
             const SizedBox(height: 8),
             EvalResultView(spot: spot, action: user ?? ''),

@@ -30,9 +30,7 @@ class SkillRecoveryPackEngine {
       final candidates = <TrainingPackTemplateV2>[];
       for (final p in lib) {
         if (exclude.contains(p.id)) continue;
-        final tags = {
-          for (final t in p.tags) t.toLowerCase(),
-        };
+        final tags = {for (final t in p.tags) t.toLowerCase()};
         final metaTags = p.meta['tags'];
         if (metaTags is List) {
           tags.addAll(metaTags.map((e) => e.toString().toLowerCase()));
@@ -96,14 +94,15 @@ class SkillRecoveryPackEngine {
         return p;
       }
     }
-    final sorted = [
-      for (final p in library)
-        if (!exclude.contains(p.id)) p
-    ]..sort((a, b) {
-        final pa = (a.meta['popularity'] as num?)?.toDouble() ?? 0;
-        final pb = (b.meta['popularity'] as num?)?.toDouble() ?? 0;
-        return pb.compareTo(pa);
-      });
+    final sorted =
+        [
+          for (final p in library)
+            if (!exclude.contains(p.id)) p,
+        ]..sort((a, b) {
+          final pa = (a.meta['popularity'] as num?)?.toDouble() ?? 0;
+          final pb = (b.meta['popularity'] as num?)?.toDouble() ?? 0;
+          return pb.compareTo(pa);
+        });
     for (final p in sorted) {
       if (!await SuggestionCooldownManager.isUnderCooldown(p.id)) {
         await SuggestedTrainingPacksHistoryService.logSuggestion(

@@ -36,7 +36,7 @@ class _FakeOrchestrator extends LearningPathGraphOrchestrator {
 class _FakeProgress extends TrainingPathProgressServiceV2 {
   final Set<String> completed;
   _FakeProgress(this.completed)
-      : super(logs: SessionLogService(sessions: TrainingSessionService()));
+    : super(logs: SessionLogService(sessions: TrainingSessionService()));
   @override
   Future<void> loadProgress(String pathId) async {}
   @override
@@ -93,13 +93,17 @@ void main() {
   test('runAutoReviewIfNeeded injects nodes', () async {
     SharedPreferences.setMockInitialValues({
       'learning_path_node_history':
-          '{"t1":{"nodeId":"t1","firstSeen":"2024-01-01T00:00:00.000","completedAt":"2024-01-01T00:00:00.000"}}'
+          '{"t1":{"nodeId":"t1","firstSeen":"2024-01-01T00:00:00.000","completedAt":"2024-01-01T00:00:00.000"}}',
     });
 
     final start = TrainingStageNode(id: 'start', nextIds: ['end']);
     final end = TrainingStageNode(id: 'end');
-    final review =
-        TheoryLessonNode(id: 't1', title: 'T', content: '', nextIds: []);
+    final review = TheoryLessonNode(
+      id: 't1',
+      title: 'T',
+      content: '',
+      nextIds: [],
+    );
 
     final orch = _FakeOrchestrator([start, end], [start, end, review]);
     final progress = _FakeProgress({'start'});
@@ -117,8 +121,9 @@ void main() {
 
     final nodes = engine.engine!.allNodes;
     expect(nodes.any((n) => n.id == 't1'), isTrue);
-    final startNode =
-        nodes.whereType<StageNode>().firstWhere((n) => n.id == 'start');
+    final startNode = nodes.whereType<StageNode>().firstWhere(
+      (n) => n.id == 'start',
+    );
     expect(startNode.nextIds.first, 't1');
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString('theory_reinforcement_logs')!;
@@ -186,8 +191,9 @@ void main() {
 
     final nodes = engine.engine!.allNodes;
     expect(nodes.any((n) => n is TheoryMiniLessonNode && n.id == 'm1'), isTrue);
-    final startNode =
-        nodes.whereType<StageNode>().firstWhere((n) => n.id == 'start');
+    final startNode = nodes.whereType<StageNode>().firstWhere(
+      (n) => n.id == 'start',
+    );
     expect(startNode.nextIds.first, 'm1');
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString('theory_reinforcement_logs')!;

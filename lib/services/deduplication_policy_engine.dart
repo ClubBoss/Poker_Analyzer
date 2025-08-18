@@ -32,10 +32,10 @@ class DeduplicationPolicy {
   }
 
   Map<String, dynamic> toJson() => {
-        'reason': reason,
-        'action': action.name,
-        'threshold': threshold,
-      };
+    'reason': reason,
+    'action': action.name,
+    'threshold': threshold,
+  };
 }
 
 class DeduplicationPolicyEngine {
@@ -133,11 +133,13 @@ class DeduplicationPolicyEngine {
                 }
                 existing.spotCount = existing.spots.length;
                 final merged = <String>{
-                  ...((existing.meta['mergedIds'] as List?)
-                          ?.map((e) => e.toString()) ??
+                  ...((existing.meta['mergedIds'] as List?)?.map(
+                        (e) => e.toString(),
+                      ) ??
                       []),
-                  ...((candidate.meta['mergedIds'] as List?)
-                          ?.map((e) => e.toString()) ??
+                  ...((candidate.meta['mergedIds'] as List?)?.map(
+                        (e) => e.toString(),
+                      ) ??
                       []),
                   candidate.id,
                 };

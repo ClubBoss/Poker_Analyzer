@@ -15,10 +15,7 @@ class AchievementDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = achievement.level.color;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(achievement.title),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(achievement.title), centerTitle: true),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

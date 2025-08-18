@@ -119,8 +119,8 @@ class PlayerInfoWidget extends StatelessWidget {
     final borderColor = isActive
         ? AppColors.accent
         : isHero
-            ? Colors.purpleAccent
-            : null;
+        ? Colors.purpleAccent
+        : null;
 
     Color? actionColor;
     String? actionIcon;
@@ -159,8 +159,9 @@ class PlayerInfoWidget extends StatelessWidget {
         color: Colors.black.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-            color: borderColor ?? Colors.white24,
-            width: borderColor != null ? 2 : 1),
+          color: borderColor ?? Colors.white24,
+          width: borderColor != null ? 2 : 1,
+        ),
         boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 2)],
       ),
       child: Column(
@@ -180,8 +181,10 @@ class PlayerInfoWidget extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 4),
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.grey[700],
                       borderRadius: BorderRadius.circular(6),
@@ -196,8 +199,10 @@ class PlayerInfoWidget extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 4),
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.grey[700],
                       borderRadius: BorderRadius.circular(6),
@@ -212,8 +217,10 @@ class PlayerInfoWidget extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 4),
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.grey[700],
                       borderRadius: BorderRadius.circular(6),
@@ -270,16 +277,20 @@ class PlayerInfoWidget extends StatelessWidget {
                     width: 22,
                     height: 30,
                     decoration: BoxDecoration(
-                      color: Colors.white
-                          .withValues(alpha: card == null ? 0.3 : 1),
+                      color: Colors.white.withValues(
+                        alpha: card == null ? 0.3 : 1,
+                      ),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     alignment: Alignment.center,
                     child: card == null
                         ? (isHero
-                            ? const Icon(Icons.add,
-                                size: 14, color: Colors.grey)
-                            : Image.asset('assets/cards/card_back.png'))
+                              ? const Icon(
+                                  Icons.add,
+                                  size: 14,
+                                  color: Colors.grey,
+                                )
+                              : Image.asset('assets/cards/card_back.png'))
                         : FlipCard(
                             width: 22,
                             height: 30,
@@ -358,7 +369,7 @@ class PlayerInfoWidget extends StatelessWidget {
                         autofocus: true,
                         keyboardType: TextInputType.number,
                         inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly
+                          FilteringTextInputFormatter.digitsOnly,
                         ],
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
@@ -394,11 +405,7 @@ class PlayerInfoWidget extends StatelessWidget {
                 onStackTap!(result);
               }
             },
-            child: PlayerStackValue(
-              stack: stack,
-              scale: 0.8,
-              isBust: isBust,
-            ),
+            child: PlayerStackValue(stack: stack, scale: 0.8, isBust: isBust),
           ),
           if (tag.isNotEmpty) ...[
             const SizedBox(height: 4),
@@ -425,8 +432,10 @@ class PlayerInfoWidget extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 2),
                     child: Text(
                       playerTypeLabel!,
-                      style:
-                          const TextStyle(color: Colors.white60, fontSize: 10),
+                      style: const TextStyle(
+                        color: Colors.white60,
+                        fontSize: 10,
+                      ),
                     ),
                   ),
               ],
@@ -456,8 +465,10 @@ class PlayerInfoWidget extends StatelessWidget {
     if (isFolded) {
       result = ClipRect(
         child: ColorFiltered(
-          colorFilter:
-              const ColorFilter.mode(Colors.grey, BlendMode.saturation),
+          colorFilter: const ColorFilter.mode(
+            Colors.grey,
+            BlendMode.saturation,
+          ),
           child: Opacity(opacity: 0.4, child: result),
         ),
       );
@@ -494,56 +505,64 @@ class PlayerInfoWidget extends StatelessWidget {
         showLastIndicator) {
       final children = <Widget>[clickable];
       if (playerTypeIcon.isNotEmpty) {
-        children.add(Positioned(
-          bottom: -6,
-          right: -6,
-          child: IgnorePointer(
-            child: Text(
-              playerTypeIcon,
-              style: const TextStyle(
-                fontSize: 12,
-                shadows: [Shadow(color: Colors.black, blurRadius: 2)],
+        children.add(
+          Positioned(
+            bottom: -6,
+            right: -6,
+            child: IgnorePointer(
+              child: Text(
+                playerTypeIcon,
+                style: const TextStyle(
+                  fontSize: 12,
+                  shadows: [Shadow(color: Colors.black, blurRadius: 2)],
+                ),
               ),
             ),
           ),
-        ));
+        );
       }
       if (onEdit != null) {
-        children.add(Positioned(
-          top: 0,
-          left: 0,
-          child: GestureDetector(
-            onTap: onEdit,
-            child: const Text('✏️', style: TextStyle(fontSize: 12)),
+        children.add(
+          Positioned(
+            top: 0,
+            left: 0,
+            child: GestureDetector(
+              onTap: onEdit,
+              child: const Text('✏️', style: TextStyle(fontSize: 12)),
+            ),
           ),
-        ));
+        );
       }
       if (onRemove != null) {
-        children.add(Positioned(
-          top: 0,
-          right: 0,
-          child: GestureDetector(
-            onTap: onRemove,
-            child: const Text('❌', style: TextStyle(fontSize: 12)),
+        children.add(
+          Positioned(
+            top: 0,
+            right: 0,
+            child: GestureDetector(
+              onTap: onRemove,
+              child: const Text('❌', style: TextStyle(fontSize: 12)),
+            ),
           ),
-        ));
+        );
       }
       if (showLastIndicator) {
-        children.add(Positioned(
-          bottom: -6,
-          left: -6,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-            decoration: BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: const Text(
-              '⚡',
-              style: TextStyle(color: Colors.white, fontSize: 10),
+        children.add(
+          Positioned(
+            bottom: -6,
+            left: -6,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: const Text(
+                '⚡',
+                style: TextStyle(color: Colors.white, fontSize: 10),
+              ),
             ),
           ),
-        ));
+        );
       }
       withBadge = Stack(clipBehavior: Clip.none, children: children);
     }

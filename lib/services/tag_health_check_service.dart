@@ -46,7 +46,7 @@ class TagHealthCheckService {
     }
     final single = [
       for (final e in counts.entries)
-        if (e.value == 1) e.key
+        if (e.value == 1) e.key,
     ];
     final normMap = <String, Set<String>>{};
     for (final t in tags) {
@@ -55,7 +55,7 @@ class TagHealthCheckService {
     }
     final dups = [
       for (final e in normMap.entries)
-        if (e.value.length > 1) e.value.toList()
+        if (e.value.length > 1) e.value.toList(),
     ];
     final matrixFile = File('${dir.path}/tag_matrix.yaml');
     final mapped = <String>{};
@@ -73,7 +73,7 @@ class TagHealthCheckService {
     }
     final unmapped = [
       for (final t in tags)
-        if (mapped.isNotEmpty && !mapped.contains(t)) t
+        if (mapped.isNotEmpty && !mapped.contains(t)) t,
     ];
     final file = File('${dir.path}/tag_health_report.json')
       ..createSync(recursive: true);

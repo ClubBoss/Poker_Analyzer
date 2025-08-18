@@ -66,7 +66,8 @@ class StackDisplay extends StatelessWidget {
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
-    final centerY = screenSize.height / 2 -
+    final centerY =
+        screenSize.height / 2 -
         TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
     final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
@@ -154,16 +155,16 @@ class StackDisplay extends StatelessWidget {
                 animation: centerChipController,
                 builder: (_, child) {
                   final start = centerChipOrigin ?? Offset(centerX, centerY);
-                  final pos = Offset.lerp(start, Offset(centerX, centerY),
-                      centerChipController.value)!;
+                  final pos = Offset.lerp(
+                    start,
+                    Offset(centerX, centerY),
+                    centerChipController.value,
+                  )!;
                   return Transform.translate(
                     offset: Offset(pos.dx - centerX, pos.dy - centerY),
                     child: Transform.scale(
                       scale: centerChipController.value,
-                      child: Align(
-                        alignment: Alignment.center,
-                        child: child,
-                      ),
+                      child: Align(alignment: Alignment.center, child: child),
                     ),
                   );
                 },
@@ -194,8 +195,10 @@ class StackDisplay extends StatelessWidget {
         final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
         final start = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
         final end = Offset(centerX, centerY);
-        final animate =
-            playbackManager.shouldAnimatePlayer(currentStreet, index);
+        final animate = playbackManager.shouldAnimatePlayer(
+          currentStreet,
+          index,
+        );
         items.add(
           Positioned.fill(
             child: BetChipsOnTable(
@@ -245,17 +248,19 @@ class StackDisplay extends StatelessWidget {
       final end = Offset(centerX, centerY);
       final pos = Offset.lerp(start, end, 0.75)!;
       final chipScale = scale * 0.8;
-      items.add(Positioned(
-        left: pos.dx - 8 * chipScale,
-        top: pos.dy - 8 * chipScale,
-        child: BetStackIndicator(
-          amount: info.amount,
-          color: info.color,
-          scale: chipScale,
-          duration: const Duration(milliseconds: 1700),
-          onComplete: () {},
+      items.add(
+        Positioned(
+          left: pos.dx - 8 * chipScale,
+          top: pos.dy - 8 * chipScale,
+          child: BetStackIndicator(
+            amount: info.amount,
+            color: info.color,
+            scale: chipScale,
+            duration: const Duration(milliseconds: 1700),
+            onComplete: () {},
+          ),
         ),
-      ));
+      );
     });
 
     return Stack(children: items);

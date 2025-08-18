@@ -43,21 +43,21 @@ void main() {
   test('computes progress for all tracks', () async {
     final nodesA = [
       node('a1', 'A'),
-      node('a2', 'A', prereqs: ['a1'])
+      node('a2', 'A', prereqs: ['a1']),
     ];
     final nodesB = [
       node('b1', 'B'),
-      node('b2', 'B', prereqs: ['b1'])
+      node('b2', 'B', prereqs: ['b1']),
     ];
     final treeA = builder.build(nodesA).tree;
     final treeB = builder.build(nodesB).tree;
-    final lib = _FakeLibraryService({
-      'A': SkillTreeBuildResult(tree: treeA),
-      'B': SkillTreeBuildResult(tree: treeB),
-    }, [
-      ...nodesA,
-      ...nodesB
-    ]);
+    final lib = _FakeLibraryService(
+      {
+        'A': SkillTreeBuildResult(tree: treeA),
+        'B': SkillTreeBuildResult(tree: treeB),
+      },
+      [...nodesA, ...nodesB],
+    );
 
     final tracker = SkillTreeNodeProgressTracker.instance;
     await tracker.resetForTest();
@@ -79,18 +79,18 @@ void main() {
   test('current and next track', () async {
     final nodesA = [
       node('a1', 'A'),
-      node('a2', 'A', prereqs: ['a1'])
+      node('a2', 'A', prereqs: ['a1']),
     ];
     final nodesB = [node('b1', 'B')];
     final treeA = builder.build(nodesA).tree;
     final treeB = builder.build(nodesB).tree;
-    final lib = _FakeLibraryService({
-      'A': SkillTreeBuildResult(tree: treeA),
-      'B': SkillTreeBuildResult(tree: treeB),
-    }, [
-      ...nodesA,
-      ...nodesB
-    ]);
+    final lib = _FakeLibraryService(
+      {
+        'A': SkillTreeBuildResult(tree: treeA),
+        'B': SkillTreeBuildResult(tree: treeB),
+      },
+      [...nodesA, ...nodesB],
+    );
 
     final tracker = SkillTreeNodeProgressTracker.instance;
     await tracker.resetForTest();

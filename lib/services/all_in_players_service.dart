@@ -46,7 +46,7 @@ class AllInPlayersService extends ChangeNotifier {
   void recompute(List<ActionEntry> actions) {
     restore({
       for (final a in actions)
-        if (a.action == 'all-in') a.playerIndex
+        if (a.action == 'all-in') a.playerIndex,
     });
   }
 
@@ -56,13 +56,17 @@ class AllInPlayersService extends ChangeNotifier {
 
   void removeFromAction(ActionEntry entry, List<ActionEntry> remaining) {
     if (entry.action != 'all-in') return;
-    final stillAllIn = remaining
-        .any((a) => a.playerIndex == entry.playerIndex && a.action == 'all-in');
+    final stillAllIn = remaining.any(
+      (a) => a.playerIndex == entry.playerIndex && a.action == 'all-in',
+    );
     if (!stillAllIn) remove(entry.playerIndex);
   }
 
   void editAction(
-      ActionEntry oldEntry, ActionEntry newEntry, List<ActionEntry> actions) {
+    ActionEntry oldEntry,
+    ActionEntry newEntry,
+    List<ActionEntry> actions,
+  ) {
     removeFromAction(oldEntry, actions);
     addFromAction(newEntry);
   }

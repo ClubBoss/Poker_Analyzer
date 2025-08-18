@@ -19,8 +19,11 @@ class WeeklySummaryCard extends StatelessWidget {
     final mastery = context.read<TagMasteryService>();
 
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day)
-        .subtract(Duration(days: now.weekday - 1));
+    final start = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(Duration(days: now.weekday - 1));
     final weekLogs = logsService.filter(
       range: DateTimeRange(start: start, end: now),
     );
@@ -71,8 +74,10 @@ class WeeklySummaryCard extends StatelessWidget {
                     SizedBox(width: 8),
                     Text(
                       'Weekly Summary',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -96,8 +101,10 @@ class WeeklySummaryCard extends StatelessWidget {
                   for (final e in data.tags)
                     Text(
                       '${_capitalize(e.key)} +${(e.value * 100).toStringAsFixed(1)}%',
-                      style:
-                          const TextStyle(color: Colors.white70, fontSize: 12),
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
                     ),
                 ],
                 const SizedBox(height: 8),

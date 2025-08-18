@@ -11,17 +11,12 @@ class SmartRecapEventLogger {
     RecapHistoryTracker? history,
     DateTime Function()? timestampProvider,
     RecapAutoRepeatScheduler? scheduler,
-  })  : history = history ?? RecapHistoryTracker.instance,
-        _now = timestampProvider ?? DateTime.now,
-        scheduler = scheduler ?? RecapAutoRepeatScheduler.instance;
+  }) : history = history ?? RecapHistoryTracker.instance,
+       _now = timestampProvider ?? DateTime.now,
+       scheduler = scheduler ?? RecapAutoRepeatScheduler.instance;
 
   Future<void> logShown(String lessonId, {String trigger = 'smart'}) {
-    return history.logRecapEvent(
-      lessonId,
-      trigger,
-      'shown',
-      timestamp: _now(),
-    );
+    return history.logRecapEvent(lessonId, trigger, 'shown', timestamp: _now());
   }
 
   Future<void> logDismissed(String lessonId, {String trigger = 'smart'}) async {

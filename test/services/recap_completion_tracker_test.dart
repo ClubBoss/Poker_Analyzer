@@ -12,8 +12,11 @@ void main() {
   });
 
   test('logs and retrieves recent completions', () async {
-    await RecapCompletionTracker.instance
-        .logCompletion('l1', 'recap', const Duration(seconds: 5));
+    await RecapCompletionTracker.instance.logCompletion(
+      'l1',
+      'recap',
+      const Duration(seconds: 5),
+    );
     final list = await RecapCompletionTracker.instance.getRecentCompletions();
     expect(list.length, 1);
     expect(list.first.lessonId, 'l1');

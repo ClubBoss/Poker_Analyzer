@@ -12,9 +12,9 @@ class TheoryMiniLessonFactoryService {
   const TheoryMiniLessonFactoryService({
     TheoryLessonMetaTagExtractorService? extractor,
     TheoryMiniLessonContentTemplateService? templateService,
-  })  : _extractor = extractor ?? const TheoryLessonMetaTagExtractorService(),
-        _templateService =
-            templateService ?? const TheoryMiniLessonContentTemplateService();
+  }) : _extractor = extractor ?? const TheoryLessonMetaTagExtractorService(),
+       _templateService =
+           templateService ?? const TheoryMiniLessonContentTemplateService();
 
   /// Creates a [TheoryMiniLessonNode] from [yaml]. When `autoContent` is true
   /// and `content` is empty, the node's `content` field will be populated using
@@ -59,10 +59,7 @@ class TheoryMiniLessonFactoryService {
     );
   }
 
-  List<String> _buildKeyTags(
-    List<String> original,
-    TheoryLessonMetaData meta,
-  ) {
+  List<String> _buildKeyTags(List<String> original, TheoryLessonMetaData meta) {
     final tags = <String>[];
     if (meta.position != null && meta.villainPosition != null) {
       tags.add('${meta.position} vs ${meta.villainPosition}');

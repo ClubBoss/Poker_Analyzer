@@ -29,11 +29,13 @@ class YamlPackBalanceAnalyzer {
       final entry = map.entries.reduce((a, b) => b.value > a.value ? b : a);
       final pct = entry.value / total;
       if (pct > 0.7) {
-        issues.add(PackBalanceIssue(
-          type: type,
-          description: '${entry.key} ${(pct * 100).round()}%',
-          severity: severity,
-        ));
+        issues.add(
+          PackBalanceIssue(
+            type: type,
+            description: '${entry.key} ${(pct * 100).round()}%',
+            severity: severity,
+          ),
+        );
       }
     }
 
@@ -44,23 +46,27 @@ class YamlPackBalanceAnalyzer {
 
     final evs = [
       for (final s in spots)
-        if (s.heroEv != null) s.heroEv!
+        if (s.heroEv != null) s.heroEv!,
     ];
     if (evs.length >= 5) {
       final posCount = evs.where((e) => e >= 0).length;
       final pct = posCount / evs.length;
       if (pct >= 0.8) {
-        issues.add(const PackBalanceIssue(
-          type: 'ev_easy',
-          description: 'EV mostly positive',
-          severity: 1,
-        ));
+        issues.add(
+          const PackBalanceIssue(
+            type: 'ev_easy',
+            description: 'EV mostly positive',
+            severity: 1,
+          ),
+        );
       } else if (pct <= 0.2) {
-        issues.add(const PackBalanceIssue(
-          type: 'ev_hard',
-          description: 'EV mostly negative',
-          severity: 1,
-        ));
+        issues.add(
+          const PackBalanceIssue(
+            type: 'ev_hard',
+            description: 'EV mostly negative',
+            severity: 1,
+          ),
+        );
       }
     }
 

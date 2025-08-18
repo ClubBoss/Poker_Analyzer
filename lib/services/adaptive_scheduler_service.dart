@@ -14,8 +14,10 @@ class AdaptiveSchedulerService {
   }) {
     final List<TrainingRecommendation> recs = [];
 
-    final mistakeScore =
-        history.fold<int>(0, (p, r) => p + (r.total - r.correct));
+    final mistakeScore = history.fold<int>(
+      0,
+      (p, r) => p + (r.total - r.correct),
+    );
     if (mistakeScore > 0) {
       recs.add(
         TrainingRecommendation(

@@ -40,9 +40,7 @@ class _SkillTreeNodeCelebrationOverlayState
     return IgnorePointer(
       child: FadeTransition(
         opacity: CurvedAnimation(parent: _anim, curve: Curves.easeInOut),
-        child: const Center(
-          child: Text('🎯', style: TextStyle(fontSize: 72)),
-        ),
+        child: const Center(child: Text('🎯', style: TextStyle(fontSize: 72))),
       ),
     );
   }
@@ -54,9 +52,11 @@ void showSkillTreeNodeCelebrationOverlay(BuildContext context) {
 
   late OverlayEntry entry;
   entry = OverlayEntry(
-    builder: (_) => SkillTreeNodeCelebrationOverlay(onClose: () {
-      entry.remove();
-    }),
+    builder: (_) => SkillTreeNodeCelebrationOverlay(
+      onClose: () {
+        entry.remove();
+      },
+    ),
   );
   overlay.insert(entry);
 }

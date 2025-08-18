@@ -61,28 +61,28 @@ void main() {
         'packId': 'p1',
         'spotId': 's1',
         'tags': ['overfoldBtn'],
-        'evDiff': -1
+        'evDiff': -1,
       },
       {
         'timestamp': now.subtract(const Duration(days: 2)).toIso8601String(),
         'packId': 'p2',
         'spotId': 's2',
         'tags': ['overfoldBtn'],
-        'evDiff': -2
+        'evDiff': -2,
       },
       {
         'timestamp': now.subtract(const Duration(days: 3)).toIso8601String(),
         'packId': 'p1',
         'spotId': 's3',
         'tags': ['overfoldBtn'],
-        'evDiff': -0.5
+        'evDiff': -0.5,
       },
       {
         'timestamp': now.subtract(const Duration(days: 1)).toIso8601String(),
         'packId': 'p1',
         'spotId': 's4',
         'tags': ['looseCallBb'],
-        'evDiff': -0.8
+        'evDiff': -0.8,
       },
     ];
     final file = File('${dir.path}/app_data/mistake_tag_history.json');

@@ -18,16 +18,18 @@ class MiniLessonPathInjector {
     LearningPathEngine? engine,
     MiniLessonLibraryService? library,
     LearningPathStageLibrary? stageLibrary,
-  })  : engine = engine ?? LearningPathEngine.instance,
-        library = library ?? MiniLessonLibraryService.instance,
-        stageLibrary = stageLibrary ?? LearningPathStageLibrary.instance;
+  }) : engine = engine ?? LearningPathEngine.instance,
+       library = library ?? MiniLessonLibraryService.instance,
+       stageLibrary = stageLibrary ?? LearningPathStageLibrary.instance;
 
   static final MiniLessonPathInjector instance = MiniLessonPathInjector();
 
   /// Inserts [lessons] after nodes reachable from [branch] when their
   /// tags overlap. Duplicate lesson ids are ignored.
   Future<void> inject(
-      LearningBranchNode branch, List<TheoryMiniLessonNode> lessons) async {
+    LearningBranchNode branch,
+    List<TheoryMiniLessonNode> lessons,
+  ) async {
     final mapEngine = engine.engine;
     if (mapEngine == null || lessons.isEmpty) return;
     final nodes = mapEngine.allNodes;
@@ -37,7 +39,7 @@ class MiniLessonPathInjector {
     final existing = {for (final n in nodes) n.id};
     final filtered = [
       for (final l in lessons)
-        if (!existing.contains(l.id)) l
+        if (!existing.contains(l.id)) l,
     ];
     if (filtered.isEmpty) return;
 
@@ -48,8 +50,9 @@ class MiniLessonPathInjector {
       if (target == null) continue;
       final tags = _tagsForNode(target);
       if (tags.isEmpty) continue;
-      final matched =
-          filtered.where((m) => m.tags.any((t) => tags.contains(t))).toList();
+      final matched = filtered
+          .where((m) => m.tags.any((t) => tags.contains(t)))
+          .toList();
       if (matched.isNotEmpty) {
         updated = _injectAfter(updated, targetId, matched);
       }
@@ -72,8 +75,11 @@ class MiniLessonPathInjector {
     return const [];
   }
 
-  List<LearningPathNode> _injectAfter(List<LearningPathNode> nodes,
-      String targetId, List<TheoryMiniLessonNode> lessons) {
+  List<LearningPathNode> _injectAfter(
+    List<LearningPathNode> nodes,
+    String targetId,
+    List<TheoryMiniLessonNode> lessons,
+  ) {
     final index = nodes.indexWhere((n) => n.id == targetId);
     if (index < 0 || lessons.isEmpty) return nodes;
     final target = nodes[index];
@@ -84,14 +90,16 @@ class MiniLessonPathInjector {
     for (var i = 0; i < lessons.length; i++) {
       final n = lessons[i];
       final nextIds = i < lessons.length - 1 ? [lessons[i + 1].id] : next;
-      nodes.add(TheoryMiniLessonNode(
-        id: n.id,
-        refId: n.refId,
-        title: n.title,
-        content: n.content,
-        tags: List<String>.from(n.tags),
-        nextIds: nextIds,
-      ));
+      nodes.add(
+        TheoryMiniLessonNode(
+          id: n.id,
+          refId: n.refId,
+          title: n.title,
+          content: n.content,
+          tags: List<String>.from(n.tags),
+          nextIds: nextIds,
+        ),
+      );
     }
     return nodes;
   }

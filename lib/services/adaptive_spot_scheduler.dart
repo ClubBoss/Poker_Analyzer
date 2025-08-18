@@ -9,8 +9,8 @@ import 'user_error_rate_service.dart';
 /// exploration and safety guards.
 class AdaptiveSpotScheduler {
   AdaptiveSpotScheduler({int? seed, Set<String>? packTags})
-      : _rng = Random(seed),
-        _packTags = packTags?.map((e) => e.toLowerCase()).toSet() ?? <String>{};
+    : _rng = Random(seed),
+      _packTags = packTags?.map((e) => e.toLowerCase()).toSet() ?? <String>{};
 
   final Random _rng;
   final Set<String> _packTags;
@@ -42,14 +42,17 @@ class AdaptiveSpotScheduler {
 
     // Coverage guard: every M picks ensure all tags surfaced at least once.
     if (_sinceCoverageReset >= _coverageWindow && _packTags.isNotEmpty) {
-      final starved =
-          _packTags.where((t) => (_tagCounts[t] ?? 0) == 0).toList();
+      final starved = _packTags
+          .where((t) => (_tagCounts[t] ?? 0) == 0)
+          .toList();
       if (starved.isNotEmpty) {
         final forced = pool
-            .where((s) => s.tags
-                .map((e) => e.toLowerCase())
-                .toSet()
-                .any(starved.contains))
+            .where(
+              (s) => s.tags
+                  .map((e) => e.toLowerCase())
+                  .toSet()
+                  .any(starved.contains),
+            )
             .toList();
         if (forced.isNotEmpty) {
           final pick = forced[_rng.nextInt(forced.length)];
@@ -64,8 +67,9 @@ class AdaptiveSpotScheduler {
     }
 
     // Anti-repeat window.
-    List<TrainingPackSpot> candidates =
-        pool.where((s) => !recentSpotIds.contains(s.id)).toList();
+    List<TrainingPackSpot> candidates = pool
+        .where((s) => !recentSpotIds.contains(s.id))
+        .toList();
     if (candidates.length < 3) {
       candidates = List<TrainingPackSpot>.from(pool);
     }
@@ -86,8 +90,10 @@ class AdaptiveSpotScheduler {
     // Exploitation: weight by error rates and sample via softmax.
     final weights = <TrainingPackSpot, double>{};
     for (final spot in candidates) {
-      final rates = await UserErrorRateService.instance
-          .getRates(packId: packId, tags: spot.tags.toSet());
+      final rates = await UserErrorRateService.instance.getRates(
+        packId: packId,
+        tags: spot.tags.toSet(),
+      );
       double maxRate = 0;
       for (final v in rates.values) {
         if (v > maxRate) maxRate = v;
@@ -101,10 +107,7 @@ class AdaptiveSpotScheduler {
       ..sort((a, b) => b.value.compareTo(a.value));
     final top3 = sorted
         .take(3)
-        .map((e) => {
-              'spotId': e.key.id,
-              'w': e.value,
-            })
+        .map((e) => {'spotId': e.key.id, 'w': e.value})
         .toList();
 
     final exps = weights.values.map((w) => exp(w)).toList();
@@ -123,13 +126,15 @@ class AdaptiveSpotScheduler {
     chosen ??= entries.last.key;
 
     // Telemetry.
-    unawaited(AnalyticsService.instance.logEvent('adaptive_pick', {
-      'packId': packId,
-      'chosenSpotId': chosen.id,
-      'epsilon': epsilon,
-      'poolSize': pool.length,
-      'top3': top3,
-    }));
+    unawaited(
+      AnalyticsService.instance.logEvent('adaptive_pick', {
+        'packId': packId,
+        'chosenSpotId': chosen.id,
+        'epsilon': epsilon,
+        'poolSize': pool.length,
+        'top3': top3,
+      }),
+    );
 
     _bumpTagCounts(chosen);
     return chosen;

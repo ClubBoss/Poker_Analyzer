@@ -35,7 +35,7 @@ class _FakeLibrary implements MiniLessonLibraryService {
 
 class _FakeLinker extends TheoryMiniLessonLinker {
   _FakeLinker({required MiniLessonLibraryService library})
-      : super(library: library, loader: _FakeLoader());
+    : super(library: library, loader: _FakeLoader());
 }
 
 class _FakeLoader implements PackLibraryLoaderService {
@@ -83,7 +83,10 @@ void main() {
     await MiniLessonProgressTracker.instance.markCompleted('l2');
 
     final spot = TrainingPackSpot(
-        id: 's1', hand: HandData(), tags: ['level2', 'openfold']);
+      id: 's1',
+      hand: HandData(),
+      tags: ['level2', 'openfold'],
+    );
 
     final service = TheoryBoosterSuggestionService(
       linker: linker,

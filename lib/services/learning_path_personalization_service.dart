@@ -25,7 +25,7 @@ class LearningPathPersonalizationService {
             ..clear()
             ..addAll({
               for (final e in data.entries)
-                e.key.toString(): (e.value as num).toDouble()
+                e.key.toString(): (e.value as num).toDouble(),
             });
         }
       } catch (_) {}

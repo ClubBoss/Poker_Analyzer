@@ -20,9 +20,7 @@ class TheoryRecapTriggerLogger {
         return [
           for (final e in data)
             if (e is Map)
-              TheoryRecapPromptEvent.fromJson(
-                Map<String, dynamic>.from(e),
-              )
+              TheoryRecapPromptEvent.fromJson(Map<String, dynamic>.from(e)),
         ];
       }
     } catch (_) {}

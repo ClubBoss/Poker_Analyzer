@@ -25,12 +25,14 @@ class IcmPostflopPathSeeder {
     }
 
     const writer = YamlWriter();
-    await writer.write(
-        {'packs': unique}, 'assets/learning_paths/icm_postflop_path.yaml');
+    await writer.write({
+      'packs': unique,
+    }, 'assets/learning_paths/icm_postflop_path.yaml');
   }
 
   List<TrainingPackTemplateV2> _selectPacks(
-      List<TrainingPackTemplateV2> packs) {
+    List<TrainingPackTemplateV2> packs,
+  ) {
     final list = <TrainingPackTemplateV2>[];
     for (final p in packs) {
       final tags = p.tags.map((t) => t.toLowerCase()).toList();

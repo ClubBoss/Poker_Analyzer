@@ -37,7 +37,7 @@ class BoosterInboxDeliveryService {
             for (final e in data.entries)
               if (e.value is String)
                 e.key.toString():
-                    DateTime.tryParse(e.value as String) ?? DateTime.now()
+                    DateTime.tryParse(e.value as String) ?? DateTime.now(),
           };
         }
       } catch (_) {}
@@ -49,8 +49,9 @@ class BoosterInboxDeliveryService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
       _prefsKey,
-      jsonEncode(
-          {for (final e in _history.entries) e.key: e.value.toIso8601String()}),
+      jsonEncode({
+        for (final e in _history.entries) e.key: e.value.toIso8601String(),
+      }),
     );
   }
 

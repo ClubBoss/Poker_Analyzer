@@ -40,8 +40,9 @@ class _TrainingPackTemplateEditorScreenState
 
   void _save() {
     // Persistence layer is not yet implemented; show confirmation only.
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Template saved')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Template saved')));
   }
 
   @override
@@ -61,10 +62,7 @@ class _TrainingPackTemplateEditorScreenState
       ),
       floatingActionButton: widget.readOnly
           ? null
-          : ActionsToolbar(
-              onAddSpot: _addSpot,
-              onSave: _save,
-            ),
+          : ActionsToolbar(onAddSpot: _addSpot, onSave: _save),
     );
   }
 }

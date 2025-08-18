@@ -30,8 +30,9 @@ class _SuggestedWeakTagPackBannerState
   Future<void> _load() async {
     final result = await const SuggestedWeakTagPackService().suggestPack();
     if (result.isFallback && result.pack != null) {
-      await UserActionLogger.instance
-          .log('suggested_pack_banner.fallback_shown');
+      await UserActionLogger.instance.log(
+        'suggested_pack_banner.fallback_shown',
+      );
     }
     if (result.pack != null) {
       await SuggestionCooldownManager.markSuggested(result.pack!.id);
@@ -72,12 +73,16 @@ class _SuggestedWeakTagPackBannerState
           const Text(
             '💡 \u0423\u043a\u0440\u0435\u043f\u0438 \u0431\u0430\u0437\u0443',
             style: TextStyle(
-                fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
-              '\u0420\u0435\u043a\u043e\u043c\u0435\u043d\u0434\u0443\u0435\u043c\u044b\u0439 \u043f\u0430\u043a: ${_pack!.name}',
-              style: const TextStyle(color: Colors.white70)),
+            '\u0420\u0435\u043a\u043e\u043c\u0435\u043d\u0434\u0443\u0435\u043c\u044b\u0439 \u043f\u0430\u043a: ${_pack!.name}',
+            style: const TextStyle(color: Colors.white70),
+          ),
           const SizedBox(height: 8),
           Align(
             alignment: Alignment.centerRight,
@@ -85,7 +90,8 @@ class _SuggestedWeakTagPackBannerState
               onPressed: _start,
               style: ElevatedButton.styleFrom(backgroundColor: accent),
               child: const Text(
-                  '\u041d\u0430\u0447\u0430\u0442\u044c \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0443'),
+                '\u041d\u0430\u0447\u0430\u0442\u044c \u0442\u0440\u0435\u043d\u0438\u0440\u043e\u0432\u043a\u0443',
+              ),
             ),
           ),
         ],

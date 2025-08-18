@@ -81,8 +81,9 @@ class _PackLibraryDiffScreenState extends State<PackLibraryDiffScreen> {
         title: const Text('Pack Diff Viewer'),
         actions: [
           IconButton(
-            onPressed:
-                _packA != null && _packB != null ? _exportMarkdown : null,
+            onPressed: _packA != null && _packB != null
+                ? _exportMarkdown
+                : null,
             icon: const Icon(Icons.share),
           ),
         ],
@@ -125,7 +126,10 @@ class _PackLibraryDiffScreenState extends State<PackLibraryDiffScreen> {
   final _eq = const DeepCollectionEquality();
 
   Widget _mapDiff(
-      String title, Map<String, dynamic>? a, Map<String, dynamic>? b) {
+    String title,
+    Map<String, dynamic>? a,
+    Map<String, dynamic>? b,
+  ) {
     final keys = {...?a?.keys, ...?b?.keys};
     final children = <Widget>[];
     for (final k in keys) {
@@ -141,7 +145,8 @@ class _PackLibraryDiffScreenState extends State<PackLibraryDiffScreen> {
   Widget _listDiff(String title, List<dynamic>? a, List<dynamic>? b) {
     final listA = a ?? [];
     final listB = b ?? [];
-    final useId = listA.every((e) => e is Map && e['id'] != null) ||
+    final useId =
+        listA.every((e) => e is Map && e['id'] != null) ||
         listB.every((e) => e is Map && e['id'] != null);
     final children = <Widget>[];
     if (useId) {
@@ -170,7 +175,10 @@ class _PackLibraryDiffScreenState extends State<PackLibraryDiffScreen> {
   Widget _buildDiff(String key, dynamic a, dynamic b) {
     if (a is Map || b is Map) {
       return _mapDiff(
-          key, a as Map<String, dynamic>?, b as Map<String, dynamic>?);
+        key,
+        a as Map<String, dynamic>?,
+        b as Map<String, dynamic>?,
+      );
     }
     if (a is List || b is List) {
       return _listDiff(key, a as List<dynamic>?, b as List<dynamic>?);
@@ -178,13 +186,13 @@ class _PackLibraryDiffScreenState extends State<PackLibraryDiffScreen> {
     final type = a == null
         ? _DiffType.added
         : b == null
-            ? _DiffType.removed
-            : _DiffType.changed;
+        ? _DiffType.removed
+        : _DiffType.changed;
     final text = a == null
         ? _fmt(b)
         : b == null
-            ? _fmt(a)
-            : '${_fmt(a)} → ${_fmt(b)}';
+        ? _fmt(a)
+        : '${_fmt(a)} → ${_fmt(b)}';
     return ListTile(
       title: Text(key),
       subtitle: Text(text),

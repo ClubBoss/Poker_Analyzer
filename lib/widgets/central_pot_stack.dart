@@ -10,11 +10,8 @@ class CentralPotStack extends StatelessWidget {
   /// Scale factor for sizing.
   final double scale;
 
-  const CentralPotStack({
-    Key? key,
-    required this.amount,
-    this.scale = 1.0,
-  }) : super(key: key);
+  const CentralPotStack({Key? key, required this.amount, this.scale = 1.0})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {

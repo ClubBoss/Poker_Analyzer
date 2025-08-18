@@ -31,38 +31,46 @@ class PackProgressSummaryWidget extends StatelessWidget {
       final accPct = (accuracy ?? 0) * 100;
       final target = requiredAccuracy!;
       final color = _progressColor(accPct, target);
-      widgets.add(LinearProgressIndicator(
-        value: target == 0 ? 0 : accPct / target,
-        backgroundColor: Colors.white24,
-        valueColor: AlwaysStoppedAnimation<Color>(color),
-      ));
-      widgets.add(Padding(
-        padding: const EdgeInsets.only(top: 2),
-        child: Text(
-          'Точность: ${accPct.toStringAsFixed(0)}% / ≥${target.toStringAsFixed(0)}%',
-          style: TextStyle(color: color, fontSize: 12),
+      widgets.add(
+        LinearProgressIndicator(
+          value: target == 0 ? 0 : accPct / target,
+          backgroundColor: Colors.white24,
+          valueColor: AlwaysStoppedAnimation<Color>(color),
         ),
-      ));
+      );
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Text(
+            'Точность: ${accPct.toStringAsFixed(0)}% / ≥${target.toStringAsFixed(0)}%',
+            style: TextStyle(color: color, fontSize: 12),
+          ),
+        ),
+      );
     }
     if (hasHandsReq) {
       final hands = handsCompleted ?? 0;
       final target = minHands!.toDouble();
       final color = _progressColor(hands.toDouble(), target);
-      widgets.add(Padding(
-        padding: const EdgeInsets.only(top: 4),
-        child: LinearProgressIndicator(
-          value: target == 0 ? 0 : hands / target,
-          backgroundColor: Colors.white24,
-          valueColor: AlwaysStoppedAnimation<Color>(color),
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: LinearProgressIndicator(
+            value: target == 0 ? 0 : hands / target,
+            backgroundColor: Colors.white24,
+            valueColor: AlwaysStoppedAnimation<Color>(color),
+          ),
         ),
-      ));
-      widgets.add(Padding(
-        padding: const EdgeInsets.only(top: 2),
-        child: Text(
-          'Руки: $hands / ≥${target.toStringAsFixed(0)}',
-          style: TextStyle(color: color, fontSize: 12),
+      );
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Text(
+            'Руки: $hands / ≥${target.toStringAsFixed(0)}',
+            style: TextStyle(color: color, fontSize: 12),
+          ),
         ),
-      ));
+      );
     }
     return Padding(
       padding: const EdgeInsets.only(top: 8),

@@ -166,28 +166,42 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text(hand.name,
-                  style: pw.TextStyle(font: boldFont, fontSize: 24)),
+              pw.Text(
+                hand.name,
+                style: pw.TextStyle(font: boldFont, fontSize: 24),
+              ),
               pw.SizedBox(height: 16),
-              pw.Text('Позиция: ${hand.heroPosition}',
-                  style: pw.TextStyle(font: regularFont)),
+              pw.Text(
+                'Позиция: ${hand.heroPosition}',
+                style: pw.TextStyle(font: regularFont),
+              ),
               pw.Text('Стек: $stack', style: pw.TextStyle(font: regularFont)),
-              pw.Text('Карты: $heroCards',
-                  style: pw.TextStyle(font: regularFont)),
+              pw.Text(
+                'Карты: $heroCards',
+                style: pw.TextStyle(font: regularFont),
+              ),
               if (board.isNotEmpty)
                 pw.Text('Борд: $board', style: pw.TextStyle(font: regularFont)),
               if (_selectedAction != null)
-                pw.Text('Действие: $_selectedAction',
-                    style: pw.TextStyle(font: regularFont)),
+                pw.Text(
+                  'Действие: $_selectedAction',
+                  style: pw.TextStyle(font: regularFont),
+                ),
               if (hand.gtoAction != null && hand.gtoAction!.isNotEmpty)
-                pw.Text('GTO: ${hand.gtoAction}',
-                    style: pw.TextStyle(font: regularFont)),
+                pw.Text(
+                  'GTO: ${hand.gtoAction}',
+                  style: pw.TextStyle(font: regularFont),
+                ),
               if (hand.tags.isNotEmpty)
-                pw.Text('Теги: ${hand.tags.join(', ')}',
-                    style: pw.TextStyle(font: regularFont)),
+                pw.Text(
+                  'Теги: ${hand.tags.join(', ')}',
+                  style: pw.TextStyle(font: regularFont),
+                ),
               if (_commentController.text.trim().isNotEmpty)
-                pw.Text('Комментарий: ${_commentController.text.trim()}',
-                    style: pw.TextStyle(font: regularFont)),
+                pw.Text(
+                  'Комментарий: ${_commentController.text.trim()}',
+                  style: pw.TextStyle(font: regularFont),
+                ),
             ],
           );
         },
@@ -237,9 +251,10 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
                 Text(message, style: const TextStyle(color: Colors.white)),
                 if (advice != null) ...[
                   const SizedBox(height: 4),
-                  Text(advice,
-                      style:
-                          const TextStyle(color: Colors.white70, fontSize: 12)),
+                  Text(
+                    advice,
+                    style: const TextStyle(color: Colors.white70, fontSize: 12),
+                  ),
                 ],
               ],
             ),
@@ -266,11 +281,11 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
         .join(' ');
     final actions = <ActionEntry>[
       for (final a in hand.actions)
-        if (a.street == 0) a
+        if (a.street == 0) a,
     ];
     final stacks = <String, double>{
       for (int i = 0; i < hand.numberOfPlayers; i++)
-        '$i': (hand.stackSizes[i] ?? 0).toDouble()
+        '$i': (hand.stackSizes[i] ?? 0).toDouble(),
     };
     return TrainingPackSpot(
       id: const Uuid().v4(),
@@ -306,8 +321,9 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
     selected.spots.add(spot);
     await TrainingPackStorage.save(templates);
     if (mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Spot added')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Spot added')));
     }
   }
 
@@ -356,9 +372,7 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          '${_hand.name} \u2022 ${formatLongDate(_hand.savedAt)}',
-        ),
+        title: Text('${_hand.name} \u2022 ${formatLongDate(_hand.savedAt)}'),
         centerTitle: true,
         actions: [
           SyncStatusIcon.of(context),
@@ -410,7 +424,9 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
                   label: Text(_hand.heroPosition),
                   backgroundColor: Theme.of(context).colorScheme.secondary,
                   labelStyle: const TextStyle(
-                      color: Colors.black, fontWeight: FontWeight.bold),
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -429,11 +445,15 @@ class _HandHistoryReviewScreenState extends State<HandHistoryReviewScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (gto != null && gto.isNotEmpty)
-                    Text('Рекомендовано: $gto',
-                        style: const TextStyle(color: Colors.white)),
+                    Text(
+                      'Рекомендовано: $gto',
+                      style: const TextStyle(color: Colors.white),
+                    ),
                   if (group != null && group.isNotEmpty)
-                    Text('Группа: $group',
-                        style: const TextStyle(color: Colors.white)),
+                    Text(
+                      'Группа: $group',
+                      style: const TextStyle(color: Colors.white),
+                    ),
                 ],
               ),
             const SizedBox(height: 12),

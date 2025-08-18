@@ -7,8 +7,12 @@ import 'training_pack_template_tooltip_widget.dart';
 /// Paginated list that only renders a subset of packs at a time.
 /// Uses [LazyPackLoaderService] to avoid loading full pack data until needed.
 class TrainingPackListWidget extends StatefulWidget {
-  const TrainingPackListWidget(
-      {super.key, required this.loader, this.pageSize = 50, this.onOpen});
+  const TrainingPackListWidget({
+    super.key,
+    required this.loader,
+    this.pageSize = 50,
+    this.onOpen,
+  });
 
   final LazyPackLoaderService loader;
   final int pageSize;
@@ -65,10 +69,7 @@ class _TrainingPackListWidgetState extends State<TrainingPackListWidget> {
         final tpl = _visible[index];
         return TrainingPackTemplateTooltipWidget(
           template: tpl,
-          child: PackCard(
-            template: tpl,
-            onTap: () => _open(tpl),
-          ),
+          child: PackCard(template: tpl, onTap: () => _open(tpl)),
         );
       },
     );

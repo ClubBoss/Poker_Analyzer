@@ -87,11 +87,17 @@ void main() {
     final history = {
       'push': [
         TagXpHistoryEntry(
-            date: now.subtract(const Duration(days: 4)), xp: 5, source: '')
+          date: now.subtract(const Duration(days: 4)),
+          xp: 5,
+          source: '',
+        ),
       ],
       'call': [
         TagXpHistoryEntry(
-            date: now.subtract(const Duration(days: 1)), xp: 5, source: '')
+          date: now.subtract(const Duration(days: 1)),
+          xp: 5,
+          source: '',
+        ),
       ],
     };
 

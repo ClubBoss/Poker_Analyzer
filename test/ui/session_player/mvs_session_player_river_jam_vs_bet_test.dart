@@ -20,9 +20,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(
-          body: MvsSessionPlayer(spots: [spot]),
-        ),
+        home: Scaffold(body: MvsSessionPlayer(spots: [spot])),
       ),
     );
 

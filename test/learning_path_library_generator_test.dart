@@ -25,7 +25,7 @@ void main() {
     final map = const YamlReader().read(yaml);
     final stages = [
       for (final m in (map['stages'] as List? ?? []))
-        LearningPathStageModel.fromJson(Map<String, dynamic>.from(m))
+        LearningPathStageModel.fromJson(Map<String, dynamic>.from(m)),
     ];
     expect(stages.length, 2);
     expect(stages.first.order, 1);

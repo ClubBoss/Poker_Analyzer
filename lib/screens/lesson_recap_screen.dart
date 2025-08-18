@@ -113,7 +113,8 @@ class _LessonRecapScreenState extends State<LessonRecapScreen>
                           child: ElevatedButton(
                             onPressed: () => _openNext(next),
                             style: ElevatedButton.styleFrom(
-                                backgroundColor: accent),
+                              backgroundColor: accent,
+                            ),
                             child: const Text('Далее \u2192'),
                           ),
                         ),

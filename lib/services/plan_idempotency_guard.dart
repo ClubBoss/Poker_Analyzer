@@ -10,8 +10,11 @@ class PlanIdempotencyGuard {
   /// Returns `true` if [sig] has not been injected for [userId] within
   /// the [window]. If it has, returns `false` indicating the caller should
   /// skip injection.
-  Future<bool> shouldInject(String userId, String sig,
-      {Duration window = const Duration(hours: 24)}) async {
+  Future<bool> shouldInject(
+    String userId,
+    String sig, {
+    Duration window = const Duration(hours: 24),
+  }) async {
     final prefs = await SharedPreferences.getInstance();
     final key = '$_prefix$userId.$sig';
     final last = prefs.getInt(key);

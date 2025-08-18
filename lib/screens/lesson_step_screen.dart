@@ -40,19 +40,22 @@ class _LessonStepScreenState extends State<LessonStepScreen> {
     final trackId = prefs.getString('lesson_selected_track');
     bool isFirst = false;
     if (trackId != null) {
-      final track = const LearningTrackEngine()
-          .getTracks()
-          .firstWhereOrNull((t) => t.id == trackId);
+      final track = const LearningTrackEngine().getTracks().firstWhereOrNull(
+        (t) => t.id == trackId,
+      );
       if (track != null && track.stepIds.isNotEmpty) {
         isFirst = track.stepIds.first == widget.step.id;
       }
     }
     if (!isFirst) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      showLessonOnboardingOverlay(context, onDismiss: () async {
-        final p = await SharedPreferences.getInstance();
-        await p.setBool('lesson_onboarding_seen', true);
-      });
+      showLessonOnboardingOverlay(
+        context,
+        onDismiss: () async {
+          final p = await SharedPreferences.getInstance();
+          await p.setBool('lesson_onboarding_seen', true);
+        },
+      );
     });
   }
 
@@ -79,10 +82,7 @@ class _LessonStepScreenState extends State<LessonStepScreen> {
   Widget build(BuildContext context) {
     final step = widget.step;
     final children = <Widget>[
-      Text(
-        step.introText,
-        style: const TextStyle(color: Colors.white),
-      ),
+      Text(step.introText, style: const TextStyle(color: Colors.white)),
     ];
 
     final img = step.rangeImageUrl;
@@ -130,10 +130,7 @@ class _LessonStepScreenState extends State<LessonStepScreen> {
             children: [
               Icon(Icons.check_circle, color: Colors.green, size: 20),
               SizedBox(width: 8),
-              Text(
-                'Шаг уже завершен',
-                style: TextStyle(color: Colors.green),
-              ),
+              Text('Шаг уже завершен', style: TextStyle(color: Colors.green)),
             ],
           ),
         ),

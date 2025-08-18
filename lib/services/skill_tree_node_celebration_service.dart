@@ -32,11 +32,13 @@ class SkillTreeNodeCelebrationService {
     final key = '$_prefsPrefix$nodeId';
     if (prefs.getBool(key) ?? false) return;
     await prefs.setBool(key, true);
-    unawaited(SkillTreeMilestoneAnalyticsLogger.instance.logNodeCompleted(
-      trackId: trackId,
-      stage: stage,
-      nodeId: nodeId,
-    ));
+    unawaited(
+      SkillTreeMilestoneAnalyticsLogger.instance.logNodeCompleted(
+        trackId: trackId,
+        stage: stage,
+        nodeId: nodeId,
+      ),
+    );
     final fn = showOverlay ?? showSkillTreeNodeCelebrationOverlay;
     fn(context);
   }

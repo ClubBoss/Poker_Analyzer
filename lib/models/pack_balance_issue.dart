@@ -8,13 +8,13 @@ class PackBalanceIssue {
     required this.severity,
   });
   Map<String, dynamic> toJson() => {
-        'type': type,
-        'description': description,
-        'severity': severity,
-      };
+    'type': type,
+    'description': description,
+    'severity': severity,
+  };
   factory PackBalanceIssue.fromJson(Map<String, dynamic> j) => PackBalanceIssue(
-        type: j['type']?.toString() ?? '',
-        description: j['description']?.toString() ?? '',
-        severity: (j['severity'] as num?)?.toInt() ?? 0,
-      );
+    type: j['type']?.toString() ?? '',
+    description: j['description']?.toString() ?? '',
+    severity: (j['severity'] as num?)?.toInt() ?? 0,
+  );
 }

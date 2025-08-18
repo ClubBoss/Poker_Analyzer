@@ -42,9 +42,9 @@ class _LearningPathComposerScreenState
     await const LearningPathStore().publish(pathId, yaml);
     setState(() => _busy = false);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Path published')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Path published')));
     }
   }
 

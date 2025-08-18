@@ -27,7 +27,7 @@ class HandEditorForm extends StatelessWidget {
             value: controller.position,
             items: [
               for (final p in HeroPosition.values)
-                DropdownMenuItem(value: p, child: Text(p.label))
+                DropdownMenuItem(value: p, child: Text(p.label)),
             ],
             onChanged: (v) {
               if (v == null) return;
@@ -44,7 +44,7 @@ class HandEditorForm extends StatelessWidget {
                 value: spot.hand.playerCount,
                 items: [
                   for (int i = 2; i <= 9; i++)
-                    DropdownMenuItem(value: i, child: Text('$i'))
+                    DropdownMenuItem(value: i, child: Text('$i')),
                 ],
                 onChanged: (v) {
                   if (v == null) return;
@@ -69,12 +69,15 @@ class HandEditorForm extends StatelessWidget {
                   Expanded(
                     child: TextField(
                       controller: ctrl,
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
                       decoration: const InputDecoration(
                         labelText: 'BB',
-                        contentPadding:
-                            EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 4,
+                          horizontal: 8,
+                        ),
                       ),
                       onChanged: (_) => controller.updateStacks(),
                     ),
@@ -92,7 +95,7 @@ class HandEditorForm extends StatelessWidget {
                 value: spot.hand.heroIndex,
                 items: [
                   for (int i = 0; i < spot.hand.playerCount; i++)
-                    DropdownMenuItem(value: i, child: Text('$i'))
+                    DropdownMenuItem(value: i, child: Text('$i')),
                 ],
                 onChanged: (v) {
                   controller.setHeroIndex(v ?? 0);
@@ -101,8 +104,11 @@ class HandEditorForm extends StatelessWidget {
               const SizedBox(width: 8),
               const Tooltip(
                 message: '0 - SB, 1 - BB, 2 - UTG, 3 - MP, 4 - CO, 5 - BTN',
-                child:
-                    Icon(Icons.info_outline, size: 16, color: Colors.white54),
+                child: Icon(
+                  Icons.info_outline,
+                  size: 16,
+                  color: Colors.white54,
+                ),
               ),
             ],
           ),
@@ -111,7 +117,7 @@ class HandEditorForm extends StatelessWidget {
             value: controller.street,
             items: [
               for (int i = 0; i < 4; i++)
-                DropdownMenuItem(value: i, child: Text(names[i]))
+                DropdownMenuItem(value: i, child: Text(names[i])),
             ],
             onChanged: (v) => controller.setStreet(v ?? 0),
           ),

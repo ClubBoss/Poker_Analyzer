@@ -115,8 +115,15 @@ class TrainingHistoryExportService {
       }
       rows.add([]);
     }
-    rows.add(
-        ['Date', 'Total', 'Correct', 'Accuracy', 'Tags', 'Comment', 'Notes']);
+    rows.add([
+      'Date',
+      'Total',
+      'Correct',
+      'Accuracy',
+      'Tags',
+      'Comment',
+      'Notes',
+    ]);
     for (final r in sessions) {
       rows.add([
         formatDateTime(r.date),
@@ -128,11 +135,13 @@ class TrainingHistoryExportService {
         r.notes ?? '',
       ]);
     }
-    final csvStr = const ListToCsvConverter(fieldDelimiter: ';')
-        .convert(rows, eol: '\r\n');
+    final csvStr = const ListToCsvConverter(
+      fieldDelimiter: ';',
+    ).convert(rows, eol: '\r\n');
     final dir = await getTemporaryDirectory();
     final file = File(
-        '${dir.path}/training_history_${DateTime.now().millisecondsSinceEpoch}.csv');
+      '${dir.path}/training_history_${DateTime.now().millisecondsSinceEpoch}.csv',
+    );
     await file.writeAsString(csvStr, encoding: utf8);
     await Share.shareXFiles([XFile(file.path)], text: 'training_history.csv');
     return file;
@@ -156,7 +165,7 @@ class TrainingHistoryExportService {
               'Accuracy',
               'Tags',
               'Comment',
-              'Notes'
+              'Notes',
             ],
             data: [
               for (final r in sessions)
@@ -167,8 +176,8 @@ class TrainingHistoryExportService {
                   r.accuracy.toStringAsFixed(1),
                   r.tags.join(';'),
                   r.comment ?? '',
-                  r.notes ?? ''
-                ]
+                  r.notes ?? '',
+                ],
             ],
           );
 
@@ -180,10 +189,9 @@ class TrainingHistoryExportService {
                   height: 200,
                   child: pw.Chart(
                     grid: pw.CartesianGrid(
-                      xAxis: pw.FixedAxis.fromStrings(
-                        [for (final r in chartData) formatDate(r.date)],
-                        marginStart: 30,
-                      ),
+                      xAxis: pw.FixedAxis.fromStrings([
+                        for (final r in chartData) formatDate(r.date),
+                      ], marginStart: 30),
                       yAxis: pw.FixedAxis(
                         [0, 20, 40, 60, 80, 100],
                         divisions: true,
@@ -199,7 +207,7 @@ class TrainingHistoryExportService {
                             pw.PointChartValue(
                               i.toDouble(),
                               chartData[i].accuracy,
-                            )
+                            ),
                         ],
                       ),
                     ],
@@ -216,7 +224,8 @@ class TrainingHistoryExportService {
     final bytes = await pdf.save();
     final dir = await getTemporaryDirectory();
     final file = File(
-        '${dir.path}/training_history_${DateTime.now().millisecondsSinceEpoch}.pdf');
+      '${dir.path}/training_history_${DateTime.now().millisecondsSinceEpoch}.pdf',
+    );
     await file.writeAsBytes(bytes);
     await Share.shareXFiles([XFile(file.path)], text: 'training_history.pdf');
     return file;
@@ -236,8 +245,9 @@ class TrainingHistoryExportService {
         r.accuracy.toStringAsFixed(1),
       ]);
     }
-    final csvStr = const ListToCsvConverter(fieldDelimiter: ';')
-        .convert(rows, eol: '\r\n');
+    final csvStr = const ListToCsvConverter(
+      fieldDelimiter: ';',
+    ).convert(rows, eol: '\r\n');
     final dir = await getApplicationDocumentsDirectory();
     final fileName =
         'chart_${mode}_${DateTime.now().millisecondsSinceEpoch}.csv';
@@ -248,8 +258,15 @@ class TrainingHistoryExportService {
 
   Future<File> exportVisibleCsv(List<TrainingResult> sessions) async {
     final rows = <List<dynamic>>[];
-    rows.add(
-        ['Date', 'Accuracy', 'Total', 'Correct', 'Tags', 'Comment', 'Notes']);
+    rows.add([
+      'Date',
+      'Accuracy',
+      'Total',
+      'Correct',
+      'Tags',
+      'Comment',
+      'Notes',
+    ]);
     for (final r in sessions) {
       rows.add([
         formatDateTime(r.date),
@@ -261,8 +278,9 @@ class TrainingHistoryExportService {
         r.notes ?? '',
       ]);
     }
-    final csvStr = const ListToCsvConverter(fieldDelimiter: ';')
-        .convert(rows, eol: '\r\n');
+    final csvStr = const ListToCsvConverter(
+      fieldDelimiter: ';',
+    ).convert(rows, eol: '\r\n');
     final dir = await getApplicationDocumentsDirectory();
     final fileName = 'visible_${DateTime.now().millisecondsSinceEpoch}.csv';
     final file = File('${dir.path}/$fileName');
@@ -288,7 +306,7 @@ class TrainingHistoryExportService {
               'Correct',
               'Tags',
               'Comment',
-              'Notes'
+              'Notes',
             ],
             data: [
               for (final r in sessions)
@@ -299,8 +317,8 @@ class TrainingHistoryExportService {
                   r.correct,
                   r.tags.join(';'),
                   r.comment ?? '',
-                  r.notes ?? ''
-                ]
+                  r.notes ?? '',
+                ],
             ],
           );
 
@@ -312,10 +330,9 @@ class TrainingHistoryExportService {
                   height: 200,
                   child: pw.Chart(
                     grid: pw.CartesianGrid(
-                      xAxis: pw.FixedAxis.fromStrings(
-                        [for (final r in chartData) formatDate(r.date)],
-                        marginStart: 30,
-                      ),
+                      xAxis: pw.FixedAxis.fromStrings([
+                        for (final r in chartData) formatDate(r.date),
+                      ], marginStart: 30),
                       yAxis: pw.FixedAxis(
                         [0, 20, 40, 60, 80, 100],
                         divisions: true,
@@ -331,7 +348,7 @@ class TrainingHistoryExportService {
                             pw.PointChartValue(
                               i.toDouble(),
                               chartData[i].accuracy,
-                            )
+                            ),
                         ],
                       ),
                     ],

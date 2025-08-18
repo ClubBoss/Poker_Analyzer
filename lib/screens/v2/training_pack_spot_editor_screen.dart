@@ -47,16 +47,13 @@ class _TrainingPackSpotEditorScreenState
     'bet',
     'raise',
     'call',
-    'fold'
+    'fold',
   ];
   Set<String> _heroOptions = <String>{};
 
   Set<String> _usedCards() {
     final hero = _heroCards.map((c) => '${c.rank}${c.suit}');
-    return {
-      ...hero,
-      ...widget.spot.hand.board,
-    };
+    return {...hero, ...widget.spot.hand.board};
   }
 
   CardModel _toCard(String s) {
@@ -83,8 +80,9 @@ class _TrainingPackSpotEditorScreenState
       } else if (_heroCards.length == index) {
         _heroCards.add(card);
       }
-      widget.spot.hand.heroCards =
-          _heroCards.map((c) => '${c.rank}${c.suit}').join(' ');
+      widget.spot.hand.heroCards = _heroCards
+          .map((c) => '${c.rank}${c.suit}')
+          .join(' ');
     });
   }
 
@@ -119,9 +117,13 @@ class _TrainingPackSpotEditorScreenState
         ),
         child: const Row(
           children: [
-            Text('EV Preview',
-                style: TextStyle(
-                    fontWeight: FontWeight.bold, color: Colors.white70)),
+            Text(
+              'EV Preview',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white70,
+              ),
+            ),
             Spacer(),
             Text('Not evaluated', style: TextStyle(color: Colors.grey)),
           ],
@@ -137,9 +139,13 @@ class _TrainingPackSpotEditorScreenState
       ),
       child: Row(
         children: [
-          const Text('EV Preview',
-              style: TextStyle(
-                  fontWeight: FontWeight.bold, color: Colors.white70)),
+          const Text(
+            'EV Preview',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.white70,
+            ),
+          ),
           const Spacer(),
           Text('$ev%', style: const TextStyle(color: Colors.greenAccent)),
           const SizedBox(width: 8),
@@ -186,11 +192,13 @@ class _TrainingPackSpotEditorScreenState
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel')),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(context, c.text.trim()),
-              child: const Text('OK')),
+            onPressed: () => Navigator.pop(context, c.text.trim()),
+            child: const Text('OK'),
+          ),
         ],
       ),
     );
@@ -207,10 +215,12 @@ class _TrainingPackSpotEditorScreenState
     _titleCtr = TextEditingController(text: widget.spot.title);
     _noteCtr = TextEditingController(text: widget.spot.note);
     final stacks = widget.spot.hand.stacks;
-    _heroStackCtr =
-        TextEditingController(text: (stacks['0'] ?? 10).round().toString());
-    _villainStackCtr =
-        TextEditingController(text: (stacks['1'] ?? 10).round().toString());
+    _heroStackCtr = TextEditingController(
+      text: (stacks['0'] ?? 10).round().toString(),
+    );
+    _villainStackCtr = TextEditingController(
+      text: (stacks['1'] ?? 10).round().toString(),
+    );
     _heroCards = widget.spot.hand.heroCards
         .split(RegExp(r'\s+'))
         .where((e) => e.isNotEmpty)
@@ -225,10 +235,10 @@ class _TrainingPackSpotEditorScreenState
       _street = widget.spot.hand.board.length >= 5
           ? 3
           : widget.spot.hand.board.length == 4
-              ? 2
-              : widget.spot.hand.board.length >= 3
-                  ? 1
-                  : 1;
+          ? 2
+          : widget.spot.hand.board.length >= 3
+          ? 1
+          : 1;
     }
     _villainAction = widget.spot.villainAction ?? 'none';
     _heroOptions = widget.spot.heroOptions.toSet();
@@ -246,8 +256,9 @@ class _TrainingPackSpotEditorScreenState
   }
 
   void _sync() {
-    widget.spot.hand.heroCards =
-        _heroCards.map((c) => '${c.rank}${c.suit}').join(' ');
+    widget.spot.hand.heroCards = _heroCards
+        .map((c) => '${c.rank}${c.suit}')
+        .join(' ');
     widget.spot.hand.position = _position;
     widget.spot.hand.stacks['0'] = double.tryParse(_heroStackCtr.text) ?? 0;
     widget.spot.hand.stacks['1'] = double.tryParse(_villainStackCtr.text) ?? 0;
@@ -267,8 +278,9 @@ class _TrainingPackSpotEditorScreenState
     widget.spot.title = normalized;
     _titleCtr.text = normalized;
     if (widget.spot.title.isEmpty) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Title is required')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Title is required')));
       return;
     }
     widget.spot.editedAt = DateTime.now();
@@ -288,16 +300,18 @@ class _TrainingPackSpotEditorScreenState
     _sync();
     setState(() => _loading = true);
     try {
-      final res =
-          await context.read<EvaluationExecutorService>().evaluate(widget.spot);
+      final res = await context.read<EvaluationExecutorService>().evaluate(
+        widget.spot,
+      );
       setState(() => widget.spot.evalResult = res);
       final ev = (res.expectedEquity * 100).toStringAsFixed(1);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('EV $ev% ${res.expectedAction}')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('EV $ev% ${res.expectedAction}')));
     } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Evaluation failed')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Evaluation failed')));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -338,10 +352,7 @@ class _TrainingPackSpotEditorScreenState
                     onDeleted: () =>
                         setState(() => widget.spot.tags.remove(tag)),
                   ),
-                InputChip(
-                  label: const Text('+ Add'),
-                  onPressed: _addTagDialog,
-                ),
+                InputChip(label: const Text('+ Add'), onPressed: _addTagDialog),
               ],
             ),
             const SizedBox(height: 16),
@@ -349,13 +360,15 @@ class _TrainingPackSpotEditorScreenState
               value: _priority,
               items: [
                 for (int i = 1; i <= 5; i++)
-                  DropdownMenuItem(value: i, child: Text('Priority $i'))
+                  DropdownMenuItem(value: i, child: Text('Priority $i')),
               ],
               onChanged: (v) => setState(() => _priority = v ?? 3),
             ),
             const SizedBox(height: 24),
-            const Text('Hero Cards',
-                style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text(
+              'Hero Cards',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             CardPickerWidget(
               cards: _heroCards,
@@ -367,7 +380,7 @@ class _TrainingPackSpotEditorScreenState
               value: _position,
               items: [
                 for (final p in HeroPosition.values)
-                  DropdownMenuItem(value: p, child: Text(p.label))
+                  DropdownMenuItem(value: p, child: Text(p.label)),
               ],
               onChanged: (v) => setState(() {
                 _position = v ?? _position;
@@ -375,8 +388,10 @@ class _TrainingPackSpotEditorScreenState
               }),
             ),
             const SizedBox(height: 16),
-            const Text('Stacks (BB)',
-                style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text(
+              'Stacks (BB)',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -398,8 +413,10 @@ class _TrainingPackSpotEditorScreenState
               ],
             ),
             const SizedBox(height: 16),
-            const Text('Preflop Actions',
-                style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text(
+              'Preflop Actions',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             ActionEditorList(
               initial: _actions,
@@ -437,7 +454,9 @@ class _TrainingPackSpotEditorScreenState
                 items: const [
                   DropdownMenuItem(value: 'none', child: Text('Villain: none')),
                   DropdownMenuItem(
-                      value: 'check', child: Text('Villain: check')),
+                    value: 'check',
+                    child: Text('Villain: check'),
+                  ),
                   DropdownMenuItem(value: 'bet', child: Text('Villain: bet')),
                 ],
                 onChanged: (v) => setState(() => _villainAction = v ?? 'none'),

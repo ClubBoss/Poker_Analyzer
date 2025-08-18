@@ -26,8 +26,11 @@ void main() {
   });
 
   testWidgets('launches booster when candidate available', (tester) async {
-    final lesson =
-        const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
+    final lesson = const TheoryMiniLessonNode(
+      id: 'l1',
+      title: 't',
+      content: '',
+    );
     final service = AutoTheoryBoosterLauncher(
       trigger: _FakeTrigger(lesson),
       cooldown: Duration.zero,
@@ -42,8 +45,11 @@ void main() {
       ),
     );
 
-    await RecapCompletionTracker.instance
-        .logCompletion('r1', 'tag', const Duration(seconds: 1));
+    await RecapCompletionTracker.instance.logCompletion(
+      'r1',
+      'tag',
+      const Duration(seconds: 1),
+    );
     await tester.pumpAndSettle();
 
     expect(find.byType(MiniLessonScreen), findsOneWidget);
@@ -51,8 +57,11 @@ void main() {
   });
 
   testWidgets('respects cooldown', (tester) async {
-    final lesson =
-        const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
+    final lesson = const TheoryMiniLessonNode(
+      id: 'l1',
+      title: 't',
+      content: '',
+    );
     final service = AutoTheoryBoosterLauncher(
       trigger: _FakeTrigger(lesson),
       cooldown: const Duration(seconds: 30),
@@ -67,13 +76,19 @@ void main() {
       ),
     );
 
-    await RecapCompletionTracker.instance
-        .logCompletion('r1', 'tag', const Duration(seconds: 1));
+    await RecapCompletionTracker.instance.logCompletion(
+      'r1',
+      'tag',
+      const Duration(seconds: 1),
+    );
     await tester.pumpAndSettle();
     Navigator.of(navigatorKey.currentContext!).pop();
 
-    await RecapCompletionTracker.instance
-        .logCompletion('r2', 'tag', const Duration(seconds: 1));
+    await RecapCompletionTracker.instance.logCompletion(
+      'r2',
+      'tag',
+      const Duration(seconds: 1),
+    );
     await tester.pumpAndSettle();
 
     expect(find.byType(MiniLessonScreen), findsNothing);

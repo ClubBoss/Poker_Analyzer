@@ -29,12 +29,12 @@ class SmartRecapSuggestionEngine {
     RecapHistoryTracker? history,
     RecapAutoRepeatScheduler? repeats,
     this.debug = false,
-  })  : fatigue = fatigue ?? RecapFatigueEvaluator.instance,
-        scheduler = scheduler ?? TheoryReinforcementScheduler.instance,
-        repeater = repeater ?? const TheoryWeaknessRepeater(),
-        library = library ?? MiniLessonLibraryService.instance,
-        history = history ?? RecapHistoryTracker.instance,
-        repeats = repeats ?? RecapAutoRepeatScheduler.instance;
+  }) : fatigue = fatigue ?? RecapFatigueEvaluator.instance,
+       scheduler = scheduler ?? TheoryReinforcementScheduler.instance,
+       repeater = repeater ?? const TheoryWeaknessRepeater(),
+       library = library ?? MiniLessonLibraryService.instance,
+       history = history ?? RecapHistoryTracker.instance,
+       repeats = repeats ?? RecapAutoRepeatScheduler.instance;
 
   static final SmartRecapSuggestionEngine instance =
       SmartRecapSuggestionEngine();
@@ -103,8 +103,9 @@ class SmartRecapSuggestionEngine {
   Future<void> start({Duration interval = const Duration(hours: 1)}) async {
     await library.loadAll();
     _repeatSub?.cancel();
-    _repeatSub =
-        repeats.getPendingRecapIds(interval: interval).listen(_handleRepeatIds);
+    _repeatSub = repeats
+        .getPendingRecapIds(interval: interval)
+        .listen(_handleRepeatIds);
     _timer?.cancel();
     _timer = Timer.periodic(interval, (_) async {
       final lesson = await getBestRecapCandidate();
@@ -143,8 +144,9 @@ class SmartRecapSuggestionEngine {
       }
       final last = await _lastShown(lesson.id);
       final overdue = now.difference(e.value).inMinutes.toDouble();
-      final recency =
-          last == null ? 1e6 : now.difference(last).inMinutes.toDouble();
+      final recency = last == null
+          ? 1e6
+          : now.difference(last).inMinutes.toDouble();
       final score = 1000 + overdue + recency;
       candidates.add(_Entry(lesson, score));
       if (debug) debugPrint('recap candidate due ${lesson.id} score $score');
@@ -158,8 +160,9 @@ class SmartRecapSuggestionEngine {
           continue;
         }
         final last = await _lastShown(lesson.id);
-        final recency =
-            last == null ? 1e6 : now.difference(last).inMinutes.toDouble();
+        final recency = last == null
+            ? 1e6
+            : now.difference(last).inMinutes.toDouble();
         final score = recency;
         candidates.add(_Entry(lesson, score));
         if (debug) debugPrint('recap candidate weak ${lesson.id} score $score');

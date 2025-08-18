@@ -37,30 +37,32 @@ void main() {
         {
           'lessonId': 'new',
           'timestamp': DateTime.utc(2021, 1, 2).toIso8601String(),
-        }
-      ])
+        },
+      ]),
     });
     final logger = TheoryLessonCompletionLogger();
-    final entries =
-        await logger.getCompletions(since: DateTime.utc(2021, 1, 2));
+    final entries = await logger.getCompletions(
+      since: DateTime.utc(2021, 1, 2),
+    );
     expect(entries.length, 1);
     expect(entries.first.lessonId, 'new');
   });
 
-  test('logging same lesson on different days creates separate entries',
-      () async {
-    final yesterday = DateTime.now().toUtc().subtract(const Duration(days: 1));
-    SharedPreferences.setMockInitialValues({
-      'lesson_completion_log': jsonEncode([
-        {
-          'lessonId': 'lessonX',
-          'timestamp': yesterday.toIso8601String(),
-        }
-      ])
-    });
-    final logger = TheoryLessonCompletionLogger();
-    await logger.logCompletion('lessonX');
-    final entries = await logger.getCompletions();
-    expect(entries.length, 2);
-  });
+  test(
+    'logging same lesson on different days creates separate entries',
+    () async {
+      final yesterday = DateTime.now().toUtc().subtract(
+        const Duration(days: 1),
+      );
+      SharedPreferences.setMockInitialValues({
+        'lesson_completion_log': jsonEncode([
+          {'lessonId': 'lessonX', 'timestamp': yesterday.toIso8601String()},
+        ]),
+      });
+      final logger = TheoryLessonCompletionLogger();
+      await logger.logCompletion('lessonX');
+      final entries = await logger.getCompletions();
+      expect(entries.length, 2);
+    },
+  );
 }

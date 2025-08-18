@@ -38,8 +38,9 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
     }
     final pos = f['positions'];
     if (pos is List && pos.isNotEmpty) {
-      final hero =
-          spot.positions.isNotEmpty ? spot.positions[spot.heroIndex] : '';
+      final hero = spot.positions.isNotEmpty
+          ? spot.positions[spot.heroIndex]
+          : '';
       if (!pos.contains(hero)) return false;
     }
     final minDiff = f['minDifficulty'];
@@ -78,11 +79,13 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
         title: const Text('Delete spot?'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel')),
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Delete')),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
+          ),
         ],
       ),
     );
@@ -148,17 +151,19 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
           content: DropdownButton<String>(
             value: selected,
             items: [
-              for (final t in tags) DropdownMenuItem(value: t, child: Text(t))
+              for (final t in tags) DropdownMenuItem(value: t, child: Text(t)),
             ],
             onChanged: (v) => setState(() => selected = v),
           ),
           actions: [
             TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel')),
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
             TextButton(
-                onPressed: () => Navigator.pop(context, selected),
-                child: const Text('OK')),
+              onPressed: () => Navigator.pop(context, selected),
+              child: const Text('OK'),
+            ),
           ],
         ),
       ),
@@ -184,7 +189,8 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
 
   Future<void> _createTemplateFromFilter() async {
     final filters = Map<String, dynamic>.from(
-        context.read<TrainingSpotStorageService>().activeFilters);
+      context.read<TrainingSpotStorageService>().activeFilters,
+    );
     final initial = TrainingPackTemplateModel(
       id: const Uuid().v4(),
       name: 'Новый шаблон',
@@ -198,7 +204,8 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
     final model = await Navigator.push<TrainingPackTemplateModel>(
       context,
       MaterialPageRoute(
-          builder: (_) => TrainingPackTemplateEditorScreen(initial: initial)),
+        builder: (_) => TrainingPackTemplateEditorScreen(initial: initial),
+      ),
     );
     if (model != null && mounted) {
       await context.read<TrainingPackTemplateStorageService>().add(model);
@@ -210,14 +217,14 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
     final tags = <String>{for (final s in _spots) ...s.tags};
     final positions = <String>{
       for (final s in _spots)
-        if (s.positions.isNotEmpty) s.positions[s.heroIndex]
+        if (s.positions.isNotEmpty) s.positions[s.heroIndex],
     };
     List<TrainingSpot> visible = [..._spots];
     final filters = context.watch<TrainingSpotStorageService>().activeFilters;
     if (filters.isNotEmpty) {
       visible = [
         for (final s in visible)
-          if (_matchesFilters(s, filters)) s
+          if (_matchesFilters(s, filters)) s,
       ];
     }
     if (_positionFilter != 'All') {
@@ -225,20 +232,20 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
         for (final s in visible)
           if (s.positions.isNotEmpty &&
               s.positions[s.heroIndex] == _positionFilter)
-            s
+            s,
       ];
     }
     if (_tagFilter != 'All') {
       visible = [
         for (final s in visible)
-          if (s.tags.contains(_tagFilter)) s
+          if (s.tags.contains(_tagFilter)) s,
       ];
     }
     final query = _searchController.text.toLowerCase();
     if (query.isNotEmpty) {
       visible = [
         for (final s in visible)
-          if (s.tags.any((t) => t.toLowerCase().contains(query))) s
+          if (s.tags.any((t) => t.toLowerCase().contains(query))) s,
       ];
     }
 
@@ -257,8 +264,9 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
                 final service = context.read<TrainingSpotStorageService>();
                 service.activeFilters.clear();
                 service.notifyListeners();
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Фильтр сброшен')));
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(const SnackBar(content: Text('Фильтр сброшен')));
               },
             ),
         ],
@@ -329,7 +337,8 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
               final created = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (_) => const TrainingSpotBuilderScreen()),
+                  builder: (_) => const TrainingSpotBuilderScreen(),
+                ),
               );
               if (created == true) _load();
             },

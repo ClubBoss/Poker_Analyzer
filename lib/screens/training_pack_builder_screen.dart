@@ -16,8 +16,9 @@ class _TrainingPackBuilderScreenState extends State<TrainingPackBuilderScreen> {
   final TextEditingController _nameCtrl = TextEditingController();
   final TextEditingController _minStackCtrl = TextEditingController(text: '10');
   final TextEditingController _maxStackCtrl = TextEditingController(text: '20');
-  final TextEditingController _playersCtrl =
-      TextEditingController(text: '10 10');
+  final TextEditingController _playersCtrl = TextEditingController(
+    text: '10 10',
+  );
   Set<String> _range = {};
   HeroPosition _pos = HeroPosition.sb;
 
@@ -31,13 +32,14 @@ class _TrainingPackBuilderScreenState extends State<TrainingPackBuilderScreen> {
   }
 
   Future<void> _create() async {
-    final name =
-        _nameCtrl.text.trim().isEmpty ? 'New Pack' : _nameCtrl.text.trim();
+    final name = _nameCtrl.text.trim().isEmpty
+        ? 'New Pack'
+        : _nameCtrl.text.trim();
     final minBb = int.tryParse(_minStackCtrl.text) ?? 10;
     final maxBb = int.tryParse(_maxStackCtrl.text) ?? minBb;
     final players = [
       for (final s in _playersCtrl.text.split(RegExp(r'[\s,]+')))
-        if (s.trim().isNotEmpty) int.tryParse(s) ?? minBb
+        if (s.trim().isNotEmpty) int.tryParse(s) ?? minBb,
     ];
     if (players.isEmpty) players.add(minBb);
     final tpl = await TrainingPackService.createRangePack(

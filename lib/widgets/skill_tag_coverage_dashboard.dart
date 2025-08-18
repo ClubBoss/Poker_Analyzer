@@ -50,11 +50,13 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    final stream = widget.statsStream ??
+    final stream =
+        widget.statsStream ??
         Stream.periodic(const Duration(seconds: 10), (_) {
           return SkillTagCoverageTrackerService.instance.getCoverageStats();
         });
-    final tagCategoryMap = widget.tagCategoryMap ??
+    final tagCategoryMap =
+        widget.tagCategoryMap ??
         SkillTagCoverageTrackerService.instance.tagCategoryMap;
     final allTagsInput =
         widget.allTags ?? SkillTagCoverageTrackerService.instance.allSkillTags;
@@ -66,12 +68,16 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
         if (stats == null) {
           return const Center(child: CircularProgressIndicator());
         }
-        final allTags =
-            allTagsInput.isEmpty ? stats.tagCounts.keys.toSet() : allTagsInput;
+        final allTags = allTagsInput.isEmpty
+            ? stats.tagCounts.keys.toSet()
+            : allTagsInput;
         _rows = _buildRows(stats, allTags, tagCategoryMap);
         _applySort();
-        final categorySummary =
-            computeCategorySummary(stats, allTags, tagCategoryMap);
+        final categorySummary = computeCategorySummary(
+          stats,
+          allTags,
+          tagCategoryMap,
+        );
         final baseColor = Theme.of(context).colorScheme.surface;
         final df = DateFormat('yyyy-MM-dd');
         return Column(
@@ -93,21 +99,28 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
                     columns: [
                       DataColumn(label: const Text('Tag'), onSort: _onSort),
                       DataColumn(
-                          label: const Text('Category'), onSort: _onSort),
+                        label: const Text('Category'),
+                        onSort: _onSort,
+                      ),
                       DataColumn(
-                          label: const Text('Packs Covered'),
-                          numeric: true,
-                          onSort: _onSort),
+                        label: const Text('Packs Covered'),
+                        numeric: true,
+                        onSort: _onSort,
+                      ),
                       DataColumn(
-                          label: const Text('Spots Covered'),
-                          numeric: true,
-                          onSort: _onSort),
+                        label: const Text('Spots Covered'),
+                        numeric: true,
+                        onSort: _onSort,
+                      ),
                       DataColumn(
-                          label: const Text('Occurrence %'),
-                          numeric: true,
-                          onSort: _onSort),
+                        label: const Text('Occurrence %'),
+                        numeric: true,
+                        onSort: _onSort,
+                      ),
                       DataColumn(
-                          label: const Text('Last Updated'), onSort: _onSort),
+                        label: const Text('Last Updated'),
+                        onSort: _onSort,
+                      ),
                     ],
                     rows: [
                       for (final r in _filteredRows())
@@ -118,8 +131,9 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
                               onTap: () {
                                 try {
                                   Navigator.of(context).pushNamed(
-                                      '/trainingPacks',
-                                      arguments: r.tag);
+                                    '/trainingPacks',
+                                    arguments: r.tag,
+                                  );
                                 } catch (_) {
                                   // Optionally handle missing route silently.
                                 }
@@ -135,13 +149,18 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
                                     : '${r.coverage.toStringAsFixed(1)}%',
                               ),
                             ),
-                            DataCell(Text(r.lastUpdated != null
-                                ? df.format(r.lastUpdated!)
-                                : '')),
+                            DataCell(
+                              Text(
+                                r.lastUpdated != null
+                                    ? df.format(r.lastUpdated!)
+                                    : '',
+                              ),
+                            ),
                           ],
                           color: MaterialStatePropertyAll(
                             Color.alphaBlend(
-                              Colors.primaries[r.category.hashCode %
+                              Colors
+                                  .primaries[r.category.hashCode %
                                       Colors.primaries.length]
                                   .withValues(alpha: 0.08),
                               baseColor,

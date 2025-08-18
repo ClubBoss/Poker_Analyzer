@@ -34,7 +34,11 @@ void main() {
     final packLibrary = TrainingPackLibraryV2.instance;
     packLibrary.clear();
     final spot = TrainingPackSpot(
-        id: 's1', hand: HandData(), tags: ['push', 'bb'], categories: []);
+      id: 's1',
+      hand: HandData(),
+      tags: ['push', 'bb'],
+      categories: [],
+    );
     final pack = TrainingPackTemplateV2(
       id: 'b1',
       name: 'Booster',
@@ -59,8 +63,9 @@ void main() {
     );
     await store.upsertModule('u1', module);
 
-    final registry =
-        TheoryNoveltyRegistry(path: 'test_cache/theory_bundles.json');
+    final registry = TheoryNoveltyRegistry(
+      path: 'test_cache/theory_bundles.json',
+    );
     await registry.record('u1', ['push', 'bb'], ['th_bb_def', 'th_push']);
 
     final injector = TheoryLinkAutoInjector(
@@ -87,7 +92,9 @@ void main() {
 
     expect(
       AutogenStatusDashboardService
-          .instance.theoryClustersInjectedNotifier.value,
+          .instance
+          .theoryClustersInjectedNotifier
+          .value,
       greaterThan(0),
     );
   });

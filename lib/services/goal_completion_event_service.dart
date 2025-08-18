@@ -41,7 +41,7 @@ class GoalCompletionEventService {
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
     final map = {
-      for (final e in _events.entries) e.key: e.value.toIso8601String()
+      for (final e in _events.entries) e.key: e.value.toIso8601String(),
     };
     await prefs.setString(_prefsKey, jsonEncode(map));
   }
@@ -68,7 +68,7 @@ class GoalCompletionEventService {
     await _load();
     final list = [
       for (final e in _events.entries)
-        GoalCompletionEvent(tag: e.key, timestamp: e.value)
+        GoalCompletionEvent(tag: e.key, timestamp: e.value),
     ]..sort((a, b) => b.timestamp.compareTo(a.timestamp));
     return list;
   }

@@ -59,9 +59,17 @@ void main() {
   test('queues inbox reminder for decayed tag', () async {
     final lessons = [
       const TheoryMiniLessonNode(
-          id: 'l1', title: 'A', content: '', tags: ['a']),
+        id: 'l1',
+        title: 'A',
+        content: '',
+        tags: ['a'],
+      ),
       const TheoryMiniLessonNode(
-          id: 'l2', title: 'B', content: '', tags: ['b']),
+        id: 'l2',
+        title: 'B',
+        content: '',
+        tags: ['b'],
+      ),
     ];
     final service = DecayBoosterReminderService(
       decay: _FakeDecay({'a': 50, 'b': 30}),
@@ -81,12 +89,17 @@ void main() {
   test('recently viewed lesson skipped', () async {
     final now = DateTime.now();
     SharedPreferences.setMockInitialValues({
-      'mini_lesson_progress_l1':
-          jsonEncode({'lastViewed': now.toIso8601String()}),
+      'mini_lesson_progress_l1': jsonEncode({
+        'lastViewed': now.toIso8601String(),
+      }),
     });
     final lessons = [
       const TheoryMiniLessonNode(
-          id: 'l1', title: 'A', content: '', tags: ['a']),
+        id: 'l1',
+        title: 'A',
+        content: '',
+        tags: ['a'],
+      ),
     ];
     final service = DecayBoosterReminderService(
       decay: _FakeDecay({'a': 60}),

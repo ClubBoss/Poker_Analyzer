@@ -26,23 +26,27 @@ class YamlPackConflictDetector {
       final name = p.name.trim().toLowerCase();
       final idPrev = ids[id];
       if (idPrev != null) {
-        conflicts.add(YamlPackConflict(
-          packA: idPrev,
-          packB: p,
-          type: 'duplicate_id',
-          similarityScore: 1,
-        ));
+        conflicts.add(
+          YamlPackConflict(
+            packA: idPrev,
+            packB: p,
+            type: 'duplicate_id',
+            similarityScore: 1,
+          ),
+        );
       } else {
         ids[id] = p;
       }
       final namePrev = names[name];
       if (namePrev != null) {
-        conflicts.add(YamlPackConflict(
-          packA: namePrev,
-          packB: p,
-          type: 'duplicate_name',
-          similarityScore: 1,
-        ));
+        conflicts.add(
+          YamlPackConflict(
+            packA: namePrev,
+            packB: p,
+            type: 'duplicate_name',
+            similarityScore: 1,
+          ),
+        );
       } else {
         names[name] = p;
       }
@@ -53,19 +57,23 @@ class YamlPackConflictDetector {
         final b = packs[j];
         final sim = _spotSimilarity(a.spots, b.spots);
         if (sim >= 0.8) {
-          conflicts.add(YamlPackConflict(
-            packA: a,
-            packB: b,
-            type: 'similar_spots',
-            similarityScore: sim,
-          ));
+          conflicts.add(
+            YamlPackConflict(
+              packA: a,
+              packB: b,
+              type: 'similar_spots',
+              similarityScore: sim,
+            ),
+          );
         } else if ((a.audience ?? '') == (b.audience ?? '') && sim >= 0.5) {
-          conflicts.add(YamlPackConflict(
-            packA: a,
-            packB: b,
-            type: 'audience_overlap',
-            similarityScore: sim,
-          ));
+          conflicts.add(
+            YamlPackConflict(
+              packA: a,
+              packB: b,
+              type: 'audience_overlap',
+              similarityScore: sim,
+            ),
+          );
         }
       }
     }

@@ -24,16 +24,16 @@ void main() {
           'packId': 'p2',
           'requiredAccuracy': 70,
           'minHands': 5,
-        }
+        },
       ],
       'sections': [
         {
           'id': 'sec1',
           'title': 'Section 1',
           'description': 'desc',
-          'stageIds': ['s1', 's2']
-        }
-      ]
+          'stageIds': ['s1', 's2'],
+        },
+      ],
     };
 
     final tpl = LearningPathTemplateV2.fromJson(json);

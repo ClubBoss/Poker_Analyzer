@@ -26,9 +26,9 @@ class _TestPathProvider extends PathProviderPlatform {
   @override
   Future<List<String>?> getExternalCachePaths() async => [path];
   @override
-  Future<List<String>?> getExternalStoragePaths(
-          {StorageDirectory? type}) async =>
-      [path];
+  Future<List<String>?> getExternalStoragePaths({
+    StorageDirectory? type,
+  }) async => [path];
   @override
   Future<String?> getDownloadsPath() async => path;
 }
@@ -72,41 +72,41 @@ void main() {
 
     // tag1 sessions: 0.5 -> 0.8 -> 0.9 (avg gain 0.2)
     await tracker.logBoosterResult(
-        tpl1,
-        TrainingSessionResult(
-            date: DateTime(2024, 1, 1), total: 10, correct: 5));
+      tpl1,
+      TrainingSessionResult(date: DateTime(2024, 1, 1), total: 10, correct: 5),
+    );
     await tracker.logBoosterResult(
-        tpl1,
-        TrainingSessionResult(
-            date: DateTime(2024, 1, 2), total: 10, correct: 8));
+      tpl1,
+      TrainingSessionResult(date: DateTime(2024, 1, 2), total: 10, correct: 8),
+    );
     await tracker.logBoosterResult(
-        tpl1,
-        TrainingSessionResult(
-            date: DateTime(2024, 1, 3), total: 10, correct: 9));
+      tpl1,
+      TrainingSessionResult(date: DateTime(2024, 1, 3), total: 10, correct: 9),
+    );
 
     // tag2 sessions: 0.7 -> 0.8 -> 0.8 (avg gain 0.05)
     await tracker.logBoosterResult(
-        tpl2,
-        TrainingSessionResult(
-            date: DateTime(2024, 1, 1), total: 10, correct: 7));
+      tpl2,
+      TrainingSessionResult(date: DateTime(2024, 1, 1), total: 10, correct: 7),
+    );
     await tracker.logBoosterResult(
-        tpl2,
-        TrainingSessionResult(
-            date: DateTime(2024, 1, 2), total: 10, correct: 8));
+      tpl2,
+      TrainingSessionResult(date: DateTime(2024, 1, 2), total: 10, correct: 8),
+    );
     await tracker.logBoosterResult(
-        tpl2,
-        TrainingSessionResult(
-            date: DateTime(2024, 1, 3), total: 10, correct: 8));
+      tpl2,
+      TrainingSessionResult(date: DateTime(2024, 1, 3), total: 10, correct: 8),
+    );
 
     // tag3 sessions: only two, should be excluded from top tags
     await tracker.logBoosterResult(
-        tpl3,
-        TrainingSessionResult(
-            date: DateTime(2024, 1, 1), total: 10, correct: 4));
+      tpl3,
+      TrainingSessionResult(date: DateTime(2024, 1, 1), total: 10, correct: 4),
+    );
     await tracker.logBoosterResult(
-        tpl3,
-        TrainingSessionResult(
-            date: DateTime(2024, 1, 2), total: 10, correct: 6));
+      tpl3,
+      TrainingSessionResult(date: DateTime(2024, 1, 2), total: 10, correct: 6),
+    );
 
     final gainTag1 = await analyzer.getAverageGain('tag1');
     expect(gainTag1, isNotNull);

@@ -42,29 +42,34 @@ class RepeatLastIncorrectCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Повторить раздачу',
-                    style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Повторить раздачу',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 4),
                 Text(cat, style: const TextStyle(color: Colors.white)),
                 const SizedBox(height: 4),
-                Text('-${ev.toStringAsFixed(1)} EV',
-                    style: const TextStyle(color: Colors.white70)),
+                Text(
+                  '-${ev.toStringAsFixed(1)} EV',
+                  style: const TextStyle(color: Colors.white70),
+                ),
               ],
             ),
           ),
           const SizedBox(width: 8),
           ElevatedButton(
             onPressed: () async {
-              final tpl =
-                  await TrainingPackService.createRepeatForIncorrect(context);
+              final tpl = await TrainingPackService.createRepeatForIncorrect(
+                context,
+              );
               if (tpl == null) return;
               await context.read<TrainingSessionService>().startSession(tpl);
               if (context.mounted) {
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (_) => const TrainingSessionScreen()),
+                    builder: (_) => const TrainingSessionScreen(),
+                  ),
                 );
               }
             },

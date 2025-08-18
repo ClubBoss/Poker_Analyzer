@@ -28,20 +28,23 @@ void main() {
       meta: const {
         'type': 'booster',
         'tag': 'CBet',
-        'generatedBy': 'BoosterSuggestionEngine v1'
+        'generatedBy': 'BoosterSuggestionEngine v1',
       },
     );
     final file = File('${dir.path}/p1.yaml');
     await file.writeAsString(tpl.toYamlString());
 
     final count = await const BoosterRefinerEngine().refineAll(dir: dir.path);
-    final refined =
-        TrainingPackTemplateV2.fromYamlString(await file.readAsString());
+    final refined = TrainingPackTemplateV2.fromYamlString(
+      await file.readAsString(),
+    );
 
     expect(count, 1);
     expect(refined.spots.length, 1);
-    expect(refined.spots.first.explanation,
-        'Рекомендовано для изучения темы: cbet');
+    expect(
+      refined.spots.first.explanation,
+      'Рекомендовано для изучения темы: cbet',
+    );
     expect(refined.meta['tag'], 'cbet');
     expect(refined.meta['version'], '1');
     expect(refined.meta['generatedBy'], 'BoosterSuggestionEngine v1');

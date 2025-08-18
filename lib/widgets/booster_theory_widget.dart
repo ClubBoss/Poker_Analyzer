@@ -136,9 +136,13 @@ class BoosterTheoryWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (slot != BoosterSlot.none)
-                    Text('$icon $slotLabel',
-                        style: TextStyle(
-                            color: accent, fontWeight: FontWeight.bold)),
+                    Text(
+                      '$icon $slotLabel',
+                      style: TextStyle(
+                        color: accent,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   if (slot != BoosterSlot.none) const SizedBox(width: 4),
                   Expanded(
                     child: Text(
@@ -151,16 +155,10 @@ class BoosterTheoryWidget extends StatelessWidget {
                   ),
                 ],
               ),
-              if (tag != null) ...[
-                const SizedBox(height: 4),
-                TagBadge(tag),
-              ],
+              if (tag != null) ...[const SizedBox(height: 4), TagBadge(tag)],
               if (preview.isNotEmpty) ...[
                 const SizedBox(height: 4),
-                Text(
-                  preview,
-                  style: const TextStyle(color: Colors.white70),
-                ),
+                Text(preview, style: const TextStyle(color: Colors.white70)),
               ],
               const SizedBox(height: 8),
               vertical

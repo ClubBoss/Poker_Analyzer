@@ -10,7 +10,8 @@ class TheoryTrackProgressionService {
 
   /// Returns blocks that are unlocked based on sequential completion.
   Future<List<TheoryBlockModel>> getUnlockedBlocks(
-      TheoryTrackModel track) async {
+    TheoryTrackModel track,
+  ) async {
     final unlocked = <TheoryBlockModel>[];
     for (var i = 0; i < track.blocks.length; i++) {
       final block = track.blocks[i];
@@ -31,7 +32,9 @@ class TheoryTrackProgressionService {
 
   /// Returns true if [block] is unlocked within [track].
   Future<bool> isBlockUnlocked(
-      TheoryTrackModel track, TheoryBlockModel block) async {
+    TheoryTrackModel track,
+    TheoryBlockModel block,
+  ) async {
     final unlocked = await getUnlockedBlocks(track);
     return unlocked.any((b) => b.id == block.id);
   }

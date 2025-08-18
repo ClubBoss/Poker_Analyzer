@@ -23,8 +23,8 @@ class Open3betSpotTemplateGeneratorService {
   Open3betSpotTemplateGeneratorService({
     Random? random,
     TrainingPackExporterV2? exporter,
-  })  : _random = random ?? Random(),
-        _exporter = exporter ?? const TrainingPackExporterV2();
+  }) : _random = random ?? Random(),
+       _exporter = exporter ?? const TrainingPackExporterV2();
 
   /// Generates a list of [TrainingPackTemplateV2] objects representing
   /// 3bet-push spots.
@@ -69,10 +69,7 @@ class Open3betSpotTemplateGeneratorService {
         bb: effectiveStack,
         positions: [heroPosition.name],
         tags: const ['preflop', '3bet', 'LevelII'],
-        meta: {
-          'level': 2,
-          'topic': '3bet push',
-        },
+        meta: {'level': 2, 'topic': '3bet push'},
       );
       templates.add(tpl);
       idx++;
@@ -122,10 +119,7 @@ class Open3betSpotTemplateGeneratorService {
       position: heroPosition,
       heroIndex: 0,
       playerCount: 2,
-      stacks: {
-        '0': effectiveStack.toDouble(),
-        '1': effectiveStack.toDouble(),
-      },
+      stacks: {'0': effectiveStack.toDouble(), '1': effectiveStack.toDouble()},
       actions: actions,
     );
 
@@ -135,10 +129,7 @@ class Open3betSpotTemplateGeneratorService {
       villainAction: 'open 2.5',
       heroOptions: const ['3betPush', 'fold'],
       tags: const ['preflop', '3bet', 'LevelII'],
-      meta: {
-        'villainRange': villainRange,
-        'threeBetType': threeBetType,
-      },
+      meta: {'villainRange': villainRange, 'threeBetType': threeBetType},
     );
   }
 

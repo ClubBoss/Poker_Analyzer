@@ -15,20 +15,36 @@ void main() {
     final now = DateTime.now();
     final prefs = await SharedPreferences.getInstance();
     // Tag B shown yesterday
-    await prefs.setInt('booster_opened_b',
-        now.subtract(const Duration(days: 1)).millisecondsSinceEpoch);
+    await prefs.setInt(
+      'booster_opened_b',
+      now.subtract(const Duration(days: 1)).millisecondsSinceEpoch,
+    );
     // Tag A shown 10 days ago
-    await prefs.setInt('booster_opened_a',
-        now.subtract(const Duration(days: 10)).millisecondsSinceEpoch);
+    await prefs.setInt(
+      'booster_opened_a',
+      now.subtract(const Duration(days: 10)).millisecondsSinceEpoch,
+    );
 
     final scheduler = SmartBoosterDiversitySchedulerService();
     final suggestions = [
       const PinnedBlockBoosterSuggestion(
-          blockId: '1', blockTitle: 'b1', tag: 'a', action: 'reviewTheory'),
+        blockId: '1',
+        blockTitle: 'b1',
+        tag: 'a',
+        action: 'reviewTheory',
+      ),
       const PinnedBlockBoosterSuggestion(
-          blockId: '2', blockTitle: 'b2', tag: 'a', action: 'reviewTheory'),
+        blockId: '2',
+        blockTitle: 'b2',
+        tag: 'a',
+        action: 'reviewTheory',
+      ),
       const PinnedBlockBoosterSuggestion(
-          blockId: '3', blockTitle: 'b3', tag: 'b', action: 'reviewTheory'),
+        blockId: '3',
+        blockTitle: 'b3',
+        tag: 'b',
+        action: 'reviewTheory',
+      ),
     ];
 
     final scheduled = await scheduler.schedule(suggestions);

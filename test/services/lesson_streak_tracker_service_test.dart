@@ -32,17 +32,14 @@ void main() {
           'lessonId': 'd',
           'timestamp': now.subtract(const Duration(days: 1)).toIso8601String(),
         },
-        {
-          'lessonId': 'e',
-          'timestamp': now.toIso8601String(),
-        }
-      ])
+        {'lessonId': 'e', 'timestamp': now.toIso8601String()},
+      ]),
     });
 
-    final current =
-        await LessonStreakTrackerService.instance.getCurrentStreak();
-    final longest =
-        await LessonStreakTrackerService.instance.getLongestStreak();
+    final current = await LessonStreakTrackerService.instance
+        .getCurrentStreak();
+    final longest = await LessonStreakTrackerService.instance
+        .getLongestStreak();
     expect(current, 2);
     expect(longest, 3);
   });
@@ -54,14 +51,14 @@ void main() {
         {
           'lessonId': 'x',
           'timestamp': now.subtract(const Duration(days: 2)).toIso8601String(),
-        }
-      ])
+        },
+      ]),
     });
 
-    final current =
-        await LessonStreakTrackerService.instance.getCurrentStreak();
-    final longest =
-        await LessonStreakTrackerService.instance.getLongestStreak();
+    final current = await LessonStreakTrackerService.instance
+        .getCurrentStreak();
+    final longest = await LessonStreakTrackerService.instance
+        .getLongestStreak();
     expect(current, 0);
     expect(longest, 1);
   });

@@ -13,10 +13,10 @@ class PackRunSessionState {
     Map<String, List<String>>? recallHistory,
     Map<String, bool>? recallShownBySpot,
     Map<String, int>? attemptsBySpot,
-  })  : tagLastShown = tagLastShown ?? <String, int>{},
-        recallHistory = recallHistory ?? <String, List<String>>{},
-        recallShownBySpot = recallShownBySpot ?? <String, bool>{},
-        attemptsBySpot = attemptsBySpot ?? <String, int>{};
+  }) : tagLastShown = tagLastShown ?? <String, int>{},
+       recallHistory = recallHistory ?? <String, List<String>>{},
+       recallShownBySpot = recallShownBySpot ?? <String, bool>{},
+       attemptsBySpot = attemptsBySpot ?? <String, int>{};
 
   int handCounter;
   int lastShownAt;
@@ -29,30 +29,41 @@ class PackRunSessionState {
       'packRunState.$packId.$sessionId';
 
   Map<String, dynamic> toJson() => {
-        'handCounter': handCounter,
-        'tagLastShown': tagLastShown,
-        'recallHistory': recallHistory,
-        'recallShownBySpot': recallShownBySpot,
-        'attemptsBySpot': attemptsBySpot,
-        'lastShownAt': lastShownAt,
-      };
+    'handCounter': handCounter,
+    'tagLastShown': tagLastShown,
+    'recallHistory': recallHistory,
+    'recallShownBySpot': recallShownBySpot,
+    'attemptsBySpot': attemptsBySpot,
+    'lastShownAt': lastShownAt,
+  };
 
-  factory PackRunSessionState.fromJson(Map<String, dynamic> json,
-      {required String scopeKey}) {
+  factory PackRunSessionState.fromJson(
+    Map<String, dynamic> json, {
+    required String scopeKey,
+  }) {
     return PackRunSessionState(
       scopeKey: scopeKey,
       handCounter: json['handCounter'] as int? ?? 0,
-      tagLastShown: (json['tagLastShown'] as Map?)
-              ?.map((key, value) => MapEntry(key as String, value as int)) ??
+      tagLastShown:
+          (json['tagLastShown'] as Map?)?.map(
+            (key, value) => MapEntry(key as String, value as int),
+          ) ??
           <String, int>{},
-      recallHistory: (json['recallHistory'] as Map?)?.map((key, value) =>
-              MapEntry(key as String, (value as List).cast<String>())) ??
+      recallHistory:
+          (json['recallHistory'] as Map?)?.map(
+            (key, value) =>
+                MapEntry(key as String, (value as List).cast<String>()),
+          ) ??
           <String, List<String>>{},
-      recallShownBySpot: (json['recallShownBySpot'] as Map?)
-              ?.map((key, value) => MapEntry(key as String, value as bool)) ??
+      recallShownBySpot:
+          (json['recallShownBySpot'] as Map?)?.map(
+            (key, value) => MapEntry(key as String, value as bool),
+          ) ??
           <String, bool>{},
-      attemptsBySpot: (json['attemptsBySpot'] as Map?)
-              ?.map((key, value) => MapEntry(key as String, value as int)) ??
+      attemptsBySpot:
+          (json['attemptsBySpot'] as Map?)?.map(
+            (key, value) => MapEntry(key as String, value as int),
+          ) ??
           <String, int>{},
       lastShownAt: json['lastShownAt'] as int? ?? -3,
     );

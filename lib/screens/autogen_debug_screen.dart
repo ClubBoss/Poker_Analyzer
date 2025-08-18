@@ -83,7 +83,7 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
     'paired',
     'monotone',
     'twoTone',
-    'rainbow'
+    'rainbow',
   ];
   bool _theoryEnabled = true;
   int _maxLinks = 2;
@@ -92,16 +92,21 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
   double _wTex = 0.25;
   double _wCluster = 0.15;
   bool _preferNovelty = true;
-  final TextEditingController _maxLinksController =
-      TextEditingController(text: '2');
-  final TextEditingController _minScoreController =
-      TextEditingController(text: '0.5');
-  final TextEditingController _wTagController =
-      TextEditingController(text: '0.6');
-  final TextEditingController _wTexController =
-      TextEditingController(text: '0.25');
-  final TextEditingController _wClusterController =
-      TextEditingController(text: '0.15');
+  final TextEditingController _maxLinksController = TextEditingController(
+    text: '2',
+  );
+  final TextEditingController _minScoreController = TextEditingController(
+    text: '0.5',
+  );
+  final TextEditingController _wTagController = TextEditingController(
+    text: '0.6',
+  );
+  final TextEditingController _wTexController = TextEditingController(
+    text: '0.25',
+  );
+  final TextEditingController _wClusterController = TextEditingController(
+    text: '0.15',
+  );
 
   @override
   void initState() {
@@ -283,15 +288,18 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
       builder: (_) => AlertDialog(
         title: const Text('Save Preset'),
         content: TextField(
-            controller: controller,
-            decoration: const InputDecoration(labelText: 'Name')),
+          controller: controller,
+          decoration: const InputDecoration(labelText: 'Name'),
+        ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel')),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(context, controller.text),
-              child: const Text('Save')),
+            onPressed: () => Navigator.pop(context, controller.text),
+            child: const Text('Save'),
+          ),
         ],
       ),
     );
@@ -303,8 +311,9 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
       _presets = _presetService.presets;
       _selectedPreset = preset;
     });
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Preset saved')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Preset saved')));
   }
 
   Future<void> _updatePreset() async {
@@ -316,8 +325,9 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
       _presets = _presetService.presets;
       _selectedPreset = updated;
     });
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Preset updated')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Preset updated')));
   }
 
   Future<void> _deletePreset() async {
@@ -328,8 +338,9 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
       _presets = _presetService.presets;
       _selectedPreset = null;
     });
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Preset deleted')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Preset deleted')));
   }
 
   void _exportPresets() {
@@ -341,8 +352,9 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
         content: SingleChildScrollView(child: SelectableText(json)),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Close')),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
         ],
       ),
     );
@@ -361,11 +373,13 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel')),
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Import')),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Import'),
+          ),
         ],
       ),
     );
@@ -374,8 +388,9 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
       setState(() {
         _presets = _presetService.presets;
       });
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Presets imported')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Presets imported')));
     }
   }
 
@@ -420,23 +435,33 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
                       ),
                     ),
                     TextButton(
-                        onPressed: _applySelectedPreset,
-                        child: const Text('Apply')),
+                      onPressed: _applySelectedPreset,
+                      child: const Text('Apply'),
+                    ),
                     TextButton(
-                        onPressed: _saveAsPreset,
-                        child: const Text('Save as...')),
+                      onPressed: _saveAsPreset,
+                      child: const Text('Save as...'),
+                    ),
                   ],
                 ),
                 Row(
                   children: [
                     TextButton(
-                        onPressed: _updatePreset, child: const Text('Update')),
+                      onPressed: _updatePreset,
+                      child: const Text('Update'),
+                    ),
                     TextButton(
-                        onPressed: _deletePreset, child: const Text('Delete')),
+                      onPressed: _deletePreset,
+                      child: const Text('Delete'),
+                    ),
                     TextButton(
-                        onPressed: _exportPresets, child: const Text('Export')),
+                      onPressed: _exportPresets,
+                      child: const Text('Export'),
+                    ),
                     TextButton(
-                        onPressed: _importPresets, child: const Text('Import')),
+                      onPressed: _importPresets,
+                      child: const Text('Import'),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -517,7 +542,8 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
                             ),
                           ),
                           Text(
-                              '${((_targetMix[t] ?? 0) * 100).toStringAsFixed(0)}%'),
+                            '${((_targetMix[t] ?? 0) * 100).toStringAsFixed(0)}%',
+                          ),
                         ],
                       ),
                   ],
@@ -571,9 +597,7 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
                     Expanded(
                       child: TextField(
                         controller: _wTagController,
-                        decoration: const InputDecoration(
-                          labelText: 'w_tag',
-                        ),
+                        decoration: const InputDecoration(labelText: 'w_tag'),
                         keyboardType: TextInputType.number,
                         onChanged: (v) => _wTag = double.tryParse(v) ?? _wTag,
                       ),
@@ -582,9 +606,7 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
                     Expanded(
                       child: TextField(
                         controller: _wTexController,
-                        decoration: const InputDecoration(
-                          labelText: 'w_tex',
-                        ),
+                        decoration: const InputDecoration(labelText: 'w_tex'),
                         keyboardType: TextInputType.number,
                         onChanged: (v) => _wTex = double.tryParse(v) ?? _wTex,
                       ),
@@ -625,8 +647,9 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
                   child: const Text('Start Autogen'),
                 ),
                 OutlinedButton(
-                  onPressed:
-                      _status == _AutogenStatus.running ? _stopAutogen : null,
+                  onPressed: _status == _AutogenStatus.running
+                      ? _stopAutogen
+                      : null,
                   child: const Text('Stop'),
                 ),
                 ElevatedButton(

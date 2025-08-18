@@ -30,7 +30,7 @@ class TheoryMiniLessonLinker {
         for (final lesson in library.all) {
           final ids = data[lesson.id];
           lesson.linkedPackIds = [
-            for (final v in (ids as List? ?? [])) v.toString()
+            for (final v in (ids as List? ?? [])) v.toString(),
           ];
         }
         return;

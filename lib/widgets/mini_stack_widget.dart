@@ -9,20 +9,14 @@ class MiniStackWidget extends StatelessWidget {
   /// Scale factor controlling the size of the widget.
   final double scale;
 
-  const MiniStackWidget({
-    Key? key,
-    required this.stack,
-    this.scale = 1.0,
-  }) : super(key: key);
+  const MiniStackWidget({Key? key, required this.stack, this.scale = 1.0})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     if (stack <= 0) return const SizedBox.shrink();
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: 6 * scale,
-        vertical: 2 * scale,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 6 * scale, vertical: 2 * scale),
       decoration: BoxDecoration(
         color: Colors.black54,
         borderRadius: BorderRadius.circular(8 * scale),

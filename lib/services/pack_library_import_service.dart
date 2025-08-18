@@ -35,10 +35,9 @@ class PackLibraryImportService {
     };
     var success = 0;
     var failed = 0;
-    for (final f in srcDir
-        .listSync()
-        .whereType<File>()
-        .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
+    for (final f in srcDir.listSync().whereType<File>().where(
+      (e) => e.path.toLowerCase().endsWith('.yaml'),
+    )) {
       final name = f.path.split(Platform.pathSeparator).last;
       if (names.contains(name)) continue;
       try {

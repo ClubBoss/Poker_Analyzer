@@ -18,8 +18,8 @@ class LearningPathAutoExpander {
   const LearningPathAutoExpander({
     MiniLessonLibraryService? library,
     LearningPathStageLibrary? stageLibrary,
-  })  : library = library ?? MiniLessonLibraryService.instance,
-        stageLibrary = stageLibrary ?? LearningPathStageLibrary.instance;
+  }) : library = library ?? MiniLessonLibraryService.instance,
+       stageLibrary = stageLibrary ?? LearningPathStageLibrary.instance;
 
   /// Ensures that all nodes referenced by [from.nextIds] exist in [engine].
   /// Missing nodes are loaded from libraries and appended to the path.
@@ -33,14 +33,16 @@ class LearningPathAutoExpander {
       if (existing.contains(id) || !injected.add(id)) return;
       final mini = library.getById(id);
       if (mini != null) {
-        toAdd.add(TheoryMiniLessonNode(
-          id: mini.id,
-          refId: mini.refId,
-          title: mini.title,
-          content: mini.content,
-          tags: List<String>.from(mini.tags),
-          nextIds: List<String>.from(mini.nextIds),
-        ));
+        toAdd.add(
+          TheoryMiniLessonNode(
+            id: mini.id,
+            refId: mini.refId,
+            title: mini.title,
+            content: mini.content,
+            tags: List<String>.from(mini.tags),
+            nextIds: List<String>.from(mini.nextIds),
+          ),
+        );
         for (final next in mini.nextIds) {
           addNode(next);
         }

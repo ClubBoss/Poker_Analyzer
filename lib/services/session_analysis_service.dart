@@ -22,8 +22,11 @@ class SessionAnalysisService {
       final act = heroAction(h);
       if (act == null) continue;
       final spot = TrainingSpot.fromSavedHand(h);
-      final req =
-          EvalRequest(hash: const Uuid().v4(), spot: spot, action: act.action);
+      final req = EvalRequest(
+        hash: const Uuid().v4(),
+        spot: spot,
+        action: act.action,
+      );
       final res = await _exec.evaluate(req);
       String? gto;
       if (!res.isError &&

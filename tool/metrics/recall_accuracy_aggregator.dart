@@ -4,17 +4,17 @@ import 'package:path/path.dart' as p;
 /// Simple CSV writer/aggregator for inline recall accuracy.
 class RecallAccuracyAggregator {
   RecallAccuracyAggregator({Directory? root})
-      : root = root ?? Directory('build/metrics');
+    : root = root ?? Directory('build/metrics');
 
   final Directory root;
 
   File _file(String stage) => File(
-        p.join(
-          root.path,
-          'recall_'
-          '$stage.csv',
-        ),
-      );
+    p.join(
+      root.path,
+      'recall_'
+      '$stage.csv',
+    ),
+  );
 
   /// Appends a single outcome entry.
   Future<void> record({

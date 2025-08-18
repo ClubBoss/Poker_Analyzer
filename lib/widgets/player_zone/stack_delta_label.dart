@@ -69,7 +69,9 @@ class _StackDeltaLabelState extends State<StackDeltaLabel>
         opacity: _opacity,
         child: Container(
           padding: EdgeInsets.symmetric(
-              horizontal: 4 * widget.scale, vertical: 2 * widget.scale),
+            horizontal: 4 * widget.scale,
+            vertical: 2 * widget.scale,
+          ),
           decoration: BoxDecoration(
             color: Colors.black87,
             borderRadius: BorderRadius.circular(6 * widget.scale),

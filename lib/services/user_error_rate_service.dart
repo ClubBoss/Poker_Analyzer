@@ -12,17 +12,13 @@ class _Entry {
   int n;
   _Entry({required this.ewma, required this.lastTs, required this.n});
 
-  Map<String, dynamic> toJson() => {
-        'e': ewma,
-        't': lastTs,
-        'n': n,
-      };
+  Map<String, dynamic> toJson() => {'e': ewma, 't': lastTs, 'n': n};
 
   static _Entry fromJson(Map<String, dynamic> json) => _Entry(
-        ewma: (json['e'] as num).toDouble(),
-        lastTs: json['t'] as int,
-        n: json['n'] as int,
-      );
+    ewma: (json['e'] as num).toDouble(),
+    lastTs: json['t'] as int,
+    n: json['n'] as int,
+  );
 }
 
 class UserErrorRateService {

@@ -35,11 +35,11 @@ class _FakeStyleTuner implements RewardCardStyleTunerService {
 
   @override
   RewardCardStyle getStyle(String trackId) => const RewardCardStyle(
-        gradient: [Colors.black, Colors.white],
-        icon: Icons.star,
-        badgeText: 'Styled!',
-        badgeColor: Colors.red,
-      );
+    gradient: [Colors.black, Colors.white],
+    icon: Icons.star,
+    badgeText: 'Styled!',
+    badgeColor: Colors.red,
+  );
 }
 
 void main() {

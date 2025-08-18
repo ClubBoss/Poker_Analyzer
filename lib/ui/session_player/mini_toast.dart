@@ -24,8 +24,10 @@ Future<void> showMiniToast(
             opacity: opacity,
             child: Center(
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.75),
                   borderRadius: BorderRadius.circular(12),

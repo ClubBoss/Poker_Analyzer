@@ -80,13 +80,16 @@ void main(List<String> args) {
       : encodePlayPlanCompact(plan);
   File(outPath).writeAsStringSync(json);
 
-  stdout.writeln('wrote plan name=$name slices=${plan.items.length} '
-      'target=$target from feed=$feedPath '
-      'kinds=l2:$l2Count l3:$l3Count l4:$l4Count');
+  stdout.writeln(
+    'wrote plan name=$name slices=${plan.items.length} '
+    'target=$target from feed=$feedPath '
+    'kinds=l2:$l2Count l3:$l3Count l4:$l4Count',
+  );
 }
 
 void _usage() {
   stdout.writeln(
-      'usage: --feed=FILE [--target N] [--max-slices K] [--format compact|pretty] [--out DIR] [--name FILE]');
+    'usage: --feed=FILE [--target N] [--max-slices K] [--format compact|pretty] [--out DIR] [--name FILE]',
+  );
   exit(2);
 }

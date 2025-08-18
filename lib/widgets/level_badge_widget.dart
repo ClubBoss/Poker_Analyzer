@@ -29,10 +29,7 @@ class LevelBadgeWidget extends StatelessWidget {
           Container(
             width: 36,
             height: 36,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: accent,
-            ),
+            decoration: BoxDecoration(shape: BoxShape.circle, color: accent),
             alignment: Alignment.center,
             child: Text(
               '$level',

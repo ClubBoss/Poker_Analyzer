@@ -44,8 +44,12 @@ class _RecallHotspotOverlayPanelState extends State<RecallHotspotOverlayPanel> {
     });
   }
 
-  void _sort<T>(Comparable<T> Function(RecallHotspotEntry e) getField,
-      int columnIndex, bool ascending, List<RecallHotspotEntry> data) {
+  void _sort<T>(
+    Comparable<T> Function(RecallHotspotEntry e) getField,
+    int columnIndex,
+    bool ascending,
+    List<RecallHotspotEntry> data,
+  ) {
     data.sort((a, b) {
       final aValue = getField(a);
       final bValue = getField(b);
@@ -66,12 +70,13 @@ class _RecallHotspotOverlayPanelState extends State<RecallHotspotOverlayPanel> {
         ToggleButtons(
           isSelected: [
             _mode == RecallHotspotMode.tag,
-            _mode == RecallHotspotMode.spot
+            _mode == RecallHotspotMode.spot,
           ],
           onPressed: (index) {
             setState(() {
-              _mode =
-                  index == 0 ? RecallHotspotMode.tag : RecallHotspotMode.spot;
+              _mode = index == 0
+                  ? RecallHotspotMode.tag
+                  : RecallHotspotMode.spot;
               _refresh();
             });
           },
@@ -128,18 +133,20 @@ class _RecallHotspotOverlayPanelState extends State<RecallHotspotOverlayPanel> {
                   ],
                   rows: [
                     for (final e in data)
-                      DataRow(cells: [
-                        DataCell(Text(e.id)),
-                        DataCell(Text(e.failures.toString())),
-                        DataCell(Text(e.decayStage)),
-                        DataCell(Text(_formatDate(e.lastFailed))),
-                        DataCell(
-                          TextButton(
-                            onPressed: () => _viewExamples(e),
-                            child: const Text('View Examples'),
+                      DataRow(
+                        cells: [
+                          DataCell(Text(e.id)),
+                          DataCell(Text(e.failures.toString())),
+                          DataCell(Text(e.decayStage)),
+                          DataCell(Text(_formatDate(e.lastFailed))),
+                          DataCell(
+                            TextButton(
+                              onPressed: () => _viewExamples(e),
+                              child: const Text('View Examples'),
+                            ),
                           ),
-                        ),
-                      ]),
+                        ],
+                      ),
                   ],
                 ),
               );
@@ -157,10 +164,7 @@ class _RecallHotspotOverlayPanelState extends State<RecallHotspotOverlayPanel> {
   void _viewExamples(RecallHotspotEntry entry) {
     Navigator.of(context).pushNamed(
       '/recallHotspotExamples',
-      arguments: {
-        'mode': _mode.name,
-        'id': entry.id,
-      },
+      arguments: {'mode': _mode.name, 'id': entry.id},
     );
   }
 }

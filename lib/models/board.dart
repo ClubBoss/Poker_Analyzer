@@ -8,8 +8,8 @@ class Board {
   Board({required this.flop, this.turn, this.river});
 
   List<CardModel> get cards => [
-        ...flop,
-        if (turn != null) turn!,
-        if (river != null) river!,
-      ];
+    ...flop,
+    if (turn != null) turn!,
+    if (river != null) river!,
+  ];
 }

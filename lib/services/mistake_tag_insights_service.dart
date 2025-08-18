@@ -21,8 +21,9 @@ class MistakeTagInsightsService {
   final int exampleCount;
   const MistakeTagInsightsService({this.exampleCount = 3});
 
-  Future<List<MistakeInsight>> buildInsights(
-      {bool sortByEvLoss = false}) async {
+  Future<List<MistakeInsight>> buildInsights({
+    bool sortByEvLoss = false,
+  }) async {
     final freq = await MistakeTagHistoryService.getTagsByFrequency();
     final result = <MistakeInsight>[];
     final evLossMap = <MistakeTag, double>{};

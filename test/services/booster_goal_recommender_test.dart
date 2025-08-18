@@ -16,13 +16,20 @@ void main() {
     );
     final weakTags = [
       const WeakTheoryTag(
-          tag: 'pushfold', completedCount: 1, accuracy: 0.5, score: 1.0),
+        tag: 'pushfold',
+        completedCount: 1,
+        accuracy: 0.5,
+        score: 1.0,
+      ),
     ];
     final profile = PlayerProfile(tagAccuracy: {'pushfold': 0.6});
 
     final rec = const BoosterGoalRecommender();
-    final goals =
-        rec.recommend(stats: stats, weakTags: weakTags, profile: profile);
+    final goals = rec.recommend(
+      stats: stats,
+      weakTags: weakTags,
+      profile: profile,
+    );
 
     expect(goals, isNotEmpty);
     expect(goals.first.title, contains('серии')); // streak goal

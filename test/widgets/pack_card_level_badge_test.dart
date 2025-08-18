@@ -22,9 +22,11 @@ void main() {
       meta: {'level': 'beginner'},
     );
 
-    await tester.pumpWidget(MaterialApp(
-      home: PackCard(template: tpl, onTap: () {}),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: PackCard(template: tpl, onTap: () {}),
+      ),
+    );
     await tester.pumpAndSettle();
 
     expect(find.text('Beginner'), findsOneWidget);
@@ -42,9 +44,11 @@ void main() {
       spotCount: 10,
     );
 
-    await tester.pumpWidget(MaterialApp(
-      home: PackCard(template: tpl, onTap: () {}),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: PackCard(template: tpl, onTap: () {}),
+      ),
+    );
     await tester.pumpAndSettle();
 
     expect(find.text('Beginner'), findsNothing);

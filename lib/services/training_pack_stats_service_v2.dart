@@ -26,27 +26,27 @@ class PackResultEntry {
   });
 
   Map<String, dynamic> toJson() => {
-        'packId': packId,
-        'completion': completion,
-        'evLoss': evLoss,
-        'accuracy': accuracy,
-        'timestamp': timestamp.toIso8601String(),
-        'type': type,
-        if (tag != null) 'tag': tag,
-        if (cluster != null) 'cluster': cluster,
-      };
+    'packId': packId,
+    'completion': completion,
+    'evLoss': evLoss,
+    'accuracy': accuracy,
+    'timestamp': timestamp.toIso8601String(),
+    'type': type,
+    if (tag != null) 'tag': tag,
+    if (cluster != null) 'cluster': cluster,
+  };
 
   factory PackResultEntry.fromJson(Map<String, dynamic> j) => PackResultEntry(
-        packId: j['packId'] as String? ?? '',
-        completion: (j['completion'] as num?)?.toDouble() ?? 0,
-        evLoss: (j['evLoss'] as num?)?.toDouble() ?? 0,
-        accuracy: (j['accuracy'] as num?)?.toDouble() ?? 0,
-        timestamp: DateTime.tryParse(j['timestamp'] as String? ?? '') ??
-            DateTime.now(),
-        type: j['type'] as String? ?? 'regular',
-        tag: j['tag'] as String?,
-        cluster: j['cluster'] as String?,
-      );
+    packId: j['packId'] as String? ?? '',
+    completion: (j['completion'] as num?)?.toDouble() ?? 0,
+    evLoss: (j['evLoss'] as num?)?.toDouble() ?? 0,
+    accuracy: (j['accuracy'] as num?)?.toDouble() ?? 0,
+    timestamp:
+        DateTime.tryParse(j['timestamp'] as String? ?? '') ?? DateTime.now(),
+    type: j['type'] as String? ?? 'regular',
+    tag: j['tag'] as String?,
+    cluster: j['cluster'] as String?,
+  );
 }
 
 class TrainingPackStatsServiceV2 {
@@ -61,7 +61,8 @@ class TrainingPackStatsServiceV2 {
       if (data is List) {
         return [
           for (final e in data)
-            if (e is Map) PackResultEntry.fromJson(Map<String, dynamic>.from(e))
+            if (e is Map)
+              PackResultEntry.fromJson(Map<String, dynamic>.from(e)),
         ];
       }
     } catch (_) {}

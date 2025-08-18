@@ -47,13 +47,18 @@ void main() {
     final old2 = DateTime.now().subtract(const Duration(days: 4));
     await engine.recordSuggestion('l1', timestamp: old1);
     await engine.recordSuggestion('l2', timestamp: old2);
-    await TheoryPromptDismissTracker.instance
-        .markDismissed('l1', timestamp: old1);
-    await TheoryPromptDismissTracker.instance
-        .markDismissed('l2', timestamp: old2);
+    await TheoryPromptDismissTracker.instance.markDismissed(
+      'l1',
+      timestamp: old1,
+    );
+    await TheoryPromptDismissTracker.instance.markDismissed(
+      'l2',
+      timestamp: old2,
+    );
 
-    final inbox =
-        InboxBoosterService(tracker: InboxBoosterTrackerService.instance);
+    final inbox = InboxBoosterService(
+      tracker: InboxBoosterTrackerService.instance,
+    );
     final service = TheoryRecallInboxReinjectionService(
       recall: engine,
       inbox: inbox,

@@ -26,8 +26,9 @@ class AutoTheoryStageSeeder {
     DateTime Function()? now,
   }) : now = now ?? DateTime.now;
 
-  Future<List<LearningPathStageModel>> _buildStages(
-      {bool inject = false}) async {
+  Future<List<LearningPathStageModel>> _buildStages({
+    bool inject = false,
+  }) async {
     final suggestions = await engine.suggestMissingTheoryStages();
     final stages = <LearningPathStageModel>[];
     final library = LearningPathStageLibrary.instance;
@@ -54,7 +55,7 @@ class AutoTheoryStageSeeder {
   Future<String> generateYamlForMissingTheoryStages() async {
     final stages = await _buildStages();
     final data = {
-      'stages': [for (final s in stages) s.toJson()]
+      'stages': [for (final s in stages) s.toJson()],
     };
     return const YamlEncoder().convert(data);
   }
@@ -69,7 +70,7 @@ class AutoTheoryStageSeeder {
     final ts = DateFormat('yyyyMMdd_HHmmss').format(now());
     final path = p.join(dirPath, 'auto_theory_seed_$ts.yaml');
     await writer.write({
-      'stages': [for (final s in stages) s.toJson()]
+      'stages': [for (final s in stages) s.toJson()],
     }, path);
     return path;
   }

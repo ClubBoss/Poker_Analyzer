@@ -57,8 +57,10 @@ void main() {
     ]);
 
     const retention = _FakeRetention({'icm': 1.0});
-    final analyzer =
-        BoosterEffectivenessAnalyzer(history: history, retention: retention);
+    final analyzer = BoosterEffectivenessAnalyzer(
+      history: history,
+      retention: retention,
+    );
     final result = await analyzer.computeEffectiveness(now: now);
     expect(result['icm'], closeTo(1.0, 0.001));
   });

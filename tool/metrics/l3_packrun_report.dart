@@ -35,8 +35,10 @@ void main(List<String> args) async {
       return;
     }
     final outFile = File(argMap['out'] ?? 'build/reports/l3_report.md');
-    final reportPaths =
-        reportsArg.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty);
+    final reportPaths = reportsArg
+        .split(',')
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty);
 
     var totalSpots = 0;
     var jamCount = 0.0;

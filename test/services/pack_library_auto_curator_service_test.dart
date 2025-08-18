@@ -41,49 +41,44 @@ void main() {
       return TrainingPackSpot(id: id, tags: tags, meta: meta);
     }
 
-    final p1 = pack('p1', spots: [
-      spot('s1', meta: {'clusterId': 'c1'}),
-      spot('s2', meta: {'clusterId': 'c1'}),
-    ], tags: [
-      'a'
-    ]);
+    final p1 = pack(
+      'p1',
+      spots: [
+        spot('s1', meta: {'clusterId': 'c1'}),
+        spot('s2', meta: {'clusterId': 'c1'}),
+      ],
+      tags: ['a'],
+    );
 
-    final p2 = pack('p2', spots: [
-      spot('s3', meta: {'clusterId': 'c1'}),
-      spot('s4', meta: {'clusterId': 'c1'}),
-      spot('s5', meta: {'clusterId': 'c1'}),
-    ], tags: [
-      'a',
-      'b'
-    ]);
+    final p2 = pack(
+      'p2',
+      spots: [
+        spot('s3', meta: {'clusterId': 'c1'}),
+        spot('s4', meta: {'clusterId': 'c1'}),
+        spot('s5', meta: {'clusterId': 'c1'}),
+      ],
+      tags: ['a', 'b'],
+    );
 
-    final p3 = pack('p3', spots: [
-      spot('s6', meta: {'clusterId': 'c2'}),
-    ], tags: [
-      'c'
-    ]);
+    final p3 = pack(
+      'p3',
+      spots: [
+        spot('s6', meta: {'clusterId': 'c2'}),
+      ],
+      tags: ['c'],
+    );
 
-    final p4 = pack('p4', spots: [
-      spot('s7'),
-      spot('s8'),
-      spot('s9'),
-      spot('s10'),
-      spot('s11'),
-    ], tags: [
-      'd',
-      'e',
-      'f'
-    ]);
+    final p4 = pack(
+      'p4',
+      spots: [spot('s7'), spot('s8'), spot('s9'), spot('s10'), spot('s11')],
+      tags: ['d', 'e', 'f'],
+    );
 
-    final p5 = pack('p5', spots: [
-      spot('s12'),
-      spot('s13'),
-      spot('s14'),
-    ], tags: [
-      'x',
-      'y',
-      'z'
-    ]);
+    final p5 = pack(
+      'p5',
+      spots: [spot('s12'), spot('s13'), spot('s14')],
+      tags: ['x', 'y', 'z'],
+    );
 
     final result = curator.curate([p1, p2, p3, p4, p5], limit: 4);
 

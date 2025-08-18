@@ -35,10 +35,7 @@ class LearningPathCard extends StatelessWidget {
           children: [
             Text(
               template.title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             if (template.description.isNotEmpty)
               Padding(
@@ -68,7 +65,8 @@ class LearningPathCard extends StatelessWidget {
                         value: progress!.percentComplete.clamp(0.0, 1.0),
                         backgroundColor: Colors.white24,
                         valueColor: const AlwaysStoppedAnimation<Color>(
-                            Colors.greenAccent),
+                          Colors.greenAccent,
+                        ),
                         minHeight: 6,
                       ),
                     ),
@@ -81,19 +79,26 @@ class LearningPathCard extends StatelessWidget {
                                 ? 'Завершено'
                                 : '${progress!.completedStages} из ${progress!.totalStages} этапов',
                             style: const TextStyle(
-                                color: Colors.white70, fontSize: 12),
+                              color: Colors.white70,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
                         Text(
                           '${(progress!.percentComplete * 100).round()}%',
                           style: const TextStyle(
-                              color: Colors.white70, fontSize: 12),
+                            color: Colors.white70,
+                            fontSize: 12,
+                          ),
                         ),
                         if (progress!.finished)
                           const Padding(
                             padding: EdgeInsets.only(left: 4),
-                            child: Icon(Icons.check_circle,
-                                color: Colors.green, size: 16),
+                            child: Icon(
+                              Icons.check_circle,
+                              color: Colors.green,
+                              size: 16,
+                            ),
                           ),
                       ],
                     ),

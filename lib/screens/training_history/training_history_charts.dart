@@ -13,8 +13,10 @@ class TrainingHistoryCharts extends StatelessWidget {
     final vm = context.watch<TrainingHistoryViewModel>();
     final filtered = vm.getFilteredHistory();
     final last7days = vm.history
-        .where((r) =>
-            r.date.isAfter(DateTime.now().subtract(const Duration(days: 7))))
+        .where(
+          (r) =>
+              r.date.isAfter(DateTime.now().subtract(const Duration(days: 7))),
+        )
         .toList();
     return Column(
       children: [

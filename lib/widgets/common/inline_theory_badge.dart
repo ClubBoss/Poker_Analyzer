@@ -72,9 +72,9 @@ class _InlineTheoryBadgeState extends State<InlineTheoryBadge> {
       );
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to open lesson')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Failed to open lesson')));
       }
     }
   }
@@ -111,9 +111,9 @@ class _InlineTheoryBadgeState extends State<InlineTheoryBadge> {
       );
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to open lessons')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Failed to open lessons')));
       }
     }
   }

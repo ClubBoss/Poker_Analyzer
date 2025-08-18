@@ -9,7 +9,7 @@ class _FakeLibrary implements MiniLessonLibraryService {
   final Map<String, TheoryMiniLessonNode> lessons;
   int loadCount = 0;
   _FakeLibrary(List<TheoryMiniLessonNode> items)
-      : lessons = {for (final l in items) l.id: l};
+    : lessons = {for (final l in items) l.id: l};
 
   @override
   List<TheoryMiniLessonNode> get all => lessons.values.toList();
@@ -38,8 +38,10 @@ class _FakeLauncher extends TrainingSessionLauncher {
   const _FakeLauncher();
 
   @override
-  Future<void> launchForMiniLesson(TheoryMiniLessonNode l,
-      {List<String>? sessionTags}) async {
+  Future<void> launchForMiniLesson(
+    TheoryMiniLessonNode l, {
+    List<String>? sessionTags,
+  }) async {
     lesson = l;
     count++;
   }

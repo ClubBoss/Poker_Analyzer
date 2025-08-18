@@ -13,9 +13,9 @@ class SmartRecallBoosterScheduler {
     DecayTagRetentionTrackerService? retention,
     RecallSuccessLoggerService? logger,
     InboxBoosterTunerService? tuner,
-  })  : retention = retention ?? const DecayTagRetentionTrackerService(),
-        logger = logger ?? RecallSuccessLoggerService.instance,
-        tuner = tuner ?? InboxBoosterTunerService.instance;
+  }) : retention = retention ?? const DecayTagRetentionTrackerService(),
+       logger = logger ?? RecallSuccessLoggerService.instance,
+       tuner = tuner ?? InboxBoosterTunerService.instance;
 
   /// Returns upcoming boosters ordered by priority.
   Future<List<ScheduledBoosterEntry>> getNextBoosters({int max = 5}) async {

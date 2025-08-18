@@ -19,7 +19,8 @@ class TheorySuggestionRanker {
   }) : store = store ?? LastViewedTheoryStore.instance;
 
   Future<List<RankedTheoryLesson>> rank(
-      List<TheoryMiniLessonNode> lessons) async {
+    List<TheoryMiniLessonNode> lessons,
+  ) async {
     final ranked = <RankedTheoryLesson>[];
     for (final l in lessons) {
       double errorRate = 0;

@@ -16,7 +16,7 @@ import 'package:collection/collection.dart';
 class _FakeMasteryService extends TagMasteryService {
   final Map<String, double> _map;
   _FakeMasteryService(this._map)
-      : super(logs: SessionLogService(sessions: TrainingSessionService()));
+    : super(logs: SessionLogService(sessions: TrainingSessionService()));
 
   @override
   Future<Map<String, double>> computeMastery({bool force = false}) async =>
@@ -82,8 +82,11 @@ void main() {
       recommender: SkillMapBoosterRecommender(),
     );
     final key = GlobalKey();
-    await tester
-        .pumpWidget(MaterialApp(home: Scaffold(body: Container(key: key))));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(body: Container(key: key)),
+      ),
+    );
     await service.launchBooster(key.currentContext!);
     expect(launcher.launched?.id, 'a');
   });
@@ -99,8 +102,11 @@ void main() {
       recommender: SkillMapBoosterRecommender(),
     );
     final key = GlobalKey();
-    await tester
-        .pumpWidget(MaterialApp(home: Scaffold(body: Container(key: key))));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(body: Container(key: key)),
+      ),
+    );
     await service.launchBooster(key.currentContext!);
     await tester.pump();
     expect(launcher.launched, isNull);

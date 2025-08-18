@@ -27,11 +27,11 @@ class TrainingScreen extends StatefulWidget {
   final int anteBb;
 
   const TrainingScreen({super.key, required TrainingSpot trainingSpot})
-      : spot = trainingSpot,
-        hands = null,
-        drillMode = false,
-        minEvForCorrect = 0.01,
-        anteBb = 0;
+    : spot = trainingSpot,
+      hands = null,
+      drillMode = false,
+      minEvForCorrect = 0.01,
+      anteBb = 0;
 
   const TrainingScreen.drill({
     super.key,
@@ -40,8 +40,8 @@ class TrainingScreen extends StatefulWidget {
     this.templateName,
     this.minEvForCorrect = 0.01,
     this.anteBb = 0,
-  })  : spot = null,
-        drillMode = true;
+  }) : spot = null,
+       drillMode = true;
 
   @override
   State<TrainingScreen> createState() => _TrainingScreenState();
@@ -163,15 +163,23 @@ class _TrainingScreenState extends State<TrainingScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Hand $_index / $total',
-                style: const TextStyle(color: Colors.white)),
+            Text(
+              'Hand $_index / $total',
+              style: const TextStyle(color: Colors.white),
+            ),
             const SizedBox(height: 8),
-            Text('Correct: $correct',
-                style: const TextStyle(color: Colors.white)),
-            Text('EV lost: ${evLoss.toStringAsFixed(2)} bb',
-                style: const TextStyle(color: Colors.white)),
-            Text('Remaining: ${total - _index}',
-                style: const TextStyle(color: Colors.white)),
+            Text(
+              'Correct: $correct',
+              style: const TextStyle(color: Colors.white),
+            ),
+            Text(
+              'EV lost: ${evLoss.toStringAsFixed(2)} bb',
+              style: const TextStyle(color: Colors.white),
+            ),
+            Text(
+              'Remaining: ${total - _index}',
+              style: const TextStyle(color: Colors.white),
+            ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => Navigator.pop(context),
@@ -211,7 +219,8 @@ class _TrainingScreenState extends State<TrainingScreen> {
       builder: (_) => AlertDialog(
         title: const Text('Training complete!'),
         content: Text(
-            'Correct: $correct / $total  (${(correct / total * 100).toStringAsFixed(0)}%)\nEV lost: ${evLoss.toStringAsFixed(2)} bb'),
+          'Correct: $correct / $total  (${(correct / total * 100).toStringAsFixed(0)}%)\nEV lost: ${evLoss.toStringAsFixed(2)} bb',
+        ),
         actions: [
           if (_wrongIds.isNotEmpty)
             TextButton(
@@ -234,14 +243,14 @@ class _TrainingScreenState extends State<TrainingScreen> {
       evLoss: evLoss,
       wrongSpotIds: [
         for (final id in _wrongIds)
-          if (id.isNotEmpty) id
+          if (id.isNotEmpty) id,
       ],
     );
     await context.read<DrillHistoryService>().add(result);
     if (_wrongIds.isNotEmpty && widget.templateId != null) {
       await context.read<MistakeReviewPackService>().addPack([
         for (final id in _wrongIds)
-          if (id.isNotEmpty) id
+          if (id.isNotEmpty) id,
       ], templateId: widget.templateId!);
     }
     if (!mounted) return;
@@ -252,21 +261,23 @@ class _TrainingScreenState extends State<TrainingScreen> {
         final hands = [
           for (final s in tpl.spots)
             if (_wrongIds.contains(s.id))
-              handFromPackSpot(s, anteBb: tpl.anteBb)
+              handFromPackSpot(s, anteBb: tpl.anteBb),
         ];
         if (hands.isNotEmpty) {
-          unawaited(Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) => TrainingScreen.drill(
-                hands: hands,
-                templateId: tpl.id,
-                templateName: tpl.name,
-                minEvForCorrect: widget.minEvForCorrect,
-                anteBb: tpl.anteBb,
+          unawaited(
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => TrainingScreen.drill(
+                  hands: hands,
+                  templateId: tpl.id,
+                  templateName: tpl.name,
+                  minEvForCorrect: widget.minEvForCorrect,
+                  anteBb: tpl.anteBb,
+                ),
               ),
             ),
-          ));
+          );
           return;
         }
       }
@@ -327,10 +338,7 @@ class _TrainingScreenState extends State<TrainingScreen> {
       child: Scaffold(
         appBar: AppBar(
           leading: _drill && _index > 0
-              ? TextButton(
-                  onPressed: _previous,
-                  child: const Text('⬅️ Back'),
-                )
+              ? TextButton(onPressed: _previous, child: const Text('⬅️ Back'))
               : null,
           title: Row(
             mainAxisSize: MainAxisSize.min,
@@ -434,7 +442,8 @@ class _TrainingScreenState extends State<TrainingScreen> {
                             isScrollControlled: true,
                             shape: const RoundedRectangleBorder(
                               borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(16)),
+                                top: Radius.circular(16),
+                              ),
                             ),
                             builder: (_) => ReplaySpotWidget(spot: spot),
                           );

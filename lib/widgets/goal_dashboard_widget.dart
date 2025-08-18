@@ -25,12 +25,7 @@ class GoalDashboardWidget extends StatelessWidget {
     final weekly = await LessonGoalEngine.instance.getWeeklyGoal();
     final current = await StreakTrackerService.instance.getCurrentStreak();
     final best = await StreakTrackerService.instance.getBestStreak();
-    return {
-      'daily': daily,
-      'weekly': weekly,
-      'current': current,
-      'best': best,
-    };
+    return {'daily': daily, 'weekly': weekly, 'current': current, 'best': best};
   }
 
   @override
@@ -71,11 +66,14 @@ class GoalDashboardWidget extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                  '🔥 \u0421\u0442\u0440\u0438\u043A: $current \u0434\u043D\u044F \u043F\u043E\u0434\u0440\u044F\u0434',
-                  style: const TextStyle(color: Colors.white)),
+                '🔥 \u0421\u0442\u0440\u0438\u043A: $current \u0434\u043D\u044F \u043F\u043E\u0434\u0440\u044F\u0434',
+                style: const TextStyle(color: Colors.white),
+              ),
               const SizedBox(height: 4),
-              Text('🏆 Best: $best',
-                  style: const TextStyle(color: Colors.white70)),
+              Text(
+                '🏆 Best: $best',
+                style: const TextStyle(color: Colors.white70),
+              ),
             ],
           ),
         );

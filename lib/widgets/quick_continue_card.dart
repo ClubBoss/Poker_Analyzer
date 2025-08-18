@@ -33,19 +33,27 @@ class QuickContinueCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(template.name,
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(
+                template.name,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               if (focus.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
-                  child: Text(focus,
-                      style: const TextStyle(color: Colors.white70)),
+                  child: Text(
+                    focus,
+                    style: const TextStyle(color: Colors.white70),
+                  ),
                 ),
               Padding(
                 padding: const EdgeInsets.only(top: 4),
-                child: Text('Вы завершили $progress рук',
-                    style: const TextStyle(color: Colors.white70)),
+                child: Text(
+                  'Вы завершили $progress рук',
+                  style: const TextStyle(color: Colors.white70),
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 4),
@@ -62,7 +70,8 @@ class QuickContinueCard extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (_) => const TrainingSessionScreen()),
+                        builder: (_) => const TrainingSessionScreen(),
+                      ),
                     );
                   },
                   child: const Text('Продолжить'),

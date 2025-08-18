@@ -26,11 +26,14 @@ class StreakMiniCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Streak: ${service.count}',
-                    style: const TextStyle(color: Colors.white)),
-                Text('Best: ${service.max}',
-                    style:
-                        const TextStyle(color: Colors.white70, fontSize: 12)),
+                Text(
+                  'Streak: ${service.count}',
+                  style: const TextStyle(color: Colors.white),
+                ),
+                Text(
+                  'Best: ${service.max}',
+                  style: const TextStyle(color: Colors.white70, fontSize: 12),
+                ),
               ],
             ),
           ),

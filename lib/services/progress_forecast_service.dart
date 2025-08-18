@@ -43,19 +43,25 @@ class ProgressForecastService extends ChangeNotifier {
   List<ProgressEntry> _history = const [];
   Map<String, List<ProgressEntry>> _positionHistory = {};
   Map<String, List<ProgressEntry>> _tagHistory = {};
-  ProgressForecast _forecast =
-      const ProgressForecast(accuracy: 0, ev: 0, icm: 0);
+  ProgressForecast _forecast = const ProgressForecast(
+    accuracy: 0,
+    ev: 0,
+    icm: 0,
+  );
 
   List<ProgressEntry> get history => List.unmodifiable(_history);
   Iterable<String> get positions => _positionHistory.keys;
   Iterable<String> get tags => _tagHistory.keys;
   ProgressForecast get forecast => _forecast;
-  List<MapEntry<DateTime, double>> get evSeries =>
-      [for (final e in _history) MapEntry(e.date, e.ev)];
-  List<MapEntry<DateTime, double>> get icmSeries =>
-      [for (final e in _history) MapEntry(e.date, e.icm)];
-  List<MapEntry<DateTime, double>> get accuracySeries =>
-      [for (final e in _history) MapEntry(e.date, e.accuracy)];
+  List<MapEntry<DateTime, double>> get evSeries => [
+    for (final e in _history) MapEntry(e.date, e.ev),
+  ];
+  List<MapEntry<DateTime, double>> get icmSeries => [
+    for (final e in _history) MapEntry(e.date, e.icm),
+  ];
+  List<MapEntry<DateTime, double>> get accuracySeries => [
+    for (final e in _history) MapEntry(e.date, e.accuracy),
+  ];
   List<ProgressEntry> get evIcmSeries => List.unmodifiable(_history);
   List<ProgressEntry> positionSeries(String pos) =>
       List.unmodifiable(_positionHistory[pos] ?? const []);
@@ -101,8 +107,11 @@ class ProgressForecastService extends ChangeNotifier {
       }
     }
 
-    List<ProgressEntry> build(Map<DateTime, List<SavedHand>> source,
-        {String position = '', String? tag}) {
+    List<ProgressEntry> build(
+      Map<DateTime, List<SavedHand>> source, {
+      String position = '',
+      String? tag,
+    }) {
       final entries = source.entries.toList()
         ..sort((a, b) => a.key.compareTo(b.key));
       final list = <ProgressEntry>[];
@@ -130,23 +139,26 @@ class ProgressForecastService extends ChangeNotifier {
         final acc = total > 0 ? correct / total : 0;
         final avgEv = evCount > 0 ? ev / evCount : 0;
         final avgIcm = evCount > 0 ? icm / evCount : 0;
-        list.add(ProgressEntry(
+        list.add(
+          ProgressEntry(
             date: e.key,
             accuracy: acc,
             ev: avgEv,
             icm: avgIcm,
             position: position,
-            tag: tag));
+            tag: tag,
+          ),
+        );
       }
       return list;
     }
 
     _history = build(map);
     _positionHistory = {
-      for (final e in posMap.entries) e.key: build(e.value, position: e.key)
+      for (final e in posMap.entries) e.key: build(e.value, position: e.key),
     };
     _tagHistory = {
-      for (final e in tagMap.entries) e.key: build(e.value, tag: e.key)
+      for (final e in tagMap.entries) e.key: build(e.value, tag: e.key),
     };
 
     var f = _calcForecast(_history);
@@ -176,7 +188,10 @@ class ProgressForecastService extends ChangeNotifier {
     if (data.isEmpty) return const ProgressForecast(accuracy: 0, ev: 0, icm: 0);
     if (data.length == 1) {
       return ProgressForecast(
-          accuracy: data.last.accuracy, ev: data.last.ev, icm: data.last.icm);
+        accuracy: data.last.accuracy,
+        ev: data.last.ev,
+        icm: data.last.icm,
+      );
     }
     final n = data.length;
     final xs = [for (var i = 0; i < n; i++) i + 1];

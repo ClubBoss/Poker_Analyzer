@@ -44,5 +44,6 @@ void main(List<String> args) {
 
 void _usage() {
   stdout.writeln(
-      'usage: --seed=<int> [--count=<int>] [--preset=mvs] [--format=compact|pretty]');
+    'usage: --seed=<int> [--count=<int>] [--preset=mvs] [--format=compact|pretty]',
+  );
 }

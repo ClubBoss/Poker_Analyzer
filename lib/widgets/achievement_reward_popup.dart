@@ -82,8 +82,10 @@ class _AchievementRewardPopupState extends State<AchievementRewardPopup>
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(widget.title,
-                            style: style.copyWith(fontWeight: FontWeight.bold)),
+                        Text(
+                          widget.title,
+                          style: style.copyWith(fontWeight: FontWeight.bold),
+                        ),
                         const SizedBox(height: 4),
                         Row(
                           children: [

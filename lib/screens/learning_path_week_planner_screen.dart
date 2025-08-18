@@ -53,8 +53,9 @@ class _LearningPathWeekPlannerScreenState
     final list = <_StageInfo>[];
     for (final stage in path.stages) {
       if (list.length >= 7) break;
-      final prog =
-          await TrainingProgressService.instance.getStageProgress(stage.id);
+      final prog = await TrainingProgressService.instance.getStageProgress(
+        stage.id,
+      );
       if (prog >= 1.0) continue;
       final pack = await PackLibraryService.instance.getById(stage.packId);
       final theory = stage.theoryPackId == null
@@ -173,7 +174,9 @@ class _LearningPathWeekPlannerScreenState
                       children: [
                         TweenAnimationBuilder<double>(
                           tween: Tween<double>(
-                              begin: 0, end: value.clamp(0.0, 1.0)),
+                            begin: 0,
+                            end: value.clamp(0.0, 1.0),
+                          ),
                           duration: AppConstants.fadeDuration,
                           builder: (context, val, __) {
                             return ClipRRect(
@@ -181,8 +184,9 @@ class _LearningPathWeekPlannerScreenState
                               child: LinearProgressIndicator(
                                 value: val,
                                 backgroundColor: Colors.white24,
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(accent),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  accent,
+                                ),
                                 minHeight: 6,
                               ),
                             );
@@ -192,7 +196,9 @@ class _LearningPathWeekPlannerScreenState
                         Text(
                           '$pct% завершено',
                           style: const TextStyle(
-                              color: Colors.white70, fontSize: 12),
+                            color: Colors.white70,
+                            fontSize: 12,
+                          ),
                         ),
                         const SizedBox(height: 16),
                       ],
@@ -229,7 +235,8 @@ class _LearningPathWeekPlannerScreenState
                           onTap: () => _open(info.stage),
                         ),
                         ValueListenableBuilder<
-                            Map<String, List<BoosterSuggestion>>>(
+                          Map<String, List<BoosterSuggestion>>
+                        >(
                           valueListenable: _boosterFeed.boosters,
                           builder: (_, map, __) {
                             final list = map[info.stage.id] ?? const [];
@@ -241,8 +248,10 @@ class _LearningPathWeekPlannerScreenState
                                 runSpacing: -4,
                                 children: [
                                   for (final b in list)
-                                    TagBadge(b.tag,
-                                        onTap: () => _openBooster(b.packId)),
+                                    TagBadge(
+                                      b.tag,
+                                      onTap: () => _openBooster(b.packId),
+                                    ),
                                 ],
                               ),
                             );

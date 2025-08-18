@@ -72,19 +72,21 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
         .map((e) => CardModel(rank: e[0], suit: e.substring(1)))
         .toList();
     final playerCards = [
-      for (int i = 0; i < hand.playerCount; i++) <CardModel>[]
+      for (int i = 0; i < hand.playerCount; i++) <CardModel>[],
     ];
     if (heroCards.length >= 2 && hand.heroIndex < playerCards.length) {
       playerCards[hand.heroIndex] = heroCards;
     }
     final boardCards = [
-      for (final c in hand.board) CardModel(rank: c[0], suit: c.substring(1))
+      for (final c in hand.board) CardModel(rank: c[0], suit: c.substring(1)),
     ];
     // Flatten actions; ActionEntry is immutable so no per-item copy needed
-    final List<ActionEntry> actions =
-        hand.actions.values.expand((list) => list).toList();
+    final List<ActionEntry> actions = hand.actions.values
+        .expand((list) => list)
+        .toList();
     final stacks = [
-      for (var i = 0; i < hand.playerCount; i++) hand.stacks['$i']?.round() ?? 0
+      for (var i = 0; i < hand.playerCount; i++)
+        hand.stacks['$i']?.round() ?? 0,
     ];
     final positions = List.generate(hand.playerCount, (_) => '');
     if (hand.heroIndex < positions.length) {
@@ -123,7 +125,7 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
       for (var i = 0; i < count; i++)
         i < stackParts.length
             ? int.tryParse(stackParts[i]) ?? heroStack
-            : heroStack
+            : heroStack,
     ];
     final range = PackGeneratorService.parseRangeString(_rangeController.text);
     if (range.isEmpty) return;
@@ -171,8 +173,9 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
                     children: [
                       TextField(
                         controller: _nameController,
-                        decoration:
-                            const InputDecoration(labelText: 'Название'),
+                        decoration: const InputDecoration(
+                          labelText: 'Название',
+                        ),
                       ),
                       const SizedBox(height: 12),
                       TextField(
@@ -182,12 +185,15 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
                       const SizedBox(height: 12),
                       DropdownButtonFormField<int>(
                         value: _difficulty,
-                        decoration:
-                            const InputDecoration(labelText: 'Сложность'),
+                        decoration: const InputDecoration(
+                          labelText: 'Сложность',
+                        ),
                         items: const [
                           DropdownMenuItem(value: 1, child: Text('Beginner')),
                           DropdownMenuItem(
-                              value: 2, child: Text('Intermediate')),
+                            value: 2,
+                            child: Text('Intermediate'),
+                          ),
                           DropdownMenuItem(value: 3, child: Text('Advanced')),
                         ],
                         onChanged: (v) => setState(() => _difficulty = v ?? 1),
@@ -223,14 +229,16 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
                       final pos = s.positions.isNotEmpty
                           ? s.positions[s.heroIndex]
                           : '';
-                      final stack =
-                          s.stacks.isNotEmpty ? s.stacks[s.heroIndex] : 0;
+                      final stack = s.stacks.isNotEmpty
+                          ? s.stacks[s.heroIndex]
+                          : 0;
                       return CheckboxListTile(
                         value: _selected.contains(s),
                         onChanged: (_) => _toggle(s),
                         title: Text('$pos ${stack}bb'),
-                        subtitle:
-                            s.tags.isNotEmpty ? Text(s.tags.join(', ')) : null,
+                        subtitle: s.tags.isNotEmpty
+                            ? Text(s.tags.join(', '))
+                            : null,
                       );
                     },
                   ),

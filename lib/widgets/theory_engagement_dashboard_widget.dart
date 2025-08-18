@@ -43,19 +43,25 @@ class _TheoryEngagementDashboardWidgetState
     int compareDouble(double a, double b) => a.compareTo(b);
     switch (_sortColumnIndex) {
       case 1:
-        list.sort((a, b) => _ascending
-            ? compareInt(a.manualOpens, b.manualOpens)
-            : compareInt(b.manualOpens, a.manualOpens));
+        list.sort(
+          (a, b) => _ascending
+              ? compareInt(a.manualOpens, b.manualOpens)
+              : compareInt(b.manualOpens, a.manualOpens),
+        );
         break;
       case 2:
-        list.sort((a, b) => _ascending
-            ? compareInt(a.reviewViews, b.reviewViews)
-            : compareInt(b.reviewViews, a.reviewViews));
+        list.sort(
+          (a, b) => _ascending
+              ? compareInt(a.reviewViews, b.reviewViews)
+              : compareInt(b.reviewViews, a.reviewViews),
+        );
         break;
       case 3:
-        list.sort((a, b) => _ascending
-            ? compareDouble(a.successRate, b.successRate)
-            : compareDouble(b.successRate, a.successRate));
+        list.sort(
+          (a, b) => _ascending
+              ? compareDouble(a.successRate, b.successRate)
+              : compareDouble(b.successRate, a.successRate),
+        );
         break;
       default:
         list.sort((a, b) => a.lessonId.compareTo(b.lessonId));
@@ -97,17 +103,21 @@ class _TheoryEngagementDashboardWidgetState
       ],
       rows: [
         for (final s in _stats)
-          DataRow(cells: [
-            DataCell(Text(s.lessonId)),
-            DataCell(Text('${s.manualOpens}')),
-            DataCell(Text('${s.reviewViews}')),
-            DataCell(Text(
-              '${(s.successRate * 100).toStringAsFixed(1)}%',
-              style: TextStyle(
-                color: s.successRate < 0.3 ? Colors.red : null,
+          DataRow(
+            cells: [
+              DataCell(Text(s.lessonId)),
+              DataCell(Text('${s.manualOpens}')),
+              DataCell(Text('${s.reviewViews}')),
+              DataCell(
+                Text(
+                  '${(s.successRate * 100).toStringAsFixed(1)}%',
+                  style: TextStyle(
+                    color: s.successRate < 0.3 ? Colors.red : null,
+                  ),
+                ),
               ),
-            )),
-          ]),
+            ],
+          ),
       ],
     );
   }

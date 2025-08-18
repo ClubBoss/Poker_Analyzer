@@ -26,8 +26,11 @@ void main() {
     expect(daily.current, 0);
 
     final lastWeek = DateTime.now().subtract(const Duration(days: 7));
-    final lwStart = DateTime(lastWeek.year, lastWeek.month, lastWeek.day)
-        .subtract(Duration(days: lastWeek.weekday - 1));
+    final lwStart = DateTime(
+      lastWeek.year,
+      lastWeek.month,
+      lastWeek.day,
+    ).subtract(Duration(days: lastWeek.weekday - 1));
     final lwStr =
         '${lwStart.year.toString().padLeft(4, '0')}-${lwStart.month.toString().padLeft(2, '0')}-${lwStart.day.toString().padLeft(2, '0')}';
     await prefs.setString('goal_weekly_start', lwStr);

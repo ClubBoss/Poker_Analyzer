@@ -20,9 +20,9 @@ class PackSnapshot {
     required this.hands,
     List<String>? tags,
     required this.orderHash,
-  })  : id = id ?? const Uuid().v4(),
-        date = date ?? DateTime.now(),
-        tags = tags ?? const [];
+  }) : id = id ?? const Uuid().v4(),
+       date = date ?? DateTime.now(),
+       tags = tags ?? const [];
 
   factory PackSnapshot.fromJson(Map<String, dynamic> json) =>
       _$PackSnapshotFromJson(json);

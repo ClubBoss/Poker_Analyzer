@@ -17,7 +17,7 @@ class GraphTemplateExporter {
   final GraphPathTemplateParser parser;
 
   const GraphTemplateExporter({GraphPathTemplateParser? parser})
-      : parser = parser ?? GraphPathTemplateParser();
+    : parser = parser ?? GraphPathTemplateParser();
 
   /// Converts [nodes] into a YAML string.
   String encodeNodes(List<LearningPathNode> nodes) {
@@ -28,15 +28,17 @@ class GraphTemplateExporter {
   /// Saves the template with [templateId] as a YAML file chosen by the user.
   /// If [saveToFile] is `false`, the YAML string is returned without writing
   /// to disk.
-  Future<String?> exportTemplate(String templateId,
-      {bool saveToFile = true}) async {
+  Future<String?> exportTemplate(
+    String templateId, {
+    bool saveToFile = true,
+  }) async {
     final raw = GraphTemplateLibrary.instance.getTemplate(templateId);
     if (raw.isEmpty) {
       final ctx = navigatorKey.currentContext;
       if (ctx != null) {
-        ScaffoldMessenger.of(ctx).showSnackBar(
-          const SnackBar(content: Text('Template not found')),
-        );
+        ScaffoldMessenger.of(
+          ctx,
+        ).showSnackBar(const SnackBar(content: Text('Template not found')));
       }
       return null;
     }
@@ -59,8 +61,9 @@ class GraphTemplateExporter {
       final ctx = navigatorKey.currentContext;
       if (ctx != null) {
         final name = savePath.split(Platform.pathSeparator).last;
-        ScaffoldMessenger.of(ctx)
-            .showSnackBar(SnackBar(content: Text('Exported: $name')));
+        ScaffoldMessenger.of(
+          ctx,
+        ).showSnackBar(SnackBar(content: Text('Exported: $name')));
       }
     } catch (_) {
       final ctx = navigatorKey.currentContext;

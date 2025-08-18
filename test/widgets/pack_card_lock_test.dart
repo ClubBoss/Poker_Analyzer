@@ -24,9 +24,11 @@ void main() {
       spotCount: 20,
     );
 
-    await tester.pumpWidget(MaterialApp(
-      home: PackCard(template: tpl, onTap: () {}),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: PackCard(template: tpl, onTap: () {}),
+      ),
+    );
     await tester.pumpAndSettle();
 
     expect(find.byIcon(Icons.lock), findsOneWidget);

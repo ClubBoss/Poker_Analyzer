@@ -13,7 +13,7 @@ class ResultSummaryView extends StatefulWidget {
   final VoidCallback onRestart;
   final ValueChanged<int>? onReplayOne; // index in [0..spots.length)
   final void Function(List<int> indices)?
-      onReplayMarked; // indices in [0..spots.length)
+  onReplayMarked; // indices in [0..spots.length)
 
   const ResultSummaryView({
     super.key,
@@ -41,8 +41,10 @@ class _ResultSummaryViewState extends State<ResultSummaryView> {
     final total = answers.length;
     final correct = answers.where((a) => a.correct).length;
     final acc = total == 0 ? 0.0 : correct / total;
-    final totalMs =
-        answers.fold<int>(0, (sum, a) => sum + a.elapsed.inMilliseconds);
+    final totalMs = answers.fold<int>(
+      0,
+      (sum, a) => sum + a.elapsed.inMilliseconds,
+    );
     final totalSecs = totalMs / 1000.0;
     final avgSecs = total == 0 ? 0.0 : totalSecs / total;
 
@@ -97,8 +99,9 @@ class _ResultSummaryViewState extends State<ResultSummaryView> {
                   final path = await saveSessionJson(json);
                   await Clipboard.setData(ClipboardData(text: path));
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Saved to $path')));
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text('Saved to $path')));
                   }
                 },
                 child: const Text('Export JSON'),
@@ -110,7 +113,8 @@ class _ResultSummaryViewState extends State<ResultSummaryView> {
                   await Clipboard.setData(ClipboardData(text: json));
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Summary copied')));
+                      const SnackBar(content: Text('Summary copied')),
+                    );
                   }
                 },
                 child: const Text('Copy JSON'),
@@ -150,13 +154,10 @@ class _ResultSummaryViewState extends State<ResultSummaryView> {
                       isScrollControlled: true,
                       backgroundColor:
                           Theme.of(context).brightness == Brightness.dark
-                              ? Colors.black87
-                              : null,
-                      builder: (_) => SpotReviewSheet(
-                        index: i + 1,
-                        spot: s,
-                        answer: a,
-                      ),
+                          ? Colors.black87
+                          : null,
+                      builder: (_) =>
+                          SpotReviewSheet(index: i + 1, spot: s, answer: a),
                     );
                   },
                   trailing: Row(
@@ -165,7 +166,8 @@ class _ResultSummaryViewState extends State<ResultSummaryView> {
                       IconButton(
                         tooltip: marked ? 'Unmark' : 'Mark',
                         icon: Icon(
-                            marked ? Icons.bookmark : Icons.bookmark_border),
+                          marked ? Icons.bookmark : Icons.bookmark_border,
+                        ),
                         onPressed: () {
                           setState(() {
                             if (marked) {

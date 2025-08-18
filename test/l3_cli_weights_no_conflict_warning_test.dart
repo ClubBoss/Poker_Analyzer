@@ -17,8 +17,10 @@ void main() {
         'default',
       ]);
       expect(res.exitCode, 0, reason: 'stderr: ${res.stderr}');
-      expect(res.stderr.toString(),
-          isNot(contains('both --weights and --weightsPreset')));
+      expect(
+        res.stderr.toString(),
+        isNot(contains('both --weights and --weightsPreset')),
+      );
       expect(File(outPath).existsSync(), isTrue);
     } finally {
       tmp.deleteSync(recursive: true);

@@ -42,7 +42,8 @@ void main() {
       MultiProvider(
         providers: [
           ChangeNotifierProvider<TrainingSpotStorageService>.value(
-              value: service),
+            value: service,
+          ),
           ChangeNotifierProvider(create: (_) => TrainingSessionService()),
         ],
         child: const MaterialApp(home: TrainingPackTemplateListScreen()),

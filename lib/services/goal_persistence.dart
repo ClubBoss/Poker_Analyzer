@@ -52,8 +52,11 @@ class GoalPersistence {
       final list = <GoalProgressEntry>[];
       for (final item in raw) {
         try {
-          list.add(GoalProgressEntry.fromJson(
-              jsonDecode(item) as Map<String, dynamic>));
+          list.add(
+            GoalProgressEntry.fromJson(
+              jsonDecode(item) as Map<String, dynamic>,
+            ),
+          );
         } catch (_) {}
       }
       result.add(list);
@@ -69,7 +72,8 @@ class GoalPersistence {
         final data = jsonDecode(item);
         if (data is Map<String, dynamic>) {
           list.add(
-              DrillSessionResult.fromJson(Map<String, dynamic>.from(data)));
+            DrillSessionResult.fromJson(Map<String, dynamic>.from(data)),
+          );
         }
       } catch (_) {}
     }
@@ -80,18 +84,20 @@ class GoalPersistence {
     final spotRaw = prefs.getStringList(dailySpotHistoryKey) ?? [];
     return [
       for (final s in spotRaw)
-        if (DateTime.tryParse(s) != null) DateTime.parse(s)
+        if (DateTime.tryParse(s) != null) DateTime.parse(s),
     ];
   }
 
   Future<GoalPersistenceState> loadState(int goalCount) async {
     final goals = <GoalData>[];
     for (var i = 0; i < goalCount; i++) {
-      goals.add(GoalData(
-        progress: prefs.getInt('$prefPrefix$i') ?? 0,
-        createdAt: readCreated(i),
-        completedAt: readDate(i),
-      ));
+      goals.add(
+        GoalData(
+          progress: prefs.getInt('$prefPrefix$i') ?? 0,
+          createdAt: readCreated(i),
+          completedAt: readDate(i),
+        ),
+      );
     }
     final history = await loadHistory(goalCount);
     final drillResults = await loadDrillResults();
@@ -113,11 +119,17 @@ class GoalPersistence {
     );
   }
 
-  Future<void> saveProgress(int index, int progress, DateTime createdAt,
-      DateTime? completedAt) async {
+  Future<void> saveProgress(
+    int index,
+    int progress,
+    DateTime createdAt,
+    DateTime? completedAt,
+  ) async {
     await prefs.setInt('$prefPrefix$index', progress);
     await prefs.setInt(
-        '$prefPrefix${index}_created', createdAt.millisecondsSinceEpoch);
+      '$prefPrefix${index}_created',
+      createdAt.millisecondsSinceEpoch,
+    );
     final dateKey = '$prefPrefix${index}_date';
     if (completedAt != null) {
       await prefs.setInt(dateKey, completedAt.millisecondsSinceEpoch);
@@ -199,7 +211,7 @@ class GoalPersistence {
   Future<List<bool>> loadAchievementShown(int count) async {
     return [
       for (var i = 0; i < count; i++)
-        prefs.getBool('$achievementShownPrefix$i') ?? false
+        prefs.getBool('$achievementShownPrefix$i') ?? false,
     ];
   }
 }

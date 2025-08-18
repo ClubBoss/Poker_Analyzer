@@ -38,16 +38,19 @@ class YamlLessonTrackLoader {
         final condYaml = map['unlockCondition'];
         if (condYaml is Map) {
           condition = TrackUnlockCondition.fromYaml(
-              Map<String, dynamic>.from(condYaml));
+            Map<String, dynamic>.from(condYaml),
+          );
         }
         if (id.isEmpty || title.isEmpty) continue;
-        tracks.add(LessonTrack(
-          id: id,
-          title: title,
-          description: desc,
-          stepIds: steps,
-          unlockCondition: condition,
-        ));
+        tracks.add(
+          LessonTrack(
+            id: id,
+            title: title,
+            description: desc,
+            stepIds: steps,
+            unlockCondition: condition,
+          ),
+        );
       } catch (_) {}
     }
     return tracks;

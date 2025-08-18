@@ -175,8 +175,10 @@ class EvaluationQueueImportExportService {
     await debugSnapshotService?.cleanupOldSnapshots();
   }
 
-  Future<void> exportEvaluationQueueSnapshot(BuildContext context,
-      {bool showNotification = true}) async {
+  Future<void> exportEvaluationQueueSnapshot(
+    BuildContext context, {
+    bool showNotification = true,
+  }) async {
     await debugSnapshotService?.saveQueueSnapshot(
       await queueService.state(),
       showNotification: showNotification,
@@ -185,7 +187,10 @@ class EvaluationQueueImportExportService {
   }
 
   Future<void> exportArchive(
-      BuildContext context, String subfolder, String archivePrefix) async {
+    BuildContext context,
+    String subfolder,
+    String archivePrefix,
+  ) async {
     await backupManager?.exportArchive(context, subfolder, archivePrefix);
   }
 
@@ -240,7 +245,8 @@ class EvaluationQueueImportExportService {
     if (!await dir.exists()) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No snapshot files found')));
+          const SnackBar(content: Text('No snapshot files found')),
+        );
       }
       return;
     }
@@ -267,9 +273,13 @@ class EvaluationQueueImportExportService {
       ..addAll(queues['completed']!);
     await _persist();
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
           content: Text(
-              'Imported ${queueService.pending.length} pending, ${queueService.failed.length} failed, ${queueService.completed.length} completed evaluations')));
+            'Imported ${queueService.pending.length} pending, ${queueService.failed.length} failed, ${queueService.completed.length} completed evaluations',
+          ),
+        ),
+      );
     }
     debugPanelCallback?.call();
   }
@@ -280,7 +290,8 @@ class EvaluationQueueImportExportService {
     if (!await dir.exists()) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No snapshot files found')));
+          const SnackBar(content: Text('No snapshot files found')),
+        );
       }
       return;
     }
@@ -302,8 +313,9 @@ class EvaluationQueueImportExportService {
         continue;
       }
       try {
-        final decoded =
-            await debugSnapshotService!.readSnapshotFile(File(path));
+        final decoded = await debugSnapshotService!.readSnapshotFile(
+          File(path),
+        );
         final queues = _decodeQueues(decoded);
         importedPending.addAll(queues['pending']!);
         importedFailed.addAll(queues['failed']!);
@@ -318,7 +330,8 @@ class EvaluationQueueImportExportService {
     queueService.failed.addAll(importedFailed);
     queueService.completed.addAll(importedCompleted);
     await _persist();
-    final total = importedPending.length +
+    final total =
+        importedPending.length +
         importedFailed.length +
         importedCompleted.length;
     final msg = skipped == 0

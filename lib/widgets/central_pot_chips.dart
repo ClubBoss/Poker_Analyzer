@@ -9,11 +9,8 @@ class CentralPotChips extends StatelessWidget {
   /// Scale factor to adapt to table size.
   final double scale;
 
-  const CentralPotChips({
-    Key? key,
-    required this.amount,
-    this.scale = 1.0,
-  }) : super(key: key);
+  const CentralPotChips({Key? key, required this.amount, this.scale = 1.0})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -32,10 +29,7 @@ class CentralPotChips extends StatelessWidget {
           color: Colors.black45,
           borderRadius: BorderRadius.circular(12 * scale),
         ),
-        child: ChipWidget(
-          amount: amount,
-          scale: chipScale,
-        ),
+        child: ChipWidget(amount: amount, scale: chipScale),
       ),
     );
   }

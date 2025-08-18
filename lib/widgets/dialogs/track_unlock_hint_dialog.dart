@@ -28,10 +28,13 @@ class TrackUnlockHintDialog extends StatelessWidget {
       prereqTitle =
           reasonService.trackEngine.getTrackById(prereqId)?.title ?? prereqId;
     }
-    final match = RegExp("завершите трек '(.+)'", caseSensitive: false)
-        .firstMatch(reason);
-    final cta =
-        match != null ? "Завершите '${match.group(1)}', чтобы открыть" : null;
+    final match = RegExp(
+      "завершите трек '(.+)'",
+      caseSensitive: false,
+    ).firstMatch(reason);
+    final cta = match != null
+        ? "Завершите '${match.group(1)}', чтобы открыть"
+        : null;
     final message = cta == null ? reason : "$reason\n\n$cta";
     await showDialog<void>(
       context: context,
@@ -57,9 +60,7 @@ class TrackUnlockHintDialog extends StatelessWidget {
               await prefs.setString('lesson_selected_track', prerequisiteId!);
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const LessonPathScreen(),
-                ),
+                MaterialPageRoute(builder: (_) => const LessonPathScreen()),
               );
             },
             child: Text("Перейти к треку '$prerequisiteTitle'"),

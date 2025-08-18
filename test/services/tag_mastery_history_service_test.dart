@@ -20,11 +20,11 @@ void main() {
           {
             'date': day1.add(const Duration(hours: 3)).toIso8601String(),
             'xp': 5,
-            'source': 'b'
+            'source': 'b',
           },
           {'date': day2.toIso8601String(), 'xp': 15, 'source': 'c'},
         ],
-      })
+      }),
     });
 
     final service = TagMasteryHistoryService();

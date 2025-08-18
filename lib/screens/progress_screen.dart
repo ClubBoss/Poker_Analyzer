@@ -95,11 +95,12 @@ class _ProgressScreenState extends State<ProgressScreen>
     final weekMap = <DateTime, List<SavedHand>>{};
     final heatmap = {
       for (final p in ['BB', 'SB', 'BTN', 'CO', 'MP', 'UTG'])
-        p: {for (final s in kStreetNames) s: 0}
+        p: {for (final s in kStreetNames) s: 0},
     };
     for (var i = 0; i < sorted.length; i++) {
       final h = sorted[i];
-      final correct = h.expectedAction.trim().toLowerCase() ==
+      final correct =
+          h.expectedAction.trim().toLowerCase() ==
           h.gtoAction.trim().toLowerCase();
       streak = correct ? streak + 1 : 0;
       if (!correct) {
@@ -124,7 +125,7 @@ class _ProgressScreenState extends State<ProgressScreen>
     final weekStart = DateTime(start.year, start.month, start.day);
     final stats = context.read<TrainingStatsService>();
     final evLossMap = {
-      for (final e in stats.getDailyEvLossData(hands)) e.key: e.value
+      for (final e in stats.getDailyEvLossData(hands)) e.key: e.value,
     };
     final evLoss = <MapEntry<DateTime, double>>[];
     for (int i = 0; i < 7; i++) {
@@ -153,13 +154,16 @@ class _ProgressScreenState extends State<ProgressScreen>
       }
     }
 
-    final xpHistory =
-        context.read<XPTrackerService>().history.reversed.toList();
+    final xpHistory = context
+        .read<XPTrackerService>()
+        .history
+        .reversed
+        .toList();
     spots
       ..clear()
       ..addAll([
         for (var i = 0; i < xpHistory.length; i++)
-          FlSpot(i.toDouble(), xpHistory[i].streak.toDouble())
+          FlSpot(i.toDouble(), xpHistory[i].streak.toDouble()),
       ]);
 
     setState(() {
@@ -277,10 +281,12 @@ class _ProgressScreenState extends State<ProgressScreen>
                 const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -292,8 +298,9 @@ class _ProgressScreenState extends State<ProgressScreen>
                 ),
               ),
             ),
-            bottomTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            bottomTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
           ),
           borderData: FlBorderData(
             show: true,
@@ -325,8 +332,10 @@ class _ProgressScreenState extends State<ProgressScreen>
           color: AppColors.cardBackground,
           borderRadius: BorderRadius.circular(8),
         ),
-        child: const Text('Недостаточно данных',
-            style: TextStyle(color: Colors.white70)),
+        child: const Text(
+          'Недостаточно данных',
+          style: TextStyle(color: Colors.white70),
+        ),
       );
     }
     final accent = Theme.of(context).colorScheme.secondary;
@@ -354,10 +363,12 @@ class _ProgressScreenState extends State<ProgressScreen>
                 const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -385,9 +396,10 @@ class _ProgressScreenState extends State<ProgressScreen>
                   final d = _weeklyAccuracy[index].key;
                   final label =
                       '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
-                  return Text(label,
-                      style:
-                          const TextStyle(color: Colors.white, fontSize: 10));
+                  return Text(
+                    label,
+                    style: const TextStyle(color: Colors.white, fontSize: 10),
+                  );
                 },
               ),
             ),
@@ -440,8 +452,10 @@ class _ProgressScreenState extends State<ProgressScreen>
               getTooltipItems: (spots) {
                 return spots.map((s) {
                   final entry = _dailyEvLoss[s.spotIndex];
-                  final date = DateFormat('d MMM', Intl.getCurrentLocale())
-                      .format(entry.key);
+                  final date = DateFormat(
+                    'd MMM',
+                    Intl.getCurrentLocale(),
+                  ).format(entry.key);
                   return LineTooltipItem(
                     '$date: ${entry.value.toStringAsFixed(1)} bb',
                     const TextStyle(color: Colors.white, fontSize: 12),
@@ -458,10 +472,12 @@ class _ProgressScreenState extends State<ProgressScreen>
                 const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -488,9 +504,10 @@ class _ProgressScreenState extends State<ProgressScreen>
                   final d = _dailyEvLoss[index].key;
                   final label =
                       '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
-                  return Text(label,
-                      style:
-                          const TextStyle(color: Colors.white, fontSize: 10));
+                  return Text(
+                    label,
+                    style: const TextStyle(color: Colors.white, fontSize: 10),
+                  );
                 },
               ),
             ),
@@ -512,10 +529,10 @@ class _ProgressScreenState extends State<ProgressScreen>
                 show: true,
                 getDotPainter: (spot, percent, bar, index) =>
                     FlDotCirclePainter(
-                  radius: 3,
-                  color: Colors.redAccent,
-                  strokeWidth: 0,
-                ),
+                      radius: 3,
+                      color: Colors.redAccent,
+                      strokeWidth: 0,
+                    ),
               ),
             ),
           ],
@@ -642,10 +659,12 @@ class _ProgressScreenState extends State<ProgressScreen>
                 const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -717,17 +736,25 @@ class _ProgressScreenState extends State<ProgressScreen>
         pageFormat: PdfPageFormat.a4,
         build: (ctx) {
           return [
-            pw.Text('Прогресс',
-                style: pw.TextStyle(font: boldFont, fontSize: 24)),
+            pw.Text(
+              'Прогресс',
+              style: pw.TextStyle(font: boldFont, fontSize: 24),
+            ),
             pw.SizedBox(height: 16),
-            pw.Text('Выполнено целей: $completedGoals',
-                style: pw.TextStyle(font: regularFont)),
-            pw.Text('Всего разобрано раздач: ${summary.totalHands}',
-                style: pw.TextStyle(font: regularFont)),
+            pw.Text(
+              'Выполнено целей: $completedGoals',
+              style: pw.TextStyle(font: regularFont),
+            ),
+            pw.Text(
+              'Всего разобрано раздач: ${summary.totalHands}',
+              style: pw.TextStyle(font: regularFont),
+            ),
             if (summary.totalHands > 0) ...[
               pw.SizedBox(height: 16),
-              pw.Text('Результаты',
-                  style: pw.TextStyle(font: boldFont, fontSize: 18)),
+              pw.Text(
+                'Результаты',
+                style: pw.TextStyle(font: boldFont, fontSize: 18),
+              ),
               pw.Container(
                 height: responsiveSize(context, 200),
                 child: pw.Chart(
@@ -749,8 +776,10 @@ class _ProgressScreenState extends State<ProgressScreen>
             ],
             if (_streakSpots.length > 1) ...[
               pw.SizedBox(height: 16),
-              pw.Text('История стрика',
-                  style: pw.TextStyle(font: boldFont, fontSize: 18)),
+              pw.Text(
+                'История стрика',
+                style: pw.TextStyle(font: boldFont, fontSize: 18),
+              ),
               pw.Container(
                 height: responsiveSize(context, 200),
                 child: pw.Chart(
@@ -807,7 +836,7 @@ class _ProgressScreenState extends State<ProgressScreen>
       _evIcmKey,
       _streakKey,
       _mistakeKey,
-      _heatmapKey
+      _heatmapKey,
     ];
     for (final k in keys) {
       final img = await _capture(k);
@@ -824,8 +853,9 @@ class _ProgressScreenState extends State<ProgressScreen>
     final file = File(path);
     await file.writeAsBytes(bytes, flush: true);
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Saved: $path')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Saved: $path')));
   }
 
   @override
@@ -838,8 +868,9 @@ class _ProgressScreenState extends State<ProgressScreen>
   @override
   Widget build(BuildContext context) {
     final goals = context.watch<GoalsService>();
-    final completedGoals =
-        goals.goals.where((g) => g.progress >= g.target).length;
+    final completedGoals = goals.goals
+        .where((g) => g.progress >= g.target)
+        .length;
     final totalHands = _summary?.totalHands ?? 0;
 
     return Scaffold(
@@ -905,7 +936,8 @@ class _ProgressScreenState extends State<ProgressScreen>
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const GoalDrillScreen()),
+                            builder: (_) => const GoalDrillScreen(),
+                          ),
                         );
                       },
                       child: const Text('Отработать цель'),
@@ -916,7 +948,8 @@ class _ProgressScreenState extends State<ProgressScreen>
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const DrillHistoryScreen()),
+                            builder: (_) => const DrillHistoryScreen(),
+                          ),
                         );
                       },
                       child: const Text('История тренировок'),
@@ -927,7 +960,8 @@ class _ProgressScreenState extends State<ProgressScreen>
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const WeeklyProgressScreen()),
+                            builder: (_) => const WeeklyProgressScreen(),
+                          ),
                         );
                       },
                       child: const Text('Прогресс 7д'),
@@ -941,7 +975,8 @@ class _ProgressScreenState extends State<ProgressScreen>
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const GoalDrillScreen()),
+                            builder: (_) => const GoalDrillScreen(),
+                          ),
                         );
                       },
                       child: const Text('Отработать цель'),
@@ -952,7 +987,8 @@ class _ProgressScreenState extends State<ProgressScreen>
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const DrillHistoryScreen()),
+                            builder: (_) => const DrillHistoryScreen(),
+                          ),
                         );
                       },
                       child: const Text('История тренировок'),
@@ -963,7 +999,8 @@ class _ProgressScreenState extends State<ProgressScreen>
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const WeeklyProgressScreen()),
+                            builder: (_) => const WeeklyProgressScreen(),
+                          ),
                         );
                       },
                       child: const Text('Прогресс 7д'),
@@ -988,8 +1025,9 @@ class _ProgressScreenState extends State<ProgressScreen>
                 ? null
                 : () async {
                     final service = context.read<GoalsService>();
-                    final packs =
-                        context.read<TrainingPackStorageService>().packs;
+                    final packs = context
+                        .read<TrainingPackStorageService>()
+                        .packs;
                     final hand = await service.getDailySpot(packs);
                     if (hand == null) return;
                     await Navigator.push(
@@ -1014,7 +1052,9 @@ class _ProgressScreenState extends State<ProgressScreen>
           ),
           const SizedBox(height: 12),
           RepaintBoundary(
-              key: _weeklyAccKey, child: _buildWeeklyAccuracyChart()),
+            key: _weeklyAccKey,
+            child: _buildWeeklyAccuracyChart(),
+          ),
           const SizedBox(height: 24),
           const Text(
             '💸 Потеря EV за неделю',
@@ -1070,7 +1110,9 @@ class _ProgressScreenState extends State<ProgressScreen>
           ),
           const SizedBox(height: 12),
           RepaintBoundary(
-              key: _heatmapKey, child: MistakeHeatmap(data: _heatmapData)),
+            key: _heatmapKey,
+            child: MistakeHeatmap(data: _heatmapData),
+          ),
           const SizedBox(height: 24),
           Text(
             'Выполнено целей: $completedGoals',
@@ -1141,7 +1183,8 @@ class _ProgressScreenState extends State<ProgressScreen>
                       Card(
                         color: AppColors.cardBackground,
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                         elevation: 4,
                         child: const Padding(
                           padding: EdgeInsets.all(12),

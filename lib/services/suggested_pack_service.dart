@@ -37,7 +37,8 @@ class SuggestedPackService extends ChangeNotifier {
     if (tplRaw != null) {
       try {
         _template = TrainingPackTemplate.fromJson(
-            jsonDecode(tplRaw) as Map<String, dynamic>);
+          jsonDecode(tplRaw) as Map<String, dynamic>,
+        );
       } catch (_) {}
     }
     _date = dateStr != null ? DateTime.tryParse(dateStr) : null;

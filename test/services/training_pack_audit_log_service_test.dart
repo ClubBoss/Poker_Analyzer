@@ -31,15 +31,21 @@ void main() {
       metadata: {'level': 2},
     );
 
-    await service.recordChange(oldPack, newPack,
-        userId: 'tester', timestamp: DateTime.utc(2024, 1, 1));
+    await service.recordChange(
+      oldPack,
+      newPack,
+      userId: 'tester',
+      timestamp: DateTime.utc(2024, 1, 1),
+    );
     final logs = await storage.query();
     expect(logs.length, 1);
     final entry = logs.first;
     expect(entry.packId, 'p1');
     expect(entry.userId, 'tester');
-    expect(entry.changedFields,
-        containsAll(['title', 'tags', 'spots', 'metadata']));
+    expect(
+      entry.changedFields,
+      containsAll(['title', 'tags', 'spots', 'metadata']),
+    );
     expect(entry.diffSnapshot['title']['old'], 'Old');
     expect(entry.diffSnapshot['title']['new'], 'New');
     await dir.delete(recursive: true);

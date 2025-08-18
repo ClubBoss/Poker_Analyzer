@@ -64,21 +64,35 @@ class ActionEditingService {
       boardManager.changeStreet(inferred);
     }
     if (entry.street != currentStreet) {
-      entry = ActionEntry(currentStreet, entry.playerIndex, entry.action,
-          amount: entry.amount, generated: entry.generated);
+      entry = ActionEntry(
+        currentStreet,
+        entry.playerIndex,
+        entry.action,
+        amount: entry.amount,
+        generated: entry.generated,
+      );
     }
     actionSync.analyzerActions.insert(index, entry);
     if (recordHistory) {
-      actionSync.recordHistory(ActionHistoryEntry(ActionChangeType.add, index,
-          newEntry: entry, prevStreet: prevStreet, newStreet: currentStreet));
+      actionSync.recordHistory(
+        ActionHistoryEntry(
+          ActionChangeType.add,
+          index,
+          newEntry: entry,
+          prevStreet: prevStreet,
+          newStreet: currentStreet,
+        ),
+      );
     }
     actionSync.foldedPlayers?.addFromAction(entry);
     actionSync.allInPlayers?.addFromAction(entry);
     actionSync.syncStacks();
     actionSync.notifyListeners();
     actionHistory.addStreet(entry.street);
-    actionHistory.updateHistory(actionSync.analyzerActions,
-        visibleCount: playbackManager.playbackIndex);
+    actionHistory.updateHistory(
+      actionSync.analyzerActions,
+      visibleCount: playbackManager.playbackIndex,
+    );
     actionTag.updateForAction(entry);
     setPlayerLastAction(
       playerZoneRegistry,
@@ -106,22 +120,38 @@ class ActionEditingService {
   void editAction(int index, ActionEntry entry, {bool recordHistory = true}) {
     if (index < 0 || index >= actions.length) return;
     if (entry.street != currentStreet) {
-      entry = ActionEntry(currentStreet, entry.playerIndex, entry.action,
-          amount: entry.amount, generated: entry.generated);
+      entry = ActionEntry(
+        currentStreet,
+        entry.playerIndex,
+        entry.action,
+        amount: entry.amount,
+        generated: entry.generated,
+      );
     }
     final previous = actions[index];
     actionSync.analyzerActions[index] = entry;
     if (recordHistory) {
-      actionSync.recordHistory(ActionHistoryEntry(ActionChangeType.edit, index,
+      actionSync.recordHistory(
+        ActionHistoryEntry(
+          ActionChangeType.edit,
+          index,
           oldEntry: previous,
           newEntry: entry,
           prevStreet: currentStreet,
-          newStreet: currentStreet));
+          newStreet: currentStreet,
+        ),
+      );
     }
-    actionSync.foldedPlayers
-        ?.editAction(previous, entry, actionSync.analyzerActions);
-    actionSync.allInPlayers
-        ?.editAction(previous, entry, actionSync.analyzerActions);
+    actionSync.foldedPlayers?.editAction(
+      previous,
+      entry,
+      actionSync.analyzerActions,
+    );
+    actionSync.allInPlayers?.editAction(
+      previous,
+      entry,
+      actionSync.analyzerActions,
+    );
     actionSync.syncStacks();
     actionSync.notifyListeners();
     actionTag.updateForAction(entry);
@@ -141,8 +171,10 @@ class ActionEditingService {
       _removeFutureActionsForPlayer(entry.playerIndex, entry.street, index);
     }
     playbackManager.updatePlaybackState();
-    actionHistory.updateHistory(actionSync.analyzerActions,
-        visibleCount: playbackManager.playbackIndex);
+    actionHistory.updateHistory(
+      actionSync.analyzerActions,
+      visibleCount: playbackManager.playbackIndex,
+    );
     _autoAdvanceStreetIfComplete(entry.street);
     if (recordHistory) {
       undoRedo.recordSnapshot();
@@ -155,24 +187,34 @@ class ActionEditingService {
     final removed = actions[index];
     actionSync.analyzerActions.removeAt(index);
     if (recordHistory) {
-      actionSync.recordHistory(ActionHistoryEntry(
-          ActionChangeType.delete, index,
+      actionSync.recordHistory(
+        ActionHistoryEntry(
+          ActionChangeType.delete,
+          index,
           oldEntry: removed,
           prevStreet: currentStreet,
-          newStreet: currentStreet));
+          newStreet: currentStreet,
+        ),
+      );
     }
-    actionSync.foldedPlayers
-        ?.removeFromAction(removed, actionSync.analyzerActions);
-    actionSync.allInPlayers
-        ?.removeFromAction(removed, actionSync.analyzerActions);
+    actionSync.foldedPlayers?.removeFromAction(
+      removed,
+      actionSync.analyzerActions,
+    );
+    actionSync.allInPlayers?.removeFromAction(
+      removed,
+      actionSync.analyzerActions,
+    );
     actionSync.syncStacks();
     actionSync.notifyListeners();
     if (playbackManager.playbackIndex > actions.length) {
       playbackManager.seek(actions.length);
     }
     actionTag.updateAfterActionRemoval(removed.playerIndex, actions);
-    actionHistory.updateHistory(actionSync.analyzerActions,
-        visibleCount: playbackManager.playbackIndex);
+    actionHistory.updateHistory(
+      actionSync.analyzerActions,
+      visibleCount: playbackManager.playbackIndex,
+    );
     actionHistory.autoCollapseStreets(actions);
     playbackManager.updatePlaybackState();
     if (recordHistory) {
@@ -192,8 +234,10 @@ class ActionEditingService {
     actionSync.syncStacks();
     actionSync.notifyListeners();
     playbackManager.updatePlaybackState();
-    actionHistory.updateHistory(actionSync.analyzerActions,
-        visibleCount: playbackManager.playbackIndex);
+    actionHistory.updateHistory(
+      actionSync.analyzerActions,
+      visibleCount: playbackManager.playbackIndex,
+    );
     actionHistory.autoCollapseStreets(actions);
     undoRedo.recordSnapshot();
   }
@@ -202,10 +246,15 @@ class ActionEditingService {
   /// on [street]. This is typically called after a fold or when auto-folds
   /// are inserted.
   void removeFutureActionsForPlayer(
-      int playerIndex, int street, int fromIndex) {
+    int playerIndex,
+    int street,
+    int fromIndex,
+  ) {
     _removeFutureActionsForPlayer(playerIndex, street, fromIndex);
-    actionHistory.updateHistory(actionSync.analyzerActions,
-        visibleCount: playbackManager.playbackIndex);
+    actionHistory.updateHistory(
+      actionSync.analyzerActions,
+      visibleCount: playbackManager.playbackIndex,
+    );
     actionHistory.autoCollapseStreets(actions);
   }
 
@@ -233,7 +282,10 @@ class ActionEditingService {
   }
 
   void _removeFutureActionsForPlayer(
-      int playerIndex, int street, int fromIndex) {
+    int playerIndex,
+    int street,
+    int fromIndex,
+  ) {
     final toRemove = <int>[];
     for (int i = actions.length - 1; i > fromIndex; i--) {
       final a = actions[i];
@@ -245,10 +297,14 @@ class ActionEditingService {
     for (final idx in toRemove) {
       final removed = actions[idx];
       actionSync.analyzerActions.removeAt(idx);
-      actionSync.foldedPlayers
-          ?.removeFromAction(removed, actionSync.analyzerActions);
-      actionSync.allInPlayers
-          ?.removeFromAction(removed, actionSync.analyzerActions);
+      actionSync.foldedPlayers?.removeFromAction(
+        removed,
+        actionSync.analyzerActions,
+      );
+      actionSync.allInPlayers?.removeFromAction(
+        removed,
+        actionSync.analyzerActions,
+      );
     }
     actionSync.syncStacks();
     actionSync.notifyListeners();
@@ -257,8 +313,10 @@ class ActionEditingService {
     }
     actionTag.updateAfterActionRemoval(playerIndex, actions);
     playbackManager.updatePlaybackState();
-    actionHistory.updateHistory(actionSync.analyzerActions,
-        visibleCount: playbackManager.playbackIndex);
+    actionHistory.updateHistory(
+      actionSync.analyzerActions,
+      visibleCount: playbackManager.playbackIndex,
+    );
     actionHistory.autoCollapseStreets(actions);
   }
 }

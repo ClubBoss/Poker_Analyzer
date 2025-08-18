@@ -22,8 +22,9 @@ class LessonPathReminderScheduler {
     if (_initialized) return;
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
-    await _plugin
-        .initialize(const InitializationSettings(android: android, iOS: ios));
+    await _plugin.initialize(
+      const InitializationSettings(android: android, iOS: ios),
+    );
     tz.initializeTimeZones();
     _initialized = true;
   }
@@ -46,7 +47,13 @@ class LessonPathReminderScheduler {
 
     final now = tz.TZDateTime.now(tz.local);
     var when = tz.TZDateTime(
-        tz.local, now.year, now.month, now.day, time.hour, time.minute);
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      time.hour,
+      time.minute,
+    );
     if (!when.isAfter(now)) {
       when = when.add(const Duration(days: 1));
     }
@@ -58,7 +65,9 @@ class LessonPathReminderScheduler {
       when,
       const NotificationDetails(
         android: AndroidNotificationDetails(
-            'lesson_path_reminder', 'Lesson Path Reminder'),
+          'lesson_path_reminder',
+          'Lesson Path Reminder',
+        ),
         iOS: DarwinNotificationDetails(),
       ),
       androidAllowWhileIdle: true,
@@ -76,7 +85,9 @@ class LessonPathReminderScheduler {
       '🧠 Не забудьте пройти шаг обучения сегодня!',
       const NotificationDetails(
         android: AndroidNotificationDetails(
-            'lesson_path_reminder', 'Lesson Path Reminder'),
+          'lesson_path_reminder',
+          'Lesson Path Reminder',
+        ),
         iOS: DarwinNotificationDetails(),
       ),
     );

@@ -22,8 +22,9 @@ class EffectiveStackInfo extends StatelessWidget {
     final isMobile =
         platform == TargetPlatform.android || platform == TargetPlatform.iOS;
     return Tooltip(
-      triggerMode:
-          isMobile ? TooltipTriggerMode.longPress : TooltipTriggerMode.hover,
+      triggerMode: isMobile
+          ? TooltipTriggerMode.longPress
+          : TooltipTriggerMode.hover,
       message:
           'Эффективный стек - минимальный стек между вами и соперником. Используется при пуш/фолд.',
       child: Text(

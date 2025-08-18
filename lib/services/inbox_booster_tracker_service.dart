@@ -33,8 +33,9 @@ class InboxBoosterTrackerService {
         if (data is Map) {
           data.forEach((key, value) {
             if (value is Map) {
-              _cache[key.toString()] =
-                  _BoosterStats.fromJson(Map<String, dynamic>.from(value));
+              _cache[key.toString()] = _BoosterStats.fromJson(
+                Map<String, dynamic>.from(value),
+              );
             }
           });
         }
@@ -136,8 +137,10 @@ class InboxBoosterTrackerService {
   }
 
   /// Whether [lessonId] was shown within [window].
-  Future<bool> wasRecentlyShown(String lessonId,
-      {Duration window = const Duration(days: 1)}) async {
+  Future<bool> wasRecentlyShown(
+    String lessonId, {
+    Duration window = const Duration(days: 1),
+  }) async {
     await _load();
     final stats = _cache[lessonId];
     final ts = stats?.lastShown;
@@ -148,9 +151,7 @@ class InboxBoosterTrackerService {
   /// Returns raw interaction data keyed by lesson id.
   Future<Map<String, Map<String, dynamic>>> getInteractionStats() async {
     await _load();
-    return {
-      for (final e in _cache.entries) e.key: e.value.toJson(),
-    };
+    return {for (final e in _cache.entries) e.key: e.value.toJson()};
   }
 }
 
@@ -182,16 +183,16 @@ class _BoosterStats {
   }
 
   Map<String, dynamic> toJson() => {
-        'shows': shows,
-        'clicks': clicks,
-        if (lastShown != null) 'lastShown': lastShown!.toIso8601String(),
-        if (lastClicked != null) 'lastClicked': lastClicked!.toIso8601String(),
-      };
+    'shows': shows,
+    'clicks': clicks,
+    if (lastShown != null) 'lastShown': lastShown!.toIso8601String(),
+    if (lastClicked != null) 'lastClicked': lastClicked!.toIso8601String(),
+  };
 
   factory _BoosterStats.fromJson(Map<String, dynamic> json) => _BoosterStats(
-        shows: (json['shows'] as num?)?.toInt() ?? 0,
-        clicks: (json['clicks'] as num?)?.toInt() ?? 0,
-        lastShown: DateTime.tryParse(json['lastShown'] as String? ?? ''),
-        lastClicked: DateTime.tryParse(json['lastClicked'] as String? ?? ''),
-      );
+    shows: (json['shows'] as num?)?.toInt() ?? 0,
+    clicks: (json['clicks'] as num?)?.toInt() ?? 0,
+    lastShown: DateTime.tryParse(json['lastShown'] as String? ?? ''),
+    lastClicked: DateTime.tryParse(json['lastClicked'] as String? ?? ''),
+  );
 }

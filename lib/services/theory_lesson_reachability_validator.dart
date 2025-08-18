@@ -18,7 +18,7 @@ class TheoryLessonReachabilityValidator {
   final MiniLessonLibraryService library;
 
   const TheoryLessonReachabilityValidator({MiniLessonLibraryService? library})
-      : library = library ?? MiniLessonLibraryService.instance;
+    : library = library ?? MiniLessonLibraryService.instance;
 
   /// Analyzes the mini lesson graph and returns [TheoryLessonReachabilityResult].
   TheoryLessonReachabilityResult validate({List<String> rootIds = const []}) {
@@ -49,7 +49,7 @@ class TheoryLessonReachabilityValidator {
     } else {
       queue.addAll([
         for (final n in lessons)
-          if ((incoming[n.id] ?? 0) == 0) n.id
+          if ((incoming[n.id] ?? 0) == 0) n.id,
       ]);
     }
 
@@ -66,7 +66,7 @@ class TheoryLessonReachabilityValidator {
 
     final unreachable = <String>[
       for (final n in lessons)
-        if (!reachable.contains(n.id)) n.id
+        if (!reachable.contains(n.id)) n.id,
     ];
 
     final color = <String, int>{};

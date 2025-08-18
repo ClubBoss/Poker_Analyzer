@@ -39,8 +39,9 @@ void main() {
   test('classifies rainbow ace-high dry board', () {
     final tags = classifier.classify('AsKd7h');
     expect(
-        tags.containsAll({'aceHigh', 'high', 'rainbow', 'disconnected', 'dry'}),
-        isTrue);
+      tags.containsAll({'aceHigh', 'high', 'rainbow', 'disconnected', 'dry'}),
+      isTrue,
+    );
     expect(tags.contains('wet'), isFalse);
   });
 

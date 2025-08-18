@@ -7,7 +7,8 @@ import 'smart_pinned_block_booster_provider.dart';
 class SmartInboxPriorityScorerService {
   /// Returns [input] sorted by urgency and recency.
   Future<List<PinnedBlockBoosterSuggestion>> sort(
-      List<PinnedBlockBoosterSuggestion> input) async {
+    List<PinnedBlockBoosterSuggestion> input,
+  ) async {
     if (input.isEmpty) return [];
 
     final prefs = await SharedPreferences.getInstance();

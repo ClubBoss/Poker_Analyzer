@@ -33,8 +33,10 @@ class DemoAnimationManager {
 
   /// Display an overlay glow around the given winner's zone.
   void showWinnerZoneOverlay(BuildContext context, String playerName) {
-    final registry =
-        Provider.of<pzw.PlayerZoneRegistry>(context, listen: false);
+    final registry = Provider.of<pzw.PlayerZoneRegistry>(
+      context,
+      listen: false,
+    );
     pzw.showWinnerZoneOverlay(context, registry, playerName);
   }
 
@@ -74,7 +76,8 @@ class DemoAnimationManager {
     final tableWidth = screen.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screen.width / 2 + 10;
-    final centerY = screen.height / 2 -
+    final centerY =
+        screen.height / 2 -
         TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
     final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
@@ -130,7 +133,8 @@ class DemoAnimationManager {
     final tableWidth = screen.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screen.width / 2 + 10;
-    final centerY = screen.height / 2 -
+    final centerY =
+        screen.height / 2 -
         TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
     final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;

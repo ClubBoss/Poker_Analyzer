@@ -64,8 +64,10 @@ class StreakAnalyticsCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('🔥 ${data.current} days · 🏆 Record: ${data.best}',
-                  style: TextStyle(color: accent)),
+              Text(
+                '🔥 ${data.current} days · 🏆 Record: ${data.best}',
+                style: TextStyle(color: accent),
+              ),
               const SizedBox(height: 12),
               _buildGrid(data.map),
             ],

@@ -6,8 +6,9 @@ import 'package:poker_analyzer/core/training/generation/yaml_reader.dart';
 
 Future<void> main(List<String> args) async {
   final src = args.isNotEmpty ? args[0] : 'assets/packs/v2';
-  final out =
-      args.length > 1 ? args[1] : 'assets/packs/v2/tag_frequencies.json';
+  final out = args.length > 1
+      ? args[1]
+      : 'assets/packs/v2/tag_frequencies.json';
   final tagCounts = <String, int>{};
   final categoryCounts = <String, int>{};
   void addTag(String tag) => tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
@@ -60,12 +61,16 @@ Future<void> main(List<String> args) async {
     }
   }
   final sortedTags = Map.fromEntries(
-      tagCounts.entries.toList()..sort((a, b) => b.value.compareTo(a.value)));
-  final sortedCategories = Map.fromEntries(categoryCounts.entries.toList()
-    ..sort((a, b) => b.value.compareTo(a.value)));
+    tagCounts.entries.toList()..sort((a, b) => b.value.compareTo(a.value)),
+  );
+  final sortedCategories = Map.fromEntries(
+    categoryCounts.entries.toList()..sort((a, b) => b.value.compareTo(a.value)),
+  );
   final file = File(out)..createSync(recursive: true);
   file.writeAsStringSync(
-      jsonEncode({'tags': sortedTags, 'categories': sortedCategories}));
+    jsonEncode({'tags': sortedTags, 'categories': sortedCategories}),
+  );
   stdout.writeln(
-      'Wrote ${sortedTags.length} tags and ${sortedCategories.length} categories to ${p.normalize(out)}');
+    'Wrote ${sortedTags.length} tags and ${sortedCategories.length} categories to ${p.normalize(out)}',
+  );
 }

@@ -8,15 +8,15 @@ class PackLibraryRatingReport {
     this.tagInsights = const {},
   });
   Map<String, dynamic> toJson() => {
-        'topRatedPacks': [
-          for (final e in topRatedPacks) [e.$1, e.$2]
-        ],
-        'averageScoresByAudience': averageScoresByAudience,
-        'tagInsights': {
-          for (final e in tagInsights.entries)
-            e.key: {'averageScore': e.value.$1, 'count': e.value.$2}
-        }
-      };
+    'topRatedPacks': [
+      for (final e in topRatedPacks) [e.$1, e.$2],
+    ],
+    'averageScoresByAudience': averageScoresByAudience,
+    'tagInsights': {
+      for (final e in tagInsights.entries)
+        e.key: {'averageScore': e.value.$1, 'count': e.value.$2},
+    },
+  };
   factory PackLibraryRatingReport.fromJson(Map<String, dynamic> j) {
     final top = <(String, int)>[];
     for (final e in j['topRatedPacks'] as List? ?? []) {

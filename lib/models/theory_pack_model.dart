@@ -33,7 +33,11 @@ class TheoryPackModel {
       }
     }
     return TheoryPackModel(
-        id: id, title: title, sections: sections, tags: tags);
+      id: id,
+      title: title,
+      sections: sections,
+      tags: tags,
+    );
   }
 }
 

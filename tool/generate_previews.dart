@@ -8,7 +8,8 @@ import 'package:poker_analyzer/services/png_exporter.dart';
 Future<void> main(List<String> args) async {
   if (args.isEmpty) {
     stderr.writeln(
-        'Usage: dart run tool/generate_previews.dart <inputDir> [outputDir]');
+      'Usage: dart run tool/generate_previews.dart <inputDir> [outputDir]',
+    );
     exit(1);
   }
   final src = Directory(args[0]);
@@ -38,10 +39,12 @@ Future<void> main(List<String> args) async {
           } else {
             final bytes = await file.readAsBytes();
             final archive = ZipDecoder().decodeBytes(bytes);
-            final tplFile =
-                archive.files.firstWhere((e) => e.name == 'template.json');
-            final jsonMap = jsonDecode(utf8.decode(tplFile.content))
-                as Map<String, dynamic>;
+            final tplFile = archive.files.firstWhere(
+              (e) => e.name == 'template.json',
+            );
+            final jsonMap =
+                jsonDecode(utf8.decode(tplFile.content))
+                    as Map<String, dynamic>;
             tpl = TrainingPackTemplate.fromJson(jsonMap);
           }
           final bytes = await PngExporter.exportTemplatePreview(tpl);
@@ -49,10 +52,12 @@ Future<void> main(List<String> args) async {
           final path = p.join(out.path, '${tpl.id}.png');
           await File(path).writeAsBytes(bytes);
           stdout.writeln(
-              '[${++done}/${files.length}] ${p.basename(path)}  -  OK');
+            '[${++done}/${files.length}] ${p.basename(path)}  -  OK',
+          );
         } catch (_) {
           stdout.writeln(
-              '[${++done}/${files.length}] ${p.basename(file.path)}  -  [ERROR]');
+            '[${++done}/${files.length}] ${p.basename(file.path)}  -  [ERROR]',
+          );
         }
       }),
     );

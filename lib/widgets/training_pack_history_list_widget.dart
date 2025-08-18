@@ -60,8 +60,9 @@ class _TrainingPackHistoryListWidgetState
           name: name,
           timestamp: timestamp,
           accuracy: acc,
-          duration:
-              durationMs != null ? Duration(milliseconds: durationMs) : null,
+          duration: durationMs != null
+              ? Duration(milliseconds: durationMs)
+              : null,
         ),
       );
     }

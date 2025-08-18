@@ -6,7 +6,7 @@ import 'pack_library_index_loader.dart';
 /// Provides fuzzy search over training pack titles and tags.
 class PackSearchEngine {
   const PackSearchEngine({List<TrainingPackTemplateV2>? library})
-      : _library = library;
+    : _library = library;
 
   final List<TrainingPackTemplateV2>? _library;
 
@@ -20,7 +20,7 @@ class PackSearchEngine {
     for (final tpl in library) {
       final title = tpl.name.toLowerCase();
       final tagScores = [
-        for (final t in tpl.tags) _similarity(q, t.toLowerCase())
+        for (final t in tpl.tags) _similarity(q, t.toLowerCase()),
       ];
       final tagScore = tagScores.isEmpty ? 0.0 : tagScores.reduce(max);
       final score = _similarity(q, title) * 0.7 + tagScore * 0.3;

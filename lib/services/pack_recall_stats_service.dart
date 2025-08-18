@@ -30,7 +30,7 @@ class PackRecallStatsService {
     final list = prefs.getStringList(key) ?? <String>[];
     return [
       for (final s in list)
-        if (DateTime.tryParse(s) != null) DateTime.parse(s)
+        if (DateTime.tryParse(s) != null) DateTime.parse(s),
     ];
   }
 

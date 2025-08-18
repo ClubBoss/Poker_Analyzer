@@ -53,13 +53,15 @@ class _CloudTrainingSessionDetailsScreenState
     _handNotes = Map<String, String>.from(widget.session.handNotes ?? {});
     _handTags = {
       for (final e in widget.session.handTags?.entries ?? {})
-        e.key: List<String>.from(e.value)
+        e.key: List<String>.from(e.value),
     };
     for (final r in widget.session.results) {
-      _noteControllers[r.name] =
-          TextEditingController(text: _handNotes[r.name] ?? '');
-      _tagControllers[r.name] =
-          TextEditingController(text: _handTags[r.name]?.join(', ') ?? '');
+      _noteControllers[r.name] = TextEditingController(
+        text: _handNotes[r.name] ?? '',
+      );
+      _tagControllers[r.name] = TextEditingController(
+        text: _handTags[r.name]?.join(', ') ?? '',
+      );
     }
     _loadPrefs();
   }
@@ -108,8 +110,10 @@ class _CloudTrainingSessionDetailsScreenState
     if (text.trim().isEmpty) {
       notes.remove(name);
       if (notes.isEmpty) {
-        await service.updateSession(widget.session.path,
-            data: {'handNotes': FieldValue.delete()});
+        await service.updateSession(
+          widget.session.path,
+          data: {'handNotes': FieldValue.delete()},
+        );
         return;
       }
     } else {
@@ -128,13 +132,15 @@ class _CloudTrainingSessionDetailsScreenState
     final service = context.read<CloudTrainingHistoryService>();
     final map = {
       for (final e in widget.session.handTags?.entries ?? {})
-        e.key: List<String>.from(e.value)
+        e.key: List<String>.from(e.value),
     };
     if (tags.isEmpty) {
       map.remove(name);
       if (map.isEmpty) {
-        await service.updateSession(widget.session.path,
-            data: {'handTags': FieldValue.delete()});
+        await service.updateSession(
+          widget.session.path,
+          data: {'handTags': FieldValue.delete()},
+        );
         return;
       }
     } else {
@@ -164,9 +170,9 @@ class _CloudTrainingSessionDetailsScreenState
       },
     );
     if (confirm == true) {
-      await context
-          .read<CloudTrainingHistoryService>()
-          .deleteSession(widget.session.path);
+      await context.read<CloudTrainingHistoryService>().deleteSession(
+        widget.session.path,
+      );
       if (context.mounted) {
         Navigator.pop(context);
       }
@@ -217,32 +223,45 @@ class _CloudTrainingSessionDetailsScreenState
         pageFormat: PdfPageFormat.a4,
         build: (context) {
           return [
-            pw.Text('Training Session',
-                style: pw.TextStyle(font: boldFont, fontSize: 24)),
+            pw.Text(
+              'Training Session',
+              style: pw.TextStyle(font: boldFont, fontSize: 24),
+            ),
             pw.SizedBox(height: 16),
-            pw.Text('Incorrect Hands',
-                style: pw.TextStyle(font: boldFont, fontSize: 18)),
+            pw.Text(
+              'Incorrect Hands',
+              style: pw.TextStyle(font: boldFont, fontSize: 18),
+            ),
             pw.SizedBox(height: 8),
-            for (final r
-                in widget.session.results.where((element) => !element.correct))
+            for (final r in widget.session.results.where(
+              (element) => !element.correct,
+            ))
               pw.Container(
                 margin: const pw.EdgeInsets.only(bottom: 12),
                 child: pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
                     pw.Text(r.name, style: pw.TextStyle(font: boldFont)),
-                    pw.Text('User: ${r.userAction}',
-                        style: pw.TextStyle(font: regularFont)),
-                    pw.Text('Expected: ${r.expected}',
-                        style: pw.TextStyle(font: regularFont)),
+                    pw.Text(
+                      'User: ${r.userAction}',
+                      style: pw.TextStyle(font: regularFont),
+                    ),
+                    pw.Text(
+                      'Expected: ${r.expected}',
+                      style: pw.TextStyle(font: regularFont),
+                    ),
                     if (handMap[r.name]?.gtoAction != null &&
                         handMap[r.name]!.gtoAction!.isNotEmpty)
-                      pw.Text('GTO: ${handMap[r.name]!.gtoAction}',
-                          style: pw.TextStyle(font: regularFont)),
+                      pw.Text(
+                        'GTO: ${handMap[r.name]!.gtoAction}',
+                        style: pw.TextStyle(font: regularFont),
+                      ),
                     if (handMap[r.name]?.rangeGroup != null &&
                         handMap[r.name]!.rangeGroup!.isNotEmpty)
-                      pw.Text('Range: ${handMap[r.name]!.rangeGroup}',
-                          style: pw.TextStyle(font: regularFont)),
+                      pw.Text(
+                        'Range: ${handMap[r.name]!.rangeGroup}',
+                        style: pw.TextStyle(font: regularFont),
+                      ),
                   ],
                 ),
               ),
@@ -285,14 +304,15 @@ class _CloudTrainingSessionDetailsScreenState
         mimeType: MimeType.other,
       );
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Файл сохранён: $name.json')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Файл сохранён: $name.json')));
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Ошибка экспорта JSON')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Ошибка экспорта JSON')));
       }
     }
   }
@@ -300,7 +320,7 @@ class _CloudTrainingSessionDetailsScreenState
   Future<void> _repeatSession(BuildContext context) async {
     final manager = context.read<SavedHandManagerService>();
     final Map<String, SavedHand> map = {
-      for (final h in manager.hands) h.name: h
+      for (final h in manager.hands) h.name: h,
     };
     final List<SavedHand> hands = [];
     for (final r in widget.session.results) {
@@ -309,9 +329,9 @@ class _CloudTrainingSessionDetailsScreenState
     }
     if (hands.isEmpty) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Раздачи не найдены')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Раздачи не найдены')));
       }
       return;
     }
@@ -335,7 +355,7 @@ class _CloudTrainingSessionDetailsScreenState
   Future<void> _repeatErrors(BuildContext context) async {
     final manager = context.read<SavedHandManagerService>();
     final Map<String, SavedHand> map = {
-      for (final h in manager.hands) h.name: h
+      for (final h in manager.hands) h.name: h,
     };
     final List<SavedHand> hands = [];
     for (final r in widget.session.results) {
@@ -345,9 +365,9 @@ class _CloudTrainingSessionDetailsScreenState
     }
     if (hands.isEmpty) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Раздачи не найдены')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Раздачи не найдены')));
       }
       return;
     }
@@ -376,11 +396,11 @@ class _CloudTrainingSessionDetailsScreenState
     if (_tagFilter != 'All') {
       results = [
         for (final r in results)
-          if (_handTags[r.name]?.contains(_tagFilter) ?? false) r
+          if (_handTags[r.name]?.contains(_tagFilter) ?? false) r,
       ];
     }
     final handMap = {
-      for (final h in context.watch<SavedHandManagerService>().hands) h.name: h
+      for (final h in context.watch<SavedHandManagerService>().hands) h.name: h,
     };
     return Scaffold(
       appBar: AppBar(
@@ -476,8 +496,9 @@ class _CloudTrainingSessionDetailsScreenState
                             child: ChoiceChip(
                               label: Text(t),
                               selected: _tagFilter == t,
-                              onSelected: (_) => setState(() =>
-                                  _tagFilter = _tagFilter == t ? 'All' : t),
+                              onSelected: (_) => setState(
+                                () => _tagFilter = _tagFilter == t ? 'All' : t,
+                              ),
                             ),
                           ),
                         if (_tagFilter != 'All')
@@ -519,12 +540,14 @@ class _CloudTrainingSessionDetailsScreenState
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const SizedBox(height: 4),
-                              Text('Вы: ${r.userAction}',
-                                  style:
-                                      const TextStyle(color: Colors.white70)),
-                              Text('Ожидалось: ${r.expected}',
-                                  style:
-                                      const TextStyle(color: Colors.white70)),
+                              Text(
+                                'Вы: ${r.userAction}',
+                                style: const TextStyle(color: Colors.white70),
+                              ),
+                              Text(
+                                'Ожидалось: ${r.expected}',
+                                style: const TextStyle(color: Colors.white70),
+                              ),
                               if (_handTags[r.name]?.isNotEmpty ?? false)
                                 Padding(
                                   padding: const EdgeInsets.only(top: 4),
@@ -534,10 +557,12 @@ class _CloudTrainingSessionDetailsScreenState
                                       for (final t in _handTags[r.name]!)
                                         Chip(
                                           label: Text(t),
-                                          backgroundColor:
-                                              const Color(0xFF3A3B3E),
+                                          backgroundColor: const Color(
+                                            0xFF3A3B3E,
+                                          ),
                                           labelStyle: const TextStyle(
-                                              color: Colors.white),
+                                            color: Colors.white,
+                                          ),
                                         ),
                                     ],
                                   ),
@@ -547,20 +572,18 @@ class _CloudTrainingSessionDetailsScreenState
                           children: [
                             Padding(
                               padding: const EdgeInsets.all(12.0),
-                              child: Text(
-                                () {
-                                  final hand = handMap[r.name];
-                                  if (hand == null) {
-                                    return 'Раздача не найдена';
-                                  }
-                                  final gto = hand.gtoAction ?? r.expected;
-                                  final group = hand.rangeGroup ?? '-';
-                                  final verdict =
-                                      r.correct ? 'верное' : 'ошибочное';
-                                  return 'GTO предлагает $gto, ваша рука из группы $group. Это действие $verdict.';
-                                }(),
-                                style: const TextStyle(color: Colors.white70),
-                              ),
+                              child: Text(() {
+                                final hand = handMap[r.name];
+                                if (hand == null) {
+                                  return 'Раздача не найдена';
+                                }
+                                final gto = hand.gtoAction ?? r.expected;
+                                final group = hand.rangeGroup ?? '-';
+                                final verdict = r.correct
+                                    ? 'верное'
+                                    : 'ошибочное';
+                                return 'GTO предлагает $gto, ваша рука из группы $group. Это действие $verdict.';
+                              }(), style: const TextStyle(color: Colors.white70)),
                             ),
                             Padding(
                               padding: const EdgeInsets.all(12.0),
