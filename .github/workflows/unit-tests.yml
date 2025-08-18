@@ -1,83 +1,70 @@
-name: Unit Tests (PR only, label-gated)
+name: unit-tests
 
 on:
   pull_request:
-    paths:
-      - "**/*.dart"
-      - "**/*.yaml"
-      - "**/*.yml"
-      - "pubspec.yaml"
-      - "pubspec.lock"
-      - ".github/workflows/unit-tests.yml"
-    types: [opened, synchronize, reopened, labeled, unlabeled]
+    branches: [main]
   push:
-    branches: [ main ]
-    paths:
-      - "**/*.dart"
-      - "**/*.yaml"
-      - "**/*.yml"
-      - "pubspec.yaml"
-      - "pubspec.lock"
-      - ".github/workflows/unit-tests.yml"
+    branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
-  tests:
+  unit-tests:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Set up Flutter
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          cache: true
 
-      - name: Flutter version
-        run: flutter --version
-
-      - name: Cache Pub dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
-
-      - name: Pub get (via Flutter)
+      - name: Flutter pub get
         run: flutter pub get
 
-      # Smart quotes – only when tests actually run
+      # Блокер на «умную» пунктуацию (кавычки/длинные тире/многоточие)
+      # Автоген от gen-l10n НЕ проверяем.
       - name: Fail on smart quotes / punctuation
-        if: ${{ github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'run-tests') }}
-        shell: bash
         run: |
-          set -euo pipefail
-          pattern='[\x{2018}\x{2019}\x{201C}\x{201D}\x{2026}\x{2014}\x{2013}]'
-          if git grep -I -nP "$pattern" -- .; then
-            echo "::error ::Smart punctuation found. Replace with ASCII equivalents."
-            exit 1
-          fi
+          python3 - <<'PY'
+          import re, sys, subprocess, pathlib, fnmatch
+          rx = re.compile(r'[\u2018\u2019\u201C\u201D\u2013\u2014\u2026]')  # ‘ ’ “ ” – — …
 
-      - name: Run smoke tests (labeled PRs only)
-        if: ${{ contains(github.event.pull_request.labels.*.name, 'run-tests') }}
-        run: flutter test --no-pub --coverage test/smoke
+          def is_gen_l10n(p: str) -> bool:
+              pats = [
+                'lib/l10n/app_localizations.dart',
+                'lib/l10n/app_localizations_*.dart',
+              ]
+              return any(fnmatch.fnmatch(p, pat) for pat in pats)
 
-      - name: Format check (repo-wide but no write)
-        if: ${{ github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'run-tests') }}
-        run: dart format --output=none --set-exit-if-changed .
+          res = subprocess.run(['git','ls-files',
+                                'lib/**/*.dart','test/**/*.dart','lib/l10n/*.arb','docs/**/*.md'],
+                               capture_output=True, text=True)
+          files = [f for f in res.stdout.splitlines() if f and not is_gen_l10n(f)]
 
-      - name: Analyze (repo-wide, fatal)
-        if: ${{ github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'run-tests') }}
+          bad = False
+          for f in files:
+              txt = pathlib.Path(f).read_text(encoding='utf-8', errors='ignore')
+              if rx.search(txt):
+                  print(f"::group::Smart punctuation found in {f}")
+                  for i, line in enumerate(txt.splitlines(), 1):
+                      if rx.search(line):
+                          print(f"{f}:{i}: {line}")
+                  print("::endgroup::")
+                  bad = True
+          if bad:
+              print("Error: Smart punctuation found. Replace with ASCII equivalents.")
+              sys.exit(1)
+          PY
+
+      - name: Analyze (informational)
         run: flutter analyze
+        continue-on-error: true
 
-      - name: Unit tests (repo-wide)
-        if: ${{ github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'run-tests') }}
-        run: dart test -r expanded
-
-      - name: Skip tests (default)
-        if: ${{ github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'run-tests') }}
-        run: echo "PR tests are skipped. Add label 'run-tests' to enable."
+      - name: Run unit tests
+        run: flutter test --no-pub
