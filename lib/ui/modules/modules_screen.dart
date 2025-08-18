@@ -7,6 +7,7 @@ import 'package:poker_analyzer/ui/modules/icm_bb_packs.dart';
 import 'package:poker_analyzer/ui/modules/icm_mix_packs.dart';
 import 'package:poker_analyzer/ui/modules/icm_packs.dart';
 import 'package:poker_analyzer/ui/modules/icm_bubble_packs.dart';
+import 'package:poker_analyzer/ui/modules/icm_ladder_packs.dart';
 
 import '../../services/spot_importer.dart';
 import '../session_player/models.dart';
@@ -217,6 +218,21 @@ class _ModulesScreenState extends State<ModulesScreen> {
                         ),
                       );
                     }
+                  },
+                ),
+                ActionChip(
+                  label: const Text('Start ICM L4 Ladder'),
+                  onPressed: () async {
+                    final spots = await loadIcmL4LadderV1();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => MvsSessionPlayer(
+                          spots: spots,
+                          packId: 'icm:l4:ladder:v1',
+                        ),
+                      ),
+                    );
                   },
                 ),
               ],
