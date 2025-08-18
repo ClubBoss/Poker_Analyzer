@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:poker_analyzer/ui/modules/cash_packs.dart';
+import 'package:poker_analyzer/ui/modules/icm_bb_packs.dart';
 import 'package:poker_analyzer/ui/modules/icm_packs.dart';
 
 import '../../services/spot_importer.dart';
@@ -148,6 +149,25 @@ class _ModulesScreenState extends State<ModulesScreen> {
                           builder: (_) => MvsSessionPlayer(
                             spots: spots,
                             packId: 'icm:l4:sb:v1',
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                ActionChip(
+                  label: const Text('Start ICM L4 BB'),
+                  onPressed: () {
+                    final spots = loadIcmL4BbV1();
+                    if (spots.isEmpty) {
+                      showMiniToast(context, 'Pack is empty');
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => MvsSessionPlayer(
+                            spots: spots,
+                            packId: 'icm:l4:bb:v1',
                           ),
                         ),
                       );
