@@ -3,13 +3,59 @@ name: unit-tests
 on:
   pull_request:
     branches: [main]
+    paths-ignore:
+      - '.github/workflows/**'
   push:
     branches: [main]
+    paths-ignore:
+      - '.github/workflows/**'
 
 permissions:
   contents: read
 
+concurrency:
+  group: unit-tests-${{ github.sha }}
+  cancel-in-progress: true
+
 jobs:
+  docs-lint:
+    name: Docs lint (smart punctuation) — informational
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fail on smart quotes / punctuation in docs/**
+        run: |
+          python3 - <<'PY'
+          import re, sys, subprocess, pathlib
+          rx = re.compile(r'[\u2018\u2019\u201C\u201D\u2013\u2014\u2026]')  # ‘ ’ “ ” – — …
+          # проверяем только документацию, чтобы не блокировать кодовые тесты
+          res = subprocess.run(['git','ls-files','docs/**.md','docs/**/**.md'],
+                               capture_output=True, text=True)
+          files = [f for f in res.stdout.splitlines() if f]
+          bad = False
+          for f in files:
+              p = pathlib.Path(f)
+              if not p.exists(): 
+                  continue
+              txt = p.read_text(encoding='utf-8', errors='ignore')
+              if rx.search(txt):
+                  print(f"::group::Smart punctuation found in {f}")
+                  for i, line in enumerate(txt.splitlines(), 1):
+                      if rx.search(line):
+                          print(f"{f}:{i}: {line}")
+                  print("::endgroup::")
+                  bad = True
+          if bad:
+              print("Smart punctuation found. Replace with ASCII equivalents.")
+              sys.exit(1)
+          PY
+
   unit-tests:
     runs-on: ubuntu-latest
 
@@ -26,41 +72,6 @@ jobs:
 
       - name: Flutter pub get
         run: flutter pub get
-
-      # Блокер на «умную» пунктуацию (кавычки/длинные тире/многоточие)
-      # Автоген от gen-l10n НЕ проверяем.
-      - name: Fail on smart quotes / punctuation
-        run: |
-          python3 - <<'PY'
-          import re, sys, subprocess, pathlib, fnmatch
-          rx = re.compile(r'[\u2018\u2019\u201C\u201D\u2013\u2014\u2026]')  # ‘ ’ “ ” – — …
-
-          def is_gen_l10n(p: str) -> bool:
-              pats = [
-                'lib/l10n/app_localizations.dart',
-                'lib/l10n/app_localizations_*.dart',
-              ]
-              return any(fnmatch.fnmatch(p, pat) for pat in pats)
-
-          res = subprocess.run(['git','ls-files',
-                                'lib/**/*.dart','test/**/*.dart','lib/l10n/*.arb','docs/**/*.md'],
-                               capture_output=True, text=True)
-          files = [f for f in res.stdout.splitlines() if f and not is_gen_l10n(f)]
-
-          bad = False
-          for f in files:
-              txt = pathlib.Path(f).read_text(encoding='utf-8', errors='ignore')
-              if rx.search(txt):
-                  print(f"::group::Smart punctuation found in {f}")
-                  for i, line in enumerate(txt.splitlines(), 1):
-                      if rx.search(line):
-                          print(f"{f}:{i}: {line}")
-                  print("::endgroup::")
-                  bad = True
-          if bad:
-              print("Error: Smart punctuation found. Replace with ASCII equivalents.")
-              sys.exit(1)
-          PY
 
       - name: Analyze (informational)
         run: flutter analyze

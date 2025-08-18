@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   autoformat:
-    # Работает только для PR из веток codex/*
+    # Только для PR из веток codex/*
     if: ${{ startsWith(github.event.pull_request.head.ref, 'codex/') }}
     runs-on: ubuntu-latest
     steps:
@@ -51,9 +51,7 @@ jobs:
 
       - name: Format & Fix
         run: |
-          # Формат без шума в логах, меняет файлы только если нужно
           dart format --output=none --set-exit-if-changed . || true
-          # Безопасные автопочинки Dart
           dart fix --apply || true
 
       - name: Commit & push if changed
