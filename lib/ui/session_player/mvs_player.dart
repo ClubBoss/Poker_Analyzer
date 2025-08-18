@@ -1091,15 +1091,13 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
 
       if (isLadder && !_ladderOutcomeLogged) {
         _ladderOutcomeLogged = true;
-        unawaited(
-          Telemetry.logEvent('ladder_session_passed', {
-            'packId': widget.packId,
-            'passed': passed,
-            'accPct': accPct,
-            'avgMs': avgMs,
-            'total': total,
-          }),
-        );
+        unawaited(Telemetry.logEvent('ladder_session_passed', {
+          'packId': widget.packId,
+          'passed': passed,
+          'accPct': accPct,
+          'avgMs': avgMs,
+          'total': total,
+        }));
       }
       child = Column(
         children: [
@@ -1199,11 +1197,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                 ActionChip(
                   label: Text(ladderLabel),
                   onPressed: () {
-                    unawaited(
-                      Telemetry.logEvent('cta_icm_l4_ladder_tap', {
-                        'variant': ladderVariant,
-                      }),
-                    );
+                    unawaited(Telemetry.logEvent('cta_icm_l4_ladder_tap', {
+                      'variant': ladderVariant,
+                    }));
                     final spots = loadIcmL4LadderV1();
                     if (spots.isEmpty) {
                       showMiniToast(context, 'Pack is empty');
