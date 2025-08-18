@@ -1148,17 +1148,21 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                 ),
                 ActionChip(
                   label: const Text('Start ICM L4 Ladder'),
-                  onPressed: () async {
-                    final spots = await loadIcmL4LadderV1();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => MvsSessionPlayer(
-                          spots: spots,
-                          packId: 'icm:l4:ladder:v1',
+                  onPressed: () {
+                    final spots = loadIcmL4LadderV1();
+                    if (spots.isEmpty) {
+                      showMiniToast(context, 'Pack is empty');
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => MvsSessionPlayer(
+                            spots: spots,
+                            packId: 'icm:l4:ladder:v1',
+                          ),
                         ),
-                      ),
-                    );
+                      );
+                    }
                   },
                 ),
               ],
