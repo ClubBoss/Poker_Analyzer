@@ -1,9 +1,11 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:poker_analyzer/ui/modules/cash_packs.dart';
 import 'package:poker_analyzer/ui/modules/icm_packs.dart';
 
+import '../../services/spot_importer.dart';
 import '../session_player/models.dart';
 import '../session_player/mvs_player.dart';
 import '../session_player/mini_toast.dart';
@@ -48,6 +50,38 @@ class _ModulesScreenState extends State<ModulesScreen> {
     final list = List<UiSpot>.from(widget.spots);
     list.shuffle(Random(0));
     return list.take(min(20, list.length)).toList();
+  }
+
+  Future<void> _pasteSpots() async {
+    final data = await Clipboard.getData('text/plain');
+    final content = data?.text?.trim();
+    if (content == null || content.isEmpty) {
+      showMiniToast(context, 'Clipboard is empty');
+      return;
+    }
+    try {
+      // Tolerant: 'json' also accepts JSON Lines via importer fallback.
+      final report = SpotImporter.parse(content, format: 'json');
+      final dupToast =
+          report.skippedDuplicates > 0 ? ', dups ${report.skippedDuplicates}' : '';
+      showMiniToast(
+          context, 'Imported ${report.added} (skipped ${report.skipped}$dupToast)');
+      for (final e in report.errors) {
+        showMiniToast(context, e);
+      }
+      if (report.spots.isEmpty) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => MvsSessionPlayer(
+            spots: report.spots,
+            packId: 'import:clipboard',
+          ),
+        ),
+      );
+    } catch (_) {
+      showMiniToast(context, 'Import failed');
+    }
   }
 
   @override
@@ -119,6 +153,10 @@ class _ModulesScreenState extends State<ModulesScreen> {
                       );
                     }
                   },
+                ),
+                ActionChip(
+                  label: const Text('Paste spots'),
+                  onPressed: _pasteSpots,
                 ),
               ],
             ),

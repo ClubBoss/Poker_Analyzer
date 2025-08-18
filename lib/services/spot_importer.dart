@@ -22,7 +22,8 @@ class SpotImportReport {
 class SpotImporter {
   /// Parses [content] and returns an import report.
   ///
-  /// Supported formats: 'json', 'csv' (case-insensitive).
+  /// Supported formats: 'json', 'jsonl', 'csv' (case-insensitive).
+  /// The 'json' path tolerantly accepts JSON Lines as a fallback.
   /// If both are provided, [format] is used and [kind] is ignored.
   /// If both are provided, [format] takes precedence; defaults to 'json'.
   /// CSV notes: quoted fields are de-quoted (and "" unescaped), but fields
