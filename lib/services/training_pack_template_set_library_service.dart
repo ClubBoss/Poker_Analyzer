@@ -9,9 +9,7 @@ class TrainingPackTemplateSetLibraryService {
   static final TrainingPackTemplateSetLibraryService instance =
       TrainingPackTemplateSetLibraryService._();
 
-  static const List<String> _dirs = [
-    'assets/templates/postflop_sets/',
-  ];
+  static const List<String> _dirs = ['assets/templates/postflop_sets/'];
 
   final List<TrainingPackTemplateSet> _sets = [];
 

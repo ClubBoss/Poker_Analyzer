@@ -34,15 +34,15 @@ class SpotQuizWidget extends StatelessWidget {
     final String? heroLabel = heroAct == null
         ? null
         : (heroAct.customLabel?.isNotEmpty == true
-            ? heroAct.customLabel!
-            : '${heroAct.action}${heroAct.amount != null && heroAct.amount! > 0 ? ' ${heroAct.amount!.toStringAsFixed(1)} BB' : ''}');
+              ? heroAct.customLabel!
+              : '${heroAct.action}${heroAct.amount != null && heroAct.amount! > 0 ? ' ${heroAct.amount!.toStringAsFixed(1)} BB' : ''}');
     final legacy = hero.isEmpty && spot.note.trim().isNotEmpty;
     final actions = spot.hand.actions;
     final board = [
       for (final street in [1, 2, 3])
         for (final a in actions[street] ?? [])
           if (a.action == 'board' && a.customLabel?.isNotEmpty == true)
-            ...a.customLabel!.split(' ')
+            ...a.customLabel!.split(' '),
     ];
     return Container(
       decoration: BoxDecoration(
@@ -68,8 +68,10 @@ class SpotQuizWidget extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: badgeColor,
                       borderRadius: BorderRadius.circular(8),
@@ -77,9 +79,10 @@ class SpotQuizWidget extends StatelessWidget {
                     child: Text(
                       badgeText,
                       style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold),
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],
@@ -100,7 +103,9 @@ class SpotQuizWidget extends StatelessWidget {
                         ? heroLabel.substring(0, 40)
                         : heroLabel,
                     style: const TextStyle(
-                        fontSize: 14, fontStyle: FontStyle.italic),
+                      fontSize: 14,
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
                 ),
               if (board.isNotEmpty)
@@ -121,8 +126,9 @@ class SpotQuizWidget extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color:
-                          heroEv >= 0 ? Colors.greenAccent : Colors.redAccent,
+                      color: heroEv >= 0
+                          ? Colors.greenAccent
+                          : Colors.redAccent,
                     ),
                   ),
                 ),
@@ -134,8 +140,10 @@ class SpotQuizWidget extends StatelessWidget {
                     children: [
                       for (final tag in spot.tags)
                         InputChip(
-                          label:
-                              Text(tag, style: const TextStyle(fontSize: 12)),
+                          label: Text(
+                            tag,
+                            style: const TextStyle(fontSize: 12),
+                          ),
                           onPressed: () {},
                         ),
                     ],

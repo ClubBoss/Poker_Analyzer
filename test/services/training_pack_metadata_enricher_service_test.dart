@@ -10,8 +10,11 @@ class _FakeAuditService extends TrainingPackAuditLogService {
   int calls = 0;
   @override
   Future<void> recordChange(
-      TrainingPackModel oldPack, TrainingPackModel newPack,
-      {String userId = 'unknown', DateTime? timestamp}) async {
+    TrainingPackModel oldPack,
+    TrainingPackModel newPack, {
+    String userId = 'unknown',
+    DateTime? timestamp,
+  }) async {
     calls++;
   }
 }
@@ -25,10 +28,7 @@ void main() {
         heroIndex: 0,
         stacks: {'0': 30, '1': 30},
         actions: {
-          0: [
-            ActionEntry(0, 1, 'limp'),
-            ActionEntry(0, 0, 'raise', amount: 3),
-          ],
+          0: [ActionEntry(0, 1, 'limp'), ActionEntry(0, 0, 'raise', amount: 3)],
         },
       ),
     );
@@ -40,14 +40,8 @@ void main() {
         heroIndex: 0,
         stacks: {'0': 70, '1': 70},
         actions: {
-          0: [
-            ActionEntry(0, 0, 'raise', amount: 2),
-            ActionEntry(0, 1, 'call'),
-          ],
-          1: [
-            ActionEntry(1, 0, 'bet', amount: 3),
-            ActionEntry(1, 1, 'call'),
-          ],
+          0: [ActionEntry(0, 0, 'raise', amount: 2), ActionEntry(0, 1, 'call')],
+          1: [ActionEntry(1, 0, 'bet', amount: 3), ActionEntry(1, 1, 'call')],
         },
       ),
     );

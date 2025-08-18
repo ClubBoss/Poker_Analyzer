@@ -31,7 +31,8 @@ class TrainingProgressService {
 
   Future<double> getProgress(String templateId) async {
     final prefs = await SharedPreferences.getInstance();
-    final idx = prefs.getInt('tpl_prog_$templateId') ??
+    final idx =
+        prefs.getInt('tpl_prog_$templateId') ??
         prefs.getInt('progress_tpl_$templateId');
     if (idx == null) return 0.0;
     final tpl = TrainingPackTemplateService.getById(templateId);
@@ -110,7 +111,7 @@ class TrainingProgressService {
     for (final p in allPacks) {
       tagsByPack[p.id] = {
         for (final s in p.spots)
-          s.id: [for (final t in s.tags) t.trim().toLowerCase()]
+          s.id: [for (final t in s.tags) t.trim().toLowerCase()],
       };
     }
 
@@ -168,22 +169,25 @@ class TrainingProgressService {
       improvements[t] = delta;
     }
 
-    final mostImprovedTags = improvements.entries
-        .where((e) => e.value > 0)
-        .toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+    final mostImprovedTags =
+        improvements.entries.where((e) => e.value > 0).toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
 
     final improved = [for (final e in mostImprovedTags.take(3)) e.key];
 
     // Compute streak based on attempts per day.
     final days = attempts
-        .map((a) =>
-            DateTime(a.timestamp.year, a.timestamp.month, a.timestamp.day))
+        .map(
+          (a) => DateTime(a.timestamp.year, a.timestamp.month, a.timestamp.day),
+        )
         .toSet();
     var streak = 0;
-    for (var i = 0;; i++) {
-      final day =
-          DateTime(now.year, now.month, now.day).subtract(Duration(days: i));
+    for (var i = 0; ; i++) {
+      final day = DateTime(
+        now.year,
+        now.month,
+        now.day,
+      ).subtract(Duration(days: i));
       if (days.contains(day)) {
         streak += 1;
       } else {

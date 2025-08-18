@@ -10,8 +10,11 @@ class DailyTargetService extends ChangeNotifier {
   int get progress {
     final stats = TrainingStatsService.instance;
     if (stats == null) return 0;
-    final today =
-        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    final today = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+    );
     return stats.handsPerDay[today] ?? 0;
   }
 

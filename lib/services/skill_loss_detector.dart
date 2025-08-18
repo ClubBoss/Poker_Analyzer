@@ -12,8 +12,10 @@ class SkillLoss {
 class SkillLossDetector {
   const SkillLossDetector();
 
-  List<SkillLoss> detect(Map<String, List<double>> tagHistory,
-      {DateTimeRange? range}) {
+  List<SkillLoss> detect(
+    Map<String, List<double>> tagHistory, {
+    DateTimeRange? range,
+  }) {
     final results = <SkillLoss>[];
     tagHistory.forEach((tag, history) {
       final data = history.where((e) => e.isFinite).toList();
@@ -39,8 +41,9 @@ class SkillLossDetector {
     final sumX = xs.reduce((a, b) => a + b);
     final sumX2 = xs.map((e) => e * e).reduce((a, b) => a + b);
     final sumY = list.reduce((a, b) => a + b);
-    final sumXY =
-        [for (var i = 0; i < n; i++) xs[i] * list[i]].reduce((a, b) => a + b);
+    final sumXY = [
+      for (var i = 0; i < n; i++) xs[i] * list[i],
+    ].reduce((a, b) => a + b);
     final denom = n * sumX2 - sumX * sumX;
     if (denom == 0) return 0;
     return (n * sumXY - sumX * sumY) / denom;

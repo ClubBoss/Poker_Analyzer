@@ -40,8 +40,9 @@ class _SmartGoalSummaryScreenState extends State<SmartGoalSummaryScreen> {
     final map = <String, List<_GoalItem>>{};
     for (final a in assignments) {
       final lesson = MiniLessonLibraryService.instance.getById(a.goal.id);
-      final tag =
-          lesson != null && lesson.tags.isNotEmpty ? lesson.tags.first : '';
+      final tag = lesson != null && lesson.tags.isNotEmpty
+          ? lesson.tags.first
+          : '';
       final completed = (history[tag.toLowerCase()]?.completedCount ?? 0) > 0;
       final item = _GoalItem(goal: a.goal, tag: tag, completed: completed);
       map.putIfAbsent(a.slot, () => []).add(item);
@@ -80,19 +81,25 @@ class _SmartGoalSummaryScreenState extends State<SmartGoalSummaryScreen> {
                 Text(
                   item.goal.label,
                   style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 if (item.tag.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: 4),
-                    child: Text('#${item.tag}',
-                        style: const TextStyle(color: Colors.white70)),
+                    child: Text(
+                      '#${item.tag}',
+                      style: const TextStyle(color: Colors.white70),
+                    ),
                   ),
               ],
             ),
           ),
-          Text('+${item.goal.xp} XP',
-              style: const TextStyle(color: Colors.white70)),
+          Text(
+            '+${item.goal.xp} XP',
+            style: const TextStyle(color: Colors.white70),
+          ),
           const SizedBox(width: 8),
           item.completed
               ? const Icon(Icons.check, color: Colors.greenAccent)
@@ -133,7 +140,9 @@ class _SmartGoalSummaryScreenState extends State<SmartGoalSummaryScreen> {
                   _section('🏠 Home Priorities', _bySlot['home']),
                   _section('📚 Theory Boosters', _bySlot['theory']),
                   _section(
-                      '🕓 Post-Recap Reinforcements', _bySlot['postrecap']),
+                    '🕓 Post-Recap Reinforcements',
+                    _bySlot['postrecap'],
+                  ),
                 ],
               ),
             ),

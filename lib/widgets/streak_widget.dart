@@ -59,8 +59,10 @@ class _StreakWidgetState extends State<StreakWidget>
               children: [
                 Text('🔥', style: TextStyle(color: accent)),
                 const SizedBox(width: 4),
-                Text('$value',
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(
+                  '$value',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
               ],
             ),
           ),

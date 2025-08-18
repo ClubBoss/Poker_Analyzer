@@ -74,14 +74,14 @@ class TrainingStatsV2Model {
     }
     double calc(int c, int h) => h > 0 ? c / h : 0.0;
     final accByPos = {
-      for (final p in posHands.keys) p: calc(posCorrect[p] ?? 0, posHands[p]!)
+      for (final p in posHands.keys) p: calc(posCorrect[p] ?? 0, posHands[p]!),
     };
     final accByStack = {
       for (final s in stackHands.keys)
-        s: calc(stackCorrect[s] ?? 0, stackHands[s]!)
+        s: calc(stackCorrect[s] ?? 0, stackHands[s]!),
     };
     final accByTag = {
-      for (final t in tagHands.keys) t: calc(tagCorrect[t] ?? 0, tagHands[t]!)
+      for (final t in tagHands.keys) t: calc(tagCorrect[t] ?? 0, tagHands[t]!),
     };
     final overall = calc(totalCorrect, totalHands);
     return TrainingStatsV2Model(

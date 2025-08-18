@@ -10,7 +10,7 @@ class TrainingPackPreviewService {
   final TrainingSpotGeneratorService _generator;
 
   TrainingPackPreviewService({TrainingSpotGeneratorService? generator})
-      : _generator = generator ?? TrainingSpotGeneratorService();
+    : _generator = generator ?? TrainingSpotGeneratorService();
 
   List<TrainingPackPreviewSpot> getPreviewSpots(
     TrainingPackTemplateV2 tpl, {
@@ -21,12 +21,14 @@ class TrainingPackPreviewService {
     final m = ConstraintResolverEngine.normalizeParams(
       Map<String, dynamic>.from(dyn),
     );
-    final tagList =
-        (m['handGroupTags'] as List?)?.map((e) => e.toString()).toList();
+    final tagList = (m['handGroupTags'] as List?)
+        ?.map((e) => e.toString())
+        .toList();
     if (tagList != null && tagList.isNotEmpty) {
       final expanded = HandGroupTagLibraryService.expandTags(tagList);
-      final existing =
-          (m['handGroup'] as List? ?? []).map((e) => e.toString()).toList();
+      final existing = (m['handGroup'] as List? ?? [])
+          .map((e) => e.toString())
+          .toList();
       m['handGroup'] = [...existing, ...expanded];
     }
     Map<String, dynamic>? boardFilter;

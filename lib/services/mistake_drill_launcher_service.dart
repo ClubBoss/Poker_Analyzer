@@ -17,8 +17,8 @@ class MistakeDrillLauncherService {
     required this.generator,
     TrainingSessionLauncher launcher = const TrainingSessionLauncher(),
     RecentPackStore? store,
-  })  : launcher = launcher,
-        store = store ?? RecentPackStore.instance;
+  }) : launcher = launcher,
+       store = store ?? RecentPackStore.instance;
 
   /// Returns `true` if enough time has passed since the last auto drill.
   Future<bool> shouldTriggerAutoDrill({DateTime? now}) async {
@@ -37,10 +37,7 @@ class MistakeDrillLauncherService {
   /// Marks the auto drill as shown to enforce cooldown without launching.
   Future<void> markShown() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(
-      _cooldownKey,
-      DateTime.now().millisecondsSinceEpoch,
-    );
+    await prefs.setInt(_cooldownKey, DateTime.now().millisecondsSinceEpoch);
   }
 
   /// Generates a drill from recent mistakes and launches training if possible.

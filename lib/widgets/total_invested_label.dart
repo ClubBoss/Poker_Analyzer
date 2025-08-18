@@ -8,11 +8,8 @@ class TotalInvestedLabel extends StatelessWidget {
   /// Scale factor for sizing.
   final double scale;
 
-  const TotalInvestedLabel({
-    Key? key,
-    required this.total,
-    this.scale = 1.0,
-  }) : super(key: key);
+  const TotalInvestedLabel({Key? key, required this.total, this.scale = 1.0})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,11 +21,7 @@ class TotalInvestedLabel extends StatelessWidget {
         fontSize: 12 * scale,
         fontWeight: FontWeight.w600,
         shadows: const [
-          Shadow(
-            offset: Offset(1, 1),
-            blurRadius: 2,
-            color: Colors.black54,
-          ),
+          Shadow(offset: Offset(1, 1), blurRadius: 2, color: Colors.black54),
         ],
       ),
     );

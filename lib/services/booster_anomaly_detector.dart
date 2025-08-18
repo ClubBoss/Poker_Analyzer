@@ -13,10 +13,11 @@ class BoosterAnomalyDetector {
     if (!directory.existsSync()) return const BoosterAnomalyReport();
     final reader = const YamlReader();
     final packs = <TrainingPackTemplateV2>[];
-    for (final f in directory
-        .listSync(recursive: true)
-        .whereType<File>()
-        .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
+    for (final f
+        in directory
+            .listSync(recursive: true)
+            .whereType<File>()
+            .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
       try {
         final yaml = await f.readAsString();
         final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
@@ -85,7 +86,8 @@ class BoosterAnomalyDetector {
       }
       if ((maxVal - minVal).abs() > 0.6) {
         outliers.add(
-            '${e.key}:${minVal.toStringAsFixed(2)}-${maxVal.toStringAsFixed(2)}');
+          '${e.key}:${minVal.toStringAsFixed(2)}-${maxVal.toStringAsFixed(2)}',
+        );
       }
     }
 

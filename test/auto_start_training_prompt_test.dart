@@ -15,15 +15,20 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     final pushSpot = TrainingPackSpot(id: 'a', tags: ['push']);
     final foldSpot = TrainingPackSpot(id: 'b', tags: ['fold']);
-    final tpl =
-        TrainingPackTemplate(id: 't', name: 't', spots: [pushSpot, foldSpot]);
+    final tpl = TrainingPackTemplate(
+      id: 't',
+      name: 't',
+      spots: [pushSpot, foldSpot],
+    );
     final service = TrainingSessionService();
     await tester.pumpWidget(
       ChangeNotifierProvider<TrainingSessionService>.value(
         value: service,
         child: MaterialApp(
-          home:
-              TrainingPackTemplateEditorScreen(template: tpl, templates: [tpl]),
+          home: TrainingPackTemplateEditorScreen(
+            template: tpl,
+            templates: [tpl],
+          ),
         ),
       ),
     );

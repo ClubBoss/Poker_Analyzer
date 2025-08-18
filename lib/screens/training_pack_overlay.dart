@@ -18,8 +18,9 @@ class TrainingPackOverlay extends StatelessWidget {
 
   Future<void> _export(BuildContext context) async {
     // Export functionality is not yet implemented; show a placeholder message.
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Export is unavailable')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Export is unavailable')));
   }
 
   Future<void> _share(BuildContext context) async {
@@ -28,8 +29,9 @@ class TrainingPackOverlay extends StatelessWidget {
 
   Future<void> _print(BuildContext context) async {
     // Printing is currently unsupported; notify the user.
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Print is unavailable')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Print is unavailable')));
   }
 
   @override

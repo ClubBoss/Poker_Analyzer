@@ -27,11 +27,16 @@ void main() {
       telemetry: telemetry,
     );
     final prints = <String>[];
-    await runZoned(() async {
-      await controller.onResult('spot1', false, ['tag1']);
-    }, zoneSpecification: ZoneSpecification(print: (self, parent, zone, line) {
-      prints.add(line);
-    }));
+    await runZoned(
+      () async {
+        await controller.onResult('spot1', false, ['tag1']);
+      },
+      zoneSpecification: ZoneSpecification(
+        print: (self, parent, zone, line) {
+          prints.add(line);
+        },
+      ),
+    );
     expect(prints, isEmpty);
   });
 }

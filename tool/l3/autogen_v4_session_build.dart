@@ -39,8 +39,8 @@ void main(List<String> args) {
   final mode = modeStr == 'inline'
       ? RefMode.inline
       : modeStr == 'refs'
-          ? RefMode.refs
-          : null;
+      ? RefMode.refs
+      : null;
   if (indexPath == null ||
       preset == null ||
       perPack == null ||
@@ -56,11 +56,15 @@ void main(List<String> args) {
 
   final indexFile = File(indexPath);
   final index = PackIndex.loadIndex(indexFile);
-  final entries = index.entries
-      .where((e) =>
-          e.preset == preset && (e.format == 'compact' || e.format == 'pretty'))
-      .toList()
-    ..sort((a, b) => a.filename.compareTo(b.filename));
+  final entries =
+      index.entries
+          .where(
+            (e) =>
+                e.preset == preset &&
+                (e.format == 'compact' || e.format == 'pretty'),
+          )
+          .toList()
+        ..sort((a, b) => a.filename.compareTo(b.filename));
 
   final files = <String>[];
   final itemRefs = <SessionItemRef>[];
@@ -79,12 +83,14 @@ void main(List<String> args) {
       if (mode == RefMode.refs) {
         itemRefs.add(SessionItemRef(file: entry.filename, index: i));
       } else {
-        inlineItems.add(SpotDTO(
-          board: it['board'] as String,
-          street: it['street'] as String,
-          spr: it['spr'] as String,
-          pos: it['pos'] as String,
-        ));
+        inlineItems.add(
+          SpotDTO(
+            board: it['board'] as String,
+            street: it['street'] as String,
+            spr: it['spr'] as String,
+            pos: it['pos'] as String,
+          ),
+        );
       }
       total++;
     }
@@ -110,10 +116,12 @@ void main(List<String> args) {
   outFile.writeAsStringSync(out);
 
   stdout.writeln(
-      'wrote session name=$name packs=\${files.length} perPack=$perPack total=$total mode=\${mode.name}');
+    'wrote session name=$name packs=\${files.length} perPack=$perPack total=$total mode=\${mode.name}',
+  );
 }
 
 void _usage() {
   stdout.writeln(
-      'usage: --index=path [--filter-preset mvs] [--per-pack N] [--max-packs K] [--mode refs|inline] [--manifest-format compact|pretty] [--out dir] [--name file]');
+    'usage: --index=path [--filter-preset mvs] [--per-pack N] [--max-packs K] [--mode refs|inline] [--manifest-format compact|pretty] [--out dir] [--name file]',
+  );
 }

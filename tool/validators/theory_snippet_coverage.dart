@@ -56,7 +56,8 @@ void main(List<String> args) {
     stderr.writeln('::error file=$snippetsPath::missing snippet for tag $tag');
   }
   stdout.writeln(
-      'coverage ${(coverage * 100).toStringAsFixed(1)}% ($covered/${tags.length})');
+    'coverage ${(coverage * 100).toStringAsFixed(1)}% ($covered/${tags.length})',
+  );
   if (coverage < min) {
     exit(1);
   }

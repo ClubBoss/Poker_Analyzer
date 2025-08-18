@@ -34,7 +34,8 @@ class _ActionEditorListState extends State<ActionEditorList> {
       entry: ActionEntry(0, 0, 'call'),
       numberOfPlayers: widget.players,
       playerPositions: {
-        for (int i = 0; i < widget.positions.length; i++) i: widget.positions[i]
+        for (int i = 0; i < widget.positions.length; i++)
+          i: widget.positions[i],
       },
     );
     if (entry != null) {
@@ -51,7 +52,8 @@ class _ActionEditorListState extends State<ActionEditorList> {
       entry: _actions[index],
       numberOfPlayers: widget.players,
       playerPositions: {
-        for (int i = 0; i < widget.positions.length; i++) i: widget.positions[i]
+        for (int i = 0; i < widget.positions.length; i++)
+          i: widget.positions[i],
       },
     );
     if (edited != null) {

@@ -14,10 +14,14 @@ void main() {
   test('builds inbox items for decayed tags', () async {
     final retention = const DecayTagRetentionTrackerService();
     final now = DateTime.now();
-    await retention.markBoosterCompleted('alpha',
-        time: now.subtract(const Duration(days: 40)));
-    await retention.markBoosterCompleted('beta',
-        time: now.subtract(const Duration(days: 20)));
+    await retention.markBoosterCompleted(
+      'alpha',
+      time: now.subtract(const Duration(days: 40)),
+    );
+    await retention.markBoosterCompleted(
+      'beta',
+      time: now.subtract(const Duration(days: 20)),
+    );
 
     final service = SmartDecayInboxBoosterService(retention: retention);
     final items = await service.getItems(limit: 1);

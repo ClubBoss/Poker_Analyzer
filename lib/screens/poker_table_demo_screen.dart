@@ -24,12 +24,12 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
   final _history = TableEditHistory();
 
   TableState get _state => TableState(
-        playerCount: _playerCount,
-        names: List<String>.from(_names),
-        stacks: List<double>.from(_stacks),
-        heroIndex: _heroIndex,
-        pot: _pot,
-      );
+    playerCount: _playerCount,
+    names: List<String>.from(_names),
+    stacks: List<double>.from(_stacks),
+    heroIndex: _heroIndex,
+    pot: _pot,
+  );
 
   @override
   void initState() {
@@ -53,8 +53,9 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
       _playerCount = (_playerCount + delta).clamp(2, 10);
       if (_names.length < _playerCount) {
         final start = _names.length;
-        _names.addAll(List.generate(
-            _playerCount - start, (i) => 'Player ${start + i + 1}'));
+        _names.addAll(
+          List.generate(_playerCount - start, (i) => 'Player ${start + i + 1}'),
+        );
       } else if (_names.length > _playerCount) {
         _names = _names.sublist(0, _playerCount);
       }
@@ -70,7 +71,8 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
       }
       if (_actions.length < _playerCount) {
         _actions.addAll(
-            List.filled(_playerCount - _actions.length, PlayerAction.none));
+          List.filled(_playerCount - _actions.length, PlayerAction.none),
+        );
       } else if (_actions.length > _playerCount) {
         _actions = _actions.sublist(0, _playerCount);
       }
@@ -110,17 +112,17 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
   }
 
   void _resetActions() => setState(() {
-        _actions = List.filled(_playerCount, PlayerAction.none);
-        _bets = List.filled(_playerCount, 0.0);
-      });
+    _actions = List.filled(_playerCount, PlayerAction.none);
+    _bets = List.filled(_playerCount, 0.0);
+  });
 
   Future<void> _copyJson() async {
     final jsonStr = jsonEncode(_state.toJson());
     await Clipboard.setData(ClipboardData(text: jsonStr));
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Table copied')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Table copied')));
     }
   }
 
@@ -133,9 +135,9 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
       final state = TableState.fromJson(Map<String, dynamic>.from(json as Map));
       _applyState(state);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Table pasted')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Table pasted')));
       }
     } catch (_) {
       if (mounted) {
@@ -223,8 +225,10 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
                   onPressed: () => _changeCount(-1),
                   icon: const Icon(Icons.remove),
                 ),
-                Text('$_playerCount',
-                    style: const TextStyle(color: Colors.white)),
+                Text(
+                  '$_playerCount',
+                  style: const TextStyle(color: Colors.white),
+                ),
                 IconButton(
                   onPressed: () => _changeCount(1),
                   icon: const Icon(Icons.add),

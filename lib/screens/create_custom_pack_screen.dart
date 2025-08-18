@@ -212,8 +212,9 @@ class _CreateCustomPackScreenState extends State<CreateCustomPackScreen> {
       MaterialPageRoute(builder: (_) => const MyTrainingPacksScreen()),
       (r) => false,
     );
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Пак сохранён')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Пак сохранён')));
   }
 
   @override
@@ -255,9 +256,13 @@ class _CreateCustomPackScreenState extends State<CreateCustomPackScreen> {
                   decoration: const InputDecoration(labelText: 'Тип игры'),
                   items: const [
                     DropdownMenuItem(
-                        value: GameType.tournament, child: Text('Tournament')),
+                      value: GameType.tournament,
+                      child: Text('Tournament'),
+                    ),
                     DropdownMenuItem(
-                        value: GameType.cash, child: Text('Cash Game')),
+                      value: GameType.cash,
+                      child: Text('Cash Game'),
+                    ),
                   ],
                   onChanged: (v) =>
                       setState(() => _gameType = v ?? GameType.cash),
@@ -267,14 +272,16 @@ class _CreateCustomPackScreenState extends State<CreateCustomPackScreen> {
                   leading: CircleAvatar(backgroundColor: _color),
                   title: const Text('Цвет'),
                   trailing: IconButton(
-                      icon: const Icon(Icons.color_lens),
-                      onPressed: _pickColor),
+                    icon: const Icon(Icons.color_lens),
+                    onPressed: _pickColor,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: _tagsController,
-                  decoration:
-                      const InputDecoration(labelText: 'Теги через запятую'),
+                  decoration: const InputDecoration(
+                    labelText: 'Теги через запятую',
+                  ),
                 ),
               ],
             ),
@@ -300,8 +307,9 @@ class _CreateCustomPackScreenState extends State<CreateCustomPackScreen> {
                   child: ListTile(
                     leading: const Icon(Icons.drag_handle),
                     title: Text(title),
-                    subtitle:
-                        hand.tags.isEmpty ? null : Text(hand.tags.join(', ')),
+                    subtitle: hand.tags.isEmpty
+                        ? null
+                        : Text(hand.tags.join(', ')),
                   ),
                 );
               },
@@ -313,7 +321,7 @@ class _CreateCustomPackScreenState extends State<CreateCustomPackScreen> {
               onPressed: _addHands,
               child: const Text('Добавить раздачи'),
             ),
-          )
+          ),
         ],
       ),
     );

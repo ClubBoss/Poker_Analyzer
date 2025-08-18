@@ -8,22 +8,28 @@ class GoalsOverviewScreen extends StatelessWidget {
 
   Future<void> _editHands(BuildContext context) async {
     final service = context.read<GoalsService>();
-    final ctrl =
-        TextEditingController(text: service.weeklyHandsTarget.toString());
+    final ctrl = TextEditingController(
+      text: service.weeklyHandsTarget.toString(),
+    );
     final val = await showDialog<int>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: Colors.grey[900],
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Цель раздач за неделю'),
-        content:
-            TextField(controller: ctrl, keyboardType: TextInputType.number),
+        content: TextField(
+          controller: ctrl,
+          keyboardType: TextInputType.number,
+        ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text('Отмена')),
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Отмена'),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(ctx, int.tryParse(ctrl.text)),
-              child: const Text('OK')),
+            onPressed: () => Navigator.pop(ctx, int.tryParse(ctrl.text)),
+            child: const Text('OK'),
+          ),
         ],
       ),
     );
@@ -33,44 +39,54 @@ class GoalsOverviewScreen extends StatelessWidget {
   Future<void> _editAccuracy(BuildContext context) async {
     final service = context.read<GoalsService>();
     final ctrl = TextEditingController(
-        text: service.weeklyAccuracyTarget.toStringAsFixed(1));
+      text: service.weeklyAccuracyTarget.toStringAsFixed(1),
+    );
     final val = await showDialog<double>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: Colors.grey[900],
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Цель точности %'),
-        content:
-            TextField(controller: ctrl, keyboardType: TextInputType.number),
+        content: TextField(
+          controller: ctrl,
+          keyboardType: TextInputType.number,
+        ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text('Отмена')),
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Отмена'),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(ctx, double.tryParse(ctrl.text)),
-              child: const Text('OK')),
+            onPressed: () => Navigator.pop(ctx, double.tryParse(ctrl.text)),
+            child: const Text('OK'),
+          ),
         ],
       ),
     );
     if (val != null) await service.setWeeklyAccuracyTarget(val);
   }
 
-  Widget _tile(BuildContext context,
-      {required String title,
-      required double progress,
-      required double target,
-      required double prev,
-      required VoidCallback onEdit,
-      bool percent = false}) {
+  Widget _tile(
+    BuildContext context, {
+    required String title,
+    required double progress,
+    required double target,
+    required double prev,
+    required VoidCallback onEdit,
+    bool percent = false,
+  }) {
     final accent = Theme.of(context).colorScheme.secondary;
     final completed = progress >= target;
     final bar = target == 0 ? 0.0 : (progress / target).clamp(0.0, 1.0);
     final pText = percent
         ? '${progress.toStringAsFixed(1)}%'
         : progress.round().toString();
-    final tText =
-        percent ? '${target.toStringAsFixed(1)}%' : target.round().toString();
-    final prevText =
-        percent ? '${prev.toStringAsFixed(1)}%' : prev.round().toString();
+    final tText = percent
+        ? '${target.toStringAsFixed(1)}%'
+        : target.round().toString();
+    final prevText = percent
+        ? '${prev.toStringAsFixed(1)}%'
+        : prev.round().toString();
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
@@ -84,14 +100,20 @@ class GoalsOverviewScreen extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(title,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold)),
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
               if (completed)
                 const Icon(Icons.emoji_events, color: Colors.amber),
               IconButton(
-                  icon: const Icon(Icons.edit, size: 20), onPressed: onEdit),
+                icon: const Icon(Icons.edit, size: 20),
+                onPressed: onEdit,
+              ),
             ],
           ),
           const SizedBox(height: 8),
@@ -106,8 +128,10 @@ class GoalsOverviewScreen extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text('$pText / $tText'),
-          Text('Прошлая неделя: $prevText',
-              style: const TextStyle(color: Colors.white70)),
+          Text(
+            'Прошлая неделя: $prevText',
+            style: const TextStyle(color: Colors.white70),
+          ),
         ],
       ),
     );
@@ -126,19 +150,23 @@ class GoalsOverviewScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         actions: [SyncStatusIcon.of(context)],
         children: [
-          _tile(context,
-              title: 'Раздач за неделю',
-              progress: hands,
-              target: service.weeklyHandsTarget.toDouble(),
-              prev: handsPrev,
-              onEdit: () => _editHands(context)),
-          _tile(context,
-              title: 'Средняя точность',
-              progress: accuracy,
-              target: service.weeklyAccuracyTarget,
-              prev: accuracyPrev,
-              onEdit: () => _editAccuracy(context),
-              percent: true),
+          _tile(
+            context,
+            title: 'Раздач за неделю',
+            progress: hands,
+            target: service.weeklyHandsTarget.toDouble(),
+            prev: handsPrev,
+            onEdit: () => _editHands(context),
+          ),
+          _tile(
+            context,
+            title: 'Средняя точность',
+            progress: accuracy,
+            target: service.weeklyAccuracyTarget,
+            prev: accuracyPrev,
+            onEdit: () => _editAccuracy(context),
+            percent: true,
+          ),
         ],
       ),
     );

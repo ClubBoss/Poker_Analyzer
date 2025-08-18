@@ -8,11 +8,8 @@ class PlayerStackLabel extends StatelessWidget {
   /// Scale factor for sizing.
   final double scale;
 
-  const PlayerStackLabel({
-    Key? key,
-    required this.stack,
-    this.scale = 1.0,
-  }) : super(key: key);
+  const PlayerStackLabel({Key? key, required this.stack, this.scale = 1.0})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {

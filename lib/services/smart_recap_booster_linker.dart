@@ -15,7 +15,8 @@ class SmartRecapBoosterLinker {
 
   /// Returns booster packs matching lesson tags sorted by pack size ascending.
   Future<List<TrainingPackTemplateV2>> getBoostersForLesson(
-      TheoryMiniLessonNode lesson) async {
+    TheoryMiniLessonNode lesson,
+  ) async {
     final tags = {for (final t in lesson.tags) t.trim().toLowerCase()}
       ..removeWhere((t) => t.isEmpty);
     if (tags.isEmpty) return [];
@@ -29,7 +30,7 @@ class SmartRecapBoosterLinker {
     for (final model in storage.templates) {
       final raw = model.filters['tags'];
       final tplTags = <String>[
-        for (final t in (raw as List? ?? [])) t.toString()
+        for (final t in (raw as List? ?? [])) t.toString(),
       ];
       final tplTagSet = {for (final t in tplTags) t.trim().toLowerCase()}
         ..removeWhere((t) => t.isEmpty);

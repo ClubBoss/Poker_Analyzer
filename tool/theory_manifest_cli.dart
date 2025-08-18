@@ -26,7 +26,8 @@ Future<void> main(List<String> args) async {
 
   if (dirs.isEmpty) {
     stderr.writeln(
-        'Usage: dart run tool/theory_manifest_cli.dart --dir <path> [--dir <path> ...] [--out theory_manifest.json]');
+      'Usage: dart run tool/theory_manifest_cli.dart --dir <path> [--dir <path> ...] [--out theory_manifest.json]',
+    );
     exit(2);
   }
 
@@ -37,8 +38,10 @@ Future<void> main(List<String> args) async {
     final directory = Directory(dir);
     if (!directory.existsSync()) continue;
 
-    await for (final entity
-        in directory.list(recursive: true, followLinks: false)) {
+    await for (final entity in directory.list(
+      recursive: true,
+      followLinks: false,
+    )) {
       if (entity is File && entity.path.toLowerCase().endsWith('.yaml')) {
         final relPath = p.relative(entity.path, from: repoRoot);
         final bytes = await entity.readAsBytes();
@@ -56,9 +59,11 @@ Future<void> main(List<String> args) async {
   }
 
   final outFile = File(outPath);
-  await outFile
-      .writeAsString(const JsonEncoder.withIndent('  ').convert(manifest));
+  await outFile.writeAsString(
+    const JsonEncoder.withIndent('  ').convert(manifest),
+  );
 
   stdout.writeln(
-      '✅ Wrote ${manifest.length} entries to $outPath from ${dirs.length} directories.');
+    '✅ Wrote ${manifest.length} entries to $outPath from ${dirs.length} directories.',
+  );
 }

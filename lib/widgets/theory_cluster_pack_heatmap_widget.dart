@@ -34,8 +34,7 @@ class TheoryClusterPackHeatmapWidget extends StatelessWidget {
           final matched = shared.where(tagSet.contains).length;
           final coverage = shared.isEmpty ? 0.0 : matched / shared.length;
           return _ClusterCoverage(cluster: c, coverage: coverage);
-        }).toList()
-          ..sort((a, b) => b.coverage.compareTo(a.coverage));
+        }).toList()..sort((a, b) => b.coverage.compareTo(a.coverage));
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,

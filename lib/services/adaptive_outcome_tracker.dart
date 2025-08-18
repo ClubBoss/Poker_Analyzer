@@ -7,8 +7,11 @@ class OutcomeStats {
   final int n;
   final double meanDelta;
   final double varDelta;
-  const OutcomeStats(
-      {required this.n, required this.meanDelta, required this.varDelta});
+  const OutcomeStats({
+    required this.n,
+    required this.meanDelta,
+    required this.varDelta,
+  });
 }
 
 class AdaptiveOutcomeTracker {
@@ -49,7 +52,10 @@ class AdaptiveOutcomeTracker {
   }
 
   double _estimateBaseline(
-      Map<String, dynamic> data, List<String> tags, int window) {
+    Map<String, dynamic> data,
+    List<String> tags,
+    int window,
+  ) {
     final records = data.values.whereType<Map>().toList();
     records.sort((a, b) {
       final aT = DateTime.tryParse(a['completedAt'] ?? '') ?? DateTime(0);
@@ -76,7 +82,8 @@ class AdaptiveOutcomeTracker {
   }) async {
     final data = await _load(userId);
     final rec = Map<String, dynamic>.from(data[m.moduleId] ?? {});
-    final tags = (rec['tags'] as List?)?.cast<String>() ??
+    final tags =
+        (rec['tags'] as List?)?.cast<String>() ??
         (m.metrics['clusterTags'] as List?)?.cast<String>() ??
         const [];
     final base = (rec['baselinePass'] as num?)?.toDouble() ?? 0.5;
@@ -129,7 +136,7 @@ class AdaptiveOutcomeTracker {
       if (pass == null || base == null) continue;
       final delta =
           (pass.clamp(0.0, 1.0) - base.clamp(0.0, 1.0)).clamp(-1.0, 1.0) /
-              tags.length;
+          tags.length;
       n++;
       final diff = delta - mean;
       mean += diff / n;

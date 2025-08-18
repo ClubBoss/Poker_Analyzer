@@ -47,13 +47,16 @@ class _RecommendedDrillTileState extends State<RecommendedDrillTile> {
     }
     await TrainingPackLibraryLoaderService.instance.preloadLibrary();
     final packs = TrainingPackLibraryLoaderService.instance.loadedTemplates;
-    final pack = packs.firstWhereOrNull((p) =>
-        p.meta['type'] == 'booster' &&
-        p.meta['tag']?.toString().toLowerCase() == tag);
+    final pack = packs.firstWhereOrNull(
+      (p) =>
+          p.meta['type'] == 'booster' &&
+          p.meta['tag']?.toString().toLowerCase() == tag,
+    );
     double? progress;
     if (pack != null) {
-      final idx =
-          await BoosterProgressTrackerService.instance.getLastIndex(pack.id);
+      final idx = await BoosterProgressTrackerService.instance.getLastIndex(
+        pack.id,
+      );
       if (idx != null && pack.spotCount > 0) {
         progress = (idx + 1) / pack.spotCount;
       }
@@ -81,11 +84,13 @@ class _RecommendedDrillTileState extends State<RecommendedDrillTile> {
           content: Text('Continue from spot ${idx + 1}?'),
           actions: [
             TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Restart')),
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Restart'),
+            ),
             TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Continue')),
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Continue'),
+            ),
           ],
         ),
       );
@@ -122,8 +127,10 @@ class _RecommendedDrillTileState extends State<RecommendedDrillTile> {
           if (pack.description.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(pack.description,
-                  style: const TextStyle(color: Colors.white70)),
+              child: Text(
+                pack.description,
+                style: const TextStyle(color: Colors.white70),
+              ),
             ),
           if (_progress != null)
             Padding(

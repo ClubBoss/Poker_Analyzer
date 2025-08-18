@@ -6,7 +6,9 @@ class BanditWeightLearner {
   static final BanditWeightLearner instance = BanditWeightLearner._();
 
   Future<void> updateFromOutcome(
-      String userId, Map<String, double> tagDeltas) async {
+    String userId,
+    Map<String, double> tagDeltas,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
     final scale = prefs.getDouble('bandit.deltaScale') ?? 0.1;
     final maxVal = prefs.getDouble('bandit.maxAlphaBeta') ?? 10000;

@@ -34,19 +34,12 @@ void main() {
           'lessonId': 'd',
           'timestamp': now.subtract(const Duration(days: 1)).toIso8601String(),
         },
-        {
-          'lessonId': 'e',
-          'timestamp': now.toIso8601String(),
-        }
-      ])
+        {'lessonId': 'e', 'timestamp': now.toIso8601String()},
+      ]),
     });
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(
-          body: LessonStreakBadgeTooltipWidget(),
-        ),
-      ),
+      const MaterialApp(home: Scaffold(body: LessonStreakBadgeTooltipWidget())),
     );
     await tester.pump();
 

@@ -25,42 +25,45 @@ class _CorrectedMistakeHistoryScreenState
       for (final h in hands)
         if (h.corrected &&
             (widget.category == null || h.category == widget.category))
-          h
+          h,
     ]..sort((a, b) => b.savedAt.compareTo(a.savedAt));
     final filtered = _evOnly
         ? [
             for (final h in all)
-              if (h.evLossRecovered != null && h.evLossRecovered! > 0) h
+              if (h.evLossRecovered != null && h.evLossRecovered! > 0) h,
           ]
         : all;
     final title = widget.category == null
         ? 'Исправленные ошибки'
         : 'Исправленные ошибки: ${translateCategory(widget.category).isEmpty ? 'Без категории' : translateCategory(widget.category)}';
     return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(title), centerTitle: true),
       body: all.isEmpty
           ? const Center(
-              child:
-                  Text('Нет данных', style: TextStyle(color: Colors.white70)),
+              child: Text(
+                'Нет данных',
+                style: TextStyle(color: Colors.white70),
+              ),
             )
           : Column(
               children: [
                 SwitchListTile(
                   value: _evOnly,
                   onChanged: (v) => setState(() => _evOnly = v),
-                  title: const Text('Показать только с EV',
-                      style: TextStyle(color: Colors.white)),
+                  title: const Text(
+                    'Показать только с EV',
+                    style: TextStyle(color: Colors.white),
+                  ),
                   activeColor: Colors.orange,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                 ),
                 Expanded(
                   child: filtered.isEmpty
                       ? const Center(
-                          child: Text('Нет данных',
-                              style: TextStyle(color: Colors.white70)),
+                          child: Text(
+                            'Нет данных',
+                            style: TextStyle(color: Colors.white70),
+                          ),
                         )
                       : ListView.builder(
                           padding: const EdgeInsets.all(16),
@@ -91,20 +94,25 @@ class _CorrectedMistakeHistoryScreenState
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text(h.heroPosition,
-                                              style: const TextStyle(
-                                                  color: Colors.white)),
+                                          Text(
+                                            h.heroPosition,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
                                           if (h.evLossRecovered != null)
                                             Text(
                                               '+${h.evLossRecovered!.toStringAsFixed(2)} EV',
                                               style: const TextStyle(
-                                                  color: Colors.greenAccent,
-                                                  fontSize: 12),
+                                                color: Colors.greenAccent,
+                                                fontSize: 12,
+                                              ),
                                             ),
                                           if (h.tags.isNotEmpty)
                                             Padding(
-                                              padding:
-                                                  const EdgeInsets.only(top: 4),
+                                              padding: const EdgeInsets.only(
+                                                top: 4,
+                                              ),
                                               child: Wrap(
                                                 spacing: 4,
                                                 children: [
@@ -113,11 +121,12 @@ class _CorrectedMistakeHistoryScreenState
                                                       label: Text(t),
                                                       backgroundColor:
                                                           const Color(
-                                                              0xFF3A3B3E),
+                                                            0xFF3A3B3E,
+                                                          ),
                                                       labelStyle:
                                                           const TextStyle(
-                                                              color:
-                                                                  Colors.white),
+                                                            color: Colors.white,
+                                                          ),
                                                       visualDensity:
                                                           VisualDensity.compact,
                                                     ),
@@ -127,8 +136,10 @@ class _CorrectedMistakeHistoryScreenState
                                         ],
                                       ),
                                     ),
-                                    const Icon(Icons.chevron_right,
-                                        color: Colors.white),
+                                    const Icon(
+                                      Icons.chevron_right,
+                                      color: Colors.white,
+                                    ),
                                   ],
                                 ),
                               ),

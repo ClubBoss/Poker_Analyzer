@@ -16,7 +16,7 @@ void main() {
     trainingType: TrainingType.pushFold,
     tags: ['btn'],
     spots: [
-      TrainingPackSpot(id: 's1', hand: HandData(), tags: ['btn', 'icm'])
+      TrainingPackSpot(id: 's1', hand: HandData(), tags: ['btn', 'icm']),
     ],
   );
   final tpl2 = TrainingPackTemplateV2(
@@ -25,7 +25,7 @@ void main() {
     trainingType: TrainingType.pushFold,
     tags: ['sb'],
     spots: [
-      TrainingPackSpot(id: 's2', hand: HandData(), tags: ['sb'])
+      TrainingPackSpot(id: 's2', hand: HandData(), tags: ['sb']),
     ],
   );
 

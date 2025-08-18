@@ -4,8 +4,11 @@ class SessionStreakOverlay extends StatefulWidget {
   final int streak;
   final VoidCallback onDismiss;
 
-  const SessionStreakOverlay(
-      {super.key, required this.streak, required this.onDismiss});
+  const SessionStreakOverlay({
+    super.key,
+    required this.streak,
+    required this.onDismiss,
+  });
 
   @override
   State<SessionStreakOverlay> createState() => _SessionStreakOverlayState();
@@ -52,8 +55,10 @@ class _SessionStreakOverlayState extends State<SessionStreakOverlay>
               color: Colors.transparent,
               child: Center(
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   margin: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
                     color: Colors.grey[850],

@@ -50,8 +50,10 @@ class _RecapFatigueCooldownVisualizerState
     }
     keys.addAll(widget.tags.map((t) => 'tag:$t'));
 
-    final fatigued = await BoosterFatigueGuard.instance
-        .isFatigued(lessonId: widget.lessonId, trigger: widget.trigger);
+    final fatigued = await BoosterFatigueGuard.instance.isFatigued(
+      lessonId: widget.lessonId,
+      trigger: widget.trigger,
+    );
 
     bool dismissed = false;
     for (final k in keys) {
@@ -64,25 +66,29 @@ class _RecapFatigueCooldownVisualizerState
     bool cooldown = false;
     for (final k in keys) {
       if (await TheoryBoosterRecapDelayManager.isUnderCooldown(
-          k, const Duration(hours: 24))) {
+        k,
+        const Duration(hours: 24),
+      )) {
         cooldown = true;
         break;
       }
     }
 
-    final dropoff =
-        await SmartBoosterDropoffDetector.instance.isInDropoffState();
+    final dropoff = await SmartBoosterDropoffDetector.instance
+        .isInDropoffState();
 
-    final suppressed =
-        await TheoryRecapSuppressionEngine.instance.shouldSuppress(
-      lessonId: widget.lessonId,
-      trigger: widget.trigger,
-    );
+    final suppressed = await TheoryRecapSuppressionEngine.instance
+        .shouldSuppress(lessonId: widget.lessonId, trigger: widget.trigger);
 
     final chips = <_ChipInfo>[];
     if (cooldown) {
-      chips.add(_ChipInfo('❗', 'Cooldown',
-          'Under cooldown since ${widget.timestamp.toIso8601String()}'));
+      chips.add(
+        _ChipInfo(
+          '❗',
+          'Cooldown',
+          'Under cooldown since ${widget.timestamp.toIso8601String()}',
+        ),
+      );
     }
     if (fatigued) {
       chips.add(_ChipInfo('💤', 'Fatigue', 'User dismissed previous prompts'));
@@ -91,8 +97,13 @@ class _RecapFatigueCooldownVisualizerState
       chips.add(_ChipInfo('🚫', 'Suppressed', 'Suppressed by analytics rules'));
     }
     if (dismissed) {
-      chips.add(_ChipInfo(
-          '😒', 'Dismissed recently', 'Dismissed recap prompts earlier'));
+      chips.add(
+        _ChipInfo(
+          '😒',
+          'Dismissed recently',
+          'Dismissed recap prompts earlier',
+        ),
+      );
     }
     if (dropoff) {
       chips.add(_ChipInfo('🔇', 'Dropoff', 'User is in dropoff state'));
@@ -116,9 +127,7 @@ class _RecapFatigueCooldownVisualizerState
             for (final c in chips)
               Tooltip(
                 message: c.tooltip,
-                child: Chip(
-                  label: Text('${c.emoji} ${c.label}'),
-                ),
+                child: Chip(label: Text('${c.emoji} ${c.label}')),
               ),
           ],
         );

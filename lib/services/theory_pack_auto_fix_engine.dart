@@ -27,6 +27,9 @@ class TheoryPackAutoFixEngine {
       );
     }
     return TheoryPackModel(
-        id: pack.id.trim(), title: title, sections: sections);
+      id: pack.id.trim(),
+      title: title,
+      sections: sections,
+    );
   }
 }

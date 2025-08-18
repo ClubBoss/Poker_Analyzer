@@ -18,7 +18,8 @@ class WeeklyProgressScreen extends StatelessWidget {
     final cards = h.playerCards[h.heroIndex];
     if (cards.length < 2) return null;
     return handCode(
-        '${cards[0].rank}${cards[0].suit} ${cards[1].rank}${cards[1].suit}');
+      '${cards[0].rank}${cards[0].suit} ${cards[1].rank}${cards[1].suit}',
+    );
   }
 
   double? _ev(SavedHand h) {
@@ -48,7 +49,7 @@ class WeeklyProgressScreen extends StatelessWidget {
       final code = _handCode(h);
       if (code != null && ev != null) {
         final stacks = [
-          for (int i = 0; i < h.numberOfPlayers; i++) h.stackSizes[i] ?? 0
+          for (int i = 0; i < h.numberOfPlayers; i++) h.stackSizes[i] ?? 0,
         ];
         icm = computeIcmPushEV(
           chipStacksBb: stacks,
@@ -65,8 +66,11 @@ class WeeklyProgressScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final hands = context.watch<SavedHandManagerService>().hands;
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day)
-        .subtract(const Duration(days: 6));
+    final start = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(const Duration(days: 6));
     final days = [for (int i = 0; i < 7; i++) start.add(Duration(days: i))];
     final Map<DateTime, List<SavedHand>> map = {for (final d in days) d: []};
     for (final h in hands) {
@@ -157,9 +161,11 @@ class WeeklyProgressScreen extends StatelessWidget {
                 ),
                 titlesData: FlTitlesData(
                   rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
                   topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
@@ -167,8 +173,10 @@ class WeeklyProgressScreen extends StatelessWidget {
                       reservedSize: 30,
                       getTitlesWidget: (value, meta) => Text(
                         value.toStringAsFixed(0),
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 10),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                        ),
                       ),
                     ),
                   ),
@@ -187,7 +195,9 @@ class WeeklyProgressScreen extends StatelessWidget {
                         return Text(
                           '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}',
                           style: const TextStyle(
-                              color: Colors.white, fontSize: 10),
+                            color: Colors.white,
+                            fontSize: 10,
+                          ),
                         );
                       },
                     ),
@@ -242,14 +252,20 @@ class WeeklyProgressScreen extends StatelessWidget {
                     style: const TextStyle(color: Colors.white),
                   ),
                   const Spacer(),
-                  Text('${s.accuracy.toStringAsFixed(1)}%',
-                      style: const TextStyle(color: Colors.orangeAccent)),
+                  Text(
+                    '${s.accuracy.toStringAsFixed(1)}%',
+                    style: const TextStyle(color: Colors.orangeAccent),
+                  ),
                   const SizedBox(width: 8),
-                  Text(s.ev.toStringAsFixed(2),
-                      style: const TextStyle(color: Colors.greenAccent)),
+                  Text(
+                    s.ev.toStringAsFixed(2),
+                    style: const TextStyle(color: Colors.greenAccent),
+                  ),
                   const SizedBox(width: 8),
-                  Text(s.icm.toStringAsFixed(3),
-                      style: const TextStyle(color: Colors.lightBlueAccent)),
+                  Text(
+                    s.icm.toStringAsFixed(3),
+                    style: const TextStyle(color: Colors.lightBlueAccent),
+                  ),
                 ],
               ),
             ),

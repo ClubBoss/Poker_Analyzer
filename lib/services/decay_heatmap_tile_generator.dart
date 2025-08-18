@@ -17,8 +17,9 @@ class DecayHeatmapTile {
 class DecayHeatmapTileGenerator {
   final TagDecayForecastService service;
 
-  const DecayHeatmapTileGenerator(
-      {this.service = const TagDecayForecastService()});
+  const DecayHeatmapTileGenerator({
+    this.service = const TagDecayForecastService(),
+  });
 
   Color _colorForUrgency(double u) {
     if (u <= 0.5) {
@@ -32,11 +33,13 @@ class DecayHeatmapTileGenerator {
     final result = <DecayHeatmapTile>[];
     for (final entry in forecasts.entries) {
       final urgency = entry.value.clamp(0.0, 1.0);
-      result.add(DecayHeatmapTile(
-        tag: entry.key,
-        urgency: urgency,
-        color: _colorForUrgency(urgency),
-      ));
+      result.add(
+        DecayHeatmapTile(
+          tag: entry.key,
+          urgency: urgency,
+          color: _colorForUrgency(urgency),
+        ),
+      );
     }
     return result;
   }

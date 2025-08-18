@@ -12,10 +12,11 @@ class TrainingPackTemplateStorage {
   final FirebaseFirestore _db;
   Box<dynamic>? _box;
 
-  TrainingPackTemplateStorage(
-      {TrainingPackYamlCodecV2? codec, FirebaseFirestore? firestore})
-      : codec = codec ?? const TrainingPackYamlCodecV2(),
-        _db = firestore ?? FirebaseFirestore.instance;
+  TrainingPackTemplateStorage({
+    TrainingPackYamlCodecV2? codec,
+    FirebaseFirestore? firestore,
+  }) : codec = codec ?? const TrainingPackYamlCodecV2(),
+       _db = firestore ?? FirebaseFirestore.instance;
 
   Future<void> _openBox() async {
     if (_box != null) return;
@@ -47,16 +48,16 @@ class TrainingPackTemplateStorage {
   Future<void> saveRemote(TrainingPackTemplateV2 template) async {
     final yaml = codec.encode(template);
     await CloudRetryPolicy.execute<void>(() async {
-      await _db
-          .collection('trainingTemplates')
-          .doc(template.id)
-          .set({'yaml': yaml});
+      await _db.collection('trainingTemplates').doc(template.id).set({
+        'yaml': yaml,
+      });
     });
   }
 
   Future<TrainingPackTemplateV2?> loadRemote(String id) async {
     final doc = await CloudRetryPolicy.execute(
-        () => _db.collection('trainingTemplates').doc(id).get());
+      () => _db.collection('trainingTemplates').doc(id).get(),
+    );
     if (!doc.exists) return null;
     final data = doc.data();
     final yaml = data?['yaml'];

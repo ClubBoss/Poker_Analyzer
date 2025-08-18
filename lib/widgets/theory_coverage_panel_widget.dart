@@ -6,7 +6,7 @@ import '../services/theory_gap_detector.dart';
 /// Dashboard panel displaying theory coverage gaps.
 class TheoryCoveragePanelWidget extends StatefulWidget {
   const TheoryCoveragePanelWidget({super.key, TheoryGapDetector? detector})
-      : detector = detector ?? TheoryGapDetector();
+    : detector = detector ?? TheoryGapDetector();
 
   final TheoryGapDetector detector;
 

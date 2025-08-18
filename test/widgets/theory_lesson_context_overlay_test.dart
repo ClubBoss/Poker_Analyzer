@@ -47,14 +47,16 @@ void main() {
   testWidgets('hides when no data', (tester) async {
     const lesson = TheoryMiniLessonNode(id: 'l1', title: 'L1', content: '');
     final lib = _FakeLibrary(const [lesson]);
-    await tester.pumpWidget(MaterialApp(
-      home: TheoryLessonContextOverlay(
-        lessonId: 'l1',
-        library: lib,
-        progress: MiniLessonProgressTracker.instance,
-        review: _FakeReview(),
+    await tester.pumpWidget(
+      MaterialApp(
+        home: TheoryLessonContextOverlay(
+          lessonId: 'l1',
+          library: lib,
+          progress: MiniLessonProgressTracker.instance,
+          review: _FakeReview(),
+        ),
       ),
-    ));
+    );
     await tester.pumpAndSettle();
     expect(find.textContaining('complete'), findsNothing);
     expect(find.text('Next'), findsNothing);
@@ -63,20 +65,24 @@ void main() {
   testWidgets('shows cluster progress', (tester) async {
     const l1 = TheoryMiniLessonNode(id: 'l1', title: 'L1', content: '');
     const l2 = TheoryMiniLessonNode(id: 'l2', title: 'L2', content: '');
-    final cluster =
-        TheoryLessonCluster(lessons: const [l1, l2], tags: const {});
+    final cluster = TheoryLessonCluster(
+      lessons: const [l1, l2],
+      tags: const {},
+    );
     final lib = _FakeLibrary(const [l1, l2]);
     await MiniLessonProgressTracker.instance.markCompleted('l1');
 
-    await tester.pumpWidget(MaterialApp(
-      home: TheoryLessonContextOverlay(
-        lessonId: 'l1',
-        cluster: cluster,
-        library: lib,
-        progress: MiniLessonProgressTracker.instance,
-        review: _FakeReview(),
+    await tester.pumpWidget(
+      MaterialApp(
+        home: TheoryLessonContextOverlay(
+          lessonId: 'l1',
+          cluster: cluster,
+          library: lib,
+          progress: MiniLessonProgressTracker.instance,
+          review: _FakeReview(),
+        ),
       ),
-    ));
+    );
     await tester.pumpAndSettle();
     expect(find.text('1 of 2 complete'), findsOneWidget);
   });

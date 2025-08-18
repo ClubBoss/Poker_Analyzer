@@ -53,9 +53,9 @@ class TheoryMiniLessonNode implements LearningPathNode {
     List<String>? linkedPackIds,
     this.recoveredFromMistake = false,
     this.autoContent = false,
-  })  : tags = tags ?? const [],
-        nextIds = nextIds ?? const [],
-        linkedPackIds = linkedPackIds ?? const [];
+  }) : tags = tags ?? const [],
+       nextIds = nextIds ?? const [],
+       linkedPackIds = linkedPackIds ?? const [];
 
   /// Returns [title] or the referenced block's title when empty.
   String get resolvedTitle {
@@ -83,10 +83,10 @@ class TheoryMiniLessonNode implements LearningPathNode {
     }
     final rawNext = yaml['nextIds'] ?? yaml['next'];
     final nextIds = <String>[
-      for (final v in (rawNext as List? ?? [])) v.toString()
+      for (final v in (rawNext as List? ?? [])) v.toString(),
     ];
     final linked = <String>[
-      for (final v in (yaml['linkedPackIds'] as List? ?? [])) v.toString()
+      for (final v in (yaml['linkedPackIds'] as List? ?? [])) v.toString(),
     ];
     return TheoryMiniLessonNode(
       id: yaml['id']?.toString() ?? '',
@@ -105,14 +105,14 @@ class TheoryMiniLessonNode implements LearningPathNode {
 
   factory TheoryMiniLessonNode.fromJson(Map<String, dynamic> json) {
     final tags = <String>[
-      for (final t in (json['tags'] as List? ?? [])) t.toString()
+      for (final t in (json['tags'] as List? ?? [])) t.toString(),
     ];
     final rawNext = json['nextIds'] ?? json['next'];
     final nextIds = <String>[
-      for (final v in (rawNext as List? ?? [])) v.toString()
+      for (final v in (rawNext as List? ?? [])) v.toString(),
     ];
     final linked = <String>[
-      for (final v in (json['linkedPackIds'] as List? ?? [])) v.toString()
+      for (final v in (json['linkedPackIds'] as List? ?? [])) v.toString(),
     ];
     return TheoryMiniLessonNode(
       id: json['id']?.toString() ?? '',
@@ -130,16 +130,16 @@ class TheoryMiniLessonNode implements LearningPathNode {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        if (refId != null) 'refId': refId,
-        'title': title,
-        'content': content,
-        if (tags.isNotEmpty) 'tags': tags,
-        if (targetStreet != null) 'targetStreet': targetStreet,
-        if (stage != null) 'stage': stage,
-        if (nextIds.isNotEmpty) 'nextIds': nextIds,
-        if (linkedPackIds.isNotEmpty) 'linkedPackIds': linkedPackIds,
-        if (recoveredFromMistake) 'recoveredFromMistake': recoveredFromMistake,
-        if (autoContent) 'autoContent': autoContent,
-      };
+    'id': id,
+    if (refId != null) 'refId': refId,
+    'title': title,
+    'content': content,
+    if (tags.isNotEmpty) 'tags': tags,
+    if (targetStreet != null) 'targetStreet': targetStreet,
+    if (stage != null) 'stage': stage,
+    if (nextIds.isNotEmpty) 'nextIds': nextIds,
+    if (linkedPackIds.isNotEmpty) 'linkedPackIds': linkedPackIds,
+    if (recoveredFromMistake) 'recoveredFromMistake': recoveredFromMistake,
+    if (autoContent) 'autoContent': autoContent,
+  };
 }

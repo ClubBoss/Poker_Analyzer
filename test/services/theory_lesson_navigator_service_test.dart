@@ -49,8 +49,8 @@ class _FakeTracker implements TheorySuggestionEngagementTrackerService {
 
   @override
   Future<List<TheorySuggestionEngagementEvent>> eventsByAction(
-          String action) async =>
-      const [];
+    String action,
+  ) async => const [];
 }
 
 void main() {
@@ -60,13 +60,29 @@ void main() {
   test('navigates within cluster alphabetically', () async {
     final lessons = [
       TheoryMiniLessonNode(
-          id: 'a', title: 'Alpha', content: '', tags: const ['x']),
+        id: 'a',
+        title: 'Alpha',
+        content: '',
+        tags: const ['x'],
+      ),
       TheoryMiniLessonNode(
-          id: 'b', title: 'Beta', content: '', tags: const ['x']),
+        id: 'b',
+        title: 'Beta',
+        content: '',
+        tags: const ['x'],
+      ),
       TheoryMiniLessonNode(
-          id: 'c', title: 'Gamma', content: '', tags: const ['x']),
+        id: 'c',
+        title: 'Gamma',
+        content: '',
+        tags: const ['x'],
+      ),
       TheoryMiniLessonNode(
-          id: 'd', title: 'Delta', content: '', tags: const ['y']),
+        id: 'd',
+        title: 'Delta',
+        content: '',
+        tags: const ['y'],
+      ),
     ];
     final linker = TheoryLessonClusterLinkerService(
       library: _FakeLibrary(lessons),

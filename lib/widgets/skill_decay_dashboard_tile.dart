@@ -36,17 +36,17 @@ class _SkillDecayDashboardTileState extends State<SkillDecayDashboardTile> {
     final engine = DecaySpotBoosterEngine();
     await engine.enqueueForTag(tag);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Споты добавлены в очередь')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Споты добавлены в очередь')));
   }
 
   Future<void> _reviewTheory(String tag) async {
     await TheoryBoosterQueueService.instance.enqueue(tag);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Теория добавлена в очередь')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Теория добавлена в очередь')));
   }
 
   @override

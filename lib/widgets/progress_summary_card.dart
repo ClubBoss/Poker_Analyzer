@@ -41,30 +41,39 @@ class _ProgressSummaryCardState extends State<ProgressSummaryCard>
     });
   }
 
-  Widget _item(IconData icon, String label, double value,
-      {bool percent = false}) {
+  Widget _item(
+    IconData icon,
+    String label,
+    double value, {
+    bool percent = false,
+  }) {
     return Expanded(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, color: Colors.amberAccent),
           const SizedBox(height: 2),
-          Text(label,
-              style: const TextStyle(color: Colors.white70, fontSize: 12)),
+          Text(
+            label,
+            style: const TextStyle(color: Colors.white70, fontSize: 12),
+          ),
           const SizedBox(height: 2),
           TweenAnimationBuilder<double>(
             tween: Tween(
-                begin: value == _stats.averageAccuracy
-                    ? _old.averageAccuracy
-                    : _old.averageEV,
-                end: value),
+              begin: value == _stats.averageAccuracy
+                  ? _old.averageAccuracy
+                  : _old.averageEV,
+              end: value,
+            ),
             duration: const Duration(milliseconds: 300),
             builder: (context, v, _) => Text(
               percent
                   ? '${(v * 100).toStringAsFixed(1)}%'
                   : v.toStringAsFixed(1),
               style: const TextStyle(
-                  color: Colors.white, fontWeight: FontWeight.bold),
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],
@@ -84,8 +93,12 @@ class _ProgressSummaryCardState extends State<ProgressSummaryCard>
       ),
       child: Row(
         children: [
-          _item(Icons.percent, l.averageAccuracy, _stats.averageAccuracy,
-              percent: true),
+          _item(
+            Icons.percent,
+            l.averageAccuracy,
+            _stats.averageAccuracy,
+            percent: true,
+          ),
           _item(Icons.trending_up, l.averageEv, _stats.averageEV),
           Expanded(
             child: Column(
@@ -93,19 +106,23 @@ class _ProgressSummaryCardState extends State<ProgressSummaryCard>
               children: [
                 const Icon(Icons.check_circle, color: Colors.amberAccent),
                 const SizedBox(height: 2),
-                Text(l.packsCompleted,
-                    style:
-                        const TextStyle(color: Colors.white70, fontSize: 12)),
+                Text(
+                  l.packsCompleted,
+                  style: const TextStyle(color: Colors.white70, fontSize: 12),
+                ),
                 const SizedBox(height: 2),
                 TweenAnimationBuilder<double>(
                   tween: Tween(
-                      begin: _old.packsCompleted.toDouble(),
-                      end: _stats.packsCompleted.toDouble()),
+                    begin: _old.packsCompleted.toDouble(),
+                    end: _stats.packsCompleted.toDouble(),
+                  ),
                   duration: const Duration(milliseconds: 300),
                   builder: (context, v, _) => Text(
                     v.toStringAsFixed(0),
                     style: const TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -115,22 +132,28 @@ class _ProgressSummaryCardState extends State<ProgressSummaryCard>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.local_fire_department,
-                    color: Colors.amberAccent),
+                const Icon(
+                  Icons.local_fire_department,
+                  color: Colors.amberAccent,
+                ),
                 const SizedBox(height: 2),
-                Text(l.dailyStreak,
-                    style:
-                        const TextStyle(color: Colors.white70, fontSize: 12)),
+                Text(
+                  l.dailyStreak,
+                  style: const TextStyle(color: Colors.white70, fontSize: 12),
+                ),
                 const SizedBox(height: 2),
                 TweenAnimationBuilder<double>(
                   tween: Tween(
-                      begin: _old.dailyStreak.toDouble(),
-                      end: _stats.dailyStreak.toDouble()),
+                    begin: _old.dailyStreak.toDouble(),
+                    end: _stats.dailyStreak.toDouble(),
+                  ),
                   duration: const Duration(milliseconds: 300),
                   builder: (context, v, _) => Text(
                     v.toStringAsFixed(0),
                     style: const TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],

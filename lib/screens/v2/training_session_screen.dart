@@ -44,19 +44,21 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         .map((e) => CardModel(rank: e[0], suit: e.substring(1)))
         .toList();
     final playerCards = [
-      for (int i = 0; i < hand.playerCount; i++) <CardModel>[]
+      for (int i = 0; i < hand.playerCount; i++) <CardModel>[],
     ];
     if (heroCards.length >= 2 && hand.heroIndex < playerCards.length) {
       playerCards[hand.heroIndex] = heroCards;
     }
     final boardCards = [
-      for (final c in hand.board) CardModel(rank: c[0], suit: c.substring(1))
+      for (final c in hand.board) CardModel(rank: c[0], suit: c.substring(1)),
     ];
     // Flatten actions; ActionEntry is immutable so no per-item copy needed
-    final List<ActionEntry> actions =
-        hand.actions.values.expand((list) => list).toList();
+    final List<ActionEntry> actions = hand.actions.values
+        .expand((list) => list)
+        .toList();
     final stacks = [
-      for (var i = 0; i < hand.playerCount; i++) hand.stacks['$i']?.round() ?? 0
+      for (var i = 0; i < hand.playerCount; i++)
+        hand.stacks['$i']?.round() ?? 0,
     ];
     final positions = List.generate(hand.playerCount, (_) => '');
     if (hand.heroIndex < positions.length) {
@@ -80,7 +82,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     if (_mistakesOnly) {
       spots = [
         for (final s in spots)
-          if (s.tags.contains('Mistake')) s
+          if (s.tags.contains('Mistake')) s,
       ];
       if (spots.isEmpty) {
         await showDialog(
@@ -91,28 +93,32 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: const Text('OK'),
-              )
+              ),
             ],
           ),
         );
         return;
       }
     }
-    final firstUnsolved =
-        _packSpots.indexWhere((p) => p.heroEv == null || p.heroIcmEv == null);
+    final firstUnsolved = _packSpots.indexWhere(
+      (p) => p.heroEv == null || p.heroIcmEv == null,
+    );
     if (firstUnsolved == -1) {
       final review = await showDialog<bool>(
         context: context,
         builder: (_) => AlertDialog(
-          content:
-              const Text('Everything is solved.\nReview mistakes instead?'),
+          content: const Text(
+            'Everything is solved.\nReview mistakes instead?',
+          ),
           actions: [
             TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel')),
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
             TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: Text(AppLocalizations.of(context)!.reviewMistakes)),
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(AppLocalizations.of(context)!.reviewMistakes),
+            ),
           ],
         ),
       );
@@ -128,7 +134,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     });
     _initialMistakes = {
       for (final s in _packSpots)
-        if (s.tags.contains('Mistake')) s.id
+        if (s.tags.contains('Mistake')) s.id,
     };
     await _showSpot();
   }
@@ -137,10 +143,11 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     if (_index >= _spots.length) {
       final remaining = {
         for (final s in _packSpots)
-          if (s.tags.contains('Mistake')) s.id
+          if (s.tags.contains('Mistake')) s.id,
       };
-      final fixed =
-          _initialMistakes.where((id) => !remaining.contains(id)).length;
+      final fixed = _initialMistakes
+          .where((id) => !remaining.contains(id))
+          .length;
       final review = await Navigator.push<bool>(
         context,
         MaterialPageRoute(
@@ -235,14 +242,17 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                       children: [
                         SwitchListTile(
                           title: Text(
-                              AppLocalizations.of(context)!.reviewMistakesOnly),
+                            AppLocalizations.of(context)!.reviewMistakesOnly,
+                          ),
                           value: _mistakesOnly,
                           onChanged: (v) => setState(() => _mistakesOnly = v),
                           activeColor: Colors.orange,
                         ),
                         const SizedBox(height: 8),
                         ElevatedButton(
-                            onPressed: _start, child: const Text('Start')),
+                          onPressed: _start,
+                          child: const Text('Start'),
+                        ),
                       ],
                     )
                   : const CircularProgressIndicator(),

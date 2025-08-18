@@ -71,8 +71,9 @@ class BoosterSmartSelector {
     final map = pack.toJson();
     map['spots'] = [for (final s in selected) s.toJson()];
     map['spotCount'] = selected.length;
-    final result =
-        TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+    final result = TrainingPackTemplateV2.fromJson(
+      Map<String, dynamic>.from(map),
+    );
     result.isGeneratedPack = pack.isGeneratedPack;
     result.isSampledPack = pack.isSampledPack;
     return result;

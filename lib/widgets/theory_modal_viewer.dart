@@ -27,14 +27,9 @@ class TheoryModalViewer extends StatelessWidget {
     return SafeArea(
       child: Column(
         children: [
-          AppBar(
-            title: Text(lesson.resolvedTitle),
-          ),
+          AppBar(title: Text(lesson.resolvedTitle)),
           Expanded(
-            child: Markdown(
-              data: lesson.resolvedContent,
-              styleSheet: style,
-            ),
+            child: Markdown(data: lesson.resolvedContent, styleSheet: style),
           ),
         ],
       ),

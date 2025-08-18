@@ -10,7 +10,7 @@ class MotivationService {
     'Every hand is a lesson.',
     'Stay focused and grind.',
     'Believe in your reads.',
-    'Small edges build bankrolls.'
+    'Small edges build bankrolls.',
   ];
 
   static bool _sameDay(DateTime a, DateTime b) =>

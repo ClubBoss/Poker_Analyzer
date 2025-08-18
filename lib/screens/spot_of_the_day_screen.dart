@@ -63,10 +63,11 @@ class _SpotOfTheDayScreenState extends State<SpotOfTheDayScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (_) => const SpotOfTheDayHistoryScreen()),
+                    builder: (_) => const SpotOfTheDayHistoryScreen(),
+                  ),
                 );
               },
-            )
+            ),
           ],
         ),
         body: const Center(child: Text('Нет данных')),
@@ -84,10 +85,11 @@ class _SpotOfTheDayScreenState extends State<SpotOfTheDayScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (_) => const SpotOfTheDayHistoryScreen()),
+                  builder: (_) => const SpotOfTheDayHistoryScreen(),
+                ),
               );
             },
-          )
+          ),
         ],
       ),
       backgroundColor: const Color(0xFF121212),
@@ -105,9 +107,7 @@ class _SpotOfTheDayScreenState extends State<SpotOfTheDayScreen> {
               top: centerY - tableHeight / 2,
               width: tableWidth,
               height: tableHeight,
-              child: CustomPaint(
-                painter: PokerTablePainter(),
-              ),
+              child: CustomPaint(painter: PokerTablePainter()),
             ),
             Positioned.fill(
               child: Align(
@@ -126,46 +126,52 @@ class _SpotOfTheDayScreenState extends State<SpotOfTheDayScreen> {
 
           for (int i = 0; i < spot.numberOfPlayers; i++) {
             final pos = TableGeometryHelper.positionForPlayer(
-                i, spot.numberOfPlayers, tableWidth, tableHeight);
+              i,
+              spot.numberOfPlayers,
+              tableWidth,
+              tableHeight,
+            );
             final offsetX = centerX + pos.dx - 55 * scale;
             final offsetY = centerY + pos.dy - 55 * scale;
             final cards = spot.playerCards.length > i
                 ? spot.playerCards[i]
                 : <CardModel>[];
-            children.add(Positioned(
-              left: offsetX,
-              top: offsetY,
-              child: PlayerInfoWidget(
-                position: spot.positions[i],
-                stack: spot.stacks[i],
-                tag: '',
-                cards: cards,
-                lastAction: null,
-                isActive: false,
-                isFolded: false,
-                isHero: i == spot.heroIndex,
-                isOpponent: false,
-                revealCards: true,
-                playerTypeIcon: '',
-                playerTypeLabel: null,
-                positionLabel: null,
-                blindLabel: null,
-                showLastIndicator: false,
-                onTap: null,
-                onDoubleTap: null,
-                onLongPress: null,
-                onEdit: null,
-                onStackTap: null,
-                onRemove: null,
-                onTimeExpired: null,
-                onCardTap: null,
-                streetInvestment: 0,
-                currentBet: 0,
-                remainingStack: spot.stacks[i],
-                timersDisabled: true,
-                isBust: false,
+            children.add(
+              Positioned(
+                left: offsetX,
+                top: offsetY,
+                child: PlayerInfoWidget(
+                  position: spot.positions[i],
+                  stack: spot.stacks[i],
+                  tag: '',
+                  cards: cards,
+                  lastAction: null,
+                  isActive: false,
+                  isFolded: false,
+                  isHero: i == spot.heroIndex,
+                  isOpponent: false,
+                  revealCards: true,
+                  playerTypeIcon: '',
+                  playerTypeLabel: null,
+                  positionLabel: null,
+                  blindLabel: null,
+                  showLastIndicator: false,
+                  onTap: null,
+                  onDoubleTap: null,
+                  onLongPress: null,
+                  onEdit: null,
+                  onStackTap: null,
+                  onRemove: null,
+                  onTimeExpired: null,
+                  onCardTap: null,
+                  streetInvestment: 0,
+                  currentBet: 0,
+                  remainingStack: spot.stacks[i],
+                  timersDisabled: true,
+                  isBust: false,
+                ),
               ),
-            ));
+            );
           }
 
           return Stack(children: children);
@@ -173,51 +179,53 @@ class _SpotOfTheDayScreenState extends State<SpotOfTheDayScreen> {
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (service.result != null || spot.recommendedAction != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Text(
-                      'Ваш ответ: ${service.result ?? '-'} • Реком.: ${spot.recommendedAction ?? '-'}',
-                      style: const TextStyle(color: Colors.white),
-                    ),
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (service.result != null || spot.recommendedAction != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Text(
+                    'Ваш ответ: ${service.result ?? '-'} • Реком.: ${spot.recommendedAction ?? '-'}',
+                    style: const TextStyle(color: Colors.white),
                   ),
-                if (service.correct != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Text(
-                      service.correct! ? 'Верно' : 'Ошибка',
-                      style: TextStyle(
-                        color: service.correct! ? Colors.green : Colors.red,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ElevatedButton(
-                  onPressed: () => _chooseAction(service),
-                  child: Text(service.result == null
-                      ? 'Ваше решение'
-                      : 'Изменить ответ'),
                 ),
-                if (service.history.any((e) => e.correct == false))
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const SpotOfTheDayRetryScreen()),
-                        );
-                      },
-                      child: const Text('Повторить ошибки'),
+              if (service.correct != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Text(
+                    service.correct! ? 'Верно' : 'Ошибка',
+                    style: TextStyle(
+                      color: service.correct! ? Colors.green : Colors.red,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-              ],
-            )),
+                ),
+              ElevatedButton(
+                onPressed: () => _chooseAction(service),
+                child: Text(
+                  service.result == null ? 'Ваше решение' : 'Изменить ответ',
+                ),
+              ),
+              if (service.history.any((e) => e.correct == false))
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SpotOfTheDayRetryScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text('Повторить ошибки'),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

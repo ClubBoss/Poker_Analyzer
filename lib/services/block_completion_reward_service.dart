@@ -11,14 +11,15 @@ class BlockCompletionRewardService {
       'stage_banner_${title.toLowerCase()}';
 
   Future<bool> isStageCompleted(String stageTitle) async {
-    final stages =
-        await LearningPathProgressService.instance.getCurrentStageState();
+    final stages = await LearningPathProgressService.instance
+        .getCurrentStageState();
     final stage = stages.firstWhere(
       (s) => s.title.toLowerCase() == stageTitle.toLowerCase(),
       orElse: () => null,
     );
-    final completed =
-        stage.items.every((i) => i.status == LearningItemStatus.completed);
+    final completed = stage.items.every(
+      (i) => i.status == LearningItemStatus.completed,
+    );
     if (!completed) return false;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_completedKey(stageTitle), true);

@@ -52,7 +52,7 @@ class _SmartRecoveryBannerState extends State<SmartRecoveryBanner> {
               : log.correctCount / (log.correctCount + log.mistakeCount),
           ev: 0,
           icm: 0,
-        )
+        ),
     ];
 
     await PackLibraryLoaderService.instance.loadLibrary();

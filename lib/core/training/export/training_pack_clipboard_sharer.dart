@@ -14,9 +14,9 @@ class TrainingPackClipboardSharer {
     final yaml = const TrainingPackExporterV2().exportYaml(pack);
     await Clipboard.setData(ClipboardData(text: yaml));
     if (context != null && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('YAML copied to clipboard')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('YAML copied to clipboard')));
     }
   }
 }

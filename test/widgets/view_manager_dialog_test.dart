@@ -15,15 +15,13 @@ void main() {
     List<ViewPreset>? changed;
     await tester.pumpWidget(
       MaterialApp(
-        home: ViewManagerDialog(
-          views: views,
-          onChanged: (v) => changed = v,
-        ),
+        home: ViewManagerDialog(views: views, onChanged: (v) => changed = v),
       ),
     );
 
-    final list =
-        tester.widget<ReorderableListView>(find.byType(ReorderableListView));
+    final list = tester.widget<ReorderableListView>(
+      find.byType(ReorderableListView),
+    );
     list.onReorder(0, views.length);
     await tester.pump();
 

@@ -16,7 +16,7 @@ class TrainingPackCommentsService {
         final data = jsonDecode(raw);
         if (data is Map) {
           _comments = {
-            for (final e in data.entries) e.key.toString(): e.value.toString()
+            for (final e in data.entries) e.key.toString(): e.value.toString(),
           };
         }
       } catch (_) {

@@ -100,7 +100,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     if (_tagFilter == 'All') return list;
     return [
       for (final s in list)
-        if (s.handTags?.values.any((v) => v.contains(_tagFilter)) ?? false) s
+        if (s.handTags?.values.any((v) => v.contains(_tagFilter)) ?? false) s,
     ];
   }
 
@@ -109,7 +109,8 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     final buffer = StringBuffer();
     for (final s in _getSortedSessions()) {
       buffer.writeln(
-          '- ${formatDateTime(s.date)}: ${s.accuracy.toStringAsFixed(1)}% - Ошибок: ${s.mistakes}');
+        '- ${formatDateTime(s.date)}: ${s.accuracy.toStringAsFixed(1)}% - Ошибок: ${s.mistakes}',
+      );
     }
     final bytes = Uint8List.fromList(utf8.encode(buffer.toString()));
     try {
@@ -122,13 +123,15 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('История сохранена в training_history.md')),
+            content: Text('История сохранена в training_history.md'),
+          ),
         );
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка экспорта')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Ошибка экспорта')));
       }
     }
   }
@@ -136,7 +139,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
   Future<void> _drillTag() async {
     final manager = context.read<SavedHandManagerService>();
     final Map<String, SavedHand> map = {
-      for (final h in manager.hands) h.name: h
+      for (final h in manager.hands) h.name: h,
     };
     final Set<String> names = {};
     for (final s in _getVisibleSessions()) {
@@ -148,12 +151,13 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
     }
     final hands = [
       for (final n in names)
-        if (map[n] != null) map[n]!
+        if (map[n] != null) map[n]!,
     ];
     if (hands.isEmpty) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Раздачи не найдены')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Раздачи не найдены')));
       }
       return;
     }
@@ -203,7 +207,7 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
             total: s.total,
             correct: s.correct,
             accuracy: s.accuracy,
-          )
+          ),
       ];
     }
 
@@ -232,12 +236,14 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       final total = sessions.fold<int>(0, (p, e) => p + e.total);
       final correct = sessions.fold<int>(0, (p, e) => p + e.correct);
       final accuracy = total == 0 ? 0.0 : correct * 100 / total;
-      result.add(TrainingResult(
-        date: k,
-        total: total,
-        correct: correct,
-        accuracy: accuracy,
-      ));
+      result.add(
+        TrainingResult(
+          date: k,
+          total: total,
+          correct: correct,
+          accuracy: accuracy,
+        ),
+      );
     }
     return result;
   }
@@ -268,196 +274,209 @@ class _TrainingHistoryScreenState extends State<TrainingHistoryScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _sessions.isEmpty
-              ? const Center(
-                  child: Text('История пуста',
-                      style: TextStyle(color: Colors.white70)),
-                )
-              : Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        children: [
-                          const Text('Сортировка',
-                              style: TextStyle(color: Colors.white)),
-                          const SizedBox(width: 8),
-                          DropdownButton<_SortMode>(
-                            value: _sort,
-                            dropdownColor: const Color(0xFF2A2B2E),
-                            style: const TextStyle(color: Colors.white),
-                            items: const [
-                              DropdownMenuItem(
-                                value: _SortMode.dateDesc,
-                                child: Text('Дата (новые)'),
-                              ),
-                              DropdownMenuItem(
-                                value: _SortMode.dateAsc,
-                                child: Text('Дата (старые)'),
-                              ),
-                              DropdownMenuItem(
-                                value: _SortMode.mistakesDesc,
-                                child: Text('Ошибок (много → мало)'),
-                              ),
-                              DropdownMenuItem(
-                                value: _SortMode.accuracyAsc,
-                                child: Text('Точность (меньше → больше)'),
-                              ),
-                            ],
-                            onChanged: (value) {
-                              if (value != null) {
-                                setState(() => _sort = value);
-                              }
-                            },
+          ? const Center(
+              child: Text(
+                'История пуста',
+                style: TextStyle(color: Colors.white70),
+              ),
+            )
+          : Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      const Text(
+                        'Сортировка',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      const SizedBox(width: 8),
+                      DropdownButton<_SortMode>(
+                        value: _sort,
+                        dropdownColor: const Color(0xFF2A2B2E),
+                        style: const TextStyle(color: Colors.white),
+                        items: const [
+                          DropdownMenuItem(
+                            value: _SortMode.dateDesc,
+                            child: Text('Дата (новые)'),
+                          ),
+                          DropdownMenuItem(
+                            value: _SortMode.dateAsc,
+                            child: Text('Дата (старые)'),
+                          ),
+                          DropdownMenuItem(
+                            value: _SortMode.mistakesDesc,
+                            child: Text('Ошибок (много → мало)'),
+                          ),
+                          DropdownMenuItem(
+                            value: _SortMode.accuracyAsc,
+                            child: Text('Точность (меньше → больше)'),
                           ),
                         ],
-                      ),
-                    ),
-                    if (_tags.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Row(
-                          children: [
-                            const Text('Тег',
-                                style: TextStyle(color: Colors.white)),
-                            const SizedBox(width: 8),
-                            DropdownButton<String>(
-                              value: _tagFilter,
-                              dropdownColor: const Color(0xFF2A2B2E),
-                              style: const TextStyle(color: Colors.white),
-                              onChanged: (v) {
-                                if (v == null) return;
-                                setState(() => _tagFilter = v);
-                                _saveTagFilter();
-                              },
-                              items: [
-                                const DropdownMenuItem(
-                                  value: 'All',
-                                  child: Text('Все'),
-                                ),
-                                ..._tags
-                                    .map((t) => DropdownMenuItem(
-                                          value: t,
-                                          child: Text(t),
-                                        ))
-                                    .toList(),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        children: [
-                          const Text('Период',
-                              style: TextStyle(color: Colors.white)),
-                          const Spacer(),
-                          ToggleButtons(
-                            isSelected: [
-                              _chartMode == _ChartMode.daily,
-                              _chartMode == _ChartMode.weekly,
-                              _chartMode == _ChartMode.monthly,
-                            ],
-                            onPressed: (index) => setState(
-                                () => _chartMode = _ChartMode.values[index]),
-                            borderRadius: BorderRadius.circular(4),
-                            selectedColor: Colors.white,
-                            fillColor: Colors.blueGrey,
-                            color: Colors.white70,
-                            children: const [
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 8),
-                                child: Text('День'),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 8),
-                                child: Text('Неделя'),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 8),
-                                child: Text('Месяц'),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    Builder(
-                      builder: (_) {
-                        final grouped =
-                            _groupSessionsForChart(_getVisibleSessions());
-                        return AccuracyTrendChart(
-                          sessions: grouped,
-                          mode: ChartMode.values[_chartMode.index],
-                        );
-                      },
-                    ),
-                    Expanded(
-                      child: ListView.separated(
-                        itemCount: _getVisibleSessions().length,
-                        separatorBuilder: (_, __) => const Divider(height: 1),
-                        itemBuilder: (context, index) {
-                          final s = _getVisibleSessions()[index];
-                          return ListTile(
-                            title: Text(
-                              formatDateTime(s.date),
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '${s.accuracy.toStringAsFixed(1)}% • Ошибок: ${s.mistakes}',
-                                  style: const TextStyle(color: Colors.white70),
-                                ),
-                                if (s.comment != null && s.comment!.isNotEmpty)
-                                  Text(
-                                    s.comment!,
-                                    style:
-                                        const TextStyle(color: Colors.white60),
-                                  ),
-                              ],
-                            ),
-                            trailing: const Icon(Icons.chevron_right,
-                                color: Colors.white70),
-                            onTap: () => _openSession(s),
-                            onLongPress: () async {
-                              final confirm = await showDialog<bool>(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: const Text('Delete Session?'),
-                                  content: const Text(
-                                      'Are you sure you want to delete this session?'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.pop(context, false),
-                                      child: const Text('Cancel'),
-                                    ),
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.pop(context, true),
-                                      child: const Text('Delete'),
-                                    ),
-                                  ],
-                                ),
-                              );
-                              if (confirm == true) {
-                                await context
-                                    .read<CloudTrainingHistoryService>()
-                                    .deleteSession(s.path);
-                                if (mounted) {
-                                  setState(() => _sessions.removeAt(index));
-                                  _updateTags();
-                                }
-                              }
-                            },
-                          );
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() => _sort = value);
+                          }
                         },
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+                if (_tags.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        const Text(
+                          'Тег',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        const SizedBox(width: 8),
+                        DropdownButton<String>(
+                          value: _tagFilter,
+                          dropdownColor: const Color(0xFF2A2B2E),
+                          style: const TextStyle(color: Colors.white),
+                          onChanged: (v) {
+                            if (v == null) return;
+                            setState(() => _tagFilter = v);
+                            _saveTagFilter();
+                          },
+                          items: [
+                            const DropdownMenuItem(
+                              value: 'All',
+                              child: Text('Все'),
+                            ),
+                            ..._tags
+                                .map(
+                                  (t) => DropdownMenuItem(
+                                    value: t,
+                                    child: Text(t),
+                                  ),
+                                )
+                                .toList(),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      const Text(
+                        'Период',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      const Spacer(),
+                      ToggleButtons(
+                        isSelected: [
+                          _chartMode == _ChartMode.daily,
+                          _chartMode == _ChartMode.weekly,
+                          _chartMode == _ChartMode.monthly,
+                        ],
+                        onPressed: (index) => setState(
+                          () => _chartMode = _ChartMode.values[index],
+                        ),
+                        borderRadius: BorderRadius.circular(4),
+                        selectedColor: Colors.white,
+                        fillColor: Colors.blueGrey,
+                        color: Colors.white70,
+                        children: const [
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 8),
+                            child: Text('День'),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 8),
+                            child: Text('Неделя'),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 8),
+                            child: Text('Месяц'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Builder(
+                  builder: (_) {
+                    final grouped = _groupSessionsForChart(
+                      _getVisibleSessions(),
+                    );
+                    return AccuracyTrendChart(
+                      sessions: grouped,
+                      mode: ChartMode.values[_chartMode.index],
+                    );
+                  },
+                ),
+                Expanded(
+                  child: ListView.separated(
+                    itemCount: _getVisibleSessions().length,
+                    separatorBuilder: (_, __) => const Divider(height: 1),
+                    itemBuilder: (context, index) {
+                      final s = _getVisibleSessions()[index];
+                      return ListTile(
+                        title: Text(
+                          formatDateTime(s.date),
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${s.accuracy.toStringAsFixed(1)}% • Ошибок: ${s.mistakes}',
+                              style: const TextStyle(color: Colors.white70),
+                            ),
+                            if (s.comment != null && s.comment!.isNotEmpty)
+                              Text(
+                                s.comment!,
+                                style: const TextStyle(color: Colors.white60),
+                              ),
+                          ],
+                        ),
+                        trailing: const Icon(
+                          Icons.chevron_right,
+                          color: Colors.white70,
+                        ),
+                        onTap: () => _openSession(s),
+                        onLongPress: () async {
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Delete Session?'),
+                              content: const Text(
+                                'Are you sure you want to delete this session?',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
+                                  child: const Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  child: const Text('Delete'),
+                                ),
+                              ],
+                            ),
+                          );
+                          if (confirm == true) {
+                            await context
+                                .read<CloudTrainingHistoryService>()
+                                .deleteSession(s.path);
+                            if (mounted) {
+                              setState(() => _sessions.removeAt(index));
+                              _updateTags();
+                            }
+                          }
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }

@@ -12,8 +12,8 @@ class LearningPathOrchestrator {
   LearningPathOrchestrator._({
     StarterLearningPathBuilder? starterBuilder,
     FirebaseFirestore? firestore,
-  })  : _builder = starterBuilder ?? const StarterLearningPathBuilder(),
-        _db = firestore ?? FirebaseFirestore.instance;
+  }) : _builder = starterBuilder ?? const StarterLearningPathBuilder(),
+       _db = firestore ?? FirebaseFirestore.instance;
 
   static final LearningPathOrchestrator instance = LearningPathOrchestrator._();
 
@@ -74,9 +74,7 @@ class LearningPathOrchestrator {
       if (!doc.exists) return null;
       final data = doc.data();
       if (data == null) return null;
-      return LearningPathTemplateV2.fromJson(
-        Map<String, dynamic>.from(data),
-      );
+      return LearningPathTemplateV2.fromJson(Map<String, dynamic>.from(data));
     } catch (_) {
       return null;
     }

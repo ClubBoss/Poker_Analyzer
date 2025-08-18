@@ -5,17 +5,17 @@ import 'package:poker_analyzer/models/game_type.dart';
 import 'package:poker_analyzer/core/training/engine/training_type_engine.dart';
 
 TrainingPackTemplateV2 _emptyPack() => TrainingPackTemplateV2(
-      id: 'id',
-      name: 'name',
-      trainingType: TrainingType.custom,
-      spots: [],
-      spotCount: 0,
-      tags: [],
-      gameType: GameType.cash,
-      bb: 0,
-      positions: [],
-      meta: {},
-    );
+  id: 'id',
+  name: 'name',
+  trainingType: TrainingType.custom,
+  spots: [],
+  spotCount: 0,
+  tags: [],
+  gameType: GameType.cash,
+  bb: 0,
+  positions: [],
+  meta: {},
+);
 
 void main() {
   group('AutogenPackErrorClassifierService', () {
@@ -29,8 +29,10 @@ void main() {
     });
 
     test('detects duplicate error', () {
-      final type =
-          classifier.classify(_emptyPack(), Exception('duplicate spot'));
+      final type = classifier.classify(
+        _emptyPack(),
+        Exception('duplicate spot'),
+      );
       expect(type, AutogenPackErrorType.duplicate);
     });
 

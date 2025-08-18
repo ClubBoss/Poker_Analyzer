@@ -22,13 +22,15 @@ class LearningGoalEngine {
       final id = 'lg_${now}_${index++}';
       final title = _titleFor(best);
       final desc = _descFor(best);
-      goals.add(LearningGoal(
-        id: id,
-        title: title,
-        description: desc,
-        tag: e.key,
-        priorityScore: best.severity,
-      ));
+      goals.add(
+        LearningGoal(
+          id: id,
+          title: title,
+          description: desc,
+          tag: e.key,
+          priorityScore: best.severity,
+        ),
+      );
     }
     goals.sort((a, b) => b.priorityScore.compareTo(a.priorityScore));
     return goals;

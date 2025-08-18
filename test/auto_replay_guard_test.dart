@@ -49,9 +49,7 @@ void main() {
       );
     }
 
-    final nonL3 = SpotKind.values.firstWhere(
-      (k) => !kinds.contains(k),
-    );
+    final nonL3 = SpotKind.values.firstWhere((k) => !kinds.contains(k));
     expect(
       shouldAutoReplay(
         correct: false,

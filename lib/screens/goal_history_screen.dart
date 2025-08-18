@@ -33,10 +33,14 @@ class GoalHistoryScreen extends StatelessWidget {
               itemBuilder: (context, i) {
                 final entry = history[i];
                 return ListTile(
-                  title: Text(_format(entry.date),
-                      style: const TextStyle(color: Colors.white)),
-                  trailing: Text('${entry.progress}/${goal.target}',
-                      style: const TextStyle(color: Colors.white70)),
+                  title: Text(
+                    _format(entry.date),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  trailing: Text(
+                    '${entry.progress}/${goal.target}',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
                 );
               },
             ),

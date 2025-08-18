@@ -60,8 +60,10 @@ class _LearningPathProgressWidgetState
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
-              Text('${section.completedStages}/${section.totalStages}',
-                  style: const TextStyle(color: Colors.white70)),
+              Text(
+                '${section.completedStages}/${section.totalStages}',
+                style: const TextStyle(color: Colors.white70),
+              ),
             ],
           ),
           const SizedBox(height: 4),
@@ -75,8 +77,10 @@ class _LearningPathProgressWidgetState
             ),
           ),
           const SizedBox(height: 2),
-          Text('$pct%',
-              style: const TextStyle(color: Colors.white70, fontSize: 12)),
+          Text(
+            '$pct%',
+            style: const TextStyle(color: Colors.white70, fontSize: 12),
+          ),
         ],
       ),
     );
@@ -93,8 +97,10 @@ class _LearningPathProgressWidgetState
           onTap: () => setState(() => _showLocked = !_showLocked),
           child: Row(
             children: [
-              Icon(_showLocked ? Icons.expand_less : Icons.lock,
-                  color: Colors.white70),
+              Icon(
+                _showLocked ? Icons.expand_less : Icons.lock,
+                color: Colors.white70,
+              ),
               const SizedBox(width: 4),
               Text(
                 'Заблокированные стадии (${titles.length})',
@@ -112,9 +118,13 @@ class _LearningPathProgressWidgetState
                 for (final t in titles)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 2),
-                    child: Text('• $t',
-                        style: const TextStyle(
-                            color: Colors.white70, fontSize: 12)),
+                    child: Text(
+                      '• $t',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
+                    ),
                   ),
               ],
             ),

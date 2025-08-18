@@ -6,16 +6,19 @@ import '../../../models/v2/training_pack_template.dart';
 class PackLibraryExporter {
   final YamlWriter writer;
   const PackLibraryExporter({YamlWriter? yamlWriter})
-      : writer = yamlWriter ?? const YamlWriter();
+    : writer = yamlWriter ?? const YamlWriter();
 
   Future<List<String>> export(
-      List<TrainingPackTemplate> templates, String targetDir) async {
+    List<TrainingPackTemplate> templates,
+    String targetDir,
+  ) async {
     final dir = Directory(targetDir);
     await dir.create(recursive: true);
     final paths = <String>[];
     for (final t in templates) {
-      final fileName =
-          _sanitizeFileName(t.name.replaceAll(' ', '_').toLowerCase());
+      final fileName = _sanitizeFileName(
+        t.name.replaceAll(' ', '_').toLowerCase(),
+      );
       final path = '${dir.path}/$fileName.yaml';
       await writer.write(_templateMap(t), path);
       paths.add(path);

@@ -15,9 +15,9 @@ class TheorySmartEntryPointSelector {
     MiniLessonLibraryService? library,
     MiniLessonProgressTracker? progress,
     TheoryLessonReviewQueue? review,
-  })  : library = library ?? MiniLessonLibraryService.instance,
-        progress = progress ?? MiniLessonProgressTracker.instance,
-        review = review ?? TheoryLessonReviewQueue.instance;
+  }) : library = library ?? MiniLessonLibraryService.instance,
+       progress = progress ?? MiniLessonProgressTracker.instance,
+       review = review ?? TheoryLessonReviewQueue.instance;
 
   static final TheorySmartEntryPointSelector instance =
       TheorySmartEntryPointSelector();
@@ -55,7 +55,7 @@ class TheorySmartEntryPointSelector {
     // 3) random unfinished lesson
     final remaining = [
       for (final l in library.all)
-        if (!await progress.isCompleted(l.id)) l
+        if (!await progress.isCompleted(l.id)) l,
     ];
     if (remaining.isEmpty) return null;
     final rand = Random();

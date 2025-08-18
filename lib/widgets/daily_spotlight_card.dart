@@ -61,11 +61,15 @@ class _DailySpotlightCardState extends State<DailySpotlightCard> {
           const SizedBox(height: 4),
           Text(tpl.name, style: const TextStyle(color: Colors.white)),
           if (tpl.description.isNotEmpty)
-            Text(tpl.description,
-                style: const TextStyle(color: Colors.white70)),
+            Text(
+              tpl.description,
+              style: const TextStyle(color: Colors.white70),
+            ),
           const SizedBox(height: 4),
-          Text('${tpl.spots.length} спотов',
-              style: const TextStyle(color: Colors.white70, fontSize: 12)),
+          Text(
+            '${tpl.spots.length} спотов',
+            style: const TextStyle(color: Colors.white70, fontSize: 12),
+          ),
           const SizedBox(height: 8),
           Align(
             alignment: Alignment.centerRight,

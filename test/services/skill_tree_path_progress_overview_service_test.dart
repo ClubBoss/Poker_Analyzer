@@ -28,11 +28,20 @@ void main() {
     final svc = SkillTreePathProgressOverviewService(
       tracks: _FakeTrackProgressService([
         const TrackProgressEntry(
-            tree: treeA, completionRate: 1.0, isCompleted: true),
+          tree: treeA,
+          completionRate: 1.0,
+          isCompleted: true,
+        ),
         const TrackProgressEntry(
-            tree: treeB, completionRate: 0.5, isCompleted: false),
+          tree: treeB,
+          completionRate: 0.5,
+          isCompleted: false,
+        ),
         const TrackProgressEntry(
-            tree: treeC, completionRate: 0.75, isCompleted: true),
+          tree: treeC,
+          completionRate: 0.75,
+          isCompleted: true,
+        ),
       ]),
     );
 
@@ -40,6 +49,8 @@ void main() {
     expect(overview.totalTracks, 3);
     expect(overview.completedTracks, 2);
     expect(
-        overview.averageCompletionRate, closeTo((1.0 + 0.5 + 0.75) / 3, 1e-6));
+      overview.averageCompletionRate,
+      closeTo((1.0 + 0.5 + 0.75) / 3, 1e-6),
+    );
   });
 }

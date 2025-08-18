@@ -24,7 +24,7 @@ void main() {
       'spots': [
         {'id': '1', 'board': 'AsKdTh'},
         {'id': '2', 'board': '2c3d4h'},
-      ]
+      ],
     };
     inFile.writeAsStringSync(jsonEncode(input));
 

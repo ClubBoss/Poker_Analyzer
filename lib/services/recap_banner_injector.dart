@@ -23,9 +23,9 @@ class RecapBannerInjector {
     RecapFatigueEvaluator? fatigue,
     required this.controller,
     required this.sessions,
-  })  : engine = engine ?? SmartRecapSuggestionEngine.instance,
-        detector = detector ?? RecapOpportunityDetector.instance,
-        fatigue = fatigue ?? RecapFatigueEvaluator.instance;
+  }) : engine = engine ?? SmartRecapSuggestionEngine.instance,
+       detector = detector ?? RecapOpportunityDetector.instance,
+       fatigue = fatigue ?? RecapFatigueEvaluator.instance;
 
   StreamSubscription<TheoryMiniLessonNode>? _sub;
 

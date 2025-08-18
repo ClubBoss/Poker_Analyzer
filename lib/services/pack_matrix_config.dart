@@ -39,7 +39,7 @@ class PackMatrixConfig {
   Future<void> saveMatrix(List<(String, List<String>)> matrix) async {
     final file = await _getFile();
     final data = [
-      for (final item in matrix) {'audience': item.$1, 'tags': item.$2}
+      for (final item in matrix) {'audience': item.$1, 'tags': item.$2},
     ];
     await file.writeAsString(jsonEncode(data), flush: true);
   }

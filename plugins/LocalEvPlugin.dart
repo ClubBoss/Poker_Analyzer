@@ -34,19 +34,22 @@ class LocalEvService {
     }
   }
 
-  Future<void> evaluateIcm(TrainingPackSpot spot,
-      {int anteBb = 0, List<double> payouts = const [0.5, 0.3, 0.2]}) async {
+  Future<void> evaluateIcm(
+    TrainingPackSpot spot, {
+    int anteBb = 0,
+    List<double> payouts = const [0.5, 0.3, 0.2],
+  }) async {
     final hero = spot.hand.heroIndex;
     final hand = handCode(spot.hand.heroCards);
     final stack = spot.hand.stacks['$hero']?.round();
     if (hand == null || stack == null) return;
     final stacks = [
       for (var i = 0; i < spot.hand.playerCount; i++)
-        spot.hand.stacks['$i']?.round() ?? 0
+        spot.hand.stacks['$i']?.round() ?? 0,
     ];
     final callers = [
       for (final a in spot.hand.actions[0] ?? [])
-        if (a.playerIndex != hero && a.action == 'call') a.playerIndex
+        if (a.playerIndex != hero && a.action == 'call') a.playerIndex,
     ];
     final acts = spot.hand.actions[0];
     if (acts != null) {

@@ -43,8 +43,11 @@ class _Cluster {
   final List<_ScoredResource> items;
   final double score;
 
-  const _Cluster(
-      {required this.theme, required this.items, required this.score});
+  const _Cluster({
+    required this.theme,
+    required this.items,
+    required this.score,
+  });
 }
 
 /// Clusters theory resources and injects references into packs and spots.
@@ -58,8 +61,8 @@ class InlinePackTheoryClusterer {
     this.weightTagMatch = 0.2,
     AutogenStatusDashboardService? dashboard,
     PackNoveltyGuardService? noveltyGuard,
-  })  : _dashboard = dashboard ?? AutogenStatusDashboardService.instance,
-        _noveltyGuard = noveltyGuard ?? const PackNoveltyGuardService();
+  }) : _dashboard = dashboard ?? AutogenStatusDashboardService.instance,
+       _noveltyGuard = noveltyGuard ?? const PackNoveltyGuardService();
 
   final int maxPerPack;
   final int maxPerSpot;
@@ -95,8 +98,9 @@ class InlinePackTheoryClusterer {
       if (items.isEmpty) continue;
       items.sort((a, b) => b.score.compareTo(a.score));
       final clusterScore = items.first.score;
-      if (!_noveltyGuard
-          .isNovel({tag}, items.map((e) => e.resource.id).toList())) {
+      if (!_noveltyGuard.isNovel({
+        tag,
+      }, items.map((e) => e.resource.id).toList())) {
         continue; // skip non novel clusters
       }
       clusters.add(_Cluster(theme: tag, items: items, score: clusterScore));
@@ -110,20 +114,24 @@ class InlinePackTheoryClusterer {
     // Build pack level metadata.
     final packMeta = Map<String, dynamic>.from(pack.metadata);
     packMeta['theoryClusters'] = selected
-        .map((c) => {
-              'clusterId': c.theme,
-              'theme': c.theme,
-              'score': c.score,
-              'items': c.items
-                  .map((i) => {
-                        'id': i.resource.id,
-                        'title': i.resource.title,
-                        'uri': i.resource.uri,
-                        'tags': i.resource.tags,
-                      })
-                  .toList(),
-              'rationale': 'matched tag ${c.theme}',
-            })
+        .map(
+          (c) => {
+            'clusterId': c.theme,
+            'theme': c.theme,
+            'score': c.score,
+            'items': c.items
+                .map(
+                  (i) => {
+                    'id': i.resource.id,
+                    'title': i.resource.title,
+                    'uri': i.resource.uri,
+                    'tags': i.resource.tags,
+                  },
+                )
+                .toList(),
+            'rationale': 'matched tag ${c.theme}',
+          },
+        )
         .toList();
 
     // Build spot level links.

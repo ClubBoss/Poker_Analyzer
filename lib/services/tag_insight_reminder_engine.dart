@@ -30,7 +30,7 @@ class TagInsightReminderEngine {
                     tag: item['tag'] ?? '',
                     drop: (item['drop'] as num?)?.toDouble() ?? 0,
                     trend: item['trend'] ?? '',
-                  )
+                  ),
             ];
           }
         } catch (_) {}
@@ -53,7 +53,7 @@ class TagInsightReminderEngine {
     }
     final losses = const SkillLossDetector().detect(map).take(2).toList();
     final encoded = jsonEncode([
-      for (final l in losses) {'tag': l.tag, 'drop': l.drop, 'trend': l.trend}
+      for (final l in losses) {'tag': l.tag, 'drop': l.drop, 'trend': l.trend},
     ]);
     await prefs.setString(_lastKey, now.toIso8601String());
     await prefs.setString(_dataKey, encoded);

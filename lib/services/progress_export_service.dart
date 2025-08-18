@@ -19,7 +19,8 @@ class ProgressExportService {
     final dir = await getTemporaryDirectory();
     final mode = weekly ? 'weekly' : 'daily';
     final file = File(
-        '${dir.path}/progress_\${mode}_\${DateTime.now().millisecondsSinceEpoch}.csv');
+      '${dir.path}/progress_\${mode}_\${DateTime.now().millisecondsSinceEpoch}.csv',
+    );
     await file.writeAsString(csvStr, encoding: utf8);
     return file;
   }
@@ -41,7 +42,8 @@ class ProgressExportService {
     final dir = await getTemporaryDirectory();
     final mode = weekly ? 'weekly' : 'daily';
     final file = File(
-        '${dir.path}/progress_\${mode}_\${DateTime.now().millisecondsSinceEpoch}.pdf');
+      '${dir.path}/progress_\${mode}_\${DateTime.now().millisecondsSinceEpoch}.pdf',
+    );
     await file.writeAsBytes(bytes);
     return file;
   }
@@ -54,8 +56,7 @@ class ProgressExportService {
       for (final e in ev) e.key,
       for (final e in icm) e.key,
       for (final e in mistakes) e.key,
-    }.toList()
-      ..sort();
+    }.toList()..sort();
     final evMap = {for (final e in ev) e.key: e.value};
     final icmMap = {for (final e in icm) e.key: e.value};
     final mMap = {for (final e in mistakes) e.key: e.value};
@@ -67,24 +68,29 @@ class ProgressExportService {
           evMap[d] != null ? evMap[d]!.toStringAsFixed(2) : '',
           icmMap[d] != null ? icmMap[d]!.toStringAsFixed(3) : '',
           mMap[d] ?? 0,
-        ]
+        ],
     ];
   }
 
-  Future<File> exportEvIcmCsv(List<SavedHand> hands,
-      {bool weekly = false}) async {
+  Future<File> exportEvIcmCsv(
+    List<SavedHand> hands, {
+    bool weekly = false,
+  }) async {
     final rows = _evIcmRows(hands, weekly);
     final csvStr = const ListToCsvConverter().convert(rows, eol: '\r\n');
     final dir = await getTemporaryDirectory();
     final mode = weekly ? 'weekly' : 'daily';
     final file = File(
-        '${dir.path}/ev_icm_\${mode}_\${DateTime.now().millisecondsSinceEpoch}.csv');
+      '${dir.path}/ev_icm_\${mode}_\${DateTime.now().millisecondsSinceEpoch}.csv',
+    );
     await file.writeAsString(csvStr, encoding: utf8);
     return file;
   }
 
-  Future<File> exportEvIcmPdf(List<SavedHand> hands,
-      {bool weekly = false}) async {
+  Future<File> exportEvIcmPdf(
+    List<SavedHand> hands, {
+    bool weekly = false,
+  }) async {
     final rows = _evIcmRows(hands, weekly);
     final header = rows.first.cast<String>();
     final data = rows.skip(1).toList();
@@ -101,7 +107,8 @@ class ProgressExportService {
     final dir = await getTemporaryDirectory();
     final mode = weekly ? 'weekly' : 'daily';
     final file = File(
-        '${dir.path}/ev_icm_\${mode}_\${DateTime.now().millisecondsSinceEpoch}.pdf');
+      '${dir.path}/ev_icm_\${mode}_\${DateTime.now().millisecondsSinceEpoch}.pdf',
+    );
     await file.writeAsBytes(bytes);
     return file;
   }

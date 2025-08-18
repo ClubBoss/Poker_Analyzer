@@ -104,15 +104,17 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     _simpleNavigation = prefs.simpleNavigation;
     _tutorialCompleted = prefs.tutorialCompleted;
     _pathFuture = _loadLearningPath();
-    _reminderEngine = TrainingReminderBannerEngine(sources: [
-      DailyGoalReminder(logs: context.read<SessionLogService>()),
-      AutoMistakeDrillReminder(
-        review: context.read<MistakeReviewPackService>(),
-        templates: context.read<TemplateStorageService>(),
-      ),
-      DecayBoosterReminder(),
-      StreakBrokenReminder(),
-    ]);
+    _reminderEngine = TrainingReminderBannerEngine(
+      sources: [
+        DailyGoalReminder(logs: context.read<SessionLogService>()),
+        AutoMistakeDrillReminder(
+          review: context.read<MistakeReviewPackService>(),
+          templates: context.read<TemplateStorageService>(),
+        ),
+        DecayBoosterReminder(),
+        StreakBrokenReminder(),
+      ],
+    );
     _bannerFuture = _reminderEngine.getNextReminderBanner();
     _loadIndex();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -122,9 +124,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
       _handleDeepLink();
       context.read<GiftDropService>().checkAndDropGift(context: context);
       context.read<SessionStreakOverlayPromptService>().run(context);
-      context
-          .read<DecayBadgeBannerController>()
-          .maybeShowStreakBadgeBanner(context);
+      context.read<DecayBadgeBannerController>().maybeShowStreakBadgeBanner(
+        context,
+      );
     });
   }
 
@@ -147,15 +149,18 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
       MaterialPageRoute(builder: (_) => const OnboardingScreen()),
     );
     if (mounted) {
-      setState(() => _tutorialCompleted =
-          context.read<UserPreferencesService>().tutorialCompleted);
+      setState(
+        () => _tutorialCompleted = context
+            .read<UserPreferencesService>()
+            .tutorialCompleted,
+      );
     }
   }
 
   Future<void> _maybeShowTrainingReminder() async {
-    await context
-        .read<DailyTrainingReminderService>()
-        .maybeShowReminder(context);
+    await context.read<DailyTrainingReminderService>().maybeShowReminder(
+      context,
+    );
   }
 
   Future<void> _maybeLaunchScheduledTraining() async {
@@ -169,8 +174,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
         uri.pathSegments.isNotEmpty) {
       final packId = uri.pathSegments.first;
       final storage = context.read<TemplateStorageService>();
-      final template =
-          storage.templates.firstWhereOrNull((t) => t.id == packId);
+      final template = storage.templates.firstWhereOrNull(
+        (t) => t.id == packId,
+      );
       if (template != null) {
         await Navigator.push(
           context,
@@ -179,8 +185,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
           ),
         );
       } else {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Pack not found')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Pack not found')));
         await RecentPacksService.instance.remove(packId);
       }
       return;
@@ -239,8 +246,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
         segments[2] == 'stage' &&
         link.stageId != null) {
       await TheoryPackLibraryService.instance.loadAll();
-      final stage =
-          template.stages.firstWhereOrNull((s) => s.id == link.stageId);
+      final stage = template.stages.firstWhereOrNull(
+        (s) => s.id == link.stageId,
+      );
       if (stage == null || !mounted) return;
       await UserActionLogger.instance.log('deeplink_stage_preview');
       await Navigator.push(
@@ -323,9 +331,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
       AppUsageTracker.instance.markActive();
       _maybeShowTrainingReminder();
       _maybeLaunchScheduledTraining();
-      unawaited(context
-          .read<OverlayDecayBoosterOrchestrator>()
-          .maybeShowIfIdle(context));
+      unawaited(
+        context.read<OverlayDecayBoosterOrchestrator>().maybeShowIfIdle(
+          context,
+        ),
+      );
     }
   }
 
@@ -503,9 +513,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
                 case 'evstats':
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => const EvStatsScreen(),
-                    ),
+                    MaterialPageRoute(builder: (_) => const EvStatsScreen()),
                   );
                   break;
                 case 'dashboard':
@@ -535,9 +543,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
                 case 'dev':
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => const DevMenuScreen(),
-                    ),
+                    MaterialPageRoute(builder: (_) => const DevMenuScreen()),
                   );
                   break;
                 case 'notifications':
@@ -562,10 +568,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
             itemBuilder: (context) => const [
               PopupMenuItem(value: 'settings', child: Text('⚙️ Settings')),
               PopupMenuItem(
-                  value: 'notifications', child: Text('🔔 Notifications')),
+                value: 'notifications',
+                child: Text('🔔 Notifications'),
+              ),
               PopupMenuItem(value: 'plugins', child: Text('🧩 Plugins')),
               PopupMenuItem(
-                  value: 'community_plugins', child: Text('🌐 Community')),
+                value: 'community_plugins',
+                child: Text('🌐 Community'),
+              ),
               PopupMenuItem(value: 'onboarding', child: Text('📖 Обучение')),
               PopupMenuItem(value: 'evicm', child: Text('EV/ICM')),
               PopupMenuItem(value: 'evstats', child: Text('EV Stats')),
@@ -628,7 +638,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
                       label: 'История',
                     ),
                     BottomNavigationBarItem(
-                        icon: Icon(Icons.flag), label: 'Goal'),
+                      icon: Icon(Icons.flag),
+                      label: 'Goal',
+                    ),
                     BottomNavigationBarItem(
                       icon: Icon(Icons.backpack),
                       label: 'My Packs',

@@ -25,9 +25,10 @@ class ActiveGoalsCard extends StatelessWidget {
           Row(
             children: [
               const Expanded(
-                child: Text('Active Goals',
-                    style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                child: Text(
+                  'Active Goals',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
               ),
               TextButton(
                 onPressed: () {
@@ -49,8 +50,10 @@ class ActiveGoalsCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
-                value: (engine.progress(goals[i]) / goals[i].target)
-                    .clamp(0.0, 1.0),
+                value: (engine.progress(goals[i]) / goals[i].target).clamp(
+                  0.0,
+                  1.0,
+                ),
                 backgroundColor: Colors.white24,
                 valueColor: AlwaysStoppedAnimation<Color>(accent),
                 minHeight: 4,

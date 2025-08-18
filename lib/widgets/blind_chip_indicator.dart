@@ -4,8 +4,12 @@ class BlindChipIndicator extends StatefulWidget {
   final String label;
   final Color color;
   final double scale;
-  const BlindChipIndicator(
-      {super.key, required this.label, required this.color, this.scale = 1.0});
+  const BlindChipIndicator({
+    super.key,
+    required this.label,
+    required this.color,
+    this.scale = 1.0,
+  });
 
   @override
   State<BlindChipIndicator> createState() => _BlindChipIndicatorState();
@@ -19,8 +23,9 @@ class _BlindChipIndicatorState extends State<BlindChipIndicator>
   void initState() {
     super.initState();
     _controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 300))
-      ..forward();
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    )..forward();
   }
 
   @override

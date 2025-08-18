@@ -10,10 +10,10 @@ class SpotSimilarityResult {
   });
 
   Map<String, dynamic> toJson() => {
-        'idA': idA,
-        'idB': idB,
-        'similarity': similarity,
-      };
+    'idA': idA,
+    'idB': idB,
+    'similarity': similarity,
+  };
 
   factory SpotSimilarityResult.fromJson(Map<String, dynamic> json) =>
       SpotSimilarityResult(

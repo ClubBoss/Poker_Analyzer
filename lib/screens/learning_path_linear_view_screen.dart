@@ -54,14 +54,13 @@ class _LearningPathLinearViewScreenState
     final node = _current;
     if (node == null) return;
     if (node.type == LearningPathNodeType.theory) {
-      final lesson =
-          MiniLessonLibraryService.instance.getById(node.miniLessonId ?? '');
+      final lesson = MiniLessonLibraryService.instance.getById(
+        node.miniLessonId ?? '',
+      );
       if (lesson != null) {
         await Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => MiniLessonScreen(lesson: lesson),
-          ),
+          MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: lesson)),
         );
         await LearningPathEngine.instance.markStageCompleted(node.id);
         _refresh();
@@ -104,13 +103,16 @@ class _LearningPathLinearViewScreenState
                 itemBuilder: (context, index) {
                   final node = _nodes[index];
                   final currentId = _current?.id;
-                  final isCompleted =
-                      LearningPathEngine.instance.isCompleted(node.id);
+                  final isCompleted = LearningPathEngine.instance.isCompleted(
+                    node.id,
+                  );
                   final isCurrent = node.id == currentId;
-                  final currentIndex =
-                      _nodes.indexWhere((n) => n.id == currentId);
+                  final currentIndex = _nodes.indexWhere(
+                    (n) => n.id == currentId,
+                  );
                   final nodeIndex = _nodes.indexOf(node);
-                  final isBlocked = !isCompleted &&
+                  final isBlocked =
+                      !isCompleted &&
                       !isCurrent &&
                       nodeIndex > currentIndex &&
                       currentIndex >= 0;
@@ -138,8 +140,9 @@ class _LearningPathLinearViewScreenState
                         }
                         return;
                       }
-                      await LearningPathEngine.instance
-                          .markStageCompleted(node.id);
+                      await LearningPathEngine.instance.markStageCompleted(
+                        node.id,
+                      );
                       _refresh();
                     },
                   );

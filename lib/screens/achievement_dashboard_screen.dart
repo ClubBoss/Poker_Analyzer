@@ -68,10 +68,7 @@ class _AchievementDashboardScreenState
                   itemBuilder: (context, index) {
                     final ach = entry.value[index];
                     final tag = '${ach.id}_hero';
-                    return AchievementTile(
-                      achievement: ach,
-                      heroTag: tag,
-                    );
+                    return AchievementTile(achievement: ach, heroTag: tag);
                   },
                 );
               },

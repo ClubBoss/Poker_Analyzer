@@ -15,24 +15,15 @@ void main() {
         expect(spots, isNotEmpty);
 
         final h1 = itemsHash(spots, 10);
-        final h2 =
-            itemsHash(generateSpots(seed: seed, count: count, mix: mix), 10);
+        final h2 = itemsHash(
+          generateSpots(seed: seed, count: count, mix: mix),
+          10,
+        );
         expect(h1, h2);
 
-        final streetCounts = {
-          Street.flop: 0,
-          Street.turn: 0,
-          Street.river: 0,
-        };
-        final posCounts = {
-          Position.ip: 0,
-          Position.oop: 0,
-        };
-        final sprCounts = {
-          SprBin.short: 0,
-          SprBin.mid: 0,
-          SprBin.deep: 0,
-        };
+        final streetCounts = {Street.flop: 0, Street.turn: 0, Street.river: 0};
+        final posCounts = {Position.ip: 0, Position.oop: 0};
+        final sprCounts = {SprBin.short: 0, SprBin.mid: 0, SprBin.deep: 0};
 
         for (final s in spots) {
           streetCounts[s.street] = streetCounts[s.street]! + 1;

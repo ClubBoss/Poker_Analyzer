@@ -361,12 +361,14 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
       builder: (_) => const Center(child: CircularProgressIndicator()),
     );
     final payload = _history
-        .map((e) => {
-              'ts': e.timestamp.toIso8601String(),
-              'args': e.argsSummary,
-              'out': e.outPath,
-              'log': e.logPath,
-            })
+        .map(
+          (e) => {
+            'ts': e.timestamp.toIso8601String(),
+            'args': e.argsSummary,
+            'out': e.outPath,
+            'log': e.logPath,
+          },
+        )
         .toList();
     final csv = await compute(buildHistoryCsv, payload);
     if (navigator.mounted) navigator.pop();
@@ -664,9 +666,13 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
               Row(
                 children: [
                   TextButton(
-                      onPressed: _openReport, child: Text(loc.openReport)),
+                    onPressed: _openReport,
+                    child: Text(loc.openReport),
+                  ),
                   TextButton(
-                      onPressed: _exportLastCsv, child: Text(loc.exportCsv)),
+                    onPressed: _exportLastCsv,
+                    child: Text(loc.exportCsv),
+                  ),
                   TextButton(
                     onPressed: () {
                       if (_lastReportPath == null) return;
@@ -771,8 +777,9 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                                       child: Text(loc.folder),
                                     ),
                                   TextButton(
-                                    onPressed:
-                                        _running ? null : () => _reRun(e),
+                                    onPressed: _running
+                                        ? null
+                                        : () => _reRun(e),
                                     child: Text(loc.reRun),
                                   ),
                                 ],
@@ -801,8 +808,11 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
         const SingleActivator(LogicalKeyboardKey.keyC, meta: true):
             const _CopyLastPathIntent(),
         // Copy last logs path (Shift)
-        const SingleActivator(LogicalKeyboardKey.keyC,
-            control: true, shift: true): const _CopyLastLogPathIntent(),
+        const SingleActivator(
+          LogicalKeyboardKey.keyC,
+          control: true,
+          shift: true,
+        ): const _CopyLastLogPathIntent(),
         const SingleActivator(LogicalKeyboardKey.keyC, meta: true, shift: true):
             const _CopyLastLogPathIntent(),
         // Export last report CSV
@@ -811,8 +821,11 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
         const SingleActivator(LogicalKeyboardKey.keyE, meta: true):
             const _ExportLastIntent(),
         // Export history CSV (Shift)
-        const SingleActivator(LogicalKeyboardKey.keyE,
-            control: true, shift: true): const _ExportHistoryIntent(),
+        const SingleActivator(
+          LogicalKeyboardKey.keyE,
+          control: true,
+          shift: true,
+        ): const _ExportHistoryIntent(),
         const SingleActivator(LogicalKeyboardKey.keyE, meta: true, shift: true):
             const _ExportHistoryIntent(),
         // Open last report
@@ -826,8 +839,11 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
         const SingleActivator(LogicalKeyboardKey.keyL, meta: true):
             const _OpenLastLogsIntent(),
         // Reveal last report in folder
-        const SingleActivator(LogicalKeyboardKey.keyR,
-            control: true, shift: true): const _RevealLastIntent(),
+        const SingleActivator(
+          LogicalKeyboardKey.keyR,
+          control: true,
+          shift: true,
+        ): const _RevealLastIntent(),
         const SingleActivator(LogicalKeyboardKey.keyR, meta: true, shift: true):
             const _RevealLastIntent(),
       },

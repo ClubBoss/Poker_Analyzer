@@ -81,12 +81,16 @@ class _SkillLossBannerV2State extends State<SkillLossBannerV2> {
                   label: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(item.tag,
-                          style: const TextStyle(color: Colors.white)),
+                      Text(
+                        item.tag,
+                        style: const TextStyle(color: Colors.white),
+                      ),
                       const SizedBox(width: 4),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 4, vertical: 1),
+                          horizontal: 4,
+                          vertical: 1,
+                        ),
                         decoration: BoxDecoration(
                           color: accent,
                           borderRadius: BorderRadius.circular(8),
@@ -94,7 +98,9 @@ class _SkillLossBannerV2State extends State<SkillLossBannerV2> {
                         child: Text(
                           '${(item.urgencyScore * 100).round()}%',
                           style: const TextStyle(
-                              color: Colors.black, fontSize: 10),
+                            color: Colors.black,
+                            fontSize: 10,
+                          ),
                         ),
                       ),
                     ],

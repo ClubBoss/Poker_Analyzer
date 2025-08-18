@@ -94,9 +94,7 @@ class ConstraintSet {
     final overrides = <String, List<dynamic>>{};
     if (json['overrides'] is Map) {
       (json['overrides'] as Map).forEach((key, value) {
-        overrides[key.toString()] = [
-          for (final v in (value as List? ?? [])) v,
-        ];
+        overrides[key.toString()] = [for (final v in (value as List? ?? [])) v];
       });
     }
     return ConstraintSet(
@@ -135,9 +133,7 @@ class ConstraintSet {
           ? LinePattern.fromJson(Map<String, dynamic>.from(json['linePattern']))
           : null,
       overrides: overrides,
-      tags: [
-        for (final t in (json['tags'] as List? ?? [])) t.toString(),
-      ],
+      tags: [for (final t in (json['tags'] as List? ?? [])) t.toString()],
       tagMergeMode: json['tagMergeMode'] == 'override'
           ? MergeMode.override
           : MergeMode.add,
@@ -151,27 +147,27 @@ class ConstraintSet {
   }
 
   Map<String, dynamic> toJson() => {
-        if (boardTags.isNotEmpty) 'boardTags': boardTags,
-        if (positions.isNotEmpty) 'positions': positions,
-        if (handGroup.isNotEmpty) 'handGroup': handGroup,
-        if (villainActions.isNotEmpty) 'villainActions': villainActions,
-        if (targetStreet != null) 'targetStreet': targetStreet,
-        if (requiredTags.isNotEmpty) 'requiredTags': requiredTags,
-        if (excludedTags.isNotEmpty) 'excludedTags': excludedTags,
-        if (position != null) 'position': position,
-        if (opponentPosition != null) 'opponentPosition': opponentPosition,
-        if (boardTexture != null && boardTexture!.isNotEmpty)
-          'boardTexture': boardTexture,
-        if (minStack != null) 'minStack': minStack,
-        if (maxStack != null) 'maxStack': maxStack,
-        if (boardConstraints.isNotEmpty) 'boardConstraints': boardConstraints,
-        if (linePattern != null) 'linePattern': linePattern!.toJson(),
-        if (overrides.isNotEmpty) 'overrides': overrides,
-        if (tags.isNotEmpty) 'tags': tags,
-        if (tagMergeMode == MergeMode.override) 'tagMergeMode': 'override',
-        if (metadata.isNotEmpty) 'metadata': metadata,
-        if (metaMergeMode == MergeMode.override) 'metaMergeMode': 'override',
-      };
+    if (boardTags.isNotEmpty) 'boardTags': boardTags,
+    if (positions.isNotEmpty) 'positions': positions,
+    if (handGroup.isNotEmpty) 'handGroup': handGroup,
+    if (villainActions.isNotEmpty) 'villainActions': villainActions,
+    if (targetStreet != null) 'targetStreet': targetStreet,
+    if (requiredTags.isNotEmpty) 'requiredTags': requiredTags,
+    if (excludedTags.isNotEmpty) 'excludedTags': excludedTags,
+    if (position != null) 'position': position,
+    if (opponentPosition != null) 'opponentPosition': opponentPosition,
+    if (boardTexture != null && boardTexture!.isNotEmpty)
+      'boardTexture': boardTexture,
+    if (minStack != null) 'minStack': minStack,
+    if (maxStack != null) 'maxStack': maxStack,
+    if (boardConstraints.isNotEmpty) 'boardConstraints': boardConstraints,
+    if (linePattern != null) 'linePattern': linePattern!.toJson(),
+    if (overrides.isNotEmpty) 'overrides': overrides,
+    if (tags.isNotEmpty) 'tags': tags,
+    if (tagMergeMode == MergeMode.override) 'tagMergeMode': 'override',
+    if (metadata.isNotEmpty) 'metadata': metadata,
+    if (metaMergeMode == MergeMode.override) 'metaMergeMode': 'override',
+  };
 }
 
 /// Strategy for merging list/map data when applying a [ConstraintSet].

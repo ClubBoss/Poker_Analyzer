@@ -4,7 +4,7 @@ import 'mini_lesson_library_service.dart';
 /// Caches theory lessons by tag to avoid repeated library loads.
 class InlineTheoryLinkerCache {
   InlineTheoryLinkerCache({MiniLessonLibraryService? library})
-      : _library = library ?? MiniLessonLibraryService.instance;
+    : _library = library ?? MiniLessonLibraryService.instance;
 
   final MiniLessonLibraryService _library;
   bool _ready = false;

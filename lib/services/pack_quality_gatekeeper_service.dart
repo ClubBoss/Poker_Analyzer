@@ -9,7 +9,7 @@ class PackQualityGatekeeperService {
   const PackQualityGatekeeperService({
     PackQualityScoreCalculatorService? scoreCalculator,
   }) : _scoreCalculator =
-            scoreCalculator ?? const PackQualityScoreCalculatorService();
+           scoreCalculator ?? const PackQualityScoreCalculatorService();
 
   final PackQualityScoreCalculatorService _scoreCalculator;
 
@@ -17,20 +17,24 @@ class PackQualityGatekeeperService {
   ///
   /// If the pack does not already have a `qualityScore` stored in its
   /// metadata, it is calculated and cached before evaluation.
-  bool isQualityAcceptable(TrainingPackModel pack,
-      {double minScore = 0.7,
-      Map<String, List<SeedIssue>> seedIssues = const {}}) {
+  bool isQualityAcceptable(
+    TrainingPackModel pack, {
+    double minScore = 0.7,
+    Map<String, List<SeedIssue>> seedIssues = const {},
+  }) {
     var score = pack.metadata['qualityScore'] as double?;
     score ??= _scoreCalculator.calculateQualityScore(pack);
     if (score < minScore) {
       debugPrint(
-          'PackQualityGatekeeperService: rejected pack ${pack.id} with score ${score.toStringAsFixed(2)} < threshold $minScore');
+        'PackQualityGatekeeperService: rejected pack ${pack.id} with score ${score.toStringAsFixed(2)} < threshold $minScore',
+      );
       return false;
     }
     final issues = seedIssues[pack.id] ?? const <SeedIssue>[];
     if (issues.any((i) => i.severity == 'error')) {
       debugPrint(
-          'PackQualityGatekeeperService: rejected pack ${pack.id} due to seed validation errors');
+        'PackQualityGatekeeperService: rejected pack ${pack.id} due to seed validation errors',
+      );
       return false;
     }
     return true;

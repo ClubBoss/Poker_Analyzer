@@ -60,10 +60,7 @@ class TrainingPackCoreState extends State<TrainingPackCore> {
             flex: 3,
             child: TrainingPackSpotPanel(controller: _controller),
           ),
-          Expanded(
-            flex: 2,
-            child: TrainingPackStatsPanel(results: _results),
-          ),
+          Expanded(flex: 2, child: TrainingPackStatsPanel(results: _results)),
         ],
       ),
       floatingActionButton: TrainingPackOverlay(pack: widget.pack),

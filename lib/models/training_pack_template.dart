@@ -46,9 +46,9 @@ class TrainingPackTemplate with CopyWithMixin<TrainingPackTemplate> {
     List<String>? tags,
     this.defaultColor = '#2196F3',
     this.pinned = false,
-  })  : createdAt = createdAt ?? DateTime.now(),
-        updatedAt = updatedAt ?? DateTime.now(),
-        tags = tags ?? const [];
+  }) : createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now(),
+       tags = tags ?? const [];
 
   factory TrainingPackTemplate.fromJson(Map<String, dynamic> json) =>
       _$TrainingPackTemplateFromJson(json);
@@ -68,14 +68,16 @@ class TrainingPackTemplate with CopyWithMixin<TrainingPackTemplate> {
       description: map['description'].toString(),
       hands: [
         for (final h in (map['hands'] as List? ?? const []))
-          SavedHand.fromJson(Map<String, dynamic>.from(h))
+          SavedHand.fromJson(Map<String, dynamic>.from(h)),
       ],
       version: map['version']?.toString() ?? '1.0.0',
       author: map['author']?.toString() ?? '',
       revision: (map['revision'] as num?)?.toInt() ?? 1,
-      createdAt: DateTime.tryParse(map['createdAt']?.toString() ?? '') ??
+      createdAt:
+          DateTime.tryParse(map['createdAt']?.toString() ?? '') ??
           DateTime.now(),
-      updatedAt: DateTime.tryParse(map['updatedAt']?.toString() ?? '') ??
+      updatedAt:
+          DateTime.tryParse(map['updatedAt']?.toString() ?? '') ??
           DateTime.now(),
       isBuiltIn: map['isBuiltIn'] == true,
       tags: [for (final t in (map['tags'] as List? ?? const [])) t.toString()],

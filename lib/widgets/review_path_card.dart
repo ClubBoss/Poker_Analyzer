@@ -45,8 +45,9 @@ class _ReviewPathCardState extends State<ReviewPathCard> {
     await queue.load();
     if (queue.queue.isEmpty) return null;
     final id = queue.queue.first;
-    final pack =
-        await (widget.library ?? PackLibraryService.instance).getById(id);
+    final pack = await (widget.library ?? PackLibraryService.instance).getById(
+      id,
+    );
     if (pack == null) return null;
     final tag = pack.tags.isNotEmpty ? pack.tags.first : '';
     final reminder =
@@ -75,8 +76,9 @@ class _ReviewPathCardState extends State<ReviewPathCard> {
         if (data == null) return const SizedBox.shrink();
         final loss = data.loss;
         final score = loss?.drop;
-        final reason =
-            loss != null ? 'Skill drop, ${loss.trend}' : 'Scheduled review';
+        final reason = loss != null
+            ? 'Skill drop, ${loss.trend}'
+            : 'Scheduled review';
         return Container(
           margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           padding: const EdgeInsets.all(12),
@@ -105,10 +107,7 @@ class _ReviewPathCardState extends State<ReviewPathCard> {
                         'Urgency ${(score * 100).toStringAsFixed(0)}%',
                         style: const TextStyle(color: Colors.white70),
                       ),
-                    Text(
-                      reason,
-                      style: const TextStyle(color: Colors.white70),
-                    ),
+                    Text(reason, style: const TextStyle(color: Colors.white70)),
                   ],
                 ),
               ),

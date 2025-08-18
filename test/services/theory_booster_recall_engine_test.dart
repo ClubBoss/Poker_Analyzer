@@ -35,7 +35,11 @@ void main() {
 
   test('recalls suggestions after cooldown', () async {
     final lesson = const TheoryMiniLessonNode(
-        id: 'l1', title: 'L1', content: '', tags: []);
+      id: 'l1',
+      title: 'L1',
+      content: '',
+      tags: [],
+    );
     final engine = TheoryBoosterRecallEngine(library: _FakeLibrary([lesson]));
     final old = DateTime.now().subtract(const Duration(days: 4));
     await engine.recordSuggestion('l1', timestamp: old);
@@ -45,7 +49,11 @@ void main() {
 
   test('launched lessons are not recalled', () async {
     final lesson = const TheoryMiniLessonNode(
-        id: 'l2', title: 'L2', content: '', tags: []);
+      id: 'l2',
+      title: 'L2',
+      content: '',
+      tags: [],
+    );
     final engine = TheoryBoosterRecallEngine(library: _FakeLibrary([lesson]));
     final old = DateTime.now().subtract(const Duration(days: 4));
     await engine.recordSuggestion('l2', timestamp: old);
@@ -56,14 +64,21 @@ void main() {
 
   test('recallDismissedUnlaunched returns dismissed lessons', () async {
     final lesson = const TheoryMiniLessonNode(
-        id: 'l3', title: 'L3', content: '', tags: []);
+      id: 'l3',
+      title: 'L3',
+      content: '',
+      tags: [],
+    );
     final engine = TheoryBoosterRecallEngine(library: _FakeLibrary([lesson]));
     final old = DateTime.now().subtract(const Duration(days: 4));
     await engine.recordSuggestion('l3', timestamp: old);
-    await TheoryPromptDismissTracker.instance
-        .markDismissed('l3', timestamp: old);
-    final rec =
-        await engine.recallDismissedUnlaunched(since: const Duration(days: 3));
+    await TheoryPromptDismissTracker.instance.markDismissed(
+      'l3',
+      timestamp: old,
+    );
+    final rec = await engine.recallDismissedUnlaunched(
+      since: const Duration(days: 3),
+    );
     expect(rec.map((e) => e.id), ['l3']);
   });
 }

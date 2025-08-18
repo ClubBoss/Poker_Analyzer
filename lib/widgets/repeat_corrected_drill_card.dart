@@ -14,7 +14,7 @@ class RepeatCorrectedDrillCard extends StatelessWidget {
     final hands = context.watch<SavedHandManagerService>().hands;
     final list = [
       for (final h in hands)
-        if (h.corrected && (h.evLoss?.abs() ?? 0) >= 1.0) h
+        if (h.corrected && (h.evLoss?.abs() ?? 0) >= 1.0) h,
     ];
     if (list.isEmpty) return const SizedBox.shrink();
     final accent = Theme.of(context).colorScheme.secondary;
@@ -50,14 +50,16 @@ class RepeatCorrectedDrillCard extends StatelessWidget {
             onPressed: () async {
               final tpl =
                   await TrainingPackService.createDrillFromCorrectedHands(
-                      context);
+                    context,
+                  );
               if (tpl == null) return;
               await context.read<TrainingSessionService>().startSession(tpl);
               if (context.mounted) {
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (_) => const TrainingSessionScreen()),
+                    builder: (_) => const TrainingSessionScreen(),
+                  ),
                 );
               }
             },

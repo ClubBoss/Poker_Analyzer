@@ -22,17 +22,19 @@ class GoalEngagementTracker {
     final raw = prefs.getStringList(_prefsKey) ?? [];
     _events
       ..clear()
-      ..addAll(raw.map((e) =>
-          GoalEngagement.fromJson(jsonDecode(e) as Map<String, dynamic>)));
+      ..addAll(
+        raw.map(
+          (e) => GoalEngagement.fromJson(jsonDecode(e) as Map<String, dynamic>),
+        ),
+      );
     _loaded = true;
   }
 
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(
-      _prefsKey,
-      [for (final e in _events) jsonEncode(e.toJson())],
-    );
+    await prefs.setStringList(_prefsKey, [
+      for (final e in _events) jsonEncode(e.toJson()),
+    ]);
   }
 
   /// Log a goal engagement event.

@@ -20,31 +20,41 @@ class SessionStatRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final child = LayoutBuilder(builder: (context, constraints) {
-      if (constraints.maxWidth < 360) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    final child = LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 360) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(color: Colors.white70, fontSize: 14 * scale),
+              ),
+              SizedBox(height: 4 * scale),
+              Text(
+                value,
+                style: TextStyle(color: Colors.white, fontSize: 14 * scale),
+              ),
+            ],
+          );
+        }
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label,
-                style: TextStyle(color: Colors.white70, fontSize: 14 * scale)),
-            SizedBox(height: 4 * scale),
-            Text(value,
-                style: TextStyle(color: Colors.white, fontSize: 14 * scale)),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(color: Colors.white70, fontSize: 14 * scale),
+              ),
+            ),
+            Text(
+              value,
+              style: TextStyle(color: Colors.white, fontSize: 14 * scale),
+            ),
           ],
         );
-      }
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Text(label,
-                style: TextStyle(color: Colors.white70, fontSize: 14 * scale)),
-          ),
-          Text(value,
-              style: TextStyle(color: Colors.white, fontSize: 14 * scale)),
-        ],
-      );
-    });
+      },
+    );
 
     final row = Padding(
       padding: EdgeInsets.only(bottom: 12 * scale),

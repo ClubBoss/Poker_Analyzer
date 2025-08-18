@@ -11,25 +11,29 @@ class BoardTextureFilterService {
         case 'low':
         case 'lowBoards':
           if (!_isLow(
-              board.map((c) => CardModel(rank: c[0], suit: c[1])).toList())) {
+            board.map((c) => CardModel(rank: c[0], suit: c[1])).toList(),
+          )) {
             return false;
           }
           break;
         case 'aceHigh':
           if (!_isAceHigh(
-              board.map((c) => CardModel(rank: c[0], suit: c[1])).toList())) {
+            board.map((c) => CardModel(rank: c[0], suit: c[1])).toList(),
+          )) {
             return false;
           }
           break;
         case 'highCard':
           if (!_isHighCard(
-              board.map((c) => CardModel(rank: c[0], suit: c[1])).toList())) {
+            board.map((c) => CardModel(rank: c[0], suit: c[1])).toList(),
+          )) {
             return false;
           }
           break;
         case 'paired':
           if (!_isPaired(
-              board.map((c) => CardModel(rank: c[0], suit: c[1])).toList())) {
+            board.map((c) => CardModel(rank: c[0], suit: c[1])).toList(),
+          )) {
             return false;
           }
           break;
@@ -54,15 +58,16 @@ class BoardTextureFilterService {
     if (ranks.any(excluded.contains)) return false;
 
     final requiredRanks = <String>[
-      ...(filter['requiredRanks'] as List? ?? [])
-          .map((e) => e.toString().toUpperCase())
+      ...(filter['requiredRanks'] as List? ?? []).map(
+        (e) => e.toString().toUpperCase(),
+      ),
     ];
     for (final r in requiredRanks) {
       if (!ranks.contains(r)) return false;
     }
 
     final requiredSuits = <String>[
-      ...(filter['requiredSuits'] as List? ?? []).map((e) => e.toString())
+      ...(filter['requiredSuits'] as List? ?? []).map((e) => e.toString()),
     ];
     for (final s in requiredSuits) {
       if (!suits.contains(s)) return false;

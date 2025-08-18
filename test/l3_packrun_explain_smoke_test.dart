@@ -24,7 +24,7 @@ spots:
       dir.path,
       '--out',
       outFile.path,
-      '--explain'
+      '--explain',
     ]);
     expect(res.exitCode, 0, reason: res.stderr.toString());
     final report =

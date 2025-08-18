@@ -9,10 +9,7 @@ import 'transition_lock_service.dart';
 
 /// Manages sequencing and animation of board card reveals.
 class BoardRevealService {
-  BoardRevealService({
-    required this.lockService,
-    required this.boardSync,
-  });
+  BoardRevealService({required this.lockService, required this.boardSync});
 
   final TransitionLockService lockService;
   final BoardSyncService boardSync;
@@ -47,8 +44,10 @@ class BoardRevealService {
     }
     _controllers.clear();
     _controllers.addAll(
-      List.generate(5,
-          (_) => AnimationController(vsync: vsync, duration: revealDuration)),
+      List.generate(
+        5,
+        (_) => AnimationController(vsync: vsync, duration: revealDuration),
+      ),
     );
     animations = _controllers
         .map((c) => CurvedAnimation(parent: c, curve: Curves.easeIn))
@@ -87,10 +86,13 @@ class BoardRevealService {
   void startBoardTransition([VoidCallback? onComplete]) {
     final targetVisible =
         BoardSyncService.stageCardCounts[boardSync.currentStreet];
-    final revealCount =
-        max(0, targetVisible - boardSync.revealedBoardCards.length);
+    final revealCount = max(
+      0,
+      targetVisible - boardSync.revealedBoardCards.length,
+    );
     final duration = Duration(
-      milliseconds: revealDuration.inMilliseconds +
+      milliseconds:
+          revealDuration.inMilliseconds +
           revealStagger.inMilliseconds *
               (revealCount > 1 ? revealCount - 1 : 0),
     );
@@ -164,8 +166,10 @@ class BoardRevealService {
   bool isStageRevealed(int stage) => revealStreet >= stage;
 
   /// Serializes the current reveal state to a JSON-compatible map.
-  Map<String, dynamic> toJson() =>
-      {'showFullBoard': _showFullBoard, 'revealStreet': revealStreet};
+  Map<String, dynamic> toJson() => {
+    'showFullBoard': _showFullBoard,
+    'revealStreet': revealStreet,
+  };
 
   /// Returns a copy of the current reveal state map, or `null` when
   /// using the default values.

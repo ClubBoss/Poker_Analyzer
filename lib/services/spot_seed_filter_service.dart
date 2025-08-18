@@ -8,7 +8,7 @@ class SpotSeedFilterService {
   final ConstraintResolverEngine _engine;
 
   const SpotSeedFilterService({ConstraintResolverEngine? engine})
-      : _engine = engine ?? const ConstraintResolverEngine();
+    : _engine = engine ?? const ConstraintResolverEngine();
 
   /// Filters [spots] returning only those that satisfy [constraints].
   ///

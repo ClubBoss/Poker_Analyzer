@@ -16,15 +16,12 @@ class TrainingPathStorageService {
       final map = jsonDecode(raw) as Map<String, dynamic>;
       return map.map((k, v) {
         final list = (v as List?) ?? [];
-        return MapEntry(
-          k,
-          [
-            for (final e in list)
-              LearningPathStageModel.fromJson(
-                Map<String, dynamic>.from(e as Map),
-              )
-          ],
-        );
+        return MapEntry(k, [
+          for (final e in list)
+            LearningPathStageModel.fromJson(
+              Map<String, dynamic>.from(e as Map),
+            ),
+        ]);
       });
     } catch (_) {
       return {};

@@ -33,7 +33,9 @@ class _SpotOfTheDayRetryScreenState extends State<SpotOfTheDayRetryScreen> {
   }
 
   Future<void> _chooseAction(
-      SpotOfTheDayService service, SpotOfDayHistoryEntry entry) async {
+    SpotOfTheDayService service,
+    SpotOfDayHistoryEntry entry,
+  ) async {
     const actions = ['fold', 'check', 'call', 'bet', 'raise'];
     final result = await showDialog<String>(
       context: context,
@@ -49,8 +51,11 @@ class _SpotOfTheDayRetryScreenState extends State<SpotOfTheDayRetryScreen> {
       ),
     );
     if (result != null) {
-      await service.updateHistoryEntry(entry.date, result,
-          recommendedAction: entry.recommendedAction);
+      await service.updateHistoryEntry(
+        entry.date,
+        result,
+        recommendedAction: entry.recommendedAction,
+      );
       setState(() {
         _mistakes = service.history.where((e) => e.correct == false).toList();
         if (_mistakes.isEmpty) {
@@ -96,9 +101,7 @@ class _SpotOfTheDayRetryScreenState extends State<SpotOfTheDayRetryScreen> {
         }
         final spots = snapshot.data!;
         if (entry.spotIndex >= spots.length) {
-          return const Scaffold(
-            body: Center(child: Text('Спот не найден')),
-          );
+          return const Scaffold(body: Center(child: Text('Спот не найден')));
         }
         final spot = spots[entry.spotIndex];
         return Scaffold(
@@ -110,8 +113,9 @@ class _SpotOfTheDayRetryScreenState extends State<SpotOfTheDayRetryScreen> {
           backgroundColor: const Color(0xFF121212),
           body: LayoutBuilder(
             builder: (context, constraints) {
-              final scale =
-                  TableGeometryHelper.tableScale(spot.numberOfPlayers);
+              final scale = TableGeometryHelper.tableScale(
+                spot.numberOfPlayers,
+              );
               final tableWidth = constraints.maxWidth * 0.9 * scale;
               final tableHeight = tableWidth * 0.55;
               final centerX = constraints.maxWidth / 2;
@@ -142,46 +146,52 @@ class _SpotOfTheDayRetryScreenState extends State<SpotOfTheDayRetryScreen> {
 
               for (int i = 0; i < spot.numberOfPlayers; i++) {
                 final pos = TableGeometryHelper.positionForPlayer(
-                    i, spot.numberOfPlayers, tableWidth, tableHeight);
+                  i,
+                  spot.numberOfPlayers,
+                  tableWidth,
+                  tableHeight,
+                );
                 final offsetX = centerX + pos.dx - 55 * scale;
                 final offsetY = centerY + pos.dy - 55 * scale;
                 final cards = spot.playerCards.length > i
                     ? spot.playerCards[i]
                     : <CardModel>[];
-                children.add(Positioned(
-                  left: offsetX,
-                  top: offsetY,
-                  child: PlayerInfoWidget(
-                    position: spot.positions[i],
-                    stack: spot.stacks[i],
-                    tag: '',
-                    cards: cards,
-                    lastAction: null,
-                    isActive: false,
-                    isFolded: false,
-                    isHero: i == spot.heroIndex,
-                    isOpponent: false,
-                    revealCards: true,
-                    playerTypeIcon: '',
-                    playerTypeLabel: null,
-                    positionLabel: null,
-                    blindLabel: null,
-                    showLastIndicator: false,
-                    onTap: null,
-                    onDoubleTap: null,
-                    onLongPress: null,
-                    onEdit: null,
-                    onStackTap: null,
-                    onRemove: null,
-                    onTimeExpired: null,
-                    onCardTap: null,
-                    streetInvestment: 0,
-                    currentBet: 0,
-                    remainingStack: spot.stacks[i],
-                    timersDisabled: true,
-                    isBust: false,
+                children.add(
+                  Positioned(
+                    left: offsetX,
+                    top: offsetY,
+                    child: PlayerInfoWidget(
+                      position: spot.positions[i],
+                      stack: spot.stacks[i],
+                      tag: '',
+                      cards: cards,
+                      lastAction: null,
+                      isActive: false,
+                      isFolded: false,
+                      isHero: i == spot.heroIndex,
+                      isOpponent: false,
+                      revealCards: true,
+                      playerTypeIcon: '',
+                      playerTypeLabel: null,
+                      positionLabel: null,
+                      blindLabel: null,
+                      showLastIndicator: false,
+                      onTap: null,
+                      onDoubleTap: null,
+                      onLongPress: null,
+                      onEdit: null,
+                      onStackTap: null,
+                      onRemove: null,
+                      onTimeExpired: null,
+                      onCardTap: null,
+                      streetInvestment: 0,
+                      currentBet: 0,
+                      remainingStack: spot.stacks[i],
+                      timersDisabled: true,
+                      isBust: false,
+                    ),
                   ),
-                ));
+                );
               }
 
               return Stack(children: children);
@@ -215,9 +225,11 @@ class _SpotOfTheDayRetryScreenState extends State<SpotOfTheDayRetryScreen> {
                     ),
                   ElevatedButton(
                     onPressed: () => _chooseAction(service, entry),
-                    child: Text(entry.userAction == null
-                        ? 'Ваше решение'
-                        : 'Изменить ответ'),
+                    child: Text(
+                      entry.userAction == null
+                          ? 'Ваше решение'
+                          : 'Изменить ответ',
+                    ),
                   ),
                   const SizedBox(height: 8),
                   ElevatedButton(

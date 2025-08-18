@@ -37,7 +37,7 @@ class StageStatsWithHistory extends StageStats {
 
 class SessionLogService extends ChangeNotifier {
   SessionLogService({required TrainingSessionService sessions, this.cloud})
-      : _sessions = sessions {
+    : _sessions = sessions {
     _listener = _handle;
     _sessions.addListener(_listener!);
   }
@@ -66,8 +66,10 @@ class SessionLogService extends ChangeNotifier {
   }
 
   /// Returns aggregated stats along with recent session history for [templateId].
-  StageStatsWithHistory getStatsWithHistory(String templateId,
-      [int recent = 7]) {
+  StageStatsWithHistory getStatsWithHistory(
+    String templateId, [
+    int recent = 7,
+  ]) {
     int hands = 0;
     int correct = 0;
     final history = <StageTrendPoint>[];
@@ -99,9 +101,11 @@ class SessionLogService extends ChangeNotifier {
     }
     _logs
       ..clear()
-      ..addAll(_box!.values
-          .whereType<Map>()
-          .map((e) => SessionLog.fromJson(Map<String, dynamic>.from(e))))
+      ..addAll(
+        _box!.values.whereType<Map>().map(
+          (e) => SessionLog.fromJson(Map<String, dynamic>.from(e)),
+        ),
+      )
       ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
     _logged.addAll(_logs.map((e) => e.sessionId));
     if (cloud != null) {
@@ -110,16 +114,21 @@ class SessionLogService extends ChangeNotifier {
         final prefs = await SharedPreferences.getInstance();
         final remoteAt =
             DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
-                DateTime.fromMillisecondsSinceEpoch(0);
-        final localAt = DateTime.tryParse(prefs.getString(_timeKey) ?? '') ??
+            DateTime.fromMillisecondsSinceEpoch(0);
+        final localAt =
+            DateTime.tryParse(prefs.getString(_timeKey) ?? '') ??
             DateTime.fromMillisecondsSinceEpoch(0);
         if (remoteAt.isAfter(localAt)) {
           final list = remote['logs'];
           if (list is List) {
             _logs
               ..clear()
-              ..addAll(list.map((e) =>
-                  SessionLog.fromJson(Map<String, dynamic>.from(e as Map))))
+              ..addAll(
+                list.map(
+                  (e) =>
+                      SessionLog.fromJson(Map<String, dynamic>.from(e as Map)),
+                ),
+              )
               ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
             _logged
               ..clear()
@@ -170,8 +179,9 @@ class SessionLogService extends ChangeNotifier {
       ...?_sessions.template?.tags,
       ..._sessions.sessionTags,
     };
-    final meta =
-        TrainingProgressLogger.consumeMeta(_sessions.template?.id ?? '');
+    final meta = TrainingProgressLogger.consumeMeta(
+      _sessions.template?.id ?? '',
+    );
     final log = SessionLog(
       sessionId: s.id,
       templateId: s.templateId,
@@ -191,11 +201,14 @@ class SessionLogService extends ChangeNotifier {
     _logged.add(s.id);
     unawaited(_save(log));
     unawaited(
-        LearningPathPersonalizationService.instance.updateFromSession(log));
+      LearningPathPersonalizationService.instance.updateFromSession(log),
+    );
     unawaited(() async {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(
-          'mistakes_tpl_${log.templateId}', log.mistakeCount > 0);
+        'mistakes_tpl_${log.templateId}',
+        log.mistakeCount > 0,
+      );
     }());
   }
 
@@ -206,7 +219,7 @@ class SessionLogService extends ChangeNotifier {
                 (!l.completedAt.isBefore(range.start) &&
                     !l.completedAt.isAfter(range.end))) &&
             (templateId == null || l.templateId == templateId))
-          l
+          l,
     ];
   }
 
@@ -229,7 +242,7 @@ class SessionLogService extends ChangeNotifier {
     await load();
     await PackLibraryLoaderService.instance.loadLibrary();
     final library = {
-      for (final t in PackLibraryLoaderService.instance.library) t.id: t
+      for (final t in PackLibraryLoaderService.instance.library) t.id: t,
     };
     final history = <TrainingResult>[];
     for (final log in _logs) {

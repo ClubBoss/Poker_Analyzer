@@ -27,12 +27,12 @@ class TheoryPriorityGatekeeperService {
     TheoryBoosterRecallEngine? recall,
     SmartSkillGapBoosterEngine? skillGap,
     LearningPathEngine? path,
-  })  : recapQueue = recapQueue ?? RecapBoosterQueue.instance,
-        inboxQueue = inboxQueue ?? InboxBoosterTrackerService.instance,
-        goalQueue = goalQueue ?? GoalQueue.instance,
-        recall = recall ?? TheoryBoosterRecallEngine.instance,
-        skillGap = skillGap ?? const SmartSkillGapBoosterEngine(),
-        path = path ?? LearningPathEngine.instance;
+  }) : recapQueue = recapQueue ?? RecapBoosterQueue.instance,
+       inboxQueue = inboxQueue ?? InboxBoosterTrackerService.instance,
+       goalQueue = goalQueue ?? GoalQueue.instance,
+       recall = recall ?? TheoryBoosterRecallEngine.instance,
+       skillGap = skillGap ?? const SmartSkillGapBoosterEngine(),
+       path = path ?? LearningPathEngine.instance;
 
   static final TheoryPriorityGatekeeperService instance =
       TheoryPriorityGatekeeperService();
@@ -94,8 +94,9 @@ class TheoryPriorityGatekeeperService {
       if (stage == null) return false;
       if (stage.type == StageType.theory) return true;
       if (stage.theoryPackId != null) {
-        final completed =
-            await TheoryStageProgressTracker.instance.isCompleted(stage.id);
+        final completed = await TheoryStageProgressTracker.instance.isCompleted(
+          stage.id,
+        );
         return !completed;
       }
     }

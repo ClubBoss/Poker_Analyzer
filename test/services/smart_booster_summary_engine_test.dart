@@ -28,8 +28,8 @@ void main() {
           'deltaEV': -0.01,
           'spotsTracked': 5,
           'timestamp': now.toIso8601String(),
-        }
-      ])
+        },
+      ]),
     });
     final engine = SmartBoosterSummaryEngine();
     final summary = await engine.summarize('b1');
@@ -63,12 +63,14 @@ void main() {
           'deltaEV': 0.01,
           'spotsTracked': 6,
           'timestamp': now.toIso8601String(),
-        }
-      ])
+        },
+      ]),
     });
     final engine = SmartBoosterSummaryEngine();
-    final list =
-        await engine.summarizeAll(['b1', 'b2'], sortByEffectiveness: true);
+    final list = await engine.summarizeAll([
+      'b1',
+      'b2',
+    ], sortByEffectiveness: true);
     expect(list.first.id, 'b1');
     expect(list.last.id, 'b2');
   });

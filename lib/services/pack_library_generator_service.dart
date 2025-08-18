@@ -14,7 +14,7 @@ class PackLibraryGeneratorService {
   final TrainingPackTemplateCompiler _compiler;
 
   const PackLibraryGeneratorService({TrainingPackTemplateCompiler? compiler})
-      : _compiler = compiler ?? const TrainingPackTemplateCompiler();
+    : _compiler = compiler ?? const TrainingPackTemplateCompiler();
 
   /// Compiles [paths] and writes the resulting map to [outPath].
   Future<void> generate(
@@ -25,9 +25,7 @@ class PackLibraryGeneratorService {
     final keys = grouped.keys.toList()..sort();
     final buffer = StringBuffer()
       ..writeln('// GENERATED CODE - DO NOT MODIFY BY HAND')
-      ..writeln(
-        '// ignore_for_file: unused_import, lines_longer_than_80_chars',
-      )
+      ..writeln('// ignore_for_file: unused_import, lines_longer_than_80_chars')
       ..writeln('')
       ..writeln("import 'dart:convert';")
       ..writeln(

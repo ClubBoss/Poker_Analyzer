@@ -29,7 +29,8 @@ class MainMenuSuggestedBanner extends StatelessWidget {
         suggestedDismissed) {
       WidgetsBinding.instance.addPostFrameCallback((_) => onClearDismissed());
     }
-    final show = !suggestedDismissed &&
+    final show =
+        !suggestedDismissed &&
         tpl != null &&
         date != null &&
         DateTime.now().difference(date).inDays < 6;
@@ -50,19 +51,22 @@ class MainMenuSuggestedBanner extends StatelessWidget {
                   child: Text(
                     'Новая подборка тренировок!',
                     style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.white),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
                 ElevatedButton(
                   onPressed: () async {
-                    await context
-                        .read<TrainingSessionService>()
-                        .startSession(tpl);
+                    await context.read<TrainingSessionService>().startSession(
+                      tpl,
+                    );
                     if (!context.mounted) return;
                     await Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (_) => const TrainingSessionScreen()),
+                        builder: (_) => const TrainingSessionScreen(),
+                      ),
                     );
                   },
                   child: const Text('Начать тренировку'),

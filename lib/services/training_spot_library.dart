@@ -6,7 +6,7 @@ class TrainingSpotLibrary {
   final TrainingPackLibraryV2 library;
 
   TrainingSpotLibrary({TrainingPackLibraryV2? library})
-      : library = library ?? TrainingPackLibraryV2.instance;
+    : library = library ?? TrainingPackLibraryV2.instance;
 
   bool _loaded = false;
   final List<TrainingSpotV2> _spots = [];

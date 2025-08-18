@@ -15,38 +15,36 @@ class PokerTablePainter extends CustomPainter {
     );
     final pathRRect = Path()..addRRect(rrect);
 
-    canvas.drawShadow(
-      pathRRect,
-      Colors.black.withOpacity(0.5),
-      12.0,
-      true,
-    );
+    canvas.drawShadow(pathRRect, Colors.black.withOpacity(0.5), 12.0, true);
 
     final base = _baseColor();
     final center = HSLColor.fromColor(base)
         .withLightness(
-            (HSLColor.fromColor(base).lightness + 0.10).clamp(0.0, 1.0))
+          (HSLColor.fromColor(base).lightness + 0.10).clamp(0.0, 1.0),
+        )
         .toColor();
-    final radial = RadialGradient(
-      colors: [center, base],
-      stops: const [0.0, 1.0],
-    ).createShader(
-      Rect.fromCircle(
-        center: size.center(Offset.zero),
-        radius: size.shortestSide * 0.65,
-      ),
-    );
+    final radial =
+        RadialGradient(
+          colors: [center, base],
+          stops: const [0.0, 1.0],
+        ).createShader(
+          Rect.fromCircle(
+            center: size.center(Offset.zero),
+            radius: size.shortestSide * 0.65,
+          ),
+        );
     canvas.drawRRect(rrect, Paint()..shader = radial);
 
-    final vignette = RadialGradient(
-      colors: [Colors.transparent, Colors.black.withOpacity(0.18)],
-      stops: const [0.7, 1.0],
-    ).createShader(
-      Rect.fromCircle(
-        center: size.center(Offset.zero),
-        radius: size.shortestSide * 0.75,
-      ),
-    );
+    final vignette =
+        RadialGradient(
+          colors: [Colors.transparent, Colors.black.withOpacity(0.18)],
+          stops: const [0.7, 1.0],
+        ).createShader(
+          Rect.fromCircle(
+            center: size.center(Offset.zero),
+            radius: size.shortestSide * 0.75,
+          ),
+        );
     canvas.drawRRect(
       rrect,
       Paint()
@@ -58,10 +56,7 @@ class PokerTablePainter extends CustomPainter {
       ..color = _borderColor().withOpacity(0.3)
       ..style = PaintingStyle.stroke
       ..strokeWidth = size.shortestSide * 0.03;
-    canvas.drawRRect(
-      rrect.deflate(borderPaint.strokeWidth / 2),
-      borderPaint,
-    );
+    canvas.drawRRect(rrect.deflate(borderPaint.strokeWidth / 2), borderPaint);
   }
 
   Color _baseColor() {

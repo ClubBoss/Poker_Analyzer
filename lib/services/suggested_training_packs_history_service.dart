@@ -17,11 +17,11 @@ class SuggestedPackRecord {
   });
 
   Map<String, dynamic> toJson() => {
-        'id': packId,
-        'source': source,
-        'ts': timestamp.toIso8601String(),
-        if (tagContext != null) 'tag': tagContext,
-      };
+    'id': packId,
+    'source': source,
+    'ts': timestamp.toIso8601String(),
+    if (tagContext != null) 'tag': tagContext,
+  };
 
   factory SuggestedPackRecord.fromJson(Map<String, dynamic> j) =>
       SuggestedPackRecord(
@@ -65,7 +65,7 @@ class SuggestedTrainingPacksHistoryService {
       if (data is List) {
         return [
           for (final e in data.whereType<Map<String, dynamic>>())
-            SuggestedPackRecord.fromJson(e)
+            SuggestedPackRecord.fromJson(e),
         ];
       }
     } catch (_) {}

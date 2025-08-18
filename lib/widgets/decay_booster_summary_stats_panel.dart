@@ -78,8 +78,10 @@ class _DecayBoosterSummaryStatsPanelState
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(e.tag,
-                          style: const TextStyle(color: Colors.white70)),
+                      Text(
+                        e.tag,
+                        style: const TextStyle(color: Colors.white70),
+                      ),
                       Text(
                         e.delta >= 0
                             ? '+${e.delta.toStringAsFixed(2)}'
@@ -103,11 +105,11 @@ class _SummaryData {
   final int tags;
   final double delta;
   final List<DecayTagReinforcementEvent> events;
-  const _SummaryData(
-      {required this.tags, required this.delta, required this.events});
-  const _SummaryData.empty()
-      : tags = 0,
-        delta = 0,
-        events = const [];
+  const _SummaryData({
+    required this.tags,
+    required this.delta,
+    required this.events,
+  });
+  const _SummaryData.empty() : tags = 0, delta = 0, events = const [];
   bool get isEmpty => tags == 0;
 }

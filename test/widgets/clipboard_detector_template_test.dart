@@ -19,9 +19,11 @@ void main() {
     );
     SharedPreferences.setMockInitialValues({});
     await Clipboard.setData(const ClipboardData(text: 'GGPoker Hand #1'));
-    await tester.pumpWidget(MaterialApp(
-      home: TrainingPackTemplateEditorScreen(template: tpl, templates: [tpl]),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: TrainingPackTemplateEditorScreen(template: tpl, templates: [tpl]),
+      ),
+    );
     await tester.pumpAndSettle();
     final state =
         tester.state(find.byType(TrainingPackTemplateEditorScreen)) as dynamic;

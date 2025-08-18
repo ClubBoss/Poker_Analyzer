@@ -7,23 +7,19 @@ class Command {
   final Map<String, dynamic>? payload;
   final DateTime time;
 
-  const Command(
-    this.type, {
-    this.payload,
-    required this.time,
-  });
+  const Command(this.type, {this.payload, required this.time});
 
   Map<String, dynamic> toJson() => {
-        'type': type,
-        if (payload != null) 'payload': payload,
-        'time': time.toIso8601String(),
-      };
+    'type': type,
+    if (payload != null) 'payload': payload,
+    'time': time.toIso8601String(),
+  };
 
   factory Command.fromJson(Map<String, dynamic> json) => Command(
-        json['type'] as String,
-        payload: (json['payload'] as Map?)?.cast<String, dynamic>(),
-        time: DateTime.parse(json['time'] as String),
-      );
+    json['type'] as String,
+    payload: (json['payload'] as Map?)?.cast<String, dynamic>(),
+    time: DateTime.parse(json['time'] as String),
+  );
 
   static const _mapEquality = MapEquality<String, dynamic>();
 

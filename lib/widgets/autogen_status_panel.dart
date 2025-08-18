@@ -99,15 +99,18 @@ class _AutogenStatusPanelState extends State<AutogenStatusPanel> {
                       const Text('Run Summaries'),
                       for (final r in _service.runSummaries)
                         Text(
-                            '${r.startedAt?.toIso8601String() ?? ''}: processed ${r.processed}, errors ${r.errorsCount}'),
+                          '${r.startedAt?.toIso8601String() ?? ''}: processed ${r.processed}, errors ${r.errorsCount}',
+                        ),
                     ],
                     if (_service.coverageSummaries.isNotEmpty) ...[
                       const SizedBox(height: 8),
                       const Text('Coverage Summaries'),
                       for (final h in _service.coverageSummaries)
-                        Text(h.entries
-                            .map((e) => '${e.key}:${e.value}')
-                            .join(', ')),
+                        Text(
+                          h.entries
+                              .map((e) => '${e.key}:${e.value}')
+                              .join(', '),
+                        ),
                     ],
                   ],
                 ),

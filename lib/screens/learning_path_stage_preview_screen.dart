@@ -46,8 +46,9 @@ class _LearningPathStagePreviewScreenState
 
   Future<void> _load() async {
     final pack = await PackLibraryService.instance.getById(widget.stage.packId);
-    final prog =
-        await TrainingProgressService.instance.getProgress(widget.stage.packId);
+    final prog = await TrainingProgressService.instance.getProgress(
+      widget.stage.packId,
+    );
     TheoryPackModel? theory;
     final theoryId = widget.stage.theoryPackId;
     if (theoryId != null) {
@@ -113,11 +114,15 @@ class _LearningPathStagePreviewScreenState
                 ),
                 if (pack != null) ...[
                   const SizedBox(height: 8),
-                  Text('Spots: ${pack.spotCount}',
-                      style: const TextStyle(color: Colors.white70)),
+                  Text(
+                    'Spots: ${pack.spotCount}',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
                   if (estMinutes != null)
-                    Text('Estimated time: ${estMinutes}m',
-                        style: const TextStyle(color: Colors.white70)),
+                    Text(
+                      'Estimated time: ${estMinutes}m',
+                      style: const TextStyle(color: Colors.white70),
+                    ),
                 ],
                 if (widget.stage.tags.isNotEmpty) ...[
                   const SizedBox(height: 12),
@@ -168,8 +173,9 @@ class _LearningPathStagePreviewScreenState
         onExpansionChanged: (v) async {
           setState(() => _theoryExpanded = v);
           if (v) {
-            await LearningPathProgressService.instance
-                .markTheoryViewed(widget.stage.id);
+            await LearningPathProgressService.instance.markTheoryViewed(
+              widget.stage.id,
+            );
             await LearningPathTelemetry.instance.log('theory_shown', {
               'pathId': widget.path.id,
               'stageId': widget.stage.id,

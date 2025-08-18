@@ -18,26 +18,27 @@ class MainMenuProgressCard extends StatelessWidget {
     final cutoff = DateTime.now().subtract(const Duration(days: 7));
     final recent = [
       for (final h in hands)
-        if (h.date.isAfter(cutoff)) h
+        if (h.date.isAfter(cutoff)) h,
     ];
     final recentSummary = executor.summarizeHands(recent);
-    final accuracy =
-        recentSummary.totalHands > 0 ? recentSummary.accuracy : null;
+    final accuracy = recentSummary.totalHands > 0
+        ? recentSummary.accuracy
+        : null;
     final completed = goals.goals.where((g) => g.completed).length;
     final streak = goals.errorFreeStreak;
     final show = total > 0 || accuracy != null || completed > 0 || streak > 0;
     if (!show) return const SizedBox.shrink();
 
     Widget line(IconData icon, String text) => Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Row(
-            children: [
-              Icon(icon, color: Colors.white),
-              const SizedBox(width: 8),
-              Text(text),
-            ],
-          ),
-        );
+      padding: const EdgeInsets.only(top: 4),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.white),
+          const SizedBox(width: 8),
+          Text(text),
+        ],
+      ),
+    );
     return Container(
       margin: EdgeInsets.only(bottom: responsiveSize(context, 24)),
       padding: responsiveAll(context, 12),
@@ -52,8 +53,10 @@ class MainMenuProgressCard extends StatelessWidget {
             children: [
               Icon(Icons.bar_chart, color: Colors.white),
               SizedBox(width: 8),
-              Text('📈 Мой прогресс',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(
+                '📈 Мой прогресс',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
             ],
           ),
           if (total > 0) line(Icons.stacked_bar_chart, '$total раздач'),

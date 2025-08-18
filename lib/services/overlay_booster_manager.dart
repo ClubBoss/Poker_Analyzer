@@ -60,8 +60,9 @@ class OverlayBoosterManager with WidgetsBindingObserver {
     if (await BoosterQueuePressureMonitor.instance.isOverloaded()) return;
     final ctx = navigatorKey.currentContext;
     if (ctx == null) return;
-    if (await BoosterCooldownBlockerService.instance
-        .isCoolingDown('skill_gap')) {
+    if (await BoosterCooldownBlockerService.instance.isCoolingDown(
+      'skill_gap',
+    )) {
       return;
     }
     if (!await TheoryInjectionHorizonService.instance.canInject(

@@ -32,11 +32,12 @@ class AutoDeduplicationEngine {
     IOSink? log,
     TrainingPackLibraryService? library,
     PackFingerprintComparerService? comparer,
-  })  : _fingerprint = fingerprint ?? const SpotFingerprintGenerator(),
-        _log = log ??
-            File('skipped_duplicates.log').openWrite(mode: FileMode.append),
-        _library = library ?? TrainingPackLibraryService(),
-        _comparer = comparer ?? const PackFingerprintComparerService();
+  }) : _fingerprint = fingerprint ?? const SpotFingerprintGenerator(),
+       _log =
+           log ??
+           File('skipped_duplicates.log').openWrite(mode: FileMode.append),
+       _library = library ?? TrainingPackLibraryService(),
+       _comparer = comparer ?? const PackFingerprintComparerService();
 
   /// Registers existing spots so future checks can detect duplicates.
   void addExisting(Iterable<TrainingPackSpot> spots) {
@@ -222,7 +223,7 @@ class AutoDeduplicationEngine {
 
     return [
       for (final p in input)
-        if (!toRemove.contains(p.id)) p
+        if (!toRemove.contains(p.id)) p,
     ];
   }
 

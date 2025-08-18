@@ -93,8 +93,10 @@ class _TheoryRecapDialogState extends State<TheoryRecapDialog> {
       return Scaffold(
         backgroundColor: AppColors.background,
         body: Center(
-          child: Text('No theory found',
-              style: const TextStyle(color: Colors.white)),
+          child: Text(
+            'No theory found',
+            style: const TextStyle(color: Colors.white),
+          ),
         ),
       );
     }
@@ -107,10 +109,9 @@ class _TheoryRecapDialogState extends State<TheoryRecapDialog> {
               child: Markdown(
                 controller: _scroll,
                 data: _lesson!.resolvedContent,
-                styleSheet:
-                    MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
-                  p: const TextStyle(color: Colors.white),
-                ),
+                styleSheet: MarkdownStyleSheet.fromTheme(
+                  Theme.of(context),
+                ).copyWith(p: const TextStyle(color: Colors.white)),
               ),
             ),
             Padding(
@@ -156,11 +157,8 @@ Future<bool?> showTheoryRecapDialog(
     barrierDismissible: true,
     barrierLabel: 'Recap',
     transitionDuration: const Duration(milliseconds: 300),
-    pageBuilder: (_, __, ___) => TheoryRecapDialog(
-      lessonId: lessonId,
-      tags: tags,
-      trigger: trigger,
-    ),
+    pageBuilder: (_, __, ___) =>
+        TheoryRecapDialog(lessonId: lessonId, tags: tags, trigger: trigger),
     transitionBuilder: (_, anim, __, child) =>
         FadeTransition(opacity: anim, child: child),
   );

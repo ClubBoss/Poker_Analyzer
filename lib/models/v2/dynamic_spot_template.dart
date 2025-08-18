@@ -28,7 +28,7 @@ class DynamicSpotTemplate {
       handPool: [for (final h in (j['handPool'] as List? ?? [])) h.toString()],
       villainAction: j['villainAction']?.toString() ?? '',
       heroOptions: [
-        for (final o in (j['heroOptions'] as List? ?? [])) o.toString()
+        for (final o in (j['heroOptions'] as List? ?? [])) o.toString(),
       ],
       position: parseHeroPosition(j['position']?.toString() ?? ''),
       playerCount: (j['playerCount'] as num?)?.toInt() ?? 2,
@@ -38,14 +38,14 @@ class DynamicSpotTemplate {
   }
 
   Map<String, dynamic> toJson() => {
-        'handPool': handPool,
-        'villainAction': villainAction,
-        if (heroOptions.isNotEmpty) 'heroOptions': heroOptions,
-        'position': position.name,
-        'playerCount': playerCount,
-        'stack': stack,
-        'sampleSize': sampleSize,
-      };
+    'handPool': handPool,
+    'villainAction': villainAction,
+    if (heroOptions.isNotEmpty) 'heroOptions': heroOptions,
+    'position': position.name,
+    'playerCount': playerCount,
+    'stack': stack,
+    'sampleSize': sampleSize,
+  };
 
   List<TrainingPackSpot> generateSpots() {
     final rng = Random();
@@ -59,7 +59,7 @@ class DynamicSpotTemplate {
           '${position.name.toUpperCase()}_${handId}_vs_${villainAction.replaceAll(' ', '')}';
       final title = '${position.name.toUpperCase()} $hand vs $villainAction';
       final stacks = {
-        for (var i = 0; i < playerCount; i++) '$i': stack.toDouble()
+        for (var i = 0; i < playerCount; i++) '$i': stack.toDouble(),
       };
       final hd = HandData(
         heroCards: hand,
@@ -68,13 +68,15 @@ class DynamicSpotTemplate {
         playerCount: playerCount,
         stacks: stacks,
       );
-      spots.add(TrainingPackSpot(
-        id: id,
-        title: title,
-        villainAction: villainAction,
-        heroOptions: List<String>.from(heroOptions),
-        hand: hd,
-      ));
+      spots.add(
+        TrainingPackSpot(
+          id: id,
+          title: title,
+          villainAction: villainAction,
+          heroOptions: List<String>.from(heroOptions),
+          hand: hd,
+        ),
+      );
     }
     return spots;
   }

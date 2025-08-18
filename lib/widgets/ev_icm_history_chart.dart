@@ -18,9 +18,8 @@ class EvIcmHistoryChart extends StatelessWidget {
     final dates = {
       ...ev.map((e) => e.key),
       ...icm.map((e) => e.key),
-      ...acc.map((e) => e.key)
-    }.toList()
-      ..sort();
+      ...acc.map((e) => e.key),
+    }.toList()..sort();
     if (dates.length < 2) return SizedBox(height: responsiveSize(context, 200));
     final evMap = {for (final e in ev) e.key: e.value};
     final icmMap = {for (final e in icm) e.key: e.value};
@@ -76,10 +75,12 @@ class EvIcmHistoryChart extends StatelessWidget {
                 const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            rightTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,

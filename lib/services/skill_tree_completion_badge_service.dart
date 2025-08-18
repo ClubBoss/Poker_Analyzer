@@ -10,8 +10,8 @@ class SkillTreeCompletionBadgeService {
   const SkillTreeCompletionBadgeService({
     SkillTreeTrackProgressService? progressService,
     SkillTreeLibraryService? libraryService,
-  })  : progressService = progressService ?? SkillTreeTrackProgressService(),
-        libraryService = libraryService ?? SkillTreeLibraryService.instance;
+  }) : progressService = progressService ?? SkillTreeTrackProgressService(),
+       libraryService = libraryService ?? SkillTreeLibraryService.instance;
 
   /// Returns completion badges for all skill tree tracks.
   Future<List<SkillTreeCompletionBadge>> getBadges() async {
@@ -30,11 +30,13 @@ class SkillTreeCompletionBadgeService {
       final total = nodes.length;
       final percent = total > 0 ? done / total : 0.0;
       final complete = done >= total && total > 0;
-      result.add(SkillTreeCompletionBadge(
-        trackId: trackId,
-        percentComplete: percent,
-        isComplete: complete,
-      ));
+      result.add(
+        SkillTreeCompletionBadge(
+          trackId: trackId,
+          percentComplete: percent,
+          isComplete: complete,
+        ),
+      );
     }
     return result;
   }

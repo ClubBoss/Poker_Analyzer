@@ -57,14 +57,14 @@ class _FakeAnalytics extends TheoryEngagementAnalyticsService {
 
   @override
   Future<List<TheoryLessonEngagementStats>> getAllStats() async => [
-        for (final e in rates.entries)
-          TheoryLessonEngagementStats(
-            lessonId: e.key,
-            manualOpens: 0,
-            reviewViews: 0,
-            successRate: e.value,
-          )
-      ];
+    for (final e in rates.entries)
+      TheoryLessonEngagementStats(
+        lessonId: e.key,
+        manualOpens: 0,
+        reviewViews: 0,
+        successRate: e.value,
+      ),
+  ];
 }
 
 class _FakeTracker implements TheorySuggestionEngagementTrackerService {
@@ -121,41 +121,43 @@ void main() {
     expect(lesson?.id, 'l1');
   });
 
-  test('findSuggestedLessonForSpot uses engagement score tie breaker',
-      () async {
-    const lessons = [
-      TheoryMiniLessonNode(
-        id: 'l1',
-        title: 'BTN Flop CBet A',
-        content: '',
-        tags: ['btn', 'cbet', 'flop'],
-      ),
-      TheoryMiniLessonNode(
-        id: 'l2',
-        title: 'BTN Flop CBet B',
-        content: '',
-        tags: ['btn', 'cbet', 'flop'],
-      ),
-    ];
-    final service = InlineTheoryLinkerService(
-      library: _FakeLibrary(lessons),
-      tracker: _FakeTracker({
-        'suggested': {'l1': 1, 'l2': 3},
-        'expanded': {'l1': 1},
-        'opened': {'l2': 2},
-      }),
-    );
-    final spot = TrainingPackSpot(
-      id: 's1',
-      hand: HandData(position: HeroPosition.btn),
-      street: 1,
-      meta: {
-        'actionTags': {0: 'cbet'},
-      },
-    );
-    final lesson = await service.findSuggestedLessonForSpot(spot);
-    expect(lesson?.id, 'l2');
-  });
+  test(
+    'findSuggestedLessonForSpot uses engagement score tie breaker',
+    () async {
+      const lessons = [
+        TheoryMiniLessonNode(
+          id: 'l1',
+          title: 'BTN Flop CBet A',
+          content: '',
+          tags: ['btn', 'cbet', 'flop'],
+        ),
+        TheoryMiniLessonNode(
+          id: 'l2',
+          title: 'BTN Flop CBet B',
+          content: '',
+          tags: ['btn', 'cbet', 'flop'],
+        ),
+      ];
+      final service = InlineTheoryLinkerService(
+        library: _FakeLibrary(lessons),
+        tracker: _FakeTracker({
+          'suggested': {'l1': 1, 'l2': 3},
+          'expanded': {'l1': 1},
+          'opened': {'l2': 2},
+        }),
+      );
+      final spot = TrainingPackSpot(
+        id: 's1',
+        hand: HandData(position: HeroPosition.btn),
+        street: 1,
+        meta: {
+          'actionTags': {0: 'cbet'},
+        },
+      );
+      final lesson = await service.findSuggestedLessonForSpot(spot);
+      expect(lesson?.id, 'l2');
+    },
+  );
   test('getLinkedLessonIdsForSpot ranks by overlap then success', () async {
     const lessons = [
       TheoryMiniLessonNode(
@@ -164,24 +166,9 @@ void main() {
         content: '',
         tags: ['cbet', 'turn'],
       ),
-      TheoryMiniLessonNode(
-        id: 'l2',
-        title: 'B',
-        content: '',
-        tags: ['cbet'],
-      ),
-      TheoryMiniLessonNode(
-        id: 'l3',
-        title: 'C',
-        content: '',
-        tags: ['turn'],
-      ),
-      TheoryMiniLessonNode(
-        id: 'l4',
-        title: 'D',
-        content: '',
-        tags: ['probe'],
-      ),
+      TheoryMiniLessonNode(id: 'l2', title: 'B', content: '', tags: ['cbet']),
+      TheoryMiniLessonNode(id: 'l3', title: 'C', content: '', tags: ['turn']),
+      TheoryMiniLessonNode(id: 'l4', title: 'D', content: '', tags: ['probe']),
     ];
 
     final service = InlineTheoryLinkerService(
@@ -194,8 +181,11 @@ void main() {
       }),
     );
 
-    final spot =
-        TrainingPackSpot(id: 's1', hand: HandData(), tags: ['cbet', 'turn']);
+    final spot = TrainingPackSpot(
+      id: 's1',
+      hand: HandData(),
+      tags: ['cbet', 'turn'],
+    );
 
     final result = await service.getLinkedLessonIdsForSpot(spot);
     expect(result, ['l1', 'l3', 'l2']);
@@ -233,18 +223,8 @@ void main() {
         tags: ['cbet', 'turn'],
         street: 2,
       ),
-      TrainingPackSpot(
-        id: 's2',
-        hand: HandData(),
-        tags: ['cbet'],
-        street: 1,
-      ),
-      TrainingPackSpot(
-        id: 's3',
-        hand: HandData(),
-        tags: ['probe'],
-        street: 1,
-      ),
+      TrainingPackSpot(id: 's2', hand: HandData(), tags: ['cbet'], street: 1),
+      TrainingPackSpot(id: 's3', hand: HandData(), tags: ['probe'], street: 1),
     ];
 
     await service.injectInlineLessons(spots);

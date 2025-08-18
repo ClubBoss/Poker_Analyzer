@@ -36,11 +36,23 @@ void main() {
   test('detects untrained and low-exposure tags', () async {
     final lessons = [
       const TheoryMiniLessonNode(
-          id: 'l1', title: 'A', content: '', tags: ['push']),
+        id: 'l1',
+        title: 'A',
+        content: '',
+        tags: ['push'],
+      ),
       const TheoryMiniLessonNode(
-          id: 'l2', title: 'B', content: '', tags: ['call']),
+        id: 'l2',
+        title: 'B',
+        content: '',
+        tags: ['call'],
+      ),
       const TheoryMiniLessonNode(
-          id: 'l3', title: 'C', content: '', tags: ['fold']),
+        id: 'l3',
+        title: 'C',
+        content: '',
+        tags: ['fold'],
+      ),
     ];
 
     final history = _FakeHistoryService({

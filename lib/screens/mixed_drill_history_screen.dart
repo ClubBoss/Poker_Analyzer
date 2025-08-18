@@ -52,7 +52,7 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
       for (final s in list)
         if ((_street == 'any' || s.street == _street) &&
             (_tag == null || s.tags.contains(_tag)))
-          s
+          s,
     ];
   }
 
@@ -62,9 +62,7 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
     final tags = <String>{for (final s in stats) ...s.tags};
     final filtered = _filter(stats);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Drill History'),
-      ),
+      appBar: AppBar(title: const Text('Drill History')),
       body: stats.isEmpty
           ? const Center(
               child: Text('Empty', style: TextStyle(color: Colors.white70)),
@@ -83,7 +81,9 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
                     items: const [
                       DropdownMenuItem(value: 'any', child: Text('All')),
                       DropdownMenuItem(
-                          value: 'preflop', child: Text('Preflop')),
+                        value: 'preflop',
+                        child: Text('Preflop'),
+                      ),
                       DropdownMenuItem(value: 'flop', child: Text('Flop')),
                       DropdownMenuItem(value: 'turn', child: Text('Turn')),
                       DropdownMenuItem(value: 'river', child: Text('River')),
@@ -119,8 +119,10 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
                 Expanded(
                   child: filtered.isEmpty
                       ? const Center(
-                          child: Text('No results',
-                              style: TextStyle(color: Colors.white70)),
+                          child: Text(
+                            'No results',
+                            style: TextStyle(color: Colors.white70),
+                          ),
                         )
                       : ListView.builder(
                           padding: const EdgeInsets.all(16),
@@ -130,27 +132,35 @@ class _DrillHistoryScreenState extends State<DrillHistoryScreen> {
                             final pct = s.accuracy.toStringAsFixed(1);
                             final sub = [
                               s.street,
-                              if (s.tags.isNotEmpty) s.tags.join(', ')
+                              if (s.tags.isNotEmpty) s.tags.join(', '),
                             ].join(' • ');
                             return Card(
                               color: AppColors.cardBackground,
                               child: ListTile(
-                                title: Text(formatDate(s.date),
-                                    style:
-                                        const TextStyle(color: Colors.white)),
-                                subtitle: Text(sub,
-                                    style:
-                                        const TextStyle(color: Colors.white70)),
+                                title: Text(
+                                  formatDate(s.date),
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                                subtitle: Text(
+                                  sub,
+                                  style: const TextStyle(color: Colors.white70),
+                                ),
                                 trailing: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
-                                    Text('$pct%',
-                                        style: const TextStyle(
-                                            color: Colors.white)),
-                                    Text('${s.total}',
-                                        style: const TextStyle(
-                                            color: Colors.white70)),
+                                    Text(
+                                      '$pct%',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    Text(
+                                      '${s.total}',
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),

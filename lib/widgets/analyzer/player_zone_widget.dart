@@ -67,8 +67,10 @@ class _PlayerAvatarState extends State<PlayerAvatar>
       vsync: this,
       duration: const Duration(seconds: 1),
     );
-    _anim = Tween(begin: 1.0, end: 1.2)
-        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _anim = Tween(
+      begin: 1.0,
+      end: 1.2,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     if (widget.isHero) _controller.repeat(reverse: true);
   }
 

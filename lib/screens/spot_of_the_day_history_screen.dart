@@ -65,26 +65,31 @@ class _SpotOfTheDayHistoryScreenState extends State<SpotOfTheDayHistoryScreen> {
               final icon = entry.correct == true
                   ? Icons.check_circle
                   : entry.correct == false
-                      ? Icons.cancel
-                      : Icons.remove;
+                  ? Icons.cancel
+                  : Icons.remove;
               final color = entry.correct == true
                   ? Colors.green
                   : entry.correct == false
-                      ? Colors.red
-                      : Colors.grey;
+                  ? Colors.red
+                  : Colors.grey;
               return ListTile(
                 leading: Icon(icon, color: color),
-                title: Text(_formatDate(entry.date),
-                    style: const TextStyle(color: Colors.white)),
-                subtitle:
-                    Text(pos, style: const TextStyle(color: Colors.white70)),
+                title: Text(
+                  _formatDate(entry.date),
+                  style: const TextStyle(color: Colors.white),
+                ),
+                subtitle: Text(
+                  pos,
+                  style: const TextStyle(color: Colors.white70),
+                ),
                 onTap: spot == null
                     ? null
                     : () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => TrainingScreen(spot: spot)),
+                            builder: (_) => TrainingScreen(spot: spot),
+                          ),
                         );
                       },
               );

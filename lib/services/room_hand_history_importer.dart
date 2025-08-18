@@ -69,16 +69,20 @@ class RoomHandHistoryImporter {
     final seatEntries = <Map<String, dynamic>>[];
     final seatRegex = RegExp(r'^Seat (\d+):\s*(.+?)\s*\(([^)]+)\)');
     for (final line in lines) {
-      final tm =
-          RegExp(r"^Table '([^']+)'", caseSensitive: false).firstMatch(line);
+      final tm = RegExp(
+        r"^Table '([^']+)'",
+        caseSensitive: false,
+      ).firstMatch(line);
       if (tm != null) tableName = tm.group(1)!.trim();
       final sm = seatRegex.firstMatch(line);
       if (sm != null) {
         seatEntries.add({
           'seat': int.parse(sm.group(1)!),
           'name': sm.group(2)!.trim(),
-          'stack': double.tryParse(
-                  sm.group(3)!.replaceAll(RegExp(r'[^0-9.]'), '')) ??
+          'stack':
+              double.tryParse(
+                sm.group(3)!.replaceAll(RegExp(r'[^0-9.]'), ''),
+              ) ??
               0,
         });
       }
@@ -182,7 +186,7 @@ class RoomHandHistoryImporter {
       playerPositions: positions,
       comment: tableName,
       playerTypes: {
-        for (var i = 0; i < playerCount; i++) i: PlayerType.unknown
+        for (var i = 0; i < playerCount; i++) i: PlayerType.unknown,
       },
     );
   }

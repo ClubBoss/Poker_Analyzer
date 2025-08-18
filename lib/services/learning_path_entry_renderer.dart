@@ -28,9 +28,7 @@ class LearningPathEntryRenderer {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (_) => MiniLessonScreen(lesson: entry),
-            ),
+            MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: entry)),
           );
         },
       );

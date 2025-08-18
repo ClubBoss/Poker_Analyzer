@@ -17,7 +17,9 @@ Future<void> showSavedHandViewer(BuildContext context, SavedHand hand) async {
 }
 
 Future<void> showImportExportDialog(
-    BuildContext context, PackEditorCore core) async {
+  BuildContext context,
+  PackEditorCore core,
+) async {
   await showDialog(
     context: context,
     builder: (context) => AlertDialog(

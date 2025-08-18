@@ -6,8 +6,11 @@ class ReviewAnswersPage extends StatelessWidget {
   final List<UiSpot> spots;
   final List<UiAnswer> answers;
 
-  const ReviewAnswersPage(
-      {super.key, required this.spots, required this.answers});
+  const ReviewAnswersPage({
+    super.key,
+    required this.spots,
+    required this.answers,
+  });
 
   @override
   Widget build(BuildContext ctx) {
@@ -30,7 +33,8 @@ class ReviewAnswersPage extends StatelessWidget {
             ),
             title: Text('${spot.hand} • ${spot.pos} • ${spot.stack}'),
             subtitle: Text(
-                'expected: ${answer.expected} • chosen: ${answer.chosen} • t=${t.toStringAsFixed(1)}s'),
+              'expected: ${answer.expected} • chosen: ${answer.chosen} • t=${t.toStringAsFixed(1)}s',
+            ),
           );
         },
       ),

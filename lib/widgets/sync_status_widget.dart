@@ -17,11 +17,12 @@ class SyncStatusIcon extends InheritedWidget {
 }
 
 class SyncStatusWidget extends StatefulWidget {
-  const SyncStatusWidget(
-      {required this.child,
-      required this.sync,
-      required this.cloud,
-      super.key});
+  const SyncStatusWidget({
+    required this.child,
+    required this.sync,
+    required this.cloud,
+    super.key,
+  });
 
   final Widget child;
   final ConnectivitySyncController sync;

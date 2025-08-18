@@ -81,7 +81,8 @@ abstract class TrainingPackPlayBase extends StatefulWidget {
 }
 
 abstract class TrainingPackPlayBaseState<T extends TrainingPackPlayBase>
-    extends State<T> with TrainingPackPlayCore<T> {
+    extends State<T>
+    with TrainingPackPlayCore<T> {
   late List<TrainingPackSpot> _spots;
   Map<String, String> _results = {};
   int _index = 0;

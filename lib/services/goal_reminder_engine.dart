@@ -41,7 +41,7 @@ class GoalReminderEngine {
     await logs.load();
     await PackLibraryLoaderService.instance.loadLibrary();
     final library = {
-      for (final t in PackLibraryLoaderService.instance.library) t.id: t
+      for (final t in PackLibraryLoaderService.instance.library) t.id: t,
     };
     final normalized = tag.trim().toLowerCase();
     DateTime? last;

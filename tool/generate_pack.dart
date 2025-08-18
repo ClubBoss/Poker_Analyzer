@@ -21,7 +21,8 @@ Future<void> main(List<String> args) async {
   }
   if (input == null || output == null) {
     stderr.writeln(
-        'Usage: dart run tool/generate_pack.dart --input=spots.json --output=pack.yaml');
+      'Usage: dart run tool/generate_pack.dart --input=spots.json --output=pack.yaml',
+    );
     exit(1);
   }
   final file = File(input);
@@ -60,7 +61,7 @@ Future<void> main(List<String> args) async {
     final hand = HandData.fromSimpleInput(cards, pos, stack!);
     if (action == 'fold') {
       hand.actions = {
-        0: [ActionEntry(0, 0, 'fold')]
+        0: [ActionEntry(0, 0, 'fold')],
       };
     }
     final spot = TrainingPackSpot(
@@ -86,7 +87,7 @@ Future<void> main(List<String> args) async {
     heroBbStack: first.stacks['0']?.round() ?? 0,
     playerStacksBb: [
       for (var i = 0; i < first.playerCount; i++)
-        first.stacks['$i']?.round() ?? 0
+        first.stacks['$i']?.round() ?? 0,
     ],
     heroPos: first.position,
   );

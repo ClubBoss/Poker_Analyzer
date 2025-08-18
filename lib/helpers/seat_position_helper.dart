@@ -1,8 +1,11 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-Offset getSeatPosition(int totalPlayers, int seatIndex,
-    {required Size tableSize}) {
+Offset getSeatPosition(
+  int totalPlayers,
+  int seatIndex, {
+  required Size tableSize,
+}) {
   // Центр стола
   final Offset center = Offset(tableSize.width / 2, tableSize.height / 2);
 

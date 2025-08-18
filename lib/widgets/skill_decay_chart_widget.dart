@@ -29,7 +29,8 @@ class _SkillDecayChartWidgetState extends State<SkillDecayChartWidget> {
   }
 
   Future<Map<String, List<FlSpot>>> _load() async {
-    final tags = widget.tags ??
+    final tags =
+        widget.tags ??
         (await _service.getMostDecayedTags(3)).map((e) => e.key).toList();
     final now = DateTime.now();
     final start = now.subtract(Duration(days: widget.days));
@@ -46,8 +47,9 @@ class _SkillDecayChartWidgetState extends State<SkillDecayChartWidget> {
       final spots = <FlSpot>[];
       for (var i = 0; i <= widget.days; i++) {
         final date = start.add(Duration(days: i));
-        final daysSince =
-            last == null ? 100.0 : date.difference(last).inDays.toDouble();
+        final daysSince = last == null
+            ? 100.0
+            : date.difference(last).inDays.toDouble();
         final retention = (1 - daysSince / 100).clamp(0.0, 1.0) * 100;
         spots.add(FlSpot(date.millisecondsSinceEpoch.toDouble(), retention));
       }
@@ -81,32 +83,39 @@ class _SkillDecayChartWidgetState extends State<SkillDecayChartWidget> {
             final base = spots.first.y;
             spots = [
               for (final s in spots)
-                FlSpot(s.x, base == 0 ? 0 : s.y / base * 100)
+                FlSpot(s.x, base == 0 ? 0 : s.y / base * 100),
             ];
           }
           if (spots.isNotEmpty) {
             minX = minX == null || spots.first.x < minX ? spots.first.x : minX;
             maxX = maxX == null || spots.last.x > maxX ? spots.last.x : maxX;
           }
-          lines.add(LineChartBarData(
-            spots: spots,
-            isCurved: false,
-            barWidth: 2,
-            color: color,
-            dotData: const FlDotData(show: false),
-          ));
-          legends.add(Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-              ),
-              const SizedBox(width: 4),
-              Text(entry.key),
-            ],
-          ));
+          lines.add(
+            LineChartBarData(
+              spots: spots,
+              isCurved: false,
+              barWidth: 2,
+              color: color,
+              dotData: const FlDotData(show: false),
+            ),
+          );
+          legends.add(
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Text(entry.key),
+              ],
+            ),
+          );
           colorIndex++;
         }
 
@@ -138,9 +147,11 @@ class _SkillDecayChartWidgetState extends State<SkillDecayChartWidget> {
                   borderData: FlBorderData(show: false),
                   titlesData: FlTitlesData(
                     topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                     rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
@@ -159,7 +170,8 @@ class _SkillDecayChartWidgetState extends State<SkillDecayChartWidget> {
                         interval: (maxX - minX) / 4,
                         getTitlesWidget: (value, meta) {
                           final date = DateTime.fromMillisecondsSinceEpoch(
-                              value.toInt());
+                            value.toInt(),
+                          );
                           return Text(
                             '${date.month}/${date.day}',
                             style: const TextStyle(fontSize: 10),

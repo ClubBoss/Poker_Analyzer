@@ -12,9 +12,7 @@ void main() {
       goalId: 'g1',
       accuracy: 80,
       mistakeCount: 2,
-      tagBreakdown: {
-        'a': TagSummary(total: 10, correct: 8, accuracy: 80),
-      },
+      tagBreakdown: {'a': TagSummary(total: 10, correct: 8, accuracy: 80)},
     );
 
     final updated = updater.updateMastery(current: current, summary: summary);
@@ -28,9 +26,7 @@ void main() {
       goalId: 'g1',
       accuracy: 50,
       mistakeCount: 5,
-      tagBreakdown: {
-        'b': TagSummary(total: 4, correct: 2, accuracy: 50),
-      },
+      tagBreakdown: {'b': TagSummary(total: 4, correct: 2, accuracy: 50)},
     );
     final updated = updater.updateMastery(current: const {}, summary: summary);
     // old default 0.5 -> new = 0.5 + (0.5 - 0.5)*0.15 = 0.5

@@ -5,8 +5,10 @@ import '../models/v3/lesson_step_filter.dart';
 class LessonStepFilterEngine {
   const LessonStepFilterEngine();
 
-  List<LessonStep> applyFilters(List<LessonStep> allSteps,
-      {required PlayerProfile profile}) {
+  List<LessonStep> applyFilters(
+    List<LessonStep> allSteps, {
+    required PlayerProfile profile,
+  }) {
     return [
       for (final step in allSteps)
         if (_matches(step.filter, profile)) step,
@@ -27,8 +29,9 @@ class LessonStepFilterEngine {
       return false;
     }
     if (filter.completedLessonIds.isNotEmpty &&
-        !filter.completedLessonIds
-            .every((id) => profile.completedLessonIds.contains(id))) {
+        !filter.completedLessonIds.every(
+          (id) => profile.completedLessonIds.contains(id),
+        )) {
       return false;
     }
     return true;

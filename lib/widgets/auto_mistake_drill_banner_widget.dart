@@ -76,11 +76,11 @@ class _AutoMistakeDrillBannerWidgetState
 class _MistakePackHistory extends MistakeHistoryQueryService {
   final MistakeReviewPackService _source;
   _MistakePackHistory(this._source)
-      : super(
-          loadSpottings: () async => [],
-          resolveTags: (_) async => [],
-          resolveStreet: (_) async => null,
-        );
+    : super(
+        loadSpottings: () async => [],
+        resolveTags: (_) async => [],
+        resolveStreet: (_) async => null,
+      );
 
   @override
   Future<List<MistakeHistoryEntry>> queryMistakes({
@@ -92,13 +92,15 @@ class _MistakePackHistory extends MistakeHistoryQueryService {
     final entries = <MistakeHistoryEntry>[];
     for (final pack in _source.packs) {
       for (final id in pack.spotIds) {
-        entries.add(MistakeHistoryEntry(
-          spotId: id,
-          timestamp: pack.createdAt,
-          decayStage: '',
-          tag: '',
-          wasRecovered: false,
-        ));
+        entries.add(
+          MistakeHistoryEntry(
+            spotId: id,
+            timestamp: pack.createdAt,
+            decayStage: '',
+            tag: '',
+            wasRecovered: false,
+          ),
+        );
       }
     }
     entries.sort((a, b) => b.timestamp.compareTo(a.timestamp));

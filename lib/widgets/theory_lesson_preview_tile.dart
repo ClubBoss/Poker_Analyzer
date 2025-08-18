@@ -57,8 +57,9 @@ class TheoryLessonPreviewTile extends StatelessWidget {
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           color: AppColors.cardBackground,
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-              side: border ?? BorderSide.none),
+            borderRadius: BorderRadius.circular(8),
+            side: border ?? BorderSide.none,
+          ),
           child: InkWell(
             onTap: onTap,
             borderRadius: BorderRadius.circular(8),
@@ -73,7 +74,9 @@ class TheoryLessonPreviewTile extends StatelessWidget {
                         child: Text(
                           node.resolvedTitle,
                           style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                       if (badge != null) badge,
@@ -86,7 +89,7 @@ class TheoryLessonPreviewTile extends StatelessWidget {
                         spacing: 4,
                         runSpacing: -4,
                         children: [
-                          for (final t in node.tags.take(3)) TagBadge(t)
+                          for (final t in node.tags.take(3)) TagBadge(t),
                         ],
                       ),
                     ),

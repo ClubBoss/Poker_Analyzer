@@ -30,8 +30,9 @@ class PinnedTopPickCard extends StatelessWidget {
               return FutureBuilder<void>(
                 future: MiniLessonLibraryService.instance.loadAll(),
                 builder: (context, snapshot) {
-                  final lesson =
-                      MiniLessonLibraryService.instance.getById(item.id);
+                  final lesson = MiniLessonLibraryService.instance.getById(
+                    item.id,
+                  );
                   if (lesson == null) return const SizedBox.shrink();
                   return _buildCard(
                     context,
@@ -55,15 +56,18 @@ class PinnedTopPickCard extends StatelessWidget {
               return FutureBuilder<void>(
                 future: TheoryBlockLibraryService.instance.loadAll(),
                 builder: (context, snapshot) {
-                  final block =
-                      TheoryBlockLibraryService.instance.getById(item.id);
+                  final block = TheoryBlockLibraryService.instance.getById(
+                    item.id,
+                  );
                   if (block == null) return const SizedBox.shrink();
                   return _buildCard(
                     context,
                     title: block.title,
                     onTap: () {
-                      const TheoryBlockLauncher()
-                          .launch(context: context, block: block);
+                      const TheoryBlockLauncher().launch(
+                        context: context,
+                        block: block,
+                      );
                     },
                   );
                 },

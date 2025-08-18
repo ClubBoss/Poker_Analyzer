@@ -5,11 +5,7 @@ class VictoryLabel extends StatelessWidget {
   final double scale;
   final Animation<double> opacity;
 
-  const VictoryLabel({
-    super.key,
-    required this.scale,
-    required this.opacity,
-  });
+  const VictoryLabel({super.key, required this.scale, required this.opacity});
 
   @override
   Widget build(BuildContext context) {
@@ -18,8 +14,10 @@ class VictoryLabel extends StatelessWidget {
       child: FadeTransition(
         opacity: opacity,
         child: Container(
-          padding:
-              EdgeInsets.symmetric(horizontal: 6 * scale, vertical: 2 * scale),
+          padding: EdgeInsets.symmetric(
+            horizontal: 6 * scale,
+            vertical: 2 * scale,
+          ),
           decoration: BoxDecoration(
             color: AppColors.accent,
             borderRadius: BorderRadius.circular(8 * scale),

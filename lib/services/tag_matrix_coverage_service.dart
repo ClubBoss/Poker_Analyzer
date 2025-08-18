@@ -19,9 +19,9 @@ class TagMatrixAxes {
   MatrixAxis operator [](int index) => axes[index];
 
   factory TagMatrixAxes.fromJson(List<dynamic> list) => TagMatrixAxes([
-        for (final a in list)
-          MatrixAxis.fromJson(Map<String, dynamic>.from(a as Map))
-      ]);
+    for (final a in list)
+      MatrixAxis.fromJson(Map<String, dynamic>.from(a as Map)),
+  ]);
 
   List<Map<String, dynamic>> toJson() => [for (final a in axes) a.toJson()];
 }
@@ -33,9 +33,9 @@ class TagMatrixCell {
   TagMatrixCell(this.count, this.packs);
 
   factory TagMatrixCell.fromJson(Map<String, dynamic> json) => TagMatrixCell(
-        json['count'] as int,
-        [for (final p in json['packs']) p.toString()],
-      );
+    json['count'] as int,
+    [for (final p in json['packs']) p.toString()],
+  );
 
   Map<String, dynamic> toJson() => {'count': count, 'packs': packs};
 }
@@ -59,8 +59,9 @@ class TagMatrixResult {
     raw.forEach((k, v) {
       final inner = <String, TagMatrixCell>{};
       (v as Map).forEach((kk, vv) {
-        final cell =
-            TagMatrixCell.fromJson(Map<String, dynamic>.from(vv as Map));
+        final cell = TagMatrixCell.fromJson(
+          Map<String, dynamic>.from(vv as Map),
+        );
         if (cell.count > max) max = cell.count;
         inner[kk as String] = cell;
       });
@@ -93,7 +94,7 @@ Future<Map<String, dynamic>> _coverageTask(Map args) async {
   final cells = <String, Map<String, Map<String, dynamic>>>{};
   for (final x in xVals) {
     cells[x] = {
-      for (final y in yVals) y: {'count': 0, 'packs': <String>[]}
+      for (final y in yVals) y: {'count': 0, 'packs': <String>[]},
     };
   }
   final docs = await getApplicationDocumentsDirectory();
@@ -121,17 +122,17 @@ Future<Map<String, dynamic>> _coverageTask(Map args) async {
         final stack = bb >= 21
             ? '21+'
             : bb >= 13
-                ? '13-20'
-                : bb >= 8
-                    ? '8-12'
-                    : bb >= 5
-                        ? '5-7'
-                        : '<5';
+            ? '13-20'
+            : bb >= 8
+            ? '8-12'
+            : bb >= 5
+            ? '5-7'
+            : '<5';
         final posList = tpl.positions.isNotEmpty
             ? tpl.positions
             : [
                 for (final t in tpl.tags)
-                  if (t.startsWith('position:')) t.substring(9)
+                  if (t.startsWith('position:')) t.substring(9),
               ];
         for (final p0 in posList) {
           final p1 = p0.toUpperCase();

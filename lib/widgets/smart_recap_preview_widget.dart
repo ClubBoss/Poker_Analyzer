@@ -24,7 +24,9 @@ class _SmartRecapPreviewWidgetState extends State<SmartRecapPreviewWidget>
   void initState() {
     super.initState();
     _controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 300));
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) => _setup());
   }
 
@@ -59,10 +61,7 @@ class _SmartRecapPreviewWidgetState extends State<SmartRecapPreviewWidget>
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => MiniLessonScreen(
-          lesson: lesson,
-          recapTag: 'recap',
-        ),
+        builder: (_) => MiniLessonScreen(lesson: lesson, recapTag: 'recap'),
       ),
     );
   }

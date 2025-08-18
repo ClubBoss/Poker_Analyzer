@@ -16,13 +16,15 @@ void main() {
       heroPos: HeroPosition.sb,
       heroRange: ['A8s', 'Q4o'],
     );
-    await tester.pumpWidget(MaterialApp(
-      home: Column(
-        children: [
-          for (final s in tpl.spots) TrainingPackSpotPreviewCard(spot: s),
-        ],
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Column(
+          children: [
+            for (final s in tpl.spots) TrainingPackSpotPreviewCard(spot: s),
+          ],
+        ),
       ),
-    ));
+    );
     await tester.pump();
     final badges = tester
         .widgetList<Container>(find.byKey(const ValueKey('evBadge')))

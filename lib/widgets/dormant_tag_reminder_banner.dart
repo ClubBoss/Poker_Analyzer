@@ -103,8 +103,10 @@ class _DormantTagReminderBannerState extends State<DormantTagReminderBanner> {
           Row(
             children: [
               Expanded(
-                child: Text('🔁 Освежи навык: $_tag',
-                    style: const TextStyle(color: Colors.white)),
+                child: Text(
+                  '🔁 Освежи навык: $_tag',
+                  style: const TextStyle(color: Colors.white),
+                ),
               ),
               IconButton(
                 icon: const Icon(Icons.close, color: Colors.white54),
@@ -113,8 +115,10 @@ class _DormantTagReminderBannerState extends State<DormantTagReminderBanner> {
             ],
           ),
           const SizedBox(height: 4),
-          Text('Пак: ${_pack!.name}',
-              style: const TextStyle(color: Colors.white70)),
+          Text(
+            'Пак: ${_pack!.name}',
+            style: const TextStyle(color: Colors.white70),
+          ),
           const SizedBox(height: 8),
           Align(
             alignment: Alignment.centerRight,

@@ -29,8 +29,10 @@ void main() {
       nextIds: const ['b'],
     );
 
-    final cluster =
-        TheoryLessonCluster(lessons: [a, b, c], tags: const {'preflop', 'icm'});
+    final cluster = TheoryLessonCluster(
+      lessons: [a, b, c],
+      tags: const {'preflop', 'icm'},
+    );
     final service = TheoryClusterSummaryService();
 
     final summary = service.generateSummary(cluster);
@@ -41,26 +43,30 @@ void main() {
   });
 
   test('summarize returns summary per cluster', () {
-    final cluster1 = TheoryLessonCluster(lessons: [
-      TheoryMiniLessonNode(
+    final cluster1 = TheoryLessonCluster(
+      lessons: [
+        TheoryMiniLessonNode(
           id: 'x',
           title: 'X',
           content: '',
           nextIds: const [],
-          tags: const ['a']),
-    ], tags: const {
-      'a'
-    });
-    final cluster2 = TheoryLessonCluster(lessons: [
-      TheoryMiniLessonNode(
+          tags: const ['a'],
+        ),
+      ],
+      tags: const {'a'},
+    );
+    final cluster2 = TheoryLessonCluster(
+      lessons: [
+        TheoryMiniLessonNode(
           id: 'y',
           title: 'Y',
           content: '',
           nextIds: const [],
-          tags: const ['b']),
-    ], tags: const {
-      'b'
-    });
+          tags: const ['b'],
+        ),
+      ],
+      tags: const {'b'},
+    );
 
     final service = TheoryClusterSummaryService();
     final result = service.summarize([cluster1, cluster2]);

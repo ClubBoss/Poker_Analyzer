@@ -18,8 +18,9 @@ class AccuracyMistakeOverviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hands = context.watch<SavedHandManagerService>().hands;
-    final summary =
-        context.read<EvaluationExecutorService>().summarizeHands(hands);
+    final summary = context.read<EvaluationExecutorService>().summarizeHands(
+      hands,
+    );
 
     final Map<String, int> tagTotals = {};
     final Map<String, int> streetTotals = {for (final s in kStreetNames) s: 0};
@@ -83,13 +84,16 @@ class AccuracyMistakeOverviewScreen extends StatelessWidget {
             for (final e in tagAcc)
               ListTile(
                 title: Text(e.key, style: const TextStyle(color: Colors.white)),
-                trailing: Text('${e.value.toStringAsFixed(1)}%',
-                    style: const TextStyle(color: Colors.white)),
+                trailing: Text(
+                  '${e.value.toStringAsFixed(1)}%',
+                  style: const TextStyle(color: Colors.white),
+                ),
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) => TagInsightScreen(tag: e.key)),
+                      builder: (_) => TagInsightScreen(tag: e.key),
+                    ),
                   );
                 },
               ),
@@ -101,8 +105,10 @@ class AccuracyMistakeOverviewScreen extends StatelessWidget {
             for (final e in streetAcc)
               ListTile(
                 title: Text(e.key, style: const TextStyle(color: Colors.white)),
-                trailing: Text('${e.value.toStringAsFixed(1)}%',
-                    style: const TextStyle(color: Colors.white)),
+                trailing: Text(
+                  '${e.value.toStringAsFixed(1)}%',
+                  style: const TextStyle(color: Colors.white),
+                ),
               ),
             const SizedBox(height: 16),
           ],
@@ -112,8 +118,10 @@ class AccuracyMistakeOverviewScreen extends StatelessWidget {
             for (final e in posAcc)
               ListTile(
                 title: Text(e.key, style: const TextStyle(color: Colors.white)),
-                trailing: Text('${e.value.toStringAsFixed(1)}%',
-                    style: const TextStyle(color: Colors.white)),
+                trailing: Text(
+                  '${e.value.toStringAsFixed(1)}%',
+                  style: const TextStyle(color: Colors.white),
+                ),
               ),
           ],
         ],

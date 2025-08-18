@@ -8,8 +8,8 @@ class YamlPackAutoTagger {
   final YamlReader reader;
   final YamlWriter writer;
   const YamlPackAutoTagger({YamlReader? yamlReader, YamlWriter? yamlWriter})
-      : reader = yamlReader ?? const YamlReader(),
-        writer = yamlWriter ?? const YamlWriter();
+    : reader = yamlReader ?? const YamlReader(),
+      writer = yamlWriter ?? const YamlWriter();
 
   List<String> generateTags(TrainingPackTemplateV2 pack) {
     final set = <String>{...pack.tags};

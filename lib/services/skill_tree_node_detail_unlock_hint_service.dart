@@ -17,8 +17,9 @@ class SkillTreeNodeDetailUnlockHintService {
   /// Returns a human‑readable hint for [nodeId] by resolving the node's
   /// containing track and current progress state.
   Future<String?> getHint(String nodeId) async {
-    final trackId =
-        await SkillTreeTrackResolver.instance.getTrackIdForNode(nodeId);
+    final trackId = await SkillTreeTrackResolver.instance.getTrackIdForNode(
+      nodeId,
+    );
     if (trackId == null) return null;
 
     final track = SkillTreeLibraryService.instance.getTrack(trackId)?.tree;
@@ -30,8 +31,10 @@ class SkillTreeNodeDetailUnlockHintService {
     final completed = progress.completedNodeIds.value;
 
     final unlockedEval = SkillTreeUnlockEvaluator(progress: progress);
-    final unlocked =
-        unlockedEval.getUnlockedNodes(track).map((n) => n.id).toSet();
+    final unlocked = unlockedEval
+        .getUnlockedNodes(track)
+        .map((n) => n.id)
+        .toSet();
 
     final node = track.nodes[nodeId];
     if (node == null) return null;
@@ -59,8 +62,11 @@ class SkillTreeNodeDetailUnlockHintService {
 
     // Stage gating: check if the node's stage is unlocked.
     if (!stageEvaluator.isStageUnlocked(track, node.level, completed)) {
-      final blockers =
-          stageEvaluator.getBlockingNodes(track, node.level, completed);
+      final blockers = stageEvaluator.getBlockingNodes(
+        track,
+        node.level,
+        completed,
+      );
       if (blockers.isNotEmpty) {
         final names = _formatNames(blockers.map((n) => n.title).toList());
         return 'Complete $names to unlock this node';

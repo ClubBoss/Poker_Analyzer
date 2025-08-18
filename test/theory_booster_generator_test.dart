@@ -13,12 +13,7 @@ void main() {
   const generator = TheoryBoosterGenerator();
 
   test('generateBooster injects relevant theory and marks booster', () {
-    final baseSpots = [
-      _spot('a'),
-      _spot('b'),
-      _spot('c'),
-      _spot('d'),
-    ];
+    final baseSpots = [_spot('a'), _spot('b'), _spot('c'), _spot('d')];
     final base = TrainingPackTemplateV2(
       id: 'base',
       name: 'Base',
@@ -29,7 +24,7 @@ void main() {
     );
     final theory1Spots = [
       _spot('t1', type: 'theory'),
-      _spot('t2', type: 'theory')
+      _spot('t2', type: 'theory'),
     ];
     final theory1 = TrainingPackTemplateV2(
       id: 'th1',
@@ -56,7 +51,13 @@ void main() {
     expect(booster.trainingType, base.trainingType);
     expect(booster.id, isNot(base.id));
     expect(booster.meta['booster'], true);
-    expect(booster.spots.map((s) => s.id).toList(),
-        ['t1', 'a', 'b', 'c', 't2', 'd']);
+    expect(booster.spots.map((s) => s.id).toList(), [
+      't1',
+      'a',
+      'b',
+      'c',
+      't2',
+      'd',
+    ]);
   });
 }

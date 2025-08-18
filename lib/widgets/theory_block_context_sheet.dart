@@ -13,7 +13,9 @@ import '../services/user_progress_service.dart';
 /// Displays the same options sheet used by [TheoryBlockCardWidget] when long
 /// pressed. Allows pin/unpin and quick navigation to lessons or packs.
 Future<void> showTheoryBlockContextSheet(
-    BuildContext context, TheoryBlockModel block) async {
+  BuildContext context,
+  TheoryBlockModel block,
+) async {
   await MiniLessonLibraryService.instance.loadAll();
   final progress = UserProgressService.instance;
   var pinned = PinnedLearningService.instance.isPinned('block', block.id);
@@ -47,8 +49,10 @@ Future<void> showTheoryBlockContextSheet(
               onTap: () async {
                 Navigator.pop(ctx);
                 await PinnedLearningService.instance.toggleBlock(block);
-                pinned =
-                    PinnedLearningService.instance.isPinned('block', block.id);
+                pinned = PinnedLearningService.instance.isPinned(
+                  'block',
+                  block.id,
+                );
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(pinned ? 'Pinned' : 'Unpinned')),
                 );

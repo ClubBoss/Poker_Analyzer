@@ -10,7 +10,9 @@ class DiffEngine {
   static const DeepCollectionEquality _eq = DeepCollectionEquality();
 
   Map<String, dynamic> _diffMap(
-      Map<String, dynamic> a, Map<String, dynamic> b) {
+    Map<String, dynamic> a,
+    Map<String, dynamic> b,
+  ) {
     final diff = <String, dynamic>{};
     final keys = {...a.keys, ...b.keys};
     for (final k in keys) {
@@ -42,7 +44,9 @@ class DiffEngine {
   }
 
   StateDiff compute(
-      Map<String, dynamic> oldState, Map<String, dynamic> newState) {
+    Map<String, dynamic> oldState,
+    Map<String, dynamic> newState,
+  ) {
     return StateDiff(
       forward: _diffMap(oldState, newState),
       backward: _diffMap(newState, oldState),
@@ -50,7 +54,9 @@ class DiffEngine {
   }
 
   Map<String, dynamic> apply(
-      Map<String, dynamic> base, Map<String, dynamic> diff) {
+    Map<String, dynamic> base,
+    Map<String, dynamic> diff,
+  ) {
     final result = Map<String, dynamic>.from(base);
     _applyMap(result, diff);
     return result;

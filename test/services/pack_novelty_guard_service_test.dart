@@ -26,7 +26,8 @@ void main() {
     final spots = <TrainingPackSpot>[];
     for (var i = 0; i < boards.length; i++) {
       spots.add(
-          TrainingPackSpot(id: '${id}_$i', tags: ['t'], board: [boards[i]]));
+        TrainingPackSpot(id: '${id}_$i', tags: ['t'], board: [boards[i]]),
+      );
     }
     return TrainingPackTemplateV2(
       id: id,

@@ -111,17 +111,19 @@ class SnapshotService {
           .cast<File>()
           .toList();
       if (files.isEmpty) return null;
-      final results = await Future.wait(files.map((f) async {
-        try {
-          final stat = await f.stat();
-          return MapEntry(f, stat.modified);
-        } catch (e) {
-          if (kDebugMode) {
-            debugPrint('Failed to stat ${f.path}: $e');
+      final results = await Future.wait(
+        files.map((f) async {
+          try {
+            final stat = await f.stat();
+            return MapEntry(f, stat.modified);
+          } catch (e) {
+            if (kDebugMode) {
+              debugPrint('Failed to stat ${f.path}: $e');
+            }
+            return null;
           }
-          return null;
-        }
-      }));
+        }),
+      );
       final entries = results.whereType<MapEntry<File, DateTime>>().toList();
       if (entries.isEmpty) return null;
       entries.sort((a, b) => b.value.compareTo(a.value));

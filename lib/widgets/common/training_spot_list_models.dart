@@ -7,10 +7,7 @@ enum SortOption {
   difficultyDesc,
 }
 
-enum RatingSortOrder {
-  highFirst,
-  lowFirst,
-}
+enum RatingSortOrder { highFirst, lowFirst }
 
 enum SimpleSortField { createdAt, difficulty, rating }
 

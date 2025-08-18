@@ -34,9 +34,7 @@ class _QuickstartLauncherPageState extends State<QuickstartLauncherPage> {
     _bundleCtrl = TextEditingController(
       text: widget.initialBundle ?? 'dist/training_v1',
     );
-    _manifestCtrl = TextEditingController(
-      text: widget.initialManifest ?? '',
-    );
+    _manifestCtrl = TextEditingController(text: widget.initialManifest ?? '');
   }
 
   @override
@@ -51,23 +49,20 @@ class _QuickstartLauncherPageState extends State<QuickstartLauncherPage> {
     final plan = _planCtrl.text.trim();
     final bundle = _bundleCtrl.text.trim();
     if (!File(plan).existsSync()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Plan not found')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Plan not found')));
       return;
     }
     if (!Directory(bundle).existsSync()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Bundle dir not found')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Bundle dir not found')));
       return;
     }
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => PlayFromPlanPage(
-          planPath: plan,
-          bundleDir: bundle,
-        ),
+        builder: (_) => PlayFromPlanPage(planPath: plan, bundleDir: bundle),
       ),
     );
   }
@@ -75,16 +70,14 @@ class _QuickstartLauncherPageState extends State<QuickstartLauncherPage> {
   void _playManifest() {
     final manifest = _manifestCtrl.text.trim();
     if (!File(manifest).existsSync()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Manifest not found')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Manifest not found')));
       return;
     }
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => PlayFromFilePage(path: manifest),
-      ),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => PlayFromFilePage(path: manifest)));
   }
 
   @override
@@ -116,9 +109,7 @@ class _QuickstartLauncherPageState extends State<QuickstartLauncherPage> {
             const Divider(),
             TextField(
               controller: _manifestCtrl,
-              decoration: const InputDecoration(
-                labelText: 'Manifest path',
-              ),
+              decoration: const InputDecoration(labelText: 'Manifest path'),
             ),
             ElevatedButton(
               onPressed: _playManifest,

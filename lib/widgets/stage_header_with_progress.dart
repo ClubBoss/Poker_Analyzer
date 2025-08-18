@@ -104,8 +104,11 @@ class StageHeaderWithProgress extends StatelessWidget {
                   child: IconButton(
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
-                    icon: const Icon(Icons.info_outline,
-                        color: Colors.white70, size: 20),
+                    icon: const Icon(
+                      Icons.info_outline,
+                      color: Colors.white70,
+                      size: 20,
+                    ),
                     onPressed: () {
                       showDialog(
                         context: context,

@@ -55,8 +55,8 @@ class PackUnlockingRulesEngine {
             requiresEV: pack.unlockRules!.minEV,
             requiresStageCompleted:
                 pack.unlockRules!.requiresStarterPathCompleted == true
-                    ? 'starter'
-                    : null,
+                ? 'starter'
+                : null,
           );
     if (rules == null) return const UnlockCheckResult(true);
     final String? hint = rules.unlockHint;
@@ -71,8 +71,9 @@ class PackUnlockingRulesEngine {
 
     if (rules.requiresStageCompleted != null &&
         rules.requiresStageCompleted == 'starter') {
-      final completed =
-          mock ? _mockStarterCompleted : await _isStarterPathCompleted();
+      final completed = mock
+          ? _mockStarterCompleted
+          : await _isStarterPathCompleted();
       if (!completed) {
         return UnlockCheckResult(false, hint ?? 'Завершите starter path');
       }
@@ -83,8 +84,10 @@ class PackUnlockingRulesEngine {
           ? _mockAverageEV
           : (await TrainingPackStatsService.getGlobalStats()).averageEV;
       if (ev < rules.requiresEV!) {
-        return UnlockCheckResult(false,
-            hint ?? 'Средний EV < ${rules.requiresEV!.toStringAsFixed(2)}');
+        return UnlockCheckResult(
+          false,
+          hint ?? 'Средний EV < ${rules.requiresEV!.toStringAsFixed(2)}',
+        );
       }
     }
 
@@ -94,7 +97,7 @@ class PackUnlockingRulesEngine {
         achieved = mock
             ? _mockCustomPathCompleted
             : await LearningPathProgressService.instance
-                .isCustomPathCompleted();
+                  .isCustomPathCompleted();
       }
       if (!achieved) {
         return UnlockCheckResult(false, hint);
@@ -110,8 +113,8 @@ class PackUnlockingRulesEngine {
   }
 
   Future<bool> _isStarterPathCompleted() async {
-    final progress =
-        await LearningPathService.instance.getStarterPathProgress();
+    final progress = await LearningPathService.instance
+        .getStarterPathProgress();
     final total = LearningPathService.instance.buildStarterPath().length;
     return progress >= total;
   }

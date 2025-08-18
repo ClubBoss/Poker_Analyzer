@@ -59,19 +59,17 @@ class _RefundChipStackMovingWidgetState
   void initState() {
     super.initState();
     RefundChipStackMovingWidget.activeCount++;
-    _controller = AnimationController(
-      vsync: this,
-      duration: widget.duration,
-    );
+    _controller = AnimationController(vsync: this, duration: widget.duration);
     _opacity = Tween<double>(begin: 1.0, end: 0.0).animate(
       CurvedAnimation(
         parent: _controller,
         curve: const Interval(0.8, 1.0, curve: Curves.easeOut),
       ),
     );
-    _scaleAnim = Tween<double>(begin: 1.0, end: 0.7).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
-    );
+    _scaleAnim = Tween<double>(
+      begin: 1.0,
+      end: 0.7,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         widget.onCompleted?.call();
@@ -100,15 +98,20 @@ class _RefundChipStackMovingWidgetState
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        final control = widget.control ??
+        final control =
+            widget.control ??
             Offset(
               (widget.start.dx + widget.end.dx) / 2,
               (widget.start.dy + widget.end.dy) / 2 -
                   (40 + RefundChipStackMovingWidget.activeCount * 8) *
                       widget.scale,
             );
-        final pos =
-            _bezier(widget.start, control, widget.end, _controller.value);
+        final pos = _bezier(
+          widget.start,
+          control,
+          widget.end,
+          _controller.value,
+        );
         final sizeFactor = _scaleAnim.value * widget.scale;
         return Positioned(
           left: pos.dx - 12 * sizeFactor,

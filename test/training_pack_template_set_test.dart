@@ -94,8 +94,9 @@ variations:
     villainActions: ['3bet', '4bet']
 ''';
 
-    final packs =
-        const TrainingPackTemplateSetGenerator().generateFromYaml(yaml);
+    final packs = const TrainingPackTemplateSetGenerator().generateFromYaml(
+      yaml,
+    );
     expect(packs.length, 2);
     expect(packs[0].id, contains('defend'));
     expect(packs[0].name, 'Base Pack - flat');

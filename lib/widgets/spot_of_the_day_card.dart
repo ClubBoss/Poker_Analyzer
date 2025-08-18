@@ -28,10 +28,14 @@ class SpotOfTheDayCard extends StatelessWidget {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          Text('Hero stack: ${spot.stacks[spot.heroIndex]}',
-              style: const TextStyle(color: Colors.white70)),
-          Text('Positions: ${spot.positions.join(', ')}',
-              style: const TextStyle(color: Colors.white70)),
+          Text(
+            'Hero stack: ${spot.stacks[spot.heroIndex]}',
+            style: const TextStyle(color: Colors.white70),
+          ),
+          Text(
+            'Positions: ${spot.positions.join(', ')}',
+            style: const TextStyle(color: Colors.white70),
+          ),
           const SizedBox(height: 8),
           TrainingSpotPreview(spot: spot),
           const SizedBox(height: 8),
@@ -43,7 +47,8 @@ class SpotOfTheDayCard extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) => TrainingScreen(spot: spot)),
+                      builder: (_) => TrainingScreen(spot: spot),
+                    ),
                   );
                 },
                 child: const Text('Play'),
@@ -54,13 +59,14 @@ class SpotOfTheDayCard extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) => const SpotOfTheDayHistoryScreen()),
+                      builder: (_) => const SpotOfTheDayHistoryScreen(),
+                    ),
                   );
                 },
                 child: const Text('History'),
               ),
             ],
-          )
+          ),
         ],
       ),
     );

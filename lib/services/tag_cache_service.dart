@@ -4,11 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 class TagCacheService extends ChangeNotifier {
-  static const kFixedTagOrder = [
-    'Push/Fold',
-    'ICM',
-    'Blind Defense',
-  ];
+  static const kFixedTagOrder = ['Push/Fold', 'ICM', 'Blind Defense'];
   TagCacheService._();
   static final TagCacheService instance = TagCacheService._();
   factory TagCacheService() => instance;
@@ -24,8 +20,9 @@ class TagCacheService extends ChangeNotifier {
     if (_loaded) return;
     _loaded = true;
     try {
-      final raw =
-          await rootBundle.loadString('assets/packs/v2/tag_frequencies.json');
+      final raw = await rootBundle.loadString(
+        'assets/packs/v2/tag_frequencies.json',
+      );
       final data = jsonDecode(raw) as Map<String, dynamic>;
       topTags = Map<String, int>.from(
         (data['tags'] as Map).map(
@@ -51,7 +48,7 @@ class TagCacheService extends ChangeNotifier {
 
   List<String> _sortedTags({int? limit}) {
     final map = {
-      for (var i = 0; i < kFixedTagOrder.length; i++) kFixedTagOrder[i]: i
+      for (var i = 0; i < kFixedTagOrder.length; i++) kFixedTagOrder[i]: i,
     };
     final list = topTags.entries.toList()
       ..sort((a, b) {

@@ -11,8 +11,8 @@ class TheoryBoosterGenerator {
   const TheoryBoosterGenerator({
     TheoryInjectionEngine engine = const TheoryInjectionEngine(),
     Uuid uuid = const Uuid(),
-  })  : _engine = engine,
-        _uuid = uuid;
+  }) : _engine = engine,
+       _uuid = uuid;
 
   /// Returns a new training pack with theory inserted from the most relevant
   /// theory pack in [allTheoryPacks]. Relevance is determined by tag overlap
@@ -28,8 +28,9 @@ class TheoryBoosterGenerator {
     final meta = Map<String, dynamic>.from(map['meta'] ?? {});
     meta['booster'] = true;
     map['meta'] = meta;
-    final result =
-        TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+    final result = TrainingPackTemplateV2.fromJson(
+      Map<String, dynamic>.from(map),
+    );
     result.trainingType = basePack.trainingType;
     return result;
   }

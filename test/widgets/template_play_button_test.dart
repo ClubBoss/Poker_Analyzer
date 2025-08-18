@@ -30,7 +30,7 @@ void main() {
       name: 'Test',
       spots: const [],
       meta: {
-        'variants': [variant1.toJson(), variant2.toJson()]
+        'variants': [variant1.toJson(), variant2.toJson()],
       },
       createdAt: DateTime.now(),
     );

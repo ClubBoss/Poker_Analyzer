@@ -39,8 +39,9 @@ class TheoryBoosterRecapDelayManager {
     final map = _cache ?? <String, DateTime>{};
     await prefs.setString(
       _prefsKey,
-      jsonEncode(
-          {for (final e in map.entries) e.key: e.value.toIso8601String()}),
+      jsonEncode({
+        for (final e in map.entries) e.key: e.value.toIso8601String(),
+      }),
     );
   }
 

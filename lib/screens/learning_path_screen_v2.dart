@@ -94,16 +94,19 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
 
   Future<void> _startRemedial(String stageId) async {
     setState(() => _remedialLoadingStageId = stageId);
-    LearningPathTelemetry.instance.log('remedial_requested',
-        {'pathId': widget.template.id, 'stageId': stageId});
+    LearningPathTelemetry.instance.log('remedial_requested', {
+      'pathId': widget.template.id,
+      'stageId': stageId,
+    });
     try {
       final uri = await _remedialController.createRemedialPack(
         pathId: widget.template.id,
         stageId: stageId,
       );
       if (!mounted) return;
-      await Navigator.of(context)
-          .pushNamed(uri.path, arguments: uri.queryParameters);
+      await Navigator.of(
+        context,
+      ).pushNamed(uri.path, arguments: uri.queryParameters);
       if (!mounted) return;
       await _load();
     } catch (_) {
@@ -147,8 +150,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       if (id != null) {
         theoryMap[stage.id] = prefs.getBool('completed_tpl_$id') ?? false;
       }
-      final raw = prefs
-          .getString('learning.remedial.${widget.template.id}.${stage.id}');
+      final raw = prefs.getString(
+        'learning.remedial.${widget.template.id}.${stage.id}',
+      );
       if (raw != null) {
         try {
           remedialMap[stage.id] = StageRemedialMeta.fromJson(jsonDecode(raw));
@@ -171,8 +175,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       }
       boosterMap[stage.id] = boosterId;
     }
-    final skillMap =
-        LearningPathPersonalizationService.instance.getTagSkillMap();
+    final skillMap = LearningPathPersonalizationService.instance
+        .getTagSkillMap();
     final extra = _smartUnlock
         .getAdditionalUnlockedStageIds(
           skillMap: skillMap,
@@ -189,7 +193,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       final accuracy = total == 0 ? 0.0 : correct / total * 100;
       final boosterOk = boosterMap[stage.id] == null;
       final theoryOk = boosterOk && (theoryMap[stage.id] ?? true);
-      final done = theoryOk &&
+      final done =
+          theoryOk &&
           total >= stage.requiredHands &&
           accuracy >= stage.requiredAccuracy;
       if (done) {
@@ -413,10 +418,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     final context = key.currentContext;
     if (context == null) return;
     _scrollDone = true;
-    Scrollable.ensureVisible(
-      context,
-      duration: AppConstants.fadeDuration,
-    );
+    Scrollable.ensureVisible(context, duration: AppConstants.fadeDuration);
   }
 
   void _scrollToFirstUnlocked() {
@@ -433,9 +435,11 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     final context = key?.currentContext;
     if (context == null) return;
     final box = context.findRenderObject() as RenderBox;
-    final listBox = _scrollController.position.context.storageContext
-        .findRenderObject() as RenderBox;
-    final offset = box.localToGlobal(Offset.zero, ancestor: listBox).dy +
+    final listBox =
+        _scrollController.position.context.storageContext.findRenderObject()
+            as RenderBox;
+    final offset =
+        box.localToGlobal(Offset.zero, ancestor: listBox).dy +
         _scrollController.offset -
         16;
     _scrollDone = true;
@@ -455,8 +459,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     final progress = total == 0 ? 0.0 : done / total;
     return Card(
       margin: const EdgeInsets.symmetric(
-          horizontal: AppConstants.defaultPadding,
-          vertical: AppConstants.defaultPadding / 2),
+        horizontal: AppConstants.defaultPadding,
+        vertical: AppConstants.defaultPadding / 2,
+      ),
       child: Padding(
         padding: const EdgeInsets.all(AppConstants.defaultPadding),
         child: Row(
@@ -595,11 +600,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       } else {
         subtitle = Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            subtitle!,
-            const SizedBox(height: 4),
-            rChip,
-          ],
+          children: [subtitle!, const SizedBox(height: 4), rChip],
         );
       }
     }
@@ -608,14 +609,15 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     return Card(
       key: key,
       margin: const EdgeInsets.symmetric(
-          horizontal: AppConstants.defaultPadding,
-          vertical: AppConstants.defaultPadding / 2 - 2),
+        horizontal: AppConstants.defaultPadding,
+        vertical: AppConstants.defaultPadding / 2 - 2,
+      ),
       shape: border,
       color: highlight
           ? Colors.amber.withValues(alpha: 0.2)
           : state == LearningStageUIState.locked
-              ? Colors.grey.shade800
-              : null,
+          ? Colors.grey.shade800
+          : null,
       child: ListTile(
         leading: Text('${index + 1}.', style: TextStyle(color: grey)),
         title: Text(stage.title, style: TextStyle(color: grey)),
@@ -779,7 +781,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                           if (tags.isNotEmpty)
                             Padding(
                               padding: const EdgeInsets.all(
-                                  AppConstants.defaultPadding),
+                                AppConstants.defaultPadding,
+                              ),
                               child: Wrap(
                                 spacing: 8,
                                 children: [

@@ -35,8 +35,9 @@ class RecapAutoRepeatScheduler {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
       _prefsKey,
-      jsonEncode(
-          {for (final e in _cache.entries) e.key: e.value.toIso8601String()}),
+      jsonEncode({
+        for (final e in _cache.entries) e.key: e.value.toIso8601String(),
+      }),
     );
   }
 
@@ -67,11 +68,14 @@ class RecapAutoRepeatScheduler {
   }
 
   /// Periodically emits lesson ids whose repeat delay elapsed.
-  Stream<List<String>> getPendingRecapIds(
-      {Duration interval = const Duration(hours: 1)}) async* {
+  Stream<List<String>> getPendingRecapIds({
+    Duration interval = const Duration(hours: 1),
+  }) async* {
     yield await _consumeDueIds();
-    yield* Stream.periodic(interval, (_) => _consumeDueIds())
-        .asyncMap((f) => f);
+    yield* Stream.periodic(
+      interval,
+      (_) => _consumeDueIds(),
+    ).asyncMap((f) => f);
   }
 
   /// Clears cached data for tests.

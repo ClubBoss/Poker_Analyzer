@@ -44,9 +44,10 @@ class _FakeSuppression extends TheoryRecapSuppressionEngine {
   final bool value;
   _FakeSuppression(this.value) : super();
   @override
-  Future<bool> shouldSuppress(
-          {required String lessonId, required String trigger}) async =>
-      value;
+  Future<bool> shouldSuppress({
+    required String lessonId,
+    required String trigger,
+  }) async => value;
 }
 
 class _FakeDismissal extends SmartTheoryRecapDismissalMemory {
@@ -73,8 +74,11 @@ void main() {
   });
 
   test('shows due recap banner', () async {
-    final lesson =
-        const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
+    final lesson = const TheoryMiniLessonNode(
+      id: 'l1',
+      title: 't',
+      content: '',
+    );
     final lib = _FakeLibrary([lesson]);
     final controller = _FakeController();
     final service = SmartRecapBannerReinjectionService(
@@ -94,8 +98,11 @@ void main() {
   });
 
   test('skips when suppressed', () async {
-    final lesson =
-        const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
+    final lesson = const TheoryMiniLessonNode(
+      id: 'l1',
+      title: 't',
+      content: '',
+    );
     final lib = _FakeLibrary([lesson]);
     final controller = _FakeController();
     final service = SmartRecapBannerReinjectionService(

@@ -33,9 +33,9 @@ class LearningPathStageTemplateInput {
 /// Generates a learning path YAML file from stage templates.
 class LearningPathLibraryGenerator {
   final LearningPathStageTemplateGenerator stageGenerator;
-  const LearningPathLibraryGenerator(
-      {LearningPathStageTemplateGenerator? stageGenerator})
-      : stageGenerator = stageGenerator ?? LearningPathStageTemplateGenerator();
+  const LearningPathLibraryGenerator({
+    LearningPathStageTemplateGenerator? stageGenerator,
+  }) : stageGenerator = stageGenerator ?? LearningPathStageTemplateGenerator();
 
   /// Generates YAML for a complete learning path based on [stages].
   String generatePathYaml(List<LearningPathStageTemplateInput> stages) {

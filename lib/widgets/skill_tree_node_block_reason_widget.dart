@@ -28,12 +28,14 @@ class SkillTreeNodeBlockReasonWidget extends StatelessWidget {
     SkillTreeLibraryService? library,
     SkillTreeNodeProgressTracker? progress,
     SkillTreeUnlockEvaluator? unlockEvaluator,
-  })  : _linkService = linkService ?? SkillTreeDependencyLinkService(),
-        _library = library ?? SkillTreeLibraryService.instance,
-        _progress = progress ?? SkillTreeNodeProgressTracker.instance,
-        _unlockEval = unlockEvaluator ??
-            SkillTreeUnlockEvaluator(
-                progress: progress ?? SkillTreeNodeProgressTracker.instance);
+  }) : _linkService = linkService ?? SkillTreeDependencyLinkService(),
+       _library = library ?? SkillTreeLibraryService.instance,
+       _progress = progress ?? SkillTreeNodeProgressTracker.instance,
+       _unlockEval =
+           unlockEvaluator ??
+           SkillTreeUnlockEvaluator(
+             progress: progress ?? SkillTreeNodeProgressTracker.instance,
+           );
 
   String _titleForNode(String id) {
     for (final n in _library.getAllNodes()) {
@@ -81,8 +83,8 @@ class SkillTreeNodeBlockReasonWidget extends StatelessWidget {
                         status: completed.contains(id)
                             ? _PrereqStatus.completed
                             : unlocked.contains(id)
-                                ? _PrereqStatus.unlocked
-                                : _PrereqStatus.locked,
+                            ? _PrereqStatus.unlocked
+                            : _PrereqStatus.locked,
                       ),
                   ],
                   hint: link.hint,
@@ -140,8 +142,9 @@ class _DependencyItemState extends State<_DependencyItem> {
 
   @override
   void dispose() {
-    SkillTreeSettingsService.instance.hideCompletedPrereqs
-        .removeListener(_notifierListener);
+    SkillTreeSettingsService.instance.hideCompletedPrereqs.removeListener(
+      _notifierListener,
+    );
     super.dispose();
   }
 
@@ -152,12 +155,13 @@ class _DependencyItemState extends State<_DependencyItem> {
   @override
   Widget build(BuildContext context) {
     final total = widget.prereqs.length;
-    final done =
-        widget.prereqs.where((p) => p.status == _PrereqStatus.completed).length;
+    final done = widget.prereqs
+        .where((p) => p.status == _PrereqStatus.completed)
+        .length;
     final visiblePrereqs = _hideCompleted
         ? widget.prereqs
-            .where((p) => p.status != _PrereqStatus.completed)
-            .toList()
+              .where((p) => p.status != _PrereqStatus.completed)
+              .toList()
         : widget.prereqs;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,10 +242,7 @@ class _DependencyItemState extends State<_DependencyItem> {
     }
     final chip = Chip(
       avatar: Icon(icon, size: 14, color: color),
-      label: Text(
-        prereq.title,
-        style: const TextStyle(fontSize: 12),
-      ),
+      label: Text(prereq.title, style: const TextStyle(fontSize: 12)),
       visualDensity: VisualDensity.compact,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );

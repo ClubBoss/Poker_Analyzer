@@ -95,8 +95,9 @@ class TrainingPackSampler {
     final map = fullPack.toJson();
     map['spots'] = [for (final s in selected) s.toJson()];
     map['spotCount'] = selected.length;
-    final result =
-        TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+    final result = TrainingPackTemplateV2.fromJson(
+      Map<String, dynamic>.from(map),
+    );
     result.isSampledPack = true;
     return result;
   }

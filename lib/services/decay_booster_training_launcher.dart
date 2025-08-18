@@ -47,10 +47,13 @@ class DecayBoosterTrainingLauncher {
     }
     final ctx = navigatorKey.currentContext;
     if (ctx != null) {
-      await DecayRewardDropEngine.instance
-          .maybeTriggerReward(ctx, tags: tags.toList());
+      await DecayRewardDropEngine.instance.maybeTriggerReward(
+        ctx,
+        tags: tags.toList(),
+      );
     }
-    await UserActionLogger.instance
-        .logEvent({'event': 'decay_booster_completed'});
+    await UserActionLogger.instance.logEvent({
+      'event': 'decay_booster_completed',
+    });
   }
 }

@@ -60,11 +60,15 @@ class _TrainingOnboardingScreenState extends State<TrainingOnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     final pages = [
-      _page('Тренировочный пак',
-          'Карточка со спотом, варианты действий и EV каждой опции'),
+      _page(
+        'Тренировочный пак',
+        'Карточка со спотом, варианты действий и EV каждой опции',
+      ),
       _page('Ошибки', 'Неверные ответы сохраняются в «Повторы»'),
       _page(
-          'Прогресс и стрик', 'Проходи споты без ошибок, чтобы растить стрик'),
+        'Прогресс и стрик',
+        'Проходи споты без ошибок, чтобы растить стрик',
+      ),
       _page('Статистика', 'Смотри результаты во вкладке «📊 Insights»'),
     ];
     return Scaffold(
@@ -100,9 +104,9 @@ class _TrainingOnboardingScreenState extends State<TrainingOnboardingScreen> {
               onPressed: _index == pages.length - 1
                   ? _finish
                   : () => _controller.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      ),
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    ),
               child: Text(_index == pages.length - 1 ? 'Понял!' : 'Далее'),
             ),
           ),

@@ -146,7 +146,9 @@ bool generate3betPush(Random rng, String outDir, L2Preset preset) {
     final spots = _writePack(
       path: path,
       id: id,
-      name: 'L2 3bet Push $bucket' 'bb',
+      name:
+          'L2 3bet Push $bucket'
+          'bb',
       subtype: '3bet-push',
       stackBucket: bucket,
       tags: ['l2', '3bet-push', '${bucket}bb', 'vs-open', 'pushfold'],

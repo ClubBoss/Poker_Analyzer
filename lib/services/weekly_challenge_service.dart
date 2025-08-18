@@ -28,8 +28,11 @@ class WeeklyChallengeService extends ChangeNotifier {
 
   static const _rewardXp = 50;
 
-  WeeklyChallengeService(
-      {required this.stats, required this.xp, required this.packs});
+  WeeklyChallengeService({
+    required this.stats,
+    required this.xp,
+    required this.packs,
+  });
 
   static const _challenges = [
     WeeklyChallenge('Tag 5 mistakes', 'mistakes', 5),

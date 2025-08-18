@@ -79,13 +79,15 @@ void main(List<String> args) {
   for (final seed in seeds!) {
     final spots = generateIcmJamSpots(seed: seed, count: perSeed, mix: mix);
     for (final s in spots) {
-      items.add(L4IcmSessionItem(
-        hand: s.hand,
-        heroPos: s.heroPos.name,
-        stackBb: s.stackBb.name,
-        stacks: s.stacks.name,
-        action: s.action.name,
-      ));
+      items.add(
+        L4IcmSessionItem(
+          hand: s.hand,
+          heroPos: s.heroPos.name,
+          stackBb: s.stackBb.name,
+          stacks: s.stacks.name,
+          action: s.action.name,
+        ),
+      );
     }
   }
 
@@ -111,10 +113,12 @@ void main(List<String> args) {
   file.writeAsStringSync(json);
 
   stdout.writeln(
-      'wrote L4 ICM session name=$name seeds=$k perSeed=$perSeed total=${items.length} format=$format');
+    'wrote L4 ICM session name=$name seeds=$k perSeed=$perSeed total=${items.length} format=$format',
+  );
 }
 
 void _usage() {
   stderr.writeln(
-      'usage: --seeds a,b,c | --range start-end [--per-seed N] [--preset mvs] [--format compact|pretty] [--out dir] [--name file]');
+    'usage: --seeds a,b,c | --range start-end [--per-seed N] [--preset mvs] [--format compact|pretty] [--out dir] [--name file]',
+  );
 }

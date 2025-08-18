@@ -45,12 +45,15 @@ class _PackLibraryConflictsScreenState
               padding: const EdgeInsets.all(16),
               children: [
                 ElevatedButton(
-                    onPressed: _load, child: const Text('🔄 Обновить')),
+                  onPressed: _load,
+                  child: const Text('🔄 Обновить'),
+                ),
                 const SizedBox(height: 16),
                 for (final i in _items)
                   ListTile(
                     title: Text(
-                        File(i.$1).path.split(Platform.pathSeparator).last),
+                      File(i.$1).path.split(Platform.pathSeparator).last,
+                    ),
                     subtitle: Text(i.$2),
                   ),
               ],
@@ -62,6 +65,6 @@ class _PackLibraryConflictsScreenState
 Future<List<List<String>>> _scanTask(String _) async {
   final res = await const PackLibraryConflictScanner().scanConflicts();
   return [
-    for (final e in res) [e.$1, e.$2]
+    for (final e in res) [e.$1, e.$2],
   ];
 }

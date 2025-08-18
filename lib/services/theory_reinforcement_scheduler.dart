@@ -29,7 +29,8 @@ class TheoryReinforcementScheduler {
           for (final e in data.entries) {
             if (e.value is Map) {
               map[e.key as String] = TheoryReinforcementEntry.fromJson(
-                  Map<String, dynamic>.from(e.value as Map));
+                Map<String, dynamic>.from(e.value as Map),
+              );
             }
           }
           return map;

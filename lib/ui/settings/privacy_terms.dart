@@ -32,9 +32,7 @@ class TermsScreen extends StatelessWidget {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: SingleChildScrollView(
-            child: SelectableText(l10n.terms_body),
-          ),
+          child: SingleChildScrollView(child: SelectableText(l10n.terms_body)),
         ),
       ),
     );

@@ -27,13 +27,13 @@ class LearningPathTrackModel {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'title': title,
-        'description': description,
-        if (pathIds.isNotEmpty) 'pathIds': pathIds,
-        if (recommendedFor != null) 'recommendedFor': recommendedFor,
-        'order': order,
-      };
+    'id': id,
+    'title': title,
+    'description': description,
+    if (pathIds.isNotEmpty) 'pathIds': pathIds,
+    if (recommendedFor != null) 'recommendedFor': recommendedFor,
+    'order': order,
+  };
 
   factory LearningPathTrackModel.fromYaml(Map yaml) {
     final map = <String, dynamic>{};

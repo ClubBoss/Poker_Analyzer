@@ -210,12 +210,13 @@ class AchievementService extends ChangeNotifier {
   Future<void> _checkFirstLevel() async {
     final ach = _achievements.firstWhere((a) => a.id == 'first_level');
     if (ach.unlocked) return;
-    final stages =
-        await LearningPathProgressService.instance.getCurrentStageState();
+    final stages = await LearningPathProgressService.instance
+        .getCurrentStageState();
     if (stages.isEmpty) return;
     final first = stages.first;
-    final completed =
-        LearningPathProgressService.instance.isStageCompleted(first.items);
+    final completed = LearningPathProgressService.instance.isStageCompleted(
+      first.items,
+    );
     if (completed) await _unlock('first_level');
   }
 
@@ -241,7 +242,7 @@ class AchievementService extends ChangeNotifier {
     if (weak.isEmpty) return;
     await PackLibraryLoaderService.instance.loadLibrary();
     final byId = {
-      for (final t in PackLibraryLoaderService.instance.library) t.id: t
+      for (final t in PackLibraryLoaderService.instance.library) t.id: t,
     };
     int count = 0;
     for (final log in mastery.logs.logs) {

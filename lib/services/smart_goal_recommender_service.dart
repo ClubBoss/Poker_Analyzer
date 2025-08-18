@@ -8,8 +8,10 @@ class SmartGoalRecommenderService {
   final TagMasteryService mastery;
   final SessionLogService logs;
 
-  const SmartGoalRecommenderService(
-      {required this.mastery, required this.logs});
+  const SmartGoalRecommenderService({
+    required this.mastery,
+    required this.logs,
+  });
 
   Future<List<UserGoal>> recommendGoals(UserProfile profile) async {
     await PackLibraryIndexLoader.instance.load();
@@ -33,16 +35,18 @@ class SmartGoalRecommenderService {
     for (final tag in weak) {
       if (!used.add('tag:$tag') || recentTags.contains(tag)) continue;
       final base = (masteryMap[tag] ?? 0.0) * 100;
-      goals.add(UserGoal(
-        id: 'tag_${tag}_${now.millisecondsSinceEpoch}',
-        title: 'Фокус на теге $tag до 80%',
-        type: 'tagFocus',
-        target: 80,
-        base: base.round(),
-        createdAt: now,
-        tag: tag,
-        targetAccuracy: 80,
-      ));
+      goals.add(
+        UserGoal(
+          id: 'tag_${tag}_${now.millisecondsSinceEpoch}',
+          title: 'Фокус на теге $tag до 80%',
+          type: 'tagFocus',
+          target: 80,
+          base: base.round(),
+          createdAt: now,
+          tag: tag,
+          targetAccuracy: 80,
+        ),
+      );
       if (goals.length >= 3) break;
     }
 
@@ -51,18 +55,21 @@ class SmartGoalRecommenderService {
       for (final tag in weak) {
         for (final pack in packs.where((p) => p.tags.any((t) => t == tag))) {
           if (profile.completedPackIds.contains(pack.id) ||
-              recentIds.contains(pack.id)) continue;
+              recentIds.contains(pack.id))
+            continue;
           if (!used.add('pack:${pack.id}')) continue;
-          goals.add(UserGoal(
-            id: 'pack_${pack.id}_${now.millisecondsSinceEpoch}',
-            title: 'Заверши ${pack.name}',
-            type: 'completion',
-            target: 1,
-            base: 0,
-            createdAt: now,
-            tag: pack.id,
-            targetAccuracy: 100,
-          ));
+          goals.add(
+            UserGoal(
+              id: 'pack_${pack.id}_${now.millisecondsSinceEpoch}',
+              title: 'Заверши ${pack.name}',
+              type: 'completion',
+              target: 1,
+              base: 0,
+              createdAt: now,
+              tag: pack.id,
+              targetAccuracy: 100,
+            ),
+          );
           if (goals.length >= 3) break;
         }
         if (goals.length >= 3) break;

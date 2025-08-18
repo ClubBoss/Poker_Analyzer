@@ -24,8 +24,9 @@ class LearningPathPlannerEngine {
     final result = <String>[];
     for (final stage in path.stages) {
       if (result.length >= 7) break;
-      final progress =
-          await TrainingProgressService.instance.getStageProgress(stage.id);
+      final progress = await TrainingProgressService.instance.getStageProgress(
+        stage.id,
+      );
       if (progress < 1.0) {
         result.add(stage.id);
       }

@@ -20,10 +20,7 @@ class SkillTreeStageCompletionEvaluator {
   }
 
   /// Returns a sorted list of levels that are completed in [tree].
-  List<int> getCompletedStages(
-    SkillTree tree,
-    Set<String> completedNodeIds,
-  ) {
+  List<int> getCompletedStages(SkillTree tree, Set<String> completedNodeIds) {
     final levels = <int>{for (final n in tree.nodes.values) n.level};
     final completed = <int>[];
     final sortedLevels = levels.toList()..sort();

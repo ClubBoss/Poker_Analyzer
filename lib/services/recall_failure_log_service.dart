@@ -8,7 +8,9 @@ class RecallFailureLogService {
 
   /// Returns logged spottings for a hotspot identified by [mode] and [id].
   Future<List<RecallFailureSpotting>> getSpottingsForHotspot(
-      String mode, String id) async {
+    String mode,
+    String id,
+  ) async {
     // Placeholder implementation.
     return [];
   }

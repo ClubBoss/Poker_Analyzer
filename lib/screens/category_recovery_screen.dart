@@ -28,8 +28,10 @@ class CategoryRecoveryScreen extends StatelessWidget {
       ),
       body: entries.isEmpty
           ? const Center(
-              child:
-                  Text('Нет данных', style: TextStyle(color: Colors.white70)),
+              child: Text(
+                'Нет данных',
+                style: TextStyle(color: Colors.white70),
+              ),
             )
           : ListView.separated(
               itemCount: entries.length,
@@ -40,14 +42,18 @@ class CategoryRecoveryScreen extends StatelessWidget {
                     ? 'Без категории'
                     : translateCategory(e.key);
                 return ListTile(
-                  title:
-                      Text(name, style: const TextStyle(color: Colors.white)),
+                  title: Text(
+                    name,
+                    style: const TextStyle(color: Colors.white),
+                  ),
                   subtitle: Text(
                     '+${e.value.toStringAsFixed(2)} EV',
                     style: const TextStyle(color: Colors.greenAccent),
                   ),
-                  trailing:
-                      const Icon(Icons.chevron_right, color: Colors.white),
+                  trailing: const Icon(
+                    Icons.chevron_right,
+                    color: Colors.white,
+                  ),
                   onTap: () {
                     Navigator.push(
                       context,

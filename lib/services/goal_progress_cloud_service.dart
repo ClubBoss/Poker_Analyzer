@@ -9,19 +9,24 @@ class GoalProgressCloudService {
 
   Future<List<Map<String, dynamic>>> loadGoals() async {
     if (_uid == null) return [];
-    final snap =
-        await _db.collection('progress').doc(_uid).collection('goals').get();
+    final snap = await _db
+        .collection('progress')
+        .doc(_uid)
+        .collection('goals')
+        .get();
     return [for (final d in snap.docs) d.data()];
   }
 
   Future<void> saveProgress(Map<String, dynamic> data) async {
     if (_uid == null) return;
     final id = '${data['templateId']}_${data['goal']}'.replaceAll('/', '_');
-    await CloudRetryPolicy.execute(() => _db
-        .collection('progress')
-        .doc(_uid)
-        .collection('goals')
-        .doc(id)
-        .set(data));
+    await CloudRetryPolicy.execute(
+      () => _db
+          .collection('progress')
+          .doc(_uid)
+          .collection('goals')
+          .doc(id)
+          .set(data),
+    );
   }
 }

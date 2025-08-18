@@ -14,14 +14,16 @@ class TheoryBoosterInjector {
   const TheoryBoosterInjector({
     LearningPathEngine? engine,
     LearningPathGraphOrchestrator? orchestrator,
-  })  : _engine = engine ?? LearningPathEngine.instance,
-        _orchestrator = orchestrator ?? LearningPathGraphOrchestrator();
+  }) : _engine = engine ?? LearningPathEngine.instance,
+       _orchestrator = orchestrator ?? LearningPathGraphOrchestrator();
 
   static final TheoryBoosterInjector instance = TheoryBoosterInjector();
 
   /// Inserts [reviewNodeIds] before [targetNodeId] if possible.
   Future<void> injectBefore(
-      String targetNodeId, List<String> reviewNodeIds) async {
+    String targetNodeId,
+    List<String> reviewNodeIds,
+  ) async {
     final mapEngine = _engine.engine;
     if (mapEngine == null || reviewNodeIds.isEmpty) return;
 
@@ -37,14 +39,16 @@ class TheoryBoosterInjector {
       if (byId.containsKey(id)) continue; // avoid duplicates
       final n = sourceById[id];
       if (n is TheoryLessonNode) {
-        inject.add(TheoryLessonNode(
-          id: n.id,
-          refId: n.refId,
-          title: n.title,
-          content: n.content,
-          nextIds: const [],
-          recoveredFromMistake: n.recoveredFromMistake,
-        ));
+        inject.add(
+          TheoryLessonNode(
+            id: n.id,
+            refId: n.refId,
+            title: n.title,
+            content: n.content,
+            nextIds: const [],
+            recoveredFromMistake: n.recoveredFromMistake,
+          ),
+        );
         byId[id] = n; // reserve id
       }
     }
@@ -138,8 +142,11 @@ class TheoryBoosterInjector {
     await mapEngine.loadNodes(updated);
     await mapEngine.restoreState(state);
     for (final n in inject) {
-      await TheoryReinforcementLogService.instance
-          .logInjection(n.id, 'standard', 'auto');
+      await TheoryReinforcementLogService.instance.logInjection(
+        n.id,
+        'standard',
+        'auto',
+      );
     }
   }
 

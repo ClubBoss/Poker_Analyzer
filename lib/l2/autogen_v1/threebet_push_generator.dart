@@ -51,12 +51,7 @@ class L2TbMix {
   });
 
   static const L2TbMix _mvs = L2TbMix(
-    heroPosPct: {
-      Pos.co: 0.30,
-      Pos.btn: 0.40,
-      Pos.sb: 0.15,
-      Pos.bb: 0.15,
-    },
+    heroPosPct: {Pos.co: 0.30, Pos.btn: 0.40, Pos.sb: 0.15, Pos.bb: 0.15},
     vsPosPct: {
       VsPos.utg: 0.20,
       VsPos.mp: 0.30,
@@ -135,13 +130,15 @@ List<TbSpot> generateThreebetSpots({
       vsPos: vsPos,
       stack: stack,
     );
-    items.add(TbSpot(
-      hand: hand,
-      heroPos: heroPos,
-      vsPos: vsPos,
-      stack: stack,
-      action: action,
-    ));
+    items.add(
+      TbSpot(
+        hand: hand,
+        heroPos: heroPos,
+        vsPos: vsPos,
+        stack: stack,
+        action: action,
+      ),
+    );
     used.add(key);
   }
 
@@ -166,8 +163,9 @@ Map<T, int> _buildQuotas<T>(Map<T, double> pct, int total, List<T> order) {
   var remaining = total;
   for (var i = 0; i < order.length; i++) {
     final v = order[i];
-    final q =
-        i == order.length - 1 ? remaining : (total * (pct[v] ?? 0)).round();
+    final q = i == order.length - 1
+        ? remaining
+        : (total * (pct[v] ?? 0)).round();
     quotas[v] = q;
     remaining -= q;
   }

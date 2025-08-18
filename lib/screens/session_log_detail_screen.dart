@@ -33,8 +33,9 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
     if (raw is Map) {
       final session = TrainingSession.fromJson(Map<String, dynamic>.from(raw));
       final templates = await TrainingPackStorage.load();
-      final template =
-          templates.firstWhereOrNull((t) => t.id == session.templateId);
+      final template = templates.firstWhereOrNull(
+        (t) => t.id == session.templateId,
+      );
       if (template != null) {
         final mistakes = <TrainingPackSpot>[];
         for (final spot in template.spots) {

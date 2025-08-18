@@ -15,12 +15,11 @@ class TrackCelebrationDialog extends StatelessWidget {
       showConfettiOverlay(context);
     });
     return DarkAlertDialog(
-      title: const Text('🎉 Трек завершён!',
-          style: TextStyle(color: Colors.white)),
-      content: Text(
-        trackId,
-        style: const TextStyle(color: Colors.white70),
+      title: const Text(
+        '🎉 Трек завершён!',
+        style: TextStyle(color: Colors.white),
       ),
+      content: Text(trackId, style: const TextStyle(color: Colors.white70)),
       actions: [
         if (onNext != null)
           TextButton(
@@ -36,8 +35,11 @@ class TrackCelebrationDialog extends StatelessWidget {
   }
 }
 
-Future<void> showTrackCelebrationDialog(BuildContext context, String trackId,
-    {VoidCallback? onNext}) {
+Future<void> showTrackCelebrationDialog(
+  BuildContext context,
+  String trackId, {
+  VoidCallback? onNext,
+}) {
   return showDialog(
     context: context,
     barrierDismissible: false,

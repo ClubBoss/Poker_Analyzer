@@ -11,9 +11,9 @@ class DrillDownAutoInjectionLogScreen extends StatefulWidget {
   final String? lessonId;
 
   const DrillDownAutoInjectionLogScreen.date(this.date, {super.key})
-      : lessonId = null;
+    : lessonId = null;
   const DrillDownAutoInjectionLogScreen.lesson(this.lessonId, {super.key})
-      : date = null;
+    : date = null;
 
   @override
   State<DrillDownAutoInjectionLogScreen> createState() =>
@@ -45,10 +45,12 @@ class _DrillDownAutoInjectionLogScreenState
     if (widget.date != null) {
       final d = widget.date!;
       logs = logs
-          .where((l) =>
-              l.timestamp.year == d.year &&
-              l.timestamp.month == d.month &&
-              l.timestamp.day == d.day)
+          .where(
+            (l) =>
+                l.timestamp.year == d.year &&
+                l.timestamp.month == d.month &&
+                l.timestamp.day == d.day,
+          )
           .toList();
     } else if (widget.lessonId != null) {
       logs = logs.where((l) => l.lessonId == widget.lessonId).toList();
@@ -71,9 +73,11 @@ class _DrillDownAutoInjectionLogScreenState
     if (query.isNotEmpty) {
       logs = logs.where((l) => l.spotId.contains(query)).toList();
     }
-    logs.sort((a, b) => _sortOrder == _SortOrder.newestFirst
-        ? b.timestamp.compareTo(a.timestamp)
-        : a.timestamp.compareTo(b.timestamp));
+    logs.sort(
+      (a, b) => _sortOrder == _SortOrder.newestFirst
+          ? b.timestamp.compareTo(a.timestamp)
+          : a.timestamp.compareTo(b.timestamp),
+    );
     _filtered
       ..clear()
       ..addAll(logs);
@@ -96,69 +100,68 @@ class _DrillDownAutoInjectionLogScreenState
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _filtered.isEmpty
-              ? const Center(child: Text('No injections'))
-              : Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
+          ? const Center(child: Text('No injections'))
+          : Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _spotIdController,
+                          decoration: const InputDecoration(
+                            hintText: 'Filter by spotId',
+                            isDense: true,
+                          ),
+                          onChanged: (_) {
+                            setState(_applyFilters);
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      DropdownButton<_SortOrder>(
+                        value: _sortOrder,
+                        items: const [
+                          DropdownMenuItem(
+                            value: _SortOrder.newestFirst,
+                            child: Text('Newest First'),
+                          ),
+                          DropdownMenuItem(
+                            value: _SortOrder.oldestFirst,
+                            child: Text('Oldest First'),
+                          ),
+                        ],
+                        onChanged: (v) {
+                          if (v != null) {
+                            setState(() {
+                              _sortOrder = v;
+                              _applyFilters();
+                            });
+                          }
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      Row(
                         children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _spotIdController,
-                              decoration: const InputDecoration(
-                                hintText: 'Filter by spotId',
-                                isDense: true,
-                              ),
-                              onChanged: (_) {
-                                setState(_applyFilters);
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          DropdownButton<_SortOrder>(
-                            value: _sortOrder,
-                            items: const [
-                              DropdownMenuItem(
-                                value: _SortOrder.newestFirst,
-                                child: Text('Newest First'),
-                              ),
-                              DropdownMenuItem(
-                                value: _SortOrder.oldestFirst,
-                                child: Text('Oldest First'),
-                              ),
-                            ],
+                          const Text('Group by lesson'),
+                          Switch(
+                            value: _groupByLesson,
                             onChanged: (v) {
-                              if (v != null) {
-                                setState(() {
-                                  _sortOrder = v;
-                                  _applyFilters();
-                                });
-                              }
+                              setState(() => _groupByLesson = v);
                             },
-                          ),
-                          const SizedBox(width: 8),
-                          Row(
-                            children: [
-                              const Text('Group by lesson'),
-                              Switch(
-                                value: _groupByLesson,
-                                onChanged: (v) {
-                                  setState(() => _groupByLesson = v);
-                                },
-                              ),
-                            ],
                           ),
                         ],
                       ),
-                    ),
-                    const Divider(height: 1),
-                    Expanded(
-                      child:
-                          _groupByLesson ? _buildGroupedList() : _buildList(),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+                const Divider(height: 1),
+                Expanded(
+                  child: _groupByLesson ? _buildGroupedList() : _buildList(),
+                ),
+              ],
+            ),
     );
   }
 

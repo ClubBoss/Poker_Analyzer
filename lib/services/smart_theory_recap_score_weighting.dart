@@ -22,9 +22,7 @@ class SmartTheoryRecapScoreWeighting {
     if (_cache != null &&
         _cacheTime != null &&
         now.difference(_cacheTime!) < cacheDuration) {
-      return {
-        for (final k in keys) k: _cache![k] ?? 0,
-      };
+      return {for (final k in keys) k: _cache![k] ?? 0};
     }
 
     final history = await MistakeTagHistoryService.getRecentHistory(limit: 200);

@@ -57,16 +57,18 @@ void main() {
     final cache = InlineTheoryLinkerCache(library: _FakeLibrary(lessons));
     await cache.ensureReady();
 
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: InlineTheoryBadge(
-          tags: const ['tag'],
-          spotId: 's1',
-          packId: 'p1',
-          cache: cache,
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: InlineTheoryBadge(
+            tags: const ['tag'],
+            spotId: 's1',
+            packId: 'p1',
+            cache: cache,
+          ),
         ),
       ),
-    ));
+    );
     await tester.pump();
 
     expect(find.text('Theory • 2'), findsOneWidget);

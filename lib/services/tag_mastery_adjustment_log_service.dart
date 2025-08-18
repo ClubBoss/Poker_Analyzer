@@ -13,16 +13,17 @@ class TagMasteryAdjustmentEntry {
   });
 
   Map<String, dynamic> toJson() => {
-        'tag': tag,
-        'delta': delta,
-        'timestamp': timestamp.toIso8601String(),
-      };
+    'tag': tag,
+    'delta': delta,
+    'timestamp': timestamp.toIso8601String(),
+  };
 
   factory TagMasteryAdjustmentEntry.fromJson(Map<String, dynamic> json) =>
       TagMasteryAdjustmentEntry(
         tag: json['tag'] as String? ?? '',
         delta: (json['delta'] as num?)?.toDouble() ?? 0.0,
-        timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ??
+        timestamp:
+            DateTime.tryParse(json['timestamp'] as String? ?? '') ??
             DateTime.now(),
       );
 }
@@ -46,8 +47,13 @@ class TagMasteryAdjustmentLogService {
       if (data is List) {
         _logs
           ..clear()
-          ..addAll(data.map((e) => TagMasteryAdjustmentEntry.fromJson(
-              Map<String, dynamic>.from(e))));
+          ..addAll(
+            data.map(
+              (e) => TagMasteryAdjustmentEntry.fromJson(
+                Map<String, dynamic>.from(e),
+              ),
+            ),
+          );
         _logs.sort((a, b) => b.timestamp.compareTo(a.timestamp));
       }
     } catch (_) {}
@@ -56,7 +62,9 @@ class TagMasteryAdjustmentLogService {
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
-        _key, jsonEncode([for (final l in _logs) l.toJson()]));
+      _key,
+      jsonEncode([for (final l in _logs) l.toJson()]),
+    );
   }
 
   Future<void> add(TagMasteryAdjustmentEntry entry) async {

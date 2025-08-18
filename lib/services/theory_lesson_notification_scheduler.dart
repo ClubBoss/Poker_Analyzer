@@ -13,8 +13,9 @@ import 'theory_lesson_resume_engine.dart';
 /// Schedules reminder pushes to resume the last incomplete theory lesson.
 class TheoryLessonNotificationScheduler {
   TheoryLessonNotificationScheduler._() {
-    MiniLessonProgressTracker.instance.onLessonCompleted
-        .listen((_) => scheduleReminderIfNeeded());
+    MiniLessonProgressTracker.instance.onLessonCompleted.listen(
+      (_) => scheduleReminderIfNeeded(),
+    );
   }
 
   /// Singleton instance.

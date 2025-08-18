@@ -84,14 +84,14 @@ class TrainingSpot implements SpotModel {
     this.rating = 0,
     List<String>? inlineLessons,
     DateTime? createdAt,
-  })  : tags = tags ?? [],
-        inlineLessons = inlineLessons ?? [],
-        createdAt = createdAt ?? DateTime.now();
+  }) : tags = tags ?? [],
+       inlineLessons = inlineLessons ?? [],
+       createdAt = createdAt ?? DateTime.now();
 
   factory TrainingSpot.fromSavedHand(SavedHand hand) {
     return TrainingSpot(
       playerCards: [
-        for (final list in hand.playerCards) List<CardModel>.from(list)
+        for (final list in hand.playerCards) List<CardModel>.from(list),
       ],
       boardCards: List<CardModel>.from(hand.boardCards),
       actions: List<ActionEntry>.from(hand.actions),
@@ -99,14 +99,14 @@ class TrainingSpot implements SpotModel {
       numberOfPlayers: hand.numberOfPlayers,
       playerTypes: [
         for (int i = 0; i < hand.numberOfPlayers; i++)
-          hand.playerTypes?[i] ?? PlayerType.unknown
+          hand.playerTypes?[i] ?? PlayerType.unknown,
       ],
       positions: [
         for (int i = 0; i < hand.numberOfPlayers; i++)
-          hand.playerPositions[i] ?? ''
+          hand.playerPositions[i] ?? '',
       ],
       stacks: [
-        for (int i = 0; i < hand.numberOfPlayers; i++) hand.stackSizes[i] ?? 0
+        for (int i = 0; i < hand.numberOfPlayers; i++) hand.stackSizes[i] ?? 0,
       ],
       rangeMatrix: null,
       equities: null,
@@ -133,59 +133,59 @@ class TrainingSpot implements SpotModel {
   }
 
   Map<String, dynamic> toJson() => {
-        'playerCards': [
-          for (final list in playerCards)
-            [
-              for (final c in list) {'rank': c.rank, 'suit': c.suit}
-            ]
+    'playerCards': [
+      for (final list in playerCards)
+        [
+          for (final c in list) {'rank': c.rank, 'suit': c.suit},
         ],
-        'boardCards': [
-          for (final c in boardCards) {'rank': c.rank, 'suit': c.suit}
-        ],
-        'actions': [
-          for (final a in actions)
-            {
-              'street': a.street,
-              'playerIndex': a.playerIndex,
-              'action': a.action,
-              if (a.amount != null) 'amount': a.amount,
-              if (a.manualEvaluation != null)
-                'manualEvaluation': a.manualEvaluation,
-              if (a.customLabel != null) 'customLabel': a.customLabel,
-            }
-        ],
-        'heroIndex': heroIndex,
-        'numberOfPlayers': numberOfPlayers,
-        'playerTypes': [for (final t in playerTypes) t.name],
-        'positions': positions,
-        'stacks': stacks,
-        if (equities != null) 'equities': equities,
-        if (rangeMatrix != null) 'rangeMatrix': rangeMatrix,
-        if (tournamentId != null) 'tournamentId': tournamentId,
-        if (buyIn != null) 'buyIn': buyIn,
-        if (totalPrizePool != null) 'totalPrizePool': totalPrizePool,
-        if (numberOfEntrants != null) 'numberOfEntrants': numberOfEntrants,
-        if (gameType != null) 'gameType': gameType,
-        'anteBb': anteBb,
-        if (category != null) 'category': category,
-        if (tags.isNotEmpty) 'tags': tags,
-        if (inlineLessons.isNotEmpty) 'inlineLessons': inlineLessons,
-        if (strategyAdvice != null) 'strategyAdvice': strategyAdvice,
-        'difficulty': difficulty,
-        'rating': rating,
-        if (userAction != null) 'userAction': userAction,
-        if (userComment != null) 'userComment': userComment,
-        if (actionHistory != null) 'actionHistory': actionHistory,
-        if (recommendedAction != null) 'recommendedAction': recommendedAction,
-        if (recommendedAmount != null) 'recommendedAmount': recommendedAmount,
-        'actionType': actionType.name,
-        if (heroPosition != null) 'heroPosition': heroPosition,
-        if (villainPosition != null) 'villainPosition': villainPosition,
-        if (heroStack != null) 'heroStack': heroStack,
-        if (villainStack != null) 'villainStack': villainStack,
-        if (expectedValue != null) 'expectedValue': expectedValue,
-        'createdAt': createdAt.toIso8601String(),
-      };
+    ],
+    'boardCards': [
+      for (final c in boardCards) {'rank': c.rank, 'suit': c.suit},
+    ],
+    'actions': [
+      for (final a in actions)
+        {
+          'street': a.street,
+          'playerIndex': a.playerIndex,
+          'action': a.action,
+          if (a.amount != null) 'amount': a.amount,
+          if (a.manualEvaluation != null)
+            'manualEvaluation': a.manualEvaluation,
+          if (a.customLabel != null) 'customLabel': a.customLabel,
+        },
+    ],
+    'heroIndex': heroIndex,
+    'numberOfPlayers': numberOfPlayers,
+    'playerTypes': [for (final t in playerTypes) t.name],
+    'positions': positions,
+    'stacks': stacks,
+    if (equities != null) 'equities': equities,
+    if (rangeMatrix != null) 'rangeMatrix': rangeMatrix,
+    if (tournamentId != null) 'tournamentId': tournamentId,
+    if (buyIn != null) 'buyIn': buyIn,
+    if (totalPrizePool != null) 'totalPrizePool': totalPrizePool,
+    if (numberOfEntrants != null) 'numberOfEntrants': numberOfEntrants,
+    if (gameType != null) 'gameType': gameType,
+    'anteBb': anteBb,
+    if (category != null) 'category': category,
+    if (tags.isNotEmpty) 'tags': tags,
+    if (inlineLessons.isNotEmpty) 'inlineLessons': inlineLessons,
+    if (strategyAdvice != null) 'strategyAdvice': strategyAdvice,
+    'difficulty': difficulty,
+    'rating': rating,
+    if (userAction != null) 'userAction': userAction,
+    if (userComment != null) 'userComment': userComment,
+    if (actionHistory != null) 'actionHistory': actionHistory,
+    if (recommendedAction != null) 'recommendedAction': recommendedAction,
+    if (recommendedAmount != null) 'recommendedAmount': recommendedAmount,
+    'actionType': actionType.name,
+    if (heroPosition != null) 'heroPosition': heroPosition,
+    if (villainPosition != null) 'villainPosition': villainPosition,
+    if (heroStack != null) 'heroStack': heroStack,
+    if (villainStack != null) 'villainStack': villainStack,
+    if (expectedValue != null) 'expectedValue': expectedValue,
+    'createdAt': createdAt.toIso8601String(),
+  };
 
   factory TrainingSpot.fromJson(Map<String, dynamic> json) {
     final pcData = json['playerCards'] as List? ?? [];
@@ -194,7 +194,7 @@ class TrainingSpot implements SpotModel {
       if (list is List) {
         pc.add([
           for (final c in list)
-            CardModel(rank: c['rank'] as String, suit: c['suit'] as String)
+            CardModel(rank: c['rank'] as String, suit: c['suit'] as String),
         ]);
       } else {
         pc.add([]);
@@ -205,21 +205,24 @@ class TrainingSpot implements SpotModel {
     for (final c in (json['boardCards'] as List? ?? [])) {
       if (c is Map) {
         board.add(
-            CardModel(rank: c['rank'] as String, suit: c['suit'] as String));
+          CardModel(rank: c['rank'] as String, suit: c['suit'] as String),
+        );
       }
     }
 
     final acts = <ActionEntry>[];
     for (final a in (json['actions'] as List? ?? [])) {
       if (a is Map) {
-        acts.add(ActionEntry(
-          a['street'] as int,
-          a['playerIndex'] as int,
-          a['action'] as String,
-          amount: (a['amount'] as num?)?.toDouble(),
-          manualEvaluation: a['manualEvaluation'] as String?,
-          customLabel: a['customLabel'] as String?,
-        ));
+        acts.add(
+          ActionEntry(
+            a['street'] as int,
+            a['playerIndex'] as int,
+            a['action'] as String,
+            amount: (a['amount'] as num?)?.toDouble(),
+            manualEvaluation: a['manualEvaluation'] as String?,
+            customLabel: a['customLabel'] as String?,
+          ),
+        );
       }
     }
 
@@ -230,10 +233,12 @@ class TrainingSpot implements SpotModel {
     final typesData = (json['playerTypes'] as List?)?.cast<String>() ?? [];
     for (int i = 0; i < numberOfPlayers; i++) {
       if (i < typesData.length) {
-        types.add(PlayerType.values.firstWhere(
-          (e) => e.name == typesData[i],
-          orElse: () => PlayerType.unknown,
-        ));
+        types.add(
+          PlayerType.values.firstWhere(
+            (e) => e.name == typesData[i],
+            orElse: () => PlayerType.unknown,
+          ),
+        );
       } else {
         types.add(PlayerType.unknown);
       }
@@ -263,8 +268,9 @@ class TrainingSpot implements SpotModel {
       rangeMatrix = [];
       for (final row in rangeData) {
         if (row is List) {
-          rangeMatrix
-              .add([for (final v in row) (v as num?)?.toDouble() ?? 0.0]);
+          rangeMatrix.add([
+            for (final v in row) (v as num?)?.toDouble() ?? 0.0,
+          ]);
         }
       }
     }
@@ -290,7 +296,7 @@ class TrainingSpot implements SpotModel {
       category: json['category'] as String?,
       tags: [for (final t in (json['tags'] as List? ?? [])) t as String],
       inlineLessons: [
-        for (final t in (json['inlineLessons'] as List? ?? [])) t as String
+        for (final t in (json['inlineLessons'] as List? ?? [])) t as String,
       ],
       difficulty: (json['difficulty'] as num?)?.toInt() ?? 3,
       rating: (json['rating'] as num?)?.toInt() ?? 0,
@@ -308,7 +314,8 @@ class TrainingSpot implements SpotModel {
       heroStack: (json['heroStack'] as num?)?.toInt(),
       villainStack: (json['villainStack'] as num?)?.toInt(),
       expectedValue: (json['expectedValue'] as num?)?.toDouble(),
-      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
+      createdAt:
+          DateTime.tryParse(json['createdAt'] as String? ?? '') ??
           DateTime.now(),
     );
   }

@@ -12,18 +12,24 @@ class _FakeEngine extends TrainingPackGeneratorEngineV2 {
   final List<TrainingPackSpot> out;
   _FakeEngine(this.out);
   @override
-  List<TrainingPackSpot> generate(TrainingPackTemplateSet set,
-          {Map<String, InlineTheoryEntry> theoryIndex = const {}, int? seed}) =>
-      List.from(out);
+  List<TrainingPackSpot> generate(
+    TrainingPackTemplateSet set, {
+    Map<String, InlineTheoryEntry> theoryIndex = const {},
+    int? seed,
+  }) => List.from(out);
 }
 
 TrainingPackSpot _spot(String id, String board) {
   final cards = [
     board.substring(0, 2),
     board.substring(2, 4),
-    board.substring(4, 6)
+    board.substring(4, 6),
   ];
-  return TrainingPackSpot(id: id, hand: HandData(board: cards), board: cards);
+  return TrainingPackSpot(
+    id: id,
+    hand: HandData(board: cards),
+    board: cards,
+  );
 }
 
 void main() {

@@ -26,29 +26,31 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('suggestGoals returns prioritized goals', () async {
-    final progress = UserProgress(history: [
-      TrainingResult(
-        date: DateTime.now(),
-        total: 10,
-        correct: 5,
-        accuracy: 50,
-        tags: const ['sbvsbb'],
-      ),
-      TrainingResult(
-        date: DateTime.now(),
-        total: 8,
-        correct: 6,
-        accuracy: 75,
-        tags: const ['openfold'],
-      ),
-      TrainingResult(
-        date: DateTime.now(),
-        total: 5,
-        correct: 5,
-        accuracy: 100,
-        tags: const ['strong'],
-      ),
-    ]);
+    final progress = UserProgress(
+      history: [
+        TrainingResult(
+          date: DateTime.now(),
+          total: 10,
+          correct: 5,
+          accuracy: 50,
+          tags: const ['sbvsbb'],
+        ),
+        TrainingResult(
+          date: DateTime.now(),
+          total: 8,
+          correct: 6,
+          accuracy: 75,
+          tags: const ['openfold'],
+        ),
+        TrainingResult(
+          date: DateTime.now(),
+          total: 5,
+          correct: 5,
+          accuracy: 100,
+          tags: const ['strong'],
+        ),
+      ],
+    );
 
     final mastery = _FakeMasteryService({
       'sbvsbb': 0.3,

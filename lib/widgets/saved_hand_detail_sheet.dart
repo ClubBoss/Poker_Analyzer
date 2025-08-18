@@ -57,41 +57,59 @@ class SavedHandDetailSheet extends StatelessWidget {
               hand.buyIn,
               hand.totalPrizePool,
               hand.numberOfEntrants,
-              hand.gameType
+              hand.gameType,
             ].any((e) => e != null && e.toString().isNotEmpty)) ...[
-              const Text('Tournament Info',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  )),
+              const Text(
+                'Tournament Info',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 4),
               if (hand.tournamentId != null && hand.tournamentId!.isNotEmpty)
-                Text('ID: ${hand.tournamentId}',
-                    style: const TextStyle(color: Colors.white70)),
+                Text(
+                  'ID: ${hand.tournamentId}',
+                  style: const TextStyle(color: Colors.white70),
+                ),
               if (hand.buyIn != null)
-                Text('Buy-In: ${hand.buyIn}',
-                    style: const TextStyle(color: Colors.white70)),
+                Text(
+                  'Buy-In: ${hand.buyIn}',
+                  style: const TextStyle(color: Colors.white70),
+                ),
               if (hand.totalPrizePool != null)
-                Text('Prize Pool: ${hand.totalPrizePool}',
-                    style: const TextStyle(color: Colors.white70)),
+                Text(
+                  'Prize Pool: ${hand.totalPrizePool}',
+                  style: const TextStyle(color: Colors.white70),
+                ),
               if (hand.numberOfEntrants != null)
-                Text('Entrants: ${hand.numberOfEntrants}',
-                    style: const TextStyle(color: Colors.white70)),
+                Text(
+                  'Entrants: ${hand.numberOfEntrants}',
+                  style: const TextStyle(color: Colors.white70),
+                ),
               if (hand.gameType != null && hand.gameType!.isNotEmpty)
-                Text('Game: ${hand.gameType}',
-                    style: const TextStyle(color: Colors.white70)),
+                Text(
+                  'Game: ${hand.gameType}',
+                  style: const TextStyle(color: Colors.white70),
+                ),
               const SizedBox(height: 8),
             ],
-            Text('Позиция: ${hand.heroPosition}',
-                style: const TextStyle(color: Colors.white70)),
+            Text(
+              'Позиция: ${hand.heroPosition}',
+              style: const TextStyle(color: Colors.white70),
+            ),
             const SizedBox(height: 4),
-            Text('Стек: ${hand.stackSizes[hand.heroIndex] ?? '-'}',
-                style: const TextStyle(color: Colors.white70)),
+            Text(
+              'Стек: ${hand.stackSizes[hand.heroIndex] ?? '-'}',
+              style: const TextStyle(color: Colors.white70),
+            ),
             if (hand.comment != null) ...[
               const SizedBox(height: 12),
               const Text('Комментарий:', style: TextStyle(color: Colors.white)),
-              Text(hand.comment!,
-                  style: const TextStyle(color: Colors.white70)),
+              Text(
+                hand.comment!,
+                style: const TextStyle(color: Colors.white70),
+              ),
             ],
             if (hand.tags.isNotEmpty) ...[
               const SizedBox(height: 12),

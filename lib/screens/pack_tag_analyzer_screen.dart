@@ -49,7 +49,7 @@ class _PackTagAnalyzerScreenState extends State<PackTagAnalyzerScreen> {
               [for (final p in m['packs'] as List) p.toString()],
               [for (final d in (m['dups'] as List?) ?? []) d.toString()],
               [for (final s in (m['sim'] as List?) ?? []) s.toString()],
-            )
+            ),
         ]);
       _sort();
       _loading = false;
@@ -98,10 +98,7 @@ class _PackTagAnalyzerScreenState extends State<PackTagAnalyzerScreen> {
     return DataRow(
       color: highlight ? WidgetStateProperty.all(AppColors.errorBg) : null,
       onSelectChanged: (_) => _showPacks(info),
-      cells: [
-        DataCell(Text(info.tag)),
-        DataCell(Text('${info.count}')),
-      ],
+      cells: [DataCell(Text(info.tag)), DataCell(Text('${info.count}'))],
     );
   }
 

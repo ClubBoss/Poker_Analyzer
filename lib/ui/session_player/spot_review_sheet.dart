@@ -22,19 +22,19 @@ class SpotReviewSheet extends StatelessWidget {
     final color = ok ? Colors.green : Colors.red;
 
     Widget row(String k, String v) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                  width: 110,
-                  child: Text(k,
-                      style: const TextStyle(fontWeight: FontWeight.w600))),
-              const SizedBox(width: 8),
-              Expanded(child: Text(v)),
-            ],
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 110,
+            child: Text(k, style: const TextStyle(fontWeight: FontWeight.w600)),
           ),
-        );
+          const SizedBox(width: 8),
+          Expanded(child: Text(v)),
+        ],
+      ),
+    );
 
     return SafeArea(
       child: Padding(
@@ -48,9 +48,14 @@ class SpotReviewSheet extends StatelessWidget {
                 Icon(icon, color: color),
                 const SizedBox(width: 8),
                 Expanded(
-                    child: Text('Spot $index - ${spot.hand}',
-                        style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w600))),
+                  child: Text(
+                    'Spot $index - ${spot.hand}',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
                 IconButton(
                   icon: const Icon(Icons.copy),
                   tooltip: 'Copy row JSON',
@@ -73,16 +78,19 @@ class SpotReviewSheet extends StatelessWidget {
                       HapticFeedback.selectionClick();
                     } catch (_) {}
                     if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Copied')));
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(const SnackBar(content: Text('Copied')));
                     }
                   },
                 ),
               ],
             ),
             const SizedBox(height: 8),
-            row('Pos',
-                spot.pos + (spot.vsPos != null ? ' vs ${spot.vsPos}' : '')),
+            row(
+              'Pos',
+              spot.pos + (spot.vsPos != null ? ' vs ${spot.vsPos}' : ''),
+            ),
             row('Stack', spot.stack),
             row('Expected', answer.expected),
             row('Chosen', answer.chosen),
@@ -103,8 +111,9 @@ class SpotReviewSheet extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Close')),
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Close'),
+                ),
               ],
             ),
           ],

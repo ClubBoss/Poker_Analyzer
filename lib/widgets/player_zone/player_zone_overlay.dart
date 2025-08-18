@@ -40,31 +40,33 @@ class FoldChipOverlay extends StatelessWidget {
             for (int i = 0; i < chipCount; i++) {
               final t = (animation.value - i * 0.1).clamp(0.0, 1.0);
               final pos = _bezier(start, control, end, t);
-              widgets.add(Positioned(
-                left: pos.dx - 12 * scale,
-                top: pos.dy - 12 * scale,
-                child: Opacity(
-                  opacity: 1.0 - t,
-                  child: Transform.scale(
-                    scale: scale,
-                    child: Container(
-                      width: 24,
-                      height: 24,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.accent,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.5),
-                            blurRadius: 4 * scale,
-                            offset: const Offset(1, 2),
-                          ),
-                        ],
+              widgets.add(
+                Positioned(
+                  left: pos.dx - 12 * scale,
+                  top: pos.dy - 12 * scale,
+                  child: Opacity(
+                    opacity: 1.0 - t,
+                    child: Transform.scale(
+                      scale: scale,
+                      child: Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.accent,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.5),
+                              blurRadius: 4 * scale,
+                              offset: const Offset(1, 2),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ));
+              );
             }
             return Stack(children: widgets);
           },
@@ -95,7 +97,9 @@ class AllInLabel extends StatelessWidget {
           scale: labelScale,
           child: Container(
             padding: EdgeInsets.symmetric(
-                horizontal: 6 * scale, vertical: 2 * scale),
+              horizontal: 6 * scale,
+              vertical: 2 * scale,
+            ),
             decoration: BoxDecoration(
               color: Colors.black54,
               borderRadius: BorderRadius.circular(8 * scale),
@@ -147,31 +151,35 @@ class _WinnerCelebrationState extends State<WinnerCelebration>
     );
     _opacity = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween(begin: 0.0, end: 1.0).chain(
-          CurveTween(curve: Curves.easeIn),
-        ),
+        tween: Tween(
+          begin: 0.0,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeIn)),
         weight: 30,
       ),
       const TweenSequenceItem(tween: ConstantTween(1.0), weight: 40),
       TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 0.0).chain(
-          CurveTween(curve: Curves.easeOut),
-        ),
+        tween: Tween(
+          begin: 1.0,
+          end: 0.0,
+        ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 30,
       ),
     ]).animate(_controller);
 
     _scale = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween(begin: 0.8, end: 1.2).chain(
-          CurveTween(curve: Curves.easeOut),
-        ),
+        tween: Tween(
+          begin: 0.8,
+          end: 1.2,
+        ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 50,
       ),
       TweenSequenceItem(
-        tween: Tween(begin: 1.2, end: 1.0).chain(
-          CurveTween(curve: Curves.easeIn),
-        ),
+        tween: Tween(
+          begin: 1.2,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeIn)),
         weight: 50,
       ),
     ]).animate(_controller);
@@ -267,9 +275,9 @@ class _CardRevealBackdropState extends State<CardRevealBackdrop>
     );
     Future.delayed(const Duration(milliseconds: 2500), () {
       if (mounted) {
-        _fadeOutController
-            .reverse()
-            .whenComplete(() => widget.onCompleted?.call());
+        _fadeOutController.reverse().whenComplete(
+          () => widget.onCompleted?.call(),
+        );
       }
     });
   }
@@ -285,8 +293,10 @@ class _CardRevealBackdropState extends State<CardRevealBackdrop>
     return Positioned.fill(
       child: IgnorePointer(
         child: AnimatedBuilder(
-          animation:
-              Listenable.merge([widget.revealAnimation, _fadeOutController]),
+          animation: Listenable.merge([
+            widget.revealAnimation,
+            _fadeOutController,
+          ]),
           builder: (context, child) {
             final opacity =
                 widget.revealAnimation.value * _fadeOutController.value;
@@ -336,31 +346,33 @@ class ChipWinOverlay extends StatelessWidget {
             for (int i = 0; i < chipCount; i++) {
               final t = (animation.value - i * 0.1).clamp(0.0, 1.0);
               final pos = _bezier(start, control, end, t);
-              widgets.add(Positioned(
-                left: pos.dx - 12 * scale,
-                top: pos.dy - 12 * scale,
-                child: Opacity(
-                  opacity: 1.0 - t,
-                  child: Transform.scale(
-                    scale: scale,
-                    child: Container(
-                      width: 24,
-                      height: 24,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.accent,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.5),
-                            blurRadius: 4 * scale,
-                            offset: const Offset(1, 2),
-                          ),
-                        ],
+              widgets.add(
+                Positioned(
+                  left: pos.dx - 12 * scale,
+                  top: pos.dy - 12 * scale,
+                  child: Opacity(
+                    opacity: 1.0 - t,
+                    child: Transform.scale(
+                      scale: scale,
+                      child: Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.accent,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.5),
+                              blurRadius: 4 * scale,
+                              offset: const Offset(1, 2),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ));
+              );
             }
             return Stack(children: widgets);
           },
@@ -379,7 +391,10 @@ void showWinnerHighlight(BuildContext context, String playerName) {
 
 /// Displays an animated glow overlay around the winning player's zone.
 void showWinnerZoneOverlay(
-    BuildContext context, PlayerZoneRegistry registry, String playerName) {
+  BuildContext context,
+  PlayerZoneRegistry registry,
+  String playerName,
+) {
   final state = registry[playerName];
   final overlay = Overlay.of(context);
   if (state == null) return;
@@ -396,29 +411,43 @@ void showWinnerZoneOverlay(
 /// Updates and reveals cards for the [PlayerZoneWidget] with the given
 /// [playerName].
 void revealOpponentCards(
-    PlayerZoneRegistry registry, String playerName, List<CardModel> cards) {
+  PlayerZoneRegistry registry,
+  String playerName,
+  List<CardModel> cards,
+) {
   final state = registry[playerName];
   state?.updateCards(cards);
 }
 
 /// Sets and displays the last action label for the given player.
-void setPlayerLastAction(PlayerZoneRegistry registry, String playerName,
-    String? text, Color color, String action,
-    [int? amount]) {
+void setPlayerLastAction(
+  PlayerZoneRegistry registry,
+  String playerName,
+  String? text,
+  Color color,
+  String action, [
+  int? amount,
+]) {
   final state = registry[playerName];
   state?.setLastAction(text, color, action, amount);
 }
 
 /// Applies a [outcome] classification to the last action label of [playerName].
 void setPlayerLastActionOutcome(
-    PlayerZoneRegistry registry, String playerName, ActionOutcome outcome) {
+  PlayerZoneRegistry registry,
+  String playerName,
+  ActionOutcome outcome,
+) {
   final state = registry[playerName];
   state?.setLastActionOutcome(outcome);
 }
 
 /// Shows a showdown status label for the given player.
 void setPlayerShowdownStatus(
-    PlayerZoneRegistry registry, String playerName, String label) {
+  PlayerZoneRegistry registry,
+  String playerName,
+  String label,
+) {
   final state = registry[playerName];
   state?.showShowdownLabel(label);
 }
@@ -431,8 +460,11 @@ void clearPlayerShowdownStatus(PlayerZoneRegistry registry, String playerName) {
 
 /// Reveals cards for multiple opponents at once. Typically called after
 /// [showWinnerHighlight] and before [showWinPotAnimation].
-void showOpponentCards(BuildContext context, PlayerZoneRegistry registry,
-    Map<String, List<CardModel>> cardsByPlayer) {
+void showOpponentCards(
+  BuildContext context,
+  PlayerZoneRegistry registry,
+  Map<String, List<CardModel>> cardsByPlayer,
+) {
   for (final entry in cardsByPlayer.entries) {
     revealOpponentCards(registry, entry.key, entry.value);
   }
@@ -440,7 +472,10 @@ void showOpponentCards(BuildContext context, PlayerZoneRegistry registry,
 
 /// Animates the central pot moving to the specified player's zone.
 void movePotToWinner(
-    BuildContext context, PlayerZoneRegistry registry, String playerName) {
+  BuildContext context,
+  PlayerZoneRegistry registry,
+  String playerName,
+) {
   final overlay = Overlay.of(context);
   final state = registry[playerName];
   if (state == null) return;
@@ -466,7 +501,10 @@ void movePotToWinner(
 
 /// Displays a short celebratory overlay over the winning player's zone.
 void showWinnerCelebration(
-    BuildContext context, PlayerZoneRegistry registry, String playerName) {
+  BuildContext context,
+  PlayerZoneRegistry registry,
+  String playerName,
+) {
   final overlay = Overlay.of(context);
   final state = registry[playerName];
   if (state == null) return;
@@ -528,7 +566,10 @@ Future<void> showWinnerSequence(
 /// Highlights the player at [winnerIndex] and animates their stack increasing
 /// by [potAmount] while chips fly from the center pot.
 Future<void> triggerWinnerAnimation(
-    PlayerZoneRegistry registry, int winnerIndex, int potAmount) async {
+  PlayerZoneRegistry registry,
+  int winnerIndex,
+  int potAmount,
+) async {
   _PlayerZoneWidgetState? state;
   for (final s in registry.values) {
     if (s.widget.playerIndex == winnerIndex) {
@@ -551,7 +592,9 @@ Future<void> triggerWinnerAnimation(
 /// Animates refunds flying from the center pot back to each player in [refunds].
 /// Uses the same chip trail as [triggerWinnerAnimation] without highlights.
 Future<void> triggerRefundAnimations(
-    Map<int, int> refunds, PlayerZoneRegistry registry) async {
+  Map<int, int> refunds,
+  PlayerZoneRegistry registry,
+) async {
   await PotAnimationService().triggerRefundAnimations(refunds, registry);
 }
 

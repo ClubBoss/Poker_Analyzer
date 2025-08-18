@@ -65,13 +65,15 @@ void main() {
     final clusters = await clusterer.clusterLessons();
 
     expect(clusters.length, 2);
-    final ids =
-        clusters.map((c) => c.lessons.map((e) => e.id).toSet()).toList();
+    final ids = clusters
+        .map((c) => c.lessons.map((e) => e.id).toSet())
+        .toList();
     expect(
-        ids,
-        containsAll([
-          {'a', 'b'},
-          {'c', 'd'}
-        ]));
+      ids,
+      containsAll([
+        {'a', 'b'},
+        {'c', 'd'},
+      ]),
+    );
   });
 }

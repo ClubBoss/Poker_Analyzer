@@ -28,8 +28,10 @@ class EvalStatsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Accuracy: ${acc.toStringAsFixed(1)}%',
-              style: const TextStyle(color: Colors.white)),
+          Text(
+            'Accuracy: ${acc.toStringAsFixed(1)}%',
+            style: const TextStyle(color: Colors.white),
+          ),
           const SizedBox(height: 8),
           if (spots.length > 1)
             SizedBox(

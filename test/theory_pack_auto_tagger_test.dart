@@ -53,8 +53,10 @@ void main() {
     final res1 = const TheoryPackAutoTagger().persistTags(pack);
     expect(res1.tags, ['custom']);
 
-    final res2 =
-        const TheoryPackAutoTagger().persistTags(pack, overwrite: true);
+    final res2 = const TheoryPackAutoTagger().persistTags(
+      pack,
+      overwrite: true,
+    );
     expect(res2.tags, isNot(contains('custom')));
     expect(res2.tags, contains('icm'));
   });

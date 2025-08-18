@@ -36,16 +36,19 @@ class SuggestedDrillCard extends StatelessWidget {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
-                Text('${drill.position} • ${drill.street}',
-                    style: const TextStyle(color: Colors.white)),
+                Text(
+                  '${drill.position} • ${drill.street}',
+                  style: const TextStyle(color: Colors.white),
+                ),
               ],
             ),
           ),
           const SizedBox(width: 8),
           ElevatedButton(
             onPressed: () {
-              final pack =
-                  context.read<DrillSuggestionEngine>().startDrill(drill);
+              final pack = context.read<DrillSuggestionEngine>().startDrill(
+                drill,
+              );
               Navigator.push(
                 context,
                 MaterialPageRoute(

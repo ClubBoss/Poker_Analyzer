@@ -44,7 +44,7 @@ class PackNoveltyGuardService {
   bool _initialized = false;
 
   PackNoveltyGuardService({PackFingerprintComparer? comparer})
-      : _comparer = comparer ?? const PackFingerprintComparer();
+    : _comparer = comparer ?? const PackFingerprintComparer();
 
   Future<void> _ensureInitialized() async {
     if (_initialized) return;
@@ -128,11 +128,7 @@ class PackNoveltyGuardService {
     final file = File('${dir.path}/fingerprints.json');
     final data = [
       for (final fp in _cache.values)
-        {
-          'id': fp.id,
-          'hash': fp.hash,
-          'spots': fp.spots.toList(),
-        }
+        {'id': fp.id, 'hash': fp.hash, 'spots': fp.spots.toList()},
     ];
     await file.writeAsString(jsonEncode(data));
   }

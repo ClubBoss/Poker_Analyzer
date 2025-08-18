@@ -23,8 +23,11 @@ class SessionAccuracyBarChart extends StatelessWidget {
     final groups = <BarChartGroupData>[];
     for (var i = 0; i < recent.length; i++) {
       final r = recent[i];
-      final color =
-          Color.lerp(Colors.red, Colors.green, r.accuracy.clamp(0, 100) / 100)!;
+      final color = Color.lerp(
+        Colors.red,
+        Colors.green,
+        r.accuracy.clamp(0, 100) / 100,
+      )!;
       groups.add(
         BarChartGroupData(
           x: i,
@@ -66,10 +69,12 @@ class SessionAccuracyBarChart extends StatelessWidget {
                   const FlLine(color: Colors.white24, strokeWidth: 1),
             ),
             titlesData: FlTitlesData(
-              rightTitles:
-                  const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              topTitles:
-                  const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              rightTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              topTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
               leftTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,

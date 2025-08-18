@@ -25,17 +25,16 @@ class TheoryGoalEngine with SingletonMixin<TheoryGoalEngine> {
     TheoryLessonTagClusterer? clusterer,
     TheoryClusterSummaryService? summaryService,
     MiniLessonLibraryService? library,
-  })  : recommender = recommender ??
-            TheoryGoalRecommender(
-              mastery: TagMasteryService(
-                logs: SessionLogService(
-                  sessions: TrainingSessionService(),
-                ),
-              ),
-            ),
-        clusterer = clusterer ?? TheoryLessonTagClusterer(),
-        summaryService = summaryService ?? TheoryClusterSummaryService(),
-        library = library ?? MiniLessonLibraryService.instance;
+  }) : recommender =
+           recommender ??
+           TheoryGoalRecommender(
+             mastery: TagMasteryService(
+               logs: SessionLogService(sessions: TrainingSessionService()),
+             ),
+           ),
+       clusterer = clusterer ?? TheoryLessonTagClusterer(),
+       summaryService = summaryService ?? TheoryClusterSummaryService(),
+       library = library ?? MiniLessonLibraryService.instance;
 
   static TheoryGoalEngine get instance =>
       SingletonMixin.instance<TheoryGoalEngine>(() => TheoryGoalEngine());
@@ -53,7 +52,7 @@ class TheoryGoalEngine with SingletonMixin<TheoryGoalEngine> {
       try {
         _activeGoals = [
           for (final e in list)
-            TheoryGoal.fromJson(jsonDecode(e) as Map<String, dynamic>)
+            TheoryGoal.fromJson(jsonDecode(e) as Map<String, dynamic>),
         ];
       } catch (_) {
         _activeGoals = [];
@@ -67,10 +66,9 @@ class TheoryGoalEngine with SingletonMixin<TheoryGoalEngine> {
 
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(
-      _prefsKey,
-      [for (final g in _activeGoals) jsonEncode(g.toJson())],
-    );
+    await prefs.setStringList(_prefsKey, [
+      for (final g in _activeGoals) jsonEncode(g.toJson()),
+    ]);
     await prefs.setString(_timeKey, _lastUpdated.toIso8601String());
   }
 
@@ -91,8 +89,10 @@ class TheoryGoalEngine with SingletonMixin<TheoryGoalEngine> {
     final clusters = await clusterer.clusterLessons();
     final summaries = summaryService.summarize(clusters);
     final lessons = {for (final l in library.all) l.id: l};
-    final goals =
-        await recommender.recommend(clusters: summaries, lessons: lessons);
+    final goals = await recommender.recommend(
+      clusters: summaries,
+      lessons: lessons,
+    );
     final seen = <String>{};
     _activeGoals = [];
     for (final g in goals) {

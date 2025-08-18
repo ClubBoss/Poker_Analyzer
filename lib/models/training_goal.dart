@@ -3,9 +3,5 @@ class TrainingGoal {
   final String description;
   final String? tag;
 
-  const TrainingGoal(
-    this.title, {
-    this.description = '',
-    this.tag,
-  });
+  const TrainingGoal(this.title, {this.description = '', this.tag});
 }

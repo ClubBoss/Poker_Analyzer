@@ -16,11 +16,11 @@ void main() {
       filePath: p.join(dir.path, 'history.json'),
     );
     await logger.logRun(
-        generated: 1,
-        rejected: 0,
-        avgScore: 0.5,
-        format:
-            const FormatMeta(spotsPerPack: 12, streets: 1, theoryRatio: 0.5));
+      generated: 1,
+      rejected: 0,
+      avgScore: 0.5,
+      format: const FormatMeta(spotsPerPack: 12, streets: 1, theoryRatio: 0.5),
+    );
 
     final status = AutogenStatusDashboardService.instance;
     final refresher = AutogenRealTimeStatsRefresherService(

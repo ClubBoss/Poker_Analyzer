@@ -19,8 +19,9 @@ class _PluginA implements Plugin {
   }
 
   @override
-  List<ServiceExtension<dynamic>> get extensions =>
-      <ServiceExtension<dynamic>>[_IntExtension()];
+  List<ServiceExtension<dynamic>> get extensions => <ServiceExtension<dynamic>>[
+    _IntExtension(),
+  ];
 
   @override
   String get name => 'A';

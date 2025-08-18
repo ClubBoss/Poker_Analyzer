@@ -14,9 +14,9 @@ class PotSyncService extends ChangeNotifier {
     StackManagerService? stackService,
     PotHistoryService? historyService,
     this.initialPot = 0,
-  })  : _potCalculator = potCalculator ?? PotCalculator(),
-        _stackService = stackService,
-        _history = historyService ?? PotHistoryService();
+  }) : _potCalculator = potCalculator ?? PotCalculator(),
+       _stackService = stackService,
+       _history = historyService ?? PotHistoryService();
 
   final PotCalculator _potCalculator;
   StackManagerService? _stackService;
@@ -50,8 +50,11 @@ class PotSyncService extends ChangeNotifier {
     for (final a in actions) {
       investments.addAction(a);
     }
-    return _potCalculator.calculatePots(actions, investments,
-        initialPot: initialPot);
+    return _potCalculator.calculatePots(
+      actions,
+      investments,
+      initialPot: initialPot,
+    );
   }
 
   /// Calculates side pots based on current player investments.
@@ -121,10 +124,12 @@ class PotSyncService extends ChangeNotifier {
     int? minStack;
     for (final entry in stackService.stackSizes.entries) {
       final index = entry.key;
-      final folded = actions.any((a) =>
-          a.playerIndex == index &&
-          a.action == 'fold' &&
-          a.street <= currentStreet);
+      final folded = actions.any(
+        (a) =>
+            a.playerIndex == index &&
+            a.action == 'fold' &&
+            a.street <= currentStreet,
+      );
       if (folded) continue;
       final stack = entry.value;
       if (minStack == null || stack < minStack) {
@@ -136,11 +141,16 @@ class PotSyncService extends ChangeNotifier {
 
   /// Calculates the effective stack size at the end of [street].
   int calculateEffectiveStackForStreet(
-      int street, List<ActionEntry> visibleActions, int numberOfPlayers) {
+    int street,
+    List<ActionEntry> visibleActions,
+    int numberOfPlayers,
+  ) {
     int? minStack;
     for (int index = 0; index < numberOfPlayers; index++) {
-      final folded = visibleActions.any((a) =>
-          a.playerIndex == index && a.action == 'fold' && a.street <= street);
+      final folded = visibleActions.any(
+        (a) =>
+            a.playerIndex == index && a.action == 'fold' && a.street <= street,
+      );
       if (folded) continue;
 
       final initial = stackService.initialStacks[index] ?? 0;
@@ -159,21 +169,30 @@ class PotSyncService extends ChangeNotifier {
 
   /// Calculates effective stack sizes for every street.
   Map<String, int> calculateEffectiveStacksPerStreet(
-      List<ActionEntry> actions, int numberOfPlayers) {
+    List<ActionEntry> actions,
+    int numberOfPlayers,
+  ) {
     const streetNames = ['Preflop', 'Flop', 'Turn', 'River'];
     final Map<String, int> stacks = {};
     for (int street = 0; street < streetNames.length; street++) {
-      stacks[streetNames[street]] =
-          calculateEffectiveStackForStreet(street, actions, numberOfPlayers);
+      stacks[streetNames[street]] = calculateEffectiveStackForStreet(
+        street,
+        actions,
+        numberOfPlayers,
+      );
     }
     return stacks;
   }
 
   /// Recompute and store effective stacks for [actions].
   Map<String, int> updateEffectiveStacks(
-      List<ActionEntry> actions, int numberOfPlayers) {
-    _effectiveStacks =
-        calculateEffectiveStacksPerStreet(actions, numberOfPlayers);
+    List<ActionEntry> actions,
+    int numberOfPlayers,
+  ) {
+    _effectiveStacks = calculateEffectiveStacksPerStreet(
+      actions,
+      numberOfPlayers,
+    );
     notifyListeners();
     return effectiveStacks;
   }
@@ -193,7 +212,7 @@ class PotSyncService extends ChangeNotifier {
       return;
     }
     _effectiveStacks = {
-      for (final entry in json.entries) entry.key: entry.value as int
+      for (final entry in json.entries) entry.key: entry.value as int,
     };
     notifyListeners();
   }

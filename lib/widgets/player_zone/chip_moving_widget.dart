@@ -55,12 +55,14 @@ class _ChipMovingWidgetState extends State<ChipMovingWidget>
       vsync: this,
       duration: const Duration(milliseconds: 400),
     );
-    _opacity = Tween<double>(begin: 1.0, end: 0.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
-    _scaleAnim = Tween<double>(begin: 1.0, end: 0.7).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
-    );
+    _opacity = Tween<double>(
+      begin: 1.0,
+      end: 0.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _scaleAnim = Tween<double>(
+      begin: 1.0,
+      end: 0.7,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         widget.onCompleted?.call();
@@ -89,24 +91,26 @@ class _ChipMovingWidgetState extends State<ChipMovingWidget>
           );
         }
 
-        final control = widget.control ??
+        final control =
+            widget.control ??
             Offset(
               (widget.start.dx + widget.end.dx) / 2,
               (widget.start.dy + widget.end.dy) / 2 -
                   (40 + ChipMovingWidget.activeCount * 8) * widget.scale,
             );
-        final pos =
-            bezier(widget.start, control, widget.end, _controller.value);
+        final pos = bezier(
+          widget.start,
+          control,
+          widget.end,
+          _controller.value,
+        );
         final sizeFactor = _scaleAnim.value * widget.scale;
         return Positioned(
           left: pos.dx - 12 * sizeFactor,
           top: pos.dy - 12 * sizeFactor,
           child: FadeTransition(
             opacity: _opacity,
-            child: Transform.scale(
-              scale: sizeFactor,
-              child: child,
-            ),
+            child: Transform.scale(scale: sizeFactor, child: child),
           ),
         );
       },
@@ -122,7 +126,7 @@ class _ChipMovingWidgetState extends State<ChipMovingWidget>
               color: Colors.black.withValues(alpha: 0.5),
               blurRadius: 4 * widget.scale,
               offset: const Offset(1, 2),
-            )
+            ),
           ],
         ),
         child: Text(

@@ -16,8 +16,8 @@ import 'mistake_history_sync_service.dart';
 
 class CloudSyncService {
   CloudSyncService({FirebaseFirestore? firestore, FirebaseAuth? auth})
-      : _db = firestore ?? FirebaseFirestore.instance,
-        _auth = auth ?? FirebaseAuth.instance;
+    : _db = firestore ?? FirebaseFirestore.instance,
+      _auth = auth ?? FirebaseAuth.instance;
 
   static const _cols = [
     'training_spots',
@@ -113,7 +113,10 @@ class CloudSyncService {
     for (final m in _pending) {
       final ref = user.collection(m['col'] as String).doc(m['id'] as String);
       batch.set(
-          ref, m['data'] as Map<String, dynamic>, SetOptions(merge: true));
+        ref,
+        m['data'] as Map<String, dynamic>,
+        SetOptions(merge: true),
+      );
     }
     try {
       await batch.commit();
@@ -143,7 +146,7 @@ class CloudSyncService {
       await CloudRetryPolicy.execute<void>(() async {
         final user = _db.collection('users').doc(uid);
         final futures = [
-          for (final c in _cols) user.collection(c).doc('main').get()
+          for (final c in _cols) user.collection(c).doc('main').get(),
         ];
         final snaps = await Future.wait(futures);
         for (var i = 0; i < snaps.length; i++) {
@@ -157,10 +160,10 @@ class CloudSyncService {
               : null;
           final remoteAt =
               DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
-                  DateTime.fromMillisecondsSinceEpoch(0);
+              DateTime.fromMillisecondsSinceEpoch(0);
           final localAt =
               DateTime.tryParse(local?['updatedAt'] as String? ?? '') ??
-                  DateTime.fromMillisecondsSinceEpoch(0);
+              DateTime.fromMillisecondsSinceEpoch(0);
           if (remoteAt.isAfter(localAt)) {
             await _prefs.setString('cached_$col', jsonEncode(remote));
           }
@@ -177,7 +180,10 @@ class CloudSyncService {
   }
 
   Future<void> queueMutation(
-      String col, String id, Map<String, dynamic> data) async {
+    String col,
+    String id,
+    Map<String, dynamic> data,
+  ) async {
     _pending.removeWhere((e) => e['col'] == col && e['id'] == id);
     _pending.add({'col': col, 'id': id, 'data': data});
     if (_local) {
@@ -185,7 +191,9 @@ class CloudSyncService {
       await _box!.put('cached_$col', data);
     } else {
       await _prefs.setStringList(
-          'pending_mutations', _pending.map(jsonEncode).toList());
+        'pending_mutations',
+        _pending.map(jsonEncode).toList(),
+      );
       await _prefs.setString('cached_$col', jsonEncode(data));
     }
   }
@@ -211,11 +219,14 @@ class CloudSyncService {
           .doc('main')
           .snapshots()
           .listen((snap) async {
-        if (!snap.exists) return;
-        await _prefs.setString('cached_$col', jsonEncode(snap.data()));
-        lastSync.value = DateTime.now();
-        await _prefs.setString('last_sync', lastSync.value!.toIso8601String());
-      });
+            if (!snap.exists) return;
+            await _prefs.setString('cached_$col', jsonEncode(snap.data()));
+            lastSync.value = DateTime.now();
+            await _prefs.setString(
+              'last_sync',
+              lastSync.value!.toIso8601String(),
+            );
+          });
     }
   }
 
@@ -230,12 +241,11 @@ class CloudSyncService {
     }
     await _prefs.setString(key, value);
     if (uid == null) return;
-    await CloudRetryPolicy.execute(() => _db
-        .collection('users')
-        .doc(uid)
-        .collection('prefs')
-        .doc(key)
-        .set({'v': value}));
+    await CloudRetryPolicy.execute(
+      () => _db.collection('users').doc(uid).collection('prefs').doc(key).set({
+        'v': value,
+      }),
+    );
   }
 
   Future<String?> load(String key) async {
@@ -247,8 +257,10 @@ class CloudSyncService {
     final local = _prefs.getString(key);
     if (uid == null) return local;
     try {
-      final snap = await CloudRetryPolicy.execute(() =>
-          _db.collection('users').doc(uid).collection('prefs').doc(key).get());
+      final snap = await CloudRetryPolicy.execute(
+        () =>
+            _db.collection('users').doc(uid).collection('prefs').doc(key).get(),
+      );
       final data = snap.data();
       if (data != null && data['v'] is String) {
         final v = data['v'] as String;
@@ -269,19 +281,21 @@ class CloudSyncService {
 
   Future<List<SavedHand>> downloadHands() async {
     if (uid == null) return [];
-    final snap = await CloudRetryPolicy.execute(() => _db
-        .collection('users')
-        .doc(uid)
-        .collection('saved_hands')
-        .doc('main')
-        .get());
+    final snap = await CloudRetryPolicy.execute(
+      () => _db
+          .collection('users')
+          .doc(uid)
+          .collection('saved_hands')
+          .doc('main')
+          .get(),
+    );
     if (!snap.exists) return [];
     final data = snap.data();
     final list = data?['hands'];
     if (list is List) {
       return [
         for (final e in list)
-          if (e is Map) SavedHand.fromJson(Map<String, dynamic>.from(e))
+          if (e is Map) SavedHand.fromJson(Map<String, dynamic>.from(e)),
       ];
     }
     return [];
@@ -296,30 +310,33 @@ class CloudSyncService {
       if (list is List) {
         hands = [
           for (final e in list)
-            if (e is Map) SavedHand.fromJson(Map<String, dynamic>.from(e))
+            if (e is Map) SavedHand.fromJson(Map<String, dynamic>.from(e)),
         ];
       }
-      localAt = DateTime.tryParse(cached['updatedAt'] as String? ?? '') ??
+      localAt =
+          DateTime.tryParse(cached['updatedAt'] as String? ?? '') ??
           DateTime.fromMillisecondsSinceEpoch(0);
     }
     if (uid == null) return hands;
-    final snap = await CloudRetryPolicy.execute(() => _db
-        .collection('users')
-        .doc(uid)
-        .collection('saved_hands')
-        .doc('main')
-        .get());
+    final snap = await CloudRetryPolicy.execute(
+      () => _db
+          .collection('users')
+          .doc(uid)
+          .collection('saved_hands')
+          .doc('main')
+          .get(),
+    );
     if (snap.exists) {
       final remote = snap.data()!;
       final remoteAt =
           DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
-              DateTime.fromMillisecondsSinceEpoch(0);
+          DateTime.fromMillisecondsSinceEpoch(0);
       if (remoteAt.isAfter(localAt)) {
         final list = remote['hands'];
         if (list is List) {
           hands = [
             for (final e in list)
-              if (e is Map) SavedHand.fromJson(Map<String, dynamic>.from(e))
+              if (e is Map) SavedHand.fromJson(Map<String, dynamic>.from(e)),
           ];
           if (_local) {
             await _box!.put('cached_saved_hands', remote);
@@ -383,7 +400,7 @@ class CloudSyncService {
     if (list is List) {
       return [
         for (final e in list)
-          if (e is Map) SessionLog.fromJson(Map<String, dynamic>.from(e))
+          if (e is Map) SessionLog.fromJson(Map<String, dynamic>.from(e)),
       ];
     }
     return [];

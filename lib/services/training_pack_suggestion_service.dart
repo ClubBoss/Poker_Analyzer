@@ -8,11 +8,14 @@ import 'session_log_service.dart';
 class TrainingPackSuggestionService {
   final SessionLogService history;
   final TrainingPackFilterEngine engine;
-  const TrainingPackSuggestionService(
-      {required this.history, this.engine = const TrainingPackFilterEngine()});
+  const TrainingPackSuggestionService({
+    required this.history,
+    this.engine = const TrainingPackFilterEngine(),
+  });
 
-  Future<List<TrainingPackTemplateV2>> suggestNext(
-      {required String userId}) async {
+  Future<List<TrainingPackTemplateV2>> suggestNext({
+    required String userId,
+  }) async {
     await PackLibraryLoaderService.instance.loadLibrary();
     final library = PackLibraryLoaderService.instance.library;
     final recent = history.logs.take(3).toList();
@@ -34,7 +37,8 @@ class TrainingPackSuggestionService {
         final key = tag.trim().toLowerCase();
         if (key.isNotEmpty) tags.update(key, (v) => v + 1, ifAbsent: () => 1);
       }
-      final d = (t.meta['rankScore'] as num?)?.toDouble() ??
+      final d =
+          (t.meta['rankScore'] as num?)?.toDouble() ??
           (t.meta['difficulty'] as num?)?.toDouble();
       if (d != null) diffs.add(d);
     }
@@ -42,20 +46,24 @@ class TrainingPackSuggestionService {
       ..sort((a, b) => b.value.compareTo(a.value));
     final selectedTags = [for (final e in sorted.take(3)) e.key];
     final result = await engine.filter(
-        tags: selectedTags.isEmpty ? null : selectedTags, audience: audience);
+      tags: selectedTags.isEmpty ? null : selectedTags,
+      audience: audience,
+    );
     final used = last.map((e) => e.id).toSet();
     final list = [
       for (final r in result)
-        if (!used.contains(r.id)) r
+        if (!used.contains(r.id)) r,
     ];
     if (diffs.isNotEmpty) {
       final avg = diffs.reduce((a, b) => a + b) / diffs.length;
       list.sort((a, b) {
-        final ad = ((a.meta['rankScore'] as num?)?.toDouble() ??
+        final ad =
+            ((a.meta['rankScore'] as num?)?.toDouble() ??
                 (a.meta['difficulty'] as num?)?.toDouble() ??
                 avg) -
             avg;
-        final bd = ((b.meta['rankScore'] as num?)?.toDouble() ??
+        final bd =
+            ((b.meta['rankScore'] as num?)?.toDouble() ??
                 (b.meta['difficulty'] as num?)?.toDouble() ??
                 avg) -
             avg;

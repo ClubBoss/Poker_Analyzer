@@ -100,10 +100,18 @@ void main() {
     final tracker = SkillTreeNodeProgressTracker.instance;
     await tracker.resetForTest();
 
-    final nodeA =
-        SkillTreeNodeModel(id: 'a', title: 'A', category: 'T', level: 0);
-    final nodeB =
-        SkillTreeNodeModel(id: 'b', title: 'B', category: 'T', level: 1);
+    final nodeA = SkillTreeNodeModel(
+      id: 'a',
+      title: 'A',
+      category: 'T',
+      level: 0,
+    );
+    final nodeB = SkillTreeNodeModel(
+      id: 'b',
+      title: 'B',
+      category: 'T',
+      level: 1,
+    );
     const builder = SkillTreeBuilderService();
     final build = builder.build([nodeA, nodeB]);
     final lib = _FakeLibraryService({'T': build}, [nodeA, nodeB]);
@@ -130,10 +138,18 @@ void main() {
     final tracker = SkillTreeNodeProgressTracker.instance;
     await tracker.resetForTest();
 
-    final nodeA =
-        SkillTreeNodeModel(id: 'a', title: 'A', category: 'T', level: 0);
-    final nodeB =
-        SkillTreeNodeModel(id: 'b', title: 'B', category: 'T', level: 1);
+    final nodeA = SkillTreeNodeModel(
+      id: 'a',
+      title: 'A',
+      category: 'T',
+      level: 0,
+    );
+    final nodeB = SkillTreeNodeModel(
+      id: 'b',
+      title: 'B',
+      category: 'T',
+      level: 1,
+    );
     const builder = SkillTreeBuilderService();
     final build = builder.build([nodeA, nodeB]);
     final lib = _FakeLibraryService({'T': build}, [nodeA, nodeB]);

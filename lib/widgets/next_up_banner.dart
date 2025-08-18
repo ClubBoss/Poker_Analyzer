@@ -30,11 +30,12 @@ class NextUpBanner extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: FloatingActionButton.extended(
                 onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => PackRunScreen(
-                            controller: controller,
-                            stage: stage!,
-                          )));
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          PackRunScreen(controller: controller, stage: stage!),
+                    ),
+                  );
                 },
                 icon: const Icon(Icons.play_arrow),
                 label: Text('Next: ' + stage.title),

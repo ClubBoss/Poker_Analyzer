@@ -35,7 +35,11 @@ void main() {
     final packLibrary = TrainingPackLibraryV2.instance;
     packLibrary.clear();
     final spot = TrainingPackSpot(
-        id: 's1', hand: HandData(), tags: ['push', 'bb'], categories: []);
+      id: 's1',
+      hand: HandData(),
+      tags: ['push', 'bb'],
+      categories: [],
+    );
     final pack = TrainingPackTemplateV2(
       id: 'b1',
       name: 'Booster',
@@ -64,8 +68,9 @@ void main() {
       store: store,
       libraryIndex: TheoryLibraryIndex(),
       telemetry: MistakeTelemetryStore(),
-      noveltyRegistry:
-          TheoryNoveltyRegistry(path: 'test_cache/theory_bundles.json'),
+      noveltyRegistry: TheoryNoveltyRegistry(
+        path: 'test_cache/theory_bundles.json',
+      ),
       dashboard: AutogenStatusDashboardService(),
       packLibrary: packLibrary,
       policy: policy,

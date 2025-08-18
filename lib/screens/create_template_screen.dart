@@ -85,8 +85,9 @@ class _CreateTemplateScreenState extends State<CreateTemplateScreen> {
                 const SizedBox(height: 16),
                 TextField(
                   controller: _categoryController,
-                  decoration:
-                      const InputDecoration(labelText: 'Категория (опц.)'),
+                  decoration: const InputDecoration(
+                    labelText: 'Категория (опц.)',
+                  ),
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String>(
@@ -94,18 +95,19 @@ class _CreateTemplateScreenState extends State<CreateTemplateScreen> {
                   decoration: const InputDecoration(labelText: 'Тип игры'),
                   items: const [
                     DropdownMenuItem(
-                        value: 'Tournament', child: Text('Tournament')),
+                      value: 'Tournament',
+                      child: Text('Tournament'),
+                    ),
                     DropdownMenuItem(
-                        value: 'Cash Game', child: Text('Cash Game')),
+                      value: 'Cash Game',
+                      child: Text('Cash Game'),
+                    ),
                   ],
                   onChanged: (v) =>
                       setState(() => _gameType = v ?? 'Cash Game'),
                 ),
                 const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: _save,
-                  child: const Text('Далее'),
-                ),
+                ElevatedButton(onPressed: _save, child: const Text('Далее')),
               ],
             ),
           ),

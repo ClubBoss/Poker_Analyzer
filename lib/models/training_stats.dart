@@ -2,8 +2,11 @@ class PackAccuracy {
   final String id;
   final String name;
   final double accuracy;
-  const PackAccuracy(
-      {required this.id, required this.name, required this.accuracy});
+  const PackAccuracy({
+    required this.id,
+    required this.name,
+    required this.accuracy,
+  });
 }
 
 class TrainingStats {

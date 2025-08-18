@@ -9,11 +9,7 @@ class TheoryUsageIssue {
     required this.reason,
   });
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'title': title,
-        'reason': reason,
-      };
+  Map<String, dynamic> toJson() => {'id': id, 'title': title, 'reason': reason};
 
   factory TheoryUsageIssue.fromJson(Map<String, dynamic> json) =>
       TheoryUsageIssue(

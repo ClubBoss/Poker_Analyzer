@@ -52,15 +52,15 @@ void main() {
         'packId': 'p1',
         'spotId': 's1',
         'tags': ['overfoldBtn'],
-        'evDiff': -1
+        'evDiff': -1,
       },
       {
         'timestamp': now.subtract(const Duration(days: 5)).toIso8601String(),
         'packId': 'p2',
         'spotId': 's2',
         'tags': ['looseCallBb'],
-        'evDiff': -1
-      }
+        'evDiff': -1,
+      },
     ];
     final file = File('${dir.path}/app_data/mistake_tag_history.json');
     await file.create(recursive: true);
@@ -72,19 +72,22 @@ void main() {
         title: 'Test',
         content: '',
         tags: ['overfoldBtn', 'looseCallBb'],
-      )
+      ),
     ];
     final service = SmartTheoryRecapScoreWeighting(
       library: _FakeLibrary(lessons),
       cacheDuration: Duration.zero,
     );
 
-    final scores = await service
-        .computeScores(['tag:overfoldBtn', 'tag:looseCallBb', 'lesson:l1']);
+    final scores = await service.computeScores([
+      'tag:overfoldBtn',
+      'tag:looseCallBb',
+      'lesson:l1',
+    ]);
     expect(scores['tag:overfoldBtn']! > scores['tag:looseCallBb']!, isTrue);
     expect(
-        scores['lesson:l1'],
-        closeTo(
-            (scores['tag:overfoldBtn']! + scores['tag:looseCallBb']!), 0.001));
+      scores['lesson:l1'],
+      closeTo((scores['tag:overfoldBtn']! + scores['tag:looseCallBb']!), 0.001),
+    );
   });
 }

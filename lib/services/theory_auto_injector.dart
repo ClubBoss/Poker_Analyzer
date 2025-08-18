@@ -24,10 +24,10 @@ class TheoryInjectReport {
   }) : errors = errors ?? const {};
 
   Map<String, dynamic> toJson() => {
-        'packsUpdated': packsUpdated,
-        'linksAdded': linksAdded,
-        'errors': errors,
-      };
+    'packsUpdated': packsUpdated,
+    'linksAdded': linksAdded,
+    'errors': errors,
+  };
 
   factory TheoryInjectReport.fromJson(Map<String, dynamic> json) =>
       TheoryInjectReport(
@@ -42,7 +42,7 @@ class TheoryInjectReport {
 /// Automatically injects theory links into packs based on a remediation plan.
 class TheoryAutoInjector {
   TheoryAutoInjector({AutogenStatusDashboardService? dashboard})
-      : _dashboard = dashboard ?? AutogenStatusDashboardService.instance;
+    : _dashboard = dashboard ?? AutogenStatusDashboardService.instance;
 
   final AutogenStatusDashboardService _dashboard;
 
@@ -83,8 +83,10 @@ class TheoryAutoInjector {
           errors[packId] = 'pack_missing';
           continue;
         }
-        final data = await TheoryYamlSafeReader()
-            .read(path: file.path, schema: 'TemplateSet');
+        final data = await TheoryYamlSafeReader().read(
+          path: file.path,
+          schema: 'TemplateSet',
+        );
         final yamlStr = await file.readAsString();
         final meta = Map<String, dynamic>.from(data['meta'] ?? {});
         final existing =

@@ -54,7 +54,7 @@ class _NewTrainingPackTemplateDialogState
         position: _pos,
         gameType: _varType,
         rangeId: range.isEmpty ? null : range,
-      ).toJson()
+      ).toJson(),
     ];
     Navigator.pop(context, template);
   }
@@ -74,7 +74,9 @@ class _NewTrainingPackTemplateDialogState
               decoration: const InputDecoration(labelText: 'Game Type'),
               items: const [
                 DropdownMenuItem(
-                    value: GameType.tournament, child: Text('Tournament')),
+                  value: GameType.tournament,
+                  child: Text('Tournament'),
+                ),
                 DropdownMenuItem(value: GameType.cash, child: Text('Cash')),
               ],
               onChanged: (v) =>
@@ -112,7 +114,9 @@ class _NewTrainingPackTemplateDialogState
                   decoration: const InputDecoration(labelText: 'Game Type'),
                   items: const [
                     DropdownMenuItem(
-                        value: GameType.tournament, child: Text('Tournament')),
+                      value: GameType.tournament,
+                      child: Text('Tournament'),
+                    ),
                     DropdownMenuItem(value: GameType.cash, child: Text('Cash')),
                   ],
                   onChanged: (v) =>
@@ -126,11 +130,15 @@ class _NewTrainingPackTemplateDialogState
                     DropdownMenuItem(value: HeroPosition.sb, child: Text('SB')),
                     DropdownMenuItem(value: HeroPosition.bb, child: Text('BB')),
                     DropdownMenuItem(
-                        value: HeroPosition.btn, child: Text('BTN')),
+                      value: HeroPosition.btn,
+                      child: Text('BTN'),
+                    ),
                     DropdownMenuItem(value: HeroPosition.co, child: Text('CO')),
                     DropdownMenuItem(value: HeroPosition.mp, child: Text('MP')),
                     DropdownMenuItem(
-                        value: HeroPosition.utg, child: Text('UTG')),
+                      value: HeroPosition.utg,
+                      child: Text('UTG'),
+                    ),
                   ],
                   onChanged: (v) => setState(() => _pos = v ?? HeroPosition.sb),
                 ),

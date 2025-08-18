@@ -21,10 +21,11 @@ class TrainingPackFilterEngine {
     const reader = YamlReader();
     final reqTags = tags?.map((e) => e.trim().toLowerCase()).toSet() ?? {};
     final list = <TrainingPackTemplateV2>[];
-    for (final f in dir
-        .listSync(recursive: true)
-        .whereType<File>()
-        .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
+    for (final f
+        in dir
+            .listSync(recursive: true)
+            .whereType<File>()
+            .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
       try {
         final yaml = await f.readAsString();
         final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
@@ -42,7 +43,7 @@ class TrainingPackFilterEngine {
         }
         if (reqTags.isNotEmpty) {
           final tplTags = <String>{
-            for (final t in tpl.tags) t.trim().toLowerCase()
+            for (final t in tpl.tags) t.trim().toLowerCase(),
           };
           if (!reqTags.every(tplTags.contains)) continue;
         }

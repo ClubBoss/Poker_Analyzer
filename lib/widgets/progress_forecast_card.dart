@@ -18,9 +18,10 @@ class ProgressForecastCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Прогноз следующей сессии',
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          const Text(
+            'Прогноз следующей сессии',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
           Row(
             children: [
@@ -29,8 +30,10 @@ class ProgressForecastCard extends StatelessWidget {
                   children: [
                     const Text('Acc', style: TextStyle(color: Colors.white70)),
                     const SizedBox(height: 4),
-                    Text('${(forecast.accuracy * 100).toStringAsFixed(1)}%',
-                        style: const TextStyle(color: Colors.white)),
+                    Text(
+                      '${(forecast.accuracy * 100).toStringAsFixed(1)}%',
+                      style: const TextStyle(color: Colors.white),
+                    ),
                   ],
                 ),
               ),
@@ -39,8 +42,10 @@ class ProgressForecastCard extends StatelessWidget {
                   children: [
                     const Text('EV', style: TextStyle(color: Colors.white70)),
                     const SizedBox(height: 4),
-                    Text(forecast.ev.toStringAsFixed(2),
-                        style: const TextStyle(color: Colors.white)),
+                    Text(
+                      forecast.ev.toStringAsFixed(2),
+                      style: const TextStyle(color: Colors.white),
+                    ),
                   ],
                 ),
               ),
@@ -49,8 +54,10 @@ class ProgressForecastCard extends StatelessWidget {
                   children: [
                     const Text('ICM', style: TextStyle(color: Colors.white70)),
                     const SizedBox(height: 4),
-                    Text(forecast.icm.toStringAsFixed(2),
-                        style: const TextStyle(color: Colors.white)),
+                    Text(
+                      forecast.icm.toStringAsFixed(2),
+                      style: const TextStyle(color: Colors.white),
+                    ),
                   ],
                 ),
               ),

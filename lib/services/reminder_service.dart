@@ -58,7 +58,7 @@ class ReminderService extends ChangeNotifier {
           for (final e in data.entries)
             if (e.value is String &&
                 DateTime.tryParse(e.value as String) != null)
-              e.key: DateTime.parse(e.value as String)
+              e.key: DateTime.parse(e.value as String),
         };
       } catch (_) {
         _dismissDrillUntil = {};
@@ -103,7 +103,7 @@ class ReminderService extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final data = {
       for (final e in _dismissDrillUntil.entries)
-        e.key: e.value.toIso8601String()
+        e.key: e.value.toIso8601String(),
     };
     await prefs.setString(_drillDismissKey, jsonEncode(data));
   }

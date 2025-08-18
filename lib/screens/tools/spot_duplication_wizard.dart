@@ -46,9 +46,9 @@ class _SpotDuplicationWizardState extends State<SpotDuplicationWizard> {
           ..addEntries(pack.spots.map((e) => MapEntry(e.id, false)));
       });
     } catch (_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ошибка чтения файла')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Ошибка чтения файла')));
     }
   }
 
@@ -81,8 +81,9 @@ class _SpotDuplicationWizardState extends State<SpotDuplicationWizard> {
               const SizedBox(height: 12),
               TextField(
                 controller: tagsCtrl,
-                decoration:
-                    const InputDecoration(labelText: 'Tags (comma separated)'),
+                decoration: const InputDecoration(
+                  labelText: 'Tags (comma separated)',
+                ),
               ),
               const SizedBox(height: 12),
               TextField(
@@ -116,8 +117,9 @@ class _SpotDuplicationWizardState extends State<SpotDuplicationWizard> {
         final idx = _pack!.spots.indexOf(spot);
         _pack!.spots[idx] = spot.copyWith(
           tags: tags,
-          explanation:
-              explCtrl.text.trim().isEmpty ? null : explCtrl.text.trim(),
+          explanation: explCtrl.text.trim().isEmpty
+              ? null
+              : explCtrl.text.trim(),
           hand: hand,
         );
       });
@@ -146,8 +148,9 @@ class _SpotDuplicationWizardState extends State<SpotDuplicationWizard> {
     if (path == null) return;
     await const YamlWriter().write(dup.toJson(), path);
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Файл сохранён')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Файл сохранён')));
   }
 
   @override
@@ -197,8 +200,9 @@ class _SpotDuplicationWizardState extends State<SpotDuplicationWizard> {
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: ElevatedButton(
-                    onPressed:
-                        _selected.values.any((e) => e) ? _duplicate : null,
+                    onPressed: _selected.values.any((e) => e)
+                        ? _duplicate
+                        : null,
                     child: const Text('Duplicate Selected'),
                   ),
                 ),

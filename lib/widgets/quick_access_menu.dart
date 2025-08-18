@@ -9,13 +9,17 @@ import '../screens/v2/training_pack_play_screen.dart';
 class QuickAccessMenu extends StatelessWidget {
   const QuickAccessMenu({super.key});
 
-  Future<void> _open(BuildContext context, RecentPack pack,
-      {required bool primary}) async {
+  Future<void> _open(
+    BuildContext context,
+    RecentPack pack, {
+    required bool primary,
+  }) async {
     final storage = context.read<TemplateStorageService>();
     final template = storage.templates.firstWhereOrNull((t) => t.id == pack.id);
     if (template == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Pack not found')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Pack not found')));
       await RecentPacksService.instance.remove(pack.id);
       return;
     }
@@ -26,8 +30,9 @@ class QuickAccessMenu extends StatelessWidget {
       ),
     );
     UserActionLogger.instance.logEvent({
-      'event':
-          primary ? 'quick_access.resume_click' : 'quick_access.recent_click',
+      'event': primary
+          ? 'quick_access.resume_click'
+          : 'quick_access.recent_click',
       'packId': pack.id,
     });
     await RecentPacksService.instance.record(template);
@@ -76,8 +81,10 @@ class QuickAccessMenu extends StatelessWidget {
               for (final p in others)
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  title:
-                      Text(p.name, style: const TextStyle(color: Colors.white)),
+                  title: Text(
+                    p.name,
+                    style: const TextStyle(color: Colors.white),
+                  ),
                   onTap: () => _open(context, p, primary: false),
                 ),
             ],

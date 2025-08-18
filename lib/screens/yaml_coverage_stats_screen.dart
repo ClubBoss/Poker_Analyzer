@@ -45,7 +45,9 @@ class _YamlCoverageStatsScreenState extends State<YamlCoverageStatsScreen> {
               padding: const EdgeInsets.all(16),
               children: [
                 ElevatedButton(
-                    onPressed: _load, child: const Text('🔄 Обновить')),
+                  onPressed: _load,
+                  child: const Text('🔄 Обновить'),
+                ),
                 const SizedBox(height: 16),
                 if (_report != null) ...[
                   _section('Частота тегов', _report!.tags),

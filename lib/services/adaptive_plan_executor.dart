@@ -42,20 +42,20 @@ class AdaptivePlanExecutor {
     LearningPathStore? store,
     AssessmentPackSynthesizer? synthesizer,
     AutogenStatusDashboardService? dashboard,
-  })  : boosterEngine = boosterEngine ?? TargetedPackBoosterEngine(),
-        formatSelector = formatSelector ?? AutoFormatSelector(),
-        gatekeeper = gatekeeper ?? const PackQualityGatekeeperService(),
-        store = store ?? const LearningPathStore(),
-        synthesizer = synthesizer ?? const AssessmentPackSynthesizer(),
-        dashboard = dashboard ?? AutogenStatusDashboardService.instance;
+  }) : boosterEngine = boosterEngine ?? TargetedPackBoosterEngine(),
+       formatSelector = formatSelector ?? AutoFormatSelector(),
+       gatekeeper = gatekeeper ?? const PackQualityGatekeeperService(),
+       store = store ?? const LearningPathStore(),
+       synthesizer = synthesizer ?? const AssessmentPackSynthesizer(),
+       dashboard = dashboard ?? AutogenStatusDashboardService.instance;
 
   TrainingPackModel _toModel(TrainingPackTemplateV2 t) => TrainingPackModel(
-        id: t.id,
-        title: t.name,
-        spots: t.spots,
-        tags: t.tags,
-        metadata: t.meta,
-      );
+    id: t.id,
+    title: t.name,
+    spots: t.spots,
+    tags: t.tags,
+    metadata: t.meta,
+  );
 
   Future<List<InjectedPathModule>> execute({
     required String userId,
@@ -81,8 +81,9 @@ class AdaptivePlanExecutor {
 
     var index = 0;
     for (final c in plan.clusters) {
-      var boosters =
-          await boosterEngine.generateClusterBoosterPacks(clusters: [c]);
+      var boosters = await boosterEngine.generateClusterBoosterPacks(
+        clusters: [c],
+      );
       boosters = boosters
           .where((b) => gatekeeper.isQualityAcceptable(_toModel(b)))
           .toList();
@@ -103,8 +104,10 @@ class AdaptivePlanExecutor {
       final boosterInfos = <_PackInfo>[];
       for (final b in boosters) {
         final mins = (b.spotCount * boosterPerSpot).ceil();
-        final ev = b.tags
-            .fold<double>(0, (prev, t) => prev + (plan.tagWeights[t] ?? 0.0));
+        final ev = b.tags.fold<double>(
+          0,
+          (prev, t) => prev + (plan.tagWeights[t] ?? 0.0),
+        );
         boosterInfos.add(_PackInfo(b, mins, ev));
       }
       boosterInfos.sort((a, b) {
@@ -135,8 +138,10 @@ class AdaptivePlanExecutor {
 
       final hashInput = [...c.tags, ...sortedIds, assessmentId].join('|');
       final planHash = sha1.convert(utf8.encode(hashInput)).toString();
-      final plannerScore =
-          c.tags.fold<double>(0, (s, t) => s + (plan.tagWeights[t] ?? 0.0));
+      final plannerScore = c.tags.fold<double>(
+        0,
+        (s, t) => s + (plan.tagWeights[t] ?? 0.0),
+      );
       final module = InjectedPathModule(
         moduleId: 'm_${sig.substring(0, 10)}_$index',
         clusterId: c.clusterId,

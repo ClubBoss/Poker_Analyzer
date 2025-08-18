@@ -60,16 +60,15 @@ class _TrainingPackImportValidatorScreenState
   void _copyLog() {
     final text = _result?.errors.join('\n') ?? '';
     Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Скопировано')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Скопировано')));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Import Validator'),
-      ),
+      appBar: AppBar(title: const Text('Import Validator')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

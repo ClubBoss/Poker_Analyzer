@@ -85,7 +85,9 @@ class _SmartSuggestionBannerState extends State<SmartSuggestionBanner> {
     await prefs.setString(_packKey, tpl.id);
     await prefs.setString(_tagKey, tag);
     await prefs.setString(
-        _dateKey, DateTime(now.year, now.month, now.day).toIso8601String());
+      _dateKey,
+      DateTime(now.year, now.month, now.day).toIso8601String(),
+    );
     if (mounted) {
       setState(() {
         _pack = tpl;
@@ -139,15 +141,17 @@ class _SmartSuggestionBannerState extends State<SmartSuggestionBanner> {
                   children: [
                     Text(_tag!, style: const TextStyle(color: Colors.white)),
                     const SizedBox(height: 2),
-                    Text('🃏 ${_pack!.name}',
-                        style: const TextStyle(color: Colors.white70)),
+                    Text(
+                      '🃏 ${_pack!.name}',
+                      style: const TextStyle(color: Colors.white70),
+                    ),
                   ],
                 ),
               ),
               IconButton(
                 icon: const Icon(Icons.close, color: Colors.white54),
                 onPressed: _hide,
-              )
+              ),
             ],
           ),
           const SizedBox(height: 8),

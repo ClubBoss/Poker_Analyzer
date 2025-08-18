@@ -71,7 +71,9 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
   Future<void> _saveSelectedStreets() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(
-        _streetPrefsKey, _selectedStreets.map((e) => e.toString()).toList());
+      _streetPrefsKey,
+      _selectedStreets.map((e) => e.toString()).toList(),
+    );
   }
 
   Future<void> _loadActiveTag() async {
@@ -92,11 +94,14 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
   }
 
   List<SavedHand> _filteredHands(SavedHandManagerService manager) {
-    final hands = (_activeTag == null
-            ? manager.hands
-            : manager.hands.where((h) => h.tags.contains(_activeTag)).toList())
-        .where((h) => _selectedStreets.contains(h.boardStreet.clamp(0, 3)))
-        .toList();
+    final hands =
+        (_activeTag == null
+                ? manager.hands
+                : manager.hands
+                      .where((h) => h.tags.contains(_activeTag))
+                      .toList())
+            .where((h) => _selectedStreets.contains(h.boardStreet.clamp(0, 3)))
+            .toList();
     return hands;
   }
 
@@ -123,18 +128,18 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
       final total = correct + incorrect;
       if (total == 0) continue;
       final winrate = correct / total * 100.0;
-      final weekStart =
-          DateTime(end.year, end.month, end.day - (end.weekday - 1));
+      final weekStart = DateTime(
+        end.year,
+        end.month,
+        end.day - (end.weekday - 1),
+      );
       grouped.putIfAbsent(weekStart, () => []).add(winrate);
     }
     final entries = grouped.entries.toList()
       ..sort((a, b) => a.key.compareTo(b.key));
     return [
       for (final e in entries)
-        WeekWinrate(
-          e.key,
-          e.value.reduce((a, b) => a + b) / e.value.length,
-        )
+        WeekWinrate(e.key, e.value.reduce((a, b) => a + b) / e.value.length),
     ];
   }
 
@@ -155,13 +160,19 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     return '$arrow $sign${diff.abs()} mistakes vs last session';
   }
 
-  _StatsSummary _gatherStats(SavedHandManagerService manager,
-      SessionNoteService notes, Set<int> streets) {
-    final hands = (_activeTag == null
-            ? manager.hands
-            : manager.hands.where((h) => h.tags.contains(_activeTag)).toList())
-        .where((h) => streets.contains(h.boardStreet.clamp(0, 3)))
-        .toList();
+  _StatsSummary _gatherStats(
+    SavedHandManagerService manager,
+    SessionNoteService notes,
+    Set<int> streets,
+  ) {
+    final hands =
+        (_activeTag == null
+                ? manager.hands
+                : manager.hands
+                      .where((h) => h.tags.contains(_activeTag))
+                      .toList())
+            .where((h) => streets.contains(h.boardStreet.clamp(0, 3)))
+            .toList();
     final Map<int, List<SavedHand>> grouped = {};
     for (final hand in hands) {
       grouped.putIfAbsent(hand.sessionId, () => []).add(hand);
@@ -246,8 +257,9 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     }
 
     final tagCountsAll = <String, int>{};
-    for (final hand in manager.hands
-        .where((h) => streets.contains(h.boardStreet.clamp(0, 3)))) {
+    for (final hand in manager.hands.where(
+      (h) => streets.contains(h.boardStreet.clamp(0, 3)),
+    )) {
       for (final tag in hand.tags) {
         tagCountsAll[tag] = (tagCountsAll[tag] ?? 0) + 1;
       }
@@ -259,7 +271,8 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     for (final hand in hands) {
       final expected = hand.expectedAction;
       final gto = hand.gtoAction;
-      final isError = expected != null &&
+      final isError =
+          expected != null &&
           gto != null &&
           expected.trim().toLowerCase() != gto.trim().toLowerCase();
       for (final tag in hand.tags) {
@@ -359,15 +372,18 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
       ..writeln('# Статистика сессий')
       ..writeln('- Всего раздач: ${summary.totalHands}')
       ..writeln(
-          '- Средняя длительность: ${formatDuration(summary.avgDuration)}');
+        '- Средняя длительность: ${formatDuration(summary.avgDuration)}',
+      );
     if (summary.overallAccuracy != null) {
       buffer.writeln(
-          '- Точность: ${summary.overallAccuracy!.toStringAsFixed(1)}%');
+        '- Точность: ${summary.overallAccuracy!.toStringAsFixed(1)}%',
+      );
     }
     buffer
       ..writeln('- Сессий с заметками: ${summary.sessionsWithNotes}')
       ..writeln(
-          '- Сессий с точностью > 80%: ${summary.sessionsAbove80} из ${summary.sessionsCount}')
+        '- Сессий с точностью > 80%: ${summary.sessionsAbove80} из ${summary.sessionsCount}',
+      )
       ..writeln('- Цель месяца: ${summary.sessionsAbove90} из 10')
       ..writeln();
 
@@ -383,7 +399,8 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     if (summary.mistakeTag != null) {
       buffer.writeln('## Типичная ошибка');
       buffer.writeln(
-          '- ${summary.mistakeTag}: ${(summary.mistakeRate * 100).round()}% ошибок (${summary.mistakeErrors} из ${summary.mistakeTotal})');
+        '- ${summary.mistakeTag}: ${(summary.mistakeRate * 100).round()}% ошибок (${summary.mistakeErrors} из ${summary.mistakeTotal})',
+      );
       buffer.writeln();
     }
 
@@ -398,20 +415,24 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     if (summary.positionTotals.values.any((v) => v > 0)) {
       buffer.writeln('## Ошибки по позициям');
       if (summary.positionTotals['SB']! > 0) {
-        final acc = (summary.positionCorrect['SB']! /
-                summary.positionTotals['SB']! *
-                100)
-            .round();
+        final acc =
+            (summary.positionCorrect['SB']! /
+                    summary.positionTotals['SB']! *
+                    100)
+                .round();
         buffer.writeln(
-            '- SB - $acc% (${summary.positionCorrect['SB']} из ${summary.positionTotals['SB']} верно)');
+          '- SB - $acc% (${summary.positionCorrect['SB']} из ${summary.positionTotals['SB']} верно)',
+        );
       }
       if (summary.positionTotals['BB']! > 0) {
-        final acc = (summary.positionCorrect['BB']! /
-                summary.positionTotals['BB']! *
-                100)
-            .round();
+        final acc =
+            (summary.positionCorrect['BB']! /
+                    summary.positionTotals['BB']! *
+                    100)
+                .round();
         buffer.writeln(
-            '- BB - $acc% (${summary.positionCorrect['BB']} из ${summary.positionTotals['BB']} верно)');
+          '- BB - $acc% (${summary.positionCorrect['BB']} из ${summary.positionTotals['BB']} верно)',
+        );
       }
       buffer.writeln();
     }
@@ -449,69 +470,99 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
         pageFormat: PdfPageFormat.a4,
         build: (ctx) {
           return [
-            pw.Text('Статистика сессий',
-                style: pw.TextStyle(font: boldFont, fontSize: 24)),
-            pw.SizedBox(height: 16),
-            pw.Text('Всего раздач: ${summary.totalHands}',
-                style: pw.TextStyle(font: regularFont)),
             pw.Text(
-                'Средняя длительность: ${formatDuration(summary.avgDuration)}',
-                style: pw.TextStyle(font: regularFont)),
+              'Статистика сессий',
+              style: pw.TextStyle(font: boldFont, fontSize: 24),
+            ),
+            pw.SizedBox(height: 16),
+            pw.Text(
+              'Всего раздач: ${summary.totalHands}',
+              style: pw.TextStyle(font: regularFont),
+            ),
+            pw.Text(
+              'Средняя длительность: ${formatDuration(summary.avgDuration)}',
+              style: pw.TextStyle(font: regularFont),
+            ),
             if (summary.overallAccuracy != null)
               pw.Text(
-                  'Точность: ${summary.overallAccuracy!.toStringAsFixed(1)}%',
-                  style: pw.TextStyle(font: regularFont)),
-            pw.Text('Сессий с заметками: ${summary.sessionsWithNotes}',
-                style: pw.TextStyle(font: regularFont)),
+                'Точность: ${summary.overallAccuracy!.toStringAsFixed(1)}%',
+                style: pw.TextStyle(font: regularFont),
+              ),
             pw.Text(
-                'Сессий с точностью > 80%: ${summary.sessionsAbove80} из ${summary.sessionsCount}',
-                style: pw.TextStyle(font: regularFont)),
-            pw.Text('Цель месяца: ${summary.sessionsAbove90} из 10',
-                style: pw.TextStyle(font: regularFont)),
+              'Сессий с заметками: ${summary.sessionsWithNotes}',
+              style: pw.TextStyle(font: regularFont),
+            ),
+            pw.Text(
+              'Сессий с точностью > 80%: ${summary.sessionsAbove80} из ${summary.sessionsCount}',
+              style: pw.TextStyle(font: regularFont),
+            ),
+            pw.Text(
+              'Цель месяца: ${summary.sessionsAbove90} из 10',
+              style: pw.TextStyle(font: regularFont),
+            ),
             if (hist.values.any((v) => v > 0)) ...[
               pw.SizedBox(height: 12),
-              pw.Text('Распределение точности',
-                  style: pw.TextStyle(font: boldFont, fontSize: 18)),
+              pw.Text(
+                'Распределение точности',
+                style: pw.TextStyle(font: boldFont, fontSize: 18),
+              ),
               for (final e in hist.entries)
-                pw.Text('${e.key}: ${e.value}',
-                    style: pw.TextStyle(font: regularFont)),
+                pw.Text(
+                  '${e.key}: ${e.value}',
+                  style: pw.TextStyle(font: regularFont),
+                ),
             ],
             if (summary.mistakeTag != null) ...[
               pw.SizedBox(height: 12),
-              pw.Text('Типичная ошибка',
-                  style: pw.TextStyle(font: boldFont, fontSize: 18)),
               pw.Text(
-                  '${summary.mistakeTag}: ${(summary.mistakeRate * 100).round()}% ошибок (${summary.mistakeErrors} из ${summary.mistakeTotal})',
-                  style: pw.TextStyle(font: regularFont)),
+                'Типичная ошибка',
+                style: pw.TextStyle(font: boldFont, fontSize: 18),
+              ),
+              pw.Text(
+                '${summary.mistakeTag}: ${(summary.mistakeRate * 100).round()}% ошибок (${summary.mistakeErrors} из ${summary.mistakeTotal})',
+                style: pw.TextStyle(font: regularFont),
+              ),
             ],
             if (summary.errorTagEntries.isNotEmpty) ...[
               pw.SizedBox(height: 12),
-              pw.Text('Ошибки по тегам',
-                  style: pw.TextStyle(font: boldFont, fontSize: 18)),
+              pw.Text(
+                'Ошибки по тегам',
+                style: pw.TextStyle(font: boldFont, fontSize: 18),
+              ),
               for (final e in summary.errorTagEntries)
-                pw.Text('${e.key}: ${e.value}',
-                    style: pw.TextStyle(font: regularFont)),
+                pw.Text(
+                  '${e.key}: ${e.value}',
+                  style: pw.TextStyle(font: regularFont),
+                ),
             ],
             if (summary.positionTotals.values.any((v) => v > 0)) ...[
               pw.SizedBox(height: 12),
-              pw.Text('Ошибки по позициям',
-                  style: pw.TextStyle(font: boldFont, fontSize: 18)),
+              pw.Text(
+                'Ошибки по позициям',
+                style: pw.TextStyle(font: boldFont, fontSize: 18),
+              ),
               if (summary.positionTotals['SB']! > 0)
                 pw.Text(
-                    'SB - ${(summary.positionCorrect['SB']! / summary.positionTotals['SB']! * 100).round()}% точность (${summary.positionCorrect['SB']} из ${summary.positionTotals['SB']} верно)',
-                    style: pw.TextStyle(font: regularFont)),
+                  'SB - ${(summary.positionCorrect['SB']! / summary.positionTotals['SB']! * 100).round()}% точность (${summary.positionCorrect['SB']} из ${summary.positionTotals['SB']} верно)',
+                  style: pw.TextStyle(font: regularFont),
+                ),
               if (summary.positionTotals['BB']! > 0)
                 pw.Text(
-                    'BB - ${(summary.positionCorrect['BB']! / summary.positionTotals['BB']! * 100).round()}% точность (${summary.positionCorrect['BB']} из ${summary.positionTotals['BB']} верно)',
-                    style: pw.TextStyle(font: regularFont)),
+                  'BB - ${(summary.positionCorrect['BB']! / summary.positionTotals['BB']! * 100).round()}% точность (${summary.positionCorrect['BB']} из ${summary.positionTotals['BB']} верно)',
+                  style: pw.TextStyle(font: regularFont),
+                ),
             ],
             if (summary.tagEntries.isNotEmpty) ...[
               pw.SizedBox(height: 12),
-              pw.Text('Использование тегов',
-                  style: pw.TextStyle(font: boldFont, fontSize: 18)),
+              pw.Text(
+                'Использование тегов',
+                style: pw.TextStyle(font: boldFont, fontSize: 18),
+              ),
               for (final e in summary.tagEntries)
-                pw.Text('${e.key}: ${e.value}',
-                    style: pw.TextStyle(font: regularFont)),
+                pw.Text(
+                  '${e.key}: ${e.value}',
+                  style: pw.TextStyle(font: regularFont),
+                ),
             ],
           ];
         },
@@ -538,8 +589,9 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     await Share.shareXFiles([XFile(path)], text: 'training_summary.csv');
     if (context.mounted) {
       final name = path.split(Platform.pathSeparator).last;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
     }
   }
 
@@ -549,8 +601,9 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     final hands = _filteredHands(manager);
     final service = ProgressExportService(stats: stats);
     final file = await service.exportEvIcmCsv(hands);
-    await Share.shareXFiles([XFile(file.path)],
-        text: file.path.split('/').last);
+    await Share.shareXFiles([
+      XFile(file.path),
+    ], text: file.path.split('/').last);
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Файл сохранён: ${file.path.split('/').last}')),
@@ -564,8 +617,9 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     final hands = _filteredHands(manager);
     final service = ProgressExportService(stats: stats);
     final file = await service.exportEvIcmPdf(hands);
-    await Share.shareXFiles([XFile(file.path)],
-        text: file.path.split('/').last);
+    await Share.shareXFiles([
+      XFile(file.path),
+    ], text: file.path.split('/').last);
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Файл сохранён: ${file.path.split('/').last}')),
@@ -680,18 +734,21 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
               ),
             ),
           SessionStatRow(
-              label: 'Всего раздач',
-              value: summary.totalHands.toString(),
-              scale: scale),
+            label: 'Всего раздач',
+            value: summary.totalHands.toString(),
+            scale: scale,
+          ),
           SessionStatRow(
-              label: 'Сред. длительность',
-              value: formatDuration(summary.avgDuration),
-              scale: scale),
+            label: 'Сред. длительность',
+            value: formatDuration(summary.avgDuration),
+            scale: scale,
+          ),
           if (summary.overallAccuracy != null)
             SessionStatRow(
-                label: 'Точность',
-                value: '${summary.overallAccuracy!.toStringAsFixed(1)}%',
-                scale: scale),
+              label: 'Точность',
+              value: '${summary.overallAccuracy!.toStringAsFixed(1)}%',
+              scale: scale,
+            ),
           if (summary.accuracyDiff != null || summary.mistakeDiff != null)
             Padding(
               padding: EdgeInsets.only(bottom: 12 * scale),
@@ -702,25 +759,29 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
                     Text(
                       _formatAccuracyDiff(summary.accuracyDiff!),
                       style: TextStyle(
-                          color: _diffColor(summary.accuracyDiff!, true)),
+                        color: _diffColor(summary.accuracyDiff!, true),
+                      ),
                     ),
                   if (summary.mistakeDiff != null)
                     Text(
                       _formatMistakeDiff(summary.mistakeDiff!),
                       style: TextStyle(
-                          color: _diffColor(summary.mistakeDiff!, false)),
+                        color: _diffColor(summary.mistakeDiff!, false),
+                      ),
                     ),
                 ],
               ),
             ),
           SessionStatRow(
-              label: 'Сессий с заметками',
-              value: summary.sessionsWithNotes.toString(),
-              scale: scale),
+            label: 'Сессий с заметками',
+            value: summary.sessionsWithNotes.toString(),
+            scale: scale,
+          ),
           AccuracyProgressBar(
-              good: summary.sessionsAbove80,
-              total: summary.sessionsCount,
-              scale: scale),
+            good: summary.sessionsAbove80,
+            total: summary.sessionsCount,
+            scale: scale,
+          ),
           GoalProgressBar(good: summary.sessionsAbove90, scale: scale),
           Padding(
             padding: EdgeInsets.only(bottom: 12 * scale),
@@ -766,7 +827,8 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
           ),
           MistakeByStreetChart(counts: summary.mistakesByStreet),
           SessionAccuracyDistributionChart(
-              accuracies: summary.sessionAccuracies),
+            accuracies: summary.sessionAccuracies,
+          ),
           SessionVolumeAccuracyChart(sessions: sessionSeries),
           SizedBox(height: 16 * scale),
           if (weekly.length > 1) WeeklyWinrateChart(data: weekly, scale: scale),
@@ -812,7 +874,8 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
                 selected: _activeTag == e.key,
                 onTap: () {
                   setState(
-                      () => _activeTag = _activeTag == e.key ? null : e.key);
+                    () => _activeTag = _activeTag == e.key ? null : e.key,
+                  );
                   _saveActiveTag();
                 },
               ),

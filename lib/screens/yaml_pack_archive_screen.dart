@@ -42,13 +42,16 @@ class _YamlPackArchiveScreenState extends State<YamlPackArchiveScreen> {
       for (final dir in root.listSync()) {
         if (dir is Directory) {
           final id = p.basename(dir.path);
-          final files = dir
-              .listSync()
-              .whereType<File>()
-              .where((f) => f.path.endsWith('.bak.yaml'))
-              .toList()
-            ..sort((a, b) =>
-                b.statSync().modified.compareTo(a.statSync().modified));
+          final files =
+              dir
+                  .listSync()
+                  .whereType<File>()
+                  .where((f) => f.path.endsWith('.bak.yaml'))
+                  .toList()
+                ..sort(
+                  (a, b) =>
+                      b.statSync().modified.compareTo(a.statSync().modified),
+                );
           if (files.isNotEmpty) map[id] = files;
         }
       }
@@ -89,9 +92,9 @@ class _YamlPackArchiveScreenState extends State<YamlPackArchiveScreen> {
 
   Future<void> _compareSelected() async {
     if (_selected.length != 2) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Нужно выбрать две версии')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Нужно выбрать две версии')));
       return;
     }
     final files = _selected.toList();
@@ -221,7 +224,9 @@ class _YamlPackArchiveScreenState extends State<YamlPackArchiveScreen> {
       appBar: AppBar(
         leading: _selectionMode
             ? IconButton(
-                icon: const Icon(Icons.close), onPressed: _clearSelection)
+                icon: const Icon(Icons.close),
+                onPressed: _clearSelection,
+              )
             : null,
         title: _selectionMode
             ? Text('${_selected.length}')
@@ -245,10 +250,14 @@ class _YamlPackArchiveScreenState extends State<YamlPackArchiveScreen> {
                               : () => _open(e.key, f),
                           onLongPress: () => _toggleSelection(e.key, f),
                           child: ListTile(
-                            title: Text(DateFormat('yyyy-MM-dd HH:mm')
-                                .format(f.statSync().modified)),
+                            title: Text(
+                              DateFormat(
+                                'yyyy-MM-dd HH:mm',
+                              ).format(f.statSync().modified),
+                            ),
                             subtitle: Text(
-                                '${(f.lengthSync() / 1024).toStringAsFixed(1)} KB'),
+                              '${(f.lengthSync() / 1024).toStringAsFixed(1)} KB',
+                            ),
                           ),
                         ),
                     ],

@@ -38,8 +38,9 @@ class _GoalCenterScreenState extends State<GoalCenterScreen> {
       mastery: context.read<TagMasteryService>(),
     );
     final goals = await service.suggestGoals(progress: progress);
-    final tracker =
-        SmartGoalTrackingService(logs: context.read<SessionLogService>());
+    final tracker = SmartGoalTrackingService(
+      logs: context.read<SessionLogService>(),
+    );
     final map = <String, GoalProgress>{};
     final filtered = <TrainingGoal>[];
     for (final g in goals) {
@@ -70,9 +71,9 @@ class _GoalCenterScreenState extends State<GoalCenterScreen> {
     final pack = await PackLibraryService.instance.findByTag(goal.tag!);
     if (pack == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Тренировка не найдена')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Тренировка не найдена')));
       return;
     }
     await const TrainingSessionLauncher().launch(pack);
@@ -82,30 +83,28 @@ class _GoalCenterScreenState extends State<GoalCenterScreen> {
   Widget build(BuildContext context) {
     final goals = _goals;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Центр целей'),
-      ),
+      appBar: AppBar(title: const Text('Центр целей')),
       body: goals == null
           ? const Center(child: CircularProgressIndicator())
           : goals.isEmpty
-              ? const Center(
-                  child: Text(
-                    'Нет персональных целей',
-                    style: TextStyle(color: Colors.white70),
-                  ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: goals.length,
-                  itemBuilder: (context, index) {
-                    final g = goals[index];
-                    return TrainingGoalCard(
-                      goal: g,
-                      onStart: () => _startGoal(g),
-                      progress: g.tag != null ? _progress[g.tag] : null,
-                    );
-                  },
-                ),
+          ? const Center(
+              child: Text(
+                'Нет персональных целей',
+                style: TextStyle(color: Colors.white70),
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: goals.length,
+              itemBuilder: (context, index) {
+                final g = goals[index];
+                return TrainingGoalCard(
+                  goal: g,
+                  onStart: () => _startGoal(g),
+                  progress: g.tag != null ? _progress[g.tag] : null,
+                );
+              },
+            ),
     );
   }
 }

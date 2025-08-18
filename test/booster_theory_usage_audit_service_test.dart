@@ -32,17 +32,17 @@ void main() {
         stages: [_stage(theoryId: 't1')],
       ),
     ];
-    final issues = const BoosterTheoryUsageAuditService()
-        .audit(allTheoryPacks: packs, allPaths: paths);
+    final issues = const BoosterTheoryUsageAuditService().audit(
+      allTheoryPacks: packs,
+      allPaths: paths,
+    );
     expect(issues.length, 1);
     expect(issues.first.id, 't2');
     expect(issues.first.reason, 'unused');
   });
 
   test('detects missing theory pack referenced in path', () {
-    final packs = [
-      TheoryPackModel(id: 't1', title: 'A', sections: const []),
-    ];
+    final packs = [TheoryPackModel(id: 't1', title: 'A', sections: const [])];
     final paths = [
       LearningPathTemplateV2(
         id: 'path',
@@ -51,8 +51,10 @@ void main() {
         stages: [_stage(theoryId: 't2')],
       ),
     ];
-    final issues = const BoosterTheoryUsageAuditService()
-        .audit(allTheoryPacks: packs, allPaths: paths);
+    final issues = const BoosterTheoryUsageAuditService().audit(
+      allTheoryPacks: packs,
+      allPaths: paths,
+    );
     expect(issues.length, 1);
     expect(issues.first.id, 't2');
     expect(issues.first.reason, 'missing');

@@ -39,11 +39,7 @@ class TrainingSpotTile extends StatelessWidget {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          InlineTheoryBadge(
-            tags: spot.tags,
-            spotId: spotId,
-            packId: packId,
-          ),
+          InlineTheoryBadge(tags: spot.tags, spotId: spotId, packId: packId),
           if (onEdit != null)
             IconButton(icon: const Icon(Icons.edit), onPressed: onEdit),
           if (onRemove != null)

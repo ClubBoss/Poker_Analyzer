@@ -14,8 +14,8 @@ class TheoryGoalCompletionNotifier {
   TheoryGoalCompletionNotifier({
     MiniLessonProgressTracker? tracker,
     TheoryGoalEngine? engine,
-  })  : tracker = tracker ?? MiniLessonProgressTracker.instance,
-        engine = engine ?? TheoryGoalEngine.instance {
+  }) : tracker = tracker ?? MiniLessonProgressTracker.instance,
+       engine = engine ?? TheoryGoalEngine.instance {
     _sub = this.tracker.onLessonCompleted.listen((_) => _checkGoals());
   }
 
@@ -46,7 +46,9 @@ class TheoryGoalCompletionNotifier {
   }
 
   Future<double> _goalProgress(
-      TheoryGoal goal, TheoryLessonProgressTracker tracker) async {
+    TheoryGoal goal,
+    TheoryLessonProgressTracker tracker,
+  ) async {
     final tags = goal.tagOrCluster
         .split(',')
         .map((e) => e.trim().toLowerCase())

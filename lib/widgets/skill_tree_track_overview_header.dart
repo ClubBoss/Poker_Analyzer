@@ -16,7 +16,8 @@ class SkillTreeTrackOverviewHeader extends StatefulWidget {
 }
 
 class _SkillTreeTrackOverviewHeaderState
-    extends State<SkillTreeTrackOverviewHeader> with RouteAware {
+    extends State<SkillTreeTrackOverviewHeader>
+    with RouteAware {
   String _title = '';
   int _percent = 0;
 
@@ -74,10 +75,7 @@ class _SkillTreeTrackOverviewHeaderState
       children: [
         Text(
           _title,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 4),
         Text('Прогресс: $_percent%'),

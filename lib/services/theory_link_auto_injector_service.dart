@@ -15,8 +15,8 @@ class TheoryLinkAutoInjectorService {
     MiniLessonLibraryService? library,
     TheoryMiniLessonNavigator? navigator,
     this.maxRefsPerSpot = 3,
-  })  : _library = library ?? MiniLessonLibraryService.instance,
-        _navigator = navigator ?? TheoryMiniLessonNavigator.instance;
+  }) : _library = library ?? MiniLessonLibraryService.instance,
+       _navigator = navigator ?? TheoryMiniLessonNavigator.instance;
 
   final MiniLessonLibraryService _library;
   final TheoryMiniLessonNavigator _navigator;

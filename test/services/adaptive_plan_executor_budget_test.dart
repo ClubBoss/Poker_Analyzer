@@ -19,18 +19,18 @@ class _FakeBoosterEngine extends TargetedPackBoosterEngine {
     String triggerReason = 'cluster',
   }) async {
     List<TrainingPackTemplateV2> build(String id, List<String> tags) => [
-          TrainingPackTemplateV2(
-            id: id,
-            name: id,
-            trainingType: TrainingType.booster,
-            tags: tags,
-            spots: [
-              TrainingPackSpot(id: '${id}s', tags: tags, board: const ['Ah']),
-            ],
-            spotCount: 10,
-            meta: const {'qualityScore': 1.0},
-          ),
-        ];
+      TrainingPackTemplateV2(
+        id: id,
+        name: id,
+        trainingType: TrainingType.booster,
+        tags: tags,
+        spots: [
+          TrainingPackSpot(id: '${id}s', tags: tags, board: const ['Ah']),
+        ],
+        spotCount: 10,
+        meta: const {'qualityScore': 1.0},
+      ),
+    ];
     return [
       build('b1', ['a']).first,
       build('b2', ['b']).first,
@@ -48,8 +48,11 @@ class _FakeFormatSelector extends AutoFormatSelector {
 class _PassGatekeeper extends PackQualityGatekeeperService {
   const _PassGatekeeper();
   @override
-  bool isQualityAcceptable(pack,
-      {double minScore = 0.7, seedIssues = const {}}) {
+  bool isQualityAcceptable(
+    pack, {
+    double minScore = 0.7,
+    seedIssues = const {},
+  }) {
     return true;
   }
 }
@@ -78,8 +81,11 @@ void main() {
   });
 
   test('honors budget and drops lowest-EV booster first', () async {
-    final cluster =
-        SkillTagCluster(tags: ['a', 'b'], clusterId: 'c1', themeName: 'T');
+    final cluster = SkillTagCluster(
+      tags: ['a', 'b'],
+      clusterId: 'c1',
+      themeName: 'T',
+    );
     final plan = AdaptivePlan(
       clusters: [cluster],
       estMins: 0,

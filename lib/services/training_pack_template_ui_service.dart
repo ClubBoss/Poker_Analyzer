@@ -13,7 +13,9 @@ class TrainingPackTemplateUiService {
   const TrainingPackTemplateUiService();
 
   Future<List<TrainingPackSpot>> generateSpotsWithProgress(
-      BuildContext context, TrainingPackTemplate template) async {
+    BuildContext context,
+    TrainingPackTemplate template,
+  ) async {
     final range =
         template.heroRange ?? PackGeneratorService.topNHands(25).toList();
     final total = template.spotCount;
@@ -32,30 +34,41 @@ class TrainingPackTemplateUiService {
               Future.microtask(() async {
                 final isHu = template.playerStacksBb.length == 2;
                 const idxBB = 1;
-                final callCutoff = (PackGeneratorService.handRanking.length *
-                        template.bbCallPct /
-                        100)
-                    .round();
-                for (var i = 0;
-                    i < range.length && generated.length < total;
-                    i++) {
+                final callCutoff =
+                    (PackGeneratorService.handRanking.length *
+                            template.bbCallPct /
+                            100)
+                        .round();
+                for (
+                  var i = 0;
+                  i < range.length && generated.length < total;
+                  i++
+                ) {
                   if (cancel) break;
                   final hand = range[i];
                   final heroCards = _firstCombo(hand);
                   final actions = {
                     0: [
-                      ActionEntry(0, 0, 'push',
-                          amount: template.heroBbStack.toDouble()),
+                      ActionEntry(
+                        0,
+                        0,
+                        'push',
+                        amount: template.heroBbStack.toDouble(),
+                      ),
                       for (var j = 1; j < template.playerStacksBb.length; j++)
                         if (isHu &&
                             j == idxBB &&
                             PackGeneratorService.handRanking.indexOf(hand) <
                                 callCutoff)
-                          ActionEntry(0, j, 'call',
-                              amount: template.heroBbStack.toDouble())
+                          ActionEntry(
+                            0,
+                            j,
+                            'call',
+                            amount: template.heroBbStack.toDouble(),
+                          )
                         else
                           ActionEntry(0, j, 'fold'),
-                    ]
+                    ],
                   };
                   final ev = computePushEV(
                     heroBbStack: template.heroBbStack,
@@ -72,7 +85,7 @@ class TrainingPackTemplateUiService {
                   actions[0]![0] = actions[0]![0].copyWith(ev: ev, icmEv: icm);
                   final stacks = {
                     for (var j = 0; j < template.playerStacksBb.length; j++)
-                      '$j': template.playerStacksBb[j].toDouble()
+                      '$j': template.playerStacksBb[j].toDouble(),
                   };
                   generated.add(
                     TrainingPackSpot(
@@ -116,10 +129,12 @@ class TrainingPackTemplateUiService {
   }
 
   Future<List<TrainingPackSpot>> generateMissingSpotsWithProgress(
-      BuildContext context, TrainingPackTemplate template) async {
+    BuildContext context,
+    TrainingPackTemplate template,
+  ) async {
     final existing = <String>{
       for (final s in template.spots)
-        if (handCode(s.hand.heroCards) != null) handCode(s.hand.heroCards)!
+        if (handCode(s.hand.heroCards) != null) handCode(s.hand.heroCards)!,
     };
     if (existing.length >= template.spotCount) return [];
     final range =
@@ -142,30 +157,41 @@ class TrainingPackTemplateUiService {
               Future.microtask(() async {
                 final isHu = template.playerStacksBb.length == 2;
                 const idxBB = 1;
-                final callCutoff = (PackGeneratorService.handRanking.length *
-                        template.bbCallPct /
-                        100)
-                    .round();
-                for (var i = 0;
-                    i < range.length && generated.length < total;
-                    i++) {
+                final callCutoff =
+                    (PackGeneratorService.handRanking.length *
+                            template.bbCallPct /
+                            100)
+                        .round();
+                for (
+                  var i = 0;
+                  i < range.length && generated.length < total;
+                  i++
+                ) {
                   if (cancel) break;
                   final hand = range[i];
                   final heroCards = _firstCombo(hand);
                   final actions = {
                     0: [
-                      ActionEntry(0, 0, 'push',
-                          amount: template.heroBbStack.toDouble()),
+                      ActionEntry(
+                        0,
+                        0,
+                        'push',
+                        amount: template.heroBbStack.toDouble(),
+                      ),
                       for (var j = 1; j < template.playerStacksBb.length; j++)
                         if (isHu &&
                             j == idxBB &&
                             PackGeneratorService.handRanking.indexOf(hand) <
                                 callCutoff)
-                          ActionEntry(0, j, 'call',
-                              amount: template.heroBbStack.toDouble())
+                          ActionEntry(
+                            0,
+                            j,
+                            'call',
+                            amount: template.heroBbStack.toDouble(),
+                          )
                         else
                           ActionEntry(0, j, 'fold'),
-                    ]
+                    ],
                   };
                   final ev = computePushEV(
                     heroBbStack: template.heroBbStack,
@@ -182,7 +208,7 @@ class TrainingPackTemplateUiService {
                   actions[0]![0] = actions[0]![0].copyWith(ev: ev, icmEv: icm);
                   final stacks = {
                     for (var j = 0; j < template.playerStacksBb.length; j++)
-                      '$j': template.playerStacksBb[j].toDouble()
+                      '$j': template.playerStacksBb[j].toDouble(),
                   };
                   generated.add(
                     TrainingPackSpot(

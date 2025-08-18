@@ -49,7 +49,8 @@ class TagProgressHistoryCard extends StatelessWidget {
           var i = 0;
           if (data.logs.isNotEmpty) {
             spots.add(
-                FlSpot(i.toDouble(), data.logs.first.accuracyBefore * 100));
+              FlSpot(i.toDouble(), data.logs.first.accuracyBefore * 100),
+            );
             for (final log in data.logs) {
               i++;
               spots.add(FlSpot(i.toDouble(), log.accuracyAfter * 100));

@@ -69,8 +69,9 @@ class _BoosterVariationEditorScreenState
     pack.spotCount = pack.spots.length;
     await file.writeAsString(pack.toYamlString());
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Сохранено')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Сохранено')));
   }
 
   Future<void> _editSpot(TrainingPackSpot spot) async {
@@ -96,10 +97,7 @@ class _BoosterVariationEditorScreenState
   Future<void> _cloneVariation(TrainingPackSpot spot) async {
     final copy = spot.copyWith(
       id: const Uuid().v4(),
-      meta: {
-        ...spot.meta,
-        'variation': true,
-      },
+      meta: {...spot.meta, 'variation': true},
     );
     _pack?.spots.add(copy);
     await _editSpot(copy);
@@ -108,10 +106,7 @@ class _BoosterVariationEditorScreenState
   Future<void> _addVariation(TrainingPackSpot original) async {
     final copy = original.copyWith(
       id: const Uuid().v4(),
-      meta: {
-        ...original.meta,
-        'variation': true,
-      },
+      meta: {...original.meta, 'variation': true},
     );
     _pack?.spots.add(copy);
     await _editSpot(copy);
@@ -164,9 +159,11 @@ class _BoosterVariationEditorScreenState
     final pack = _pack;
     return Scaffold(
       appBar: AppBar(
-        title: Text(_file == null
-            ? 'Booster Variation Editor'
-            : _file!.path.split(Platform.pathSeparator).last),
+        title: Text(
+          _file == null
+              ? 'Booster Variation Editor'
+              : _file!.path.split(Platform.pathSeparator).last,
+        ),
         actions: [IconButton(onPressed: _save, icon: const Icon(Icons.save))],
       ),
       backgroundColor: AppColors.background,

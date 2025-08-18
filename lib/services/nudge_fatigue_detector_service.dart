@@ -5,7 +5,7 @@ import 'pinned_interaction_logger_service.dart';
 /// due to user fatigue.
 class NudgeFatigueDetectorService {
   NudgeFatigueDetectorService({PinnedInteractionLoggerService? logger})
-      : _logger = logger ?? PinnedInteractionLoggerService.instance;
+    : _logger = logger ?? PinnedInteractionLoggerService.instance;
 
   /// Singleton instance.
   static final NudgeFatigueDetectorService instance =
@@ -47,8 +47,9 @@ class NudgeFatigueDetectorService {
     if (!fatigued) return false;
 
     if (lastDismissedMillis == null) return false;
-    final lastDismissed =
-        DateTime.fromMillisecondsSinceEpoch(lastDismissedMillis);
+    final lastDismissed = DateTime.fromMillisecondsSinceEpoch(
+      lastDismissedMillis,
+    );
     final sinceDismiss = now.difference(lastDismissed);
     if (sinceDismiss < const Duration(days: 3)) return true;
     if (sinceDismiss >= const Duration(days: 7)) return false;

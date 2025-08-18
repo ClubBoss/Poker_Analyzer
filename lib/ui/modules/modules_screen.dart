@@ -64,10 +64,13 @@ class _ModulesScreenState extends State<ModulesScreen> {
     try {
       // Tolerant: 'json' also accepts JSON Lines via importer fallback.
       final report = SpotImporter.parse(content, format: 'json');
-      final dupToast =
-          report.skippedDuplicates > 0 ? ', dups ${report.skippedDuplicates}' : '';
+      final dupToast = report.skippedDuplicates > 0
+          ? ', dups ${report.skippedDuplicates}'
+          : '';
       showMiniToast(
-          context, 'Imported ${report.added} (skipped ${report.skipped}$dupToast)');
+        context,
+        'Imported ${report.added} (skipped ${report.skipped}$dupToast)',
+      );
       for (final e in report.errors) {
         showMiniToast(context, e);
       }
@@ -75,10 +78,8 @@ class _ModulesScreenState extends State<ModulesScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => MvsSessionPlayer(
-            spots: report.spots,
-            packId: 'import:clipboard',
-          ),
+          builder: (_) =>
+              MvsSessionPlayer(spots: report.spots, packId: 'import:clipboard'),
         ),
       );
     } catch (_) {

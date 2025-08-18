@@ -12,25 +12,25 @@ class BoosterAnomalyReport {
   });
 
   Map<String, dynamic> toJson() => {
-        'duplicatedHands': duplicatedHands,
-        'repeatedBoards': repeatedBoards,
-        'evOutliers': evOutliers,
-        'weakExplanations': weakExplanations,
-      };
+    'duplicatedHands': duplicatedHands,
+    'repeatedBoards': repeatedBoards,
+    'evOutliers': evOutliers,
+    'weakExplanations': weakExplanations,
+  };
 
   factory BoosterAnomalyReport.fromJson(Map<String, dynamic> j) =>
       BoosterAnomalyReport(
         duplicatedHands: [
-          for (final v in j['duplicatedHands'] as List? ?? []) v.toString()
+          for (final v in j['duplicatedHands'] as List? ?? []) v.toString(),
         ],
         repeatedBoards: [
-          for (final v in j['repeatedBoards'] as List? ?? []) v.toString()
+          for (final v in j['repeatedBoards'] as List? ?? []) v.toString(),
         ],
         evOutliers: [
-          for (final v in j['evOutliers'] as List? ?? []) v.toString()
+          for (final v in j['evOutliers'] as List? ?? []) v.toString(),
         ],
         weakExplanations: [
-          for (final v in j['weakExplanations'] as List? ?? []) v.toString()
+          for (final v in j['weakExplanations'] as List? ?? []) v.toString(),
         ],
       );
 }

@@ -8,11 +8,8 @@ class CurrentBetLabel extends StatelessWidget {
   /// Scale factor for sizing.
   final double scale;
 
-  const CurrentBetLabel({
-    Key? key,
-    required this.bet,
-    this.scale = 1.0,
-  }) : super(key: key);
+  const CurrentBetLabel({Key? key, required this.bet, this.scale = 1.0})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,10 +21,7 @@ class CurrentBetLabel extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            '🪙',
-            style: TextStyle(fontSize: 12 * scale),
-          ),
+          Text('🪙', style: TextStyle(fontSize: 12 * scale)),
           SizedBox(width: 4 * scale),
           Text(
             '$bet',

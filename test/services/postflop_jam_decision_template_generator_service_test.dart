@@ -5,8 +5,9 @@ import 'package:poker_analyzer/services/postflop_jam_decision_template_generator
 
 void main() {
   test('generates river jam decision templates with metadata', () {
-    final service =
-        PostflopJamDecisionTemplateGeneratorService(random: Random(1));
+    final service = PostflopJamDecisionTemplateGeneratorService(
+      random: Random(1),
+    );
     final templates = service.generate(
       boardTexture: 'rainbow',
       heroHandGroup: 'pockets',
@@ -26,16 +27,14 @@ void main() {
     expect(spot.hand.board.length, 5);
     expect(
       spot.heroOptions,
-      anyOf(
-        equals(['call', 'fold']),
-        equals(['shove', 'fold']),
-      ),
+      anyOf(equals(['call', 'fold']), equals(['shove', 'fold'])),
     );
   });
 
   test('generates delayed turn jam decision templates with metadata', () {
-    final service =
-        PostflopJamDecisionTemplateGeneratorService(random: Random(2));
+    final service = PostflopJamDecisionTemplateGeneratorService(
+      random: Random(2),
+    );
     final templates = service.generate(
       boardTexture: 'wet',
       heroHandGroup: 'broadways',

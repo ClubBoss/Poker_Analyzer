@@ -17,10 +17,12 @@ class _FakePathProvider extends PathProviderPlatform {
 class _FakeSharePlatform extends SharePlatform {
   bool shared = false;
   @override
-  Future<void> shareXFiles(List<XFile> files,
-      {String? text,
-      String? subject,
-      ShareOptions? sharePositionOrigin}) async {
+  Future<void> shareXFiles(
+    List<XFile> files, {
+    String? text,
+    String? subject,
+    ShareOptions? sharePositionOrigin,
+  }) async {
     shared = true;
   }
 }
@@ -41,9 +43,11 @@ void main() {
       heroPos: HeroPosition.sb,
       heroRange: ['AA'],
     );
-    await tester.pumpWidget(MaterialApp(
-      home: TrainingPackTemplateEditorScreen(template: tpl, templates: [tpl]),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: TrainingPackTemplateEditorScreen(template: tpl, templates: [tpl]),
+      ),
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.more_vert));
     await tester.pumpAndSettle();

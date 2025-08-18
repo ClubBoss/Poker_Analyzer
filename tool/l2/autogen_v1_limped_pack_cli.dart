@@ -44,5 +44,6 @@ void main(List<String> args) {
 
 void _usage() {
   stderr.writeln(
-      'Usage: dart run tool/l2/autogen_v1_limped_pack_cli.dart --seed <int> [--count <int>] [--preset mvs] [--format compact|pretty]');
+    'Usage: dart run tool/l2/autogen_v1_limped_pack_cli.dart --seed <int> [--count <int>] [--preset mvs] [--format compact|pretty]',
+  );
 }

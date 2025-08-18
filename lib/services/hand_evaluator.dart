@@ -13,16 +13,13 @@ class HandEvaluator {
     for (int i = 0; i < revealed.length; i++) {
       final cards = revealed[i];
       if (cards.length < 2) continue;
-      hands[i] = Hand.solveHand([
-        ...boardStr,
-        ...cards.map(_s),
-      ]);
+      hands[i] = Hand.solveHand([...boardStr, ...cards.map(_s)]);
     }
     if (hands.isEmpty) return [];
     final winners = Hand.winners(hands.values.toList());
     return [
       for (final e in hands.entries)
-        if (winners.contains(e.value)) e.key
+        if (winners.contains(e.value)) e.key,
     ];
   }
 
@@ -41,10 +38,7 @@ class HandEvaluator {
     for (int i = 0; i < revealed.length; i++) {
       final cards = revealed[i];
       if (cards.length < 2) continue;
-      hands[i] = Hand.solveHand([
-        ...boardStr,
-        ...cards.map(_s),
-      ]);
+      hands[i] = Hand.solveHand([...boardStr, ...cards.map(_s)]);
     }
     return hands;
   }
@@ -59,14 +53,14 @@ class HandEvaluator {
     final active = showdownHands.keys.toSet();
     final levels = [
       for (final v in allInAt)
-        if (v.isFinite) v
+        if (v.isFinite) v,
     ]..sort();
     double remaining = mainPot;
     double prev = 0;
     for (final level in levels) {
       final participants = [
         for (int i = 0; i < allInAt.length; i++)
-          if (allInAt[i] >= level || !allInAt[i].isFinite) i
+          if (allInAt[i] >= level || !allInAt[i].isFinite) i,
       ];
       if (participants.isEmpty) continue;
       double pot = (level - prev) * participants.length;
@@ -74,7 +68,7 @@ class HandEvaluator {
       remaining -= pot;
       final eligibles = [
         for (final p in participants)
-          if (showdownHands.containsKey(p)) p
+          if (showdownHands.containsKey(p)) p,
       ];
       if (pot > 0 && eligibles.isNotEmpty) {
         final hands = {for (final p in eligibles) p: showdownHands[p]!};

@@ -9,8 +9,8 @@ class InboxBoosterDeliveryController {
   InboxBoosterDeliveryController({
     BoosterInboxDeliveryService? delivery,
     InboxBoosterBannerService? banner,
-  })  : delivery = delivery ?? BoosterInboxDeliveryService.instance,
-        banner = banner ?? InboxBoosterBannerService.instance;
+  }) : delivery = delivery ?? BoosterInboxDeliveryService.instance,
+       banner = banner ?? InboxBoosterBannerService.instance;
 
   bool _triggered = false;
   bool _hasPending = false;

@@ -26,14 +26,16 @@ void main() {
     );
     final bundle = _FakeBundle({
       'AssetManifest.json': jsonEncode({
-        'assets/packs/test.json': ['assets/packs/test.json']
+        'assets/packs/test.json': ['assets/packs/test.json'],
       }),
       'assets/packs/test.json': jsonEncode(tpl.toJson()),
     });
-    await tester.pumpWidget(DefaultAssetBundle(
-      bundle: bundle,
-      child: const MaterialApp(home: PacksLibraryScreen()),
-    ));
+    await tester.pumpWidget(
+      DefaultAssetBundle(
+        bundle: bundle,
+        child: const MaterialApp(home: PacksLibraryScreen()),
+      ),
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.play_circle_fill));
     await tester.pumpAndSettle();

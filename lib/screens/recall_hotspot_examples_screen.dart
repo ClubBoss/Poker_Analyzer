@@ -30,8 +30,10 @@ class _RecallHotspotExamplesScreenState
       _mode = 'tag';
       _id = '';
     }
-    _future =
-        RecallFailureLogService.instance.getSpottingsForHotspot(_mode, _id);
+    _future = RecallFailureLogService.instance.getSpottingsForHotspot(
+      _mode,
+      _id,
+    );
   }
 
   void _openAnalyzer(String spotId) {

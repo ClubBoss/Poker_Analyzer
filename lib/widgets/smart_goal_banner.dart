@@ -50,11 +50,7 @@ class _SmartGoalBannerState extends State<SmartGoalBanner> {
     final pack = await PackLibraryService.instance.findByTag(g.tag!);
     if (pack == null) return;
     await GoalEngagementTracker.instance.log(
-      GoalEngagement(
-        tag: g.tag!,
-        action: 'start',
-        timestamp: DateTime.now(),
-      ),
+      GoalEngagement(tag: g.tag!, action: 'start', timestamp: DateTime.now()),
     );
     await const TrainingSessionLauncher().launch(pack);
   }

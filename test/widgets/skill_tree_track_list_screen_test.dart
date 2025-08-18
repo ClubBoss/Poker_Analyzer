@@ -11,7 +11,7 @@ import 'package:poker_analyzer/services/skill_tree_completion_badge_service.dart
 class _FakeEvaluator extends SkillTreeTrackStateEvaluator {
   final List<TrackStateEntry> entries;
   _FakeEvaluator(this.entries)
-      : super(progressService: SkillTreeTrackProgressService());
+    : super(progressService: SkillTreeTrackProgressService());
 
   @override
   Future<List<TrackStateEntry>> evaluateStates() async => entries;
@@ -42,44 +42,70 @@ void main() {
     final entries = [
       TrackStateEntry(
         progress: const TrackProgressEntry(
-            tree: treeB, completionRate: 0.0, isCompleted: false),
+          tree: treeB,
+          completionRate: 0.0,
+          isCompleted: false,
+        ),
         state: SkillTreeTrackState.unlocked,
       ),
       TrackStateEntry(
         progress: const TrackProgressEntry(
-            tree: treeD, completionRate: 0.3, isCompleted: false),
+          tree: treeD,
+          completionRate: 0.3,
+          isCompleted: false,
+        ),
         state: SkillTreeTrackState.inProgress,
       ),
       TrackStateEntry(
         progress: const TrackProgressEntry(
-            tree: treeA, completionRate: 1.0, isCompleted: true),
+          tree: treeA,
+          completionRate: 1.0,
+          isCompleted: true,
+        ),
         state: SkillTreeTrackState.completed,
       ),
       TrackStateEntry(
         progress: const TrackProgressEntry(
-            tree: treeC, completionRate: 0.0, isCompleted: false),
+          tree: treeC,
+          completionRate: 0.0,
+          isCompleted: false,
+        ),
         state: SkillTreeTrackState.locked,
       ),
     ];
 
     final badgeMap = {
       'A': const SkillTreeCompletionBadge(
-          trackId: 'A', percentComplete: 1.0, isComplete: true),
+        trackId: 'A',
+        percentComplete: 1.0,
+        isComplete: true,
+      ),
       'B': const SkillTreeCompletionBadge(
-          trackId: 'B', percentComplete: 0.0, isComplete: false),
+        trackId: 'B',
+        percentComplete: 0.0,
+        isComplete: false,
+      ),
       'C': const SkillTreeCompletionBadge(
-          trackId: 'C', percentComplete: 0.0, isComplete: false),
+        trackId: 'C',
+        percentComplete: 0.0,
+        isComplete: false,
+      ),
       'D': const SkillTreeCompletionBadge(
-          trackId: 'D', percentComplete: 0.3, isComplete: false),
+        trackId: 'D',
+        percentComplete: 0.3,
+        isComplete: false,
+      ),
     };
 
-    await tester.pumpWidget(MaterialApp(
-      home: SkillTreeTrackListScreen(
-        evaluator: _FakeEvaluator(entries),
-        badgeService: _FakeBadgeService(badgeMap),
-        reloadLibrary: false,
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SkillTreeTrackListScreen(
+          evaluator: _FakeEvaluator(entries),
+          badgeService: _FakeBadgeService(badgeMap),
+          reloadLibrary: false,
+        ),
       ),
-    ));
+    );
     await tester.pumpAndSettle();
 
     final tiles = tester.widgetList<ListTile>(find.byType(ListTile)).toList();

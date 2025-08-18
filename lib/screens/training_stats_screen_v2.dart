@@ -44,12 +44,18 @@ class _TrainingStatsScreenV2State extends State<TrainingStatsScreenV2> {
         final start = DateTime(now.year, now.month, now.day);
         return DateTimeRange(start: start, end: now);
       case StatsRange.week:
-        final start = DateTime(now.year, now.month, now.day)
-            .subtract(const Duration(days: 6));
+        final start = DateTime(
+          now.year,
+          now.month,
+          now.day,
+        ).subtract(const Duration(days: 6));
         return DateTimeRange(start: start, end: now);
       case StatsRange.month:
-        final start = DateTime(now.year, now.month, now.day)
-            .subtract(const Duration(days: 29));
+        final start = DateTime(
+          now.year,
+          now.month,
+          now.day,
+        ).subtract(const Duration(days: 29));
         return DateTimeRange(start: start, end: now);
       case StatsRange.all:
         return null;
@@ -65,9 +71,8 @@ class _TrainingStatsScreenV2State extends State<TrainingStatsScreenV2> {
     _allStacks = {for (final t in library) t.bb}.toList()..sort();
     _allTags = {
       for (final t in library)
-        for (final tag in t.tags) tag.toLowerCase()
-    }.toList()
-      ..sort();
+        for (final tag in t.tags) tag.toLowerCase(),
+    }.toList()..sort();
     final stats = TrainingStatsV2Model.compute(
       logs: logService.logs,
       library: library,
@@ -99,9 +104,11 @@ class _TrainingStatsScreenV2State extends State<TrainingStatsScreenV2> {
           Container(
             padding: const EdgeInsets.all(4),
             color: _tagColor(maxVal == 0 ? 0 : e.value / maxVal),
-            child: Text('${e.key} ${(e.value * 100).toStringAsFixed(0)}%',
-                style: const TextStyle(color: Colors.white, fontSize: 10)),
-          )
+            child: Text(
+              '${e.key} ${(e.value * 100).toStringAsFixed(0)}%',
+              style: const TextStyle(color: Colors.white, fontSize: 10),
+            ),
+          ),
       ],
     );
   }
@@ -115,13 +122,19 @@ class _TrainingStatsScreenV2State extends State<TrainingStatsScreenV2> {
       final s = stacks[i];
       final acc = stats.accuracyByStack[s]! * 100;
       if (acc > maxY) maxY = acc;
-      groups.add(BarChartGroupData(x: i, barRods: [
-        BarChartRodData(
-            toY: acc,
-            width: 8,
-            borderRadius: BorderRadius.circular(2),
-            color: Colors.blueAccent),
-      ]));
+      groups.add(
+        BarChartGroupData(
+          x: i,
+          barRods: [
+            BarChartRodData(
+              toY: acc,
+              width: 8,
+              borderRadius: BorderRadius.circular(2),
+              color: Colors.blueAccent,
+            ),
+          ],
+        ),
+      );
     }
     return SizedBox(
       height: 160,
@@ -131,21 +144,25 @@ class _TrainingStatsScreenV2State extends State<TrainingStatsScreenV2> {
           minY: 0,
           barGroups: groups,
           titlesData: FlTitlesData(
-            leftTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
                 getTitlesWidget: (value, meta) {
                   final idx = value.toInt();
                   if (idx < 0 || idx >= stacks.length) return const SizedBox();
-                  return Text('${stacks[idx]}bb',
-                      style:
-                          const TextStyle(color: Colors.white, fontSize: 10));
+                  return Text(
+                    '${stacks[idx]}bb',
+                    style: const TextStyle(color: Colors.white, fontSize: 10),
+                  );
                 },
               ),
             ),
@@ -165,12 +182,14 @@ class _TrainingStatsScreenV2State extends State<TrainingStatsScreenV2> {
     final sections = <PieChartSectionData>[];
     for (final e in entries) {
       final pct = total > 0 ? e.value * 100 / total : 0;
-      sections.add(PieChartSectionData(
-        value: e.value.toDouble(),
-        title: '${e.key.label} ${pct.toStringAsFixed(0)}%',
-        radius: 40,
-        titleStyle: const TextStyle(color: Colors.white, fontSize: 10),
-      ));
+      sections.add(
+        PieChartSectionData(
+          value: e.value.toDouble(),
+          title: '${e.key.label} ${pct.toStringAsFixed(0)}%',
+          radius: 40,
+          titleStyle: const TextStyle(color: Colors.white, fontSize: 10),
+        ),
+      );
     }
     return SizedBox(
       height: 160,
@@ -284,13 +303,21 @@ class _TrainingStatsScreenV2State extends State<TrainingStatsScreenV2> {
                       dropdownColor: Colors.grey[900],
                       items: const [
                         DropdownMenuItem(
-                            value: StatsRange.today, child: Text('Today')),
+                          value: StatsRange.today,
+                          child: Text('Today'),
+                        ),
                         DropdownMenuItem(
-                            value: StatsRange.week, child: Text('7d')),
+                          value: StatsRange.week,
+                          child: Text('7d'),
+                        ),
                         DropdownMenuItem(
-                            value: StatsRange.month, child: Text('30d')),
+                          value: StatsRange.month,
+                          child: Text('30d'),
+                        ),
                         DropdownMenuItem(
-                            value: StatsRange.all, child: Text('All')),
+                          value: StatsRange.all,
+                          child: Text('All'),
+                        ),
                       ],
                       onChanged: (v) {
                         if (v != null) setState(() => _range = v);
@@ -300,8 +327,10 @@ class _TrainingStatsScreenV2State extends State<TrainingStatsScreenV2> {
                     const SizedBox(width: 8),
                     DropdownButton<HeroPosition?>(
                       value: _position,
-                      hint: const Text('Pos',
-                          style: TextStyle(color: Colors.white70)),
+                      hint: const Text(
+                        'Pos',
+                        style: TextStyle(color: Colors.white70),
+                      ),
                       dropdownColor: Colors.grey[900],
                       items: [
                         const DropdownMenuItem(value: null, child: Text('All')),
@@ -316,8 +345,10 @@ class _TrainingStatsScreenV2State extends State<TrainingStatsScreenV2> {
                     const SizedBox(width: 8),
                     DropdownButton<int?>(
                       value: _stack,
-                      hint: const Text('Stack',
-                          style: TextStyle(color: Colors.white70)),
+                      hint: const Text(
+                        'Stack',
+                        style: TextStyle(color: Colors.white70),
+                      ),
                       dropdownColor: Colors.grey[900],
                       items: [
                         const DropdownMenuItem(value: null, child: Text('All')),
@@ -332,8 +363,10 @@ class _TrainingStatsScreenV2State extends State<TrainingStatsScreenV2> {
                     const SizedBox(width: 8),
                     DropdownButton<String?>(
                       value: _tag,
-                      hint: const Text('Tag',
-                          style: TextStyle(color: Colors.white70)),
+                      hint: const Text(
+                        'Tag',
+                        style: TextStyle(color: Colors.white70),
+                      ),
                       dropdownColor: Colors.grey[900],
                       items: [
                         const DropdownMenuItem(value: null, child: Text('All')),
@@ -348,26 +381,42 @@ class _TrainingStatsScreenV2State extends State<TrainingStatsScreenV2> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                Text('Total hands: ${stats.totalHands}',
-                    style: const TextStyle(color: Colors.white)),
-                Text('Accuracy: ${(stats.accuracy * 100).toStringAsFixed(1)}%',
-                    style: const TextStyle(color: Colors.white)),
+                Text(
+                  'Total hands: ${stats.totalHands}',
+                  style: const TextStyle(color: Colors.white),
+                ),
+                Text(
+                  'Accuracy: ${(stats.accuracy * 100).toStringAsFixed(1)}%',
+                  style: const TextStyle(color: Colors.white),
+                ),
                 const SizedBox(height: 16),
-                const Text('Accuracy by Tag',
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Accuracy by Tag',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 _buildTagHeatmap(stats),
                 const SizedBox(height: 16),
-                const Text('Accuracy by Stack',
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Accuracy by Stack',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 _buildStackChart(stats),
                 const SizedBox(height: 16),
-                const Text('Hands by Position',
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Hands by Position',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 _buildPositionPie(stats),
               ],

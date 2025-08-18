@@ -53,37 +53,35 @@ void main() {
   const engine = AdaptiveTrainingPathEngine();
 
   LearningPathTemplateV2 path() => const LearningPathTemplateV2(
-        id: 'p',
-        title: 'Path',
+    id: 'p',
+    title: 'Path',
+    description: '',
+    stages: [
+      LearningPathStageModel(
+        id: 's1',
+        title: 'S1',
         description: '',
-        stages: [
-          LearningPathStageModel(
-            id: 's1',
-            title: 'S1',
-            description: '',
-            packId: 'p1',
-            requiredAccuracy: 90,
-            minHands: 0,
-            unlocks: ['s2'],
-            tags: ['a'],
-          ),
-          LearningPathStageModel(
-            id: 's2',
-            title: 'S2',
-            description: '',
-            packId: 'p2',
-            requiredAccuracy: 90,
-            minHands: 0,
-            tags: ['b'],
-          ),
-        ],
-      );
+        packId: 'p1',
+        requiredAccuracy: 90,
+        minHands: 0,
+        unlocks: ['s2'],
+        tags: ['a'],
+      ),
+      LearningPathStageModel(
+        id: 's2',
+        title: 'S2',
+        description: '',
+        packId: 'p2',
+        requiredAccuracy: 90,
+        minHands: 0,
+        tags: ['b'],
+      ),
+    ],
+  );
 
   test('unlocks next stage when weakness detected and prereqs met', () {
     final packs = [_pack('p1', 'a'), _pack('p2', 'b')];
-    final stats = {
-      'p1': TrainingPackStat(accuracy: 95, last: DateTime.now()),
-    };
+    final stats = {'p1': TrainingPackStat(accuracy: 95, last: DateTime.now())};
     final attempts = [
       _attempt('p2', 's1', 0.5),
       _attempt('p2', 's2', 0.4),
@@ -119,9 +117,7 @@ void main() {
 
   test('stage locked when no weakness', () {
     final packs = [_pack('p1', 'a'), _pack('p2', 'b')];
-    final stats = {
-      'p1': TrainingPackStat(accuracy: 95, last: DateTime.now()),
-    };
+    final stats = {'p1': TrainingPackStat(accuracy: 95, last: DateTime.now())};
     final attempts = <TrainingAttempt>[];
     final ids = engine.getUnlockedStageIds(
       allPacks: packs,

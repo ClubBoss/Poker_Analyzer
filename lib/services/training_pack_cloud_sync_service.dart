@@ -34,7 +34,7 @@ class TrainingPackCloudSyncService {
         .get();
     return [
       for (final d in snap.docs)
-        TrainingPack.fromJson({...d.data(), 'id': d.id})
+        TrainingPack.fromJson({...d.data(), 'id': d.id}),
     ];
   }
 
@@ -61,8 +61,10 @@ class TrainingPackCloudSyncService {
   Future<void> syncUp(TrainingPackStorageService storage) async {
     if (_uid == null) return;
     await CloudRetryPolicy.execute<void>(() async {
-      final col =
-          _db.collection('users').doc(_uid).collection('training_packs');
+      final col = _db
+          .collection('users')
+          .doc(_uid)
+          .collection('training_packs');
       final batch = _db.batch();
       for (final p in storage.packs.where((e) => !e.isBuiltIn)) {
         batch.set(col.doc(p.id), p.toJson());
@@ -93,14 +95,14 @@ class TrainingPackCloudSyncService {
         .collection('training_packs')
         .snapshots()
         .listen((snap) {
-      final list = [
-        for (final d in snap.docs)
-          TrainingPack.fromJson({...d.data(), 'id': d.id})
-      ];
-      storage.merge(list);
-      storage.notifyListeners();
-      storage.schedulePersist();
-    });
+          final list = [
+            for (final d in snap.docs)
+              TrainingPack.fromJson({...d.data(), 'id': d.id}),
+          ];
+          storage.merge(list);
+          storage.notifyListeners();
+          storage.schedulePersist();
+        });
     return _sub;
   }
 
@@ -111,11 +113,14 @@ class TrainingPackCloudSyncService {
 
   Future<List<TrainingPackTemplateModel>> loadTemplates() async {
     if (_uid == null) return [];
-    final snap =
-        await _db.collection('packs').doc(_uid).collection('templates').get();
+    final snap = await _db
+        .collection('packs')
+        .doc(_uid)
+        .collection('templates')
+        .get();
     return [
       for (final d in snap.docs)
-        TrainingPackTemplateModel.fromJson({...d.data(), 'id': d.id})
+        TrainingPackTemplateModel.fromJson({...d.data(), 'id': d.id}),
     ];
   }
 
@@ -123,7 +128,7 @@ class TrainingPackCloudSyncService {
     final snap = await _db.collection('public_templates').get();
     return [
       for (final d in snap.docs)
-        TrainingPackTemplateModel.fromJson({...d.data(), 'id': d.id})
+        TrainingPackTemplateModel.fromJson({...d.data(), 'id': d.id}),
     ];
   }
 
@@ -148,7 +153,8 @@ class TrainingPackCloudSyncService {
   }
 
   Future<void> syncDownTemplates(
-      TrainingPackTemplateStorageService storage) async {
+    TrainingPackTemplateStorageService storage,
+  ) async {
     final remote = await loadTemplates();
     storage.merge(remote);
     await storage.saveAll();
@@ -158,7 +164,8 @@ class TrainingPackCloudSyncService {
   }
 
   Future<void> syncUpTemplates(
-      TrainingPackTemplateStorageService storage) async {
+    TrainingPackTemplateStorageService storage,
+  ) async {
     if (_uid == null) return;
     await CloudRetryPolicy.execute<void>(() async {
       final col = _db.collection('packs').doc(_uid).collection('templates');
@@ -176,10 +183,13 @@ class TrainingPackCloudSyncService {
 
   Future<Map<String, TrainingPackStat>> loadStats() async {
     if (_uid == null) return {};
-    final snap =
-        await _db.collection('packs').doc(_uid).collection('stats').get();
+    final snap = await _db
+        .collection('packs')
+        .doc(_uid)
+        .collection('stats')
+        .get();
     return {
-      for (final d in snap.docs) d.id: TrainingPackStat.fromJson(d.data())
+      for (final d in snap.docs) d.id: TrainingPackStat.fromJson(d.data()),
     };
   }
 

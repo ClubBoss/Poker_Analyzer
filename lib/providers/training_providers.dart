@@ -166,9 +166,9 @@ List<SingleChildWidget> buildTrainingProviders() {
       )..init(),
     ),
     ChangeNotifierProvider(
-      create: (context) => SpacedReviewService(
-        templates: context.read<TemplateStorageService>(),
-      )..init(),
+      create: (context) =>
+          SpacedReviewService(templates: context.read<TemplateStorageService>())
+            ..init(),
     ),
     Provider(
       create: (context) => DynamicPackAdjustmentService(
@@ -321,13 +321,11 @@ List<SingleChildWidget> buildTrainingProviders() {
       )..init(),
     ),
     ChangeNotifierProvider(
-      create: (context) => StreakReminderService(
-        logs: context.read<SessionLogService>(),
-      )..init(),
+      create: (context) =>
+          StreakReminderService(logs: context.read<SessionLogService>())
+            ..init(),
     ),
-    Provider(
-      create: (_) => StreakReminderSchedulerService()..init(),
-    ),
+    Provider(create: (_) => StreakReminderSchedulerService()..init()),
     ChangeNotifierProvider(
       create: (context) => NextStepEngine(
         hands: context.read<SavedHandManagerService>(),
@@ -418,9 +416,8 @@ List<SingleChildWidget> buildTrainingProviders() {
           SmartSuggestionEngine(logs: context.read<SessionLogService>()),
     ),
     Provider(
-      create: (context) => SuggestionBannerEngine(
-        logs: context.read<SessionLogService>(),
-      ),
+      create: (context) =>
+          SuggestionBannerEngine(logs: context.read<SessionLogService>()),
     ),
     Provider(create: (_) => BoosterRecallBannerEngine()),
     Provider(
@@ -462,9 +459,8 @@ List<SingleChildWidget> buildTrainingProviders() {
     Provider(create: (_) => const ScheduledTrainingLauncher()),
     Provider(create: (_) => DailyTrainingReminderService()),
     Provider(
-      create: (context) => GoalReengagementService(
-        logs: context.read<SessionLogService>(),
-      ),
+      create: (context) =>
+          GoalReengagementService(logs: context.read<SessionLogService>()),
     ),
     Provider(
       create: (context) => SmartPushSchedulerService(
@@ -493,9 +489,8 @@ List<SingleChildWidget> buildTrainingProviders() {
     Provider(create: (_) => AdaptiveNextStepEngine()),
     Provider(create: (_) => const SmartPackSuggestionEngine()),
     Provider(
-      create: (context) => SuggestedNextPackEngine(
-        mastery: context.read<TagMasteryService>(),
-      ),
+      create: (context) =>
+          SuggestedNextPackEngine(mastery: context.read<TagMasteryService>()),
     ),
     Provider(
       create: (context) => SuggestedNextStepEngine(
@@ -545,9 +540,7 @@ List<SingleChildWidget> buildTrainingProviders() {
         controller: context.read<SmartRecapBannerController>(),
       )..start(),
     ),
-    Provider(
-      create: (_) => SmartRecapAutoInjector()..start(),
-    ),
+    Provider(create: (_) => SmartRecapAutoInjector()..start()),
     Provider(
       create: (context) => SmartRecapBannerReinjectionService(
         controller: context.read<SmartRecapBannerController>(),
@@ -564,17 +557,9 @@ List<SingleChildWidget> buildTrainingProviders() {
         sessions: context.read<TrainingSessionService>(),
       ),
     ),
-    Provider(
-      create: (_) => OverlayBoosterManager()..start(),
-    ),
-    Provider(
-      create: (_) => BoosterExhaustionOverlayManager()..start(),
-    ),
-    Provider(
-      create: (_) => TheoryRecallOverlayScheduler()..start(),
-    ),
-    Provider(
-      create: (_) => TheoryRecallInboxReinjectionService()..start(),
-    ),
+    Provider(create: (_) => OverlayBoosterManager()..start()),
+    Provider(create: (_) => BoosterExhaustionOverlayManager()..start()),
+    Provider(create: (_) => TheoryRecallOverlayScheduler()..start()),
+    Provider(create: (_) => TheoryRecallInboxReinjectionService()..start()),
   ];
 }

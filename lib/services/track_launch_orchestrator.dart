@@ -52,9 +52,8 @@ class TrackLaunchOrchestrator {
       if (ctx != null) {
         await showDialog<void>(
           context: ctx,
-          builder: (_) => const AlertDialog(
-            content: Text('\u{1F389} All caught up!'),
-          ),
+          builder: (_) =>
+              const AlertDialog(content: Text('\u{1F389} All caught up!')),
         );
       }
     }

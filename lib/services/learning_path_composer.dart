@@ -50,7 +50,7 @@ class DifficultyWeights {
 class DifficultyScorer {
   final DifficultyWeights weights;
   const DifficultyScorer({DifficultyWeights? weights})
-      : weights = weights ?? const DifficultyWeights();
+    : weights = weights ?? const DifficultyWeights();
 
   double score(PackMeta meta) {
     final w = weights;
@@ -73,7 +73,7 @@ class DifficultyScorer {
     if (total <= 0) return 0.0;
     final probs = [
       for (final v in values)
-        if (v > 0) v / total
+        if (v > 0) v / total,
     ];
     if (probs.isEmpty) return 0.0;
     var h = 0.0;
@@ -111,11 +111,7 @@ const Map<int, LevelQuota> defaultQuotas = {
     minCategories: 3,
     maxMonotone: 0.10,
   ),
-  2: LevelQuota(
-    minDifficulty: 0.2,
-    maxDifficulty: 0.45,
-    minCategories: 5,
-  ),
+  2: LevelQuota(minDifficulty: 0.2, maxDifficulty: 0.45, minCategories: 5),
   3: LevelQuota(
     minDifficulty: 0.4,
     maxDifficulty: 0.65,
@@ -126,11 +122,7 @@ const Map<int, LevelQuota> defaultQuotas = {
     maxDifficulty: 0.8,
     requireTheoryHeavy: true,
   ),
-  5: LevelQuota(
-    minDifficulty: 0.75,
-    maxDifficulty: 1.0,
-    textureBalanced: true,
-  ),
+  5: LevelQuota(minDifficulty: 0.75, maxDifficulty: 1.0, textureBalanced: true),
 };
 
 class CompositionResult {
@@ -143,8 +135,8 @@ class LearningPathComposer {
   final Map<int, LevelQuota> quotas;
   final DifficultyScorer scorer;
   LearningPathComposer({Map<int, LevelQuota>? quotas, DifficultyScorer? scorer})
-      : quotas = quotas ?? defaultQuotas,
-        scorer = scorer ?? const DifficultyScorer();
+    : quotas = quotas ?? defaultQuotas,
+      scorer = scorer ?? const DifficultyScorer();
 
   CompositionResult compose(List<PackMeta> packs) {
     final difficulties = {for (final p in packs) p.id: scorer.score(p)};
@@ -164,8 +156,11 @@ class LearningPathComposer {
     return CompositionResult(path, assignments);
   }
 
-  List<PackMeta> _selectForLevel(LevelQuota quota, List<PackMeta> avail,
-      Map<String, double> difficulties) {
+  List<PackMeta> _selectForLevel(
+    LevelQuota quota,
+    List<PackMeta> avail,
+    Map<String, double> difficulties,
+  ) {
     final candidates = avail.where((p) {
       final d = difficulties[p.id] ?? 0.0;
       if (d < quota.minDifficulty || d > quota.maxDifficulty) return false;
@@ -174,7 +169,8 @@ class LearningPathComposer {
         if (mono > quota.maxMonotone!) return false;
       }
       if (quota.minDecisionDensity != null &&
-          p.decisionDensity < quota.minDecisionDensity!) return false;
+          p.decisionDensity < quota.minDecisionDensity!)
+        return false;
       if (quota.requireTheoryHeavy && !p.theoryHeavy) return false;
       return true;
     }).toList();
@@ -210,17 +206,19 @@ class LearningPathComposer {
       for (var i = 0; i < packs.length; i++) {
         final p = packs[i];
         final stageId = 'L${level}P$i';
-        stages.add(LearningPathStageModel(
-          id: stageId,
-          title: 'Pack ${p.id}',
-          description: '',
-          packId: p.id,
-          requiredAccuracy: 0.7,
-          requiredHands: 20,
-          unlockAfter: prevId == null ? const [] : [prevId!],
-          order: order++,
-          tags: ['L$level'],
-        ));
+        stages.add(
+          LearningPathStageModel(
+            id: stageId,
+            title: 'Pack ${p.id}',
+            description: '',
+            packId: p.id,
+            requiredAccuracy: 0.7,
+            requiredHands: 20,
+            unlockAfter: prevId == null ? const [] : [prevId!],
+            order: order++,
+            tags: ['L$level'],
+          ),
+        );
         prevId = stageId;
       }
     }

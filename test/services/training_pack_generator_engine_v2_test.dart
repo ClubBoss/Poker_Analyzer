@@ -17,14 +17,14 @@ void main() {
     final variation = ConstraintSet(
       overrides: {
         'board': [
-          ['As', 'Kd', 'Qc']
-        ]
+          ['As', 'Kd', 'Qc'],
+        ],
       },
     );
     final pattern = LinePattern(
       startingPosition: 'sb',
       streets: {
-        'flop': ['villainBet']
+        'flop': ['villainBet'],
       },
     );
     final set = TrainingPackTemplateSet(

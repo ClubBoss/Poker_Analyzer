@@ -43,11 +43,7 @@ void main() {
       content: '',
       nextIds: const ['c'],
     );
-    final c = TheoryMiniLessonNode(
-      id: 'c',
-      title: 'C',
-      content: '',
-    );
+    final c = TheoryMiniLessonNode(id: 'c', title: 'C', content: '');
     final builder = TheoryPathPreviewBuilder(library: _FakeLibrary([a, b, c]));
 
     final result = await builder.build('a');

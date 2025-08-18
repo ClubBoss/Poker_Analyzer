@@ -96,9 +96,12 @@ class _MistakeOverviewScreenState extends State<MistakeOverviewScreen>
               value: _dateFilter,
               dropdownColor: const Color(0xFF2A2B2E),
               onChanged: (v) => setState(() => _dateFilter = v ?? 'Все'),
-              items: const ['Сегодня', '7 дней', '30 дней', 'Все']
-                  .map((d) => DropdownMenuItem(value: d, child: Text(d)))
-                  .toList(),
+              items: const [
+                'Сегодня',
+                '7 дней',
+                '30 дней',
+                'Все',
+              ].map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
             ),
           ),
           Expanded(

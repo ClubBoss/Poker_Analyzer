@@ -11,10 +11,7 @@ class PokerAnalyzerControls extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Center(
-      child: Text(
-        'Action Panel',
-        style: TextStyle(color: Colors.white),
-      ),
+      child: Text('Action Panel', style: TextStyle(color: Colors.white)),
     );
   }
 }

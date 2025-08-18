@@ -46,7 +46,9 @@ class TrainingRunABComparatorService {
 
   /// Compares two lists of logs and computes aggregate metrics.
   ABComparisonResult compareLogs(
-      List<SessionLog> listA, List<SessionLog> listB) {
+    List<SessionLog> listA,
+    List<SessionLog> listB,
+  ) {
     final maxSpots = _maxSpots([...listA, ...listB]);
     return ABComparisonResult(
       accuracyA: _averageAccuracy(listA),

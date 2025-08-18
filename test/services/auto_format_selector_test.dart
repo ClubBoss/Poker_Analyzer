@@ -15,8 +15,11 @@ void main() {
 
   test('applyTo sets generator parameters', () async {
     SharedPreferences.setMockInitialValues({
-      'ab.recommended_format':
-          jsonEncode({'spotsPerPack': 15, 'streets': 2, 'theoryRatio': 0.7}),
+      'ab.recommended_format': jsonEncode({
+        'spotsPerPack': 15,
+        'streets': 2,
+        'theoryRatio': 0.7,
+      }),
     });
     final selector = AutoFormatSelector();
     await selector.load();
@@ -29,10 +32,16 @@ void main() {
 
   test('audience override takes precedence', () async {
     SharedPreferences.setMockInitialValues({
-      'ab.recommended_format':
-          jsonEncode({'spotsPerPack': 10, 'streets': 1, 'theoryRatio': 0.5}),
-      'ab.overrides.pro':
-          jsonEncode({'spotsPerPack': 20, 'streets': 3, 'theoryRatio': 0.8}),
+      'ab.recommended_format': jsonEncode({
+        'spotsPerPack': 10,
+        'streets': 1,
+        'theoryRatio': 0.5,
+      }),
+      'ab.overrides.pro': jsonEncode({
+        'spotsPerPack': 20,
+        'streets': 3,
+        'theoryRatio': 0.8,
+      }),
     });
     final selector = AutoFormatSelector();
     await selector.load();

@@ -12,7 +12,7 @@ class AssessmentPackSynthesizer {
   final PackNoveltyGuardService noveltyGuard;
 
   const AssessmentPackSynthesizer({PackNoveltyGuardService? noveltyGuard})
-      : noveltyGuard = noveltyGuard ?? const PackNoveltyGuardService();
+    : noveltyGuard = noveltyGuard ?? const PackNoveltyGuardService();
 
   Future<TrainingPackTemplateV2> createAssessment({
     required List<String> tags,
@@ -23,15 +23,18 @@ class AssessmentPackSynthesizer {
     var currentSize = size;
     TrainingPackTemplateV2? pack;
     for (var attempt = 0; attempt < 2; attempt++) {
-      final seed =
-          md5.convert(utf8.encode('$clusterId|$currentSize')).toString();
+      final seed = md5
+          .convert(utf8.encode('$clusterId|$currentSize'))
+          .toString();
       final spots = <TrainingPackSpot>[];
       for (var i = 0; i < currentSize; i++) {
-        spots.add(TrainingPackSpot(
-          id: '${seed}_$i',
-          tags: [tags[i % tags.length]],
-          board: const ['As'],
-        ));
+        spots.add(
+          TrainingPackSpot(
+            id: '${seed}_$i',
+            tags: [tags[i % tags.length]],
+            board: const ['As'],
+          ),
+        );
       }
       pack = TrainingPackTemplateV2(
         id: 'assessment_$seed',

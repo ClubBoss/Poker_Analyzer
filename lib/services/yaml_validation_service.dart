@@ -6,8 +6,9 @@ import '../models/v2/training_pack_template_v2.dart';
 class YamlValidationService {
   const YamlValidationService();
 
-  Future<List<(String, String)>> validateAll(
-      {String dir = 'assets/packs/v2'}) async {
+  Future<List<(String, String)>> validateAll({
+    String dir = 'assets/packs/v2',
+  }) async {
     final errors = <(String, String)>[];
     final directory = Directory(dir);
     if (!directory.existsSync()) return errors;

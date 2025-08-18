@@ -4,11 +4,7 @@ class CardDropZone extends StatelessWidget {
   final String label;
   final void Function()? onCardDropped;
 
-  const CardDropZone({
-    super.key,
-    required this.label,
-    this.onCardDropped,
-  });
+  const CardDropZone({super.key, required this.label, this.onCardDropped});
 
   @override
   Widget build(BuildContext context) {

@@ -10,7 +10,7 @@ import 'theory_recap_analytics_summarizer.dart';
 class TheoryRecapSuppressionEngine {
   final TheoryRecapAnalyticsSummarizer summarizer;
   TheoryRecapSuppressionEngine({TheoryRecapAnalyticsSummarizer? summarizer})
-      : summarizer = summarizer ?? TheoryRecapAnalyticsSummarizer();
+    : summarizer = summarizer ?? TheoryRecapAnalyticsSummarizer();
 
   static final TheoryRecapSuppressionEngine instance =
       TheoryRecapSuppressionEngine();
@@ -30,7 +30,7 @@ class TheoryRecapSuppressionEngine {
             for (final e in data.entries)
               if (e.value is String &&
                   DateTime.tryParse(e.value as String) != null)
-                e.key.toString(): DateTime.parse(e.value as String)
+                e.key.toString(): DateTime.parse(e.value as String),
           };
           return _cache!;
         }
@@ -45,8 +45,9 @@ class TheoryRecapSuppressionEngine {
     final map = _cache ?? <String, DateTime>{};
     await prefs.setString(
       _prefsKey,
-      jsonEncode(
-          {for (final e in map.entries) e.key: e.value.toIso8601String()}),
+      jsonEncode({
+        for (final e in map.entries) e.key: e.value.toIso8601String(),
+      }),
     );
   }
 

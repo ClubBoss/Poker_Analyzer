@@ -37,10 +37,7 @@ class SkillMasteryChartWidget extends StatelessWidget {
         children: [
           const Text(
             'Skill Breakdown',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           for (final e in data)
@@ -64,8 +61,9 @@ class SkillMasteryChartWidget extends StatelessWidget {
                         value: e.value,
                         minHeight: 8,
                         backgroundColor: Colors.white24,
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(_color(e.value)),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          _color(e.value),
+                        ),
                       ),
                     ),
                   ),

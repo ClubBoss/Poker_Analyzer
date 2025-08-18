@@ -60,9 +60,12 @@ class TagFrequencyAnalyzer {
       }
     }
     final sortedTags = Map.fromEntries(
-        tagCounts.entries.toList()..sort((a, b) => b.value.compareTo(a.value)));
-    final sortedCategories = Map.fromEntries(categoryCounts.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value)));
+      tagCounts.entries.toList()..sort((a, b) => b.value.compareTo(a.value)),
+    );
+    final sortedCategories = Map.fromEntries(
+      categoryCounts.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value)),
+    );
     final file = File(out)..createSync(recursive: true);
     file.writeAsStringSync(
       jsonEncode({'tags': sortedTags, 'categories': sortedCategories}),

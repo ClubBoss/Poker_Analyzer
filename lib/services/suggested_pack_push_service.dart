@@ -21,8 +21,9 @@ class SuggestedPackPushService {
     if (_initialized) return;
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
-    await _plugin
-        .initialize(const InitializationSettings(android: android, iOS: ios));
+    await _plugin.initialize(
+      const InitializationSettings(android: android, iOS: ios),
+    );
     _initialized = true;
   }
 
@@ -61,8 +62,9 @@ class SuggestedPackPushService {
         iOS: DarwinNotificationDetails(),
       ),
     );
-    await DailyReminderScheduler.instance
-        .scheduleDailyReminder(packName: tpl.name);
+    await DailyReminderScheduler.instance.scheduleDailyReminder(
+      packName: tpl.name,
+    );
     await prefs.setString(_lastPushKey, DateTime.now().toIso8601String());
   }
 }

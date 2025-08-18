@@ -71,17 +71,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _legendItem(Color color, String text) => Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          ),
-          const SizedBox(width: 4),
-          Text(text, style: const TextStyle(color: Colors.white, fontSize: 10)),
-        ],
-      );
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Container(
+        width: 8,
+        height: 8,
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      ),
+      const SizedBox(width: 4),
+      Text(text, style: const TextStyle(color: Colors.white, fontSize: 10)),
+    ],
+  );
 
   Widget _buildChart() {
     if (_stats.isEmpty) {

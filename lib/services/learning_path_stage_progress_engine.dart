@@ -38,7 +38,8 @@ class LearningPathStageProgressEngine {
   }
 
   Future<Map<String, double>> getStageProgress(
-      LearningPathTemplateV2 template) async {
+    LearningPathTemplateV2 template,
+  ) async {
     await _ensureData();
     final result = <String, double>{};
     for (final stage in template.stages) {

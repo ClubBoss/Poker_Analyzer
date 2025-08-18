@@ -8,10 +8,12 @@ class YamlPackRefactorEngine {
   TrainingPackTemplateV2 refactor(TrainingPackTemplateV2 pack) {
     pack.goal = _cleanText(pack.goal);
     pack.description = _cleanText(pack.description);
-    pack.meta.removeWhere((k, _) =>
-        k == 'generatedAt' ||
-        k == 'legacyScore' ||
-        (k.toString().startsWith('legacy')));
+    pack.meta.removeWhere(
+      (k, _) =>
+          k == 'generatedAt' ||
+          k == 'legacyScore' ||
+          (k.toString().startsWith('legacy')),
+    );
     pack.meta['schemaVersion'] = '2.0.0';
     pack.spots.sort(_spotCompare);
     return pack;

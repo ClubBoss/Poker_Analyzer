@@ -16,8 +16,11 @@ class StreakHistoryScreen extends StatelessWidget {
     final stats = context.watch<TrainingStatsService>();
     final target = context.watch<DailyTargetService>().target;
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day)
-        .subtract(const Duration(days: 13));
+    final start = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(const Duration(days: 13));
     final data = <MapEntry<DateTime, int>>[];
     int maxHands = target;
     for (int i = 0; i < 14; i++) {
@@ -77,10 +80,12 @@ class StreakHistoryScreen extends StatelessWidget {
                     const FlLine(color: Colors.white24, strokeWidth: 1),
               ),
               titlesData: FlTitlesData(
-                topTitles:
-                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                leftTitles:
-                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                topTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                leftTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
                 bottomTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
@@ -90,8 +95,10 @@ class StreakHistoryScreen extends StatelessWidget {
                       angle: -pi / 2,
                       child: Text(
                         value.toInt().toString(),
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 10),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                        ),
                       ),
                     ),
                   ),
@@ -110,9 +117,13 @@ class StreakHistoryScreen extends StatelessWidget {
                           '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
                       return Transform.rotate(
                         angle: -pi / 2,
-                        child: Text(label,
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 10)),
+                        child: Text(
+                          label,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                          ),
+                        ),
                       );
                     },
                   ),
@@ -126,14 +137,16 @@ class StreakHistoryScreen extends StatelessWidget {
                 ),
               ),
               barGroups: groups,
-              extraLinesData: ExtraLinesData(horizontalLines: [
-                HorizontalLine(
-                  y: target.toDouble(),
-                  color: AppColors.accent,
-                  strokeWidth: 2,
-                  dashArray: [4, 4],
-                ),
-              ]),
+              extraLinesData: ExtraLinesData(
+                horizontalLines: [
+                  HorizontalLine(
+                    y: target.toDouble(),
+                    color: AppColors.accent,
+                    strokeWidth: 2,
+                    dashArray: [4, 4],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

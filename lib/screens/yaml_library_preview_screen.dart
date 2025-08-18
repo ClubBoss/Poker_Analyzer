@@ -100,8 +100,9 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Ошибка')));
       }
     }
   }
@@ -117,8 +118,9 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
       service.addChangeLog(fixed, 'fix', 'editor', 'auto');
       await const YamlWriter().write(fixed.toJson(), file.path);
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Готово')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Готово')));
         if (_selected >= 0 && _files[_selected].path == file.path) {
           _markdown = const YamlPackMarkdownPreviewService()
               .generateMarkdownPreview(fixed);
@@ -128,8 +130,9 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Ошибка')));
       }
     }
   }
@@ -146,8 +149,9 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
       final outMap = const YamlReader().read(formatted);
       await const YamlWriter().write(outMap, file.path);
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Готово')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Готово')));
         if (_selected >= 0 && _files[_selected].path == file.path) {
           _markdown = const YamlPackMarkdownPreviewService()
               .generateMarkdownPreview(tpl);
@@ -157,8 +161,9 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Ошибка')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Ошибка')));
       }
     }
   }
@@ -168,8 +173,9 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
       final yaml = await file.readAsString();
       final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
       final map = const YamlReader().read(yaml);
-      final md =
-          const YamlPackMarkdownPreviewService().generateMarkdownPreview(tpl);
+      final md = const YamlPackMarkdownPreviewService().generateMarkdownPreview(
+        tpl,
+      );
       if (md != null && mounted) {
         await showMarkdownPreviewDialog(context, md);
       }
@@ -184,7 +190,8 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
       if (!mounted) return;
       if (md == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('История изменений отсутствует')));
+          const SnackBar(content: Text('История изменений отсутствует')),
+        );
       } else {
         await showMarkdownPreviewDialog(context, md);
       }
@@ -215,8 +222,10 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
       ),
     );
     if (format == null) return;
-    final fileOut =
-        await const YamlPackExporterService().exportToTextFile(file, format);
+    final fileOut = await const YamlPackExporterService().exportToTextFile(
+      file,
+      format,
+    );
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -267,8 +276,9 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
                   itemBuilder: (_, i) {
                     final f = _files[i];
                     final name = f.path.split(Platform.pathSeparator).last;
-                    final date = DateFormat('yyyy-MM-dd HH:mm')
-                        .format(f.statSync().modified);
+                    final date = DateFormat(
+                      'yyyy-MM-dd HH:mm',
+                    ).format(f.statSync().modified);
                     final outdated = _outdated[f.path] == true;
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -345,10 +355,12 @@ class _YamlLibraryPreviewScreenState extends State<YamlLibraryPreviewScreen> {
                               child: TextButton(
                                 onPressed: () {
                                   Clipboard.setData(
-                                      ClipboardData(text: _markdown!));
+                                    ClipboardData(text: _markdown!),
+                                  );
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                        content: Text('Скопировано')),
+                                      content: Text('Скопировано'),
+                                    ),
                                   );
                                 },
                                 child: const Text('📋 Скопировать'),

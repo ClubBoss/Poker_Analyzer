@@ -50,9 +50,7 @@ class BoosterAutoRetrySuggester {
           if (ctx.mounted) {
             Navigator.push(
               ctx,
-              MaterialPageRoute(
-                builder: (_) => const TrainingSessionScreen(),
-              ),
+              MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
             );
           }
         },

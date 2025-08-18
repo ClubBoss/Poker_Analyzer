@@ -9,16 +9,16 @@ import 'package:poker_analyzer/models/player_model.dart';
 
 class WpnHandHistoryConverter extends ConverterPlugin {
   WpnHandHistoryConverter()
-      : super(
-          formatId: 'wpn_hand_history',
-          description: 'Winning Poker Network hand history format',
-          capabilities: const ConverterFormatCapabilities(
-            supportsImport: true,
-            supportsExport: false,
-            requiresBoard: false,
-            supportsMultiStreet: false,
-          ),
-        );
+    : super(
+        formatId: 'wpn_hand_history',
+        description: 'Winning Poker Network hand history format',
+        capabilities: const ConverterFormatCapabilities(
+          supportsImport: true,
+          supportsExport: false,
+          requiresBoard: false,
+          supportsMultiStreet: false,
+        ),
+      );
 
   double _amount(String s) => double.tryParse(s.replaceAll(',', '.')) ?? 0;
 
@@ -28,8 +28,10 @@ class WpnHandHistoryConverter extends ConverterPlugin {
     if (lines.isEmpty || !lines.first.toLowerCase().contains('winning poker')) {
       return null;
     }
-    final seatRegex =
-        RegExp(r'^Seat (\d+):\s*(.+?) \(([^)]+)\)', caseSensitive: false);
+    final seatRegex = RegExp(
+      r'^Seat (\d+):\s*(.+?) \(([^)]+)\)',
+      caseSensitive: false,
+    );
     final seatEntries = <Map<String, dynamic>>[];
     for (final line in lines) {
       final m = seatRegex.firstMatch(line.trim());
@@ -48,8 +50,9 @@ class WpnHandHistoryConverter extends ConverterPlugin {
     String? heroName;
     List<CardModel> heroCards = [];
     for (final line in lines) {
-      final m =
-          RegExp(r'^Dealt to (.+?) \[(.+?) (.+?)\]').firstMatch(line.trim());
+      final m = RegExp(
+        r'^Dealt to (.+?) \[(.+?) (.+?)\]',
+      ).firstMatch(line.trim());
       if (m != null) {
         heroName = m.group(1)!.trim();
         final c1 = parseCard(m.group(2)!);
@@ -96,8 +99,9 @@ class WpnHandHistoryConverter extends ConverterPlugin {
       if (m != null) {
         final idx = nameToIndex[m.group(1)!.toLowerCase()];
         if (idx != null)
-          actions
-              .add(ActionEntry(0, idx, 'call', amount: _amount(m.group(2)!)));
+          actions.add(
+            ActionEntry(0, idx, 'call', amount: _amount(m.group(2)!)),
+          );
         continue;
       }
       m = RegExp(r'^(.+?): bets ([\d.,]+)').firstMatch(t);
@@ -111,8 +115,9 @@ class WpnHandHistoryConverter extends ConverterPlugin {
       if (m != null) {
         final idx = nameToIndex[m.group(1)!.toLowerCase()];
         if (idx != null)
-          actions
-              .add(ActionEntry(0, idx, 'raise', amount: _amount(m.group(2)!)));
+          actions.add(
+            ActionEntry(0, idx, 'raise', amount: _amount(m.group(2)!)),
+          );
         continue;
       }
     }
@@ -130,7 +135,7 @@ class WpnHandHistoryConverter extends ConverterPlugin {
       playerPositions: positions,
       comment: '',
       playerTypes: {
-        for (int i = 0; i < playerCount; i++) i: PlayerType.unknown
+        for (int i = 0; i < playerCount; i++) i: PlayerType.unknown,
       },
     );
   }

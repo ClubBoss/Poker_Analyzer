@@ -32,16 +32,18 @@ List<UiSpot> decodeL2SessionJson(String jsonStr) {
       final w = raw['why'];
       if (w is String) explain = w;
     }
-    spots.add(UiSpot(
-      kind: spotKind,
-      hand: '${raw['hand']}',
-      pos: '${raw['pos']}',
-      stack: '${raw['stack']}',
-      action: '${raw['action']}',
-      vsPos: raw['vsPos']?.toString(),
-      limpers: raw['limpers']?.toString(),
-      explain: explain,
-    ));
+    spots.add(
+      UiSpot(
+        kind: spotKind,
+        hand: '${raw['hand']}',
+        pos: '${raw['pos']}',
+        stack: '${raw['stack']}',
+        action: '${raw['action']}',
+        vsPos: raw['vsPos']?.toString(),
+        limpers: raw['limpers']?.toString(),
+        explain: explain,
+      ),
+    );
   }
   return spots;
 }
@@ -52,20 +54,24 @@ List<UiSpot> decodeL4IcmSessionJson(String jsonStr) {
   final spots = <UiSpot>[];
   for (final raw in items) {
     if (raw is! Map) continue;
-    spots.add(UiSpot(
-      kind: SpotKind.l4_icm,
-      hand: '${raw['hand']}',
-      pos: '${raw['heroPos']}',
-      stack: '${raw['stackBb']}',
-      action: '${raw['action']}',
-      explain: raw['explain'] is String ? raw['explain'] as String : null,
-    ));
+    spots.add(
+      UiSpot(
+        kind: SpotKind.l4_icm,
+        hand: '${raw['hand']}',
+        pos: '${raw['heroPos']}',
+        stack: '${raw['stackBb']}',
+        action: '${raw['action']}',
+        explain: raw['explain'] is String ? raw['explain'] as String : null,
+      ),
+    );
   }
   return spots;
 }
 
-Future<List<UiSpot>> decodeL3SessionJson(String jsonStr,
-    {required String baseDir}) async {
+Future<List<UiSpot>> decodeL3SessionJson(
+  String jsonStr, {
+  required String baseDir,
+}) async {
   final root = jsonDecode(jsonStr);
   final spots = <UiSpot>[];
   final inlineItems = root['inlineItems'];
@@ -94,16 +100,18 @@ Future<List<UiSpot>> decodeL3SessionJson(String jsonStr,
         final w = raw['why'];
         if (w is String) explain = w;
       }
-      spots.add(UiSpot(
-        kind: spotKind,
-        hand: '${raw['hand']}',
-        pos: '${raw['pos']}',
-        stack: '${raw['stack']}',
-        action: '${raw['action']}',
-        vsPos: raw['vsPos']?.toString(),
-        limpers: raw['limpers']?.toString(),
-        explain: explain,
-      ));
+      spots.add(
+        UiSpot(
+          kind: spotKind,
+          hand: '${raw['hand']}',
+          pos: '${raw['pos']}',
+          stack: '${raw['stack']}',
+          action: '${raw['action']}',
+          vsPos: raw['vsPos']?.toString(),
+          limpers: raw['limpers']?.toString(),
+          explain: explain,
+        ),
+      );
     }
   } else {
     final items = root['items'];
@@ -135,8 +143,9 @@ String detectSessionKind(Map root) {
   if (inlineItems is List) return 'l3';
   final items = root['items'];
   if (items is List && items.isNotEmpty) {
-    final isL3 =
-        items.every((e) => e is String || (e is Map && e['file'] != null));
+    final isL3 = items.every(
+      (e) => e is String || (e is Map && e['file'] != null),
+    );
     if (isL3) return 'l3';
     final first = items.first;
     if (first is Map) {

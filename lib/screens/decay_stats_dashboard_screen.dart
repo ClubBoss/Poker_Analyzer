@@ -46,8 +46,9 @@ class _DecayStatsDashboardScreenState extends State<DecayStatsDashboardScreen> {
   Future<void> _reviewNow() async {
     await InboxBoosterDeliveryController().maybeTriggerBoosterInbox();
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Review triggered')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Review triggered')));
   }
 
   Widget _summarySection() {
@@ -62,15 +63,21 @@ class _DecayStatsDashboardScreenState extends State<DecayStatsDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Забывание: ${(s.averageDecay * 100).toStringAsFixed(0)}%',
-              style: const TextStyle(color: Colors.white)),
+          Text(
+            'Забывание: ${(s.averageDecay * 100).toStringAsFixed(0)}%',
+            style: const TextStyle(color: Colors.white),
+          ),
           const SizedBox(height: 4),
-          Text('Забытых тегов: ${s.decayedTags}/${s.totalTags}',
-              style: const TextStyle(color: Colors.white70)),
+          Text(
+            'Забытых тегов: ${s.decayedTags}/${s.totalTags}',
+            style: const TextStyle(color: Colors.white70),
+          ),
           if (s.topForgotten.isNotEmpty) ...[
             const SizedBox(height: 4),
-            Text('Топ: ${s.topForgotten.join(', ')}',
-                style: const TextStyle(color: Colors.white70)),
+            Text(
+              'Топ: ${s.topForgotten.join(', ')}',
+              style: const TextStyle(color: Colors.white70),
+            ),
           ],
         ],
       ),
@@ -111,12 +118,15 @@ class _DecayStatsDashboardScreenState extends State<DecayStatsDashboardScreen> {
           gridData: const FlGridData(show: false),
           borderData: FlBorderData(show: false),
           titlesData: FlTitlesData(
-            leftTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            leftTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -146,8 +156,10 @@ class _DecayStatsDashboardScreenState extends State<DecayStatsDashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Забытые теги',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        const Text(
+          'Забытые теги',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 8),
         for (final e in entries)
           Padding(
@@ -156,8 +168,10 @@ class _DecayStatsDashboardScreenState extends State<DecayStatsDashboardScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(e.key, style: const TextStyle(color: Colors.white70)),
-                Text('${(e.value * 100).toStringAsFixed(0)}%',
-                    style: const TextStyle(color: Colors.white70)),
+                Text(
+                  '${(e.value * 100).toStringAsFixed(0)}%',
+                  style: const TextStyle(color: Colors.white70),
+                ),
               ],
             ),
           ),

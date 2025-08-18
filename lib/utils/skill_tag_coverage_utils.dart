@@ -7,12 +7,7 @@ class CategorySummary {
   final int uncovered;
   final double avg;
 
-  const CategorySummary(
-    this.total,
-    this.covered,
-    this.uncovered,
-    this.avg,
-  );
+  const CategorySummary(this.total, this.covered, this.uncovered, this.avg);
 }
 
 /// Computes coverage summary per category given the global stats.

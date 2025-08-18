@@ -11,8 +11,11 @@ void main() {
         .where((f) => f.path.endsWith('.yaml'));
     for (final f in files) {
       final yaml = await f.readAsString();
-      expect(() => TrainingPackTemplateV2.fromYamlAuto(yaml), returnsNormally,
-          reason: f.path);
+      expect(
+        () => TrainingPackTemplateV2.fromYamlAuto(yaml),
+        returnsNormally,
+        reason: f.path,
+      );
     }
   });
 }

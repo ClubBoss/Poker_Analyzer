@@ -59,8 +59,8 @@ class BoardCardsWidget extends StatelessWidget {
 
               final animation =
                   revealAnimations != null && index < revealAnimations!.length
-                      ? revealAnimations![index]
-                      : const AlwaysStoppedAnimation(1.0);
+                  ? revealAnimations![index]
+                  : const AlwaysStoppedAnimation(1.0);
               return FadeTransition(
                 opacity: animation,
                 child: GestureDetector(
@@ -73,8 +73,10 @@ class BoardCardsWidget extends StatelessWidget {
                           final disabled = Set<String>.from(usedCards);
                           if (card != null)
                             disabled.remove('${card.rank}${card.suit}');
-                          final selected = await showCardSelector(context,
-                              disabledCards: disabled);
+                          final selected = await showCardSelector(
+                            context,
+                            disabledCards: disabled,
+                          );
                           if (selected != null) {
                             onCardSelected(index, selected);
                           }
@@ -92,15 +94,16 @@ class BoardCardsWidget extends StatelessWidget {
                     width: 36 * scale,
                     height: 52 * scale,
                     decoration: BoxDecoration(
-                      color: Colors.white
-                          .withValues(alpha: card == null ? 0.3 : 1),
+                      color: Colors.white.withValues(
+                        alpha: card == null ? 0.3 : 1,
+                      ),
                       borderRadius: BorderRadius.circular(6),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.25),
                           blurRadius: 3,
                           offset: const Offset(1, 2),
-                        )
+                        ),
                       ],
                     ),
                     alignment: Alignment.center,

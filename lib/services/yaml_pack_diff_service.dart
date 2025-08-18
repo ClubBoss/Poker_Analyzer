@@ -25,10 +25,7 @@ class YamlPackDiffService {
       ..writeln();
   }
 
-  List<String> _metaDiff(
-    TrainingPackTemplateV2 a,
-    TrainingPackTemplateV2 b,
-  ) {
+  List<String> _metaDiff(TrainingPackTemplateV2 a, TrainingPackTemplateV2 b) {
     const ignore = {'id', 'createdAt', 'updatedAt'};
     const eq = DeepCollectionEquality();
     final keys = {...a.meta.keys, ...b.meta.keys}..removeWhere(ignore.contains);
@@ -48,10 +45,7 @@ class YamlPackDiffService {
     return out;
   }
 
-  List<String> _tagsDiff(
-    TrainingPackTemplateV2 a,
-    TrainingPackTemplateV2 b,
-  ) {
+  List<String> _tagsDiff(TrainingPackTemplateV2 a, TrainingPackTemplateV2 b) {
     final setA = a.tags.toSet();
     final setB = b.tags.toSet();
     final out = <String>[];
@@ -64,10 +58,7 @@ class YamlPackDiffService {
     return out;
   }
 
-  List<String> _spotsDiff(
-    TrainingPackTemplateV2 a,
-    TrainingPackTemplateV2 b,
-  ) {
+  List<String> _spotsDiff(TrainingPackTemplateV2 a, TrainingPackTemplateV2 b) {
     final mapA = {for (final s in a.spots) s.id: s};
     final mapB = {for (final s in b.spots) s.id: s};
     final ids = {...mapA.keys, ...mapB.keys};
@@ -82,29 +73,30 @@ class YamlPackDiffService {
         out.add('- 🟥 $id');
       } else {
         final ma = Map<String, dynamic>.from(sa.toJson())
-          ..removeWhere((k, _) =>
-              k == 'id' ||
-              k == 'createdAt' ||
-              k == 'updatedAt' ||
-              k == 'editedAt' ||
-              k == 'explanation');
+          ..removeWhere(
+            (k, _) =>
+                k == 'id' ||
+                k == 'createdAt' ||
+                k == 'updatedAt' ||
+                k == 'editedAt' ||
+                k == 'explanation',
+          );
         final mb = Map<String, dynamic>.from(sb.toJson())
-          ..removeWhere((k, _) =>
-              k == 'id' ||
-              k == 'createdAt' ||
-              k == 'updatedAt' ||
-              k == 'editedAt' ||
-              k == 'explanation');
+          ..removeWhere(
+            (k, _) =>
+                k == 'id' ||
+                k == 'createdAt' ||
+                k == 'updatedAt' ||
+                k == 'editedAt' ||
+                k == 'explanation',
+          );
         if (!eq.equals(ma, mb)) out.add('- 🟨 $id');
       }
     }
     return out;
   }
 
-  List<String> _explDiff(
-    TrainingPackTemplateV2 a,
-    TrainingPackTemplateV2 b,
-  ) {
+  List<String> _explDiff(TrainingPackTemplateV2 a, TrainingPackTemplateV2 b) {
     final mapA = {for (final s in a.spots) s.id: s};
     final mapB = {for (final s in b.spots) s.id: s};
     final ids = {...mapA.keys, ...mapB.keys};

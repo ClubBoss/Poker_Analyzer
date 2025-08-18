@@ -16,10 +16,8 @@ TrainingPackTemplateV2 tpl(String id, {UnlockRules? rules}) {
   );
 }
 
-TrainingPackStat stat(double accuracy) => TrainingPackStat(
-      accuracy: accuracy,
-      last: DateTime.now(),
-    );
+TrainingPackStat stat(double accuracy) =>
+    TrainingPackStat(accuracy: accuracy, last: DateTime.now());
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -30,14 +28,12 @@ void main() {
       tpl('b', rules: const UnlockRules(requiredPacks: ['a'])),
       tpl('c'),
     ];
-    final stats = {
-      'a': stat(1.0),
-      'b': stat(0.95),
-      'c': stat(0.8),
-    };
+    final stats = {'a': stat(1.0), 'b': stat(0.95), 'c': stat(0.8)};
 
-    final track =
-        const LearningTrackEngine().computeTrack(allPacks: packs, stats: stats);
+    final track = const LearningTrackEngine().computeTrack(
+      allPacks: packs,
+      stats: stats,
+    );
 
     expect(track.unlockedPacks.map((p) => p.id), ['a', 'b', 'c']);
     expect(track.nextUpPack?.id, 'c');
@@ -47,8 +43,10 @@ void main() {
     final packs = [tpl('a'), tpl('b')];
     final stats = {'a': stat(0.95), 'b': stat(0.92)};
 
-    final track =
-        const LearningTrackEngine().computeTrack(allPacks: packs, stats: stats);
+    final track = const LearningTrackEngine().computeTrack(
+      allPacks: packs,
+      stats: stats,
+    );
 
     expect(track.unlockedPacks.length, 2);
     expect(track.nextUpPack, isNull);

@@ -9,8 +9,11 @@ class RecentPack {
   final String name;
   final DateTime lastOpenedAt;
 
-  RecentPack(
-      {required this.id, required this.name, required this.lastOpenedAt});
+  RecentPack({
+    required this.id,
+    required this.name,
+    required this.lastOpenedAt,
+  });
 
   factory RecentPack.fromJson(Map<String, dynamic> json) {
     return RecentPack(
@@ -21,10 +24,10 @@ class RecentPack {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'lastOpenedAt': lastOpenedAt.toIso8601String(),
-      };
+    'id': id,
+    'name': name,
+    'lastOpenedAt': lastOpenedAt.toIso8601String(),
+  };
 }
 
 class RecentPacksService {
@@ -42,7 +45,8 @@ class RecentPacksService {
     if (raw != null) {
       final items = raw
           .map(
-              (e) => RecentPack.fromJson(jsonDecode(e) as Map<String, dynamic>))
+            (e) => RecentPack.fromJson(jsonDecode(e) as Map<String, dynamic>),
+          )
           .toList();
       items.sort((a, b) => b.lastOpenedAt.compareTo(a.lastOpenedAt));
       _recents.value = items;
@@ -61,8 +65,10 @@ class RecentPacksService {
     final time = when ?? DateTime.now();
     final list = List<RecentPack>.from(_recents.value);
     list.removeWhere((e) => e.id == template.id);
-    list.insert(0,
-        RecentPack(id: template.id, name: template.name, lastOpenedAt: time));
+    list.insert(
+      0,
+      RecentPack(id: template.id, name: template.name, lastOpenedAt: time),
+    );
     if (list.length > 5) {
       list.removeRange(5, list.length);
     }

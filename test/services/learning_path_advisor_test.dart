@@ -13,7 +13,7 @@ void main() {
       linkedPackId: 'p',
       meta: const {
         'schemaVersion': '3.0.0',
-        'tags': ['a']
+        'tags': ['a'],
       },
     ),
     LessonStep(
@@ -23,7 +23,7 @@ void main() {
       linkedPackId: 'p',
       meta: const {
         'schemaVersion': '3.0.0',
-        'tags': ['b']
+        'tags': ['b'],
       },
     ),
     LessonStep(
@@ -42,12 +42,7 @@ void main() {
       description: '',
       stepIds: ['s1', 's2'],
     ),
-    const LessonTrack(
-      id: 't2',
-      title: 'T2',
-      description: '',
-      stepIds: ['s3'],
-    ),
+    const LessonTrack(id: 't2', title: 'T2', description: '', stepIds: ['s3']),
   ];
 
   test('prefers step with matching weak tag', () {
@@ -65,7 +60,7 @@ void main() {
     final step = advisor.recommendNextStep(
       availableTracks: tracks,
       completedSteps: {
-        'l': {'s1'}
+        'l': {'s1'},
       },
       profile: const MistakeProfile(weakTags: {}),
     );
@@ -77,7 +72,7 @@ void main() {
     final step = advisor.recommendNextStep(
       availableTracks: tracks,
       completedSteps: {
-        'l': {'s1', 's2', 's3'}
+        'l': {'s1', 's2', 's3'},
       },
       profile: const MistakeProfile(weakTags: {'a'}),
     );

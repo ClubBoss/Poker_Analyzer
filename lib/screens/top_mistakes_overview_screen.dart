@@ -13,10 +13,9 @@ class TopMistakesOverviewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final packs = context
-        .read<TrainingPackStorageService>()
-        .packs
-        .where((p) => !p.isBuiltIn);
+    final packs = context.read<TrainingPackStorageService>().packs.where(
+      (p) => !p.isBuiltIn,
+    );
     final Map<String, int> counts = {};
     for (final p in packs) {
       for (final h in p.hands) {
@@ -42,18 +41,21 @@ class TopMistakesOverviewScreen extends StatelessWidget {
     for (var i = 0; i < values.length; i++) {
       const color = Colors.redAccent;
       groups.add(
-        BarChartGroupData(x: i, barRods: [
-          BarChartRodData(
-            toY: values[i].toDouble(),
-            width: 14,
-            borderRadius: BorderRadius.circular(4),
-            gradient: LinearGradient(
-              colors: [color.withValues(alpha: 0.7), color],
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter,
+        BarChartGroupData(
+          x: i,
+          barRods: [
+            BarChartRodData(
+              toY: values[i].toDouble(),
+              width: 14,
+              borderRadius: BorderRadius.circular(4),
+              gradient: LinearGradient(
+                colors: [color.withValues(alpha: 0.7), color],
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+              ),
             ),
-          ),
-        ]),
+          ],
+        ),
       );
     }
     double interval = 1;
@@ -66,8 +68,11 @@ class TopMistakesOverviewScreen extends StatelessWidget {
       ),
       body: entries.isEmpty
           ? const Center(
-              child:
-                  Text('Нет данных', style: TextStyle(color: Colors.white70)))
+              child: Text(
+                'Нет данных',
+                style: TextStyle(color: Colors.white70),
+              ),
+            )
           : Padding(
               padding: const EdgeInsets.all(16),
               child: Container(
@@ -91,18 +96,23 @@ class TopMistakesOverviewScreen extends StatelessWidget {
                     ),
                     titlesData: FlTitlesData(
                       rightTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false)),
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
                       topTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false)),
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
                       leftTitles: AxisTitles(
                         sideTitles: SideTitles(
                           showTitles: true,
                           interval: interval,
                           reservedSize: 30,
                           getTitlesWidget: (v, meta) => Text(
-                              v.toInt().toString(),
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 10)),
+                            v.toInt().toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                          ),
                         ),
                       ),
                       bottomTitles: AxisTitles(
@@ -116,9 +126,13 @@ class TopMistakesOverviewScreen extends StatelessWidget {
                             final text = labels[i];
                             return Transform.rotate(
                               angle: -pi / 4,
-                              child: Text(text,
-                                  style: const TextStyle(
-                                      color: Colors.white, fontSize: 10)),
+                              child: Text(
+                                text,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                ),
+                              ),
                             );
                           },
                         ),

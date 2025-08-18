@@ -41,7 +41,8 @@ class _SavedHandEditorScreenState extends State<SavedHandEditorScreen> {
     _stacks = {
       for (int i = 0; i < widget.hand.numberOfPlayers; i++)
         i: TextEditingController(
-            text: (widget.hand.stackSizes[i] ?? 0).toString())
+          text: (widget.hand.stackSizes[i] ?? 0).toString(),
+        ),
     };
     _expected = TextEditingController(text: widget.hand.expectedAction ?? '');
   }
@@ -70,17 +71,18 @@ class _SavedHandEditorScreenState extends State<SavedHandEditorScreen> {
   }
 
   TrainingPackSpot _spotFromHand(SavedHand h) {
-    final hero =
-        h.playerCards[h.heroIndex].map((c) => '${c.rank}${c.suit}').join(' ');
+    final hero = h.playerCards[h.heroIndex]
+        .map((c) => '${c.rank}${c.suit}')
+        .join(' ');
     final actionsByStreet = <int, List<ActionEntry>>{
-      for (var s = 0; s < 4; s++) s: []
+      for (var s = 0; s < 4; s++) s: [],
     };
     for (final a in h.actions) {
       actionsByStreet[a.street]!.add(a);
     }
     final stacks = <String, double>{
       for (int i = 0; i < h.numberOfPlayers; i++)
-        '$i': (h.stackSizes[i] ?? 0).toDouble()
+        '$i': (h.stackSizes[i] ?? 0).toDouble(),
     };
     return TrainingPackSpot(
       id: const Uuid().v4(),
@@ -101,10 +103,10 @@ class _SavedHandEditorScreenState extends State<SavedHandEditorScreen> {
     var actions = _actions.values.expand((l) => l).toList();
     final stacks = {
       for (int i = 0; i < widget.hand.numberOfPlayers; i++)
-        i: int.tryParse(_stacks[i]?.text ?? '') ?? 0
+        i: int.tryParse(_stacks[i]?.text ?? '') ?? 0,
     };
     final cards = <List<CardModel>>[
-      for (final l in widget.hand.playerCards) List<CardModel>.from(l)
+      for (final l in widget.hand.playerCards) List<CardModel>.from(l),
     ];
     if (cards.length <= widget.hand.heroIndex) {
       cards.length = widget.hand.heroIndex + 1;
@@ -120,32 +122,35 @@ class _SavedHandEditorScreenState extends State<SavedHandEditorScreen> {
       heroPosition: _position.label,
       stackSizes: stacks,
       playerCards: cards,
-      expectedAction:
-          _expected.text.trim().isEmpty ? null : _expected.text.trim(),
+      expectedAction: _expected.text.trim().isEmpty
+          ? null
+          : _expected.text.trim(),
     );
     final heroCards = hand.playerCards.length > hand.heroIndex
         ? hand.playerCards[hand.heroIndex]
         : <dynamic>[];
-    final complete = heroCards.length >= 2 &&
+    final complete =
+        heroCards.length >= 2 &&
         hand.boardCards.isNotEmpty &&
         actions.isNotEmpty;
     if (complete) {
       final spot = _spotFromHand(hand);
-      await context
-          .read<EvaluationExecutorService>()
-          .evaluateSingle(context, spot, hand: hand, anteBb: hand.anteBb);
-      actions = spot.hand.actions.values.expand((l) => l).toList();
-      hand = hand.copyWith(
-        actions: actions,
-        gtoAction: spot.correctAction,
+      await context.read<EvaluationExecutorService>().evaluateSingle(
+        context,
+        spot,
+        hand: hand,
+        anteBb: hand.anteBb,
       );
+      actions = spot.hand.actions.values.expand((l) => l).toList();
+      hand = hand.copyWith(actions: actions, gtoAction: spot.correctAction);
       await context.read<SavedHandManagerService>().save(hand);
       final ev = spot.heroEv;
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content:
-                Text('Saved ${ev != null ? ev.toStringAsFixed(2) : '--'} BB'),
+            content: Text(
+              'Saved ${ev != null ? ev.toStringAsFixed(2) : '--'} BB',
+            ),
           ),
         );
       }
@@ -206,9 +211,12 @@ class _SavedHandEditorScreenState extends State<SavedHandEditorScreen> {
                 for (final p in HeroPosition.values)
                   if (p != HeroPosition.unknown)
                     DropdownMenuItem(
-                        value: p,
-                        child: Text(p.label,
-                            style: const TextStyle(color: Colors.white)))
+                      value: p,
+                      child: Text(
+                        p.label,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
               ],
             ),
             const SizedBox(height: 16),
@@ -333,9 +341,7 @@ class _ActionRowState extends State<_ActionRow> {
     super.initState();
     player = widget.entry.playerIndex;
     action = widget.entry.action;
-    amount = TextEditingController(
-      text: widget.entry.amount?.toString() ?? '',
-    );
+    amount = TextEditingController(text: widget.entry.amount?.toString() ?? '');
   }
 
   @override
@@ -391,8 +397,10 @@ class _ActionRowState extends State<_ActionRow> {
           child: TextField(
             controller: amount,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration:
-                const InputDecoration(isDense: true, labelText: 'Amount'),
+            decoration: const InputDecoration(
+              isDense: true,
+              labelText: 'Amount',
+            ),
             onChanged: (_) => _emit(),
           ),
         ),

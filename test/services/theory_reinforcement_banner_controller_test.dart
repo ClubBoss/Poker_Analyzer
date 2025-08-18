@@ -32,15 +32,21 @@ void main() {
   });
 
   test('shows banner when trigger passes', () async {
-    final lesson =
-        const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
+    final lesson = const TheoryMiniLessonNode(
+      id: 'l1',
+      title: 't',
+      content: '',
+    );
     final controller = TheoryReinforcementBannerController(
       trigger: _FakeTrigger(true),
       library: _FakeLibrary(lesson),
       cooldown: Duration.zero,
     );
-    await RecapCompletionTracker.instance
-        .logCompletion('r1', 'tag', const Duration(seconds: 1));
+    await RecapCompletionTracker.instance.logCompletion(
+      'r1',
+      'tag',
+      const Duration(seconds: 1),
+    );
     await Future<void>.delayed(Duration.zero);
     expect(controller.shouldShowBanner(), isTrue);
     expect(controller.getPendingBannerLesson()?.id, 'l1');
@@ -48,19 +54,28 @@ void main() {
   });
 
   test('respects cooldown between banners', () async {
-    final lesson =
-        const TheoryMiniLessonNode(id: 'l1', title: 't', content: '');
+    final lesson = const TheoryMiniLessonNode(
+      id: 'l1',
+      title: 't',
+      content: '',
+    );
     final controller = TheoryReinforcementBannerController(
       trigger: _FakeTrigger(true),
       library: _FakeLibrary(lesson),
       cooldown: const Duration(hours: 1),
     );
-    await RecapCompletionTracker.instance
-        .logCompletion('r1', 'tag', const Duration(seconds: 1));
+    await RecapCompletionTracker.instance.logCompletion(
+      'r1',
+      'tag',
+      const Duration(seconds: 1),
+    );
     await Future<void>.delayed(Duration.zero);
     controller.markBannerDismissed();
-    await RecapCompletionTracker.instance
-        .logCompletion('r2', 'tag', const Duration(seconds: 1));
+    await RecapCompletionTracker.instance.logCompletion(
+      'r2',
+      'tag',
+      const Duration(seconds: 1),
+    );
     await Future<void>.delayed(Duration.zero);
     expect(controller.shouldShowBanner(), isFalse);
     controller.dispose();

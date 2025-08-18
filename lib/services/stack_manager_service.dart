@@ -11,9 +11,11 @@ class StackManagerService extends ChangeNotifier {
   final Map<int, int> stackSizes = {};
   final PotSyncService potSync;
 
-  StackManagerService(Map<int, int> initialStacks,
-      {required this.potSync, Map<int, int>? remainingStacks})
-      : _initialStacks = Map<int, int>.from(initialStacks) {
+  StackManagerService(
+    Map<int, int> initialStacks, {
+    required this.potSync,
+    Map<int, int>? remainingStacks,
+  }) : _initialStacks = Map<int, int>.from(initialStacks) {
     _manager = StackManager(_initialStacks, remainingStacks: remainingStacks);
     stackSizes.addAll(_manager.currentStacks);
     potSync.stackService = this;
@@ -33,8 +35,10 @@ class StackManagerService extends ChangeNotifier {
     _initialStacks
       ..clear()
       ..addAll(stacks);
-    _manager = StackManager(Map<int, int>.from(_initialStacks),
-        remainingStacks: remainingStacks);
+    _manager = StackManager(
+      Map<int, int>.from(_initialStacks),
+      remainingStacks: remainingStacks,
+    );
     stackSizes
       ..clear()
       ..addAll(_manager.currentStacks);

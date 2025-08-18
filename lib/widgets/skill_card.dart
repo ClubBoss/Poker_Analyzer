@@ -24,7 +24,7 @@ class SkillCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final color =
         Color.lerp(Colors.red, Colors.green, mastery.clamp(0.0, 1.0)) ??
-            Colors.red;
+        Colors.red;
     final name = _capitalize(tag);
     return GestureDetector(
       onTap: onTap,

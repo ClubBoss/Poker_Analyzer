@@ -74,7 +74,7 @@ class _YamlPackArchiveCleanupScreenState
     final cutoff = DateTime.now().subtract(Duration(days: days));
     final files = [
       for (final l in _items.values)
-        ...l.where((f) => f.statSync().modified.isBefore(cutoff))
+        ...l.where((f) => f.statSync().modified.isBefore(cutoff)),
     ];
     if (files.isEmpty) return;
     final ok = await showDialog<bool>(
@@ -84,11 +84,13 @@ class _YamlPackArchiveCleanupScreenState
         title: Text('Удалить ${files.length} файлов?'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Нет')),
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Нет'),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Да')),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Да'),
+          ),
         ],
       ),
     );
@@ -102,9 +104,9 @@ class _YamlPackArchiveCleanupScreenState
     }
     if (!mounted) return;
     await _load();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Удалено файлов: $deleted')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Удалено файлов: $deleted')));
   }
 
   Future<void> _deletePack(String id) async {
@@ -117,11 +119,13 @@ class _YamlPackArchiveCleanupScreenState
         title: Text('Удалить архив $id?'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Нет')),
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Нет'),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Да')),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Да'),
+          ),
         ],
       ),
     );
@@ -135,9 +139,9 @@ class _YamlPackArchiveCleanupScreenState
     }
     if (!mounted) return;
     await _load();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Удалено файлов: $deleted')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Удалено файлов: $deleted')));
   }
 
   Future<void> _clearAll() async {
@@ -150,11 +154,13 @@ class _YamlPackArchiveCleanupScreenState
         title: const Text('Очистить весь архив?'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Нет')),
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Нет'),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Да')),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Да'),
+          ),
         ],
       ),
     );
@@ -170,9 +176,9 @@ class _YamlPackArchiveCleanupScreenState
     }
     if (!mounted) return;
     await _load();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Удалено файлов: $deleted')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Удалено файлов: $deleted')));
   }
 
   @override
@@ -197,8 +203,9 @@ class _YamlPackArchiveCleanupScreenState
                     ),
                     const SizedBox(width: 16),
                     ElevatedButton(
-                        onPressed: _deleteOld,
-                        child: const Text('Удалить старые')),
+                      onPressed: _deleteOld,
+                      child: const Text('Удалить старые'),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -218,8 +225,9 @@ class _YamlPackArchiveCleanupScreenState
                   Padding(
                     padding: const EdgeInsets.only(top: 16),
                     child: ElevatedButton(
-                        onPressed: _clearAll,
-                        child: const Text('Очистить весь архив')),
+                      onPressed: _clearAll,
+                      child: const Text('Очистить весь архив'),
+                    ),
                   ),
               ],
             ),

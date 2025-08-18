@@ -30,10 +30,7 @@ class LessonStreakBadgeWidget extends StatelessWidget {
             SizedBox(width: spacing),
             Text(
               label,
-              style: TextStyle(
-                fontSize: fontSize,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
             ),
           ],
         );

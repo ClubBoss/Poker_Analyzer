@@ -28,7 +28,10 @@ class _PackBundleViewerScreenState extends State<PackBundleViewerScreen> {
 
   Future<void> _pick() async {
     final result = await FilePicker.platform.pickFiles(
-        allowMultiple: true, type: FileType.custom, allowedExtensions: ['pka']);
+      allowMultiple: true,
+      type: FileType.custom,
+      allowedExtensions: ['pka'],
+    );
     if (result == null) return;
     final items = <PackBundleInfo>[];
     for (final f in result.files) {
@@ -37,8 +40,9 @@ class _PackBundleViewerScreenState extends State<PackBundleViewerScreen> {
       try {
         final data = await File(path).readAsBytes();
         final archive = ZipDecoder().decodeBytes(data);
-        final tplFile =
-            archive.files.firstWhere((e) => e.name == 'template.json');
+        final tplFile = archive.files.firstWhere(
+          (e) => e.name == 'template.json',
+        );
         final json =
             jsonDecode(utf8.decode(tplFile.content)) as Map<String, dynamic>;
         final tpl = TrainingPackTemplate.fromJson(json);
@@ -79,11 +83,13 @@ class _PackBundleViewerScreenState extends State<PackBundleViewerScreen> {
           title: const Text('Перезаписать существующий пак?'),
           actions: [
             TextButton(
-                onPressed: () => Navigator.pop(ctx, false),
-                child: const Text('No')),
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('No'),
+            ),
             TextButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                child: const Text('Yes')),
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Yes'),
+            ),
           ],
         ),
       );
@@ -107,8 +113,9 @@ class _PackBundleViewerScreenState extends State<PackBundleViewerScreen> {
 
   void _showBundleInfo(PackBundleInfo info) async {
     final templates = await TrainingPackStorage.load();
-    final existing =
-        templates.firstWhereOrNull((e) => e.id == info.template.id);
+    final existing = templates.firstWhereOrNull(
+      (e) => e.id == info.template.id,
+    );
     final identical =
         existing != null && existing.createdAt == info.template.createdAt;
     showModalBottomSheet(
@@ -125,25 +132,31 @@ class _PackBundleViewerScreenState extends State<PackBundleViewerScreen> {
         Color color(int v) => v < 70
             ? Colors.red
             : v < 90
-                ? Colors.yellow[700]!
-                : Colors.green;
+            ? Colors.yellow[700]!
+            : Colors.green;
         return Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(t.name,
-                  style: const TextStyle(fontSize: 18, color: Colors.white)),
+              Text(
+                t.name,
+                style: const TextStyle(fontSize: 18, color: Colors.white),
+              ),
               if (t.description.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
-                  child: Text(t.description,
-                      style: const TextStyle(color: Colors.white70)),
+                  child: Text(
+                    t.description,
+                    style: const TextStyle(color: Colors.white70),
+                  ),
                 ),
               const SizedBox(height: 8),
-              Text('Спотов: $total',
-                  style: const TextStyle(color: Colors.white)),
+              Text(
+                'Спотов: $total',
+                style: const TextStyle(color: Colors.white),
+              ),
               const SizedBox(height: 4),
               Row(
                 children: [
@@ -197,7 +210,9 @@ class _PackBundleViewerScreenState extends State<PackBundleViewerScreen> {
           Padding(
             padding: const EdgeInsets.all(16),
             child: ElevatedButton(
-                onPressed: _pick, child: const Text('Select Bundles')),
+              onPressed: _pick,
+              child: const Text('Select Bundles'),
+            ),
           ),
           Expanded(
             child: ListView.builder(
@@ -209,11 +224,13 @@ class _PackBundleViewerScreenState extends State<PackBundleViewerScreen> {
                 final date = tpl.lastGeneratedAt;
                 return ListTile(
                   title: Text(tpl.name),
-                  subtitle: Text([
-                    if (date != null)
-                      date.toLocal().toString().split('.').first,
-                    '${coverage.round()}%'
-                  ].join(' · ')),
+                  subtitle: Text(
+                    [
+                      if (date != null)
+                        date.toLocal().toString().split('.').first,
+                      '${coverage.round()}%',
+                    ].join(' · '),
+                  ),
                   onTap: () => _showBundleInfo(b),
                 );
               },

@@ -16,16 +16,20 @@ void main() {
       tags: [],
       nextIds: [],
     );
-    final group =
-        LearningPathEntryGroup(title: 'Review', entries: const [lesson]);
+    final group = LearningPathEntryGroup(
+      title: 'Review',
+      entries: const [lesson],
+    );
     final logger = _FakeLogger();
     final service = LearningPathNodeRendererService(analyticsLogger: logger);
 
-    await tester.pumpWidget(MaterialApp(
-      home: Builder(
-        builder: (context) => service.build(context, 'n1', [group]),
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => service.build(context, 'n1', [group]),
+        ),
       ),
-    ));
+    );
     await tester.pump();
 
     expect(find.text('Review'), findsOneWidget);

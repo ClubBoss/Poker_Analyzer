@@ -33,8 +33,9 @@ class SmartPathUXHintsService {
     }
 
     if (ctx.errorCounts.isNotEmpty) {
-      final entry =
-          ctx.errorCounts.entries.reduce((a, b) => a.value >= b.value ? a : b);
+      final entry = ctx.errorCounts.entries.reduce(
+        (a, b) => a.value >= b.value ? a : b,
+      );
       if (entry.value >= 3) {
         return 'Ты часто ошибаешься в позиции ${entry.key}. Хочешь попрактиковаться?';
       }

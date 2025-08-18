@@ -39,7 +39,7 @@ class YamlPackImporterService {
           (v as num).toInt(),
       ];
       final tags = <String>[
-        for (final v in (item['tags'] as YamlList? ?? const [])) v.toString()
+        for (final v in (item['tags'] as YamlList? ?? const [])) v.toString(),
       ];
       final trending = item['trending'] == true;
       final recommended = item['recommended'] == true;

@@ -29,8 +29,9 @@ class BoosterStatsTrackerService {
   ) async {
     final box = await _openBox();
     final tags = tpl.tags.map((e) => e.trim().toLowerCase()).toList();
-    final totalAccuracy =
-        result.total > 0 ? result.correct / result.total : 0.0;
+    final totalAccuracy = result.total > 0
+        ? result.correct / result.total
+        : 0.0;
     final accuracyPerTag = {for (final t in tags) t: totalAccuracy};
     await box.add({
       'date': result.date.millisecondsSinceEpoch,
@@ -53,7 +54,8 @@ class BoosterStatsTrackerService {
         final acc = (accMap[normTag] as num?)?.toDouble();
         if (acc != null) {
           final ts = DateTime.fromMillisecondsSinceEpoch(
-              (data['date'] as num?)?.toInt() ?? 0);
+            (data['date'] as num?)?.toInt() ?? 0,
+          );
           list.add(BoosterTagProgress(date: ts, accuracy: acc));
         }
       }

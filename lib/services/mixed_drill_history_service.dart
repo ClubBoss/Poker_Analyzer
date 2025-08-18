@@ -19,8 +19,13 @@ class MixedDrillHistoryService extends ChangeNotifier {
         if (list is List) {
           _stats
             ..clear()
-            ..addAll(list.map((e) =>
-                MixedDrillStat.fromJson(Map<String, dynamic>.from(e as Map))));
+            ..addAll(
+              list.map(
+                (e) => MixedDrillStat.fromJson(
+                  Map<String, dynamic>.from(e as Map),
+                ),
+              ),
+            );
           _stats.sort((a, b) => b.date.compareTo(a.date));
         }
       } catch (_) {}
@@ -31,7 +36,9 @@ class MixedDrillHistoryService extends ChangeNotifier {
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
-        _key, jsonEncode([for (final s in _stats) s.toJson()]));
+      _key,
+      jsonEncode([for (final s in _stats) s.toJson()]),
+    );
   }
 
   Future<void> add(MixedDrillStat s) async {

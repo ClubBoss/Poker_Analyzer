@@ -56,15 +56,18 @@ class _FoldRefundAnimationState extends State<FoldRefundAnimation>
     );
     _opacity = TweenSequence<double>([
       TweenSequenceItem(
-        tween:
-            Tween(begin: 0.0, end: 1.0).chain(CurveTween(curve: Curves.easeIn)),
+        tween: Tween(
+          begin: 0.0,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeIn)),
         weight: 30,
       ),
       const TweenSequenceItem(tween: ConstantTween(1.0), weight: 70),
     ]).animate(_controller);
-    _scaleAnim = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
+    _scaleAnim = Tween<double>(
+      begin: 0.8,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         widget.onCompleted?.call();
@@ -92,15 +95,20 @@ class _FoldRefundAnimationState extends State<FoldRefundAnimation>
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        final control = widget.control ??
+        final control =
+            widget.control ??
             Offset(
               (widget.start.dx + widget.end.dx) / 2,
               (widget.start.dy + widget.end.dy) / 2 -
                   (40 + RefundChipStackMovingWidget.activeCount * 8) *
                       widget.scale,
             );
-        final pos =
-            _bezier(widget.start, control, widget.end, _controller.value);
+        final pos = _bezier(
+          widget.start,
+          control,
+          widget.end,
+          _controller.value,
+        );
         final sizeFactor = _scaleAnim.value * widget.scale;
         return Positioned(
           left: pos.dx - 12 * sizeFactor,

@@ -62,12 +62,12 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
     final stack = int.tryParse(_stackController.text) ?? 10;
     final level = context.read<XPTrackerService>().level;
     final record = context.read<HandAnalyzerService>().analyzePush(
-          cards: _cards,
-          stack: stack,
-          playerCount: _playerCount,
-          heroIndex: _heroIndex,
-          level: level,
-        );
+      cards: _cards,
+      stack: stack,
+      playerCount: _playerCount,
+      heroIndex: _heroIndex,
+      level: level,
+    );
     if (record == null) return;
     setState(() {
       _ev = record.ev;
@@ -86,12 +86,12 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
     final stack = int.tryParse(_stackController.text) ?? 10;
     final level = context.read<XPTrackerService>().level;
     final record = context.read<HandAnalyzerService>().analyzePush(
-          cards: _cards,
-          stack: stack,
-          playerCount: _playerCount,
-          heroIndex: _heroIndex,
-          level: level,
-        );
+      cards: _cards,
+      stack: stack,
+      playerCount: _playerCount,
+      heroIndex: _heroIndex,
+      level: level,
+    );
     if (record == null) return;
     context.read<HandAnalysisHistoryService>().add(record);
     setState(() {
@@ -134,11 +134,15 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
               value: _heroIndex,
               dropdownColor: Colors.black,
               items: List.generate(
-                  _playerCount,
-                  (i) => DropdownMenuItem(
-                      value: i,
-                      child: Text('P${i + 1}',
-                          style: const TextStyle(color: Colors.white)))),
+                _playerCount,
+                (i) => DropdownMenuItem(
+                  value: i,
+                  child: Text(
+                    'P${i + 1}',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
               onChanged: (v) {
                 setState(() => _heroIndex = v ?? 0);
                 _scheduleAnalysis();
@@ -154,16 +158,23 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
               onChanged: (_) => _scheduleAnalysis(),
             ),
             const SizedBox(height: 16),
-            const Text('Количество игроков',
-                style: TextStyle(color: Colors.white)),
+            const Text(
+              'Количество игроков',
+              style: TextStyle(color: Colors.white),
+            ),
             DropdownButton<int>(
               value: _playerCount,
               dropdownColor: Colors.black,
               items: _players
-                  .map((e) => DropdownMenuItem(
+                  .map(
+                    (e) => DropdownMenuItem(
                       value: e,
-                      child: Text('$e',
-                          style: const TextStyle(color: Colors.white))))
+                      child: Text(
+                        '$e',
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  )
                   .toList(),
               onChanged: (v) {
                 setState(() {
@@ -185,12 +196,18 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('EV: ${_ev!.toStringAsFixed(2)} BB',
-                      style: const TextStyle(color: Colors.white)),
-                  Text('ICM: ${_icm!.toStringAsFixed(2)}',
-                      style: const TextStyle(color: Colors.white)),
-                  Text('Решение: $_action',
-                      style: const TextStyle(color: Colors.white)),
+                  Text(
+                    'EV: ${_ev!.toStringAsFixed(2)} BB',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  Text(
+                    'ICM: ${_icm!.toStringAsFixed(2)}',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  Text(
+                    'Решение: $_action',
+                    style: const TextStyle(color: Colors.white),
+                  ),
                   if (_hint != null)
                     Text(_hint!, style: const TextStyle(color: Colors.white70)),
                   ValueListenableBuilder<List<TrainingPackTemplate>>(
@@ -203,8 +220,10 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const SizedBox(height: 16),
-                          const Text('Рекомендуемые паки:',
-                              style: TextStyle(color: Colors.white)),
+                          const Text(
+                            'Рекомендуемые паки:',
+                            style: TextStyle(color: Colors.white),
+                          ),
                           for (final t in list.take(3))
                             TextButton(
                               onPressed: () async {
@@ -215,8 +234,9 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
                                   await Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (_) =>
-                                            const TrainingSessionScreen()),
+                                      builder: (_) =>
+                                          const TrainingSessionScreen(),
+                                    ),
                                   );
                                 }
                               },

@@ -13,7 +13,11 @@ void main() {
 
   SkillTreeNodeModel node(String id, {List<String>? prereqs}) =>
       SkillTreeNodeModel(
-          id: id, title: id, category: 'Push/Fold', prerequisites: prereqs);
+        id: id,
+        title: id,
+        category: 'Push/Fold',
+        prerequisites: prereqs,
+      );
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});

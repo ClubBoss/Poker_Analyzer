@@ -46,8 +46,9 @@ class SmartRecommenderEngine {
     for (final tag in weakTags) {
       final mapped = tagResolver.resolveRelevantStages(tag);
       for (final target in mapped) {
-        final match =
-            availableStages.firstWhereOrNull((s) => s.id == target.id);
+        final match = availableStages.firstWhereOrNull(
+          (s) => s.id == target.id,
+        );
         if (match != null) return match;
       }
     }

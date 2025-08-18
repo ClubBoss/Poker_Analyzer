@@ -27,10 +27,10 @@ class LearningPathTemplateV2 {
     this.coverAsset,
     this.difficulty,
     this.composerMeta,
-  })  : stages = stages ?? const [],
-        sections = sections ?? const [],
-        tags = tags ?? const [],
-        prerequisitePathIds = prerequisitePathIds ?? const [];
+  }) : stages = stages ?? const [],
+       sections = sections ?? const [],
+       tags = tags ?? const [],
+       prerequisitePathIds = prerequisitePathIds ?? const [];
 
   List<LearningPathStageModel> get entryStages {
     final unlockedIds = <String>{};
@@ -39,7 +39,7 @@ class LearningPathTemplateV2 {
     }
     return [
       for (final s in stages)
-        if (!unlockedIds.contains(s.id)) s
+        if (!unlockedIds.contains(s.id)) s,
     ];
   }
 
@@ -56,9 +56,7 @@ class LearningPathTemplateV2 {
       ],
       sections: [
         for (final s in (json['sections'] as List? ?? []))
-          LearningTrackSectionModel.fromJson(
-            Map<String, dynamic>.from(s),
-          ),
+          LearningTrackSectionModel.fromJson(Map<String, dynamic>.from(s)),
       ],
       tags: [for (final t in (json['tags'] as List? ?? [])) t.toString()],
       recommendedFor: json['recommendedFor'] as String?,
@@ -66,7 +64,7 @@ class LearningPathTemplateV2 {
       difficulty: _parseDifficulty(json['difficulty']),
       prerequisitePathIds: [
         for (final id in (json['prerequisitePathIds'] as List? ?? []))
-          id.toString()
+          id.toString(),
       ],
       composerMeta: json['composerMeta'] is Map
           ? Map<String, dynamic>.from(json['composerMeta'])
@@ -88,20 +86,19 @@ class LearningPathTemplateV2 {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'title': title,
-        'description': description,
-        if (stages.isNotEmpty) 'stages': [for (final s in stages) s.toJson()],
-        if (sections.isNotEmpty)
-          'sections': [for (final s in sections) s.toJson()],
-        if (tags.isNotEmpty) 'tags': tags,
-        if (recommendedFor != null) 'recommendedFor': recommendedFor,
-        if (coverAsset != null) 'cover': coverAsset,
-        if (difficulty != null) 'difficulty': difficulty!.name,
-        if (composerMeta != null) 'composerMeta': composerMeta,
-        if (prerequisitePathIds.isNotEmpty)
-          'prerequisitePathIds': prerequisitePathIds,
-      };
+    'id': id,
+    'title': title,
+    'description': description,
+    if (stages.isNotEmpty) 'stages': [for (final s in stages) s.toJson()],
+    if (sections.isNotEmpty) 'sections': [for (final s in sections) s.toJson()],
+    if (tags.isNotEmpty) 'tags': tags,
+    if (recommendedFor != null) 'recommendedFor': recommendedFor,
+    if (coverAsset != null) 'cover': coverAsset,
+    if (difficulty != null) 'difficulty': difficulty!.name,
+    if (composerMeta != null) 'composerMeta': composerMeta,
+    if (prerequisitePathIds.isNotEmpty)
+      'prerequisitePathIds': prerequisitePathIds,
+  };
 
   factory LearningPathTemplateV2.fromYaml(Map yaml) {
     final map = <String, dynamic>{};

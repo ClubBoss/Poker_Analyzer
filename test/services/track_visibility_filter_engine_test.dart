@@ -18,12 +18,12 @@ void main() {
   );
 
   LessonTrack track(String id, TrackUnlockCondition? cond) => LessonTrack(
-        id: id,
-        title: id,
-        description: '',
-        stepIds: const ['lesson1'],
-        unlockCondition: cond,
-      );
+    id: id,
+    title: id,
+    description: '',
+    stepIds: const ['lesson1'],
+    unlockCondition: cond,
+  );
 
   test('filters locked tracks', () async {
     final tracks = [

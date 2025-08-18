@@ -11,8 +11,12 @@ class _PosStats {
   final int correct;
   final double ev;
   final double icm;
-  const _PosStats(
-      {this.hands = 0, this.correct = 0, this.ev = 0, this.icm = 0});
+  const _PosStats({
+    this.hands = 0,
+    this.correct = 0,
+    this.ev = 0,
+    this.icm = 0,
+  });
   double get accuracy => hands > 0 ? correct / hands : 0;
 }
 
@@ -42,8 +46,10 @@ class DailyFocusRecapService extends ChangeNotifier {
     _date = dateStr != null ? DateTime.tryParse(dateStr) : null;
     final focusStr = prefs.getString(_focusKey);
     _focus = focusStr != null
-        ? HeroPosition.values.firstWhere((e) => e.name == focusStr,
-            orElse: () => HeroPosition.unknown)
+        ? HeroPosition.values.firstWhere(
+            (e) => e.name == focusStr,
+            orElse: () => HeroPosition.unknown,
+          )
         : null;
     _summary = prefs.getString(_summaryKey) ?? '';
     _shown = prefs.getString(_shownKey) == dateStr && dateStr != null;
@@ -91,7 +97,8 @@ class DailyFocusRecapService extends ChangeNotifier {
     for (final h in list) {
       final pos = parseHeroPosition(h.heroPosition);
       final prev = map[pos] ?? const _PosStats();
-      final correct = h.expectedAction?.trim().toLowerCase() ==
+      final correct =
+          h.expectedAction?.trim().toLowerCase() ==
           h.gtoAction?.trim().toLowerCase();
       map[pos] = _PosStats(
         hands: prev.hands + 1,
@@ -118,7 +125,7 @@ class DailyFocusRecapService extends ChangeNotifier {
     final end = start.add(const Duration(days: 1));
     final yHands = [
       for (final h in hands.hands)
-        if (!h.date.isBefore(start) && h.date.isBefore(end)) h
+        if (!h.date.isBefore(start) && h.date.isBefore(end)) h,
     ];
     if (yHands.isEmpty) {
       _summary = '';
@@ -129,7 +136,7 @@ class DailyFocusRecapService extends ChangeNotifier {
     final prevEnd = start;
     final prevHands = [
       for (final h in hands.hands)
-        if (!h.date.isBefore(prevStart) && h.date.isBefore(prevEnd)) h
+        if (!h.date.isBefore(prevStart) && h.date.isBefore(prevEnd)) h,
     ];
     final currMap = _calc(yHands);
     final prevMap = _calc(prevHands);

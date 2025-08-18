@@ -88,8 +88,8 @@ class _ActionTimerRingState extends State<ActionTimerRing>
           child: child,
         );
         if (widget.showCountdownText && widget.isActive) {
-          final remainingSeconds =
-              (widget.duration.inSeconds * progress).ceil();
+          final remainingSeconds = (widget.duration.inSeconds * progress)
+              .ceil();
           return Stack(
             alignment: Alignment.center,
             children: [
@@ -125,8 +125,10 @@ class _RingPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final radius = math.min(size.width, size.height) / 2 - thickness / 2;
-    final rect =
-        Rect.fromCircle(center: size.center(Offset.zero), radius: radius);
+    final rect = Rect.fromCircle(
+      center: size.center(Offset.zero),
+      radius: radius,
+    );
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke

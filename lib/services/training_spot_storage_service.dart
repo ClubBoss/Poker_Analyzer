@@ -32,7 +32,7 @@ class TrainingSpotStorageService extends ChangeNotifier {
         return [
           for (final e in data)
             if (e is Map<String, dynamic>)
-              TrainingSpot.fromJson(Map<String, dynamic>.from(e))
+              TrainingSpot.fromJson(Map<String, dynamic>.from(e)),
         ];
       }
     } catch (_) {}
@@ -62,7 +62,8 @@ class TrainingSpotStorageService extends ChangeNotifier {
   }
 
   Future<List<TrainingSpot>> _filteredSpots(
-      Map<String, dynamic> filters) async {
+    Map<String, dynamic> filters,
+  ) async {
     final spots = await load();
     return [
       for (final s in spots)
@@ -126,8 +127,9 @@ class TrainingSpotStorageService extends ChangeNotifier {
     }
     final pos = f['positions'];
     if (pos is List && pos.isNotEmpty) {
-      final hero =
-          spot.positions.isNotEmpty ? spot.positions[spot.heroIndex] : '';
+      final hero = spot.positions.isNotEmpty
+          ? spot.positions[spot.heroIndex]
+          : '';
       if (!pos.contains(hero)) return false;
     }
     final minDiff = f['minDifficulty'];

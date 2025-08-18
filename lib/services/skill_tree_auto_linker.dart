@@ -8,18 +8,14 @@ class SkillTreeAutoLinker {
   final SkillTagSkillNodeMapService map;
 
   const SkillTreeAutoLinker({SkillTagSkillNodeMapService? map})
-      : map = map ?? const SkillTagSkillNodeMapService();
+    : map = map ?? const SkillTagSkillNodeMapService();
 
   /// Assigns `skillNode` meta fields for all [spots].
   void linkAll(List<TrainingPackSpot> spots) {
     final status = AutogenStatusDashboardService.instance;
     status.update(
       'SkillTreeAutoLinker',
-      const AutogenStatus(
-        isRunning: true,
-        currentStage: 'link',
-        progress: 0,
-      ),
+      const AutogenStatus(isRunning: true, currentStage: 'link', progress: 0),
     );
     try {
       final used = <String>{};

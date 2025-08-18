@@ -35,7 +35,7 @@ class SmartBoosterGenerator {
     final recentCutoff = current.subtract(const Duration(days: 3));
     final recentPackIds = <String>{
       for (final h in history)
-        if (h.timestamp.isAfter(recentCutoff)) h.packId
+        if (h.timestamp.isAfter(recentCutoff)) h.packId,
     };
 
     final clusterLoss = <MistakeTagCluster, double>{};
@@ -79,10 +79,7 @@ class SmartBoosterGenerator {
         created: current,
         gameType: GameType.tournament,
         positions: positions.toList(),
-        meta: {
-          'tag': entry.key.label,
-          'type': 'booster',
-        },
+        meta: {'tag': entry.key.label, 'type': 'booster'},
       );
       results.add(pack);
     }

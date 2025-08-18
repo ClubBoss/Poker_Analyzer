@@ -32,10 +32,8 @@ class _PackResumeBannerState extends State<PackResumeBanner> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => TrainingPackPlayScreen(
-          template: p.template,
-          original: p.template,
-        ),
+        builder: (_) =>
+            TrainingPackPlayScreen(template: p.template, original: p.template),
       ),
     );
     await _load();
@@ -57,8 +55,10 @@ class _PackResumeBannerState extends State<PackResumeBanner> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(pack.template.name,
-              style: const TextStyle(color: Colors.white, fontSize: 16)),
+          Text(
+            pack.template.name,
+            style: const TextStyle(color: Colors.white, fontSize: 16),
+          ),
           Padding(
             padding: const EdgeInsets.only(top: 4),
             child: Text(

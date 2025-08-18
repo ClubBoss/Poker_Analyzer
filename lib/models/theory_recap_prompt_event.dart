@@ -12,17 +12,18 @@ class TheoryRecapPromptEvent {
   });
 
   Map<String, dynamic> toJson() => {
-        'lessonId': lessonId,
-        'trigger': trigger,
-        'timestamp': timestamp.toIso8601String(),
-        'outcome': outcome,
-      };
+    'lessonId': lessonId,
+    'trigger': trigger,
+    'timestamp': timestamp.toIso8601String(),
+    'outcome': outcome,
+  };
 
   factory TheoryRecapPromptEvent.fromJson(Map<String, dynamic> json) =>
       TheoryRecapPromptEvent(
         lessonId: json['lessonId'] as String? ?? '',
         trigger: json['trigger'] as String? ?? '',
-        timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ??
+        timestamp:
+            DateTime.tryParse(json['timestamp'] as String? ?? '') ??
             DateTime.now(),
         outcome: json['outcome'] as String? ?? '',
       );

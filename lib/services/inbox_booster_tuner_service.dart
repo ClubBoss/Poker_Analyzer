@@ -9,8 +9,8 @@ class InboxBoosterTunerService {
   InboxBoosterTunerService({
     InboxBoosterTrackerService? tracker,
     MiniLessonLibraryService? library,
-  })  : tracker = tracker ?? InboxBoosterTrackerService.instance,
-        library = library ?? MiniLessonLibraryService.instance;
+  }) : tracker = tracker ?? InboxBoosterTrackerService.instance,
+       library = library ?? MiniLessonLibraryService.instance;
 
   static final InboxBoosterTunerService instance = InboxBoosterTunerService();
 
@@ -31,10 +31,12 @@ class InboxBoosterTunerService {
 
       final shows = (entry.value['shows'] as num?)?.toInt() ?? 0;
       final clicks = (entry.value['clicks'] as num?)?.toInt() ?? 0;
-      final lastShown =
-          DateTime.tryParse(entry.value['lastShown'] as String? ?? '');
-      final lastClicked =
-          DateTime.tryParse(entry.value['lastClicked'] as String? ?? '');
+      final lastShown = DateTime.tryParse(
+        entry.value['lastShown'] as String? ?? '',
+      );
+      final lastClicked = DateTime.tryParse(
+        entry.value['lastClicked'] as String? ?? '',
+      );
 
       for (final t in tags) {
         final key = t.toLowerCase();
@@ -54,11 +56,13 @@ class InboxBoosterTunerService {
     }
 
     final result = <String, double>{};
-    final cutoff =
-        (now ?? DateTime.now()).subtract(Duration(days: recencyDays));
+    final cutoff = (now ?? DateTime.now()).subtract(
+      Duration(days: recencyDays),
+    );
     map.forEach((tag, stat) {
-      final rate =
-          stat.shownCount > 0 ? stat.clickCount / stat.shownCount : 0.0;
+      final rate = stat.shownCount > 0
+          ? stat.clickCount / stat.shownCount
+          : 0.0;
       var score = 1.0;
       if (rate > 0.3) score += 0.5;
       if (stat.shownCount > 5 && stat.clickCount < 1) score -= 0.3;

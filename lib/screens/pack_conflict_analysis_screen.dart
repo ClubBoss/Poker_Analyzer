@@ -47,13 +47,16 @@ class _PackConflictAnalysisScreenState
               padding: const EdgeInsets.all(16),
               children: [
                 ElevatedButton(
-                    onPressed: _load, child: const Text('🔄 Обновить')),
+                  onPressed: _load,
+                  child: const Text('🔄 Обновить'),
+                ),
                 const SizedBox(height: 16),
                 for (final c in _items)
                   ListTile(
                     title: Text('${c.packA.name} ↔ ${c.packB.name}'),
                     subtitle: Text(
-                        '${c.type} ${(c.similarityScore * 100).toStringAsFixed(0)}%'),
+                      '${c.type} ${(c.similarityScore * 100).toStringAsFixed(0)}%',
+                    ),
                   ),
               ],
             ),

@@ -52,7 +52,9 @@ class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
       child: Container(
         color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
         padding: EdgeInsets.symmetric(
-            horizontal: mini ? 8 : 16, vertical: mini ? 4 : 8),
+          horizontal: mini ? 8 : 16,
+          vertical: mini ? 4 : 8,
+        ),
         child: SafeArea(
           bottom: false,
           child: Row(
@@ -84,14 +86,15 @@ class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
                   tooltip: 'Hint',
                   onPressed: () {
                     final hint = MistakeHintService.instance.getHint();
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(SnackBar(content: Text(hint)));
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(hint)));
                   },
                 ),
               IconButton(
-                icon: Icon(adaptive
-                    ? Icons.scatter_plot
-                    : Icons.scatter_plot_outlined),
+                icon: Icon(
+                  adaptive ? Icons.scatter_plot : Icons.scatter_plot_outlined,
+                ),
                 color: adaptive
                     ? Theme.of(context).colorScheme.primary
                     : iconColor,
@@ -108,7 +111,8 @@ class TrainingPackPlayScreenV2Toolbar extends StatelessWidget {
               ),
               IconButton(
                 icon: Icon(
-                    isIcm ? Icons.monetization_on : Icons.stacked_line_chart),
+                  isIcm ? Icons.monetization_on : Icons.stacked_line_chart,
+                ),
                 color: iconColor,
                 tooltip: isIcm ? 'ICM' : 'EV',
                 onPressed: onModeToggle,

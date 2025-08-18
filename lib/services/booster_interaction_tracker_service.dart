@@ -60,8 +60,9 @@ class BoosterInteractionTrackerService {
           map['opened'] = DateTime.fromMillisecondsSinceEpoch(ts);
         }
       } else if (key.startsWith(SharedPrefsKeys.boosterDismissedPrefix)) {
-        final tag =
-            key.substring(SharedPrefsKeys.boosterDismissedPrefix.length);
+        final tag = key.substring(
+          SharedPrefsKeys.boosterDismissedPrefix.length,
+        );
         final ts = prefs.getInt(key);
         final map = result.putIfAbsent(tag, () => {});
         if (ts != null) {

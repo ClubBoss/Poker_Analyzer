@@ -40,20 +40,20 @@ void main() {
       'mini_lesson_failure_l1': jsonEncode([
         {
           'timestamp': now.subtract(const Duration(days: 5)).toIso8601String(),
-          'evLoss': -1.0
-        }
+          'evLoss': -1.0,
+        },
       ]),
       'mini_lesson_failure_l2': jsonEncode([
         {
           'timestamp': now.subtract(const Duration(days: 4)).toIso8601String(),
-          'evLoss': -0.2
-        }
+          'evLoss': -0.2,
+        },
       ]),
       'mini_lesson_failure_l3': jsonEncode([
         {
           'timestamp': now.subtract(const Duration(days: 1)).toIso8601String(),
-          'evLoss': -2.0
-        }
+          'evLoss': -2.0,
+        },
       ]),
     });
 

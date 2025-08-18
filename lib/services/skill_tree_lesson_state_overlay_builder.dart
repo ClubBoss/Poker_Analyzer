@@ -11,19 +11,22 @@ class SkillTreeLessonStateOverlayBuilder {
   List<Widget> build(NodeGateStatus gate, NodeCompletionStatus completion) {
     final widgets = <Widget>[];
     if (completion.isCompleted) {
-      widgets
-          .add(const Icon(Icons.check_circle, color: Colors.green, size: 18));
+      widgets.add(
+        const Icon(Icons.check_circle, color: Colors.green, size: 18),
+      );
     } else if (!gate.isEnabled) {
       widgets.add(const Icon(Icons.lock, color: Colors.grey, size: 18));
     } else if (completion == NodeCompletionStatus.inProgress) {
-      widgets.add(Container(
-        width: 8,
-        height: 8,
-        decoration: const BoxDecoration(
-          color: Colors.amber,
-          shape: BoxShape.circle,
+      widgets.add(
+        Container(
+          width: 8,
+          height: 8,
+          decoration: const BoxDecoration(
+            color: Colors.amber,
+            shape: BoxShape.circle,
+          ),
         ),
-      ));
+      );
     }
     return widgets;
   }

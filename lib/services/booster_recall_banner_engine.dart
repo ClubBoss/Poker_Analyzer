@@ -8,7 +8,7 @@ class BoosterRecallBannerEngine {
   final TheoryRecallEvaluator recall;
 
   BoosterRecallBannerEngine({TheoryRecallEvaluator? recall})
-      : recall = recall ?? const TheoryRecallEvaluator();
+    : recall = recall ?? const TheoryRecallEvaluator();
 
   static final BoosterRecallBannerEngine instance = BoosterRecallBannerEngine();
 

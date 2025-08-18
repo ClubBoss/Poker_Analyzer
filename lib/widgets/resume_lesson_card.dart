@@ -23,8 +23,9 @@ class _ResumeLessonCardState extends State<ResumeLessonCard> {
   }
 
   Future<void> _load() async {
-    final step =
-        await const LessonResumeEngine().getResumeStep(PlayerProfile());
+    final step = await const LessonResumeEngine().getResumeStep(
+      PlayerProfile(),
+    );
     if (mounted) setState(() => _step = step);
   }
 

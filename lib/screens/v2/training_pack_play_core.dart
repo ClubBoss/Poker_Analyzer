@@ -18,8 +18,15 @@ class SpotFeedback {
   final bool correct;
   final bool repeated;
   final String? advice;
-  const SpotFeedback(this.action, this.heroEv, this.evDiff, this.icmDiff,
-      this.correct, this.repeated, this.advice);
+  const SpotFeedback(
+    this.action,
+    this.heroEv,
+    this.evDiff,
+    this.icmDiff,
+    this.correct,
+    this.repeated,
+    this.advice,
+  );
 }
 
 mixin TrainingPackPlayCore<T extends StatefulWidget> on State<T> {
@@ -61,8 +68,9 @@ mixin TrainingPackPlayCore<T extends StatefulWidget> on State<T> {
 
   Future<void> save({bool ts = true}) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs
-        .setStringList('tpl_seq_${template.id}', [for (final s in spots) s.id]);
+    await prefs.setStringList('tpl_seq_${template.id}', [
+      for (final s in spots) s.id,
+    ]);
     await prefs.setInt('tpl_prog_${template.id}', index);
     await prefs.setString('tpl_res_${template.id}', jsonEncode(results));
     if (template.targetStreet != null) {
@@ -73,11 +81,16 @@ mixin TrainingPackPlayCore<T extends StatefulWidget> on State<T> {
     }
     if (ts) {
       await prefs.setInt(
-          'tpl_ts_${template.id}', DateTime.now().millisecondsSinceEpoch);
+        'tpl_ts_${template.id}',
+        DateTime.now().millisecondsSinceEpoch,
+      );
     }
     unawaited(TrainingPackStatsService.setLastIndex(template.id, index));
-    await PinnedLearningService.instance
-        .setLastPosition('pack', template.id, index);
+    await PinnedLearningService.instance.setLastPosition(
+      'pack',
+      template.id,
+      index,
+    );
   }
 
   bool matchStreet(TrainingPackSpot spot) {

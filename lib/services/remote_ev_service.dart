@@ -12,9 +12,8 @@ class RemoteEvService {
   static Box<dynamic>? _box;
 
   const RemoteEvService({String? endpoint, http.Client? client})
-      : endpoint =
-            endpoint ?? EvaluationSettingsService.instance.remoteEndpoint,
-        client = client ?? const http.Client();
+    : endpoint = endpoint ?? EvaluationSettingsService.instance.remoteEndpoint,
+      client = client ?? const http.Client();
 
   Future<void> _openBox() async {
     if (_box != null) return;
@@ -76,8 +75,11 @@ class RemoteEvService {
       final res = await client.post(
         Uri.parse(endpoint),
         headers: const {'Content-Type': 'application/json'},
-        body: jsonEncode(
-            {'hand': spot.hand.toJson(), 'anteBb': anteBb, 'icm': true}),
+        body: jsonEncode({
+          'hand': spot.hand.toJson(),
+          'anteBb': anteBb,
+          'icm': true,
+        }),
       );
       if (res.statusCode == 200) {
         final data = jsonDecode(res.body) as Map<String, dynamic>;

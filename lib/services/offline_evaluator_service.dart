@@ -8,11 +8,9 @@ import '../helpers/hand_utils.dart';
 import 'icm_push_ev_service.dart';
 
 class OfflineEvaluatorService {
-  OfflineEvaluatorService({
-    PushFoldEvService? offline,
-    RemoteEvService? remote,
-  })  : offline = offline ?? const PushFoldEvService(),
-        remote = remote ?? RemoteEvService();
+  OfflineEvaluatorService({PushFoldEvService? offline, RemoteEvService? remote})
+    : offline = offline ?? const PushFoldEvService(),
+      remote = remote ?? RemoteEvService();
 
   final PushFoldEvService offline;
   final RemoteEvService remote;
@@ -91,7 +89,7 @@ class OfflineEvaluatorService {
       if (code != null) {
         final stacks = [
           for (var i = 0; i < spot.hand.playerCount; i++)
-            spot.hand.stacks['$i']?.round() ?? 0
+            spot.hand.stacks['$i']?.round() ?? 0,
         ];
         final ev = computePushEV(
           heroBbStack: stacks[hero],

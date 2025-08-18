@@ -46,6 +46,7 @@ void main() {
       }
     }
     stdout.writeln(
-        'seed=$seed count=${spots.length} streets: F=$flop T=$turn R=$river pos: IP=$ip OOP=$oop spr: S=$short M=$mid D=$deep');
+      'seed=$seed count=${spots.length} streets: F=$flop T=$turn R=$river pos: IP=$ip OOP=$oop spr: S=$short M=$mid D=$deep',
+    );
   }
 }

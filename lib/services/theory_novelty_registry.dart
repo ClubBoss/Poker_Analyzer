@@ -25,7 +25,10 @@ class TheoryNoveltyRegistry {
   }
 
   Future<void> record(
-      String userId, List<String> tags, List<String> theoryIds) async {
+    String userId,
+    List<String> tags,
+    List<String> theoryIds,
+  ) async {
     final list = await _load();
     list.add({
       'userId': userId,

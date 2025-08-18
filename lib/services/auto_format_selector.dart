@@ -12,8 +12,11 @@ class AutoFormatSelector {
   static const _autoApplyKey = 'ab.auto_apply';
   static const _overridePrefix = 'ab.overrides.';
 
-  static const FormatMeta _defaultFormat =
-      FormatMeta(spotsPerPack: 12, streets: 1, theoryRatio: 0.5);
+  static const FormatMeta _defaultFormat = FormatMeta(
+    spotsPerPack: 12,
+    streets: 1,
+    theoryRatio: 0.5,
+  );
 
   bool _autoApply = true;
   FormatMeta? _recommended;
@@ -67,7 +70,9 @@ class AutoFormatSelector {
     gen.theoryRatio = fmt.theoryRatio;
     if (_recommended == null) {
       AutogenPipelineEventLoggerService.log(
-          'notice', 'AutoFormat: fallback (no winner)');
+        'notice',
+        'AutoFormat: fallback (no winner)',
+      );
     }
   }
 }

@@ -49,7 +49,9 @@ class DailyLearningGoalService extends ChangeNotifier {
       if (_sameDay(_lastCompleted!, now)) {
         // Already completed today, nothing to update.
       } else if (_sameDay(
-          _lastCompleted!, now.subtract(const Duration(days: 1)))) {
+        _lastCompleted!,
+        now.subtract(const Duration(days: 1)),
+      )) {
         streakCount += 1;
       } else {
         streakCount = 1;

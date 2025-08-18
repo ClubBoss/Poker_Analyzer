@@ -63,7 +63,9 @@ class LessonGoalEngine with SingletonMixin<LessonGoalEngine> {
     final newDaily = prevDaily + 1;
     await prefs.setInt(_dailyCountKey, newDaily);
     await prefs.setInt(
-        _weeklyCountKey, (prefs.getInt(_weeklyCountKey) ?? 0) + 1);
+      _weeklyCountKey,
+      (prefs.getInt(_weeklyCountKey) ?? 0) + 1,
+    );
     if (prevDaily < _dailyTarget && newDaily >= _dailyTarget) {
       unawaited(LessonGoalStreakEngine.instance.updateStreakOnGoalCompletion());
     }
@@ -77,21 +79,28 @@ class LessonGoalEngine with SingletonMixin<LessonGoalEngine> {
     if (stored == null ||
         DateTime(stored.year, stored.month, stored.day) != today) {
       await prefs.setString(
-          _dailyDateKey, today.toIso8601String().split('T').first);
+        _dailyDateKey,
+        today.toIso8601String().split('T').first,
+      );
       await prefs.setInt(_dailyCountKey, 0);
     }
   }
 
   Future<void> _resetWeeklyIfNeeded(SharedPreferences prefs) async {
     final now = DateTime.now();
-    final startOfWeek = DateTime(now.year, now.month, now.day)
-        .subtract(Duration(days: now.weekday - 1));
+    final startOfWeek = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(Duration(days: now.weekday - 1));
     final startStr = prefs.getString(_weeklyStartKey);
     final stored = startStr != null ? DateTime.tryParse(startStr) : null;
     if (stored == null ||
         DateTime(stored.year, stored.month, stored.day) != startOfWeek) {
       await prefs.setString(
-          _weeklyStartKey, startOfWeek.toIso8601String().split('T').first);
+        _weeklyStartKey,
+        startOfWeek.toIso8601String().split('T').first,
+      );
       await prefs.setInt(_weeklyCountKey, 0);
     }
   }

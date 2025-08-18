@@ -48,11 +48,13 @@ class _BoosterRecapScreenState extends State<BoosterRecapScreen> {
         booster: widget.booster,
         backlink: widget.backlink,
       );
-      unawaited(BoosterMistakeRecorder.instance.recordSession(
-        booster: widget.booster,
-        actions: context.read<TrainingSessionService>().actionLog,
-        spots: context.read<TrainingSessionService>().spots,
-      ));
+      unawaited(
+        BoosterMistakeRecorder.instance.recordSession(
+          booster: widget.booster,
+          actions: context.read<TrainingSessionService>().actionLog,
+          spots: context.read<TrainingSessionService>().spots,
+        ),
+      );
     });
   }
 
@@ -61,15 +63,18 @@ class _BoosterRecapScreenState extends State<BoosterRecapScreen> {
         .map((t) => t.trim())
         .where((t) => t.isNotEmpty)
         .map((t) {
-      final delta = widget.tagDeltas[t.toLowerCase()] ?? 0.0;
-      final sign = delta >= 0 ? '+' : '';
-      final pct = (delta * 100).toStringAsFixed(1);
-      return '$t: $sign$pct%';
-    }).toList();
+          final delta = widget.tagDeltas[t.toLowerCase()] ?? 0.0;
+          final sign = delta >= 0 ? '+' : '';
+          final pct = (delta * 100).toStringAsFixed(1);
+          return '$t: $sign$pct%';
+        })
+        .toList();
     if (entries.isEmpty) return [];
     return [
-      const Text('Improvement:',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      const Text(
+        'Improvement:',
+        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      ),
       const SizedBox(height: 4),
       for (final e in entries)
         Text(e, style: const TextStyle(color: Colors.white70)),
@@ -110,8 +115,10 @@ class _BoosterRecapScreenState extends State<BoosterRecapScreen> {
                 const SizedBox(height: 8),
               ],
               if (clusterTags != null && clusterTags.isNotEmpty) ...[
-                Text('Origin: $clusterTags',
-                    style: const TextStyle(color: Colors.white70)),
+                Text(
+                  'Origin: $clusterTags',
+                  style: const TextStyle(color: Colors.white70),
+                ),
                 const SizedBox(height: 8),
               ],
               const BoosterRecallBanner(),
@@ -137,12 +144,14 @@ class _BoosterRecapScreenState extends State<BoosterRecapScreen> {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const TrainingSessionScreen()),
+                            builder: (_) => const TrainingSessionScreen(),
+                          ),
                         );
                       },
                       style: OutlinedButton.styleFrom(
-                          foregroundColor: accent,
-                          side: BorderSide(color: accent)),
+                        foregroundColor: accent,
+                        side: BorderSide(color: accent),
+                      ),
                       child: const Text('Train Again'),
                     ),
                   ),

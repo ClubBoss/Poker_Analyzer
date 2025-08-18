@@ -90,11 +90,13 @@ class _TheoryProgressRecoveryBannerState
       await MiniLessonLibraryService.instance.loadAll();
       final linker = const TheoryBoostRecapLinker();
       _lesson = await linker.fetchLesson(tag.name);
-      _lesson ??=
-          MiniLessonLibraryService.instance.findByTags([tag.name]).firstOrNull;
+      _lesson ??= MiniLessonLibraryService.instance.findByTags([
+        tag.name,
+      ]).firstOrNull;
       if (_lesson != null) {
-        if (await TheoryPromptDismissTracker.instance
-            .isRecentlyDismissed(_lesson!.id)) {
+        if (await TheoryPromptDismissTracker.instance.isRecentlyDismissed(
+          _lesson!.id,
+        )) {
           if (mounted) {
             setState(() {
               _loading = false;
@@ -165,8 +167,10 @@ class _TheoryProgressRecoveryBannerState
         dismissed: true,
       );
       if (_lesson != null) {
-        TheoryPromptDismissTracker.instance
-            .markDismissed(_lesson!.id, trigger: 'recoveryBanner');
+        TheoryPromptDismissTracker.instance.markDismissed(
+          _lesson!.id,
+          trigger: 'recoveryBanner',
+        );
       }
     }
     setState(() => _visible = false);
@@ -177,8 +181,9 @@ class _TheoryProgressRecoveryBannerState
     if (_loading || !_visible || _tag == null) return const SizedBox.shrink();
     final accent = Theme.of(context).colorScheme.secondary;
     if (_booster != null) {
-      final booster =
-          BoosterLibraryService.instance.getById(_booster!.boosterId);
+      final booster = BoosterLibraryService.instance.getById(
+        _booster!.boosterId,
+      );
       final name = booster?.name ?? _booster!.boosterId;
       return Container(
         margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -196,7 +201,9 @@ class _TheoryProgressRecoveryBannerState
                   child: Text(
                     name,
                     style: const TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 IconButton(
@@ -206,8 +213,10 @@ class _TheoryProgressRecoveryBannerState
               ],
             ),
             const SizedBox(height: 4),
-            Text('Booster: ${_booster!.reasonTag}',
-                style: const TextStyle(color: Colors.white70)),
+            Text(
+              'Booster: ${_booster!.reasonTag}',
+              style: const TextStyle(color: Colors.white70),
+            ),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -224,7 +233,7 @@ class _TheoryProgressRecoveryBannerState
                   child: const Text('Повторить сейчас'),
                 ),
               ],
-            )
+            ),
           ],
         ),
       );
@@ -247,7 +256,9 @@ class _TheoryProgressRecoveryBannerState
                 child: Text(
                   title,
                   style: const TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold),
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               IconButton(
@@ -257,8 +268,10 @@ class _TheoryProgressRecoveryBannerState
             ],
           ),
           const SizedBox(height: 4),
-          Text('Теория: ${_tag!.label}',
-              style: const TextStyle(color: Colors.white70)),
+          Text(
+            'Теория: ${_tag!.label}',
+            style: const TextStyle(color: Colors.white70),
+          ),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -275,7 +288,7 @@ class _TheoryProgressRecoveryBannerState
                 child: const Text('Повторить сейчас'),
               ),
             ],
-          )
+          ),
         ],
       ),
     );

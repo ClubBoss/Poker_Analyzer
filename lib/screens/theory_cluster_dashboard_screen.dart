@@ -28,8 +28,9 @@ class _TheoryClusterDashboardScreenState
   Future<void> _load() async {
     final clusterer = TheoryLessonTagClusterer();
     final clusters = await clusterer.clusterLessons();
-    final progress =
-        await const TheoryClusterProgressService().computeProgress(clusters);
+    final progress = await const TheoryClusterProgressService().computeProgress(
+      clusters,
+    );
     if (!mounted) return;
     setState(() {
       _data = progress;
@@ -41,10 +42,8 @@ class _TheoryClusterDashboardScreenState
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => TheoryClusterDetailScreen(
-          cluster: c.cluster,
-          progress: c,
-        ),
+        builder: (_) =>
+            TheoryClusterDetailScreen(cluster: c.cluster, progress: c),
       ),
     );
   }

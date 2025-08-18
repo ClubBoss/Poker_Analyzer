@@ -64,8 +64,10 @@ class TrainingDetailScreen extends StatelessWidget {
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Text('Date: ${formatDateTime(result.date)}',
-                  style: pw.TextStyle(font: regularFont)),
+              pw.Text(
+                'Date: ${formatDateTime(result.date)}',
+                style: pw.TextStyle(font: regularFont),
+              ),
               pw.SizedBox(height: 16),
               if (result.total > 0)
                 pw.Chart(
@@ -84,12 +86,18 @@ class TrainingDetailScreen extends StatelessWidget {
                   ],
                 ),
               pw.SizedBox(height: 16),
-              pw.Text('Total hands: ${result.total}',
-                  style: pw.TextStyle(font: regularFont)),
-              pw.Text('Correct answers: ${result.correct}',
-                  style: pw.TextStyle(font: regularFont)),
-              pw.Text('Accuracy: ${result.accuracy.toStringAsFixed(1)}%',
-                  style: pw.TextStyle(font: boldFont)),
+              pw.Text(
+                'Total hands: ${result.total}',
+                style: pw.TextStyle(font: regularFont),
+              ),
+              pw.Text(
+                'Correct answers: ${result.correct}',
+                style: pw.TextStyle(font: regularFont),
+              ),
+              pw.Text(
+                'Accuracy: ${result.accuracy.toStringAsFixed(1)}%',
+                style: pw.TextStyle(font: boldFont),
+              ),
               if (result.tags.isNotEmpty) pw.SizedBox(height: 16),
               if (result.tags.isNotEmpty)
                 pw.Wrap(
@@ -102,8 +110,10 @@ class TrainingDetailScreen extends StatelessWidget {
                           border: pw.Border.all(),
                           borderRadius: pw.BorderRadius.circular(4),
                         ),
-                        child: pw.Text(tag,
-                            style: pw.TextStyle(font: regularFont)),
+                        child: pw.Text(
+                          tag,
+                          style: pw.TextStyle(font: regularFont),
+                        ),
                       ),
                   ],
                 ),
@@ -187,10 +197,7 @@ class TrainingDetailScreen extends StatelessWidget {
               Wrap(
                 spacing: 4,
                 children: [
-                  for (final tag in result.tags)
-                    Chip(
-                      label: Text(tag),
-                    ),
+                  for (final tag in result.tags) Chip(label: Text(tag)),
                 ],
               ),
             const Spacer(),
@@ -209,8 +216,9 @@ class TrainingDetailScreen extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: ElevatedButton(
-                    style:
-                        ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                    ),
                     onPressed: () => _confirmDelete(context),
                     child: const Text('Delete'),
                   ),

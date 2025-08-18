@@ -29,16 +29,19 @@ void main() {
 
   const builder = SkillTreeBuilderService();
 
-  SkillTreeNodeModel node(String id,
-          {List<String>? prereqs, List<String>? unlocks, int level = 0}) =>
-      SkillTreeNodeModel(
-        id: id,
-        title: id,
-        category: 'Push/Fold',
-        prerequisites: prereqs,
-        unlockedNodeIds: unlocks,
-        level: level,
-      );
+  SkillTreeNodeModel node(
+    String id, {
+    List<String>? prereqs,
+    List<String>? unlocks,
+    int level = 0,
+  }) => SkillTreeNodeModel(
+    id: id,
+    title: id,
+    category: 'Push/Fold',
+    prerequisites: prereqs,
+    unlockedNodeIds: unlocks,
+    level: level,
+  );
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});

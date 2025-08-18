@@ -23,8 +23,9 @@ class TrackUnlockConditionsEngine {
       return false;
     }
     if (cond.completedLessonIds.isNotEmpty &&
-        !cond.completedLessonIds
-            .every((id) => profile.completedLessonIds.contains(id))) {
+        !cond.completedLessonIds.every(
+          (id) => profile.completedLessonIds.contains(id),
+        )) {
       return false;
     }
     return true;

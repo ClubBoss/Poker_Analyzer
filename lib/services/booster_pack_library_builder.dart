@@ -8,7 +8,7 @@ class BoosterPackLibraryBuilder {
   final TheoryBoosterGenerator _generator;
 
   const BoosterPackLibraryBuilder({TheoryBoosterGenerator? generator})
-      : _generator = generator ?? const TheoryBoosterGenerator();
+    : _generator = generator ?? const TheoryBoosterGenerator();
 
   /// Generates a booster pack for every item in [basePacks] using the
   /// provided [theoryPacks] as sources of theory content. The resulting packs

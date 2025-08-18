@@ -14,9 +14,9 @@ class DailyHandHistory {
   DailyHandHistory({required this.date, required this.correct});
 
   Map<String, dynamic> toJson() => {
-        'date': date.toIso8601String(),
-        'correct': correct,
-      };
+    'date': date.toIso8601String(),
+    'correct': correct,
+  };
 
   factory DailyHandHistory.fromJson(Map<String, dynamic> json) =>
       DailyHandHistory(
@@ -58,8 +58,12 @@ class DailyHandService extends ChangeNotifier {
     _result = resultVal;
     _history
       ..clear()
-      ..addAll(histRaw.map((e) =>
-          DailyHandHistory.fromJson(jsonDecode(e) as Map<String, dynamic>)));
+      ..addAll(
+        histRaw.map(
+          (e) =>
+              DailyHandHistory.fromJson(jsonDecode(e) as Map<String, dynamic>),
+        ),
+      );
     notifyListeners();
   }
 
@@ -80,8 +84,9 @@ class DailyHandService extends ChangeNotifier {
     } else {
       await prefs.remove(_resultKey);
     }
-    await prefs.setStringList(
-        _historyKey, [for (final h in _history) jsonEncode(h.toJson())]);
+    await prefs.setStringList(_historyKey, [
+      for (final h in _history) jsonEncode(h.toJson()),
+    ]);
   }
 
   Future<void> setResult(bool correct) async {

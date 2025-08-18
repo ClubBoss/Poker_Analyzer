@@ -28,9 +28,9 @@ class LineGraphNodeDetailWidget extends StatelessWidget {
     BuildContext context,
     TheoryMiniLessonNode lesson,
   ) async {
-    await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: lesson)),
-    );
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: lesson)));
   }
 
   Future<void> _startPack(BuildContext context, TrainingPackSpot spot) async {

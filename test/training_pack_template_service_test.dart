@@ -15,15 +15,19 @@ void main() {
 
   testWidgets('starter pack names localize', (tester) async {
     late BuildContext ctx;
-    await tester.pumpWidget(MaterialApp(
-      locale: const Locale('ru'),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: Builder(builder: (c) {
-        ctx = c;
-        return const SizedBox();
-      }),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('ru'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(
+          builder: (c) {
+            ctx = c;
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
     final packs = TrainingPackTemplateService.getAllTemplates(ctx);
     expect(packs.first.name, AppLocalizations.of(ctx)!.packPushFold10);
     expect(packs[1].name, AppLocalizations.of(ctx)!.packPushFold12);

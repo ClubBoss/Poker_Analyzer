@@ -9,11 +9,12 @@ class ContinueLearningCard extends StatelessWidget {
   const ContinueLearningCard({super.key});
 
   Future<_ResumeData?> _load() async {
-    final trackId =
-        await TheoryTrackResumeService.instance.getLastVisitedTrackId();
+    final trackId = await TheoryTrackResumeService.instance
+        .getLastVisitedTrackId();
     if (trackId == null) return null;
-    final blockId =
-        await TheoryTrackResumeService.instance.getLastVisitedBlock(trackId);
+    final blockId = await TheoryTrackResumeService.instance.getLastVisitedBlock(
+      trackId,
+    );
     if (blockId == null) return null;
     await TheoryTrackLibraryService.instance.loadAll();
     final track = TheoryTrackLibraryService.instance.getById(trackId);
@@ -32,8 +33,9 @@ class ContinueLearningCard extends StatelessWidget {
         }
         final data = snapshot.data;
         if (data == null) return const SizedBox.shrink();
-        final block =
-            data.track.blocks.firstWhereOrNull((b) => b.id == data.blockId);
+        final block = data.track.blocks.firstWhereOrNull(
+          (b) => b.id == data.blockId,
+        );
         return Container(
           margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
           padding: const EdgeInsets.all(12),
@@ -49,11 +51,15 @@ class ContinueLearningCard extends StatelessWidget {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
-              Text(data.track.title,
-                  style: const TextStyle(color: Colors.white)),
+              Text(
+                data.track.title,
+                style: const TextStyle(color: Colors.white),
+              ),
               if (block != null)
-                Text(block.title,
-                    style: const TextStyle(color: Colors.white70)),
+                Text(
+                  block.title,
+                  style: const TextStyle(color: Colors.white70),
+                ),
               const SizedBox(height: 8),
               Align(
                 alignment: Alignment.centerRight,

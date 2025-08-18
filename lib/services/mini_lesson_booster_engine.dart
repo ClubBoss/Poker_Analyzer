@@ -14,12 +14,15 @@ class MiniLessonBoosterEngine {
   const MiniLessonBoosterEngine({
     LearningPathEngine? engine,
     MiniLessonLibraryService? library,
-  })  : _engine = engine ?? LearningPathEngine.instance,
-        _library = library ?? MiniLessonLibraryService.instance;
+  }) : _engine = engine ?? LearningPathEngine.instance,
+       _library = library ?? MiniLessonLibraryService.instance;
 
   /// Inserts up to [max] mini lessons tagged by [tagList] before [targetNodeId].
-  Future<void> injectBefore(String targetNodeId, List<String> tagList,
-      {int max = 2}) async {
+  Future<void> injectBefore(
+    String targetNodeId,
+    List<String> tagList, {
+    int max = 2,
+  }) async {
     final mapEngine = _engine.engine;
     if (mapEngine == null || tagList.isEmpty || max <= 0) return;
     await _library.loadAll();
@@ -35,15 +38,17 @@ class MiniLessonBoosterEngine {
       if (inject.length >= max) break;
       final id = l.id;
       if (byId.containsKey(id)) continue; // avoid duplicates
-      inject.add(TheoryMiniLessonNode(
-        id: id,
-        refId: l.refId,
-        title: l.title,
-        content: l.content,
-        tags: l.tags,
-        nextIds: const [],
-        recoveredFromMistake: l.recoveredFromMistake,
-      ));
+      inject.add(
+        TheoryMiniLessonNode(
+          id: id,
+          refId: l.refId,
+          title: l.title,
+          content: l.content,
+          tags: l.tags,
+          nextIds: const [],
+          recoveredFromMistake: l.recoveredFromMistake,
+        ),
+      );
       byId[id] = inject.last;
     }
     if (inject.isEmpty) return;
@@ -70,7 +75,10 @@ class MiniLessonBoosterEngine {
           updated[i] = n is TheoryStageNode
               ? TheoryStageNode(id: n.id, nextIds: next, dependsOn: n.dependsOn)
               : TrainingStageNode(
-                  id: n.id, nextIds: next, dependsOn: n.dependsOn);
+                  id: n.id,
+                  nextIds: next,
+                  dependsOn: n.dependsOn,
+                );
         }
       } else if (n is TheoryLessonNode) {
         final next = List<String>.from(n.nextIds);

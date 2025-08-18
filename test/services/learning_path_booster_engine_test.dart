@@ -9,15 +9,18 @@ import 'package:poker_analyzer/services/training_session_service.dart';
 class _FakeMasteryService extends TagMasteryService {
   final Map<String, double> _map;
   _FakeMasteryService(this._map)
-      : super(logs: SessionLogService(sessions: TrainingSessionService()));
+    : super(logs: SessionLogService(sessions: TrainingSessionService()));
 
   @override
   Future<Map<String, double>> computeMastery({bool force = false}) async =>
       _map;
 }
 
-TrainingPackTemplateV2 tpl(
-    {required String id, required List<String> tags, double score = 1.0}) {
+TrainingPackTemplateV2 tpl({
+  required String id,
+  required List<String> tags,
+  double score = 1.0,
+}) {
   return TrainingPackTemplateV2(
     id: id,
     name: id,
@@ -40,10 +43,7 @@ void main() {
     ];
     final mastery = _FakeMasteryService({'cbet': 0.2, 'icm': 0.8});
     final engine = LearningPathBoosterEngine(library: library);
-    final result = await engine.getBoosterPacks(
-      mastery: mastery,
-      maxPacks: 2,
-    );
+    final result = await engine.getBoosterPacks(mastery: mastery, maxPacks: 2);
     expect(result.map((e) => e.id).toList(), ['b', 'a']);
   });
 }

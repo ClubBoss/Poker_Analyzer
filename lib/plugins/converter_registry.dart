@@ -13,7 +13,8 @@ class ConverterRegistry {
   void register(ConverterPlugin plugin) {
     if (findByFormatId(plugin.formatId) != null) {
       throw StateError(
-          'Converter with id \'${plugin.formatId}\' is already registered');
+        'Converter with id \'${plugin.formatId}\' is already registered',
+      );
     }
     _plugins.add(plugin);
   }
@@ -74,7 +75,7 @@ class ConverterRegistry {
             formatId: p.formatId,
             description: p.description,
             capabilities: p.capabilities,
-          )
+          ),
       ]);
 
   /// Returns converter metadata filtered by capability flags.
@@ -97,7 +98,7 @@ class ConverterRegistry {
             formatId: p.formatId,
             description: p.description,
             capabilities: p.capabilities,
-          )
+          ),
     ]);
   }
 

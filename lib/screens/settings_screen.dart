@@ -54,14 +54,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final stService = SkillTreeSettingsService.instance;
     _hideCompletedPrereqs = stService.hideCompletedPrereqs.value;
     _hideCompletedListener = () => setState(
-        () => _hideCompletedPrereqs = stService.hideCompletedPrereqs.value);
+      () => _hideCompletedPrereqs = stService.hideCompletedPrereqs.value,
+    );
     stService.hideCompletedPrereqs.addListener(_hideCompletedListener);
     stService.load();
     _accentColor = prefs.accentColor;
-    NotificationService.getReminderTime(context)
-        .then((t) => setState(() => _reminderTime = t));
-    DailyChallengeNotificationService.getScheduledTime()
-        .then((t) => setState(() => _challengeTime = t));
+    NotificationService.getReminderTime(
+      context,
+    ).then((t) => setState(() => _reminderTime = t));
+    DailyChallengeNotificationService.getScheduledTime().then(
+      (t) => setState(() => _challengeTime = t),
+    );
   }
 
   Future<void> _togglePotAnimation(bool value) async {
@@ -76,9 +79,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _toggleWinnerCelebration(bool value) async {
     setState(() => _showWinnerCelebration = value);
-    await context
-        .read<UserPreferencesService>()
-        .setShowWinnerCelebration(value);
+    await context.read<UserPreferencesService>().setShowWinnerCelebration(
+      value,
+    );
   }
 
   Future<void> _toggleActionHints(bool value) async {
@@ -102,8 +105,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   void dispose() {
-    SkillTreeSettingsService.instance.hideCompletedPrereqs
-        .removeListener(_hideCompletedListener);
+    SkillTreeSettingsService.instance.hideCompletedPrereqs.removeListener(
+      _hideCompletedListener,
+    );
     super.dispose();
   }
 
@@ -128,7 +132,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await prefs.setInt('daily_challenge_reminder_hour', picked.hour);
       await prefs.setInt('daily_challenge_reminder_minute', picked.minute);
       await DailyChallengeNotificationService.scheduleDailyReminder(
-          time: picked);
+        time: picked,
+      );
       setState(() => _challengeTime = picked);
     }
   }
@@ -209,8 +214,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           color: Colors.red,
                           shape: BoxShape.circle,
                         ),
-                        constraints:
-                            const BoxConstraints(minWidth: 16, minHeight: 16),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
                         child: Text(
                           '$count',
                           style: const TextStyle(fontSize: 10),
@@ -228,7 +235,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) => const AchievementsScreen()),
+                      builder: (_) => const AchievementsScreen(),
+                    ),
                   );
                 },
               );
@@ -278,8 +286,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             SwitchListTile(
               value: _hideCompletedPrereqs,
               title: const Text('Hide completed prerequisites'),
-              subtitle:
-                  const Text("Only show requirements you haven't finished yet"),
+              subtitle: const Text(
+                "Only show requirements you haven't finished yet",
+              ),
               onChanged: _toggleHideCompletedPrereqs,
               activeColor: Colors.orange,
             ),
@@ -384,7 +393,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (_) => const LessonTrackLibraryScreen()),
+                    builder: (_) => const LessonTrackLibraryScreen(),
+                  ),
                 );
               },
               child: const Text('Learning Tracks'),

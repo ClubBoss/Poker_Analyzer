@@ -8,8 +8,11 @@ import '../screens/training_session_screen.dart';
 class TrainingGapPromptBanner extends StatelessWidget {
   final String category;
   final TrainingPackTemplate pack;
-  const TrainingGapPromptBanner(
-      {super.key, required this.category, required this.pack});
+  const TrainingGapPromptBanner({
+    super.key,
+    required this.category,
+    required this.pack,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,11 +28,15 @@ class TrainingGapPromptBanner extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('📍 Устраните слабое место: ${translateCategory(category)}',
-              style: const TextStyle(color: Colors.white)),
+          Text(
+            '📍 Устраните слабое место: ${translateCategory(category)}',
+            style: const TextStyle(color: Colors.white),
+          ),
           const SizedBox(height: 4),
-          Text('🃏 Пак: ${pack.name}',
-              style: const TextStyle(color: Colors.white70)),
+          Text(
+            '🃏 Пак: ${pack.name}',
+            style: const TextStyle(color: Colors.white70),
+          ),
           const SizedBox(height: 8),
           Align(
             alignment: Alignment.centerRight,
@@ -40,7 +47,8 @@ class TrainingGapPromptBanner extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) => const TrainingSessionScreen()),
+                      builder: (_) => const TrainingSessionScreen(),
+                    ),
                   );
                 }
               },

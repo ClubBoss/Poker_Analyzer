@@ -52,10 +52,7 @@ void main() {
     });
 
     test('handles empty requirements', () {
-      expect(
-        BoardClusterConstraintEngine.matches(board: board),
-        isTrue,
-      );
+      expect(BoardClusterConstraintEngine.matches(board: board), isTrue);
     });
   });
 }

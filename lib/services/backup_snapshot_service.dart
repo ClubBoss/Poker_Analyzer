@@ -74,14 +74,16 @@ class BackupSnapshotService {
           .cast<File>()
           .toList();
       if (files.isEmpty) return null;
-      final results = await Future.wait(files.map((f) async {
-        try {
-          final stat = await f.stat();
-          return MapEntry(f, stat.modified);
-        } catch (_) {
-          return null;
-        }
-      }));
+      final results = await Future.wait(
+        files.map((f) async {
+          try {
+            final stat = await f.stat();
+            return MapEntry(f, stat.modified);
+          } catch (_) {
+            return null;
+          }
+        }),
+      );
       final entries = results.whereType<MapEntry<File, DateTime>>().toList();
       if (entries.isEmpty) return null;
       entries.sort((a, b) => b.value.compareTo(a.value));
@@ -99,7 +101,8 @@ class BackupSnapshotService {
       if (!await dir.exists()) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('No snapshot files found')));
+            const SnackBar(content: Text('No snapshot files found')),
+          );
         }
         return;
       }
@@ -107,7 +110,8 @@ class BackupSnapshotService {
       if (files.isEmpty) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('No snapshot files found')));
+            const SnackBar(content: Text('No snapshot files found')),
+          );
         }
         return;
       }
@@ -130,13 +134,15 @@ class BackupSnapshotService {
       await zipFile.writeAsBytes(bytes, flush: true);
       if (context.mounted) {
         final name = savePath.split(Platform.pathSeparator).last;
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Archive saved: $name')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Archive saved: $name')));
       }
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Failed to export snapshots')));
+          const SnackBar(content: Text('Failed to export snapshots')),
+        );
       }
     }
   }
@@ -176,8 +182,10 @@ class BackupSnapshotService {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(
-                  'Imported ${_pending.length} pending, ${_failed.length} failed, ${_completed.length} completed evaluations')),
+            content: Text(
+              'Imported ${_pending.length} pending, ${_failed.length} failed, ${_completed.length} completed evaluations',
+            ),
+          ),
         );
       }
     } catch (_) {
@@ -231,16 +239,15 @@ class BackupSnapshotService {
     _completed.addAll(importedCompleted);
     await queueService.persist();
     debugPanelCallback?.call();
-    final total = importedPending.length +
+    final total =
+        importedPending.length +
         importedFailed.length +
         importedCompleted.length;
     final msg = skipped == 0
         ? 'Imported $total evaluations from ${result.files.length} files'
         : 'Imported $total evaluations, $skipped files skipped';
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg)),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     }
   }
 

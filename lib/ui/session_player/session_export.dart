@@ -35,8 +35,10 @@ String buildSessionJson({
 }
 
 /// Save to a fixed, deterministic path; returns the file path.
-Future<String> saveSessionJson(String json,
-    {String path = 'out/last_session_summary.json'}) async {
+Future<String> saveSessionJson(
+  String json, {
+  String path = 'out/last_session_summary.json',
+}) async {
   final f = File(path);
   await f.parent.create(recursive: true);
   await f.writeAsString(json);

@@ -15,8 +15,11 @@ import '../widgets/training_spot_preview.dart';
 class SkillTreeNodeDetailView extends StatefulWidget {
   final SkillTreeNodeModel node;
   final bool unlocked;
-  const SkillTreeNodeDetailView(
-      {super.key, required this.node, this.unlocked = true});
+  const SkillTreeNodeDetailView({
+    super.key,
+    required this.node,
+    this.unlocked = true,
+  });
 
   @override
   State<SkillTreeNodeDetailView> createState() =>
@@ -38,12 +41,14 @@ class _SkillTreeNodeDetailViewState extends State<SkillTreeNodeDetailView> {
   Future<void> _load() async {
     if (widget.node.theoryLessonId.isNotEmpty) {
       await MiniLessonLibraryService.instance.loadAll();
-      _lesson =
-          MiniLessonLibraryService.instance.getById(widget.node.theoryLessonId);
+      _lesson = MiniLessonLibraryService.instance.getById(
+        widget.node.theoryLessonId,
+      );
     }
     if (widget.node.trainingPackId.isNotEmpty) {
-      _template =
-          await PackLibraryService.instance.getById(widget.node.trainingPackId);
+      _template = await PackLibraryService.instance.getById(
+        widget.node.trainingPackId,
+      );
       if (_template != null && _template!.spots.isNotEmpty) {
         _previewSpot = _convertSpot(_template!.spots.first);
       }
@@ -59,17 +64,18 @@ class _SkillTreeNodeDetailViewState extends State<SkillTreeNodeDetailView> {
         .map((e) => CardModel(rank: e[0], suit: e.substring(1)))
         .toList();
     final playerCards = [
-      for (int i = 0; i < hand.playerCount; i++) <CardModel>[]
+      for (int i = 0; i < hand.playerCount; i++) <CardModel>[],
     ];
     if (heroCards.length >= 2 && hand.heroIndex < playerCards.length) {
       playerCards[hand.heroIndex] = heroCards;
     }
     final boardCards = [
-      for (final c in hand.board) CardModel(rank: c[0], suit: c.substring(1))
+      for (final c in hand.board) CardModel(rank: c[0], suit: c.substring(1)),
     ];
     final actions = hand.actions.values.expand((l) => l).toList();
     final stacks = [
-      for (var i = 0; i < hand.playerCount; i++) hand.stacks['$i']?.round() ?? 0
+      for (var i = 0; i < hand.playerCount; i++)
+        hand.stacks['$i']?.round() ?? 0,
     ];
     final positions = List.generate(hand.playerCount, (_) => '');
     if (hand.heroIndex < positions.length) {
@@ -121,7 +127,9 @@ class _SkillTreeNodeDetailViewState extends State<SkillTreeNodeDetailView> {
                       Text(
                         _lesson!.resolvedTitle,
                         style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       if (_lesson!.tags.isNotEmpty)
                         Padding(
@@ -130,7 +138,8 @@ class _SkillTreeNodeDetailViewState extends State<SkillTreeNodeDetailView> {
                             spacing: 4,
                             runSpacing: -4,
                             children: [
-                              for (final t in _lesson!.tags.take(3)) TagBadge(t)
+                              for (final t in _lesson!.tags.take(3))
+                                TagBadge(t),
                             ],
                           ),
                         ),
@@ -158,8 +167,9 @@ class _SkillTreeNodeDetailViewState extends State<SkillTreeNodeDetailView> {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: widget.unlocked ? _startDrill : null,
-                          style:
-                              ElevatedButton.styleFrom(backgroundColor: accent),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: accent,
+                          ),
                           child: const Text('Start Drill'),
                         ),
                       ),
@@ -170,8 +180,11 @@ class _SkillTreeNodeDetailViewState extends State<SkillTreeNodeDetailView> {
                   Container(
                     color: Colors.black54,
                     alignment: Alignment.center,
-                    child:
-                        const Icon(Icons.lock, size: 64, color: Colors.white38),
+                    child: const Icon(
+                      Icons.lock,
+                      size: 64,
+                      color: Colors.white38,
+                    ),
                   ),
               ],
             ),

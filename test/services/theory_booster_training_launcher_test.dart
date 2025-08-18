@@ -62,12 +62,20 @@ void main() {
 
   test('launch builds pack and clears queue', () async {
     final l1 = const TheoryMiniLessonNode(
-        id: 'l1', title: 'A', content: '', tags: ['a']);
+      id: 'l1',
+      title: 'A',
+      content: '',
+      tags: ['a'],
+    );
     final l2 = const TheoryMiniLessonNode(
-        id: 'l2', title: 'B', content: '', tags: ['b']);
+      id: 'l2',
+      title: 'B',
+      content: '',
+      tags: ['b'],
+    );
     final library = _FakeLibrary({
       'a': [l1],
-      'b': [l2]
+      'b': [l2],
     });
     await TheoryBoosterQueueService.instance.enqueue('a');
     await TheoryBoosterQueueService.instance.enqueue('b');
@@ -81,7 +89,9 @@ void main() {
     expect(launcher.launched?.sections.length, 2);
     expect(TheoryBoosterQueueService.instance.getQueue(), isEmpty);
     expect(library.loadCount, 1);
-    expect(UserActionLogger.instance.events.last['event'],
-        'theory_booster_launched');
+    expect(
+      UserActionLogger.instance.events.last['event'],
+      'theory_booster_launched',
+    );
   });
 }

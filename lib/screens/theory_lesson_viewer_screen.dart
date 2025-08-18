@@ -32,10 +32,7 @@ class _HighlightBuilder extends MarkdownElementBuilder {
         color: Colors.yellow.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(4),
       ),
-      child: Text(
-        element.textContent,
-        style: preferredStyle,
-      ),
+      child: Text(element.textContent, style: preferredStyle),
     );
   }
 }
@@ -91,7 +88,9 @@ class TheoryLessonViewerScreen extends StatelessWidget {
                   header: Container(
                     color: AppColors.cardBackground,
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     alignment: Alignment.centerLeft,
                     child: Row(
                       children: [
@@ -108,7 +107,8 @@ class TheoryLessonViewerScreen extends StatelessWidget {
                         Text(
                           '$currentIndex/$totalCount',
                           style: const TextStyle(
-                              color: AppColors.textSecondaryDark),
+                            color: AppColors.textSecondaryDark,
+                          ),
                         ),
                       ],
                     ),
@@ -122,9 +122,7 @@ class TheoryLessonViewerScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              TheoryLessonClusterNavigationWidget(
-                currentLessonId: lesson.id,
-              ),
+              TheoryLessonClusterNavigationWidget(currentLessonId: lesson.id),
             ],
           ),
           TheoryLessonFeedbackBar(lessonId: lesson.id),

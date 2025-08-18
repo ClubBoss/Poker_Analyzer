@@ -24,10 +24,10 @@ class TheoryAutoInjectionLoggerService {
         if (data is List) {
           _logs.addAll(
             data.whereType<Map>().map(
-                  (e) => TheoryAutoInjectionLogEntry.fromJson(
-                    Map<String, dynamic>.from(e),
-                  ),
-                ),
+              (e) => TheoryAutoInjectionLogEntry.fromJson(
+                Map<String, dynamic>.from(e),
+              ),
+            ),
           );
           _logs.sort((a, b) => b.timestamp.compareTo(a.timestamp));
         }
@@ -64,8 +64,9 @@ class TheoryAutoInjectionLoggerService {
   }
 
   /// Returns recent logs, most recent first.
-  Future<List<TheoryAutoInjectionLogEntry>> getRecentLogs(
-      {int limit = 50}) async {
+  Future<List<TheoryAutoInjectionLogEntry>> getRecentLogs({
+    int limit = 50,
+  }) async {
     await _load();
     return List.unmodifiable(_logs.take(limit));
   }
@@ -85,8 +86,11 @@ class TheoryAutoInjectionLoggerService {
     final counts = <DateTime, int>{};
 
     for (final log in _logs) {
-      final date =
-          DateTime(log.timestamp.year, log.timestamp.month, log.timestamp.day);
+      final date = DateTime(
+        log.timestamp.year,
+        log.timestamp.month,
+        log.timestamp.day,
+      );
       if (now.difference(date).inDays >= days) {
         break;
       }
@@ -97,7 +101,8 @@ class TheoryAutoInjectionLoggerService {
       ..sort((a, b) => a.key.compareTo(b.key));
 
     return {
-      for (final e in entries) e.key.toIso8601String().split('T').first: e.value
+      for (final e in entries)
+        e.key.toIso8601String().split('T').first: e.value,
     };
   }
 

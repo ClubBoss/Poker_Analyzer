@@ -26,7 +26,8 @@ class _CategoryDrillCardState extends State<CategoryDrillCard> {
     SharedPreferences.getInstance().then((p) {
       final done = p.getBool(_key) ?? false;
       final ts = p.getInt(_tsKey);
-      final hide = ts != null &&
+      final hide =
+          ts != null &&
           DateTime.now()
                   .difference(DateTime.fromMillisecondsSinceEpoch(ts))
                   .inDays <
@@ -71,9 +72,10 @@ class _CategoryDrillCardState extends State<CategoryDrillCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Проработка категории',
-                    style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Проработка категории',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 4),
                 Text(name, style: const TextStyle(color: Colors.white)),
               ],
@@ -83,7 +85,9 @@ class _CategoryDrillCardState extends State<CategoryDrillCard> {
           ElevatedButton(
             onPressed: () async {
               final tpl = await TrainingPackService.createDrillFromCategory(
-                  context, entry.key);
+                context,
+                entry.key,
+              );
               if (tpl == null) return;
               await context.read<TrainingSessionService>().startSession(tpl);
               final p = await SharedPreferences.getInstance();
@@ -93,7 +97,8 @@ class _CategoryDrillCardState extends State<CategoryDrillCard> {
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (_) => const TrainingSessionScreen()),
+                    builder: (_) => const TrainingSessionScreen(),
+                  ),
                 );
               });
             },

@@ -83,27 +83,33 @@ class _TheoryBlockCardWidgetState extends State<TheoryBlockCardWidget> {
   }
 
   void _updatePinned() {
-    final pinned =
-        PinnedLearningService.instance.isPinned('block', widget.block.id);
+    final pinned = PinnedLearningService.instance.isPinned(
+      'block',
+      widget.block.id,
+    );
     if (pinned != _pinned) setState(() => _pinned = pinned);
   }
 
   Future<void> _togglePinned() async {
     await PinnedLearningService.instance.toggleBlock(widget.block);
-    final pinned =
-        PinnedLearningService.instance.isPinned('block', widget.block.id);
+    final pinned = PinnedLearningService.instance.isPinned(
+      'block',
+      widget.block.id,
+    );
     if (mounted) {
       setState(() => _pinned = pinned);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(pinned ? 'Pinned' : 'Unpinned')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(pinned ? 'Pinned' : 'Unpinned')));
     }
   }
 
   Future<void> _handleLongPress() async {
     await showTheoryBlockContextSheet(context, widget.block);
-    final pinned =
-        PinnedLearningService.instance.isPinned('block', widget.block.id);
+    final pinned = PinnedLearningService.instance.isPinned(
+      'block',
+      widget.block.id,
+    );
     if (mounted && pinned != _pinned) {
       setState(() => _pinned = pinned);
     }
@@ -177,7 +183,8 @@ class _TheoryBlockCardWidgetState extends State<TheoryBlockCardWidget> {
                           value: percent.clamp(0.0, 1.0),
                           backgroundColor: Colors.white24,
                           valueColor: AlwaysStoppedAnimation<Color>(
-                              border == Colors.transparent ? accent : border),
+                            border == Colors.transparent ? accent : border,
+                          ),
                           strokeWidth: 4,
                         ),
                         Text(

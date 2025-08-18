@@ -44,13 +44,10 @@ void main() {
       tags: const ['milestone'],
       nextIds: const ['c'],
     );
-    final c = TheoryMiniLessonNode(
-      id: 'c',
-      title: 'C',
-      content: '',
+    final c = TheoryMiniLessonNode(id: 'c', title: 'C', content: '');
+    final engine = TheoryGraphNavigationEngine(
+      library: _FakeLibrary([a, b, c]),
     );
-    final engine =
-        TheoryGraphNavigationEngine(library: _FakeLibrary([a, b, c]));
     await engine.initialize();
 
     expect(engine.getNext('a')?.id, 'b');
@@ -78,8 +75,9 @@ void main() {
       content: '',
       nextIds: const ['x'],
     );
-    final engine =
-        TheoryGraphNavigationEngine(library: _FakeLibrary([root, x, y]));
+    final engine = TheoryGraphNavigationEngine(
+      library: _FakeLibrary([root, x, y]),
+    );
     await engine.initialize();
 
     expect(engine.getNext('x')?.id, 'y');

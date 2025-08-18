@@ -9,8 +9,9 @@ void main() {
   test('loadGraph loads file for active profile', () async {
     SharedPreferences.setMockInitialValues({});
     await GameModeProfileEngine.instance.load();
-    await GameModeProfileEngine.instance
-        .setActiveProfile(GameModeProfile.cashOnline);
+    await GameModeProfileEngine.instance.setActiveProfile(
+      GameModeProfile.cashOnline,
+    );
 
     final orchestrator = LearningPathGraphOrchestrator();
     final nodes = await orchestrator.loadGraph();

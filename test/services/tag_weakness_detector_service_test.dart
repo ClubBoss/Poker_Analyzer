@@ -23,9 +23,9 @@ class _TestPathProvider extends PathProviderPlatform {
   @override
   Future<List<String>?> getExternalCachePaths() async => [path];
   @override
-  Future<List<String>?> getExternalStoragePaths(
-          {StorageDirectory? type}) async =>
-      [path];
+  Future<List<String>?> getExternalStoragePaths({
+    StorageDirectory? type,
+  }) async => [path];
   @override
   Future<String?> getDownloadsPath() async => path;
 }
@@ -44,19 +44,19 @@ void main() {
         'A': {'total': 1, 'correct': 0},
         'B': {'total': 1, 'correct': 0},
         'D': {'total': 1, 'correct': 1},
-      }
+      },
     });
     await box.add({
       'tagBreakdown': {
         'A': {'total': 1, 'correct': 0},
         'D': {'total': 1, 'correct': 1},
-      }
+      },
     });
     await box.add({
       'tagBreakdown': {
         'A': {'total': 1, 'correct': 1},
         'D': {'total': 1, 'correct': 0},
-      }
+      },
     });
 
     final service = TagWeaknessDetectorService();
@@ -72,18 +72,18 @@ void main() {
 
     await box.add({
       'tagBreakdown': {
-        'A': {'total': 1, 'correct': 0}
-      }
+        'A': {'total': 1, 'correct': 0},
+      },
     });
     await box.add({
       'tagBreakdown': {
-        'A': {'total': 1, 'correct': 0}
-      }
+        'A': {'total': 1, 'correct': 0},
+      },
     });
     await box.add({
       'tagBreakdown': {
-        'A': {'total': 1, 'correct': 1}
-      }
+        'A': {'total': 1, 'correct': 1},
+      },
     });
 
     final service = TagWeaknessDetectorService();

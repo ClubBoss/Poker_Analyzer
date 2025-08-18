@@ -35,22 +35,23 @@ class _AutogenErrorInspectorWidgetState
       if (kIsWeb || !(Platform.isAndroid || Platform.isIOS)) {
         await FileSaverService.instance.saveCsv('autogen_recent_errors', csv);
       } else {
-        final dir = await getDownloadsDirectory() ??
+        final dir =
+            await getDownloadsDirectory() ??
             await getApplicationDocumentsDirectory();
         final file = File(p.join(dir.path, 'autogen_recent_errors.csv'));
         await file.writeAsString(csv);
         await Share.shareXFiles([XFile(file.path)]);
       }
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Recent errors exported')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Recent errors exported')));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to export errors: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to export errors: $e')));
       }
     }
   }
@@ -84,18 +85,17 @@ class _AutogenErrorInspectorWidgetState
                       items: [
                         const DropdownMenuItem(value: null, child: Text('All')),
                         ...AutogenPackErrorType.values.map(
-                          (t) => DropdownMenuItem(
-                            value: t,
-                            child: Text(t.name),
-                          ),
+                          (t) =>
+                              DropdownMenuItem(value: t, child: Text(t.name)),
                         ),
                       ],
                     ),
                     IconButton(
                       tooltip: 'Export to CSV',
                       icon: const Icon(Icons.download),
-                      onPressed:
-                          filtered.isEmpty ? null : () => _exportCsv(filtered),
+                      onPressed: filtered.isEmpty
+                          ? null
+                          : () => _exportCsv(filtered),
                     ),
                   ],
                 ),
@@ -108,8 +108,10 @@ class _AutogenErrorInspectorWidgetState
                     child: ListView.builder(
                       itemCount: filtered.length,
                       itemBuilder: (context, index) {
-                        final e = filtered[
-                            filtered.length - 1 - index]; // latest first
+                        final e =
+                            filtered[filtered.length -
+                                1 -
+                                index]; // latest first
                         final ts = DateFormat('HH:mm:ss').format(e.timestamp);
                         return ListTile(
                           dense: true,
