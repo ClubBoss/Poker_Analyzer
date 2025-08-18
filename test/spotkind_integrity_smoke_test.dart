@@ -28,5 +28,12 @@ void main() {
         expect(p.startsWith(expected[kind]!), true);
       }
     });
+
+    test('l4_icm_bb_jam_vs_fold prefix exact match', () {
+      expect(
+        subtitlePrefix[SpotKind.l4_icm_bb_jam_vs_fold],
+        'ICM BB Jam vs Fold • ',
+      );
+    });
   });
 }
