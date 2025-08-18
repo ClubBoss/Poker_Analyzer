@@ -6,8 +6,6 @@ const Set<SpotKind> autoReplayKinds = {
   SpotKind.l3_river_jam_vs_raise,
 };
 
-bool isAutoReplayKind(SpotKind k) => autoReplayKinds.contains(k);
-
 bool shouldAutoReplay({
   required bool correct,
   required bool autoWhy,
