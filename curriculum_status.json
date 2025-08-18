@@ -6,6 +6,7 @@
     "core_pot_odds_equity",
     "cash:l3:v1",
     "core_starting_hands",
-    "icm:l4:sb:v1"
+    "icm:l4:sb:v1",
+    "icm:l4:bb:v1"
   ]
 }
