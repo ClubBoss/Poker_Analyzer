@@ -27,6 +27,7 @@ import '../coverage/coverage_dashboard.dart';
 import '../modules/modules_screen.dart';
 import 'package:poker_analyzer/infra/telemetry_builder.dart';
 import 'package:poker_analyzer/ui/modules/icm_mix_packs.dart';
+import 'package:poker_analyzer/ui/modules/icm_bubble_packs.dart';
 import 'package:poker_analyzer/ui/session_player/l3_jsonl_export.dart';
 
 void _assertSpotKindIntegrity(Set<SpotKind> usedKinds) {
@@ -1119,6 +1120,25 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                           builder: (_) => MvsSessionPlayer(
                             spots: spots,
                             packId: 'icm:l4:mix:v1',
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                ActionChip(
+                  label: const Text('Start ICM L4 Bubble'),
+                  onPressed: () {
+                    final spots = loadIcmL4BubbleV1();
+                    if (spots.isEmpty) {
+                      showMiniToast(context, 'Pack is empty');
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => MvsSessionPlayer(
+                            spots: spots,
+                            packId: 'icm:l4:bubble:v1',
                           ),
                         ),
                       );
