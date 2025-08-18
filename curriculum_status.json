@@ -4,6 +4,7 @@
     "cash:l3:v1",
     "icm:l4:ladder:v1",
     "core_pot_odds_equity",
-    "cash:l3:v1"
+    "cash:l3:v1",
+    "core_starting_hands"
   ]
 }
