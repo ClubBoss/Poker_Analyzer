@@ -1074,6 +1074,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           : (ladderVariant == 'next'
               ? 'Next: ICM L4 Ladder'
               : 'Start ICM L4 Ladder');
+      final wrongCount = _answers.where((a) => !a.correct).length;
       const passAccPct = 80;
       const passAvgMs = 1800;
 
@@ -1148,6 +1149,28 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                       ? null
                       : _quickReplayL3JamErrors,
                 ),
+                if (isLadder && wrongCount > 0)
+                  ActionChip(
+                    label: Text('Replay Ladder mistakes (${wrongCount})'),
+                    onPressed: () {
+                      unawaited(Telemetry.logEvent(
+                          'cta_icm_l4_ladder_replay_mistakes_tap', {
+                        'mistakes': wrongCount,
+                      }));
+                      final picks = <UiSpot>[];
+                      // Align answers to spots by index; safe on Summary where we finished the run.
+                      for (var i = 0;
+                          i < _spots.length && i < _answers.length;
+                          i++) {
+                        if (!_answers[i].correct) picks.add(_spots[i]);
+                      }
+                      if (picks.isEmpty) {
+                        showMiniToast(context, 'No mistakes to replay');
+                      } else {
+                        _restart(picks);
+                      }
+                    },
+                  ),
                 ActionChip(
                   label: const Text('Export L3 errors'),
                   onPressed: l3Candidates.isEmpty ? null : _exportErrors,
