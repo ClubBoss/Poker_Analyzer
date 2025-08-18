@@ -1060,6 +1060,15 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     final Widget child;
     if (_index >= _spots.length) {
       final l3Candidates = _l3JamErrorCandidates();
+      final isIcmL4Pack = const {
+        'icm:l4:sb:v1',
+        'icm:l4:bb:v1',
+        'icm:l4:mix:v1',
+        'icm:l4:bubble:v1',
+      }.contains(widget.packId);
+      final ladderLabel = isIcmL4Pack
+          ? 'Next: ICM L4 Ladder'
+          : 'Start ICM L4 Ladder';
       child = Column(
         children: [
           Expanded(
@@ -1145,7 +1154,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                   },
                 ),
                 ActionChip(
-                  label: const Text('Start ICM L4 Ladder'),
+                  label: Text(ladderLabel),
                   onPressed: () {
                     final spots = loadIcmL4LadderV1();
                     if (spots.isEmpty) {
