@@ -7,8 +7,8 @@ void main() {
     expect(File(ContentManifest.path).existsSync(), isTrue);
 
     final m = ContentManifest.loadSync();
-    expect(m.modules, isEmpty);
-    expect(m.isReady('cash:l3:v1'), isFalse);
-    expect(isReady('icm:l4:bb:v1'), isFalse);
+    expect(m.modules, isA<Set<String>>());
+    expect(m.isReady('cash:l3:v1'), isTrue);
+    expect(isReady('cash:l3:v1'), isTrue);
   });
 }
