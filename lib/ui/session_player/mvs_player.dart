@@ -28,6 +28,7 @@ import '../modules/modules_screen.dart';
 import 'package:poker_analyzer/infra/telemetry_builder.dart';
 import 'package:poker_analyzer/ui/session_player/l3_jsonl_export.dart';
 import 'package:poker_analyzer/ui/modules/cash_packs.dart';
+import 'package:poker_analyzer/ui/modules/icm_bb_packs.dart';
 import 'package:poker_analyzer/ui/modules/icm_packs.dart';
 
 void _assertSpotKindIntegrity(Set<SpotKind> usedKinds) {
@@ -1316,6 +1317,25 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                           builder: (_) => MvsSessionPlayer(
                             spots: spots,
                             packId: 'icm:l4:sb:v1',
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                ActionChip(
+                  label: const Text('Start ICM L4 BB'),
+                  onPressed: () {
+                    final spots = loadIcmL4BbV1();
+                    if (spots.isEmpty) {
+                      showMiniToast(context, 'Pack is empty');
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => MvsSessionPlayer(
+                            spots: spots,
+                            packId: 'icm:l4:bb:v1',
                           ),
                         ),
                       );
