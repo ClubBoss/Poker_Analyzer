@@ -35,5 +35,14 @@ void main() {
         'ICM BB Jam vs Fold • ',
       );
     });
+
+    test('actionsMap vs subtitlePrefix symmetry', () {
+      final keys = actionsMap.keys.toSet();
+      expect(keys, subtitlePrefix.keys.toSet());
+      for (final k in keys) {
+        expect(actionsMap[k], ['jam', 'fold']);
+        expect(subtitlePrefix[k]!.endsWith(' • '), true);
+      }
+    });
   });
 }
