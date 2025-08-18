@@ -9,8 +9,8 @@ MAP = {
     "\u2014": "-",  # em dash
     "\u2212": "-",  # minus
     "\u2026": "...",  # ellipsis
-    "\u00A0": " ",  # no-break space
-    "\u2009": " ", "\u200A": " ", "\u200B": "",  # thin / hair / zero-width
+    "\u00A0": " ",   # no-break space
+    "\u2009": " ", "\u200A": " ", "\u200B": "",  # thin/hair/zero-width
 }
 
 def normalize_text(s: str) -> str:
