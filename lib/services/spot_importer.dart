@@ -22,12 +22,14 @@ class SpotImportReport {
 class SpotImporter {
   /// Parses [content] and returns an import report.
   ///
-  /// Supported formats: 'json', 'jsonl', 'csv' (case-insensitive).
-  /// The 'json' path tolerantly accepts JSON Lines as a fallback.
-  /// If both are provided, [format] is used and [kind] is ignored.
-  /// If both are provided, [format] takes precedence; defaults to 'json'.
+  /// Supported formats: `jsonl` (preferred), `json`, `csv`.
+  /// Auto-detects by content or extension and falls back to tolerant JSON via
+  /// [decodeJsonl] where applicable.
+  /// If both are provided, [format] takes precedence and [kind] is ignored;
+  /// defaults to `json`.
   /// CSV notes: quoted fields are de-quoted (and "" unescaped), but fields
-  /// must not contain the active separator. Prefer ';' when values contain commas.
+  /// must not contain the active separator. Prefer ';' when values contain
+  /// commas.
   static SpotImportReport parse(
     String content, {
     String? format,
