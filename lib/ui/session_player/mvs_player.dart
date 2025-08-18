@@ -336,16 +336,14 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         _timeLeftMs = _timeLimitMs = p.timeLimitMs;
       });
     });
-    unawaited(
-      Telemetry.logEvent(
-        'session_start',
-        buildTelemetry(
-          sessionId: _sessionId,
-          packId: widget.packId,
-          data: {'count': widget.spots.length},
-        ),
+    unawaited(Telemetry.logEvent(
+      'session_start',
+      buildTelemetry(
+        sessionId: _sessionId,
+        packId: widget.packId,
+        data: {'count': widget.spots.length},
       ),
-    );
+    ));
   }
 
   @override
@@ -358,23 +356,21 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     _autoNextAnim?.dispose();
     _focusNode.dispose();
     if (_index < _spots.length && !_clearedAtSummary) {
-      unawaited(
-        Telemetry.logEvent(
-          'session_abort',
-          buildTelemetry(
-            sessionId: _sessionId,
-            packId: widget.packId,
-            data: {
-              'answered': _answers.length,
-              'remaining': _spots.length - _index,
-              'elapsedMs': _answers.fold<int>(
-                0,
-                (s, a) => s + a.elapsed.inMilliseconds,
-              ),
-            },
-          ),
+      unawaited(Telemetry.logEvent(
+        'session_abort',
+        buildTelemetry(
+          sessionId: _sessionId,
+          packId: widget.packId,
+          data: {
+            'answered': _answers.length,
+            'remaining': _spots.length - _index,
+            'elapsedMs': _answers.fold<int>(
+              0,
+              (s, a) => s + a.elapsed.inMilliseconds,
+            ),
+          },
         ),
-      );
+      ));
     }
     unawaited(SessionResume.clear());
     super.dispose();
@@ -884,12 +880,10 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       _spots.insertAll(_index, picks);
       _replayed.addAll(picks);
     });
-    unawaited(
-      Telemetry.logEvent(
-        'quick_replay_l3_errors',
-        buildTelemetry(sessionId: _sessionId, packId: widget.packId),
-      ),
-    );
+    unawaited(Telemetry.logEvent(
+      'quick_replay_l3_errors',
+      buildTelemetry(sessionId: _sessionId, packId: widget.packId),
+    ));
     _next();
   }
 
@@ -957,39 +951,33 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         context,
         'Exported ${rows.length} spots${dups > 0 ? ' (dups $dups)' : ''} to out/packs/l3_jam_errors.jsonl',
       );
-      unawaited(
-        Telemetry.logEvent(
-          'export_l3_errors_file',
-          buildTelemetry(
-            sessionId: _sessionId,
-            packId: widget.packId,
-            data: {'count': rows.length},
-          ),
+      unawaited(Telemetry.logEvent(
+        'export_l3_errors_file',
+        buildTelemetry(
+          sessionId: _sessionId,
+          packId: widget.packId,
+          data: {'count': rows.length},
         ),
-      );
+      ));
     } catch (_) {
-      unawaited(
-        Telemetry.logEvent(
-          'export_l3_errors_failed',
-          buildTelemetry(
-            sessionId: _sessionId,
-            packId: widget.packId,
-            data: {'count': rows.length, 'reason': kIsWeb ? 'web' : 'io'},
-          ),
+      unawaited(Telemetry.logEvent(
+        'export_l3_errors_failed',
+        buildTelemetry(
+          sessionId: _sessionId,
+          packId: widget.packId,
+          data: {'count': rows.length, 'reason': kIsWeb ? 'web' : 'io'},
         ),
-      );
+      ));
       Clipboard.setData(ClipboardData(text: text));
       showMiniToast(context, 'Copied L3 errors to clipboard');
-      unawaited(
-        Telemetry.logEvent(
-          'export_l3_errors_clipboard',
-          buildTelemetry(
-            sessionId: _sessionId,
-            packId: widget.packId,
-            data: {'count': rows.length},
-          ),
+      unawaited(Telemetry.logEvent(
+        'export_l3_errors_clipboard',
+        buildTelemetry(
+          sessionId: _sessionId,
+          packId: widget.packId,
+          data: {'count': rows.length},
         ),
-      );
+      ));
     }
   }
 
@@ -1039,12 +1027,12 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       }
       if (report.spots.isEmpty) return;
       _lastLoadedSpots = report.spots;
-      if (!await _confirmRestartIfInProgress(context)) return;
-      final dup = report.skippedDuplicates > 0
-          ? ' (dups ${report.skippedDuplicates})'
-          : '';
-      unawaited(
-        Telemetry.logEvent(
+        if (!await _confirmRestartIfInProgress(context)) return;
+        if (!await _confirmRestartIfInProgress(context)) return;
+        final dup = report.skippedDuplicates > 0
+            ? ' (dups ${report.skippedDuplicates})'
+            : '';
+        unawaited(Telemetry.logEvent(
           'import_confirm_shown',
           buildTelemetry(
             sessionId: _sessionId,
@@ -1056,32 +1044,29 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
               'dups': report.skippedDuplicates,
             },
           ),
-        ),
-      );
-      final start =
-          await showDialog<bool>(
-            context: context,
-            barrierDismissible: true,
-            builder: (_) => AlertDialog(
-              title: const Text('Import summary'),
-              content: Text(
-                'Found ${report.spots.length} spots \u2022 added ${report.added} \u2022 skipped ${report.skipped}$dup',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(_, false),
-                  child: const Text('Cancel'),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.pop(_, true),
-                  child: const Text('Start'),
-                ),
-              ],
+        ));
+        final start = await showDialog<bool>(
+          context: context,
+          barrierDismissible: true,
+          builder: (_) => AlertDialog(
+            title: const Text('Import summary'),
+            content: Text(
+              'Found ${report.spots.length} spots \u2022 added ${report.added} \u2022 skipped ${report.skipped}$dup',
             ),
-          ) ??
-          false;
-      unawaited(
-        Telemetry.logEvent(
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(_, false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(_, true),
+                child: const Text('Start'),
+              ),
+            ],
+          ),
+        ) ??
+            false;
+        unawaited(Telemetry.logEvent(
           'import_confirm_result',
           buildTelemetry(
             sessionId: _sessionId,
@@ -1094,8 +1079,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
               'dups': report.skippedDuplicates,
             },
           ),
-        ),
-      );
+        ));
       if (!start) return;
       _restart(report.spots);
     } catch (_) {
@@ -1134,11 +1118,10 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       if (report.spots.isEmpty) return;
       _lastLoadedSpots = report.spots;
       if (!await _confirmRestartIfInProgress(context)) return;
-      final dup = report.skippedDuplicates > 0
-          ? ' (dups ${report.skippedDuplicates})'
-          : '';
-      unawaited(
-        Telemetry.logEvent(
+        final dup = report.skippedDuplicates > 0
+            ? ' (dups ${report.skippedDuplicates})'
+            : '';
+        unawaited(Telemetry.logEvent(
           'import_confirm_shown',
           buildTelemetry(
             sessionId: _sessionId,
@@ -1150,32 +1133,29 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
               'dups': report.skippedDuplicates,
             },
           ),
-        ),
-      );
-      final start =
-          await showDialog<bool>(
-            context: context,
-            barrierDismissible: true,
-            builder: (_) => AlertDialog(
-              title: const Text('Import summary'),
-              content: Text(
-                'Found ${report.spots.length} spots \u2022 added ${report.added} \u2022 skipped ${report.skipped}$dup',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(_, false),
-                  child: const Text('Cancel'),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.pop(_, true),
-                  child: const Text('Start'),
-                ),
-              ],
+        ));
+        final start = await showDialog<bool>(
+          context: context,
+          barrierDismissible: true,
+          builder: (_) => AlertDialog(
+            title: const Text('Import summary'),
+            content: Text(
+              'Found ${report.spots.length} spots \u2022 added ${report.added} \u2022 skipped ${report.skipped}$dup',
             ),
-          ) ??
-          false;
-      unawaited(
-        Telemetry.logEvent(
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(_, false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(_, true),
+                child: const Text('Start'),
+              ),
+            ],
+          ),
+        ) ??
+            false;
+        unawaited(Telemetry.logEvent(
           'import_confirm_result',
           buildTelemetry(
             sessionId: _sessionId,
@@ -1188,8 +1168,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
               'dups': report.skippedDuplicates,
             },
           ),
-        ),
-      );
+        ));
       if (!start) return;
       _restart(report.spots);
     } catch (_) {
@@ -1201,27 +1180,26 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   Widget build(BuildContext context) {
     if (_index >= _spots.length && !_clearedAtSummary) {
       _clearedAtSummary = true;
-      unawaited(
-        Telemetry.logEvent(
-          'session_end',
-          buildTelemetry(
-            sessionId: _sessionId,
-            packId: widget.packId,
-            data: {
-              'total': _answers.length,
-              'correct': _answers.where((a) => a.correct).length,
-              'wrong':
-                  _answers.length - _answers.where((a) => a.correct).length,
-              'skipped': _answers.where((a) => a.chosen == '(skip)').length,
-              'timeouts': _answers.where((a) => a.chosen == '(timeout)').length,
-              'elapsedMs': _answers.fold<int>(
-                0,
-                (s, a) => s + a.elapsed.inMilliseconds,
-              ),
-            },
-          ),
+      unawaited(Telemetry.logEvent(
+        'session_end',
+        buildTelemetry(
+          sessionId: _sessionId,
+          packId: widget.packId,
+          data: {
+            'total': _answers.length,
+            'correct': _answers.where((a) => a.correct).length,
+            'wrong':
+                _answers.length - _answers.where((a) => a.correct).length,
+            'skipped': _answers.where((a) => a.chosen == '(skip)').length,
+            'timeouts':
+                _answers.where((a) => a.chosen == '(timeout)').length,
+            'elapsedMs': _answers.fold<int>(
+              0,
+              (s, a) => s + a.elapsed.inMilliseconds,
+            ),
+          },
         ),
-      );
+      ));
       unawaited(_clearSaved());
       unawaited(SessionResume.clear());
     }
