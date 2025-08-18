@@ -31,13 +31,9 @@ import 'package:poker_analyzer/ui/modules/icm_bubble_packs.dart';
 import 'package:poker_analyzer/ui/modules/icm_ladder_packs.dart';
 import 'package:poker_analyzer/ui/session_player/l3_jsonl_export.dart';
 
-const actionsMap = <SpotKind, List<String>>{
-  ...specs.actionsMap,
-};
+const actionsMap = <SpotKind, List<String>>{...specs.actionsMap};
 
-const subtitlePrefix = <SpotKind, String>{
-  ...specs.subtitlePrefix,
-};
+const subtitlePrefix = <SpotKind, String>{...specs.subtitlePrefix};
 
 void _assertSpotKindIntegrity(Set<SpotKind> usedKinds) {
   assert(() {
@@ -488,6 +484,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     final autoWhy = _prefs.autoWhyOnWrong;
     final correct = action == spot.action;
     final stackBB = int.tryParse(spot.stack.replaceAll(RegExp(r'[^0-9]'), ''));
+    final elapsedMs = _timer.elapsed.inMilliseconds;
+    final spotId = '$_index';
     unawaited(
       Telemetry.logEvent(correct ? 'answer_correct' : 'answer_wrong', {
         'sessionId': _sessionId,
@@ -495,7 +493,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         if (stackBB != null) 'stackBB': stackBB,
         'expected': spot.action,
         'chosen': action,
-        'elapsedMs': _timer.elapsed.inMilliseconds,
+        'elapsedMs': elapsedMs,
         if (widget.packId != null) 'packId': widget.packId,
       }),
     );
@@ -533,6 +531,18 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         _replayed.add(spot);
       }
     });
+    unawaited(
+      Telemetry.logEvent(
+        'practice_spot_answered',
+        buildPracticeSpotAnswered(
+          moduleId: widget.packId ?? '',
+          spotId: spotId,
+          correct: correct,
+          ms: elapsedMs,
+          kind: spot.kind.name,
+        ),
+      ),
+    );
     unawaited(_saveProgress());
     // micro-feedback: toast + pulse + flash tint
     unawaited(showMiniToast(context, correct ? 'Correct' : 'Wrong'));
@@ -596,6 +606,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     if (_index >= _spots.length || _chosen != null) return;
     final spot = _spots[_index];
     final stackBB = int.tryParse(spot.stack.replaceAll(RegExp(r'[^0-9]'), ''));
+    final elapsedMs = _timer.elapsed.inMilliseconds;
+    final spotId = '$_index';
     unawaited(
       Telemetry.logEvent('answer_skip', {
         'sessionId': _sessionId,
@@ -603,7 +615,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         if (stackBB != null) 'stackBB': stackBB,
         'expected': spot.action,
         'chosen': '(skip)',
-        'elapsedMs': _timer.elapsed.inMilliseconds,
+        'elapsedMs': elapsedMs,
         if (widget.packId != null) 'packId': widget.packId,
       }),
     );
@@ -629,6 +641,18 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         ..start();
       _answerFlashColor = null;
     });
+    unawaited(
+      Telemetry.logEvent(
+        'practice_spot_answered',
+        buildPracticeSpotAnswered(
+          moduleId: widget.packId ?? '',
+          spotId: spotId,
+          correct: false,
+          ms: elapsedMs,
+          kind: spot.kind.name,
+        ),
+      ),
+    );
     if (_index < _spots.length) {
       _startTicker();
       _startTimebar();
@@ -655,6 +679,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     final spot = _spots[_index];
     final autoWhy = _prefs.autoWhyOnWrong;
     final stackBB = int.tryParse(spot.stack.replaceAll(RegExp(r'[^0-9]'), ''));
+    final elapsedMs = _timer.elapsed.inMilliseconds;
+    final spotId = '$_index';
 
     unawaited(
       Telemetry.logEvent('answer_timeout', {
@@ -663,7 +689,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         if (stackBB != null) 'stackBB': stackBB,
         'expected': spot.action,
         'chosen': '(timeout)',
-        'elapsedMs': _timer.elapsed.inMilliseconds,
+        'elapsedMs': elapsedMs,
         if (widget.packId != null) 'packId': widget.packId,
       }),
     );
@@ -690,6 +716,18 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       }
     });
 
+    unawaited(
+      Telemetry.logEvent(
+        'practice_spot_answered',
+        buildPracticeSpotAnswered(
+          moduleId: widget.packId ?? '',
+          spotId: spotId,
+          correct: false,
+          ms: elapsedMs,
+          kind: spot.kind.name,
+        ),
+      ),
+    );
     unawaited(_saveProgress());
     _answerPulseCtrl.forward(from: 0.0);
     setState(() => _answerFlashColor = Colors.red.withOpacity(0.12));
@@ -1076,12 +1114,14 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         'icm:l4:bubble:v1',
       }.contains(widget.packId);
       final isLadder = widget.packId == 'icm:l4:ladder:v1';
-      final ladderVariant = isLadder ? 'retry' : (isIcmL4Pack ? 'next' : 'start');
+      final ladderVariant = isLadder
+          ? 'retry'
+          : (isIcmL4Pack ? 'next' : 'start');
       final ladderLabel = ladderVariant == 'retry'
           ? 'Retry ICM L4 Ladder'
           : (ladderVariant == 'next'
-              ? 'Next: ICM L4 Ladder'
-              : 'Start ICM L4 Ladder');
+                ? 'Next: ICM L4 Ladder'
+                : 'Start ICM L4 Ladder');
       final wrongCount = _answers.where((a) => !a.correct).length;
       const passAccPct = 80;
       const passAvgMs = 1800;
@@ -1100,13 +1140,15 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
 
       if (isLadder && !_ladderOutcomeLogged) {
         _ladderOutcomeLogged = true;
-        unawaited(Telemetry.logEvent('ladder_session_passed', {
-          'packId': widget.packId,
-          'passed': passed,
-          'accPct': accPct,
-          'avgMs': avgMs,
-          'total': total,
-        }));
+        unawaited(
+          Telemetry.logEvent('ladder_session_passed', {
+            'packId': widget.packId,
+            'passed': passed,
+            'accPct': accPct,
+            'avgMs': avgMs,
+            'total': total,
+          }),
+        );
       }
       child = Column(
         children: [
@@ -1161,15 +1203,19 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                   ActionChip(
                     label: Text('Replay Ladder mistakes (${wrongCount})'),
                     onPressed: () {
-                      unawaited(Telemetry.logEvent(
-                          'cta_icm_l4_ladder_replay_mistakes_tap', {
-                        'mistakes': wrongCount,
-                      }));
+                      unawaited(
+                        Telemetry.logEvent(
+                          'cta_icm_l4_ladder_replay_mistakes_tap',
+                          {'mistakes': wrongCount},
+                        ),
+                      );
                       final picks = <UiSpot>[];
                       // Align answers to spots by index; safe on Summary where we finished the run.
-                      for (var i = 0;
-                          i < _spots.length && i < _answers.length;
-                          i++) {
+                      for (
+                        var i = 0;
+                        i < _spots.length && i < _answers.length;
+                        i++
+                      ) {
                         if (!_answers[i].correct) picks.add(_spots[i]);
                       }
                       if (picks.isEmpty) {
@@ -1228,9 +1274,11 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                 ActionChip(
                   label: Text(ladderLabel),
                   onPressed: () {
-                    unawaited(Telemetry.logEvent('cta_icm_l4_ladder_tap', {
-                      'variant': ladderVariant,
-                    }));
+                    unawaited(
+                      Telemetry.logEvent('cta_icm_l4_ladder_tap', {
+                        'variant': ladderVariant,
+                      }),
+                    );
                     final spots = loadIcmL4LadderV1();
                     if (spots.isEmpty) {
                       showMiniToast(context, 'Pack is empty');
