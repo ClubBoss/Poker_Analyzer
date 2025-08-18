@@ -15,7 +15,6 @@ concurrency:
 
 jobs:
   autoformat:
-    # Только для PR из веток codex/*
     if: ${{ startsWith(github.event.pull_request.head.ref, 'codex/') }}
     runs-on: ubuntu-latest
     steps:
