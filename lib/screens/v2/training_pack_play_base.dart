@@ -18,7 +18,7 @@ export 'package:flutter/material.dart';
 export 'package:flutter/services.dart';
 export 'package:shared_preferences/shared_preferences.dart';
 export 'package:provider/provider.dart';
-export 'package:flutter_gen/gen_l10n/app_localizations.dart';
+export 'package:poker_analyzer/l10n/app_localizations.dart';
 
 export '../../models/training_spot.dart';
 export '../../models/action_entry.dart';

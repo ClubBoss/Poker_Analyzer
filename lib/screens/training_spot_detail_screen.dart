@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import '../services/training_session_controller.dart';
 import 'training_play_screen.dart';
 import '../widgets/sync_status_widget.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:poker_analyzer/l10n/app_localizations.dart';
 import '../services/theory_mini_lesson_navigator.dart';
 
 class TrainingSpotDetailScreen extends StatelessWidget {

@@ -1,4 +1,10 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 part of 'reinforcement_log.dart';
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
 
 ReinforcementLog _$ReinforcementLogFromJson(Map<String, dynamic> json) =>
     ReinforcementLog(

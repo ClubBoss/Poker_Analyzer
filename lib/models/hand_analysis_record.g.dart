@@ -1,4 +1,10 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 part of 'hand_analysis_record.dart';
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
 
 HandAnalysisRecord _$HandAnalysisRecordFromJson(Map<String, dynamic> json) =>
     HandAnalysisRecord(

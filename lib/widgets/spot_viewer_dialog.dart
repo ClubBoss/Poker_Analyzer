@@ -133,12 +133,21 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
       ),
     );
     if (result != null) {
+<<<<<<< HEAD
       final updated = spot.copyWith(
         note: result.trim(),
         editedAt: DateTime.now(),
       );
       await context.read<TrainingSessionService>().updateSpot(updated);
       setState(() => spot = updated);
+=======
+      // Прямая мутация вместо copyWith(...)
+      spot.note = result.trim();
+      spot.editedAt = DateTime.now();
+      await context.read<TrainingSessionService>().updateSpot(spot);
+      if (!mounted) return;
+      setState(() {});
+>>>>>>> 6b67f10f (chore: l10n/gen updates + fixes)
     }
   }
 
@@ -190,10 +199,12 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
       ),
     );
     if (result != null) {
-      final updated = spot.copyWith(tags: result, editedAt: DateTime.now());
-      await context.read<TrainingSessionService>().updateSpot(updated);
+      // Прямая мутация вместо copyWith(...)
+      spot.tags = result;
+      spot.editedAt = DateTime.now();
+      await context.read<TrainingSessionService>().updateSpot(spot);
       if (!mounted) return;
-      setState(() => spot = updated);
+      setState(() {});
     }
   }
 

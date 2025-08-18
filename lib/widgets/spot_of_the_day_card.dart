@@ -37,7 +37,8 @@ class SpotOfTheDayCard extends StatelessWidget {
             style: const TextStyle(color: Colors.white70),
           ),
           const SizedBox(height: 8),
-          TrainingSpotPreview(spot: spot),
+          // Важно: верное имя параметра конструктора
+          TrainingSpotPreview(trainingSpot: spot),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,

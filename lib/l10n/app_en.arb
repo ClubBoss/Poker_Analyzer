@@ -6,35 +6,35 @@
   "builtInPacks": "Built-in Packs",
   "yourPacks": "Your Packs",
   "recentPacks": "Recently Practised",
-  "popularPacks": "\ud83d\udd25 Popular",
-  "newPacks": "\ud83c\udd95 New",
+  "popularPacks": "🔥 Popular",
+  "newPacks": "🆕 New",
   "starterBadge": "Starter",
   "newBadge": "New",
   "masteredBadge": "✅ Mastered",
-  "hands": "hands"
-  ,"startTraining": "Start training"
-  ,"lastTrained": "Last trained"
-  ,"needsPractice": "Needs Practice"
-  ,"reviewMistakes": "Review Mistakes"
-  ,"reviewMistakesOnly": "Review Mistakes Only"
-  ,"percentLabel": "{value} %"
-  ,"starter_packs_title": "Starter pack"
-  ,"starter_packs_subtitle": "Start training instantly"
-  ,"starter_packs_start": "Start"
-  ,"starter_packs_continue": "Continue"
-  ,"starter_packs_choose": "Choose pack"
-  ,"accuracySemantics": "Accuracy {value} percent"
-  ,"sortProgress": "Progress"
-  ,"sortNewest": "Newest"
-  ,"sortMostHands": "Most Hands"
-  ,"sortName": "Name A-Z"
-  ,"noMistakesLeft": "All mistakes already fixed!"
-  ,"filterMistakes": "Mistakes"
-  ,"sortInProgress": "In Progress"
-  ,"packPushFold12": "Push/Fold 12BB (No Ante)"
-  ,"packPushFold15": "Push/Fold 15BB (No Ante)"
-  ,"packPushFold10": "Push/Fold 10BB (No Ante)"
-  ,"packPushFold20": "Push/Fold 20BB (No Ante)",
+  "hands": "hands",
+  "startTraining": "Start training",
+  "lastTrained": "Last trained",
+  "needsPractice": "Needs Practice",
+  "reviewMistakes": "Review Mistakes",
+  "reviewMistakesOnly": "Review Mistakes Only",
+  "percentLabel": "{value} %",
+  "starter_packs_title": "Starter pack",
+  "starter_packs_subtitle": "Start training instantly",
+  "starter_packs_start": "Start",
+  "starter_packs_continue": "Continue",
+  "starter_packs_choose": "Choose pack",
+  "accuracySemantics": "Accuracy {value} percent",
+  "sortProgress": "Progress",
+  "sortNewest": "Newest",
+  "sortMostHands": "Most Hands",
+  "sortName": "Name A-Z",
+  "noMistakesLeft": "All mistakes already fixed!",
+  "filterMistakes": "Mistakes",
+  "sortInProgress": "In Progress",
+  "packPushFold12": "Push/Fold 12BB (No Ante)",
+  "packPushFold15": "Push/Fold 15BB (No Ante)",
+  "packPushFold10": "Push/Fold 10BB (No Ante)",
+  "packPushFold20": "Push/Fold 20BB (No Ante)",
   "presetBtn10bb": "BTN 10BB Push/Fold",
   "presetBtn11bb": "BTN 11BB Push/Fold",
   "presetBtn12bb": "BTN 12BB Push/Fold",
@@ -56,114 +56,114 @@
   "presetSb17bb": "SB 17BB Push/Fold",
   "presetSb18bb": "SB 18BB Push/Fold",
   "presetSb19bb": "SB 19BB Push/Fold",
-  "presetSb20bb": "SB 20BB Push/Fold"
-  ,"generateSpots": "Generate spots"
-  ,"noContent": "No content"
-  ,"unsupportedSpot": "Unsupported spot"
-  ,"startTrainingSessionPrompt": "Start training session now?"
-  ,"trainingSummary": "Training Summary"
-  ,"noMistakes": "No mistakes"
-  ,"repeatMistakes": "Repeat Mistakes"
-  ,"backToLibrary": "Back to Library"
-  ,"recommendedPacks": "Recommended packs"
-  ,"recommendedForYou": "Recommended for you"
-  ,"masteredPacks": "Mastered packs"
-  ,"dailyGoals": "Daily Goals"
-  ,"sessions": "Sessions"
-  ,"accuracyPercent": "Accuracy %"
-  ,"ev": "EV"
-  ,"icm": "ICM"
-  ,"spotDetails": "Spot Details"
-  ,"heroPosition": "Hero position: {pos}"
-  ,"heroCards": "Hero cards: {cards}"
-  ,"boardLabel": "Board: {cards}"
-  ,"yourAction": "Your action: {action}"
-  ,"evIcm": "EV {ev}  ICM {icm}"
-  ,"packCreated": "Pack \"{name}\" created"
-  ,"resetPackPrompt": "Reset progress for '{name}'?"
-  ,"resetStagePrompt": "Reset stage '{name}'?"
-  ,"resetStage": "Reset Stage"
-  ,"cancel": "Cancel"
-  ,"reset": "Reset"
-  ,"playerType": "Player Type"
-  ,"selectAction": "Select Action"
-  ,"fold": "Fold"
-  ,"call": "Call"
-  ,"raise": "Raise"
-  ,"push": "Push"
-  ,"amount": "Amount"
-  ,"confirm": "Confirm"
-  ,"clear": "Clear"
-  ,"ok": "OK"
-  ,"entrants": "Entrants"
-  ,"gameType": "Game Type"
-  ,"holdemNl": "Hold'em NL"
-  ,"omahaPl": "Omaha PL"
-  ,"otherGameType": "Other"
-  ,"spotsLabel": "Spots: {value}"
-  ,"accuracyLabel": "Accuracy: {value}%"
-  ,"evBb": "EV: {value} BB"
-  ,"icmLabel": "ICM: {value}"
-  ,"exportWeaknessReport": "Export Weakness Report"
-  ,"packsShown": "Shown {count} packs"
-  ,"noResults": "No results"
-  ,"resetFilters": "Reset filters"
-  ,"sortLabel": "Sorting:"
-  ,"sortPopular": "Popular first"
-  ,"sortRating": "Rating (High \u2192 Low)"
-  ,"sortCoverage": "Coverage (High \u2192 Low)"
-  ,"filtersSelected": "Filters: {count} selected"
-  ,"filtersNone": "Filters: none"
-  ,"progress": "Progress"
-  ,"packsCompleted": "Packs Completed"
-  ,"averageAccuracy": "Avg Accuracy"
-  ,"averageEv": "Avg EV"
-  ,"pinnedPacks": "\ud83d\udccc Pinned Templates"
-  ,"dailyStreak": "Streak"
-  ,"best": "Best"
-  ,"weakAreas": "Weak Areas"
-  ,"packOfDay": "\ud83c\udfb2 Pack of the Day"
-  ,"levelGoalTitle": "Level Goal"
-  ,"samplePreviewHint": "Try a sample first to explore this pack!"
-  ,"samplePreviewPrompt": "This pack is large. Preview a quick sample first?"
-  ,"previewSample": "Preview Sample"
-  ,"autoSampleToast": "Quick preview launched automatically for faster start."
-  ,"plannerBadge": "{count} left"
-  ,"unfinishedSession": "You have an unfinished session"
-  ,"resume": "Resume"
-  ,"mistakeBoosterReinforced": "Reinforced: {count} tags"
-  ,"mistakeBoosterRecovered": "Recovered: {count} tags"
-  ,"quickstartL3": "Quickstart L3"
-  ,"desktopOnly": "Desktop only"
-  ,"run": "Run"
-  ,"openReport": "Open report"
-  ,"viewLogs": "View logs"
-  ,"retry": "Retry"
-  ,"presetWillBeUsed": "Preset will be used"
-  ,"reportEmpty": "Report is empty"
-  ,"abDiff": "A/B diff"
-  ,"export": "Export"
-  ,"weightsPreset": "Weights preset"
-  ,"weightsJson": "Weights JSON"
-  ,"invalidJson": "Invalid JSON"
-  ,"recentRuns": "Recent runs"
-  ,"open": "Open"
-  ,"logs": "Logs"
-  ,"folder": "Folder"
-  ,"copyPath": "Copy path"
-  ,"reRun": "Re-run"
-  ,"pickTwoRuns": "Pick two runs"
-  ,"compare": "Compare"
-  ,"noSelection": "No selection"
-  ,"rootKeys": "Root keys"
-  ,"arrayLengths": "Array lengths"
-  ,"clearHistory": "Clear history"
-  ,"confirmClear": "Clear all runs? This action cannot be undone."
-  ,"deleted": "Deleted"
-  ,"copied": "Copied"
-  ,"exportCsv": "Export CSV"
-  ,"reveal": "Reveal"
-  ,"csvSaved": "CSV saved"
-  ,"delta": "Δ"
-  ,"args": "Args"
+  "presetSb20bb": "SB 20BB Push/Fold",
+  "generateSpots": "Generate spots",
+  "noContent": "No content",
+  "unsupportedSpot": "Unsupported spot",
+  "startTrainingSessionPrompt": "Start training session now?",
+  "trainingSummary": "Training Summary",
+  "noMistakes": "No mistakes",
+  "repeatMistakes": "Repeat Mistakes",
+  "backToLibrary": "Back to Library",
+  "recommendedPacks": "Recommended packs",
+  "recommendedForYou": "Recommended for you",
+  "masteredPacks": "Mastered packs",
+  "dailyGoals": "Daily Goals",
+  "sessions": "Sessions",
+  "accuracyPercent": "Accuracy %",
+  "ev": "EV",
+  "icm": "ICM",
+  "spotDetails": "Spot Details",
+  "heroPosition": "Hero position: {pos}",
+  "heroCards": "Hero cards: {cards}",
+  "boardLabel": "Board: {cards}",
+  "yourAction": "Your action: {action}",
+  "evIcm": "EV {ev}  ICM {icm}",
+  "packCreated": "Pack \"{name}\" created",
+  "resetPackPrompt": "Reset progress for '{name}'?",
+  "resetStagePrompt": "Reset stage '{name}'?",
+  "resetStage": "Reset Stage",
+  "cancel": "Cancel",
+  "reset": "Reset",
+  "playerType": "Player Type",
+  "selectAction": "Select Action",
+  "fold": "Fold",
+  "call": "Call",
+  "raise": "Raise",
+  "push": "Push",
+  "amount": "Amount",
+  "confirm": "Confirm",
+  "clear": "Clear",
+  "ok": "OK",
+  "entrants": "Entrants",
+  "gameType": "Game Type",
+  "holdemNl": "Hold'em NL",
+  "omahaPl": "Omaha PL",
+  "otherGameType": "Other",
+  "spotsLabel": "Spots: {value}",
+  "accuracyLabel": "Accuracy: {value}%",
+  "evBb": "EV: {value} BB",
+  "icmLabel": "ICM: {value}",
+  "exportWeaknessReport": "Export Weakness Report",
+  "packsShown": "Shown {count} packs",
+  "noResults": "No results",
+  "resetFilters": "Reset filters",
+  "sortLabel": "Sorting:",
+  "sortPopular": "Popular first",
+  "sortRating": "Rating (High → Low)",
+  "sortCoverage": "Coverage (High → Low)",
+  "filtersSelected": "Filters: {count} selected",
+  "filtersNone": "Filters: none",
+  "progress": "Progress",
+  "packsCompleted": "Packs Completed",
+  "averageAccuracy": "Avg Accuracy",
+  "averageEv": "Avg EV",
+  "pinnedPacks": "📌 Pinned Templates",
+  "dailyStreak": "Streak",
+  "best": "Best",
+  "weakAreas": "Weak Areas",
+  "packOfDay": "🎲 Pack of the Day",
+  "levelGoalTitle": "Level Goal",
+  "samplePreviewHint": "Try a sample first to explore this pack!",
+  "samplePreviewPrompt": "This pack is large. Preview a quick sample first?",
+  "previewSample": "Preview Sample",
+  "autoSampleToast": "Quick preview launched automatically for faster start.",
+  "plannerBadge": "{count} left",
+  "unfinishedSession": "You have an unfinished session",
+  "resume": "Resume",
+  "mistakeBoosterReinforced": "Reinforced: {count} tags",
+  "mistakeBoosterRecovered": "Recovered: {count} tags",
+  "quickstartL3": "Quickstart L3",
+  "desktopOnly": "Desktop only",
+  "run": "Run",
+  "openReport": "Open report",
+  "viewLogs": "View logs",
+  "retry": "Retry",
+  "presetWillBeUsed": "Preset will be used",
+  "reportEmpty": "Report is empty",
+  "abDiff": "A/B diff",
+  "export": "Export",
+  "weightsPreset": "Weights preset",
+  "weightsJson": "Weights JSON",
+  "invalidJson": "Invalid JSON",
+  "recentRuns": "Recent runs",
+  "open": "Open",
+  "logs": "Logs",
+  "folder": "Folder",
+  "copyPath": "Copy path",
+  "reRun": "Re-run",
+  "pickTwoRuns": "Pick two runs",
+  "compare": "Compare",
+  "noSelection": "No selection",
+  "rootKeys": "Root keys",
+  "arrayLengths": "Array lengths",
+  "clearHistory": "Clear history",
+  "confirmClear": "Clear all runs? This action cannot be undone.",
+  "deleted": "Deleted",
+  "copied": "Copied",
+  "exportCsv": "Export CSV",
+  "reveal": "Reveal",
+  "csvSaved": "CSV saved",
+  "delta": "Δ",
+  "args": "Args"
 }

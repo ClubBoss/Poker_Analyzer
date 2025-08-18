@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:poker_analyzer/l10n/app_localizations.dart';
 
 import '../services/user_preferences_service.dart';
 import 'tag_management_screen.dart';

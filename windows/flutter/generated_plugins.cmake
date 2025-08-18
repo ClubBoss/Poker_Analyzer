@@ -13,7 +13,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
   permission_handler_windows
   printing
   sentry_flutter
-  share_plus
   url_launcher_windows
 )
 

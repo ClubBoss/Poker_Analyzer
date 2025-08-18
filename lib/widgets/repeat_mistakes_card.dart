@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/mistake_review_pack_service.dart';
 import '../screens/training_pack_review_screen.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:poker_analyzer/l10n/app_localizations.dart';
 
 class RepeatMistakesCard extends StatelessWidget {
   const RepeatMistakesCard({super.key});

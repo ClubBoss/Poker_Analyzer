@@ -135,7 +135,7 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
                                     arguments: r.tag,
                                   );
                                 } catch (_) {
-                                  // Optionally handle missing route silently.
+                                  // Route может отсутствовать - молча игнорируем.
                                 }
                               },
                             ),
@@ -208,31 +208,31 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
         int cmp;
         switch (columnIndex) {
           case 0:
-            cmp = _cmp(a.tag, b.tag);
+            cmp = _cmpPrimary<String>(a.tag, b.tag);
             break;
           case 1:
-            cmp = _cmp(a.category, b.category, a.tag, b.tag);
+            cmp = _cmpWithTie<String, String>(a.category, b.category, a.tag, b.tag);
             break;
           case 2:
-            cmp = _cmp(a.packs, b.packs, a.tag, b.tag);
+            cmp = _cmpWithTie<int, String>(a.packs, b.packs, a.tag, b.tag);
             break;
           case 3:
-            cmp = _cmp(a.spots, b.spots, a.tag, b.tag);
+            cmp = _cmpWithTie<int, String>(a.spots, b.spots, a.tag, b.tag);
             break;
           case 4:
-            cmp = _cmp(a.coverage, b.coverage, a.tag, b.tag);
+            cmp = _cmpWithTie<double, String>(a.coverage, b.coverage, a.tag, b.tag);
             break;
           case 5:
             final at = a.lastUpdated?.millisecondsSinceEpoch;
             final bt = b.lastUpdated?.millisecondsSinceEpoch;
             if (at == null && bt == null) {
-              cmp = _cmp(0, 0, a.tag, b.tag);
+              cmp = _cmpWithTie<int, String>(0, 0, a.tag, b.tag);
             } else if (at == null) {
               cmp = 1;
             } else if (bt == null) {
               cmp = -1;
             } else {
-              cmp = _cmp(at, bt, a.tag, b.tag);
+              cmp = _cmpWithTie<int, String>(at, bt, a.tag, b.tag);
             }
             break;
           default:
@@ -245,10 +245,14 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
 
   void _applySort() {
     if (_sortColumnIndex == null) return;
-    _onSort(_sortColumnIndex!, _sortAscending); // reuse
+    _onSort(_sortColumnIndex!, _sortAscending);
   }
 
-  int _cmp<T extends Comparable>(T a, T b, [T? a2, T? b2]) {
+  // Разделил компараторы, чтобы типы для вторичного ключа могли отличаться.
+  int _cmpPrimary<T extends Comparable>(T a, T b) => a.compareTo(b);
+
+  int _cmpWithTie<T extends Comparable, U extends Comparable>(
+      T a, T b, [U? a2, U? b2]) {
     final c = a.compareTo(b);
     if (c != 0 || a2 == null || b2 == null) return c;
     return a2.compareTo(b2);

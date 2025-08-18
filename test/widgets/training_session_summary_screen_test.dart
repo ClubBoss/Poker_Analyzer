@@ -18,7 +18,7 @@ import 'package:poker_analyzer/services/saved_hand_manager_service.dart';
 import 'package:poker_analyzer/services/player_style_service.dart';
 import 'package:poker_analyzer/services/progress_forecast_service.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:poker_analyzer/l10n/app_localizations.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

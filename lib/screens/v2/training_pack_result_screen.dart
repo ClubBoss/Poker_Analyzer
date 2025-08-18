@@ -5,7 +5,7 @@ import 'package:uuid/uuid.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:poker_analyzer/l10n/app_localizations.dart';
 import '../../utils/responsive.dart';
 
 import '../../models/v2/training_pack_template.dart';

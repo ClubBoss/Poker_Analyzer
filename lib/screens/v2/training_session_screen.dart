@@ -9,7 +9,7 @@ import '../spot_solve_screen.dart';
 import '../../widgets/theory_spot_widget.dart';
 import '../../theme/app_colors.dart';
 import '../../helpers/training_pack_storage.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:poker_analyzer/l10n/app_localizations.dart';
 import 'training_summary_screen.dart';
 
 class TrainingSessionScreen extends StatefulWidget {
