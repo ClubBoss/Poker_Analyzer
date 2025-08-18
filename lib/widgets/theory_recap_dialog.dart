@@ -90,12 +90,12 @@ class _TheoryRecapDialogState extends State<TheoryRecapDialog> {
       );
     }
     if (_lesson == null) {
-      return Scaffold(
+      return const Scaffold(
         backgroundColor: AppColors.background,
         body: Center(
           child: Text(
             'No theory found',
-            style: const TextStyle(color: Colors.white),
+            style: TextStyle(color: Colors.white),
           ),
         ),
       );

@@ -10,7 +10,7 @@ import '../services/evaluation_executor_service.dart';
 import '../services/mistake_review_pack_service.dart';
 import '../services/training_session_service.dart';
 import '../services/training_pack_service.dart';
-import 'package:poker_analyzer/l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../services/pack_export_service.dart';
 import '../services/file_saver_service.dart';
 import 'session_replay_screen.dart';

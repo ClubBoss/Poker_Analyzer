@@ -9,7 +9,7 @@ import 'package:csv/csv.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 import '../../theme/app_colors.dart';
-import 'package:poker_analyzer/l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../../services/pack_import_service.dart';
 import '../../models/v2/training_pack_template.dart';
 import '../../services/daily_spotlight_service.dart';

@@ -38,7 +38,7 @@ class PackComparisonFilters extends StatelessWidget {
           title: const Text('Давно не повторял'),
           value: forgottenOnly,
           onChanged: onForgottenChanged,
-          activeColor: Colors.orange,
+          activeThumbColor: Colors.orange,
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),

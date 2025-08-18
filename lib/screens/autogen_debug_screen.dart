@@ -731,11 +731,11 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
             ),
           ),
           Expanded(child: Container()),
-          SizedBox(height: 200, child: AutogenHistoryChartWidget()),
+          const SizedBox(height: 200, child: AutogenHistoryChartWidget()),
           const AutogenRealtimeStatsPanel(),
           SizedBox(height: 200, child: TheoryCoveragePanelWidget()),
-          SizedBox(height: 200, child: SeedLintPanelWidget()),
-          SizedBox(height: 200, child: AutogenDuplicateTableWidget()),
+          const SizedBox(height: 200, child: SeedLintPanelWidget()),
+          const SizedBox(height: 200, child: AutogenDuplicateTableWidget()),
           SizedBox(
             height: 200,
             child: _sessionId == null

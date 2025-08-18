@@ -243,7 +243,7 @@ class _PackGenerationSectionState extends State<PackGenerationSection> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         DropdownButtonFormField<String>(
-          value: _audience,
+          initialValue: _audience,
           decoration: const InputDecoration(labelText: 'Audience'),
           items: const [
             DropdownMenuItem(value: 'Beginner', child: Text('Beginner')),

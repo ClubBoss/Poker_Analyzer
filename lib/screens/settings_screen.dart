@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:poker_analyzer/l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../services/user_preferences_service.dart';
 import 'tag_management_screen.dart';
@@ -251,37 +251,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
               value: _showPotAnimation,
               title: const Text('Show Pot Animation'),
               onChanged: _togglePotAnimation,
-              activeColor: Colors.orange,
+              activeThumbColor: Colors.orange,
             ),
             SwitchListTile(
               value: _showCardReveal,
               title: const Text('Show Card Reveal'),
               onChanged: _toggleCardReveal,
-              activeColor: Colors.orange,
+              activeThumbColor: Colors.orange,
             ),
             SwitchListTile(
               value: _showWinnerCelebration,
               title: const Text('Show Winner Celebration'),
               onChanged: _toggleWinnerCelebration,
-              activeColor: Colors.orange,
+              activeThumbColor: Colors.orange,
             ),
             SwitchListTile(
               value: _showActionHints,
               title: const Text('Показывать подсказки к действиям'),
               onChanged: _toggleActionHints,
-              activeColor: Colors.orange,
+              activeThumbColor: Colors.orange,
             ),
             SwitchListTile(
               value: _coachMode,
               title: const Text('Режим тренера (Coach Mode)'),
               onChanged: _toggleCoachMode,
-              activeColor: Colors.orange,
+              activeThumbColor: Colors.orange,
             ),
             SwitchListTile(
               value: _simpleNavigation,
               title: const Text('Простой режим'),
               onChanged: _toggleSimpleNavigation,
-              activeColor: Colors.orange,
+              activeThumbColor: Colors.orange,
             ),
             SwitchListTile(
               value: _hideCompletedPrereqs,
@@ -290,7 +290,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 "Only show requirements you haven't finished yet",
               ),
               onChanged: _toggleHideCompletedPrereqs,
-              activeColor: Colors.orange,
+              activeThumbColor: Colors.orange,
             ),
             ListTile(
               title: const Text('⏰ Напоминание о челлендже'),

@@ -2,10 +2,6 @@
 
 part of 'learning_plan_cache_models.dart';
 
-// **************************************************************************
-// JsonSerializableGenerator
-// **************************************************************************
-
 CachedLearningPlan _$CachedLearningPlanFromJson(Map<String, dynamic> json) =>
     CachedLearningPlan(
       goals: (json['goals'] as List<dynamic>)
@@ -17,7 +13,8 @@ CachedLearningPlan _$CachedLearningPlanFromJson(Map<String, dynamic> json) =>
       mistakePack: json['mistakePack'] == null
           ? null
           : TrainingPackTemplateV2.fromJson(
-              json['mistakePack'] as Map<String, dynamic>),
+              json['mistakePack'] as Map<String, dynamic>,
+            ),
     );
 
 Map<String, dynamic> _$CachedLearningPlanToJson(CachedLearningPlan instance) =>
@@ -57,11 +54,11 @@ CachedTrainingTrack _$CachedTrainingTrackFromJson(Map<String, dynamic> json) =>
     );
 
 Map<String, dynamic> _$CachedTrainingTrackToJson(
-        CachedTrainingTrack instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'title': instance.title,
-      'goalId': instance.goalId,
-      'spots': instance.spots.map((e) => e.toJson()).toList(),
-      'tags': instance.tags,
-    };
+  CachedTrainingTrack instance,
+) => <String, dynamic>{
+  'id': instance.id,
+  'title': instance.title,
+  'goalId': instance.goalId,
+  'spots': instance.spots.map((e) => e.toJson()).toList(),
+  'tags': instance.tags,
+};

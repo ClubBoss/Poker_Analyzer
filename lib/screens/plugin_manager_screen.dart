@@ -243,7 +243,7 @@ class _PluginManagerScreenState extends State<PluginManagerScreen> {
                       ),
                       Switch(
                         value: enabled,
-                        activeColor: accent,
+                        activeThumbColor: accent,
                         onChanged: (v) => _toggle(file, v),
                       ),
                     ],

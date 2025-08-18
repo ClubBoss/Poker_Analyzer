@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:ui' show FontFeature;
 import 'package:flutter/material.dart';
-import 'package:poker_analyzer/l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collection/collection.dart';
@@ -837,7 +837,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               DropdownButtonFormField<String>(
-                value: id,
+                initialValue: id,
                 decoration: const InputDecoration(labelText: 'Type'),
                 items: [
                   for (final e in presets.entries)
@@ -872,7 +872,7 @@ class _PacksLibraryScreenState extends State<PacksLibraryScreen> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<HeroPosition>(
-                value: pos,
+                initialValue: pos,
                 decoration: const InputDecoration(labelText: 'Position'),
                 items: [
                   for (final p in HeroPosition.values)

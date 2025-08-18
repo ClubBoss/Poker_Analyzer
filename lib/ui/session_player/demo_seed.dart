@@ -1,21 +1,21 @@
 import 'models.dart';
 
 List<UiSpot> demoSpots() => [
-  UiSpot(
+  const UiSpot(
     kind: SpotKind.l2_open_fold,
     hand: 'A\u2660K\u2660',
     pos: 'BTN',
     stack: '20bb',
     action: 'open',
   ),
-  UiSpot(
+  const UiSpot(
     kind: SpotKind.l2_open_fold,
     hand: '7\u26637\u2666',
     pos: 'UTG',
     stack: '12bb',
     action: 'fold',
   ),
-  UiSpot(
+  const UiSpot(
     kind: SpotKind.l2_threebet_push,
     hand: 'A\u2666Q\u2666',
     pos: 'SB',
@@ -23,7 +23,7 @@ List<UiSpot> demoSpots() => [
     stack: '18bb',
     action: 'jam',
   ),
-  UiSpot(
+  const UiSpot(
     kind: SpotKind.l2_threebet_push,
     hand: 'K\u2663J\u2663',
     pos: 'BB',
@@ -31,7 +31,7 @@ List<UiSpot> demoSpots() => [
     stack: '25bb',
     action: 'fold',
   ),
-  UiSpot(
+  const UiSpot(
     kind: SpotKind.l2_limped,
     hand: 'A\u26639\u2663',
     pos: 'BTN',
@@ -39,7 +39,7 @@ List<UiSpot> demoSpots() => [
     stack: '15bb',
     action: 'iso',
   ),
-  UiSpot(
+  const UiSpot(
     kind: SpotKind.l2_limped,
     hand: '7\u26606\u2660',
     pos: 'CO',
@@ -47,7 +47,7 @@ List<UiSpot> demoSpots() => [
     stack: '25bb',
     action: 'overlimp',
   ),
-  UiSpot(
+  const UiSpot(
     kind: SpotKind.l2_limped,
     hand: 'Q\u26664\u2666',
     pos: 'SB',
@@ -55,7 +55,7 @@ List<UiSpot> demoSpots() => [
     stack: '18bb',
     action: 'fold',
   ),
-  UiSpot(
+  const UiSpot(
     kind: SpotKind.l4_icm,
     hand: 'A\u26605\u2660',
     pos: 'SB',
@@ -63,7 +63,7 @@ List<UiSpot> demoSpots() => [
     stack: '10bb',
     action: 'jam',
   ),
-  UiSpot(
+  const UiSpot(
     kind: SpotKind.l4_icm,
     hand: 'K\u26662\u2666',
     pos: 'BTN',
@@ -71,14 +71,14 @@ List<UiSpot> demoSpots() => [
     stack: '9bb',
     action: 'fold',
   ),
-  UiSpot(
+  const UiSpot(
     kind: SpotKind.l2_open_fold,
     hand: 'Q\u2660Q\u2665',
     pos: 'CO',
     stack: '30bb',
     action: 'open',
   ),
-  UiSpot(
+  const UiSpot(
     kind: SpotKind.l4_icm,
     hand: 'J\u2663T\u2663',
     pos: 'BB',
@@ -86,7 +86,7 @@ List<UiSpot> demoSpots() => [
     stack: '6bb',
     action: 'fold',
   ),
-  UiSpot(
+  const UiSpot(
     kind: SpotKind.l2_threebet_push,
     hand: '9\u26609\u2666',
     pos: 'BB',

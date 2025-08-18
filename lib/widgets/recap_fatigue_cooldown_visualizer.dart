@@ -91,14 +91,14 @@ class _RecapFatigueCooldownVisualizerState
       );
     }
     if (fatigued) {
-      chips.add(_ChipInfo('💤', 'Fatigue', 'User dismissed previous prompts'));
+      chips.add(const _ChipInfo('💤', 'Fatigue', 'User dismissed previous prompts'));
     }
     if (suppressed) {
-      chips.add(_ChipInfo('🚫', 'Suppressed', 'Suppressed by analytics rules'));
+      chips.add(const _ChipInfo('🚫', 'Suppressed', 'Suppressed by analytics rules'));
     }
     if (dismissed) {
       chips.add(
-        _ChipInfo(
+        const _ChipInfo(
           '😒',
           'Dismissed recently',
           'Dismissed recap prompts earlier',
@@ -106,7 +106,7 @@ class _RecapFatigueCooldownVisualizerState
       );
     }
     if (dropoff) {
-      chips.add(_ChipInfo('🔇', 'Dropoff', 'User is in dropoff state'));
+      chips.add(const _ChipInfo('🔇', 'Dropoff', 'User is in dropoff state'));
     }
     return chips;
   }

@@ -1,10 +1,4 @@
-// GENERATED CODE - DO NOT MODIFY BY HAND
-
 part of 'training_attempt.dart';
-
-// **************************************************************************
-// JsonSerializableGenerator
-// **************************************************************************
 
 TrainingAttempt _$TrainingAttemptFromJson(Map<String, dynamic> json) =>
     TrainingAttempt(

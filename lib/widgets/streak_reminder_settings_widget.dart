@@ -78,7 +78,7 @@ class _StreakReminderSettingsWidgetState
           value: _enabled,
           onChanged: _toggle,
           title: const Text('Streak Reminder'),
-          activeColor: Colors.orange,
+          activeThumbColor: Colors.orange,
         ),
         ListTile(
           title: const Text(

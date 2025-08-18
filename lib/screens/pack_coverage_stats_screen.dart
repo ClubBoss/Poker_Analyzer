@@ -154,7 +154,7 @@ Future<Map<String, dynamic>> _statsTask(String filter) async {
         final p = s.hand.position.name.toUpperCase();
         pos[p] = (pos[p] ?? 0) + 1;
         final v = s.hand.stacks['${s.hand.heroIndex}'] ?? 0;
-        final bb = v is num ? v.toDouble() : double.tryParse('$v') ?? 0;
+        final bb = v.toDouble();
         final r = bb >= 21
             ? '21+'
             : bb >= 13

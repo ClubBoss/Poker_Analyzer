@@ -3,7 +3,7 @@ import '../models/v2/training_pack_template.dart';
 import 'pack_generator_service.dart';
 import 'training_pack_asset_loader.dart';
 import 'package:flutter/widgets.dart';
-import 'package:poker_analyzer/l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:collection/collection.dart';
 
 class TrainingPackTemplateService {

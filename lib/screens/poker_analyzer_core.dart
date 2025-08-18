@@ -65,17 +65,17 @@ class _PokerAnalyzerView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Stack(
         children: [
           Row(
-            children: const [
+            children: [
               Expanded(child: PokerAnalyzerBoardPanel()),
               Expanded(child: PokerAnalyzerActionPanel()),
             ],
           ),
           // Overlay elements such as HUD, chip animations and debug UI.
-          const PokerAnalyzerOverlay(),
+          PokerAnalyzerOverlay(),
         ],
       ),
     );

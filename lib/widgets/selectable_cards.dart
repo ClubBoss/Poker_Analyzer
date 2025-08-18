@@ -65,7 +65,7 @@ class _SelectableCardsState extends State<SelectableCards> {
             children: [
               Expanded(
                 child: DropdownButtonFormField<String>(
-                  value: selectedRank,
+                  initialValue: selectedRank,
                   decoration: const InputDecoration(labelText: 'Ранг'),
                   items: ranks
                       .map(
@@ -81,7 +81,7 @@ class _SelectableCardsState extends State<SelectableCards> {
               const SizedBox(width: 12),
               Expanded(
                 child: DropdownButtonFormField<String>(
-                  value: selectedSuit,
+                  initialValue: selectedSuit,
                   decoration: const InputDecoration(labelText: 'Масть'),
                   items: suits
                       .map(

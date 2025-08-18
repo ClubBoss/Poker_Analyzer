@@ -231,7 +231,7 @@ class _TrackProgressDashboardScreenState
                     const NextUpWidget(),
                     SwitchListTile(
                       value: _reminderEnabled,
-                      activeColor: Colors.orange,
+                      activeThumbColor: Colors.orange,
                       title: const Text(
                         '⏰ Ежедневное напоминание',
                         style: TextStyle(color: Colors.white),

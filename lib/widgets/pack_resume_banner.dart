@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:poker_analyzer/l10n/app_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../services/smart_resume_engine.dart';
 import '../screens/v2/training_pack_play_screen.dart';

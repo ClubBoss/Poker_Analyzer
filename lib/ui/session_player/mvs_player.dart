@@ -26,14 +26,16 @@ import '../../services/spot_importer.dart';
 import '../coverage/coverage_dashboard.dart';
 import '../modules/modules_screen.dart';
 import 'package:poker_analyzer/infra/telemetry_builder.dart';
+import 'package:poker_analyzer/ui/modules/icm_mix_packs.dart';
+import 'package:poker_analyzer/ui/modules/icm_bubble_packs.dart';
 import 'package:poker_analyzer/ui/session_player/l3_jsonl_export.dart';
 
 void _assertSpotKindIntegrity(Set<SpotKind> usedKinds) {
   assert(() {
     // 1) Append-only discipline: latest known value must remain last.
-    if (SpotKind.values.last != SpotKind.l4_icm_sb_jam_vs_fold) {
+    if (SpotKind.values.last != SpotKind.l4_icm_bb_jam_vs_fold) {
       throw StateError(
-        'SpotKind append-only violated: last is not l4_icm_sb_jam_vs_fold',
+        'SpotKind append-only violated: last is not l4_icm_bb_jam_vs_fold',
       );
     }
     // 2) data-driven maps cover all used kinds.
@@ -1104,6 +1106,44 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                 ActionChip(
                   label: const Text('Import spots'),
                   onPressed: _importSpots,
+                ),
+                ActionChip(
+                  label: const Text('Start ICM L4 Mix'),
+                  onPressed: () {
+                    final spots = loadIcmL4MixV1();
+                    if (spots.isEmpty) {
+                      showMiniToast(context, 'Pack is empty');
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => MvsSessionPlayer(
+                            spots: spots,
+                            packId: 'icm:l4:mix:v1',
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                ActionChip(
+                  label: const Text('Start ICM L4 Bubble'),
+                  onPressed: () {
+                    final spots = loadIcmL4BubbleV1();
+                    if (spots.isEmpty) {
+                      showMiniToast(context, 'Pack is empty');
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => MvsSessionPlayer(
+                            spots: spots,
+                            packId: 'icm:l4:bubble:v1',
+                          ),
+                        ),
+                      );
+                    }
+                  },
                 ),
               ],
             ),

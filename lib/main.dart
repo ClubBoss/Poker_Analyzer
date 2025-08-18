@@ -53,7 +53,7 @@ import 'widgets/first_launch_tutorial.dart';
 import 'onboarding/onboarding_flow_manager.dart';
 import 'app_bootstrap.dart';
 import 'app_providers.dart';
-import 'l10n/app_localizations.dart'; // ← генерируемый локализатор
+import 'l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collection/collection.dart';
@@ -170,6 +170,12 @@ Future<void> _bootstrap() async {
     );
   });
   unawaited(Telemetry.logEvent('app_open'));
+  // TODO(session_start): call when a training session begins.
+  // TODO(session_end): call when a training session ends.
+  // TODO(answer_correct): call when a question is answered correctly.
+  // TODO(answer_wrong): call when a question is answered incorrectly.
+  // TODO(answer_skip): call when a question is skipped.
+  // TODO(replay_errors): call when replaying past mistakes.
 }
 
 Future<void> main() async {
@@ -412,11 +418,20 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
             themeMode: theme,
             theme: context.read<ThemeService>().lightTheme,
             darkTheme: context.read<ThemeService>().darkTheme,
-
-            // ← используем сгенерированные делегаты и локали
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('en'),
+              Locale('es'),
+              Locale('fr'),
+              Locale('ru'),
+              Locale('pt'),
+              Locale('de'),
+            ],
             builder: (ctx, child) => Stack(
               children: [
                 if (child != null) child,

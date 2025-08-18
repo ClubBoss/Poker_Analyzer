@@ -395,13 +395,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get averageEv => 'Avg EV';
 
   @override
-  String get pinnedPacks => '📌 Pinned Templates';
-
-  @override
   String get dailyStreak => 'Streak';
 
   @override
   String get best => 'Best';
+
+  @override
+  String get pinnedPacks => '📌 Pinned Templates';
 
   @override
   String get weakAreas => 'Weak Areas';
@@ -451,9 +451,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quickstartL3 => 'Quickstart L3';
 
   @override
-  String get desktopOnly => 'Desktop only';
-
-  @override
   String get run => 'Run';
 
   @override
@@ -485,6 +482,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invalidJson => 'Invalid JSON';
+
+  @override
+  String get desktopOnly => 'Desktop only';
 
   @override
   String get recentRuns => 'Recent runs';
