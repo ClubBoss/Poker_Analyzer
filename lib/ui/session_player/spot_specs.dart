@@ -24,6 +24,7 @@ const actionsMap = <SpotKind, List<String>>{
   SpotKind.l4_icm_bubble_jam_vs_fold: ['jam', 'fold'],
   SpotKind.l4_icm_ladder_jam_vs_fold: ['jam', 'fold'],
   SpotKind.l4_icm_sb_jam_vs_fold: const ['jam', 'fold'],
+  SpotKind.l4_icm_bb_jam_vs_fold: const ['jam', 'fold'],
 };
 
 bool isJamFold(SpotKind k) {
@@ -41,4 +42,5 @@ const subtitlePrefix = <SpotKind, String>{
   SpotKind.l4_icm_bubble_jam_vs_fold: 'ICM Bubble Jam vs Fold • ',
   SpotKind.l4_icm_ladder_jam_vs_fold: 'ICM FT Ladder Jam vs Fold • ',
   SpotKind.l4_icm_sb_jam_vs_fold: 'ICM SB Jam vs Fold • ',
+  SpotKind.l4_icm_bb_jam_vs_fold: 'ICM L4 BB',
 };

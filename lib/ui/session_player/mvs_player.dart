@@ -34,9 +34,9 @@ import 'package:poker_analyzer/ui/modules/icm_packs.dart';
 void _assertSpotKindIntegrity(Set<SpotKind> usedKinds) {
   assert(() {
     // 1) Append-only discipline: latest known value must remain last.
-    if (SpotKind.values.last != SpotKind.l4_icm_sb_jam_vs_fold) {
+    if (SpotKind.values.last != SpotKind.l4_icm_bb_jam_vs_fold) {
       throw StateError(
-        'SpotKind append-only violated: last is not l4_icm_sb_jam_vs_fold',
+        'SpotKind append-only violated: last is not l4_icm_bb_jam_vs_fold',
       );
     }
     // 2) data-driven maps cover all used kinds.
