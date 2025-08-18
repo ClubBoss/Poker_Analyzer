@@ -1068,14 +1068,12 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         'icm:l4:bubble:v1',
       }.contains(widget.packId);
       final isLadder = widget.packId == 'icm:l4:ladder:v1';
-      final ladderVariant = isLadder
-          ? 'retry'
-          : (isIcmL4Pack ? 'next' : 'start');
+      final ladderVariant = isLadder ? 'retry' : (isIcmL4Pack ? 'next' : 'start');
       final ladderLabel = ladderVariant == 'retry'
           ? 'Retry ICM L4 Ladder'
           : (ladderVariant == 'next'
-                ? 'Next: ICM L4 Ladder'
-                : 'Start ICM L4 Ladder');
+              ? 'Next: ICM L4 Ladder'
+              : 'Start ICM L4 Ladder');
       const passAccPct = 80;
       const passAvgMs = 1800;
 
