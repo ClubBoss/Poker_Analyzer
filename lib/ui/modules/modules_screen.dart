@@ -7,8 +7,7 @@ import 'package:poker_analyzer/ui/modules/icm_packs.dart';
 import 'package:poker_analyzer/ui/modules/icm_bubble_packs.dart';
 import 'package:poker_analyzer/ui/modules/icm_ladder_packs.dart';
 
-import 'package:poker_analyzer/ui/session_player/spot_specs.dart'
-    as specs show isJamFold; // ignore: unused_import
+// ignore: unused_import
 import '../../../tooling/curriculum_ids.dart' as ssot;
 import 'package:poker_analyzer/content/manifest.dart';
 
