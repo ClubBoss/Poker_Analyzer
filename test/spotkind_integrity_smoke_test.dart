@@ -44,5 +44,72 @@ void main() {
         expect(subtitlePrefix[k]!.endsWith(' • '), true);
       }
     });
+
+    test('shouldAutoReplay semantics', () {
+      const l3 = [
+        SpotKind.l3_flop_jam_vs_raise,
+        SpotKind.l3_turn_jam_vs_raise,
+        SpotKind.l3_river_jam_vs_raise,
+      ];
+      const icm = [
+        SpotKind.l4_icm_bubble_jam_vs_fold,
+        SpotKind.l4_icm_ladder_jam_vs_fold,
+        SpotKind.l4_icm_sb_jam_vs_fold,
+        SpotKind.l4_icm_bb_jam_vs_fold,
+      ];
+
+      for (final k in l3) {
+        expect(
+          shouldAutoReplay(
+            correct: false,
+            autoWhy: true,
+            kind: k,
+            alreadyReplayed: false,
+          ),
+          true,
+        );
+      }
+
+      for (final k in icm) {
+        expect(
+          shouldAutoReplay(
+            correct: false,
+            autoWhy: true,
+            kind: k,
+            alreadyReplayed: false,
+          ),
+          false,
+        );
+      }
+
+      final k = SpotKind.l3_flop_jam_vs_raise;
+      expect(
+        shouldAutoReplay(
+          correct: true,
+          autoWhy: true,
+          kind: k,
+          alreadyReplayed: false,
+        ),
+        false,
+      );
+      expect(
+        shouldAutoReplay(
+          correct: false,
+          autoWhy: false,
+          kind: k,
+          alreadyReplayed: false,
+        ),
+        false,
+      );
+      expect(
+        shouldAutoReplay(
+          correct: false,
+          autoWhy: true,
+          kind: k,
+          alreadyReplayed: true,
+        ),
+        false,
+      );
+    });
   });
 }
