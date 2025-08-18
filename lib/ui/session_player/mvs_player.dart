@@ -1156,6 +1156,10 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                 ActionChip(
                   label: Text(ladderLabel),
                   onPressed: () {
+                    unawaited(Telemetry.logEvent('cta_icm_l4_ladder_tap', {
+                      'fromPackId': widget.packId,
+                      'variant': isIcmL4Pack ? 'next' : 'start',
+                    }));
                     final spots = loadIcmL4LadderV1();
                     if (spots.isEmpty) {
                       showMiniToast(context, 'Pack is empty');
