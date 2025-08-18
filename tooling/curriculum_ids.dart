@@ -41,3 +41,13 @@ String? firstMissing(Iterable<String> done) {
   }
   return null;
 }
+
+/// Human-readable titles for modules; keys must match kCurriculumModuleIds entries.
+const Map<String, String> kModuleTitles = {
+  'cash:l3:v1': 'Cash L3 • Jam vs Raise',
+  'icm:l4:sb:v1': 'ICM L4 • SB Jam vs Fold',
+  'icm:l4:bb:v1': 'ICM L4 • BB Jam vs Fold',
+  'icm:l4:mix:v1': 'ICM L4 • Mixed Pack',
+  'icm:l4:bubble:v1': 'ICM L4 • Bubble',
+  'icm:l4:ladder:v1': 'ICM L4 • Ladder',
+};
