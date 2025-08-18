@@ -219,6 +219,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   Timer? _answerFlashTimer;
   bool _paused = false;
   bool _clearedAtSummary = false;
+  bool _ladderOutcomeLogged = false;
 
   bool get _showHotkeys =>
       kIsWeb ||
@@ -1069,6 +1070,29 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       final ladderLabel = isIcmL4Pack
           ? 'Next: ICM L4 Ladder'
           : 'Start ICM L4 Ladder';
+      final isLadder = widget.packId == 'icm:l4:ladder:v1';
+      const passAccPct = 80;
+      const passAvgMs = 1800;
+
+      int total = _answers.length;
+      int correct = _answers.where((a) => a.correct).length;
+      final accPct = total == 0 ? 0.0 : (correct * 100.0) / total;
+      final avgMs = total == 0
+          ? 0
+          : (_answers.map((a) => a.elapsed).fold(Duration.zero, (a, b) => a + b).inMilliseconds ~/
+              total);
+      final passed = accPct >= passAccPct && avgMs <= passAvgMs;
+
+      if (isLadder && !_ladderOutcomeLogged) {
+        _ladderOutcomeLogged = true;
+        unawaited(Telemetry.logEvent('ladder_session_passed', {
+          'packId': widget.packId,
+          'passed': passed,
+          'accPct': accPct,
+          'avgMs': avgMs,
+          'total': total,
+        }));
+      }
       child = Column(
         children: [
           Expanded(
@@ -1094,6 +1118,17 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
               },
             ),
           ),
+          if (isLadder)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Chip(
+                label: Text(
+                  passed
+                      ? 'Ladder: PASS - Acc ${accPct.toStringAsFixed(0)}% - Avg ${avgMs} ms'
+                      : 'Ladder: RETRY - Need >=${passAccPct}% and <=${passAvgMs} ms',
+                ),
+              ),
+            ),
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: Wrap(
