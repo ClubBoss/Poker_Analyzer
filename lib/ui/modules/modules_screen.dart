@@ -246,6 +246,24 @@ class _ModulesScreenState extends State<ModulesScreen> {
                               ),
                             ),
                           );
+                          if (moduleId == 'cash:l3:v1') {
+                            final spots = loadCashL3V1();
+                            if (spots.isEmpty) {
+                              showMiniToast(context, 'Pack is empty');
+                            } else {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => MvsSessionPlayer(
+                                    spots: spots,
+                                    packId: 'cash:l3:v1',
+                                  ),
+                                ),
+                              );
+                            }
+                            return;
+                          }
+                          // fallback for other modules until wired
                           showMiniToast(context, moduleId);
                         }
                       : null,
