@@ -7,6 +7,10 @@ void main() {
         '''{"kind":"l4_icm_bb_jam_vs_fold","hand":"Ah2h","pos":"bb","vsPos":"sb","stack":"10 bb","action":"jam"}
 {"kind":"l4_icm_bb_jam_vs_fold","hand":"KdQc","pos":"bb","vsPos":"sb","stack":"12 bb","action":"jam"}''';
 
+    const jsonArray =
+        '''[{"kind":"l4_icm_bb_jam_vs_fold","hand":"Ah2h","pos":"bb","vsPos":"sb","stack":"10 bb","action":"jam"},
+{"kind":"l4_icm_bb_jam_vs_fold","hand":"KdQc","pos":"bb","vsPos":"sb","stack":"12 bb","action":"jam"}]''';
+
     test('Autodetect JSONL', () {
       final report = SpotImporter.parse(jsonl);
       expect(report.spots, hasLength(2));
@@ -24,9 +28,6 @@ void main() {
     });
 
     test('Autodetect JSON array', () {
-      const jsonArray =
-          '''[{"kind":"l4_icm_bb_jam_vs_fold","hand":"Ah2h","pos":"bb","vsPos":"sb","stack":"10 bb","action":"jam"},
-{"kind":"l4_icm_bb_jam_vs_fold","hand":"KdQc","pos":"bb","vsPos":"sb","stack":"12 bb","action":"jam"}]''';
       final report = SpotImporter.parse(jsonArray);
       expect(report.spots, hasLength(2));
       expect(report.added, 2);
