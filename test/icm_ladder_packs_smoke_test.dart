@@ -16,4 +16,10 @@ void main() {
       'ICM FT Ladder Jam vs Fold • ',
     );
   });
+
+  test('ICM L4 Ladder has no duplicate jam keys', () {
+    final spots = loadIcmL4LadderV1();
+    final keys = spots.map(jamDedupKey).toList();
+    expect(keys.toSet().length, keys.length);
+  });
 }
