@@ -224,6 +224,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   bool _paused = false;
   bool _clearedAtSummary = false;
   bool _ladderOutcomeLogged = false;
+  bool _moduleMasteredLogged = false;
 
   bool get _showHotkeys =>
       kIsWeb ||
@@ -1149,6 +1150,13 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             'total': total,
           }),
         );
+      }
+      if (isLadder && passed && !_moduleMasteredLogged) {
+        _moduleMasteredLogged = true;
+        unawaited(Telemetry.logEvent(
+          'module_mastered',
+          buildModuleMastered(moduleId: widget.packId ?? ''),
+        ));
       }
       child = Column(
         children: [
