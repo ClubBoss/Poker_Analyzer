@@ -1,22 +1,10 @@
-name: Sanity (informational)
+name: sanity-informational
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
-    paths:
-      - "**/*.dart"
-      - "**/*.yaml"
-      - "**/*.yml"
-      - "pubspec.yaml"
-      - "pubspec.lock"
+    branches: [main]
   push:
-    branches: [ main ]
-    paths:
-      - "**/*.dart"
-      - "**/*.yaml"
-      - "**/*.yml"
-      - "pubspec.yaml"
-      - "pubspec.lock"
+    branches: [main]
 
 permissions:
   contents: read
@@ -24,25 +12,20 @@ permissions:
 jobs:
   sanity:
     runs-on: ubuntu-latest
-    continue-on-error: true  # не блокирует merge
-    steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
+    continue-on-error: true   # ← только здесь, не дублируем в шагах
 
-      - uses: subosito/flutter-action@v2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: stable
-          cache: true
 
-      - name: Pub get
+      - name: Get deps
         run: flutter pub get
 
-      - name: Format check (read-only)
-        run: dart format --output=none --set-exit-if-changed .
-        continue-on-error: true
-        continue-on-error: true
-
-      - name: Analyze (read-only)
-        run: flutter analyze
-        continue-on-error: true
-        continue-on-error: true
+      # любые быстрые sanity-проверки оставляй тут
+      - name: Smoke build (web)
+        run: flutter build web --release --no-tree-shake-icons

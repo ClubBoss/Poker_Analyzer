@@ -1,4 +1,5 @@
 name: autoformat-fix
+
 on:
   pull_request:
     branches: [main]
@@ -19,11 +20,15 @@ jobs:
         with:
           channel: stable
 
-      # Run dart format and write changes if needed
+      - name: Get deps
+        run: flutter pub get
+
       - name: Format (write changes)
         run: dart format .
 
-      # Auto-commit any changes from formatter
-      - uses: stefanzweifel/git-auto-commit-action@v5
+      - name: Auto-commit formatting
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "ci: autoformat"
+          skip_dirty_check: false
+        continue-on-error: true
