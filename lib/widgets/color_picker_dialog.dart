@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import '../helpers/color_utils.dart';
 
-Future<Color?> showColorPickerDialog(BuildContext context,
-    {Color? initialColor}) {
+Future<Color?> showColorPickerDialog(
+  BuildContext context, {
+  Color? initialColor,
+}) {
   Color color = initialColor ?? Colors.blue;
   final controller = TextEditingController(text: colorToHex(color));
   return showDialog<Color>(

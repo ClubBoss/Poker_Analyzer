@@ -66,8 +66,10 @@ class _NextLearningStepCardState extends State<NextLearningStepCard> {
               const SizedBox(height: 4),
               Text(tpl.name, style: const TextStyle(color: Colors.white)),
               if (tpl.description.isNotEmpty)
-                Text(tpl.description,
-                    style: const TextStyle(color: Colors.white70)),
+                Text(
+                  tpl.description,
+                  style: const TextStyle(color: Colors.white70),
+                ),
               const SizedBox(height: 8),
               Align(
                 alignment: Alignment.centerRight,

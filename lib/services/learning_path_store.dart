@@ -110,10 +110,7 @@ class LearningPathStore {
         passRate: passRate ?? 0.0,
       );
       if (tagDeltas.isNotEmpty) {
-        await BanditWeightLearner.instance.updateFromOutcome(
-          userId,
-          tagDeltas,
-        );
+        await BanditWeightLearner.instance.updateFromOutcome(userId, tagDeltas);
         final prefs = await SharedPreferences.getInstance();
         final threshold = prefs.getDouble('bandit.optimismThreshold') ?? 10.0;
         var exploring = 0;

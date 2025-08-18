@@ -15,7 +15,7 @@ class _FakeSkillGapEngine extends SmartSkillGapBoosterEngine {
     final c = count < max ? count : max;
     return [
       for (var i = 0; i < c; i++)
-        const TheoryMiniLessonNode(id: 'l', title: 't', content: '', tags: [])
+        const TheoryMiniLessonNode(id: 'l', title: 't', content: '', tags: []),
     ];
   }
 }
@@ -32,8 +32,9 @@ void main() {
 
   test('pressure score accounts for queue sizes', () async {
     await RecapBoosterQueue.instance.add('a1');
-    GoalQueue.instance.push(const TheoryMiniLessonNode(
-        id: 'g1', title: 't', content: '', tags: []));
+    GoalQueue.instance.push(
+      const TheoryMiniLessonNode(id: 'g1', title: 't', content: '', tags: []),
+    );
     await InboxBoosterTrackerService.instance.addToInbox('i1');
 
     final monitor = BoosterQueuePressureMonitor(

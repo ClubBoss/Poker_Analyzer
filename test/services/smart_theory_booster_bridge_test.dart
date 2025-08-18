@@ -56,8 +56,10 @@ void main() {
       content: '',
       tags: ['push'],
     );
-    final cluster =
-        TheoryLessonCluster(lessons: const [lesson], tags: const {'push'});
+    final cluster = TheoryLessonCluster(
+      lessons: const [lesson],
+      tags: const {'push'},
+    );
     final library = _FakeLibrary([booster('b1', 'push')]);
     final bridge = SmartTheoryBoosterBridge(
       library: library,
@@ -73,10 +75,16 @@ void main() {
 
   test('falls back to cluster tags when lesson has none', () async {
     const l1 = TheoryMiniLessonNode(id: 'a', title: '', content: '', tags: []);
-    const l2 =
-        TheoryMiniLessonNode(id: 'b', title: '', content: '', tags: ['call']);
-    final cluster =
-        TheoryLessonCluster(lessons: const [l1, l2], tags: const {'call'});
+    const l2 = TheoryMiniLessonNode(
+      id: 'b',
+      title: '',
+      content: '',
+      tags: ['call'],
+    );
+    final cluster = TheoryLessonCluster(
+      lessons: const [l1, l2],
+      tags: const {'call'},
+    );
     final library = _FakeLibrary([booster('b2', 'call')]);
     final bridge = SmartTheoryBoosterBridge(
       library: library,

@@ -27,8 +27,9 @@ class SessionPinService extends ChangeNotifier {
       if (remote != null) {
         final remoteAt =
             DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
-                DateTime.fromMillisecondsSinceEpoch(0);
-        final localAt = DateTime.tryParse(prefs.getString(_timeKey) ?? '') ??
+            DateTime.fromMillisecondsSinceEpoch(0);
+        final localAt =
+            DateTime.tryParse(prefs.getString(_timeKey) ?? '') ??
             DateTime.fromMillisecondsSinceEpoch(0);
         if (remoteAt.isAfter(localAt)) {
           final list = remote['ids'];
@@ -54,7 +55,9 @@ class SessionPinService extends ChangeNotifier {
     }
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(
-        _prefsKey, _pinned.map((e) => e.toString()).toList());
+      _prefsKey,
+      _pinned.map((e) => e.toString()).toList(),
+    );
     await prefs.setString(_timeKey, DateTime.now().toIso8601String());
     if (cloud != null) {
       await cloud!.uploadPinned(_pinned);
@@ -65,7 +68,9 @@ class SessionPinService extends ChangeNotifier {
   Future<void> _persist() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(
-        _prefsKey, _pinned.map((e) => e.toString()).toList());
+      _prefsKey,
+      _pinned.map((e) => e.toString()).toList(),
+    );
     await prefs.setString(_timeKey, DateTime.now().toIso8601String());
     if (cloud != null) {
       await cloud!.uploadPinned(_pinned);

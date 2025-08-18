@@ -25,19 +25,21 @@ class LiveHUDPackSeeder {
     }
 
     const writer = YamlWriter();
-    await writer
-        .write({'packs': unique}, 'assets/learning_paths/live_path.yaml');
+    await writer.write({
+      'packs': unique,
+    }, 'assets/learning_paths/live_path.yaml');
   }
 
   List<TrainingPackTemplateV2> _selectPacks(
-      List<TrainingPackTemplateV2> packs) {
+    List<TrainingPackTemplateV2> packs,
+  ) {
     final tagsFilter = {
       'live',
       'limped',
       'multiway',
       'passive',
       'deepstack',
-      'offmeta'
+      'offmeta',
     };
     final list = <TrainingPackTemplateV2>[];
     for (final p in packs) {

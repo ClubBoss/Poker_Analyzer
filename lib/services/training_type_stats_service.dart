@@ -7,7 +7,8 @@ class TrainingTypeStatsService {
   const TrainingTypeStatsService();
 
   Future<Map<TrainingType, double>> calculateCompletionPercent(
-      List<TrainingPackTemplate> packs) async {
+    List<TrainingPackTemplate> packs,
+  ) async {
     final totals = <TrainingType, int>{};
     final completed = <TrainingType, int>{};
 

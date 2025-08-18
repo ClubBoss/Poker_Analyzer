@@ -90,8 +90,10 @@ class TrainingSessionService extends ChangeNotifier {
 
   void _startTicker() {
     _timer?.cancel();
-    _timer =
-        Timer.periodic(const Duration(seconds: 1), (_) => notifyListeners());
+    _timer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => notifyListeners(),
+    );
   }
 
   TrainingSession? get session => _session;
@@ -106,8 +108,8 @@ class TrainingSessionService extends ChangeNotifier {
 
   TrainingPackSpot? get currentSpot =>
       _session != null && _session!.index < _spots.length
-          ? _spots[_session!.index]
-          : null;
+      ? _spots[_session!.index]
+      : null;
 
   Map<String, bool> get results => _session?.results ?? {};
   int get correctCount => results.values.where((e) => e).length;
@@ -116,8 +118,10 @@ class TrainingSessionService extends ChangeNotifier {
     double sum = 0;
     int count = 0;
     for (final id in results.keys) {
-      final s = _spots.firstWhere((e) => e.id == id,
-          orElse: () => TrainingPackSpot(id: ''));
+      final s = _spots.firstWhere(
+        (e) => e.id == id,
+        orElse: () => TrainingPackSpot(id: ''),
+      );
       final ev = s.heroEv;
       if (ev != null) {
         sum += ev;
@@ -131,8 +135,10 @@ class TrainingSessionService extends ChangeNotifier {
     double sum = 0;
     int count = 0;
     for (final id in results.keys) {
-      final s = _spots.firstWhere((e) => e.id == id,
-          orElse: () => TrainingPackSpot(id: ''));
+      final s = _spots.firstWhere(
+        (e) => e.id == id,
+        orElse: () => TrainingPackSpot(id: ''),
+      );
       final icm = s.heroIcmEv;
       if (icm != null) {
         sum += icm;
@@ -190,16 +196,20 @@ class TrainingSessionService extends ChangeNotifier {
           _startTicker();
           _spots = [
             for (final e in (spots as List? ?? []))
-              TrainingPackSpot.fromJson(Map<String, dynamic>.from(e))
+              TrainingPackSpot.fromJson(Map<String, dynamic>.from(e)),
           ];
           if (_spots.isNotEmpty) {
-            final evs =
-                _spots.map((e) => e.heroEv).whereType<double>().toList();
+            final evs = _spots
+                .map((e) => e.heroEv)
+                .whereType<double>()
+                .toList();
             if (evs.isNotEmpty) {
               _evAverageAll = evs.reduce((a, b) => a + b) / evs.length;
             }
-            final icms =
-                _spots.map((e) => e.heroIcmEv).whereType<double>().toList();
+            final icms = _spots
+                .map((e) => e.heroIcmEv)
+                .whereType<double>()
+                .toList();
             if (icms.isNotEmpty) {
               _icmAverageAll = icms.reduce((a, b) => a + b) / icms.length;
             }
@@ -208,12 +218,13 @@ class TrainingSessionService extends ChangeNotifier {
             ..clear()
             ..addAll([
               for (final t in (data['focusHandTypes'] as List? ?? []))
-                FocusGoal.fromJson(t)
+                FocusGoal.fromJson(t),
             ]);
           _sessionTags
             ..clear()
-            ..addAll(
-                [for (final t in (data['tags'] as List? ?? [])) t.toString()]);
+            ..addAll([
+              for (final t in (data['tags'] as List? ?? [])) t.toString(),
+            ]);
           _preEvPct = (data['preEvPct'] as num?)?.toDouble() ?? 0;
           _preIcmPct = (data['preIcmPct'] as num?)?.toDouble() ?? 0;
           _evAverageAll = (data['evAverageAll'] as num?)?.toDouble() ?? 0;
@@ -222,8 +233,11 @@ class TrainingSessionService extends ChangeNotifier {
           if (totalRaw is Map) {
             _handGoalTotal
               ..clear()
-              ..addAll(totalRaw
-                  .map((k, v) => MapEntry(k as String, (v as num).toInt())));
+              ..addAll(
+                totalRaw.map(
+                  (k, v) => MapEntry(k as String, (v as num).toInt()),
+                ),
+              );
           } else if (totalRaw is int && _focusHandTypes.isNotEmpty) {
             _handGoalTotal[_focusHandTypes.first.label] = totalRaw;
           }
@@ -231,8 +245,11 @@ class TrainingSessionService extends ChangeNotifier {
           if (countRaw is Map) {
             _handGoalCount
               ..clear()
-              ..addAll(countRaw
-                  .map((k, v) => MapEntry(k as String, (v as num).toInt())));
+              ..addAll(
+                countRaw.map(
+                  (k, v) => MapEntry(k as String, (v as num).toInt()),
+                ),
+              );
           } else if (countRaw is int && _focusHandTypes.isNotEmpty) {
             _handGoalCount[_focusHandTypes.first.label] = countRaw;
           }
@@ -240,21 +257,30 @@ class TrainingSessionService extends ChangeNotifier {
           if (catRaw is Map) {
             _categoryStats
               ..clear()
-              ..addAll(catRaw.map((k, v) => MapEntry(
-                  k as String,
-                  CategoryProgress.fromJson(
-                      Map<String, dynamic>.from(v as Map)))));
+              ..addAll(
+                catRaw.map(
+                  (k, v) => MapEntry(
+                    k as String,
+                    CategoryProgress.fromJson(
+                      Map<String, dynamic>.from(v as Map),
+                    ),
+                  ),
+                ),
+              );
           }
           if (_focusHandTypes.isNotEmpty && _handGoalTotal.isEmpty) {
             for (final g in _focusHandTypes) {
-              _handGoalTotal[g.label] =
-                  _spots.where((s) => _matchHandTypeLabel(s, g.label)).length;
+              _handGoalTotal[g.label] = _spots
+                  .where((s) => _matchHandTypeLabel(s, g.label))
+                  .length;
             }
           }
           if (_focusHandTypes.isNotEmpty && _handGoalCount.isEmpty) {
             for (final id in _session!.results.keys) {
-              final s = _spots.firstWhere((e) => e.id == id,
-                  orElse: () => TrainingPackSpot(id: ''));
+              final s = _spots.firstWhere(
+                (e) => e.id == id,
+                orElse: () => TrainingPackSpot(id: ''),
+              );
               if (s.id.isEmpty) continue;
               for (final g in _focusHandTypes) {
                 if (_matchHandTypeLabel(s, g.label)) {
@@ -267,7 +293,7 @@ class TrainingSessionService extends ChangeNotifier {
             ..clear()
             ..addAll([
               for (final a in (actions as List? ?? []))
-                TrainingAction.fromJson(Map<String, dynamic>.from(a))
+                TrainingAction.fromJson(Map<String, dynamic>.from(a)),
             ]);
         } else {
           _activeBox!.delete('session');
@@ -312,13 +338,13 @@ class TrainingSessionService extends ChangeNotifier {
         if (_handGoalCount.isNotEmpty) 'handGoalProgress': _handGoalCount,
         if (_categoryStats.isNotEmpty)
           'categoryStats': {
-            for (final e in _categoryStats.entries) e.key: e.value.toJson()
+            for (final e in _categoryStats.entries) e.key: e.value.toJson(),
           },
         'preEvPct': _preEvPct,
         'preIcmPct': _preIcmPct,
         'evAverageAll': _evAverageAll,
         'icmAverageAll': _icmAverageAll,
-        if (_sessionTags.isNotEmpty) 'tags': _sessionTags
+        if (_sessionTags.isNotEmpty) 'tags': _sessionTags,
       });
     }
   }
@@ -328,7 +354,9 @@ class TrainingSessionService extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('$_indexPrefix${_template!.id}', _session?.index ?? 0);
     await prefs.setInt(
-        '$_tsPrefix${_template!.id}', DateTime.now().millisecondsSinceEpoch);
+      '$_tsPrefix${_template!.id}',
+      DateTime.now().millisecondsSinceEpoch,
+    );
   }
 
   Future<void> _clearIndex() async {
@@ -372,14 +400,11 @@ class TrainingSessionService extends ChangeNotifier {
       unawaited(LearningPathProgressService.instance.markCustomPathStarted());
     }
     AppBootstrap.registry.get<TrainingSessionContextService>().start(
-          packId: template.id,
-          trainingType: 'standard',
-          includedTags: [
-            ...template.tags,
-            ...?sessionTags,
-          ],
-          source: source,
-        );
+      packId: template.id,
+      trainingType: 'standard',
+      includedTags: [...template.tags, ...?sessionTags],
+      source: source,
+    );
     _template = template;
     _sessionTags
       ..clear()
@@ -420,8 +445,9 @@ class TrainingSessionService extends ChangeNotifier {
     _handGoalCount.clear();
     _categoryStats.clear();
     for (final g in _focusHandTypes) {
-      _handGoalTotal[g.label] =
-          _spots.where((s) => _matchHandTypeLabel(s, g.label)).length;
+      _handGoalTotal[g.label] = _spots
+          .where((s) => _matchHandTypeLabel(s, g.label))
+          .length;
       _handGoalCount[g.label] = 0;
     }
     int savedIndex = startIndex;
@@ -429,10 +455,7 @@ class TrainingSessionService extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       savedIndex = prefs.getInt('$_indexPrefix${template.id}') ?? 0;
     }
-    _session = TrainingSession.fromTemplate(
-      template,
-      authorPreview: !persist,
-    );
+    _session = TrainingSession.fromTemplate(template, authorPreview: !persist);
     if (savedIndex > 0 && savedIndex < _spots.length) {
       _session!.index = savedIndex;
     }
@@ -449,7 +472,8 @@ class TrainingSessionService extends ChangeNotifier {
   }
 
   Future<TrainingSession> startFromTemplate(
-      TrainingPackTemplate template) async {
+    TrainingPackTemplate template,
+  ) async {
     await startSession(template, persist: false);
     return _session!;
   }
@@ -466,28 +490,26 @@ class TrainingSessionService extends ChangeNotifier {
   }
 
   Future<TrainingSession?> startFromPastMistakes(
-      TrainingPackTemplate template) async {
+    TrainingPackTemplate template,
+  ) async {
     await _openBox();
     final ids = <String>{};
     for (final v in _box!.values.whereType<Map>()) {
       try {
         final s = TrainingSession.fromJson(Map<String, dynamic>.from(v));
         if (s.templateId == template.id) {
-          ids.addAll(s.results.entries
-              .where((e) => e.value == false)
-              .map((e) => e.key));
+          ids.addAll(
+            s.results.entries.where((e) => e.value == false).map((e) => e.key),
+          );
         }
       } catch (_) {}
     }
     final spots = [
       for (final s in template.spots)
-        if (ids.contains(s.id)) TrainingPackSpot.fromJson(s.toJson())
+        if (ids.contains(s.id)) TrainingPackSpot.fromJson(s.toJson()),
     ];
     if (spots.isEmpty) return null;
-    final tpl = template.copyWith(
-      name: 'Review Mistakes',
-      spots: spots,
-    );
+    final tpl = template.copyWith(name: 'Review Mistakes', spots: spots);
     await startSession(tpl, persist: false);
     return _session;
   }
@@ -507,7 +529,7 @@ class TrainingSessionService extends ChangeNotifier {
     }
     final ids = [
       for (final e in _session!.results.entries)
-        if (!e.value) e.key
+        if (!e.value) e.key,
     ];
     if (ids.isNotEmpty) {
       final tpl = _template!.copyWith(
@@ -515,17 +537,18 @@ class TrainingSessionService extends ChangeNotifier {
         name: 'Review mistakes',
         spots: [
           for (final s in _template!.spots)
-            if (ids.contains(s.id)) s
+            if (ids.contains(s.id)) s,
         ],
       );
       MistakeReviewPackService.setLatestTemplate(tpl);
-      await context
-          .read<MistakeReviewPackService>()
-          .addPack(ids, templateId: _template!.id);
+      await context.read<MistakeReviewPackService>().addPack(
+        ids,
+        templateId: _template!.id,
+      );
     }
-    unawaited(context
-        .read<CloudTrainingHistoryService>()
-        .saveSession(_buildResults()));
+    unawaited(
+      context.read<CloudTrainingHistoryService>().saveSession(_buildResults()),
+    );
 
     // Calculate XP reward with personalization boost
     final xpService = context.read<XPTrackerService>();
@@ -559,11 +582,13 @@ class TrainingSessionService extends ChangeNotifier {
       unawaited(TagGoalTrackerService.instance.logTraining(tag));
     }
     unawaited(
-        TrainingStreakTrackerService.instance.markTrainingCompletedToday());
+      TrainingStreakTrackerService.instance.markTrainingCompletedToday(),
+    );
     unawaited(DailyStreakTrackerService.instance.markCompletedToday());
     unawaited(StreakRewardEngine.instance.checkAndTriggerRewards());
     unawaited(
-        context.read<GiftDropService>().checkAndDropGift(context: context));
+      context.read<GiftDropService>().checkAndDropGift(context: context),
+    );
     unawaited(SessionStreakTrackerService.instance.markCompletedToday());
     unawaited(SessionStreakTrackerService.instance.checkAndTriggerRewards());
     unawaited(_clearIndex());
@@ -576,17 +601,18 @@ class TrainingSessionService extends ChangeNotifier {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: resultBuilder ??
+        builder:
+            resultBuilder ??
             (_) => TrainingSessionSummaryScreen(
-                  session: _session!,
-                  template: _template!,
-                  preEvPct: _preEvPct,
-                  preIcmPct: _preIcmPct,
-                  xpEarned: xp,
-                  xpMultiplier: multiplier,
-                  streakMultiplier: streakMultiplier,
-                  tagDeltas: deltas,
-                ),
+              session: _session!,
+              template: _template!,
+              preEvPct: _preEvPct,
+              preIcmPct: _preIcmPct,
+              xpEarned: xp,
+              xpMultiplier: multiplier,
+              streakMultiplier: streakMultiplier,
+              tagDeltas: deltas,
+            ),
       ),
     );
   }
@@ -606,8 +632,10 @@ class TrainingSessionService extends ChangeNotifier {
         isCorrect: isCorrect,
       ),
     );
-    final spot = _spots.firstWhere((e) => e.id == spotId,
-        orElse: () => TrainingPackSpot(id: ''));
+    final spot = _spots.firstWhere(
+      (e) => e.id == spotId,
+      orElse: () => TrainingPackSpot(id: ''),
+    );
     if (spot.id.isNotEmpty) {
       if (first && !isCorrect) {
         unawaited(SmartReviewService.instance.recordMistake(spot));
@@ -628,8 +656,12 @@ class TrainingSessionService extends ChangeNotifier {
       }
     }
     if (first && _template != null) {
-      unawaited(TrainingProgressTrackerService.instance
-          .recordSpotCompleted(_template!.id, spotId));
+      unawaited(
+        TrainingProgressTrackerService.instance.recordSpotCompleted(
+          _template!.id,
+          spotId,
+        ),
+      );
     }
     if (first && _focusHandTypes.isNotEmpty) {
       if (spot.id.isNotEmpty) {
@@ -653,7 +685,8 @@ class TrainingSessionService extends ChangeNotifier {
       _session!.completedAt = DateTime.now();
       if (_template?.tags.contains('customPath') ?? false) {
         unawaited(
-            LearningPathProgressService.instance.markCustomPathCompleted());
+          LearningPathProgressService.instance.markCustomPathCompleted(),
+        );
       }
       if (!_paused && _resumedAt != null) {
         _accumulated += DateTime.now().difference(_resumedAt!);
@@ -662,10 +695,7 @@ class TrainingSessionService extends ChangeNotifier {
       _timer?.cancel();
       final total = _session!.results.length;
       final correct = _session!.results.values.where((e) => e).length;
-      final tags = <String>{
-        ...?_template?.tags,
-        ..._sessionTags,
-      };
+      final tags = <String>{...?_template?.tags, ..._sessionTags};
       final fp = TrainingSessionFingerprint(
         packId: _template?.id ?? '',
         tags: tags.toList(),
@@ -679,25 +709,31 @@ class TrainingSessionService extends ChangeNotifier {
       final ctx = navigatorKey.currentContext;
       if (ctx != null) {
         unawaited(
-            ctx.read<SmartRecapBannerController>().triggerBannerIfNeeded());
+          ctx.read<SmartRecapBannerController>().triggerBannerIfNeeded(),
+        );
         if (_template != null) {
           final totalHands = _spots.length;
           final totalSpots = _template!.totalWeight;
-          final evAfter =
-              totalSpots == 0 ? 0.0 : _template!.evCovered * 100 / totalSpots;
-          unawaited(TrainingProgressLogger.finishSession(
-            _template!.id,
-            totalHands,
-            evPercent: evAfter,
-            requiredAccuracy: _template!.requiredAccuracy,
-            minHands: _template!.minHands,
-          ));
+          final evAfter = totalSpots == 0
+              ? 0.0
+              : _template!.evCovered * 100 / totalSpots;
+          unawaited(
+            TrainingProgressLogger.finishSession(
+              _template!.id,
+              totalHands,
+              evPercent: evAfter,
+              requiredAccuracy: _template!.requiredAccuracy,
+              minHands: _template!.minHands,
+            ),
+          );
           final correctHands = _session!.results.values.where((e) => e).length;
           final tasks = [
             for (final a in _actions)
               (() {
-                final spot = _spots.firstWhere((s) => s.id == a.spotId,
-                    orElse: () => TrainingPackSpot(id: ''));
+                final spot = _spots.firstWhere(
+                  (s) => s.id == a.spotId,
+                  orElse: () => TrainingPackSpot(id: ''),
+                );
                 return SessionTaskResult(
                   question: spot.title.isNotEmpty ? spot.title : spot.id,
                   selectedAnswer: a.chosenAction,
@@ -712,14 +748,16 @@ class TrainingSessionService extends ChangeNotifier {
             correct: correctHands,
             tasks: tasks,
           );
-          unawaited(complete(
-            ctx,
-            resultBuilder: (_) => PackReviewSummaryScreen(
-              template: _template!,
-              result: result,
-              elapsed: elapsedTime,
+          unawaited(
+            complete(
+              ctx,
+              resultBuilder: (_) => PackReviewSummaryScreen(
+                template: _template!,
+                result: result,
+                elapsed: elapsedTime,
+              ),
             ),
-          ));
+          );
         }
       }
     }
@@ -786,8 +824,10 @@ class TrainingSessionService extends ChangeNotifier {
     return [
       for (final a in _actions)
         (() {
-          final spot = _spots.firstWhere((s) => s.id == a.spotId,
-              orElse: () => TrainingPackSpot(id: ''));
+          final spot = _spots.firstWhere(
+            (s) => s.id == a.spotId,
+            orElse: () => TrainingPackSpot(id: ''),
+          );
           if (spot.id.isEmpty) return null;
           final eval = EvaluationResult(
             correct: a.isCorrect,
@@ -800,7 +840,7 @@ class TrainingSessionService extends ChangeNotifier {
             userAction: a.chosenAction,
             evaluation: eval,
           );
-        })()
+        })(),
     ].whereType<ResultEntry>().toList();
   }
 

@@ -125,8 +125,10 @@ class _RecoveryPromptBannerState extends State<RecoveryPromptBanner> {
             ],
           ),
           const SizedBox(height: 4),
-          Text('Пак: ${pack.name}',
-              style: const TextStyle(color: Colors.white70)),
+          Text(
+            'Пак: ${pack.name}',
+            style: const TextStyle(color: Colors.white70),
+          ),
           const SizedBox(height: 8),
           Align(
             alignment: Alignment.centerRight,

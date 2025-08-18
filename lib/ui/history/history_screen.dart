@@ -78,9 +78,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
       _items = [];
     });
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('History cleared')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('History cleared')));
     }
   }
 
@@ -104,15 +104,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
       final path = file.absolute.path;
       await Clipboard.setData(ClipboardData(text: path));
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Exported to $path')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Exported to $path')));
       }
     } catch (_) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Export failed')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Export failed')));
       }
     }
   }
@@ -128,16 +128,18 @@ class _HistoryScreenState extends State<HistoryScreen> {
               p is String &&
               st is String &&
               a is String) {
-            out.add(UiSpot(
-              kind: SpotKind.values[k],
-              hand: h,
-              pos: p,
-              stack: st,
-              action: a,
-              vsPos: e['v'] as String?,
-              limpers: e['l'] as String?,
-              explain: e['e'] as String?,
-            ));
+            out.add(
+              UiSpot(
+                kind: SpotKind.values[k],
+                hand: h,
+                pos: p,
+                stack: st,
+                action: a,
+                vsPos: e['v'] as String?,
+                limpers: e['l'] as String?,
+                explain: e['e'] as String?,
+              ),
+            );
           }
         }
       }
@@ -164,14 +166,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
       appBar: AppBar(
         title: const Text('History'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.download),
-            onPressed: _exportCsv,
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: _confirmClear,
-          ),
+          IconButton(icon: const Icon(Icons.download), onPressed: _exportCsv),
+          IconButton(icon: const Icon(Icons.delete), onPressed: _confirmClear),
         ],
       ),
       body: Column(
@@ -190,7 +186,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         children: [
                           Text('Sessions: $sessions'),
                           Text(
-                              'Hands: $correct/$total  •  Acc: ${(acc * 100).toStringAsFixed(0)}%'),
+                            'Hands: $correct/$total  •  Acc: ${(acc * 100).toStringAsFixed(0)}%',
+                          ),
                         ],
                       ),
                     ),
@@ -203,7 +200,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (_) => Scaffold(
-                                      body: MvsSessionPlayer(spots: spots)),
+                                    body: MvsSessionPlayer(spots: spots),
+                                  ),
                                 ),
                               );
                             }
@@ -219,8 +217,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
               itemCount: _items.length,
               itemBuilder: (context, index) {
                 final e = _items[index];
-                final dt =
-                    DateTime.tryParse(e['ts']?.toString() ?? '')?.toLocal();
+                final dt = DateTime.tryParse(
+                  e['ts']?.toString() ?? '',
+                )?.toLocal();
                 final dateStr = dt?.toString() ?? e['ts']?.toString() ?? '';
                 final acc = (e['acc'] ?? 0) as num;
                 final correct = e['correct'] ?? 0;
@@ -228,7 +227,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 return ListTile(
                   title: Text(dateStr),
                   subtitle: Text(
-                      '$correct/$total (${(acc * 100).toStringAsFixed(0)}%)'),
+                    '$correct/$total (${(acc * 100).toStringAsFixed(0)}%)',
+                  ),
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(

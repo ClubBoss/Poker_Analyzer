@@ -31,17 +31,18 @@ class RecapOpportunityDetector {
     TheoryRecapSuppressionEngine? suppression,
     SmartTheoryRecapDismissalMemory? memory,
     BoosterFatigueGuard? fatigue,
-  })  : engine = engine ?? SmartTheoryRecapEngine.instance,
-        streak = streak ?? SessionStreakTrackerService.instance,
-        usage = usage ?? AppUsageTracker.instance,
-        suppression = suppression ?? TheoryRecapSuppressionEngine.instance,
-        memory = memory ?? SmartTheoryRecapDismissalMemory.instance,
-        fatigue = fatigue ?? BoosterFatigueGuard.instance;
+  }) : engine = engine ?? SmartTheoryRecapEngine.instance,
+       streak = streak ?? SessionStreakTrackerService.instance,
+       usage = usage ?? AppUsageTracker.instance,
+       suppression = suppression ?? TheoryRecapSuppressionEngine.instance,
+       memory = memory ?? SmartTheoryRecapDismissalMemory.instance,
+       fatigue = fatigue ?? BoosterFatigueGuard.instance;
 
   static final RecapOpportunityDetector instance = RecapOpportunityDetector(
     retention: TagRetentionTracker(
       mastery: TagMasteryService(
-          logs: SessionLogService(sessions: TrainingSessionService())),
+        logs: SessionLogService(sessions: TrainingSessionService()),
+      ),
     ),
   );
 
@@ -97,7 +98,8 @@ class RecapOpportunityDetector {
     final idle = await usage.idleDuration();
     if (idle < const Duration(minutes: 1)) return false;
 
-    final recentCompletion = _lastCompletion != null &&
+    final recentCompletion =
+        _lastCompletion != null &&
         DateTime.now().difference(_lastCompletion!) <
             const Duration(minutes: 10);
     if (!recentCompletion) {

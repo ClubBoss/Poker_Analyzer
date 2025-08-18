@@ -92,7 +92,8 @@ class _LessonTagHeatmapScreenState extends State<LessonTagHeatmapScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (_) => TagInsightScreen(tag: entry.key)),
+                        builder: (_) => TagInsightScreen(tag: entry.key),
+                      ),
                     );
                   },
                 );

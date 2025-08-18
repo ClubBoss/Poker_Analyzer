@@ -8,16 +8,19 @@ import 'package:poker_analyzer/models/action_entry.dart';
 import 'package:poker_analyzer/models/player_model.dart';
 
 class _MockConverter implements ConverterPlugin {
-  _MockConverter(this.formatId, this.description,
-      [this.onConvertFrom,
-      this.onConvertTo,
-      this.onValidate,
-      this.capabilities = const ConverterFormatCapabilities(
-        supportsImport: true,
-        supportsExport: true,
-        requiresBoard: false,
-        supportsMultiStreet: true,
-      )]);
+  _MockConverter(
+    this.formatId,
+    this.description, [
+    this.onConvertFrom,
+    this.onConvertTo,
+    this.onValidate,
+    this.capabilities = const ConverterFormatCapabilities(
+      supportsImport: true,
+      supportsExport: true,
+      requiresBoard: false,
+      supportsMultiStreet: true,
+    ),
+  ]);
 
   @override
   final String formatId;
@@ -53,7 +56,7 @@ SavedHand _dummyHand() {
     playerCards: <List<CardModel>>[
       <CardModel>[
         CardModel(rank: 'A', suit: '♠'),
-        CardModel(rank: 'K', suit: '♦')
+        CardModel(rank: 'K', suit: '♦'),
       ],
       <CardModel>[],
     ],
@@ -64,7 +67,7 @@ SavedHand _dummyHand() {
     playerPositions: <int, String>{0: 'BTN', 1: 'BB'},
     playerTypes: <int, PlayerType>{
       0: PlayerType.unknown,
-      1: PlayerType.unknown
+      1: PlayerType.unknown,
     },
   );
 }
@@ -83,8 +86,10 @@ void main() {
       final registry = ConverterRegistry();
       registry.register(_MockConverter('dup', 'D'));
 
-      expect(() => registry.register(_MockConverter('dup', 'D')),
-          throwsStateError);
+      expect(
+        () => registry.register(_MockConverter('dup', 'D')),
+        throwsStateError,
+      );
     });
 
     test('findByFormatId returns the correct plugin', () {
@@ -190,21 +195,28 @@ void main() {
         ),
       );
 
-      final importConverters =
-          registry.queryConverters(supportsImport: true, supportsExport: false);
+      final importConverters = registry.queryConverters(
+        supportsImport: true,
+        supportsExport: false,
+      );
       expect(importConverters, hasLength(1));
       expect(importConverters.first.formatId, 'import_only');
 
-      final exportConverters =
-          registry.queryConverters(supportsExport: true, supportsImport: false);
+      final exportConverters = registry.queryConverters(
+        supportsExport: true,
+        supportsImport: false,
+      );
       expect(exportConverters, hasLength(1));
       expect(exportConverters.first.formatId, 'export_only');
     });
 
     test('detectCompatible finds matching converter', () {
       final registry = ConverterRegistry();
-      final ok =
-          _MockConverter('ok', 'Ok', (d) => d == 'match' ? _dummyHand() : null);
+      final ok = _MockConverter(
+        'ok',
+        'Ok',
+        (d) => d == 'match' ? _dummyHand() : null,
+      );
       registry.register(ok);
       registry.register(_MockConverter('bad', 'Bad'));
 

@@ -26,9 +26,9 @@ class SkillLossFeedEngine {
     TagGoalTrackerService? goals,
     PackLibraryService? library,
     TagReviewHistoryService? reviews,
-  })  : _goals = goals ?? TagGoalTrackerService.instance,
-        _library = library ?? PackLibraryService.instance,
-        _reviews = reviews ?? TagReviewHistoryService.instance;
+  }) : _goals = goals ?? TagGoalTrackerService.instance,
+       _library = library ?? PackLibraryService.instance,
+       _reviews = reviews ?? TagReviewHistoryService.instance;
 
   Future<List<SkillLossFeedItem>> buildFeed(
     List<SkillLoss> losses, {
@@ -43,8 +43,9 @@ class SkillLossFeedEngine {
     for (final loss in losses) {
       final progress = await _goals.getProgress(loss.tag);
       final last = progress.lastTrainingDate;
-      final daysSince =
-          last == null ? 30 : current.difference(last).inDays.clamp(0, 30);
+      final daysSince = last == null
+          ? 30
+          : current.difference(last).inDays.clamp(0, 30);
       final recencyFactor = 1 + daysSince / 7;
       var score = loss.drop * recencyFactor;
 

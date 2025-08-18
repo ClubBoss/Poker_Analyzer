@@ -17,9 +17,9 @@ class BoosterVariationInjector {
     BoosterSimilarityEngine? engine,
     double similarityThreshold = 0.8,
     int variationsPerSpot = 1,
-  })  : _engine = engine ?? const BoosterSimilarityEngine(),
-        _similarityThreshold = similarityThreshold,
-        _variationsPerSpot = variationsPerSpot;
+  }) : _engine = engine ?? const BoosterSimilarityEngine(),
+       _similarityThreshold = similarityThreshold,
+       _variationsPerSpot = variationsPerSpot;
 
   /// Returns a copy of [pack] with additional variation spots added.
   TrainingPackTemplateV2 injectVariations(
@@ -34,8 +34,9 @@ class BoosterVariationInjector {
     final newSpots = <TrainingPackSpot>[];
 
     for (final cluster in clusters) {
-      final originals =
-          cluster.spots.where((s) => idSet.contains(s.id)).toList();
+      final originals = cluster.spots
+          .where((s) => idSet.contains(s.id))
+          .toList();
       if (originals.length <= 1) continue;
       for (final orig in originals) {
         var counter = 1;
@@ -57,10 +58,10 @@ class BoosterVariationInjector {
             counter++;
             newId = '${orig.id}_var$counter';
           }
-          final copy = cand.copyWith(id: newId, meta: {
-            ...cand.meta,
-            'variation': true,
-          });
+          final copy = cand.copyWith(
+            id: newId,
+            meta: {...cand.meta, 'variation': true},
+          );
           newSpots.add(copy);
           idSet.add(newId);
           added++;
@@ -78,8 +79,9 @@ class BoosterVariationInjector {
     final map = pack.toJson();
     map['spots'] = [for (final s in updated) s.toJson()];
     map['spotCount'] = updated.length;
-    final result =
-        TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+    final result = TrainingPackTemplateV2.fromJson(
+      Map<String, dynamic>.from(map),
+    );
     result.isGeneratedPack = pack.isGeneratedPack;
     result.isSampledPack = pack.isSampledPack;
     return result;

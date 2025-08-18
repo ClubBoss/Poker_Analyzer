@@ -38,8 +38,10 @@ class ProgressHistoryScreen extends StatelessWidget {
         color: AppColors.cardBackground,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: const Text('Недостаточно данных',
-          style: TextStyle(color: Colors.white70)),
+      child: const Text(
+        'Недостаточно данных',
+        style: TextStyle(color: Colors.white70),
+      ),
     );
   }
 }

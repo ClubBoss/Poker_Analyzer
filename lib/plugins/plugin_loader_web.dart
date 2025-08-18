@@ -39,16 +39,19 @@ class PluginLoader {
 
   Future<Database> _openDb() async {
     if (_db != null) return _db!;
-    _db = await window.indexedDB!.open('plugins', version: 1,
-        onUpgradeNeeded: (e) {
-      final db = (e.target as OpenDbRequest).result as Database;
-      if (!db.objectStoreNames!.contains('files'))
-        db.createObjectStore('files');
-      if (!db.objectStoreNames!.contains('config'))
-        db.createObjectStore('config');
-      if (!db.objectStoreNames!.contains('cache'))
-        db.createObjectStore('cache');
-    });
+    _db = await window.indexedDB!.open(
+      'plugins',
+      version: 1,
+      onUpgradeNeeded: (e) {
+        final db = (e.target as OpenDbRequest).result as Database;
+        if (!db.objectStoreNames!.contains('files'))
+          db.createObjectStore('files');
+        if (!db.objectStoreNames!.contains('config'))
+          db.createObjectStore('config');
+        if (!db.objectStoreNames!.contains('cache'))
+          db.createObjectStore('cache');
+      },
+    );
     return _db!;
   }
 
@@ -187,8 +190,11 @@ class PluginLoader {
     final port = ReceivePort();
     Isolate? isolate;
     try {
-      isolate =
-          await Isolate.spawnUri(Uri.parse(url), <String>[], port.sendPort);
+      isolate = await Isolate.spawnUri(
+        Uri.parse(url),
+        <String>[],
+        port.sendPort,
+      );
       final msg = await port.first.timeout(const Duration(seconds: 2));
       Plugin? plugin;
       if (msg is Plugin) {
@@ -224,8 +230,8 @@ class PluginLoader {
       throw Exception('Invalid plugin file');
     }
     final cached = await _loadCache();
-    final cachedDigest =
-        (cached?['checksums'] as Map?)?.cast<String, String>()[name];
+    final cachedDigest = (cached?['checksums'] as Map?)
+        ?.cast<String, String>()[name];
     final existing = await _readFile(name);
     if (checksum != null &&
         cachedDigest != null &&
@@ -233,8 +239,9 @@ class PluginLoader {
         existing != null) {
       final ctx = navigatorKey.currentState?.context;
       if (ctx != null && ctx.mounted) {
-        ScaffoldMessenger.of(ctx)
-            .showSnackBar(const SnackBar(content: Text('Plugin up to date')));
+        ScaffoldMessenger.of(
+          ctx,
+        ).showSnackBar(const SnackBar(content: Text('Plugin up to date')));
       }
       return false;
     }
@@ -253,7 +260,8 @@ class PluginLoader {
     await txn.objectStore('files').put(code, name);
     await txn.completed;
     final cacheMap = cached ?? <String, dynamic>{};
-    final checksums = (cacheMap['checksums'] as Map?)?.cast<String, String>() ??
+    final checksums =
+        (cacheMap['checksums'] as Map?)?.cast<String, String>() ??
         <String, String>{};
     checksums[name] = digest;
     cacheMap['checksums'] = checksums;
@@ -278,7 +286,8 @@ class PluginLoader {
     final files =
         (cache['files'] as List?)?.cast<String>().toList() ?? <String>[];
     files.remove(name);
-    final checksums = (cache['checksums'] as Map?)?.cast<String, String>() ??
+    final checksums =
+        (cache['checksums'] as Map?)?.cast<String, String>() ??
         <String, String>{};
     checksums.remove(name);
     cache['files'] = files;
@@ -298,9 +307,11 @@ class PluginLoader {
     final cached = await _loadCache();
     final cachedFiles =
         (cached?['files'] as List?)?.cast<String>() ?? <String>[];
-    final cachedConfig = (cached?['config'] as Map?)?.cast<String, dynamic>() ??
+    final cachedConfig =
+        (cached?['config'] as Map?)?.cast<String, dynamic>() ??
         <String, dynamic>{};
-    final match = const DeepCollectionEquality().equals(cachedFiles, files) &&
+    final match =
+        const DeepCollectionEquality().equals(cachedFiles, files) &&
         const DeepCollectionEquality().equals(
           config,
           cachedConfig.map((k, v) => MapEntry(k, v == true)),
@@ -310,8 +321,9 @@ class PluginLoader {
     final loadedPlugins = <Plugin>[];
 
     if (match) {
-      pluginNames
-          .addAll((cached?['plugins'] as List?)?.cast<String>() ?? <String>[]);
+      pluginNames.addAll(
+        (cached?['plugins'] as List?)?.cast<String>() ?? <String>[],
+      );
       for (final name in pluginNames) {
         final plugin = _createByName(name);
         if (plugin != null) {
@@ -354,7 +366,8 @@ class PluginLoader {
       if (context != null && context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text('Duplicate plugins: ${duplicates.join(', ')}')),
+            content: Text('Duplicate plugins: ${duplicates.join(', ')}'),
+          ),
         );
       }
     }

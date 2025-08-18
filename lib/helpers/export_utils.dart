@@ -7,11 +7,11 @@ class ExportUtils {
   const ExportUtils._();
 
   static Map<String, String?> _handFields(SavedHand hand) => {
-        'Действие': hand.expectedAction,
-        'GTO': hand.gtoAction,
-        'Группа': hand.rangeGroup,
-        'Комментарий': hand.comment,
-      };
+    'Действие': hand.expectedAction,
+    'GTO': hand.gtoAction,
+    'Группа': hand.rangeGroup,
+    'Комментарий': hand.comment,
+  };
 
   static String handMarkdown(SavedHand hand, {int level = 2}) {
     final buffer = StringBuffer();
@@ -43,8 +43,9 @@ class ExportUtils {
     for (final entry in _handFields(hand).entries) {
       final value = entry.value;
       if (value != null && value.isNotEmpty) {
-        widgets.add(pw.Text('${entry.key}: $value',
-            style: pw.TextStyle(font: regular)));
+        widgets.add(
+          pw.Text('${entry.key}: $value', style: pw.TextStyle(font: regular)),
+        );
       }
     }
     widgets.add(pw.SizedBox(height: 12));

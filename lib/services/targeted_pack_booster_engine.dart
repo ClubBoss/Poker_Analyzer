@@ -63,12 +63,12 @@ class TargetedPackBoosterEngine {
     SkillTagCoverageTracker? coverage,
     PackNoveltyGuardService? noveltyGuard,
     Duration decayDebounce = const Duration(seconds: 2),
-  })  : library = library ?? PackLibraryService.instance,
-        exporter = exporter ?? const YamlPackExporter(),
-        dashboard = dashboard ?? AutogenStatsDashboardService.instance,
-        coverage = coverage ?? SkillTagCoverageTracker(),
-        noveltyGuard = noveltyGuard ?? PackNoveltyGuardService(),
-        decayDebounce = decayDebounce {
+  }) : library = library ?? PackLibraryService.instance,
+       exporter = exporter ?? const YamlPackExporter(),
+       dashboard = dashboard ?? AutogenStatsDashboardService.instance,
+       coverage = coverage ?? SkillTagCoverageTracker(),
+       noveltyGuard = noveltyGuard ?? PackNoveltyGuardService(),
+       decayDebounce = decayDebounce {
     if (decayTracker != null) {
       decayTracker!.onDecayStateChanged.listen(_handleDecayEvent);
     }
@@ -97,12 +97,14 @@ class TargetedPackBoosterEngine {
     for (final tag in tagReasons.keys) {
       final pack = await library.findByTag(tag);
       if (pack == null) continue;
-      requests.add(PackBoosterRequest(
-        packId: pack.id,
-        tags: [tag],
-        ratio: ratio,
-        triggerReason: tagReasons[tag]!,
-      ));
+      requests.add(
+        PackBoosterRequest(
+          packId: pack.id,
+          tags: [tag],
+          ratio: ratio,
+          triggerReason: tagReasons[tag]!,
+        ),
+      );
     }
     return requests;
   }
@@ -119,12 +121,14 @@ class TargetedPackBoosterEngine {
     for (final tag in tags.take(count)) {
       final pack = await library.findByTag(tag);
       if (pack == null) continue;
-      requests.add(PackBoosterRequest(
-        packId: pack.id,
-        tags: [tag],
-        ratio: ratio,
-        triggerReason: triggerReason,
-      ));
+      requests.add(
+        PackBoosterRequest(
+          packId: pack.id,
+          tags: [tag],
+          ratio: ratio,
+          triggerReason: triggerReason,
+        ),
+      );
     }
     if (requests.isEmpty) return [];
     return boostPacks(requests);
@@ -143,12 +147,14 @@ class TargetedPackBoosterEngine {
       final pack = await library.findByTag(cluster.tags.first);
       if (pack == null) continue;
       if (!cluster.tags.every(pack.tags.contains)) continue;
-      requests.add(PackBoosterRequest(
-        packId: pack.id,
-        tags: cluster.tags,
-        ratio: ratio,
-        triggerReason: triggerReason,
-      ));
+      requests.add(
+        PackBoosterRequest(
+          packId: pack.id,
+          tags: cluster.tags,
+          ratio: ratio,
+          triggerReason: triggerReason,
+        ),
+      );
     }
     return boostPacks(requests);
   }
@@ -170,13 +176,17 @@ class TargetedPackBoosterEngine {
     final threshold = prefs.getDouble('booster.threshold') ?? 0.75;
     final decayed = await decayTracker!.getDecayedTags(threshold: threshold);
     final unique = await _filterRecentDuplicates(
-        tags.where((t) => decayed.contains(t)).toList());
+      tags.where((t) => decayed.contains(t)).toList(),
+    );
     if (unique.isEmpty) return;
     final status = AutogenStatusDashboardService.instance;
     status.update(
       'booster',
       const AutogenStatus(
-          isRunning: true, currentStage: 'decaySync', progress: 0),
+        isRunning: true,
+        currentStage: 'decaySync',
+        progress: 0,
+      ),
     );
     await generateBoosterPacks(
       count: unique.length,
@@ -186,7 +196,10 @@ class TargetedPackBoosterEngine {
     status.update(
       'booster',
       const AutogenStatus(
-          isRunning: false, currentStage: 'decaySync', progress: 1),
+        isRunning: false,
+        currentStage: 'decaySync',
+        progress: 1,
+      ),
     );
   }
 
@@ -213,8 +226,9 @@ class TargetedPackBoosterEngine {
     final unique = <String>[];
     for (final t in tags) {
       if (recent.contains(t.toLowerCase())) {
-        AutogenStatusDashboardService.instance
-            .recordBoosterSkipped('recent_duplicate');
+        AutogenStatusDashboardService.instance.recordBoosterSkipped(
+          'recent_duplicate',
+        );
       } else {
         unique.add(t);
       }
@@ -224,7 +238,8 @@ class TargetedPackBoosterEngine {
 
   /// Regenerates packs with boosted coverage for [requests].
   Future<List<TrainingPackTemplateV2>> boostPacks(
-      List<PackBoosterRequest> requests) async {
+    List<PackBoosterRequest> requests,
+  ) async {
     final status = AutogenStatusDashboardService.instance;
     status.update(
       'booster',
@@ -270,10 +285,7 @@ class TargetedPackBoosterEngine {
         final clone = tagged[j % tagged.length].copyWith(id: const Uuid().v4());
         extra.add(clone);
       }
-      final spots = [
-        for (final s in tagged) s,
-        ...extra,
-      ];
+      final spots = [for (final s in tagged) s, ...extra];
       final ts = DateTime.now().millisecondsSinceEpoch;
       final boosted = TrainingPackTemplateV2(
         id: '${tpl.id}_boosted_$ts',

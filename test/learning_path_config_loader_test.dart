@@ -26,8 +26,9 @@ void main() {
           'id: pack2\nname: Pack 2\ntrainingType: mtt\npositions:\n  - bb',
     });
     final binding = TestWidgetsFlutterBinding.ensureInitialized();
-    binding.defaultBinaryMessenger.setMockMessageHandler('flutter/assets',
-        (message) async {
+    binding.defaultBinaryMessenger.setMockMessageHandler('flutter/assets', (
+      message,
+    ) async {
       final key = utf8.decode(message.buffer.asUint8List());
       final data = bundle.data[key];
       if (data != null) {
@@ -38,8 +39,9 @@ void main() {
 
     LearningPathStageLibrary.instance.clear();
 
-    await LearningPathConfigLoader.instance
-        .loadPath('assets/learning_paths/beginner_path.yaml');
+    await LearningPathConfigLoader.instance.loadPath(
+      'assets/learning_paths/beginner_path.yaml',
+    );
 
     final stages = LearningPathStageLibrary.instance.stages;
     expect(stages, hasLength(2));

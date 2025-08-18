@@ -14,8 +14,11 @@ class RecommendationTask {
   final String title;
   final IconData icon;
   final int remaining;
-  const RecommendationTask(
-      {required this.title, required this.icon, required this.remaining});
+  const RecommendationTask({
+    required this.title,
+    required this.icon,
+    required this.remaining,
+  });
 }
 
 class PersonalRecommendationService extends ChangeNotifier {
@@ -56,28 +59,37 @@ class PersonalRecommendationService extends ChangeNotifier {
     _packs = list;
     _tasks
       ..clear()
-      ..addAll(achievements.achievements.map((a) {
-        final remain = a.nextTarget - a.progress;
-        return RecommendationTask(
-            title: a.title, icon: a.icon, remaining: remain);
-      }).where((t) => t.remaining > 0));
+      ..addAll(
+        achievements.achievements
+            .map((a) {
+              final remain = a.nextTarget - a.progress;
+              return RecommendationTask(
+                title: a.title,
+                icon: a.icon,
+                remaining: remain,
+              );
+            })
+            .where((t) => t.remaining > 0),
+      );
     switch (forecast.forecast) {
       case PlayerStyle.aggressive:
         _tasks.insert(
           0,
           const RecommendationTask(
-              title: 'Сбавьте агрессию ранних улиц',
-              icon: Icons.trending_down,
-              remaining: 1),
+            title: 'Сбавьте агрессию ранних улиц',
+            icon: Icons.trending_down,
+            remaining: 1,
+          ),
         );
         break;
       case PlayerStyle.passive:
         _tasks.insert(
           0,
           const RecommendationTask(
-              title: 'Проявите больше агрессии',
-              icon: Icons.trending_up,
-              remaining: 1),
+            title: 'Проявите больше агрессии',
+            icon: Icons.trending_up,
+            remaining: 1,
+          ),
         );
         break;
       case PlayerStyle.neutral:
@@ -88,23 +100,30 @@ class PersonalRecommendationService extends ChangeNotifier {
       _tasks.insert(
         0,
         const RecommendationTask(
-            title: 'Работайте над точностью',
-            icon: Icons.bar_chart,
-            remaining: 1),
+          title: 'Работайте над точностью',
+          icon: Icons.bar_chart,
+          remaining: 1,
+        ),
       );
     }
     if (prog.ev < 0) {
       _tasks.insert(
         0,
         const RecommendationTask(
-            title: 'Улучшите EV', icon: Icons.show_chart, remaining: 1),
+          title: 'Улучшите EV',
+          icon: Icons.show_chart,
+          remaining: 1,
+        ),
       );
     }
     if (prog.icm < 0) {
       _tasks.insert(
         0,
         const RecommendationTask(
-            title: 'Улучшите ICM', icon: Icons.pie_chart, remaining: 1),
+          title: 'Улучшите ICM',
+          icon: Icons.pie_chart,
+          remaining: 1,
+        ),
       );
     }
     notifyListeners();

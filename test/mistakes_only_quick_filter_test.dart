@@ -15,21 +15,28 @@ void main() {
       id: 'a',
       hand: HandData(),
       evalResult: EvaluationResult(
-          correct: true, expectedAction: '-', userEquity: 0, expectedEquity: 0),
+        correct: true,
+        expectedAction: '-',
+        userEquity: 0,
+        expectedEquity: 0,
+      ),
     );
     final err = TrainingPackSpot(
       id: 'b',
       hand: HandData(),
       evalResult: EvaluationResult(
-          correct: false,
-          expectedAction: '-',
-          userEquity: 0,
-          expectedEquity: 0),
+        correct: false,
+        expectedAction: '-',
+        userEquity: 0,
+        expectedEquity: 0,
+      ),
     );
     final tpl = TrainingPackTemplate(id: 't', name: 't', spots: [ok, err]);
-    await tester.pumpWidget(MaterialApp(
-      home: TrainingPackTemplateEditorScreen(template: tpl, templates: [tpl]),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: TrainingPackTemplateEditorScreen(template: tpl, templates: [tpl]),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(find.byType(TrainingPackSpotPreviewCard), findsNWidgets(2));
     await tester.tap(find.byTooltip('Mistakes Only'));

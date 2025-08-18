@@ -16,10 +16,10 @@ class PlayerEditingService {
     required StackManagerService stackService,
     required PlaybackManagerService playbackManager,
     required PlayerProfileService profile,
-  })  : _playerManager = playerManager,
-        _stackService = stackService,
-        _playbackManager = playbackManager,
-        _profile = profile;
+  }) : _playerManager = playerManager,
+       _stackService = stackService,
+       _playbackManager = playbackManager,
+       _profile = profile;
 
   final PlayerManagerService _playerManager;
   final StackManagerService _stackService;
@@ -166,8 +166,13 @@ class PlayerEditingService {
   /// Replace the card at [cardIndex] for the player at [playerIndex].
   /// [current] should be the existing card at that position if any.
   /// Returns true if the replacement succeeded.
-  bool setPlayerCard(BuildContext context, int playerIndex, int cardIndex,
-      CardModel card, CardModel? current) {
+  bool setPlayerCard(
+    BuildContext context,
+    int playerIndex,
+    int cardIndex,
+    CardModel card,
+    CardModel? current,
+  ) {
     if (isDuplicateSelection(card, current)) {
       showDuplicateCardMessage(context);
       return false;
@@ -178,8 +183,13 @@ class PlayerEditingService {
 
   /// Replace a revealed card for [playerIndex]. Similar duplicate protection
   /// as [setPlayerCard].
-  bool setRevealedCard(BuildContext context, int playerIndex, int cardIndex,
-      CardModel card, CardModel? current) {
+  bool setRevealedCard(
+    BuildContext context,
+    int playerIndex,
+    int cardIndex,
+    CardModel card,
+    CardModel? current,
+  ) {
     if (isDuplicateSelection(card, current)) {
       showDuplicateCardMessage(context);
       return false;

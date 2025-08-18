@@ -25,7 +25,7 @@ class PrefsProgressSnapshotStorage implements ProgressSnapshotStorage {
 
 class LearningPathProgressSnapshotService {
   LearningPathProgressSnapshotService({ProgressSnapshotStorage? storage})
-      : storage = storage ?? PrefsProgressSnapshotStorage();
+    : storage = storage ?? PrefsProgressSnapshotStorage();
 
   final ProgressSnapshotStorage storage;
 

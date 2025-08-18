@@ -8,28 +8,30 @@ import 'package:poker_analyzer/services/training_pack_template_set_expander_serv
 
 void main() {
   TrainingPackSpot baseSpot() => TrainingPackSpot(
-        id: 'base',
-        hand: HandData(
-          heroCards: 'Ah Kh',
-          position: HeroPosition.btn,
-          heroIndex: 0,
-          playerCount: 2,
-          board: [],
-        ),
-        board: [],
-      );
+    id: 'base',
+    hand: HandData(
+      heroCards: 'Ah Kh',
+      position: HeroPosition.btn,
+      heroIndex: 0,
+      playerCount: 2,
+      board: [],
+    ),
+    board: [],
+  );
 
   test('expands multiple variations', () {
     final set = TrainingPackTemplateSet(
       baseSpot: baseSpot(),
       variations: [
-        ConstraintSet(overrides: {
-          'board': [
-            ['As', 'Kd', 'Qc'],
-            ['7h', '7d', '2c'],
-          ],
-          'heroStack': [10, 20],
-        }),
+        ConstraintSet(
+          overrides: {
+            'board': [
+              ['As', 'Kd', 'Qc'],
+              ['7h', '7d', '2c'],
+            ],
+            'heroStack': [10, 20],
+          },
+        ),
       ],
     );
     final svc = TrainingPackTemplateSetExpanderService();
@@ -41,12 +43,14 @@ void main() {
     final set = TrainingPackTemplateSet(
       baseSpot: baseSpot(),
       variations: [
-        ConstraintSet(overrides: {
-          'board': [
-            ['As', 'Kd', 'Qc'],
-            ['2h', '3d', '4c'],
-          ],
-        }),
+        ConstraintSet(
+          overrides: {
+            'board': [
+              ['As', 'Kd', 'Qc'],
+              ['2h', '3d', '4c'],
+            ],
+          },
+        ),
       ],
       requiredBoardClusters: ['broadway-heavy'],
     );
@@ -60,12 +64,14 @@ void main() {
     final set = TrainingPackTemplateSet(
       baseSpot: baseSpot(),
       variations: [
-        ConstraintSet(overrides: {
-          'board': [
-            ['As', 'Kd', 'Qc'],
-            ['2h', '3d', '4c'],
-          ],
-        }),
+        ConstraintSet(
+          overrides: {
+            'board': [
+              ['As', 'Kd', 'Qc'],
+              ['2h', '3d', '4c'],
+            ],
+          },
+        ),
       ],
       excludedBoardClusters: ['broadway-heavy'],
     );

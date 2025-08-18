@@ -37,14 +37,17 @@ class _WinnerFlyingChipState extends State<WinnerFlyingChip>
     _opacity = TweenSequence<double>([
       const TweenSequenceItem(tween: ConstantTween(1.0), weight: 80),
       TweenSequenceItem(
-        tween: Tween(begin: 1.0, end: 0.0)
-            .chain(CurveTween(curve: Curves.easeOut)),
+        tween: Tween(
+          begin: 1.0,
+          end: 0.0,
+        ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 20,
       ),
     ]).animate(_controller);
-    _scaleAnim = Tween<double>(begin: 1.0, end: 1.2)
-        .chain(CurveTween(curve: Curves.easeOut))
-        .animate(_controller);
+    _scaleAnim = Tween<double>(
+      begin: 1.0,
+      end: 1.2,
+    ).chain(CurveTween(curve: Curves.easeOut)).animate(_controller);
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         widget.onCompleted?.call();
@@ -72,13 +75,18 @@ class _WinnerFlyingChipState extends State<WinnerFlyingChip>
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        final control = widget.control ??
+        final control =
+            widget.control ??
             Offset(
               (widget.start.dx + widget.end.dx) / 2,
               (widget.start.dy + widget.end.dy) / 2 - 40 * widget.scale,
             );
-        final pos =
-            _bezier(widget.start, control, widget.end, _controller.value);
+        final pos = _bezier(
+          widget.start,
+          control,
+          widget.end,
+          _controller.value,
+        );
         final sizeFactor = _scaleAnim.value * widget.scale;
         return Positioned(
           left: pos.dx - 12 * sizeFactor,
@@ -100,7 +108,7 @@ class _WinnerFlyingChipState extends State<WinnerFlyingChip>
               color: Colors.black.withValues(alpha: 0.5),
               blurRadius: 4 * widget.scale,
               offset: const Offset(1, 2),
-            )
+            ),
           ],
         ),
       ),

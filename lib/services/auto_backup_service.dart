@@ -22,10 +22,10 @@ class AutoBackupService {
   List<ActionEvaluationRequest> get _completed => queueService.completed;
 
   Map<String, dynamic> _currentState() => serializer.encodeQueues(
-        pending: _pending,
-        failed: _failed,
-        completed: _completed,
-      );
+    pending: _pending,
+    failed: _failed,
+    completed: _completed,
+  );
 
   /// Starts periodic automatic backups of the evaluation queue.
   Future<void> startAutoBackupTimer() async {

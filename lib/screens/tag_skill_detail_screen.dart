@@ -89,10 +89,7 @@ class _TagSkillDetailScreenState extends State<TagSkillDetailScreen> {
         children: [
           Text(
             '🧠 Навык: ${widget.tag}',
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
           Text(

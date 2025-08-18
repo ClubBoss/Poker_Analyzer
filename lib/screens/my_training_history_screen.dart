@@ -49,8 +49,9 @@ class _MyTrainingHistoryScreenState extends State<MyTrainingHistoryScreen> {
           final history = data['history'] as List;
           for (final item in history.take(5)) {
             if (item is Map) {
-              final summary =
-                  SessionSummary.fromJson(Map<String, dynamic>.from(item));
+              final summary = SessionSummary.fromJson(
+                Map<String, dynamic>.from(item),
+              );
               loaded.add(_HistoryEntry(pack, summary));
             }
           }

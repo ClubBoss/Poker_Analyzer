@@ -11,10 +11,7 @@ class SessionItemRef {
 
   const SessionItemRef({required this.file, required this.index});
 
-  Map<String, dynamic> toJson() => {
-        'file': file,
-        'index': index,
-      };
+  Map<String, dynamic> toJson() => {'file': file, 'index': index};
 }
 
 class SessionManifest {

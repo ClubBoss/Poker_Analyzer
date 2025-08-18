@@ -14,15 +14,15 @@ class _FakeInsights extends MistakeTagInsightsService {
   final List<MistakeInsight> list;
   const _FakeInsights(this.list);
   @override
-  Future<List<MistakeInsight>> buildInsights(
-          {bool sortByEvLoss = false}) async =>
-      list;
+  Future<List<MistakeInsight>> buildInsights({
+    bool sortByEvLoss = false,
+  }) async => list;
 }
 
 class _FakeLibrary implements MiniLessonLibraryService {
   final Map<String, TheoryMiniLessonNode> items;
   _FakeLibrary(List<TheoryMiniLessonNode> lessons)
-      : items = {for (final l in lessons) l.id: l};
+    : items = {for (final l in lessons) l.id: l};
 
   @override
   List<TheoryMiniLessonNode> get all => items.values.toList();
@@ -88,8 +88,10 @@ void main() {
   });
 
   test('assigns postrecap slot when tag completed recently', () async {
-    await BoosterPathHistoryService.instance
-        .markCompleted('l2', 'btn overfold');
+    await BoosterPathHistoryService.instance.markCompleted(
+      'l2',
+      'btn overfold',
+    );
     final lesson = const TheoryMiniLessonNode(
       id: 'l2',
       title: 'B',

@@ -23,7 +23,8 @@ class HandHistoryFileService {
   HandHistoryFileService._(this._handManager, this._converters);
 
   static Future<HandHistoryFileService> create(
-      SavedHandManagerService manager) async {
+    SavedHandManagerService manager,
+  ) async {
     final registry = ServiceRegistry();
     final loader = PluginLoader();
     final managerPlugin = PluginManager();
@@ -72,8 +73,10 @@ class HandHistoryFileService {
     if (context.mounted) {
       final analyzer = Provider.of<HandAnalyzerService>(context, listen: false);
       final xp = Provider.of<XPTrackerService>(context, listen: false);
-      final history =
-          Provider.of<HandAnalysisHistoryService>(context, listen: false);
+      final history = Provider.of<HandAnalysisHistoryService>(
+        context,
+        listen: false,
+      );
       int correct = 0;
       final mistakes = <ImportMistake>[];
       for (final h in imported) {
@@ -96,13 +99,15 @@ class HandHistoryFileService {
         if (act == record.action.toLowerCase()) {
           correct++;
         } else {
-          mistakes.add(ImportMistake(
-            cards: hero,
-            actual: act,
-            expected: record.action,
-            ev: record.ev,
-            icm: record.icm,
-          ));
+          mistakes.add(
+            ImportMistake(
+              cards: hero,
+              actual: act,
+              expected: record.action,
+              ev: record.ev,
+              icm: record.icm,
+            ),
+          );
         }
       }
       Navigator.push(

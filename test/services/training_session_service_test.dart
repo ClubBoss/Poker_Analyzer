@@ -35,11 +35,15 @@ void main() {
     await LearningPathProgressService.instance.resetCustomPath();
     final spot = TrainingPackSpot(id: 'c');
     final tpl = TrainingPackTemplate(
-        id: 'c', name: 'c', spots: [spot], tags: ['customPath']);
+      id: 'c',
+      name: 'c',
+      spots: [spot],
+      tags: ['customPath'],
+    );
     final service = TrainingSessionService();
     await service.startSession(tpl, persist: false);
-    final started =
-        await LearningPathProgressService.instance.isCustomPathStarted();
+    final started = await LearningPathProgressService.instance
+        .isCustomPathStarted();
     expect(started, isTrue);
   });
 
@@ -51,12 +55,16 @@ void main() {
     await LearningPathProgressService.instance.resetCustomPath();
     final spot = TrainingPackSpot(id: 'd');
     final tpl = TrainingPackTemplate(
-        id: 'd', name: 'd', spots: [spot], tags: ['customPath']);
+      id: 'd',
+      name: 'd',
+      spots: [spot],
+      tags: ['customPath'],
+    );
     final service = TrainingSessionService();
     await service.startSession(tpl, persist: false);
     service.nextSpot();
-    final done =
-        await LearningPathProgressService.instance.isCustomPathCompleted();
+    final done = await LearningPathProgressService.instance
+        .isCustomPathCompleted();
     expect(done, isTrue);
   });
 }

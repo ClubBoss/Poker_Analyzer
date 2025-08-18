@@ -4,8 +4,11 @@ import '../services/pack_generator_service.dart';
 class PresetRangeButtons extends StatelessWidget {
   final Set<String> selected;
   final ValueChanged<Set<String>> onChanged;
-  const PresetRangeButtons(
-      {super.key, required this.selected, required this.onChanged});
+  const PresetRangeButtons({
+    super.key,
+    required this.selected,
+    required this.onChanged,
+  });
 
   static const Set<String> _tightRange = {
     '22',
@@ -24,7 +27,7 @@ class PresetRangeButtons extends StatelessWidget {
     'A8s',
     'ATo',
     'KTs',
-    'KJo'
+    'KJo',
   };
 
   void _applyTight() => onChanged({..._tightRange});

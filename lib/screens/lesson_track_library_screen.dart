@@ -43,16 +43,17 @@ class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
 
     final prefs = await SharedPreferences.getInstance();
     final selected = prefs.getString('lesson_selected_track');
-    final progress =
-        await LessonPathProgressService.instance.computeTrackProgress();
+    final progress = await LessonPathProgressService.instance
+        .computeTrackProgress();
     final unlocked = <String, bool>{};
     final reasons = <String, String?>{};
     for (final t in tracks) {
       final ok = await LearningPathUnlockEngine.instance.canUnlockTrack(t.id);
       unlocked[t.id] = ok;
       if (!ok) {
-        reasons[t.id] =
-            await TrackUnlockReasonService.instance.getUnlockReason(t.id);
+        reasons[t.id] = await TrackUnlockReasonService.instance.getUnlockReason(
+          t.id,
+        );
       }
     }
     _unlocked
@@ -81,7 +82,8 @@ class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
     }
     bool ok = true;
     if (currentId != null && currentId != track.id) {
-      ok = await showDialog<bool>(
+      ok =
+          await showDialog<bool>(
             context: context,
             builder: (ctx) => AlertDialog(
               backgroundColor: Colors.grey[900],
@@ -161,7 +163,9 @@ class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
                                 child: Text(
                                   '🔒 ${_reasons[track.id]}',
                                   style: const TextStyle(
-                                      color: Colors.redAccent, fontSize: 12),
+                                    color: Colors.redAccent,
+                                    fontSize: 12,
+                                  ),
                                 ),
                               ),
                             const SizedBox(height: 4),

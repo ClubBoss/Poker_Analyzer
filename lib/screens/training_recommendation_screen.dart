@@ -43,12 +43,12 @@ class _TrainingRecommendationScreenState
     final suggestions = service.getExtendedSuggestions(goals, mistakes);
 
     final global = await TrainingPackStatsService.getGlobalStats();
-    final pathDone =
-        await LearningPathProgressService.instance.isAllStagesCompleted();
-    final customStarted =
-        await LearningPathProgressService.instance.isCustomPathStarted();
-    final customCompleted =
-        await LearningPathProgressService.instance.isCustomPathCompleted();
+    final pathDone = await LearningPathProgressService.instance
+        .isAllStagesCompleted();
+    final customStarted = await LearningPathProgressService.instance
+        .isCustomPathStarted();
+    final customCompleted = await LearningPathProgressService.instance
+        .isCustomPathCompleted();
     final weakTags = await context.read<TagMasteryService>().topWeakTags(1);
     final hasWeak = weakTags.isNotEmpty;
     final hasMistakes = SmartReviewService.instance.hasMistakes();
@@ -88,18 +88,15 @@ class _TrainingRecommendationScreenState
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _data.values.every((e) => e.isEmpty)
-              ? const Center(child: Text('Нет рекомендаций'))
-              : ListView(
-                  children: [
-                    if (_advice != null) _AdviceCard(advice: _advice!),
-                    for (final key in sections.keys)
-                      if (_data[key]?.isNotEmpty ?? false)
-                        _Section(
-                          title: sections[key]!,
-                          packs: _data[key]!,
-                        ),
-                  ],
-                ),
+          ? const Center(child: Text('Нет рекомендаций'))
+          : ListView(
+              children: [
+                if (_advice != null) _AdviceCard(advice: _advice!),
+                for (final key in sections.keys)
+                  if (_data[key]?.isNotEmpty ?? false)
+                    _Section(title: sections[key]!, packs: _data[key]!),
+              ],
+            ),
     );
   }
 }
@@ -118,9 +115,10 @@ class _Section extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(title,
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            child: Text(
+              title,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
           ),
           const SizedBox(height: 8),
           SizedBox(
@@ -169,8 +167,11 @@ class _PackCard extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                    child: Text(pack.name,
-                        style: const TextStyle(color: Colors.white))),
+                  child: Text(
+                    pack.name,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
                 if (DateTime.now().difference(pack.createdAt).inDays < 7)
                   const SizedBox(width: 4),
                 if (DateTime.now().difference(pack.createdAt).inDays < 7)
@@ -184,7 +185,7 @@ class _PackCard extends StatelessWidget {
                 const SizedBox(width: 4),
                 ProgressChip(pct),
               ],
-            )
+            ),
           ],
         ),
       ),
@@ -208,14 +209,20 @@ class _AdviceCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Совет дня',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const Text(
+            'Совет дня',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
-          Text(advice.title,
-              style: const TextStyle(color: Colors.white, fontSize: 14)),
+          Text(
+            advice.title,
+            style: const TextStyle(color: Colors.white, fontSize: 14),
+          ),
           const SizedBox(height: 4),
-          Text(advice.description,
-              style: const TextStyle(color: Colors.white70, fontSize: 12)),
+          Text(
+            advice.description,
+            style: const TextStyle(color: Colors.white70, fontSize: 12),
+          ),
         ],
       ),
     );

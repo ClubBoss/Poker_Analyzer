@@ -48,8 +48,10 @@ void main() {
     );
 
     final engine = AutoDeduplicationEngine();
-    final result =
-        engine.deduplicateSpots([spot1, spot2], keepHighestWeight: true);
+    final result = engine.deduplicateSpots([
+      spot1,
+      spot2,
+    ], keepHighestWeight: true);
 
     expect(result.length, 1);
     expect(result.first.id, 'b');

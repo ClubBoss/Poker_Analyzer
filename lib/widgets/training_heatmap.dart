@@ -55,11 +55,7 @@ class TrainingHeatmap extends StatelessWidget {
                       padding: const EdgeInsets.all(1),
                       child: Tooltip(
                         message: tooltip,
-                        child: Container(
-                          width: 10,
-                          height: 10,
-                          color: color,
-                        ),
+                        child: Container(width: 10, height: 10, color: color),
                       ),
                     );
                   },

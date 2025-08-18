@@ -20,17 +20,19 @@ void main() {
 
     final nodes = [
       TheoryMiniLessonNode(
-          id: 'a',
-          title: 'A',
-          content: '',
-          tags: const ['push'],
-          nextIds: const []),
+        id: 'a',
+        title: 'A',
+        content: '',
+        tags: const ['push'],
+        nextIds: const [],
+      ),
       TheoryMiniLessonNode(
-          id: 'b',
-          title: 'B',
-          content: '',
-          tags: const ['call'],
-          nextIds: const []),
+        id: 'b',
+        title: 'B',
+        content: '',
+        tags: const ['call'],
+        nextIds: const [],
+      ),
     ];
 
     final renderer = LearningPathRenderer();

@@ -44,17 +44,19 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
     if (ids.isEmpty) return;
     final spots = service.spots.where((s) => ids.contains(s.id)).toList();
     if (spots.isEmpty) return;
-    final tpl = (service.template ??
-            TrainingPackTemplate(id: const Uuid().v4(), name: ''))
-        .copyWith(id: const Uuid().v4(), name: 'Retry mistakes', spots: spots);
+    final tpl =
+        (service.template ??
+                TrainingPackTemplate(id: const Uuid().v4(), name: ''))
+            .copyWith(
+              id: const Uuid().v4(),
+              name: 'Retry mistakes',
+              spots: spots,
+            );
     if (!mounted) return;
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (_) => TrainingPackPlayScreen(
-          template: tpl,
-          original: tpl,
-        ),
+        builder: (_) => TrainingPackPlayScreen(template: tpl, original: tpl),
       ),
     );
   }
@@ -74,10 +76,14 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
           context: context,
           builder: (_) => AlertDialog(
             backgroundColor: AppColors.cardBackground,
-            title: const Text('Retry mistakes',
-                style: TextStyle(color: Colors.white)),
-            content: const Text('Start retry pack now?',
-                style: TextStyle(color: Colors.white70)),
+            title: const Text(
+              'Retry mistakes',
+              style: TextStyle(color: Colors.white),
+            ),
+            content: const Text(
+              'Start retry pack now?',
+              style: TextStyle(color: Colors.white70),
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
@@ -126,10 +132,13 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(ctx, c.text),
-              child: const Text('Save')),
+            onPressed: () => Navigator.pop(ctx, c.text),
+            child: const Text('Save'),
+          ),
         ],
       ),
     );
@@ -147,8 +156,10 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
     final ante = service.template?.anteBb ?? 0;
     final hands = <SavedHand>[];
     for (var i = 0; i < service.spots.length; i++) {
-      final h = handFromPackSpot(service.spots[i], anteBb: ante)
-          .copyWith(savedAt: DateTime.now().add(Duration(milliseconds: i)));
+      final h = handFromPackSpot(
+        service.spots[i],
+        anteBb: ante,
+      ).copyWith(savedAt: DateTime.now().add(Duration(milliseconds: i)));
       hands.add(h);
     }
     return Scaffold(
@@ -175,17 +186,25 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
                         ),
                       ),
                       SizedBox(height: s(8)),
-                      Text('Accuracy: ${rate.toStringAsFixed(1)}%',
-                          style: const TextStyle(color: Colors.white70)),
+                      Text(
+                        'Accuracy: ${rate.toStringAsFixed(1)}%',
+                        style: const TextStyle(color: Colors.white70),
+                      ),
                       SizedBox(height: s(8)),
-                      Text('EV ${service.evAverageAll.toStringAsFixed(2)}',
-                          style: const TextStyle(color: Colors.white70)),
+                      Text(
+                        'EV ${service.evAverageAll.toStringAsFixed(2)}',
+                        style: const TextStyle(color: Colors.white70),
+                      ),
                       SizedBox(height: s(4)),
-                      Text('ICM ${service.icmAverageAll.toStringAsFixed(2)}',
-                          style: const TextStyle(color: Colors.white70)),
+                      Text(
+                        'ICM ${service.icmAverageAll.toStringAsFixed(2)}',
+                        style: const TextStyle(color: Colors.white70),
+                      ),
                       SizedBox(height: s(8)),
-                      Text('Time: ${_format(widget.elapsed)}',
-                          style: const TextStyle(color: Colors.white70)),
+                      Text(
+                        'Time: ${_format(widget.elapsed)}',
+                        style: const TextStyle(color: Colors.white70),
+                      ),
                     ],
                   ),
                 ),
@@ -197,8 +216,10 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
                 Expanded(
                   child: actions.isEmpty
                       ? const Center(
-                          child: Text('No actions recorded',
-                              style: TextStyle(color: Colors.white70)),
+                          child: Text(
+                            'No actions recorded',
+                            style: TextStyle(color: Colors.white70),
+                          ),
                         )
                       : ListView.builder(
                           itemCount: actions.length,
@@ -207,13 +228,15 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
                             final color = a.isCorrect
                                 ? AppColors.cardBackground
                                 : AppColors.errorBg;
-                            final time =
-                                DateFormat('HH:mm:ss', Intl.getCurrentLocale())
-                                    .format(a.timestamp);
+                            final time = DateFormat(
+                              'HH:mm:ss',
+                              Intl.getCurrentLocale(),
+                            ).format(a.timestamp);
                             TrainingPackSpot? spot;
                             try {
-                              spot = service.spots
-                                  .firstWhere((s) => s.id == a.spotId);
+                              spot = service.spots.firstWhere(
+                                (s) => s.id == a.spotId,
+                              );
                             } catch (_) {}
                             if (spot == null) return const SizedBox.shrink();
                             return InkWell(
@@ -229,28 +252,38 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
                                 ),
                                 child: Row(
                                   children: [
-                                    Text('${index + 1}',
-                                        style: const TextStyle(
-                                            color: Colors.white)),
+                                    Text(
+                                      '${index + 1}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
                                     const SizedBox(width: 8),
                                     Expanded(
-                                      child: Text(a.chosenAction,
-                                          style: TextStyle(
-                                              color: a.isCorrect
-                                                  ? Colors.white
-                                                  : Colors.red)),
+                                      child: Text(
+                                        a.chosenAction,
+                                        style: TextStyle(
+                                          color: a.isCorrect
+                                              ? Colors.white
+                                              : Colors.red,
+                                        ),
+                                      ),
                                     ),
                                     const SizedBox(width: 8),
                                     Icon(
-                                        a.isCorrect ? Icons.check : Icons.close,
-                                        color: a.isCorrect
-                                            ? Colors.green
-                                            : Colors.red,
-                                        size: 16),
+                                      a.isCorrect ? Icons.check : Icons.close,
+                                      color: a.isCorrect
+                                          ? Colors.green
+                                          : Colors.red,
+                                      size: 16,
+                                    ),
                                     const SizedBox(width: 8),
-                                    Text(time,
-                                        style: const TextStyle(
-                                            color: Colors.white70)),
+                                    Text(
+                                      time,
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                      ),
+                                    ),
                                     const SizedBox(width: 8),
                                     PlayerNoteButton(
                                       note: spot.note,
@@ -281,8 +314,9 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
                         child: ElevatedButton(
                           onPressed: () => widget.authorPreview
                               ? Navigator.pop(context)
-                              : Navigator.of(context)
-                                  .popUntil((r) => r.isFirst),
+                              : Navigator.of(
+                                  context,
+                                ).popUntil((r) => r.isFirst),
                           child: const Text('Done'),
                         ),
                       ),

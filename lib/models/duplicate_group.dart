@@ -4,6 +4,9 @@ class DuplicateGroup {
   final String type;
   final String key;
   final List<TrainingPackTemplateV2> matches;
-  const DuplicateGroup(
-      {required this.type, required this.key, required this.matches});
+  const DuplicateGroup({
+    required this.type,
+    required this.key,
+    required this.matches,
+  });
 }

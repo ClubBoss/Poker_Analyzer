@@ -25,7 +25,7 @@ class _FakeReengagementService extends GoalReengagementService {
   TrainingGoal? goal;
   int dismissCount;
   _FakeReengagementService({this.goal, this.dismissCount = 0})
-      : super(logs: SessionLogService(sessions: TrainingSessionService()));
+    : super(logs: SessionLogService(sessions: TrainingSessionService()));
   @override
   Future<TrainingGoal?> pickReengagementGoal() async =>
       dismissCount >= 3 ? null : goal;
@@ -52,8 +52,9 @@ Future<void> _loadLibrary() async {
   await PackLibraryLoaderService.instance
       .loadLibrary(); // ensure static cache not null
   final binding = TestWidgetsFlutterBinding.ensureInitialized();
-  binding.defaultBinaryMessenger.setMockMessageHandler('flutter/assets',
-      (message) async {
+  binding.defaultBinaryMessenger.setMockMessageHandler('flutter/assets', (
+    message,
+  ) async {
     final key = utf8.decoder.convert(message);
     final data = bundle.data[key];
     if (data != null) {
@@ -74,13 +75,15 @@ void main() {
 
   testWidgets('hidden when goal null', (tester) async {
     final service = _FakeReengagementService();
-    await tester.pumpWidget(MultiProvider(
-        providers: [
-          Provider<GoalReengagementService>.value(value: service),
-        ],
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [Provider<GoalReengagementService>.value(value: service)],
         child: MaterialApp(
-            navigatorKey: navigatorKey,
-            home: const GoalReengagementBannerWidget())));
+          navigatorKey: navigatorKey,
+          home: const GoalReengagementBannerWidget(),
+        ),
+      ),
+    );
     await tester.pump();
     expect(find.textContaining('Продолжим цель'), findsNothing);
   });
@@ -90,13 +93,15 @@ void main() {
       goal: const TrainingGoal('Goal', tag: 'tag1'),
       dismissCount: 3,
     );
-    await tester.pumpWidget(MultiProvider(
-        providers: [
-          Provider<GoalReengagementService>.value(value: service),
-        ],
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [Provider<GoalReengagementService>.value(value: service)],
         child: MaterialApp(
-            navigatorKey: navigatorKey,
-            home: const GoalReengagementBannerWidget())));
+          navigatorKey: navigatorKey,
+          home: const GoalReengagementBannerWidget(),
+        ),
+      ),
+    );
     await tester.pump();
     expect(find.textContaining('Продолжим цель'), findsNothing);
   });
@@ -105,13 +110,15 @@ void main() {
     final service = _FakeReengagementService(
       goal: const TrainingGoal('Goal', tag: 'tag1'),
     );
-    await tester.pumpWidget(MultiProvider(
-        providers: [
-          Provider<GoalReengagementService>.value(value: service),
-        ],
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [Provider<GoalReengagementService>.value(value: service)],
         child: MaterialApp(
-            navigatorKey: navigatorKey,
-            home: const GoalReengagementBannerWidget())));
+          navigatorKey: navigatorKey,
+          home: const GoalReengagementBannerWidget(),
+        ),
+      ),
+    );
     await tester.pump();
     expect(find.textContaining('Продолжим цель: tag1'), findsOneWidget);
     await tester.tap(find.text('Тренировать'));
@@ -123,13 +130,15 @@ void main() {
     final service = _FakeReengagementService(
       goal: const TrainingGoal('Goal', tag: 'tag1'),
     );
-    await tester.pumpWidget(MultiProvider(
-        providers: [
-          Provider<GoalReengagementService>.value(value: service),
-        ],
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [Provider<GoalReengagementService>.value(value: service)],
         child: MaterialApp(
-            navigatorKey: navigatorKey,
-            home: const GoalReengagementBannerWidget())));
+          navigatorKey: navigatorKey,
+          home: const GoalReengagementBannerWidget(),
+        ),
+      ),
+    );
     await tester.pump();
     expect(find.text('Скрыть'), findsOneWidget);
     await tester.tap(find.text('Скрыть'));

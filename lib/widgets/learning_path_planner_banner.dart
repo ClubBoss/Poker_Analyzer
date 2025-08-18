@@ -21,7 +21,9 @@ class _LearningPathPlannerBannerState extends State<LearningPathPlannerBanner>
   void initState() {
     super.initState();
     _controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 300));
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
     _load();
   }
 

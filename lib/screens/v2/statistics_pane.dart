@@ -5,10 +5,7 @@ import '../../models/v2/training_pack_spot.dart';
 class StatisticsPane extends StatelessWidget {
   final List<TrainingPackSpot> spots;
 
-  const StatisticsPane({
-    super.key,
-    required this.spots,
-  });
+  const StatisticsPane({super.key, required this.spots});
 
   @override
   Widget build(BuildContext context) {

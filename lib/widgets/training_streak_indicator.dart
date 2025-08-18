@@ -26,15 +26,16 @@ class _TrainingStreakIndicatorState extends State<TrainingStreakIndicator>
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    _fade = Tween(begin: 1.0, end: 0.2).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _fade = Tween(
+      begin: 1.0,
+      end: 0.2,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     _load();
   }
 
   Future<void> _load() async {
-    final current =
-        await TrainingStreakTrackerService.instance.getCurrentStreak();
+    final current = await TrainingStreakTrackerService.instance
+        .getCurrentStreak();
     final max = await TrainingStreakTrackerService.instance.getMaxStreak();
     if (!mounted) return;
     setState(() {
@@ -80,10 +81,7 @@ class _TrainingStreakIndicatorState extends State<TrainingStreakIndicator>
             ),
           ),
           const SizedBox(width: 12),
-          Text(
-            '🔥 Max: $_max',
-            style: const TextStyle(color: Colors.white70),
-          ),
+          Text('🔥 Max: $_max', style: const TextStyle(color: Colors.white70)),
         ],
       ),
     );

@@ -36,8 +36,9 @@ class _StreakRecoveryBlockState extends State<StreakRecoveryBlock> {
     final s = _suggestion;
     if (s == null) return;
     await PackLibraryLoaderService.instance.loadLibrary();
-    final pack = PackLibraryLoaderService.instance.library
-        .firstWhereOrNull((p) => p.id == s.packId);
+    final pack = PackLibraryLoaderService.instance.library.firstWhereOrNull(
+      (p) => p.id == s.packId,
+    );
     if (pack == null) return;
     await const TrainingSessionLauncher().launch(pack);
   }
@@ -72,8 +73,10 @@ class _StreakRecoveryBlockState extends State<StreakRecoveryBlock> {
           ),
           if (s.tagFocus != null) ...[
             const SizedBox(height: 4),
-            Text('Focus: ${s.tagFocus}',
-                style: const TextStyle(color: Colors.white70)),
+            Text(
+              'Focus: ${s.tagFocus}',
+              style: const TextStyle(color: Colors.white70),
+            ),
           ],
           const SizedBox(height: 8),
           Align(

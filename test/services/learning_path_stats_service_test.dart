@@ -39,8 +39,9 @@ void main() {
     final progress = TrainingPathProgressServiceV2(logs: _FakeLogService(logs));
     await progress.loadProgress('unlock_after');
 
-    final template =
-        LearningPathRegistryService.instance.findById('unlock_after')!;
+    final template = LearningPathRegistryService.instance.findById(
+      'unlock_after',
+    )!;
     final svc = LearningPathStatsService(progress: progress);
 
     var stats = svc.computeStats(template);

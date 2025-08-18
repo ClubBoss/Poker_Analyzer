@@ -28,8 +28,9 @@ class UnlockTrackerWidget extends StatelessWidget {
     if (!hasAccReq && !hasHandsReq) return const SizedBox.shrink();
 
     final accPct = (accuracy ?? 0) * 100;
-    final accRatio =
-        hasAccReq && requiredAccuracy! > 0 ? accPct / requiredAccuracy! : 1;
+    final accRatio = hasAccReq && requiredAccuracy! > 0
+        ? accPct / requiredAccuracy!
+        : 1;
     final handsRatio = hasHandsReq && minHands! > 0
         ? handsCompleted / minHands!.toDouble()
         : 1;
@@ -45,23 +46,27 @@ class UnlockTrackerWidget extends StatelessWidget {
     ];
 
     if (hasAccReq) {
-      widgets.add(Padding(
-        padding: const EdgeInsets.only(top: 2),
-        child: Text(
-          'Точность: ${accPct.toStringAsFixed(0)}% / ≥${requiredAccuracy!.toStringAsFixed(0)}%',
-          style: TextStyle(color: color, fontSize: 12),
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Text(
+            'Точность: ${accPct.toStringAsFixed(0)}% / ≥${requiredAccuracy!.toStringAsFixed(0)}%',
+            style: TextStyle(color: color, fontSize: 12),
+          ),
         ),
-      ));
+      );
     }
 
     if (hasHandsReq) {
-      widgets.add(Padding(
-        padding: const EdgeInsets.only(top: 2),
-        child: Text(
-          'Руки: $handsCompleted / ≥${minHands!.toString()}',
-          style: TextStyle(color: color, fontSize: 12),
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Text(
+            'Руки: $handsCompleted / ≥${minHands!.toString()}',
+            style: TextStyle(color: color, fontSize: 12),
+          ),
         ),
-      ));
+      );
     }
 
     return Column(

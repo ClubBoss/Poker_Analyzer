@@ -5,8 +5,5 @@ class MiniMapGraph {
   final List<MiniMapNode> nodes;
   final List<MiniMapEdge> edges;
 
-  const MiniMapGraph({
-    required this.nodes,
-    required this.edges,
-  });
+  const MiniMapGraph({required this.nodes, required this.edges});
 }

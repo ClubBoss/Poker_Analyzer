@@ -25,9 +25,9 @@ class TrainingPackTemplateSet {
     List<Map<String, dynamic>>? variants,
     List<TemplateSetEntry>? entries,
     List<LinePattern>? linePatterns,
-  })  : variants = variants ?? [],
-        entries = entries ?? [],
-        linePatterns = linePatterns ?? [];
+  }) : variants = variants ?? [],
+       entries = entries ?? [],
+       linePatterns = linePatterns ?? [];
 
   factory TrainingPackTemplateSet.fromJson(Map<String, dynamic> json) {
     // Support multiple input structures:
@@ -62,7 +62,8 @@ class TrainingPackTemplateSet {
         final acts = <String>[
           for (final a in (v['villainActions'] as List? ?? [])) a.toString(),
         ];
-        final suffix = v['titleSuffix']?.toString() ??
+        final suffix =
+            v['titleSuffix']?.toString() ??
             (tags.isNotEmpty ? tags.join(' ') : 'var${i + 1}');
         final name = suffix.isNotEmpty ? '$baseName - $suffix' : baseName;
         entries.add(
@@ -116,9 +117,11 @@ class TemplateSetEntry {
   final ConstraintSet constraints;
   final List<String> tags;
 
-  TemplateSetEntry(
-      {required this.name, required this.constraints, List<String>? tags})
-      : tags = tags ?? [];
+  TemplateSetEntry({
+    required this.name,
+    required this.constraints,
+    List<String>? tags,
+  }) : tags = tags ?? [];
 
   factory TemplateSetEntry.fromJson(Map<String, dynamic> json) {
     final c = Map<String, dynamic>.from(json['constraints'] ?? {});
@@ -139,9 +142,7 @@ class TemplateSetEntry {
         ],
         targetStreet: c['targetStreet']?.toString(),
       ),
-      tags: [
-        for (final t in (json['tags'] as List? ?? [])) t.toString(),
-      ],
+      tags: [for (final t in (json['tags'] as List? ?? [])) t.toString()],
     );
   }
 }

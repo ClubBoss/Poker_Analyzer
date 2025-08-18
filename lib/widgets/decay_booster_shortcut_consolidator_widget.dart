@@ -25,7 +25,8 @@ class DecayBoosterShortcutConsolidatorWidget extends StatelessWidget {
       builder: (context, count, _) {
         final session = sessionService.session;
         final template = sessionService.template;
-        final isBoosterActive = session != null &&
+        final isBoosterActive =
+            session != null &&
             session.completedAt == null &&
             (template?.tags.contains('decayBooster') ?? false);
         if (isBoosterActive) {
@@ -38,10 +39,8 @@ class DecayBoosterShortcutConsolidatorWidget extends StatelessWidget {
               await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => TrainingPackPlayScreen(
-                    template: tpl,
-                    original: tpl,
-                  ),
+                  builder: (_) =>
+                      TrainingPackPlayScreen(template: tpl, original: tpl),
                 ),
               );
             },
@@ -61,8 +60,11 @@ class DecayBoosterShortcutConsolidatorWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildButton(BuildContext context,
-      {required String label, required VoidCallback onPressed}) {
+  Widget _buildButton(
+    BuildContext context, {
+    required String label,
+    required VoidCallback onPressed,
+  }) {
     final accent = Theme.of(context).colorScheme.secondary;
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),

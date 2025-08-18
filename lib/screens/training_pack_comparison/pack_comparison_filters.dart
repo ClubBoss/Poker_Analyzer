@@ -52,7 +52,7 @@ class PackComparisonFilters extends StatelessWidget {
                 style: const TextStyle(color: Colors.white),
                 items: [
                   for (final s in PackChartSort.values)
-                    DropdownMenuItem(value: s, child: Text(s.label))
+                    DropdownMenuItem(value: s, child: Text(s.label)),
                 ],
                 onChanged: onSortChanged,
               ),
@@ -72,9 +72,13 @@ class PackComparisonFilters extends StatelessWidget {
                 items: const [
                   DropdownMenuItem(value: null, child: Text('Все')),
                   DropdownMenuItem(
-                      value: GameType.cash, child: Text('Cash Game')),
+                    value: GameType.cash,
+                    child: Text('Cash Game'),
+                  ),
                   DropdownMenuItem(
-                      value: GameType.tournament, child: Text('Tournament')),
+                    value: GameType.tournament,
+                    child: Text('Tournament'),
+                  ),
                 ],
                 onChanged: onTypeChanged,
               ),
@@ -118,14 +122,20 @@ class PackComparisonFilters extends StatelessWidget {
                   const DropdownMenuItem(value: 'Red', child: Text('Red')),
                   const DropdownMenuItem(value: 'Blue', child: Text('Blue')),
                   const DropdownMenuItem(
-                      value: 'Orange', child: Text('Orange')),
+                    value: 'Orange',
+                    child: Text('Orange'),
+                  ),
                   const DropdownMenuItem(value: 'Green', child: Text('Green')),
                   const DropdownMenuItem(
-                      value: 'Purple', child: Text('Purple')),
+                    value: 'Purple',
+                    child: Text('Purple'),
+                  ),
                   const DropdownMenuItem(value: 'Grey', child: Text('Grey')),
                   const DropdownMenuItem(value: 'None', child: Text('None')),
                   const DropdownMenuItem(
-                      value: 'Custom', child: Text('Custom...')),
+                    value: 'Custom',
+                    child: Text('Custom...'),
+                  ),
                   if (colorFilter.startsWith('#'))
                     DropdownMenuItem(
                       value: colorFilter,

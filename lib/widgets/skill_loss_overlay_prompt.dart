@@ -33,9 +33,10 @@ class _SkillLossOverlayPromptState extends State<SkillLossOverlayPrompt>
   void initState() {
     super.initState();
     _future = _load();
-    _controller =
-        AnimationController(vsync: this, duration: const Duration(seconds: 2))
-          ..repeat();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat();
   }
 
   @override
@@ -88,14 +89,18 @@ class _SkillLossOverlayPromptState extends State<SkillLossOverlayPrompt>
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: accent.withValues(
-                            alpha: 0.5 + 0.5 * _controller.value),
+                          alpha: 0.5 + 0.5 * _controller.value,
+                        ),
                         width: 8,
                       ),
                     ),
                     child: child,
                   ),
-                  child:
-                      const Icon(Icons.warning, color: Colors.white, size: 48),
+                  child: const Icon(
+                    Icons.warning,
+                    color: Colors.white,
+                    size: 48,
+                  ),
                 ),
                 const SizedBox(height: 24),
                 const Text(

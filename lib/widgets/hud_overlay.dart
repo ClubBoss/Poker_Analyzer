@@ -54,7 +54,7 @@ class HudOverlay extends StatelessWidget {
                             color: Colors.black54,
                             offset: Offset(1, 1),
                             blurRadius: 2,
-                          )
+                          ),
                         ],
                       ),
                     ),

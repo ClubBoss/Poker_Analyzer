@@ -5,15 +5,11 @@ import 'package:poker_analyzer/services/inline_theory_node_linker.dart';
 
 void main() {
   test('links theory entry to matching action tag', () {
-    final node = HandActionNode(
-      actor: 'hero',
-      action: 'cbet',
-      tag: 'flopCbet',
-    );
+    final node = HandActionNode(actor: 'hero', action: 'cbet', tag: 'flopCbet');
     final result = LineGraphResult(
       heroPosition: 'btn',
       streets: {
-        'flop': [node]
+        'flop': [node],
       },
       tags: ['flopCbet'],
     );
@@ -41,7 +37,7 @@ void main() {
     final result = LineGraphResult(
       heroPosition: 'bb',
       streets: {
-        'river': [node]
+        'river': [node],
       },
       tags: ['riverCall'],
     );

@@ -82,9 +82,9 @@ void main(List<String> args) {
       .listSync(recursive: true)
       .whereType<File>()
       .where((f) {
-    final l = f.path.toLowerCase();
-    return l.endsWith('.yaml') || l.endsWith('.yml');
-  });
+        final l = f.path.toLowerCase();
+        return l.endsWith('.yaml') || l.endsWith('.yml');
+      });
 
   final errors = <String>[];
   var checked = 0;

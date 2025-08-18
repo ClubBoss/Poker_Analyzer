@@ -27,8 +27,9 @@ void main() {
     ];
 
     final results = service.compute(insights);
-    final blind = results
-        .firstWhere((r) => r.cluster == MistakeTagCluster.looseCallBlind);
+    final blind = results.firstWhere(
+      (r) => r.cluster == MistakeTagCluster.looseCallBlind,
+    );
     expect(blind.totalMistakes, 2);
     expect(blind.totalEvLoss, 2.0);
     expect(blind.avgEvLoss, closeTo(1.0, 0.0001));

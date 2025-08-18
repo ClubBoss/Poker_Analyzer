@@ -36,8 +36,11 @@ class SmartGoalProgressBar extends StatelessWidget {
                 ),
                 const Spacer(),
                 if (completed)
-                  const Icon(Icons.check_circle,
-                      color: Colors.greenAccent, size: 16),
+                  const Icon(
+                    Icons.check_circle,
+                    color: Colors.greenAccent,
+                    size: 16,
+                  ),
               ],
             ),
             const SizedBox(height: 4),

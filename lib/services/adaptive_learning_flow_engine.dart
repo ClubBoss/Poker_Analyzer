@@ -42,10 +42,14 @@ class AdaptiveLearningFlowEngine {
     required List<TrainingPackTemplateV2> sourcePacks,
   }) {
     final clusters = clusterEngine.detectWeaknesses(
-        results: history, tagMastery: tagMastery);
+      results: history,
+      tagMastery: tagMastery,
+    );
     final goals = goalEngine.generateGoals(clusters);
-    final tracks =
-        trackBuilder.buildTracks(goals: goals, sourcePacks: sourcePacks);
+    final tracks = trackBuilder.buildTracks(
+      goals: goals,
+      sourcePacks: sourcePacks,
+    );
     final recs = scheduler.getNextRecommendations(
       clusters: clusters,
       history: history,
@@ -53,8 +57,9 @@ class AdaptiveLearningFlowEngine {
     );
 
     TrainingPackTemplateV2? replayPack;
-    final needReplay =
-        recs.any((r) => r.type == TrainingRecommendationType.mistakeReplay);
+    final needReplay = recs.any(
+      (r) => r.type == TrainingRecommendationType.mistakeReplay,
+    );
     if (needReplay && history.isNotEmpty) {
       replayPack = mistakeGenerator.generateMistakePack(
         results: history,

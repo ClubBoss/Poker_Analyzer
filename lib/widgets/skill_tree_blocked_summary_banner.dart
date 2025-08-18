@@ -219,7 +219,8 @@ class _BlockedNodeCardState extends State<_BlockedNodeCard>
         duration: const Duration(milliseconds: 200),
       );
       _scale = Tween<double>(begin: 1, end: 1.05).animate(
-          CurvedAnimation(parent: _pulseController!, curve: Curves.easeOut));
+        CurvedAnimation(parent: _pulseController!, curve: Curves.easeOut),
+      );
       _pulseController!.forward().then((_) => _pulseController!.reverse());
     } else {
       _scale = const AlwaysStoppedAnimation(1);

@@ -62,7 +62,8 @@ class MainMenuStreakCard extends StatelessWidget {
                             value: value,
                             backgroundColor: Colors.white24,
                             valueColor: AlwaysStoppedAnimation<Color>(
-                                highlight ? Colors.white : accent),
+                              highlight ? Colors.white : accent,
+                            ),
                             minHeight: 6,
                           ),
                         );

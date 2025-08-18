@@ -20,10 +20,7 @@ class DecayBoosterInteractionLoggerService {
   /// Records that a decay booster with [tag] was opened.
   Future<void> logOpened(String tag) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(
-      _openedKey(tag),
-      DateTime.now().millisecondsSinceEpoch,
-    );
+    await prefs.setInt(_openedKey(tag), DateTime.now().millisecondsSinceEpoch);
   }
 
   /// Records that a decay booster with [tag] was dismissed.

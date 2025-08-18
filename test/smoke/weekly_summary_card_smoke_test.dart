@@ -34,8 +34,9 @@ void main() {
       ),
     ]);
 
-    when(() => mastery.computeDelta(fromLastWeek: any(named: 'fromLastWeek')))
-        .thenAnswer((_) async => {'tag': 0.1});
+    when(
+      () => mastery.computeDelta(fromLastWeek: any(named: 'fromLastWeek')),
+    ).thenAnswer((_) async => {'tag': 0.1});
 
     await tester.pumpWidget(
       MultiProvider(
@@ -43,11 +44,7 @@ void main() {
           Provider<SessionLogService>.value(value: logs),
           Provider<TagMasteryService>.value(value: mastery),
         ],
-        child: const MaterialApp(
-          home: Scaffold(
-            body: WeeklySummaryCard(),
-          ),
-        ),
+        child: const MaterialApp(home: Scaffold(body: WeeklySummaryCard())),
       ),
     );
 

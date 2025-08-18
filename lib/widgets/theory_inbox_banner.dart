@@ -83,10 +83,7 @@ class _TheoryInboxBannerState extends State<TheoryInboxBanner> {
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Missed recap',
-            style: TextStyle(color: Colors.white70),
-          ),
+          const Text('Missed recap', style: TextStyle(color: Colors.white70)),
           const SizedBox(height: 8),
           Align(
             alignment: Alignment.centerRight,

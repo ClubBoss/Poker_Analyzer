@@ -141,8 +141,9 @@ void main(List<String> args) {
       stderr.writeln('Unknown preset $name');
       exit(1);
     }
-    final mix =
-        targetMixArg != null ? _parseTargetMix(targetMixArg) : preset.targetMix;
+    final mix = targetMixArg != null
+        ? _parseTargetMix(targetMixArg)
+        : preset.targetMix;
     _generateForPreset(
       outDir,
       name,
@@ -180,7 +181,7 @@ void _generateForPreset(
   };
 
   final available = {
-    for (final e in flopsByTexture.entries) e.key: e.value.length
+    for (final e in flopsByTexture.entries) e.key: e.value.length,
   };
 
   final actual = <String, int>{
@@ -208,7 +209,8 @@ void _generateForPreset(
         remaining -= take;
         need -= take;
         stdout.writeln(
-            '::warning::${name} borrowed $take from $n for ${entry.key}');
+          '::warning::${name} borrowed $take from $n for ${entry.key}',
+        );
       }
       if (need == 0) break;
     }

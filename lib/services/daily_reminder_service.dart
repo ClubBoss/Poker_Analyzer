@@ -53,8 +53,9 @@ class DailyReminderService extends ChangeNotifier {
   Future<void> _initPlugin() async {
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
-    await _plugin
-        .initialize(const InitializationSettings(android: android, iOS: ios));
+    await _plugin.initialize(
+      const InitializationSettings(android: android, iOS: ios),
+    );
     tz.initializeTimeZones();
   }
 
@@ -88,8 +89,11 @@ class DailyReminderService extends ChangeNotifier {
   }
 
   int get _progress {
-    final today =
-        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    final today = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+    );
     return stats.handsPerDay[today] ?? 0;
   }
 
@@ -109,8 +113,11 @@ class DailyReminderService extends ChangeNotifier {
       needSpot ? "Don't forget today's Spot!" : 'Finish your daily goals!',
       when,
       const NotificationDetails(
-        android: AndroidNotificationDetails('daily_reminder', 'Daily Reminder',
-            importance: Importance.defaultImportance),
+        android: AndroidNotificationDetails(
+          'daily_reminder',
+          'Daily Reminder',
+          importance: Importance.defaultImportance,
+        ),
         iOS: DarwinNotificationDetails(),
       ),
       androidAllowWhileIdle: true,

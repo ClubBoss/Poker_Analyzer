@@ -16,10 +16,7 @@ class PackActionToolbar extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        ElevatedButton(
-          onPressed: onImportCsv,
-          child: const Text('Импорт CSV'),
-        ),
+        ElevatedButton(onPressed: onImportCsv, child: const Text('Импорт CSV')),
         ElevatedButton(
           onPressed: onExportMarkdown,
           child: const Text('Экспорт MD'),

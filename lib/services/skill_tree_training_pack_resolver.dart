@@ -12,8 +12,8 @@ class SkillTreeTrainingPackResolver {
   SkillTreeTrainingPackResolver({
     PackLibraryService? library,
     SkillTreeUnlockEvaluator? unlockEvaluator,
-  })  : _library = library ?? PackLibraryService.instance,
-        _unlockEvaluator = unlockEvaluator ?? SkillTreeUnlockEvaluator();
+  }) : _library = library ?? PackLibraryService.instance,
+       _unlockEvaluator = unlockEvaluator ?? SkillTreeUnlockEvaluator();
 
   /// Returns the training pack linked to [node] or `null` if none found.
   Future<TrainingPackTemplateV2?> getPackForNode(
@@ -26,7 +26,7 @@ class SkillTreeTrainingPackResolver {
 
   /// Returns a mapping of unlocked nodes in [tree] to their training packs.
   Future<Map<SkillTreeNodeModel, TrainingPackTemplateV2?>>
-      getPacksForUnlockedNodes(SkillTree tree) async {
+  getPacksForUnlockedNodes(SkillTree tree) async {
     final nodes = _unlockEvaluator.getUnlockedNodes(tree);
     final result = <SkillTreeNodeModel, TrainingPackTemplateV2?>{};
     for (final n in nodes) {

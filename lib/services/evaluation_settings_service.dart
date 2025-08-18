@@ -31,12 +31,13 @@ class EvaluationSettingsService {
     }
   }
 
-  Future<void> update(
-      {double? threshold,
-      bool? icm,
-      String? endpoint,
-      bool? offline,
-      List<double>? payouts}) async {
+  Future<void> update({
+    double? threshold,
+    bool? icm,
+    String? endpoint,
+    bool? offline,
+    List<double>? payouts,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
     if (threshold != null) {
       evThreshold = threshold;

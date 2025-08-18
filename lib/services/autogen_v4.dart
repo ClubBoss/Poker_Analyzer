@@ -11,8 +11,8 @@ class BoardStreetGenerator {
   final Map<String, double>? _targetMix;
 
   BoardStreetGenerator({int? seed, Map<String, double>? targetMix})
-      : _rng = Random(seed),
-        _targetMix = targetMix;
+    : _rng = Random(seed),
+      _targetMix = targetMix;
 
   /// Generates [count] unique board spots using [preset].
   ///
@@ -44,8 +44,9 @@ class BoardStreetGenerator {
         for (final tex in textures) {
           final k = tex.name;
           final desired = targetMix[k] ?? 0;
-          final current =
-              spots.isEmpty ? 0 : (texCounts[k] ?? 0) / spots.length;
+          final current = spots.isEmpty
+              ? 0
+              : (texCounts[k] ?? 0) / spots.length;
           score += desired - current;
         }
         score /= textures.length;

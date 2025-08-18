@@ -17,25 +17,21 @@ class _SRItem {
   int box;
   int due; // epoch day
   int last; // epoch seconds
-  _SRItem(
-      {required this.packId,
-      required this.box,
-      required this.due,
-      required this.last});
+  _SRItem({
+    required this.packId,
+    required this.box,
+    required this.due,
+    required this.last,
+  });
 
-  Map<String, dynamic> toJson() => {
-        'p': packId,
-        'b': box,
-        'd': due,
-        'l': last,
-      };
+  Map<String, dynamic> toJson() => {'p': packId, 'b': box, 'd': due, 'l': last};
 
   static _SRItem fromJson(Map<String, dynamic> json) => _SRItem(
-        packId: json['p'] as String,
-        box: json['b'] as int,
-        due: json['d'] as int,
-        last: json['l'] as int,
-      );
+    packId: json['p'] as String,
+    box: json['b'] as int,
+    due: json['d'] as int,
+    last: json['l'] as int,
+  );
 }
 
 class SpacedReviewService extends ChangeNotifier {
@@ -88,14 +84,21 @@ class SpacedReviewService extends ChangeNotifier {
       last: _epochSec(now),
     );
     await _save();
-    unawaited(AnalyticsService.instance
-        .logEvent('sr_enqueued', {'spotId': spotId, 'packId': packId}));
+    unawaited(
+      AnalyticsService.instance.logEvent('sr_enqueued', {
+        'spotId': spotId,
+        'packId': packId,
+      }),
+    );
     await _scheduleNotification();
     notifyListeners();
   }
 
   Future<void> recordReviewOutcome(
-      String spotId, String packId, bool correct) async {
+    String spotId,
+    String packId,
+    bool correct,
+  ) async {
     await _load();
     final entry = _data[spotId];
     if (entry == null) return;
@@ -104,8 +107,10 @@ class SpacedReviewService extends ChangeNotifier {
     double avg = 0.0;
     if (correct) {
       final tags = _spotTags(packId, spotId).toSet();
-      final rates = await UserErrorRateService.instance
-          .getRates(packId: packId, tags: tags);
+      final rates = await UserErrorRateService.instance.getRates(
+        packId: packId,
+        tags: tags,
+      );
       if (rates.isNotEmpty) {
         avg = rates.values.reduce((a, b) => a + b) / rates.length;
       }
@@ -121,14 +126,16 @@ class SpacedReviewService extends ChangeNotifier {
     }
     entry.last = _epochSec(now);
     await _save();
-    unawaited(AnalyticsService.instance.logEvent('sr_review_outcome', {
-      'spotId': spotId,
-      'packId': packId,
-      'boxFrom': boxFrom,
-      'boxTo': entry.box,
-      'ewmaBefore': avg,
-      'correct': correct,
-    }));
+    unawaited(
+      AnalyticsService.instance.logEvent('sr_review_outcome', {
+        'spotId': spotId,
+        'packId': packId,
+        'boxFrom': boxFrom,
+        'boxTo': entry.box,
+        'ewmaBefore': avg,
+        'correct': correct,
+      }),
+    );
     await _scheduleNotification();
     notifyListeners();
   }
@@ -145,8 +152,10 @@ class SpacedReviewService extends ChangeNotifier {
     return _data.values.where((e) => e.due <= day).length;
   }
 
-  Future<TrainingPackTemplate?> duePack(
-      {int limit = 10, bool log = true}) async {
+  Future<TrainingPackTemplate?> duePack({
+    int limit = 10,
+    bool log = true,
+  }) async {
     await _load();
     final ids = dueSpotIds(DateTime.now(), limit: limit);
     if (ids.isEmpty) return null;
@@ -165,8 +174,11 @@ class SpacedReviewService extends ChangeNotifier {
     }
     if (spots.isEmpty) return null;
     if (log) {
-      unawaited(AnalyticsService.instance
-          .logEvent('sr_due_opened', {'count': spots.length}));
+      unawaited(
+        AnalyticsService.instance.logEvent('sr_due_opened', {
+          'count': spots.length,
+        }),
+      );
     }
     return TrainingPackTemplate(
       id: dueTemplateId,
@@ -178,8 +190,11 @@ class SpacedReviewService extends ChangeNotifier {
 
   Future<void> logDueOpened() async {
     await _load();
-    unawaited(AnalyticsService.instance
-        .logEvent('sr_due_opened', {'count': dueCount(DateTime.now())}));
+    unawaited(
+      AnalyticsService.instance.logEvent('sr_due_opened', {
+        'count': dueCount(DateTime.now()),
+      }),
+    );
   }
 
   Future<void> _scheduleNotification() async {
@@ -194,7 +209,10 @@ class SpacedReviewService extends ChangeNotifier {
       final count = dueCount(dayFor);
       if (count > 0) {
         await NotificationService.schedule(
-            id: _notifId, when: when, body: 'You have $count reviews due');
+          id: _notifId,
+          when: when,
+          body: 'You have $count reviews due',
+        );
       } else {
         await NotificationService.cancel(_notifId);
       }

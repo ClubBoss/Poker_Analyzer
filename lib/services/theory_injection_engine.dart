@@ -41,8 +41,9 @@ class TheoryInjectionEngine {
     map['spots'] = [for (final s in merged) s.toJson()];
     map['spotCount'] = merged.length;
 
-    final result =
-        TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+    final result = TrainingPackTemplateV2.fromJson(
+      Map<String, dynamic>.from(map),
+    );
     result.isGeneratedPack = basePack.isGeneratedPack;
     result.isSampledPack = basePack.isSampledPack;
     return result;

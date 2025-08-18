@@ -44,10 +44,7 @@ class TheoryPackAutoTagger {
 
   /// Returns a copy of [pack] with detected tags written to [TheoryPackModel.tags].
   /// Existing tags are preserved unless [overwrite] is true.
-  TheoryPackModel persistTags(
-    TheoryPackModel pack, {
-    bool overwrite = false,
-  }) {
+  TheoryPackModel persistTags(TheoryPackModel pack, {bool overwrite = false}) {
     if (pack.tags.isNotEmpty && !overwrite) {
       final normalized = {for (final t in pack.tags) t.toLowerCase().trim()}
         ..removeWhere((e) => e.isEmpty);

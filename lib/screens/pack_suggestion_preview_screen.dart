@@ -13,9 +13,7 @@ class PackSuggestionPreviewScreen extends StatelessWidget {
     final pack = TrainingPackV2.fromTemplate(tpl, tpl.id);
     await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => TrainingSessionScreen(pack: pack),
-      ),
+      MaterialPageRoute(builder: (_) => TrainingSessionScreen(pack: pack)),
     );
   }
 
@@ -46,26 +44,34 @@ class PackSuggestionPreviewScreen extends StatelessWidget {
                       if (p.tags.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 4),
-                          child: Text(p.tags.join(', '),
-                              style: const TextStyle(color: Colors.white70)),
+                          child: Text(
+                            p.tags.join(', '),
+                            style: const TextStyle(color: Colors.white70),
+                          ),
                         ),
                       if (p.audience != null && p.audience!.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 4),
-                          child: Text('Audience: ${p.audience!}',
-                              style: const TextStyle(color: Colors.white70)),
+                          child: Text(
+                            'Audience: ${p.audience!}',
+                            style: const TextStyle(color: Colors.white70),
+                          ),
                         ),
                       if (ev != null)
                         Padding(
                           padding: const EdgeInsets.only(top: 4),
-                          child: Text('EV: ${ev.toStringAsFixed(2)}',
-                              style: const TextStyle(color: Colors.white70)),
+                          child: Text(
+                            'EV: ${ev.toStringAsFixed(2)}',
+                            style: const TextStyle(color: Colors.white70),
+                          ),
                         ),
                       if (p.description.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 4),
-                          child: Text(p.description,
-                              style: const TextStyle(color: Colors.white70)),
+                          child: Text(
+                            p.description,
+                            style: const TextStyle(color: Colors.white70),
+                          ),
                         ),
                       const SizedBox(height: 8),
                       Align(

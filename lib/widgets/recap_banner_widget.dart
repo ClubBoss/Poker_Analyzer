@@ -98,18 +98,12 @@ class _RecapBannerWidgetState extends State<RecapBannerWidget> {
             ],
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Укрепим знание',
-            style: TextStyle(color: Colors.white70),
-          ),
+          const Text('Укрепим знание', style: TextStyle(color: Colors.white70)),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              OutlinedButton(
-                onPressed: _dismiss,
-                child: const Text('Скрыть'),
-              ),
+              OutlinedButton(onPressed: _dismiss, child: const Text('Скрыть')),
               const SizedBox(width: 8),
               ElevatedButton(
                 onPressed: _startLesson,
@@ -117,7 +111,7 @@ class _RecapBannerWidgetState extends State<RecapBannerWidget> {
                 child: const Text('Повторить'),
               ),
             ],
-          )
+          ),
         ],
       ),
     );

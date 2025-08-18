@@ -84,7 +84,7 @@ class TrainingPackLibraryV2 {
                         .trim()
                         .toLowerCase() ==
                     goalStr)))
-          p
+          p,
     ];
   }
 

@@ -36,20 +36,22 @@ class RunComparisonWindow extends StatelessWidget {
                 Text(
                   'Δ Acceptance: ${_formatDelta(acceptanceDelta, percent: true)}',
                   style: TextStyle(
-                      color: acceptanceDelta > 0
-                          ? Colors.green
-                          : acceptanceDelta < 0
-                              ? Colors.red
-                              : Colors.grey),
+                    color: acceptanceDelta > 0
+                        ? Colors.green
+                        : acceptanceDelta < 0
+                        ? Colors.red
+                        : Colors.grey,
+                  ),
                 ),
                 Text(
                   'Δ Quality: ${_formatDelta(qualityDelta, decimals: 2)}',
                   style: TextStyle(
-                      color: qualityDelta > 0
-                          ? Colors.green
-                          : qualityDelta < 0
-                              ? Colors.red
-                              : Colors.grey),
+                    color: qualityDelta > 0
+                        ? Colors.green
+                        : qualityDelta < 0
+                        ? Colors.red
+                        : Colors.grey,
+                  ),
                 ),
               ],
             ),

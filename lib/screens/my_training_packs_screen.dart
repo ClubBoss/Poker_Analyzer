@@ -16,7 +16,8 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
   String _filter = 'All';
 
   List<TrainingPackTemplateModel> _sorted(
-      List<TrainingPackTemplateModel> list) {
+    List<TrainingPackTemplateModel> list,
+  ) {
     list.sort((a, b) {
       final ad = a.lastGeneratedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
       final bd = b.lastGeneratedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
@@ -24,16 +25,18 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
     });
     if (_filter == 'NEW only') {
       final cutoff = DateTime.now().subtract(const Duration(hours: 48));
-      list.retainWhere((t) =>
-          t.lastGeneratedAt != null && t.lastGeneratedAt!.isAfter(cutoff));
+      list.retainWhere(
+        (t) => t.lastGeneratedAt != null && t.lastGeneratedAt!.isAfter(cutoff),
+      );
     }
     return list;
   }
 
   @override
   Widget build(BuildContext context) {
-    final templates = _sorted(List.from(
-        context.watch<TrainingPackTemplateStorageService>().templates));
+    final templates = _sorted(
+      List.from(context.watch<TrainingPackTemplateStorageService>().templates),
+    );
     return Scaffold(
       appBar: AppBar(title: const Text('Мои паки'), centerTitle: true),
       body: Column(
@@ -67,9 +70,8 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => CreatePackFromTemplateScreen(
-                            template: t,
-                          ),
+                          builder: (_) =>
+                              CreatePackFromTemplateScreen(template: t),
                         ),
                       );
                     },
@@ -77,12 +79,12 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
                   onTap: () async {
                     final model =
                         await Navigator.push<TrainingPackTemplateModel>(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            TrainingPackTemplateEditorScreen(initial: t),
-                      ),
-                    );
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                TrainingPackTemplateEditorScreen(initial: t),
+                          ),
+                        );
                     if (model != null && mounted) {
                       await context
                           .read<TrainingPackTemplateStorageService>()

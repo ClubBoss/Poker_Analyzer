@@ -31,8 +31,11 @@ class MistakeSummaryCard extends StatelessWidget {
       final exp = h.expectedAction?.trim().toLowerCase();
       final gto = h.gtoAction?.trim().toLowerCase();
       if (exp != null && gto != null && exp != gto) {
-        streetMap.update(streetName(h.boardStreet), (v) => v + 1,
-            ifAbsent: () => 1);
+        streetMap.update(
+          streetName(h.boardStreet),
+          (v) => v + 1,
+          ifAbsent: () => 1,
+        );
         posMap.update(h.heroPosition, (v) => v + 1, ifAbsent: () => 1);
       }
     }
@@ -49,9 +52,10 @@ class MistakeSummaryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Топ улиц с ошибками',
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          const Text(
+            'Топ улиц с ошибками',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -64,17 +68,20 @@ class MistakeSummaryCard extends StatelessWidget {
                     children: [
                       Icon(_streetIcon(e.key), size: 16, color: Colors.white70),
                       const SizedBox(width: 4),
-                      Text('${e.key} ${e.value}',
-                          style: const TextStyle(color: Colors.white)),
+                      Text(
+                        '${e.key} ${e.value}',
+                        style: const TextStyle(color: Colors.white),
+                      ),
                     ],
                   ),
                 ),
             ],
           ),
           const SizedBox(height: 12),
-          const Text('Топ позиций с ошибками',
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          const Text(
+            'Топ позиций с ошибками',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -85,11 +92,16 @@ class MistakeSummaryCard extends StatelessWidget {
                   label: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.event_seat,
-                          size: 16, color: Colors.white70),
+                      const Icon(
+                        Icons.event_seat,
+                        size: 16,
+                        color: Colors.white70,
+                      ),
                       const SizedBox(width: 4),
-                      Text('${e.key} ${e.value}',
-                          style: const TextStyle(color: Colors.white)),
+                      Text(
+                        '${e.key} ${e.value}',
+                        style: const TextStyle(color: Colors.white),
+                      ),
                     ],
                   ),
                 ),

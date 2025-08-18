@@ -37,9 +37,14 @@ class BoosterSuggestionStatsService {
       final type = parts[1];
       final metric = parts[2];
       final count = prefs.getInt(key) ?? 0;
-      final record = result[type] ??
+      final record =
+          result[type] ??
           BoosterStatRecord(
-              type: type, suggested: 0, accepted: 0, dismissed: 0);
+            type: type,
+            suggested: 0,
+            accepted: 0,
+            dismissed: 0,
+          );
       switch (metric) {
         case 'suggested':
           result[type] = record.copyWith(suggested: record.suggested + count);
@@ -60,7 +65,7 @@ class BoosterSuggestionStatsService {
     final prefs = await SharedPreferences.getInstance();
     final keys = [
       for (final k in prefs.getKeys())
-        if (k.startsWith(_prefix)) k
+        if (k.startsWith(_prefix)) k,
     ];
     for (final k in keys) {
       await prefs.remove(k);
@@ -70,8 +75,6 @@ class BoosterSuggestionStatsService {
   /// Exports raw stats as a json-friendly map.
   Future<Map<String, dynamic>> export() async {
     final stats = await getStats();
-    return {
-      for (final e in stats.entries) e.key: e.value.toJson(),
-    };
+    return {for (final e in stats.entries) e.key: e.value.toJson()};
   }
 }

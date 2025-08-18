@@ -57,12 +57,18 @@ class PlayerStyleCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Стиль: $label',
-                    style: const TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold)),
+                Text(
+                  'Стиль: $label',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(forecastText,
-                    style: const TextStyle(color: Colors.white70)),
+                Text(
+                  forecastText,
+                  style: const TextStyle(color: Colors.white70),
+                ),
                 const SizedBox(height: 4),
                 Text(hint, style: const TextStyle(color: Colors.white70)),
               ],

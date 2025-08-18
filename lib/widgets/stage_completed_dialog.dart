@@ -20,8 +20,9 @@ class _StageCompletedDialogState extends State<StageCompletedDialog>
   void initState() {
     super.initState();
     _anim = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 800))
-      ..forward();
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    )..forward();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showConfettiOverlay(context);
     });
@@ -47,8 +48,10 @@ class _StageCompletedDialogState extends State<StageCompletedDialog>
               mainAxisSize: MainAxisSize.min,
               children: [
                 ScaleTransition(
-                  scale:
-                      CurvedAnimation(parent: _anim, curve: Curves.elasticOut),
+                  scale: CurvedAnimation(
+                    parent: _anim,
+                    curve: Curves.elasticOut,
+                  ),
                   child: Lottie.asset(
                     'assets/animations/congrats.json',
                     width: 160,

@@ -54,14 +54,13 @@ class _LearningPathHorizontalViewScreenState
     final node = _current;
     if (node == null) return;
     if (node.type == LearningPathNodeType.theory) {
-      final lesson =
-          MiniLessonLibraryService.instance.getById(node.miniLessonId ?? '');
+      final lesson = MiniLessonLibraryService.instance.getById(
+        node.miniLessonId ?? '',
+      );
       if (lesson != null) {
         await Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => MiniLessonScreen(lesson: lesson),
-          ),
+          MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: lesson)),
         );
         await LearningPathEngine.instance.markStageCompleted(node.id);
         _refresh();
@@ -104,18 +103,22 @@ class _LearningPathHorizontalViewScreenState
                 child: Row(
                   children: _nodes.map((node) {
                     final currentId = _current?.id;
-                    final isCompleted =
-                        LearningPathEngine.instance.isCompleted(node.id);
+                    final isCompleted = LearningPathEngine.instance.isCompleted(
+                      node.id,
+                    );
                     final isCurrent = node.id == currentId;
-                    final currentIndex =
-                        _nodes.indexWhere((n) => n.id == currentId);
+                    final currentIndex = _nodes.indexWhere(
+                      (n) => n.id == currentId,
+                    );
                     final nodeIndex = _nodes.indexOf(node);
-                    final isBlocked = !isCompleted &&
+                    final isBlocked =
+                        !isCompleted &&
                         !isCurrent &&
                         nodeIndex > currentIndex &&
                         currentIndex >= 0;
-                    final pack = _packs[
-                        node.trainingPackTemplateId ?? node.dynamicPackId];
+                    final pack =
+                        _packs[node.trainingPackTemplateId ??
+                            node.dynamicPackId];
                     final key = GlobalKey();
                     return Padding(
                       padding: const EdgeInsets.only(right: 12),

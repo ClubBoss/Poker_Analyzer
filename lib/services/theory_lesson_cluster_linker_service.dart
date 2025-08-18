@@ -15,9 +15,9 @@ class TheoryLessonClusterLinkerService {
     MiniLessonLibraryService? library,
     TheorySuggestionEngagementTrackerService? tracker,
     TheoryClusterCacheService? cache,
-  })  : library = library ?? MiniLessonLibraryService.instance,
-        tracker = tracker ?? TheorySuggestionEngagementTrackerService.instance,
-        cache = cache ?? TheoryClusterCacheService.instance;
+  }) : library = library ?? MiniLessonLibraryService.instance,
+       tracker = tracker ?? TheorySuggestionEngagementTrackerService.instance,
+       cache = cache ?? TheoryClusterCacheService.instance;
 
   List<TheoryLessonCluster>? _clustersCache;
 
@@ -61,7 +61,7 @@ class TheoryLessonClusterLinkerService {
     final lessons = library.all;
     final byId = {for (final l in lessons) l.id: l};
     final adj = <String, Set<String>>{
-      for (final l in lessons) l.id: <String>{}
+      for (final l in lessons) l.id: <String>{},
     };
 
     // Shared tags.
@@ -149,10 +149,12 @@ class TheoryLessonClusterLinkerService {
           if (visited.add(n)) stack.add(n);
         }
       }
-      clusters.add(TheoryLessonCluster(
-        lessons: [for (final cid in ids) byId[cid]!],
-        tags: tags,
-      ));
+      clusters.add(
+        TheoryLessonCluster(
+          lessons: [for (final cid in ids) byId[cid]!],
+          tags: tags,
+        ),
+      );
     }
 
     clusters.sort((a, b) => b.lessons.length.compareTo(a.lessons.length));

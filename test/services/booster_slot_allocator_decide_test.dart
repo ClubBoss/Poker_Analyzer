@@ -81,11 +81,7 @@ void main() {
       content: '',
       tags: ['preflop'],
     );
-    final spot = TrainingPackSpot(
-      id: 's4',
-      tags: ['preflop'],
-      priority: 2,
-    );
+    final spot = TrainingPackSpot(id: 's4', tags: ['preflop'], priority: 2);
     final slot = await allocator.decideSlot(lesson, spot);
     expect(slot, BoosterSlot.goal);
   });

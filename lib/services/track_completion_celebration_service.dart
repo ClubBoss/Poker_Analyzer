@@ -12,7 +12,7 @@ class TrackCompletionCelebrationService {
   final SkillTreeNodeProgressTracker progress;
 
   TrackCompletionCelebrationService({SkillTreeNodeProgressTracker? progress})
-      : progress = progress ?? SkillTreeNodeProgressTracker.instance;
+    : progress = progress ?? SkillTreeNodeProgressTracker.instance;
 
   static TrackCompletionCelebrationService instance =
       TrackCompletionCelebrationService();
@@ -46,8 +46,11 @@ class TrackCompletionCelebrationService {
               duration: const Duration(milliseconds: 700),
               builder: (context, value, child) =>
                   Transform.scale(scale: value, child: child),
-              child:
-                  const Icon(Icons.celebration, size: 48, color: Colors.orange),
+              child: const Icon(
+                Icons.celebration,
+                size: 48,
+                color: Colors.orange,
+              ),
             ),
             const SizedBox(height: 12),
             const Text('Вы прошли весь трек!'),

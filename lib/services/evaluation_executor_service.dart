@@ -46,7 +46,10 @@ import 'evaluation_cache.dart';
 abstract class EvaluationExecutor {
   Future<void> execute(ActionEvaluationRequest req);
   EvaluationResult evaluateSpot(
-      BuildContext context, TrainingSpot spot, String userAction);
+    BuildContext context,
+    TrainingSpot spot,
+    String userAction,
+  );
   Future<EvalResult> evaluate(EvalRequest request);
   SummaryResult summarizeHands(List<SavedHand> hands);
 }
@@ -54,7 +57,7 @@ abstract class EvaluationExecutor {
 /// Handles execution of a single evaluation request.
 class EvaluationExecutorService implements EvaluationExecutor {
   EvaluationExecutorService({EvaluationQueue? queue, EvaluationCache? cache})
-      : _cache = cache ?? EvaluationCache() {
+    : _cache = cache ?? EvaluationCache() {
     _queue = queue ?? EvaluationQueue(_evaluate);
     _initFuture;
   }
@@ -148,22 +151,28 @@ class EvaluationExecutorService implements EvaluationExecutor {
   /// expected action for the hero at the given training spot.
   @override
   EvaluationResult evaluateSpot(
-      BuildContext context, TrainingSpot spot, String userAction) {
+    BuildContext context,
+    TrainingSpot spot,
+    String userAction,
+  ) {
     final expectedAction = _expectedAction(spot);
     final normUser = userAction.trim().toLowerCase();
     final correct = normUser == expectedAction;
     final expectedEquity =
         spot.equities != null && spot.equities!.length > spot.heroIndex
-            ? spot.equities![spot.heroIndex].clamp(0.0, 1.0)
-            : 0.5;
-    final userEquity =
-        correct ? expectedEquity : (expectedEquity - 0.1).clamp(0.0, 1.0);
+        ? spot.equities![spot.heroIndex].clamp(0.0, 1.0)
+        : 0.5;
+    final userEquity = correct
+        ? expectedEquity
+        : (expectedEquity - 0.1).clamp(0.0, 1.0);
     double? ev;
     double? icmEv;
     if (spot.actionType == SpotActionType.callPush) {
-      final heroStack = spot.heroStack ??
+      final heroStack =
+          spot.heroStack ??
           (spot.stacks.isNotEmpty ? spot.stacks[spot.heroIndex] : 0);
-      final villainStack = spot.villainStack ??
+      final villainStack =
+          spot.villainStack ??
           (spot.stacks.length > 1
               ? spot.stacks[spot.heroIndex == 0 ? 1 : 0]
               : 0);
@@ -171,7 +180,8 @@ class EvaluationExecutorService implements EvaluationExecutor {
           spot.playerCards[spot.heroIndex].length >= 2) {
         final cards = spot.playerCards[spot.heroIndex];
         final code = handCode(
-            '${cards[0].rank}${cards[0].suit} ${cards[1].rank}${cards[1].suit}');
+          '${cards[0].rank}${cards[0].suit} ${cards[1].rank}${cards[1].suit}',
+        );
         if (code != null) {
           ev = computeCallEV(
             heroBbStack: heroStack,
@@ -214,8 +224,9 @@ class EvaluationExecutorService implements EvaluationExecutor {
     final goals = GoalsService.instance;
     if (goals != null) {
       if (correct) {
-        final progress =
-            goals.goals.length > 1 ? goals.goals[1].progress + 1 : 1;
+        final progress = goals.goals.length > 1
+            ? goals.goals[1].progress + 1
+            : 1;
         goals.setProgress(1, progress, context: context);
         goals.updateErrorFreeStreak(true, context: context);
       } else {
@@ -235,7 +246,8 @@ class EvaluationExecutorService implements EvaluationExecutor {
   }
 
   String _expectedAction(TrainingSpot spot) {
-    final action = spot.recommendedAction ??
+    final action =
+        spot.recommendedAction ??
         (spot.actionType == SpotActionType.callPush
             ? _evaluateCallPush(spot)
             : _evaluatePushFold(spot)) ??
@@ -251,7 +263,8 @@ class EvaluationExecutorService implements EvaluationExecutor {
     if (cards.length < 2) return null;
     final stack = spot.stacks.isNotEmpty ? spot.stacks[spot.heroIndex] : 0;
     final code = handCode(
-        '${cards[0].rank}${cards[0].suit} ${cards[1].rank}${cards[1].suit}');
+      '${cards[0].rank}${cards[0].suit} ${cards[1].rank}${cards[1].suit}',
+    );
     if (code == null) return null;
     final heroAct = _heroAction(spot);
     if (heroAct == 'call' || heroAct == 'raise') {
@@ -276,12 +289,15 @@ class EvaluationExecutorService implements EvaluationExecutor {
     if (spot.playerCards.length <= spot.heroIndex) return null;
     final cards = spot.playerCards[spot.heroIndex];
     if (cards.length < 2) return null;
-    final heroStack = spot.heroStack ??
+    final heroStack =
+        spot.heroStack ??
         (spot.stacks.isNotEmpty ? spot.stacks[spot.heroIndex] : 0);
-    final villainStack = spot.villainStack ??
+    final villainStack =
+        spot.villainStack ??
         (spot.stacks.length > 1 ? spot.stacks[spot.heroIndex == 0 ? 1 : 0] : 0);
     final code = handCode(
-        '${cards[0].rank}${cards[0].suit} ${cards[1].rank}${cards[1].suit}');
+      '${cards[0].rank}${cards[0].suit} ${cards[1].rank}${cards[1].suit}',
+    );
     if (code == null) return null;
     final ev = computeCallEV(
       heroBbStack: heroStack,
@@ -303,12 +319,7 @@ class EvaluationExecutorService implements EvaluationExecutor {
     int correct = 0;
     int incorrect = 0;
     final tagErrors = <String, int>{};
-    final streets = {
-      'Preflop': 0,
-      'Flop': 0,
-      'Turn': 0,
-      'River': 0,
-    };
+    final streets = {'Preflop': 0, 'Flop': 0, 'Turn': 0, 'River': 0};
     final positionErrors = <String, int>{};
     final sessionAcc = <int, double>{};
 
@@ -379,17 +390,18 @@ class EvaluationExecutorService implements EvaluationExecutor {
         .map((e) => CardModel(rank: e[0], suit: e.substring(1)))
         .toList();
     final playerCards = [
-      for (int i = 0; i < hand.playerCount; i++) <CardModel>[]
+      for (int i = 0; i < hand.playerCount; i++) <CardModel>[],
     ];
     if (heroCards.length >= 2 && hand.heroIndex < playerCards.length) {
       playerCards[hand.heroIndex] = heroCards;
     }
     final boardCards = [
-      for (final c in hand.board) CardModel(rank: c[0], suit: c.substring(1))
+      for (final c in hand.board) CardModel(rank: c[0], suit: c.substring(1)),
     ];
     final actions = hand.actions.values.expand((l) => l).toList();
     final stacks = [
-      for (var i = 0; i < hand.playerCount; i++) hand.stacks['$i']?.round() ?? 0
+      for (var i = 0; i < hand.playerCount; i++)
+        hand.stacks['$i']?.round() ?? 0,
     ];
     final positions = List.generate(hand.playerCount, (_) => '');
     if (hand.heroIndex < positions.length) {
@@ -452,27 +464,24 @@ class EvaluationExecutorService implements EvaluationExecutor {
         if (code != null) {
           final stacks = [
             for (var i = 0; i < spot.hand.playerCount; i++)
-              spot.hand.stacks['$i']?.round() ?? 0
+              spot.hand.stacks['$i']?.round() ?? 0,
           ];
           final callers = [
             for (final a in spot.hand.actions[0] ?? [])
-              if (a.playerIndex != hero && a.action == 'call') a.playerIndex
+              if (a.playerIndex != hero && a.action == 'call') a.playerIndex,
           ];
           final heroAct = (spot.hand.actions[0] ?? [])
               .firstWhereOrNull((e) => e.playerIndex == hero)
               ?.action;
-          final res = await compute(
-            _computeEv,
-            {
-              'stacks': stacks,
-              'hero': hero,
-              'hand': code,
-              'ante': anteBb,
-              'payouts': settings.payouts,
-              'callers': callers,
-              'action': heroAct,
-            },
-          );
+          final res = await compute(_computeEv, {
+            'stacks': stacks,
+            'hero': hero,
+            'hand': code,
+            'ante': anteBb,
+            'payouts': settings.payouts,
+            'callers': callers,
+            'action': heroAct,
+          });
           final acts = spot.hand.actions[0] ?? [];
           for (var i = 0; i < acts.length; i++) {
             final a = acts[i];
@@ -491,8 +500,11 @@ class EvaluationExecutorService implements EvaluationExecutor {
       await const PushFoldEvService().evaluate(spot, anteBb: anteBb);
     }
     if (withIcm && spot.heroIcmEv == null) {
-      await const PushFoldEvService()
-          .evaluateIcm(spot, anteBb: anteBb, payouts: settings.payouts);
+      await const PushFoldEvService().evaluateIcm(
+        spot,
+        anteBb: anteBb,
+        payouts: settings.payouts,
+      );
     }
     if ((prevEv == null && spot.heroEv != null) ||
         (prevIcm == null && spot.heroIcmEv != null)) {
@@ -520,7 +532,8 @@ class EvaluationExecutorService implements EvaluationExecutor {
         : '${(foldEv - heroPushEv).toStringAsFixed(2)} BB better to fold';
     if (template != null) {
       TemplateCoverageUtils.recountAll(template).applyTo(template.meta);
-      final changed = prev == null ||
+      final changed =
+          prev == null ||
           !const DeepCollectionEquality().equals(
             prev.toJson(),
             spot.evalResult!.toJson(),
@@ -579,14 +592,17 @@ class EvaluationExecutorService implements EvaluationExecutor {
             label: 'Train',
             onPressed: () async {
               final tpl = await TrainingPackService.createDrillFromCategory(
-                  context, category!);
+                context,
+                category!,
+              );
               if (tpl == null) return;
               await context.read<TrainingSessionService>().startSession(tpl);
               if (context.mounted) {
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (_) => const TrainingSessionScreen()),
+                    builder: (_) => const TrainingSessionScreen(),
+                  ),
                 );
               }
             },

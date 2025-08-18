@@ -52,7 +52,7 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
   Map<int, String> _posMap() {
     return {
       for (int i = 0; i < spot.hand.playerCount; i++)
-        i: i == spot.hand.heroIndex ? spot.hand.position.label : 'P${i + 1}'
+        i: i == spot.hand.heroIndex ? spot.hand.position.label : 'P${i + 1}',
     };
   }
 
@@ -72,12 +72,12 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
       for (final street in [1, 2, 3])
         for (final a in spot.hand.actions[street] ?? [])
           if (a.action == 'board' && a.customLabel?.isNotEmpty == true)
-            ...a.customLabel!.split(' ')
+            ...a.customLabel!.split(' '),
     ].join(' ');
     final lines = <String>[
       if (hero.isNotEmpty) 'Cards: $hero',
       if (board.isNotEmpty) 'Board: $board',
-      'Position: $pos'
+      'Position: $pos',
     ];
     const names = ['Preflop', 'Flop', 'Turn', 'River'];
     for (int s = 0; s < 4; s++) {
@@ -88,8 +88,9 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
       lines.add('${names[s]}:');
       for (final a in acts) {
         final posName = map[a.playerIndex] ?? 'P${a.playerIndex + 1}';
-        final label =
-            a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action;
+        final label = a.action == 'custom'
+            ? (a.customLabel ?? 'custom')
+            : a.action;
         final amount = a.amount != null ? ' ${a.amount}' : '';
         lines.add('  $posName $label$amount');
       }
@@ -121,17 +122,21 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel')),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(context, controller.text),
-              child: const Text('Save')),
+            onPressed: () => Navigator.pop(context, controller.text),
+            child: const Text('Save'),
+          ),
         ],
       ),
     );
     if (result != null) {
-      final updated =
-          spot.copyWith(note: result.trim(), editedAt: DateTime.now());
+      final updated = spot.copyWith(
+        note: result.trim(),
+        editedAt: DateTime.now(),
+      );
       await context.read<TrainingSessionService>().updateSpot(updated);
       setState(() => spot = updated);
     }
@@ -154,8 +159,10 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
                 for (final tag in tags)
                   CheckboxListTile(
                     value: selected.contains(tag),
-                    title:
-                        Text(tag, style: const TextStyle(color: Colors.white)),
+                    title: Text(
+                      tag,
+                      style: const TextStyle(color: Colors.white),
+                    ),
                     onChanged: (v) {
                       setStateDialog(() {
                         if (v ?? false) {
@@ -171,11 +178,13 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
           ),
           actions: [
             TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel')),
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
             TextButton(
-                onPressed: () => Navigator.pop(context, selected.toList()),
-                child: const Text('Save')),
+              onPressed: () => Navigator.pop(context, selected.toList()),
+              child: const Text('Save'),
+            ),
           ],
         ),
       ),
@@ -203,16 +212,20 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
     if (ev == null && icm == null) return const SizedBox.shrink();
     final rows = <Widget>[];
     if (ev != null) {
-      rows.add(Text(
-        'EV: ${ev >= 0 ? '+' : ''}${ev.toStringAsFixed(1)} BB',
-        style: const TextStyle(color: Colors.white),
-      ));
+      rows.add(
+        Text(
+          'EV: ${ev >= 0 ? '+' : ''}${ev.toStringAsFixed(1)} BB',
+          style: const TextStyle(color: Colors.white),
+        ),
+      );
     }
     if (icm != null) {
-      rows.add(Text(
-        'ICM EV: ${icm >= 0 ? '+' : ''}${icm.toStringAsFixed(3)}',
-        style: const TextStyle(color: Colors.white70),
-      ));
+      rows.add(
+        Text(
+          'ICM EV: ${icm >= 0 ? '+' : ''}${icm.toStringAsFixed(3)}',
+          style: const TextStyle(color: Colors.white70),
+        ),
+      );
     }
     return Container(
       margin: const EdgeInsets.only(top: 8),
@@ -221,8 +234,10 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
         color: Colors.grey.shade800,
         borderRadius: BorderRadius.circular(8),
       ),
-      child:
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: rows),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: rows,
+      ),
     );
   }
 
@@ -260,7 +275,9 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
             ],
             const SizedBox(height: 8),
             ActionHistoryWidget(
-                actions: _actions(), playerPositions: _posMap()),
+              actions: _actions(),
+              playerPositions: _posMap(),
+            ),
             _evCard(),
             if (_lesson != null) ...[
               const SizedBox(height: 8),
@@ -275,8 +292,10 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
                 collapsedIconColor: Colors.white,
                 children: [
                   Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -302,14 +321,8 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: _editNote,
-          child: const Text('Edit'),
-        ),
-        TextButton(
-          onPressed: _editTags,
-          child: const Text('Edit Tags'),
-        ),
+        TextButton(onPressed: _editNote, child: const Text('Edit')),
+        TextButton(onPressed: _editTags, child: const Text('Edit Tags')),
         TextButton(
           onPressed: () async {
             Navigator.pop(context);

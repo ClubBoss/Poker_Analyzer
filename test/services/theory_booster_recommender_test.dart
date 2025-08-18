@@ -38,7 +38,7 @@ class _FakeLibrary implements BoosterLibraryService {
   List<TrainingPackTemplateV2> findByTag(String tag) {
     return [
       for (final b in boosters)
-        if (b.meta['tag'] == tag) b
+        if (b.meta['tag'] == tag) b,
     ];
   }
 }
@@ -69,8 +69,9 @@ void main() {
       booster('b2', 'loose call'),
     ]);
 
-    final rec = await TheoryBoosterRecommender(library: library)
-        .recommend(lesson, recentMistakes: history);
+    final rec = await TheoryBoosterRecommender(
+      library: library,
+    ).recommend(lesson, recentMistakes: history);
 
     expect(rec, isNotNull);
     expect(rec!.boosterId, 'b1');
@@ -87,8 +88,9 @@ void main() {
       tags: ['icm'],
     );
     final library = _FakeLibrary([booster('b1', 'push')]);
-    final rec = await TheoryBoosterRecommender(library: library)
-        .recommend(lesson, recentMistakes: const []);
+    final rec = await TheoryBoosterRecommender(
+      library: library,
+    ).recommend(lesson, recentMistakes: const []);
     expect(rec, isNull);
   });
 }

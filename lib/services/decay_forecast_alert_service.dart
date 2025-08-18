@@ -13,22 +13,27 @@ class DecayForecastAlertService {
 
   /// Returns tags predicted to exceed [threshold] decay soon.
   Future<List<DecayForecastAlert>> getUpcomingCriticalTags(
-      List<String> tags) async {
+    List<String> tags,
+  ) async {
     final forecasts = await engine.forecast(tags);
     final result = <DecayForecastAlert>[];
     for (final f in forecasts) {
       if (f.in7days > threshold) {
-        result.add(DecayForecastAlert(
-          tag: f.tag,
-          daysToCritical: 7,
-          projectedDecay: f.in7days,
-        ));
+        result.add(
+          DecayForecastAlert(
+            tag: f.tag,
+            daysToCritical: 7,
+            projectedDecay: f.in7days,
+          ),
+        );
       } else if (f.in14days > threshold) {
-        result.add(DecayForecastAlert(
-          tag: f.tag,
-          daysToCritical: 14,
-          projectedDecay: f.in14days,
-        ));
+        result.add(
+          DecayForecastAlert(
+            tag: f.tag,
+            daysToCritical: 14,
+            projectedDecay: f.in14days,
+          ),
+        );
       }
     }
     return result;

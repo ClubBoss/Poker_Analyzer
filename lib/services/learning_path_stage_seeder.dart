@@ -7,8 +7,10 @@ import 'learning_path_stage_library.dart';
 class LearningPathStageSeeder {
   const LearningPathStageSeeder();
 
-  Future<void> seedStages(List<String> yamlPaths,
-      {required String audience}) async {
+  Future<void> seedStages(
+    List<String> yamlPaths, {
+    required String audience,
+  }) async {
     final reader = const YamlReader();
     final library = LearningPathStageLibrary.instance;
     library.clear();
@@ -39,8 +41,9 @@ class LearningPathStageSeeder {
 
   Future<void> seedFromConfig({required String audience}) async {
     try {
-      final raw =
-          await rootBundle.loadString('assets/learning_path_tracks.yaml');
+      final raw = await rootBundle.loadString(
+        'assets/learning_path_tracks.yaml',
+      );
       final map = const YamlReader().read(raw);
       final key = audience.toLowerCase();
       final paths = [for (final p in (map[key] as List? ?? [])) p.toString()];

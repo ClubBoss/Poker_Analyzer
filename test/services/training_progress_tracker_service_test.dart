@@ -24,18 +24,27 @@ void main() {
     });
     final service = TrainingProgressTrackerService.instance;
     expect(
-      await service.meetsPerformanceRequirements('prev',
-          requiresAccuracy: 80, requiresVolume: 50),
+      await service.meetsPerformanceRequirements(
+        'prev',
+        requiresAccuracy: 80,
+        requiresVolume: 50,
+      ),
       isTrue,
     );
     expect(
-      await service.meetsPerformanceRequirements('prev',
-          requiresAccuracy: 85, requiresVolume: 50),
+      await service.meetsPerformanceRequirements(
+        'prev',
+        requiresAccuracy: 85,
+        requiresVolume: 50,
+      ),
       isFalse,
     );
     expect(
-      await service.meetsPerformanceRequirements('prev',
-          requiresAccuracy: 80, requiresVolume: 60),
+      await service.meetsPerformanceRequirements(
+        'prev',
+        requiresAccuracy: 80,
+        requiresVolume: 60,
+      ),
       isFalse,
     );
   });

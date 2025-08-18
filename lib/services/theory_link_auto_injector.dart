@@ -31,15 +31,16 @@ class TheoryLinkAutoInjector {
     TrainingPackLibraryV2? packLibrary,
     DecayTagRetentionTrackerService? retention,
     this.saveStrategy = TheoryLinkSaveStrategy.inMemory,
-  })  : config = config ?? TheoryLinkConfigService.instance,
-        dashboard = dashboard ?? AutogenStatusDashboardService.instance,
-        packLibrary = packLibrary ?? TrainingPackLibraryV2.instance,
-        retention = retention ?? const DecayTagRetentionTrackerService(),
-        clusterer = InlinePackTheoryClusterer(
-            maxPerPack:
-                (config ?? TheoryLinkConfigService.instance).value.maxPerPack,
-            maxPerSpot:
-                (config ?? TheoryLinkConfigService.instance).value.maxPerSpot) {
+  }) : config = config ?? TheoryLinkConfigService.instance,
+       dashboard = dashboard ?? AutogenStatusDashboardService.instance,
+       packLibrary = packLibrary ?? TrainingPackLibraryV2.instance,
+       retention = retention ?? const DecayTagRetentionTrackerService(),
+       clusterer = InlinePackTheoryClusterer(
+         maxPerPack:
+             (config ?? TheoryLinkConfigService.instance).value.maxPerPack,
+         maxPerSpot:
+             (config ?? TheoryLinkConfigService.instance).value.maxPerSpot,
+       ) {
     _applyConfig(this.config.value);
     this.config.notifier.addListener(() {
       _applyConfig(this.config.value);
@@ -77,7 +78,9 @@ class TheoryLinkAutoInjector {
     noveltyRecent = cfg.noveltyRecent;
     noveltyMinOverlap = cfg.noveltyMinOverlap;
     clusterer = InlinePackTheoryClusterer(
-        maxPerPack: maxPerPack, maxPerSpot: maxPerSpot);
+      maxPerPack: maxPerPack,
+      maxPerSpot: maxPerSpot,
+    );
   }
 
   Future<int> injectForUser(String userId) async {
@@ -106,8 +109,9 @@ class TheoryLinkAutoInjector {
       );
 
       final modules = await store.listModules(userId);
-      final pending = modules
-          .where((m) => m.status == 'pending' || m.status == 'in_progress');
+      final pending = modules.where(
+        (m) => m.status == 'pending' || m.status == 'in_progress',
+      );
       if (pending.isEmpty) return 0;
       final library = await libraryIndex.all();
       final errorRates = await telemetry.getErrorRates();
@@ -115,8 +119,8 @@ class TheoryLinkAutoInjector {
 
       for (final module in pending) {
         final demand = <String>{};
-        final clusterTags =
-            (module.metrics['clusterTags'] as List?)?.cast<String>();
+        final clusterTags = (module.metrics['clusterTags'] as List?)
+            ?.cast<String>();
         if (clusterTags != null && clusterTags.isNotEmpty) {
           demand.addAll(clusterTags.map((e) => e.toLowerCase()));
         } else {
@@ -125,7 +129,7 @@ class TheoryLinkAutoInjector {
           }
           for (final id in [
             ...module.boosterPackIds,
-            module.assessmentPackId
+            module.assessmentPackId,
           ]) {
             final tpl = packLibrary.getById(id);
             if (tpl != null) {
@@ -141,8 +145,10 @@ class TheoryLinkAutoInjector {
             'TheoryLinkPolicy',
             AutogenStatus(
               isRunning: false,
-              currentStage:
-                  jsonEncode({'policyBlocks': policyBlocks, 'ablation': false}),
+              currentStage: jsonEncode({
+                'policyBlocks': policyBlocks,
+                'ablation': false,
+              }),
               progress: 1.0,
             ),
           );
@@ -200,16 +206,22 @@ class TheoryLinkAutoInjector {
         final theoryIds = selected.map((e) => e.resource.id).toList();
 
         if (await noveltyRegistry.isRecentDuplicate(
-            userId, demand.toList(), theoryIds,
-            within: noveltyRecent, minOverlap: noveltyMinOverlap)) {
+          userId,
+          demand.toList(),
+          theoryIds,
+          within: noveltyRecent,
+          minOverlap: noveltyMinOverlap,
+        )) {
           if (candidates.length > selected.length) {
-            final weakest =
-                selected.reduce((a, b) => a.score <= b.score ? a : b);
+            final weakest = selected.reduce(
+              (a, b) => a.score <= b.score ? a : b,
+            );
             final replacement = candidates.firstWhere(
-                (c) =>
-                    !theoryIds.contains(c.resource.id) &&
-                    c.resource.id != weakest.resource.id,
-                orElse: () => weakest);
+              (c) =>
+                  !theoryIds.contains(c.resource.id) &&
+                  c.resource.id != weakest.resource.id,
+              orElse: () => weakest,
+            );
             if (replacement != weakest) {
               final idx = selected.indexOf(weakest);
               selected[idx] = replacement;
@@ -217,14 +229,19 @@ class TheoryLinkAutoInjector {
           }
           final swappedIds = selected.map((e) => e.resource.id).toList();
           if (await noveltyRegistry.isRecentDuplicate(
-              userId, demand.toList(), swappedIds,
-              within: noveltyRecent, minOverlap: noveltyMinOverlap)) {
+            userId,
+            demand.toList(),
+            swappedIds,
+            within: noveltyRecent,
+            minOverlap: noveltyMinOverlap,
+          )) {
             dashboard.update(
               'TheoryLinkAutoInjector',
               AutogenStatus(
-                  isRunning: false,
-                  currentStage: 'novelty-skip:${module.moduleId}',
-                  progress: 1.0),
+                isRunning: false,
+                currentStage: 'novelty-skip:${module.moduleId}',
+                progress: 1.0,
+              ),
             );
             continue;
           } else {
@@ -286,7 +303,9 @@ class TheoryLinkAutoInjector {
           }
         }
         dashboard.recordTheoryInjection(
-            clusters: clustersCount, links: linksCount);
+          clusters: clustersCount,
+          links: linksCount,
+        );
       }
       return injected;
     } finally {
@@ -294,8 +313,10 @@ class TheoryLinkAutoInjector {
     }
   }
 
-  Future<Map<String, double>> _decayScores(Set<String> tags,
-      {int capDays = 30}) async {
+  Future<Map<String, double>> _decayScores(
+    Set<String> tags, {
+    int capDays = 30,
+  }) async {
     final result = <String, double>{};
     for (final t in tags) {
       final days = await retention.getDecayScore(t);

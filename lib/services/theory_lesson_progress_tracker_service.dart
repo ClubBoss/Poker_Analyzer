@@ -7,8 +7,10 @@ import 'mini_lesson_progress_tracker.dart';
 class TheoryLessonProgressState {
   final int completed;
   final int total;
-  const TheoryLessonProgressState(
-      {required this.completed, required this.total});
+  const TheoryLessonProgressState({
+    required this.completed,
+    required this.total,
+  });
 }
 
 /// Provides reactive updates for overall theory lesson progress.
@@ -16,8 +18,8 @@ class TheoryLessonProgressTrackerService {
   TheoryLessonProgressTrackerService._({
     MiniLessonLibraryService? library,
     MiniLessonProgressTracker? progress,
-  })  : _library = library ?? MiniLessonLibraryService.instance,
-        _progress = progress ?? MiniLessonProgressTracker.instance {
+  }) : _library = library ?? MiniLessonLibraryService.instance,
+       _progress = progress ?? MiniLessonProgressTracker.instance {
     _progress.onLessonCompleted.listen((_) => refresh());
     refresh();
   }
@@ -28,8 +30,10 @@ class TheoryLessonProgressTrackerService {
   final MiniLessonLibraryService _library;
   final MiniLessonProgressTracker _progress;
   final _controller = StreamController<TheoryLessonProgressState>.broadcast();
-  TheoryLessonProgressState _state =
-      const TheoryLessonProgressState(completed: 0, total: 0);
+  TheoryLessonProgressState _state = const TheoryLessonProgressState(
+    completed: 0,
+    total: 0,
+  );
 
   /// Current progress state.
   TheoryLessonProgressState get current => _state;

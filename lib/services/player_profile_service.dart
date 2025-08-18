@@ -16,12 +16,14 @@ class PlayerProfileService extends ChangeNotifier {
   Map<int, String> playerPositions = {};
   Map<int, PlayerType> playerTypes = {};
   Map<int, String> playerNotes = {};
-  final List<PlayerModel> players =
-      List.generate(10, (i) => PlayerModel(name: 'Player ${i + 1}'));
+  final List<PlayerModel> players = List.generate(
+    10,
+    (i) => PlayerModel(name: 'Player ${i + 1}'),
+  );
   final ActionTagService actionTagService;
 
   PlayerProfileService({ActionTagService? actionTagService})
-      : actionTagService = actionTagService ?? ActionTagService() {
+    : actionTagService = actionTagService ?? ActionTagService() {
     playerPositions = Map.fromIterables(
       List.generate(numberOfPlayers, (i) => i),
       getPositionList(numberOfPlayers),

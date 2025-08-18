@@ -90,10 +90,10 @@ class GraphPathTemplateParser {
       } else if (type == 'stage') {
         final stageId = m['stageId']?.toString() ?? id;
         final nextIds = <String>[
-          for (final v in (m['next'] as List? ?? [])) v.toString()
+          for (final v in (m['next'] as List? ?? [])) v.toString(),
         ];
         final dependsOn = <String>[
-          for (final v in (m['dependsOn'] as List? ?? [])) v.toString()
+          for (final v in (m['dependsOn'] as List? ?? [])) v.toString(),
         ];
         final stageType = _parseStageType(m['stageType']);
         final recovered = m['recoveredFromMistake'] as bool? ?? false;
@@ -114,7 +114,7 @@ class GraphPathTemplateParser {
         byId[id] = node;
       } else if (type == 'theory') {
         final nextIds = <String>[
-          for (final v in (m['next'] as List? ?? [])) v.toString()
+          for (final v in (m['next'] as List? ?? [])) v.toString(),
         ];
         final node = TheoryLessonNode(
           id: id,
@@ -128,10 +128,10 @@ class GraphPathTemplateParser {
         byId[id] = node;
       } else if (type == 'mini') {
         final nextIds = <String>[
-          for (final v in (m['next'] as List? ?? [])) v.toString()
+          for (final v in (m['next'] as List? ?? [])) v.toString(),
         ];
         final tags = <String>[
-          for (final t in (m['tags'] as List? ?? [])) t.toString()
+          for (final t in (m['tags'] as List? ?? [])) t.toString(),
         ];
         final node = TheoryMiniLessonNode(
           id: id,
@@ -152,7 +152,8 @@ class GraphPathTemplateParser {
         for (final target in node.branches.values) {
           if (!ids.contains(target)) {
             warnings.add(
-                'Unknown node id $target referenced from branch ${node.id}');
+              'Unknown node id $target referenced from branch ${node.id}',
+            );
           }
         }
       } else if (node is StageNode ||
@@ -161,20 +162,22 @@ class GraphPathTemplateParser {
         final nextIds = node is StageNode
             ? node.nextIds
             : (node is TheoryLessonNode
-                ? node.nextIds
-                : (node as TheoryMiniLessonNode).nextIds);
+                  ? node.nextIds
+                  : (node as TheoryMiniLessonNode).nextIds);
         if (node is StageNode) {
           for (final d in node.dependsOn) {
             if (!ids.contains(d)) {
               warnings.add(
-                  'Unknown node id $d referenced from dependsOn of ${node.id}');
+                'Unknown node id $d referenced from dependsOn of ${node.id}',
+              );
             }
           }
         }
         for (final n in nextIds) {
           if (!ids.contains(n)) {
             warnings.add(
-                'Unknown node id $n referenced from nextIds of ${node.id}');
+              'Unknown node id $n referenced from nextIds of ${node.id}',
+            );
           }
         }
       }

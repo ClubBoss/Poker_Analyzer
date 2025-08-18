@@ -18,10 +18,14 @@ void main() {
 
     final summary = await logger.getFeedbackSummary();
 
-    expect(summary['booster_tag_preflop_bb_vs_btn']?.containsKey('viewed'),
-        isTrue);
-    expect(summary['booster_tag_preflop_bb_vs_btn']?.containsKey('clicked'),
-        isTrue);
+    expect(
+      summary['booster_tag_preflop_bb_vs_btn']?.containsKey('viewed'),
+      isTrue,
+    );
+    expect(
+      summary['booster_tag_preflop_bb_vs_btn']?.containsKey('clicked'),
+      isTrue,
+    );
     expect(summary['theory_reminder_xyz']?.containsKey('dismissed'), isTrue);
   });
 }

@@ -12,11 +12,11 @@ void main() {
       playerCards: [
         [
           const CardModel(rank: 'A', suit: '♠'),
-          const CardModel(rank: 'K', suit: '♠')
+          const CardModel(rank: 'K', suit: '♠'),
         ],
         [
           const CardModel(rank: '2', suit: '♣'),
-          const CardModel(rank: '7', suit: '♦')
+          const CardModel(rank: '7', suit: '♦'),
         ],
       ],
       boardCards: const [],
@@ -28,9 +28,13 @@ void main() {
       stacks: const [10, 10],
       createdAt: DateTime.now(),
     );
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(body: EvalResultView(spot: spot, action: 'push')),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: EvalResultView(spot: spot, action: 'push'),
+        ),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(find.textContaining('Score:'), findsOneWidget);
   });

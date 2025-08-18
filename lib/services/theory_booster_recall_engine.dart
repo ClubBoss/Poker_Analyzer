@@ -11,7 +11,7 @@ class TheoryBoosterRecallEngine {
   final MiniLessonLibraryService library;
 
   TheoryBoosterRecallEngine({MiniLessonLibraryService? library})
-      : library = library ?? MiniLessonLibraryService.instance;
+    : library = library ?? MiniLessonLibraryService.instance;
 
   static final TheoryBoosterRecallEngine instance = TheoryBoosterRecallEngine();
 
@@ -48,8 +48,9 @@ class TheoryBoosterRecallEngine {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
       _prefsKey,
-      jsonEncode(
-          {for (final e in _cache.entries) e.key: e.value.toIso8601String()}),
+      jsonEncode({
+        for (final e in _cache.entries) e.key: e.value.toIso8601String(),
+      }),
     );
   }
 
@@ -94,8 +95,9 @@ class TheoryBoosterRecallEngine {
     await _load();
     await library.loadAll();
     final cutoff = DateTime.now().subtract(since);
-    final dismisses =
-        await TheoryPromptDismissTracker.instance.getHistory(before: cutoff);
+    final dismisses = await TheoryPromptDismissTracker.instance.getHistory(
+      before: cutoff,
+    );
     final result = <TheoryMiniLessonNode>[];
     for (final d in dismisses) {
       final ts = _cache[d.lessonId];

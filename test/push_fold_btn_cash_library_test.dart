@@ -10,10 +10,13 @@ void main() {
     expect(pack, isNotNull);
     expect(pack!.name, 'BTN Push/Fold Cash 10bb');
     expect(pack.meta['schemaVersion'], '2.0.0');
-    expect(TrainingPackLibraryV2.instance.packs.first.id,
-        TrainingPackLibraryV2.mvpPackId);
-    final filtered = TrainingPackLibraryV2.instance
-        .filterBy(tags: ['pushFold', 'btn', 'cash', 'beginner']);
+    expect(
+      TrainingPackLibraryV2.instance.packs.first.id,
+      TrainingPackLibraryV2.mvpPackId,
+    );
+    final filtered = TrainingPackLibraryV2.instance.filterBy(
+      tags: ['pushFold', 'btn', 'cash', 'beginner'],
+    );
     expect(filtered.map((p) => p.id), contains('push_fold_btn_cash'));
   });
 }

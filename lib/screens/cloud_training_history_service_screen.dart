@@ -65,7 +65,8 @@ class _CloudTrainingHistoryScreenState
     for (final s in _sessions) {
       final sum = s.summary;
       buffer.writeln(
-          '- ${formatDateTime(sum.date)}: ${sum.correct}/${sum.total} (${sum.accuracy.toStringAsFixed(1)}%)');
+        '- ${formatDateTime(sum.date)}: ${sum.correct}/${sum.total} (${sum.accuracy.toStringAsFixed(1)}%)',
+      );
     }
 
     final dir = await getApplicationDocumentsDirectory();
@@ -92,8 +93,9 @@ class _CloudTrainingHistoryScreenState
     final session = await service.importFromJson(file);
     if (session == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Invalid file')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Invalid file')));
       }
       return;
     }
@@ -132,14 +134,8 @@ class _CloudTrainingHistoryScreenState
               });
             },
             itemBuilder: (_) => const [
-              PopupMenuItem(
-                value: _SortOption.newest,
-                child: Text('Newest'),
-              ),
-              PopupMenuItem(
-                value: _SortOption.oldest,
-                child: Text('Oldest'),
-              ),
+              PopupMenuItem(value: _SortOption.newest, child: Text('Newest')),
+              PopupMenuItem(value: _SortOption.oldest, child: Text('Oldest')),
               PopupMenuItem(
                 value: _SortOption.accuracyDesc,
                 child: Text('Best Accuracy'),
@@ -149,7 +145,7 @@ class _CloudTrainingHistoryScreenState
                 child: Text('Worst Accuracy'),
               ),
             ],
-          )
+          ),
         ],
       ),
       backgroundColor: const Color(0xFF1B1C1E),
@@ -177,7 +173,8 @@ class _CloudTrainingHistoryScreenState
                         return AlertDialog(
                           title: const Text('Delete Session?'),
                           content: const Text(
-                              'Are you sure you want to delete this session?'),
+                            'Are you sure you want to delete this session?',
+                          ),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context, false),
@@ -192,8 +189,8 @@ class _CloudTrainingHistoryScreenState
                       },
                     );
                     if (confirm == true) {
-                      final service =
-                          context.read<CloudTrainingHistoryService>();
+                      final service = context
+                          .read<CloudTrainingHistoryService>();
                       await service.deleteSession(entry.path);
                       if (mounted) {
                         setState(() => _sessions.removeAt(index));

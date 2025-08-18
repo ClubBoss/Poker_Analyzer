@@ -8,8 +8,8 @@ import 'cloud_retry_policy.dart';
 
 class GoalSyncService {
   GoalSyncService({FirebaseFirestore? firestore, FirebaseAuth? auth})
-      : _db = firestore ?? FirebaseFirestore.instance,
-        _auth = auth ?? FirebaseAuth.instance;
+    : _db = firestore ?? FirebaseFirestore.instance,
+      _auth = auth ?? FirebaseAuth.instance;
 
   final FirebaseFirestore _db;
   final FirebaseAuth _auth;
@@ -65,7 +65,8 @@ class GoalSyncService {
           type: data['type'] as String? ?? 'mistakes',
           target: (data['target'] as num?)?.toInt() ?? 1,
           base: (data['base'] as num?)?.toInt() ?? 0,
-          createdAt: DateTime.tryParse(data['createdAt'] as String? ?? '') ??
+          createdAt:
+              DateTime.tryParse(data['createdAt'] as String? ?? '') ??
               DateTime.now(),
           completedAt: data['completedAt'] != null
               ? DateTime.tryParse(data['completedAt'] as String)

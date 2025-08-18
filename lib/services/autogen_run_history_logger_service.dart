@@ -30,12 +30,12 @@ class RunMetricsEntry {
       );
 
   Map<String, dynamic> toJson() => {
-        'timestamp': timestamp.toUtc().toIso8601String(),
-        'generated': generated,
-        'rejected': rejected,
-        'avgQualityScore': avgQualityScore,
-        if (format != null) 'format': format!.toJson(),
-      };
+    'timestamp': timestamp.toUtc().toIso8601String(),
+    'generated': generated,
+    'rejected': rejected,
+    'avgQualityScore': avgQualityScore,
+    if (format != null) 'format': format!.toJson(),
+  };
 
   double get acceptanceRate {
     final total = generated + rejected;
@@ -58,13 +58,15 @@ class AutogenRunHistoryLoggerService {
     FormatMeta? format,
   }) async {
     final entries = await getHistory();
-    entries.add(RunMetricsEntry(
-      timestamp: DateTime.now().toUtc(),
-      generated: generated,
-      rejected: rejected,
-      avgQualityScore: avgScore,
-      format: format,
-    ));
+    entries.add(
+      RunMetricsEntry(
+        timestamp: DateTime.now().toUtc(),
+        generated: generated,
+        rejected: rejected,
+        avgQualityScore: avgScore,
+        format: format,
+      ),
+    );
     final file = File(_filePath);
     await file.writeAsString(
       jsonEncode(entries.map((e) => e.toJson()).toList()),

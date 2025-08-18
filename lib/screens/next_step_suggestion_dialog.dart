@@ -22,8 +22,9 @@ class NextStepSuggestionDialog extends StatelessWidget {
     final steps = await LessonLoaderService.instance.loadAllLessons();
     final completed = await path.getCompletedStepMap();
     final templates = context.read<TrainingPackTemplateStorageService>();
-    final profile =
-        await SmartReviewService.instance.getMistakeProfile(templates);
+    final profile = await SmartReviewService.instance.getMistakeProfile(
+      templates,
+    );
     final advisor = LearningPathAdvisor(steps: steps);
     final next = advisor.recommendNextStep(
       availableTracks: tracks,
@@ -52,7 +53,7 @@ class NextStepSuggestionDialog extends StatelessWidget {
     final accent = Theme.of(context).colorScheme.secondary;
     final tags =
         (step.meta['tags'] as List?)?.map((e) => e.toString()).toList() ??
-            const <String>[];
+        const <String>[];
     return AlertDialog(
       title: const Text('Next Recommended Step'),
       content: Column(
@@ -63,8 +64,10 @@ class NextStepSuggestionDialog extends StatelessWidget {
           if (track != null)
             Padding(
               padding: const EdgeInsets.only(top: 4),
-              child: Text(track!.title,
-                  style: const TextStyle(color: Colors.white70)),
+              child: Text(
+                track!.title,
+                style: const TextStyle(color: Colors.white70),
+              ),
             ),
           if (tags.isNotEmpty)
             Padding(

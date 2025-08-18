@@ -27,15 +27,15 @@ class _FakeLibrary implements MiniLessonLibraryService {
 
   @override
   List<TheoryMiniLessonNode> findByTags(List<String> tags) => [
-        for (final t in tags)
-          if (byTag[t] != null) byTag[t]!,
-      ];
+    for (final t in tags)
+      if (byTag[t] != null) byTag[t]!,
+  ];
 
   @override
   List<TheoryMiniLessonNode> getByTags(Set<String> tags) => [
-        for (final t in tags)
-          if (byTag[t] != null) byTag[t]!,
-      ];
+    for (final t in tags)
+      if (byTag[t] != null) byTag[t]!,
+  ];
 }
 
 class _FakeNavigator extends TheoryMiniLessonNavigator {
@@ -52,7 +52,11 @@ void main() {
     test('injects matching theory link', () {
       final library = _FakeLibrary({
         'cbet': const TheoryMiniLessonNode(
-            id: '1', title: 'CBet', content: '', tags: ['cbet']),
+          id: '1',
+          title: 'CBet',
+          content: '',
+          tags: ['cbet'],
+        ),
       });
       final nav = _FakeNavigator();
       final linker = InlineTheoryLinker(library: library, navigator: nav);
@@ -69,8 +73,11 @@ void main() {
     test('leaves theoryLink null when no match', () {
       final library = _FakeLibrary({});
       final service = AutoSpotTheoryInjectorService(
-          linker: InlineTheoryLinker(
-              library: library, navigator: _FakeNavigator()));
+        linker: InlineTheoryLinker(
+          library: library,
+          navigator: _FakeNavigator(),
+        ),
+      );
       final spot = TrainingPackSpot(id: 's1', hand: HandData(), tags: ['cbet']);
 
       service.inject(spot);

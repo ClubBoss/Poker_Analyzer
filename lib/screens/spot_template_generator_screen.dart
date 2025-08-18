@@ -38,7 +38,7 @@ class _SpotTemplateGeneratorScreenState
     }
     return [
       for (final part in clean.split(RegExp('[s,]+')))
-        if (part.isNotEmpty) int.tryParse(part.trim()) ?? 0
+        if (part.isNotEmpty) int.tryParse(part.trim()) ?? 0,
     ];
   }
 
@@ -102,7 +102,9 @@ class _SpotTemplateGeneratorScreenState
                 DropdownMenuItem(value: 'push', child: Text('Push')),
                 DropdownMenuItem(value: 'callPush', child: Text('Call Push')),
                 DropdownMenuItem(
-                    value: 'minraiseFold', child: Text('Minraise Fold')),
+                  value: 'minraiseFold',
+                  child: Text('Minraise Fold'),
+                ),
               ],
               onChanged: (v) => setState(() => _action = v ?? _action),
             ),

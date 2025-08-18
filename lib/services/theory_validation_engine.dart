@@ -21,8 +21,9 @@ class TheoryValidationEngine {
     for (final file in files) {
       try {
         final map = reader.read(await file.readAsString());
-        final tpl =
-            TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+        final tpl = TrainingPackTemplateV2.fromJson(
+          Map<String, dynamic>.from(map),
+        );
         if (tpl.spots.isEmpty) {
           errors.add((file.path, 'missing_spot'));
           continue;

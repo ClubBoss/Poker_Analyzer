@@ -28,11 +28,11 @@ Future<TrainingPackSpot> _spotFromText(String text) async {
       .join(' ');
   final acts = <ActionEntry>[
     for (final a in hand.actions)
-      if (a.street == 0) a
+      if (a.street == 0) a,
   ];
   final stacks = <String, double>{
     for (int i = 0; i < hand.numberOfPlayers; i++)
-      '$i': (hand.stackSizes[i] ?? 0).toDouble()
+      '$i': (hand.stackSizes[i] ?? 0).toDouble(),
   };
   return TrainingPackSpot(
     id: 's${hand.name}',
@@ -67,9 +67,11 @@ void main() {
     final spot = await _spotFromText(text);
     final tpl = TrainingPackTemplate(id: 't', name: 't', spots: [spot]);
     await Clipboard.setData(ClipboardData(text: text));
-    await tester.pumpWidget(MaterialApp(
-      home: TrainingPackTemplateEditorScreen(template: tpl, templates: [tpl]),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: TrainingPackTemplateEditorScreen(template: tpl, templates: [tpl]),
+      ),
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Paste Hands'));
     await tester.pumpAndSettle();

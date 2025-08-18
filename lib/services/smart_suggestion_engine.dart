@@ -17,8 +17,9 @@ class SmartSuggestionEngine {
 
   /// Returns up to five recommended packs.
   /// Results are cached for a short period to avoid heavy computation.
-  Future<List<TrainingPackTemplateV2>> suggestNextPacks(
-      {bool force = false}) async {
+  Future<List<TrainingPackTemplateV2>> suggestNextPacks({
+    bool force = false,
+  }) async {
     if (!force &&
         _cache != null &&
         DateTime.now().difference(_cacheTime) < const Duration(hours: 6)) {
@@ -30,8 +31,9 @@ class SmartSuggestionEngine {
     final prefs = await SharedPreferences.getInstance();
 
     final recentMistakes = logs.getRecentMistakes();
-    final mistakeTags =
-        recentMistakes.keys.map((e) => e.trim().toLowerCase()).toSet();
+    final mistakeTags = recentMistakes.keys
+        .map((e) => e.trim().toLowerCase())
+        .toSet();
 
     final audienceCount = <String, int>{};
     for (final log in logs.logs.take(20)) {

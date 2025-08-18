@@ -76,10 +76,7 @@ class _LessonStreakSummaryCardState extends State<LessonStreakSummaryCard> {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Keep it up!',
-            style: TextStyle(color: Colors.white),
-          ),
+          const Text('Keep it up!', style: TextStyle(color: Colors.white)),
         ],
       ),
     );

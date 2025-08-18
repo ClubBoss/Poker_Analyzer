@@ -9,22 +9,24 @@ class MistakeHistorySyncService {
   final String? _uid;
 
   MistakeHistorySyncService({FirebaseFirestore? firestore, String? uid})
-      : _db = firestore ?? FirebaseFirestore.instance,
-        _uid = uid ?? FirebaseAuth.instance.currentUser?.uid;
+    : _db = firestore ?? FirebaseFirestore.instance,
+      _uid = uid ?? FirebaseAuth.instance.currentUser?.uid;
 
   Future<void> uploadMistakes(Map<String, int> mistakeCounts) async {
     if (_uid == null) return;
     await CloudRetryPolicy.execute(
-        () => _db.collection('mistakeHistory').doc(_uid).set({
-              'counts': mistakeCounts,
-              'updatedAt': DateTime.now().toIso8601String(),
-            }));
+      () => _db.collection('mistakeHistory').doc(_uid).set({
+        'counts': mistakeCounts,
+        'updatedAt': DateTime.now().toIso8601String(),
+      }),
+    );
   }
 
   Future<Map<String, int>> downloadMistakes() async {
     if (_uid == null) return {};
     final snap = await CloudRetryPolicy.execute(
-        () => _db.collection('mistakeHistory').doc(_uid).get());
+      () => _db.collection('mistakeHistory').doc(_uid).get(),
+    );
     if (!snap.exists) return {};
     final data = snap.data();
     final result = <String, int>{};

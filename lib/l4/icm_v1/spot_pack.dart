@@ -19,20 +19,20 @@ class IcmDTO {
   });
 
   factory IcmDTO.fromSpot(IcmSpot s) => IcmDTO(
-        hand: s.hand,
-        heroPos: s.heroPos.name,
-        stackBb: s.stackBb.name,
-        stacks: s.stacks.name,
-        action: s.action.name,
-      );
+    hand: s.hand,
+    heroPos: s.heroPos.name,
+    stackBb: s.stackBb.name,
+    stacks: s.stacks.name,
+    action: s.action.name,
+  );
 
   Map<String, String> toJson() => {
-        'hand': hand,
-        'heroPos': heroPos,
-        'stackBb': stackBb,
-        'stacks': stacks,
-        'action': action,
-      };
+    'hand': hand,
+    'heroPos': heroPos,
+    'stackBb': stackBb,
+    'stacks': stacks,
+    'action': action,
+  };
 }
 
 class IcmPack {
@@ -51,16 +51,16 @@ class IcmPack {
   });
 
   Map<String, dynamic> toJson() => {
-        'version': version,
-        'seed': seed,
-        'count': count,
-        'mix': {
-          'posPct': _enumMapToJson(IcmPos.values, mix.posPct),
-          'stackBbPct': _enumMapToJson(StackBin.values, mix.stackBbPct),
-          'triplePct': _enumMapToJson(StackTriple.values, mix.triplePct),
-        },
-        'items': items.map((e) => e.toJson()).toList(),
-      };
+    'version': version,
+    'seed': seed,
+    'count': count,
+    'mix': {
+      'posPct': _enumMapToJson(IcmPos.values, mix.posPct),
+      'stackBbPct': _enumMapToJson(StackBin.values, mix.stackBbPct),
+      'triplePct': _enumMapToJson(StackTriple.values, mix.triplePct),
+    },
+    'items': items.map((e) => e.toJson()).toList(),
+  };
 }
 
 Map<String, double> _enumMapToJson<E>(List<E> order, Map<E, double> src) {

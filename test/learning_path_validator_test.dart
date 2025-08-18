@@ -12,7 +12,10 @@ void main() {
       TrainingStageNode(id: 'start', nextIds: ['a']),
       TrainingStageNode(id: 'a', nextIds: ['missing']),
       LearningBranchNode(
-          id: 'b', prompt: 'Q', branches: {'A': 'a', 'B': 'orphan'}),
+        id: 'b',
+        prompt: 'Q',
+        branches: {'A': 'a', 'B': 'orphan'},
+      ),
       TrainingStageNode(id: 'loop', nextIds: ['loop']),
       TrainingStageNode(id: 'unref'),
     ];
@@ -35,11 +38,12 @@ void main() {
   test('validator handles theory nodes', () {
     const nodes = [
       TheoryLessonNode(
-          id: 't1',
-          refId: 'welcome',
-          title: 'T',
-          content: 'C',
-          nextIds: ['end']),
+        id: 't1',
+        refId: 'welcome',
+        title: 'T',
+        content: 'C',
+        nextIds: ['end'],
+      ),
       TrainingStageNode(id: 'end'),
     ];
     final errors = LearningPathValidator.validate(nodes);

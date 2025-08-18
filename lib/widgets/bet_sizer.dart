@@ -120,10 +120,7 @@ class _BetSizerState extends State<BetSizer> {
   }
 
   Widget _presetButton(String label, double target) {
-    return OutlinedButton(
-      onPressed: () => _set(target),
-      child: Text(label),
-    );
+    return OutlinedButton(onPressed: () => _set(target), child: Text(label));
   }
 
   Widget _stepper(String label, double delta) {
@@ -149,12 +146,14 @@ class _BetSizerState extends State<BetSizer> {
 
     if (widget.recall != null) {
       final v = widget.recall!.clamp(widget.min, widget.max).toDouble();
-      presets.add(OutlinedButton(
-        onPressed: () {
-          _set(v);
-        },
-        child: const Text('Recall'),
-      ));
+      presets.add(
+        OutlinedButton(
+          onPressed: () {
+            _set(v);
+          },
+          child: const Text('Recall'),
+        ),
+      );
     }
 
     if (!widget.adaptive || widget.street == null) {
@@ -228,11 +227,7 @@ class _BetSizerState extends State<BetSizer> {
         const SizedBox(height: 8),
 
         // Presets
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: _buildPresets(),
-        ),
+        Wrap(spacing: 8, runSpacing: 8, children: _buildPresets()),
         const SizedBox(height: 8),
 
         // Slider

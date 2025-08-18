@@ -41,8 +41,8 @@ class _TrackUnlockPreviewCardState extends State<TrackUnlockPreviewCard> {
     final mastery = await engine.masteryService.computeTrackMastery();
     final streak = await engine.streakEngine.getCurrentStreak();
     final goalStreak = await LessonGoalStreakEngine.instance.getCurrentStreak();
-    final progress =
-        await LessonPathProgressService.instance.computeTrackProgress();
+    final progress = await LessonPathProgressService.instance
+        .computeTrackProgress();
 
     final titles = {for (var t in tracks) t.id: t.title};
 
@@ -121,8 +121,10 @@ class _TrackUnlockPreviewCardState extends State<TrackUnlockPreviewCard> {
       }
     }
 
-    res.sort((a, b) =>
-        (progress[b.track.id] ?? 0).compareTo(progress[a.track.id] ?? 0));
+    res.sort(
+      (a, b) =>
+          (progress[b.track.id] ?? 0).compareTo(progress[a.track.id] ?? 0),
+    );
     return res.take(3).toList();
   }
 
@@ -178,8 +180,9 @@ class _TrackUnlockPreviewCardState extends State<TrackUnlockPreviewCard> {
                           Text(
                             info.track.title,
                             style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           const SizedBox(height: 4),
                           LinearProgressIndicator(
@@ -198,7 +201,9 @@ class _TrackUnlockPreviewCardState extends State<TrackUnlockPreviewCard> {
                               child: Text(
                                 info.label!,
                                 style: const TextStyle(
-                                    color: Colors.white70, fontSize: 12),
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
                               ),
                             ),
                           const Spacer(),
@@ -208,7 +213,7 @@ class _TrackUnlockPreviewCardState extends State<TrackUnlockPreviewCard> {
                               onPressed: _openLibrary,
                               child: const Text('Разблокировать скоро'),
                             ),
-                          )
+                          ),
                         ],
                       ),
                     );

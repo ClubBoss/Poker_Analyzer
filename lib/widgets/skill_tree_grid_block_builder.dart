@@ -50,19 +50,21 @@ class SkillTreeGridBlockBuilder {
     for (final node in nodes) {
       final rect = bounds[node.id];
       if (rect == null) continue;
-      nodeWidgets.add(Positioned(
-        left: rect.left,
-        top: rect.top,
-        width: rect.width,
-        height: rect.height,
-        child: SkillTreeNodeCard(
-          node: node,
-          unlocked: unlockedNodeIds.contains(node.id),
-          completed: completedNodeIds.contains(node.id),
-          justUnlocked: justUnlockedNodeIds.contains(node.id),
-          onTap: onNodeTap == null ? null : () => onNodeTap(node),
+      nodeWidgets.add(
+        Positioned(
+          left: rect.left,
+          top: rect.top,
+          width: rect.width,
+          height: rect.height,
+          child: SkillTreeNodeCard(
+            node: node,
+            unlocked: unlockedNodeIds.contains(node.id),
+            completed: completedNodeIds.contains(node.id),
+            justUnlocked: justUnlockedNodeIds.contains(node.id),
+            onTap: onNodeTap == null ? null : () => onNodeTap(node),
+          ),
         ),
-      ));
+      );
     }
 
     final contentHeight = bounds.values
@@ -83,10 +85,7 @@ class SkillTreeGridBlockBuilder {
         const SizedBox(height: 8),
         SizedBox(
           height: contentHeight,
-          child: Stack(children: [
-            ...connectors,
-            ...nodeWidgets,
-          ]),
+          child: Stack(children: [...connectors, ...nodeWidgets]),
         ),
       ],
     );

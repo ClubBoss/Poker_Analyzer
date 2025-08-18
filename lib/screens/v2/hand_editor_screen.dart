@@ -47,8 +47,9 @@ class _HandEditorScreenState extends State<HandEditorScreen> {
       appBar: AppBar(
         title: const Text('Edit Hand'),
         leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => Navigator.pop(context)),
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
         actions: [IconButton(icon: const Icon(Icons.save), onPressed: _save)],
       ),
       body: AnimatedBuilder(

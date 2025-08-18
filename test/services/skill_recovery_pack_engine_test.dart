@@ -22,24 +22,22 @@ void main() {
       name: id,
       trainingType: TrainingType.pushFold,
       tags: tags,
-      meta: {
-        'popularity': pop,
-        if (suggested) 'suggested': true,
-      },
+      meta: {'popularity': pop, if (suggested) 'suggested': true},
     );
   }
 
   test('returns pack matching dormant tag', () async {
     final library = [
-      tpl(id: 'a', tags: ['cbet'], suggested: true)
+      tpl(id: 'a', tags: ['cbet'], suggested: true),
     ];
     final dormant = [
       const TagPerformance(
-          tag: 'cbet',
-          totalAttempts: 0,
-          correct: 0,
-          accuracy: 0,
-          lastTrained: null),
+        tag: 'cbet',
+        totalAttempts: 0,
+        correct: 0,
+        accuracy: 0,
+        lastTrained: null,
+      ),
     ];
     final result = await SkillRecoveryPackEngine.suggestRecoveryPack(
       library: library,
@@ -55,11 +53,12 @@ void main() {
     ];
     final dormant = [
       const TagPerformance(
-          tag: 'cbet',
-          totalAttempts: 0,
-          correct: 0,
-          accuracy: 0,
-          lastTrained: null),
+        tag: 'cbet',
+        totalAttempts: 0,
+        correct: 0,
+        accuracy: 0,
+        lastTrained: null,
+      ),
     ];
     final result = await SkillRecoveryPackEngine.suggestRecoveryPack(
       library: library,

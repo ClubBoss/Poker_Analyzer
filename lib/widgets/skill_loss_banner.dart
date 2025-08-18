@@ -43,7 +43,8 @@ class SkillLossBanner extends StatelessWidget {
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (_) => TagInsightScreen(tag: loss.tag)),
+                          builder: (_) => TagInsightScreen(tag: loss.tag),
+                        ),
                       ),
                       child: Text(
                         '${loss.tag} - ${loss.trend}',

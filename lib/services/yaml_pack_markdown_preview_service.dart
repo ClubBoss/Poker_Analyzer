@@ -14,9 +14,11 @@ class YamlPackMarkdownPreviewService {
       buffer
         ..writeln('\n**Spots:** ${pack.spotCount}')
         ..writeln(
-            '**EV:** ${(pack.meta['evScore'] as num?)?.toStringAsFixed(1) ?? ''}')
+          '**EV:** ${(pack.meta['evScore'] as num?)?.toStringAsFixed(1) ?? ''}',
+        )
         ..writeln(
-            '**ICM:** ${(pack.meta['icmScore'] as num?)?.toStringAsFixed(1) ?? ''}');
+          '**ICM:** ${(pack.meta['icmScore'] as num?)?.toStringAsFixed(1) ?? ''}',
+        );
       final preview = pack.spots.take(5);
       if (preview.isNotEmpty) {
         buffer

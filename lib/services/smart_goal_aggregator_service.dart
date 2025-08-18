@@ -10,8 +10,8 @@ class SmartGoalAggregatorService {
   SmartGoalAggregatorService({
     SmartDecayGoalGenerator? decay,
     SmartMistakeGoalGenerator? mistake,
-  })  : decay = decay ?? SmartDecayGoalGenerator(),
-        mistake = mistake ?? SmartMistakeGoalGenerator();
+  }) : decay = decay ?? SmartDecayGoalGenerator(),
+       mistake = mistake ?? SmartMistakeGoalGenerator();
 
   Future<List<GoalRecommendation>> getRecommendations({int max = 6}) async {
     if (max <= 0) return <GoalRecommendation>[];
@@ -19,8 +19,8 @@ class SmartGoalAggregatorService {
     final mistakeList = await mistake.recommendMistakeRecoveryGoals(max: max);
     final res = <GoalRecommendation>[];
     var i = 0;
-    while (
-        res.length < max && (i < decayList.length || i < mistakeList.length)) {
+    while (res.length < max &&
+        (i < decayList.length || i < mistakeList.length)) {
       if (i < decayList.length) res.add(decayList[i]);
       if (res.length >= max) break;
       if (i < mistakeList.length) res.add(mistakeList[i]);

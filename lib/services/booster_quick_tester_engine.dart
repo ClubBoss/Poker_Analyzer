@@ -24,8 +24,10 @@ class BoosterTestReport {
 class BoosterQuickTesterEngine {
   const BoosterQuickTesterEngine();
 
-  BoosterTestReport test(TrainingPackTemplateV2 pack,
-      {bool detectAnomalies = false}) {
+  BoosterTestReport test(
+    TrainingPackTemplateV2 pack, {
+    bool detectAnomalies = false,
+  }) {
     final validation = const BoosterPackValidatorService().validate(pack);
     final total = pack.spots.length;
     int emptyExp = 0;

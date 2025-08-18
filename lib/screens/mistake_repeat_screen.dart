@@ -33,25 +33,27 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
     super.initState();
     final progress = context.read<MistakeReviewPackService>().progress;
     WidgetsBinding.instance.addPostFrameCallback(
-        (_) => context.read<MistakeStreakService>().update(progress));
+      (_) => context.read<MistakeStreakService>().update(progress),
+    );
   }
 
   Map<String, List<SavedHand>> _groupMistakes(List<SavedHand> hands) {
-    final mistakes = [
-      for (final h in hands)
-        if (h.expectedAction != null &&
-            h.gtoAction != null &&
-            h.expectedAction!.trim().toLowerCase() !=
-                h.gtoAction!.trim().toLowerCase())
-          h
-    ]..sort((a, b) {
-        final av = a.evLoss;
-        final bv = b.evLoss;
-        if (av == null && bv == null) return 0;
-        if (av == null) return 1;
-        if (bv == null) return -1;
-        return bv.compareTo(av);
-      });
+    final mistakes =
+        [
+          for (final h in hands)
+            if (h.expectedAction != null &&
+                h.gtoAction != null &&
+                h.expectedAction!.trim().toLowerCase() !=
+                    h.gtoAction!.trim().toLowerCase())
+              h,
+        ]..sort((a, b) {
+          final av = a.evLoss;
+          final bv = b.evLoss;
+          if (av == null && bv == null) return 0;
+          if (av == null) return 1;
+          if (bv == null) return -1;
+          return bv.compareTo(av);
+        });
 
     final Map<String, List<SavedHand>> grouped = {};
     for (final h in mistakes) {
@@ -64,11 +66,9 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
 
   Future<void> _exportPdf(BuildContext context) async {
     final hands = context.read<SavedHandManagerService>().hands;
-    final entries = _groupMistakes(hands)
-        .entries
-        .where((e) => e.value.length > 1)
-        .toList()
-      ..sort((a, b) => b.value.length.compareTo(a.value.length));
+    final entries =
+        _groupMistakes(hands).entries.where((e) => e.value.length > 1).toList()
+          ..sort((a, b) => b.value.length.compareTo(a.value.length));
 
     if (entries.isEmpty) return;
 
@@ -81,24 +81,32 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
         pageFormat: PdfPageFormat.a4,
         build: (ctx) {
           return [
-            pw.Text('Повторы ошибок',
-                style: pw.TextStyle(font: boldFont, fontSize: 24)),
+            pw.Text(
+              'Повторы ошибок',
+              style: pw.TextStyle(font: boldFont, fontSize: 24),
+            ),
             pw.SizedBox(height: 16),
             for (final e in entries) ...[
-              pw.Text('${e.key} - ${e.value.length}',
-                  style: pw.TextStyle(font: boldFont, fontSize: 16)),
+              pw.Text(
+                '${e.key} - ${e.value.length}',
+                style: pw.TextStyle(font: boldFont, fontSize: 16),
+              ),
               pw.SizedBox(height: 4),
               for (final h in e.value)
-                pw.Bullet(text: h.name, style: pw.TextStyle(font: regularFont)),
+                pw.Bullet(
+                  text: h.name,
+                  style: pw.TextStyle(font: regularFont),
+                ),
               pw.SizedBox(height: 12),
-            ]
+            ],
           ];
         },
       ),
     );
 
     final bytes = await pdf.save();
-    final dir = await getDownloadsDirectory() ??
+    final dir =
+        await getDownloadsDirectory() ??
         await getApplicationDocumentsDirectory();
     final fileName =
         'mistake_repeats_${DateTime.now().millisecondsSinceEpoch}.pdf';
@@ -120,11 +128,9 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
 
   Future<void> _exportMarkdown(BuildContext context) async {
     final hands = context.read<SavedHandManagerService>().hands;
-    final entries = _groupMistakes(hands)
-        .entries
-        .where((e) => e.value.length > 1)
-        .toList()
-      ..sort((a, b) => b.value.length.compareTo(a.value.length));
+    final entries =
+        _groupMistakes(hands).entries.where((e) => e.value.length > 1).toList()
+          ..sort((a, b) => b.value.length.compareTo(a.value.length));
 
     if (entries.isEmpty) return;
 
@@ -139,7 +145,8 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
       buffer.writeln();
     }
 
-    final dir = await getDownloadsDirectory() ??
+    final dir =
+        await getDownloadsDirectory() ??
         await getApplicationDocumentsDirectory();
     final fileName =
         'mistake_repeats_${DateTime.now().millisecondsSinceEpoch}.md';
@@ -193,7 +200,7 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
     final hands = context.watch<SavedHandManagerService>().hands;
     final categories = {
       for (final h in hands)
-        if (h.category != null && h.category!.isNotEmpty) h.category!
+        if (h.category != null && h.category!.isNotEmpty) h.category!,
     };
     final lossMap = <String, double>{};
     for (final h in hands) {
@@ -208,7 +215,7 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
     final topThree = topLoss.take(3).toList();
     final filtered = [
       for (final h in hands)
-        if (_categoryFilter == 'All' || h.category == _categoryFilter) h
+        if (_categoryFilter == 'All' || h.category == _categoryFilter) h,
     ];
     final grouped = _groupMistakes(filtered);
     final streak = context.watch<MistakeStreakService>().count;
@@ -257,8 +264,9 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Theme(
-                  data: Theme.of(context)
-                      .copyWith(dividerColor: Colors.transparent),
+                  data: Theme.of(
+                    context,
+                  ).copyWith(dividerColor: Colors.transparent),
                   child: ExpansionTile(
                     tilePadding: const EdgeInsets.all(12),
                     iconColor: Colors.white,
@@ -289,11 +297,13 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
                             showSavedHandViewerDialog(context, hand);
                           },
                           onFavoriteToggle: () {
-                            final manager =
-                                context.read<SavedHandManagerService>();
+                            final manager = context
+                                .read<SavedHandManagerService>();
                             final idx = manager.hands.indexOf(hand);
-                            manager.update(idx,
-                                hand.copyWith(isFavorite: !hand.isFavorite));
+                            manager.update(
+                              idx,
+                              hand.copyWith(isFavorite: !hand.isFavorite),
+                            );
                           },
                         ),
                     ],
@@ -312,9 +322,13 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
               children: [
                 const Icon(Icons.local_fire_department, color: Colors.orange),
                 const SizedBox(width: 8),
-                Text('Streak: $streak',
-                    style: const TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold)),
+                Text(
+                  'Streak: $streak',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ],
             ),
           ),
@@ -345,30 +359,36 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
               value: _categoryFilter,
               dropdownColor: const Color(0xFF2A2B2E),
               onChanged: (v) => setState(() => _categoryFilter = v ?? 'All'),
-              items: ['All', ...categories]
-                  .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-                  .toList(),
+              items: [
+                'All',
+                ...categories,
+              ].map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
             ),
           ),
         if (_categoryFilter != 'All' &&
-            filtered.any((h) =>
-                h.expectedAction != null &&
-                h.gtoAction != null &&
-                h.expectedAction!.trim().toLowerCase() !=
-                    h.gtoAction!.trim().toLowerCase()))
+            filtered.any(
+              (h) =>
+                  h.expectedAction != null &&
+                  h.gtoAction != null &&
+                  h.expectedAction!.trim().toLowerCase() !=
+                      h.gtoAction!.trim().toLowerCase(),
+            ))
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             child: OutlinedButton.icon(
               onPressed: () async {
                 final tpl = await TrainingPackService.createDrillFromCategory(
-                    context, _categoryFilter);
+                  context,
+                  _categoryFilter,
+                );
                 if (tpl == null) return;
                 await context.read<TrainingSessionService>().startSession(tpl);
                 if (context.mounted) {
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) => const TrainingSessionScreen()),
+                      builder: (_) => const TrainingSessionScreen(),
+                    ),
                   );
                 }
               },

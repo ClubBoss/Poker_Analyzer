@@ -16,12 +16,12 @@ void main() {
           'excludedRanks': ['2', '3', '4', '5', '6', '7', '8', '9'],
           'requiredSuits': ['s'],
           'excludedSuits': ['h', 'd', 'c'],
-        }
+        },
       ],
       linePattern: LinePattern(
         startingPosition: 'sb',
         streets: {
-          'flop': ['villainBet']
+          'flop': ['villainBet'],
         },
       ),
       tags: ['extra'],
@@ -46,7 +46,7 @@ void main() {
           'preset': 'lowPaired',
           'requiredTextures': ['paired', 'low', 'monotone'],
           'targetStreet': 'flop',
-        }
+        },
       ],
     );
 

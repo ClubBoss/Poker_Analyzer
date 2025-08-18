@@ -7,7 +7,7 @@ class BoosterEffectivenessAnalyzerService {
   final BoosterStatsTrackerService tracker;
 
   BoosterEffectivenessAnalyzerService({BoosterStatsTrackerService? tracker})
-      : tracker = tracker ?? BoosterStatsTrackerService();
+    : tracker = tracker ?? BoosterStatsTrackerService();
 
   static const String _boxName = 'booster_stats_box';
 
@@ -46,7 +46,8 @@ class BoosterEffectivenessAnalyzerService {
       final data = Map<String, dynamic>.from(raw);
       final accMap = Map<String, dynamic>.from(data['accuracyPerTag'] ?? {});
       final ts = DateTime.fromMillisecondsSinceEpoch(
-          (data['date'] as num?)?.toInt() ?? 0);
+        (data['date'] as num?)?.toInt() ?? 0,
+      );
       accMap.forEach((tag, acc) {
         final t = tag.toString().trim().toLowerCase();
         final a = (acc as num?)?.toDouble();

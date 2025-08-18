@@ -44,18 +44,19 @@ class _StartTrainingFromPackScreenState
     await prefs.setString(_lastKey, tpl.name);
     setState(() => _last = tpl.name);
     final hands = [
-      for (final s in tpl.spots) handFromPackSpot(s, anteBb: tpl.anteBb)
+      for (final s in tpl.spots) handFromPackSpot(s, anteBb: tpl.anteBb),
     ];
     await Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (_) => TrainingScreen.drill(
-                hands: hands,
-                templateId: tpl.id,
-                templateName: tpl.name,
-                minEvForCorrect: tpl.minEvForCorrect,
-                anteBb: tpl.anteBb,
-              )),
+        builder: (_) => TrainingScreen.drill(
+          hands: hands,
+          templateId: tpl.id,
+          templateName: tpl.name,
+          minEvForCorrect: tpl.minEvForCorrect,
+          anteBb: tpl.anteBb,
+        ),
+      ),
     );
   }
 

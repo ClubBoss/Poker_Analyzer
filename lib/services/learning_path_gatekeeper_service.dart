@@ -54,9 +54,7 @@ class LearningPathGatekeeperService {
     _unlocked.clear();
 
     // Map stage id to model for quick lookup
-    final stageById = {
-      for (final s in template.stages) s.id: s,
-    };
+    final stageById = {for (final s in template.stages) s.id: s};
 
     if (template.sections.isNotEmpty) {
       final idsInSections = <String>{};

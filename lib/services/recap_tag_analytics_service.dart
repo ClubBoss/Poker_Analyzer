@@ -29,8 +29,10 @@ class RecapTagAnalyticsService {
     recapStats.forEach((tag, stat) {
       final recapAcc = stat.accuracy;
       final baseAcc = baselineStats[tag]?.accuracy ?? 0;
-      result[tag] =
-          RecapTagPerformance(tag: tag, improvement: recapAcc - baseAcc);
+      result[tag] = RecapTagPerformance(
+        tag: tag,
+        improvement: recapAcc - baseAcc,
+      );
     });
     return result;
   }

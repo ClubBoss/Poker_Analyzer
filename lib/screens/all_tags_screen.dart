@@ -19,7 +19,7 @@ class AllTagsScreen extends StatelessWidget {
                 FilterChip(
                   label: Text(tag),
                   onSelected: (_) => Navigator.pop(context, tag),
-                )
+                ),
             ],
           ),
         ),

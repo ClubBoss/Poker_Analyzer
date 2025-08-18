@@ -23,11 +23,13 @@ void main() {
     final dir = Directory('packs')..createSync();
     final file = File(p.join(dir.path, 'pack.yaml'));
     final body = 'name: good\n';
-    final canon =
-        const TheoryYamlCanonicalizer().canonicalize({'name': 'good'});
+    final canon = const TheoryYamlCanonicalizer().canonicalize({
+      'name': 'good',
+    });
     final hash = sha256.convert(utf8.encode(canon)).toString();
     file.writeAsStringSync(
-        '# x-hash: $hash | x-ver: 1 | x-ts: 0 | x-hash-algo: sha256-canon@v1\n$body');
+      '# x-hash: $hash | x-ver: 1 | x-ts: 0 | x-hash-algo: sha256-canon@v1\n$body',
+    );
 
     final manifest = TheoryManifestService();
     await manifest.generate([dir.path]);
@@ -62,11 +64,13 @@ void main() {
     final dir = Directory('packs')..createSync();
     final file = File(p.join(dir.path, 'pack.yaml'));
     final body = 'name: good\n';
-    final canon =
-        const TheoryYamlCanonicalizer().canonicalize({'name': 'good'});
+    final canon = const TheoryYamlCanonicalizer().canonicalize({
+      'name': 'good',
+    });
     final hash = sha256.convert(utf8.encode(canon)).toString();
     file.writeAsStringSync(
-        '# x-hash: $hash | x-ver: 1 | x-ts: 0 | x-hash-algo: sha256-canon@v1\n$body');
+      '# x-hash: $hash | x-ver: 1 | x-ts: 0 | x-hash-algo: sha256-canon@v1\n$body',
+    );
 
     final manifest = TheoryManifestService();
     await manifest.generate([dir.path]);
@@ -74,7 +78,8 @@ void main() {
 
     // corrupt file
     file.writeAsStringSync(
-        '# x-hash: $hash | x-ver: 1 | x-ts: 0 | x-hash-algo: sha256-canon@v1\nname: bad\n');
+      '# x-hash: $hash | x-ver: 1 | x-ts: 0 | x-hash-algo: sha256-canon@v1\nname: bad\n',
+    );
 
     final config = await config0();
     final sweeper = TheoryIntegritySweeper(

@@ -29,11 +29,11 @@ class BoosterRecapHook {
     TheoryRecapAnalyticsReporter? analytics,
     SmartBoosterDropoffDetector? dropoff,
     SmartTheoryRecapDismissalMemory? memory,
-  })  : engine = engine ?? SmartTheoryRecapEngine.instance,
-        suppression = suppression ?? TheoryRecapSuppressionEngine.instance,
-        analytics = analytics ?? TheoryRecapAnalyticsReporter.instance,
-        dropoff = dropoff ?? SmartBoosterDropoffDetector.instance,
-        memory = memory ?? SmartTheoryRecapDismissalMemory.instance;
+  }) : engine = engine ?? SmartTheoryRecapEngine.instance,
+       suppression = suppression ?? TheoryRecapSuppressionEngine.instance,
+       analytics = analytics ?? TheoryRecapAnalyticsReporter.instance,
+       dropoff = dropoff ?? SmartBoosterDropoffDetector.instance,
+       memory = memory ?? SmartTheoryRecapDismissalMemory.instance;
 
   static final BoosterRecapHook instance = BoosterRecapHook();
 
@@ -69,8 +69,10 @@ class BoosterRecapHook {
     final count = await _incrementReview(handId);
     if (count > 1) {
       const trigger = 'review';
-      if (await BoosterFatigueGuard.instance
-          .isFatigued(lessonId: '', trigger: trigger)) {
+      if (await BoosterFatigueGuard.instance.isFatigued(
+        lessonId: '',
+        trigger: trigger,
+      )) {
         await analytics.logEvent(
           lessonId: '',
           trigger: trigger,
@@ -103,8 +105,10 @@ class BoosterRecapHook {
   }) async {
     if (mistakes >= 2) {
       const trigger = 'drillResult';
-      if (await BoosterFatigueGuard.instance
-          .isFatigued(lessonId: '', trigger: trigger)) {
+      if (await BoosterFatigueGuard.instance.isFatigued(
+        lessonId: '',
+        trigger: trigger,
+      )) {
         await analytics.logEvent(
           lessonId: '',
           trigger: trigger,
@@ -142,8 +146,10 @@ class BoosterRecapHook {
     await dropoff.recordOutcome(failed ? 'failed' : 'completed');
     if (!failed) return;
     const trigger = 'boosterFailure';
-    if (await BoosterFatigueGuard.instance
-        .isFatigued(lessonId: '', trigger: trigger)) {
+    if (await BoosterFatigueGuard.instance.isFatigued(
+      lessonId: '',
+      trigger: trigger,
+    )) {
       await analytics.logEvent(
         lessonId: '',
         trigger: trigger,
@@ -211,11 +217,7 @@ class BoosterRecapHook {
       );
       return;
     }
-    await engine.maybePrompt(
-      lessonId: lessonId,
-      tags: tags,
-      trigger: trigger,
-    );
+    await engine.maybePrompt(lessonId: lessonId, tags: tags, trigger: trigger);
     for (final k in keys) {
       unawaited(TheoryBoosterRecapDelayManager.markPrompted(k));
     }

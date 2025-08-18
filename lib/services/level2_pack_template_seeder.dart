@@ -17,8 +17,8 @@ class LevelIIPackTemplateSeeder {
   const LevelIIPackTemplateSeeder({
     TrainingPackTemplateExpanderService? expander,
     TrainingPackTemplateLibraryService? library,
-  })  : _expander = expander ?? TrainingPackTemplateExpanderService(),
-        _library = library ?? TrainingPackTemplateLibraryService.instance;
+  }) : _expander = expander ?? TrainingPackTemplateExpanderService(),
+       _library = library ?? TrainingPackTemplateLibraryService.instance;
 
   /// Generates all predefined templates and adds them to the library.
   Future<void> seedAll() async {

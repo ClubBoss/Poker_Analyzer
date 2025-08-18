@@ -12,9 +12,7 @@ class LessonLoaderService {
   Future<List<LessonStep>> loadAllLessons() async {
     final cached = _cache;
     if (cached != null) return cached;
-    const files = [
-      'assets/lessons/test_lesson.yaml',
-    ];
+    const files = ['assets/lessons/test_lesson.yaml'];
     final steps = <LessonStep>[];
     for (final path in files) {
       try {

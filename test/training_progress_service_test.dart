@@ -23,7 +23,7 @@ void main() {
       name: 'Pack 2',
       trainingType: TrainingType.pushFold,
       spots: [
-        TrainingPackSpot(id: 's3', hand: HandData(), tags: ['b'])
+        TrainingPackSpot(id: 's3', hand: HandData(), tags: ['b']),
       ],
     );
     final attempts = [
@@ -70,7 +70,7 @@ void main() {
       name: 'Pack 1',
       trainingType: TrainingType.pushFold,
       spots: [
-        TrainingPackSpot(id: 's1', hand: HandData(), tags: ['a'])
+        TrainingPackSpot(id: 's1', hand: HandData(), tags: ['a']),
       ],
     );
     final attempts = [
@@ -107,7 +107,7 @@ void main() {
       name: 'Pack 1',
       trainingType: TrainingType.pushFold,
       spots: [
-        TrainingPackSpot(id: 's1', hand: HandData(), tags: ['a'])
+        TrainingPackSpot(id: 's1', hand: HandData(), tags: ['a']),
       ],
     );
     final attempts = [

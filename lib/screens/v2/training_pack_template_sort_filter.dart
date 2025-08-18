@@ -77,7 +77,8 @@ mixin TrainingPackTemplateSortFilter on State<TrainingPackTemplateListScreen> {
         break;
       default:
         _templates.sort(
-            (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+          (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+        );
     }
   }
 
@@ -90,8 +91,11 @@ mixin TrainingPackTemplateSortFilter on State<TrainingPackTemplateListScreen> {
   Future<void> _loadStackFilter() async {
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
-      setState(() => _stackFilter =
-          prefs.getString(TrainingPackTemplatePrefs.stackFilter));
+      setState(
+        () => _stackFilter = prefs.getString(
+          TrainingPackTemplatePrefs.stackFilter,
+        ),
+      );
     }
   }
 
@@ -99,28 +103,36 @@ mixin TrainingPackTemplateSortFilter on State<TrainingPackTemplateListScreen> {
     final prefs = await SharedPreferences.getInstance();
     final name = prefs.getString(TrainingPackTemplatePrefs.posFilter);
     if (mounted) {
-      setState(() => _posFilter = name == null
-          ? null
-          : HeroPosition.values.firstWhere(
-              (e) => e.name == name,
-              orElse: () => HeroPosition.sb,
-            ));
+      setState(
+        () => _posFilter = name == null
+            ? null
+            : HeroPosition.values.firstWhere(
+                (e) => e.name == name,
+                orElse: () => HeroPosition.sb,
+              ),
+      );
     }
   }
 
   Future<void> _loadDifficultyFilter() async {
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
-      setState(() => _difficultyFilter =
-          prefs.getString(TrainingPackTemplatePrefs.difficultyFilter));
+      setState(
+        () => _difficultyFilter = prefs.getString(
+          TrainingPackTemplatePrefs.difficultyFilter,
+        ),
+      );
     }
   }
 
   Future<void> _loadStreetFilter() async {
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
-      setState(() => _streetFilter =
-          prefs.getString(TrainingPackTemplatePrefs.streetFilter));
+      setState(
+        () => _streetFilter = prefs.getString(
+          TrainingPackTemplatePrefs.streetFilter,
+        ),
+      );
     }
   }
 
@@ -239,38 +251,38 @@ mixin TrainingPackTemplateSortFilter on State<TrainingPackTemplateListScreen> {
             for (final t in _templates)
               if (_favorites.contains(t.id) ||
                   FavoritePackService.instance.isFavorite(t.id))
-                t
+                t,
           ]
         : _templates;
     final byType = _selectedType == null
         ? base
         : [
             for (final t in base)
-              if (t.gameType == _selectedType) t
+              if (t.gameType == _selectedType) t,
           ];
     final filtered = _selectedTag == null
         ? byType
         : [
             for (final t in byType)
-              if (t.tags.contains(_selectedTag)) t
+              if (t.tags.contains(_selectedTag)) t,
           ];
     final icmFiltered = !_icmOnly
         ? filtered
         : [
             for (final t in filtered)
-              if (_isIcmTemplate(t)) t
+              if (_isIcmTemplate(t)) t,
           ];
     final stackFiltered = _stackFilter == null
         ? icmFiltered
         : [
             for (final t in icmFiltered)
-              if (_matchStack(t.heroBbStack)) t
+              if (_matchStack(t.heroBbStack)) t,
           ];
     final posFiltered = _posFilter == null
         ? stackFiltered
         : [
             for (final t in stackFiltered)
-              if (t.heroPos == _posFilter) t
+              if (t.heroPos == _posFilter) t,
           ];
     final diffFiltered = _difficultyFilter == null
         ? posFiltered
@@ -278,24 +290,25 @@ mixin TrainingPackTemplateSortFilter on State<TrainingPackTemplateListScreen> {
             for (final t in posFiltered)
               if (t.difficulty == _difficultyFilter ||
                   t.tags.contains(_difficultyFilter!))
-                t
+                t,
           ];
     final streetFiltered = _streetFilter == null
         ? diffFiltered
         : [
             for (final t in diffFiltered)
-              if (t.targetStreet == _streetFilter) t
+              if (t.targetStreet == _streetFilter) t,
           ];
     final evalFiltered = !_showNeedsEvalOnly
         ? streetFiltered
         : [
             for (final t in streetFiltered)
-              if (t.evCovered < t.totalWeight || t.icmCovered < t.totalWeight) t
+              if (t.evCovered < t.totalWeight || t.icmCovered < t.totalWeight)
+                t,
           ];
     final completed = _completedOnly
         ? [
             for (final t in evalFiltered)
-              if (t.goalAchieved) t
+              if (t.goalAchieved) t,
           ]
         : evalFiltered;
     final visible = _hideCompleted
@@ -306,7 +319,7 @@ mixin TrainingPackTemplateSortFilter on State<TrainingPackTemplateListScreen> {
                           : (_progress[t.id] ?? 0) / t.spots.length) <
                       1.0 ||
                   !t.goalAchieved)
-                t
+                t,
           ]
         : completed;
     final inProgressFiltered = !_showInProgressOnly
@@ -315,14 +328,14 @@ mixin TrainingPackTemplateSortFilter on State<TrainingPackTemplateListScreen> {
             for (final t in visible)
               if ((_stats[t.id]?.lastIndex ?? 0) > 0 &&
                   (_stats[t.id]?.accuracy ?? 1.0) < 1.0)
-                t
+                t,
           ];
     return [
       for (final t in inProgressFiltered)
         if ((_query.isEmpty || t.name.toLowerCase().contains(_query)) &&
             (_tagFilters.isEmpty ||
                 t.tags.any((tag) => _tagFilters.contains(tag))))
-          t
+          t,
     ];
   }
 

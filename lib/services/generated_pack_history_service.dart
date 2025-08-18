@@ -23,7 +23,7 @@ class GeneratedPackHistoryService {
     final list = prefs.getStringList(_key) ?? <String>[];
     return [
       for (final e in list)
-        GeneratedPackInfo.fromJson(jsonDecode(e) as Map<String, dynamic>)
+        GeneratedPackInfo.fromJson(jsonDecode(e) as Map<String, dynamic>),
     ];
   }
 
@@ -47,11 +47,11 @@ class GeneratedPackInfo {
   });
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'type': type,
-        'ts': ts.toIso8601String(),
-      };
+    'id': id,
+    'name': name,
+    'type': type,
+    'ts': ts.toIso8601String(),
+  };
 
   factory GeneratedPackInfo.fromJson(Map<String, dynamic> j) =>
       GeneratedPackInfo(

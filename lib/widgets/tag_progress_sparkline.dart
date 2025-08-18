@@ -22,8 +22,11 @@ class TagProgressSparkline extends StatelessWidget {
     final hist = await service.getHistory();
     final list = hist[lower] ?? <TagXpHistoryEntry>[];
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day)
-        .subtract(Duration(days: days - 1));
+    final start = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(Duration(days: days - 1));
     final data = List<int>.filled(days, 0);
     for (final e in list) {
       final d = DateTime(e.date.year, e.date.month, e.date.day);

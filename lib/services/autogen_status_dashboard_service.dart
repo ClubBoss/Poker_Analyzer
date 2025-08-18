@@ -80,8 +80,9 @@ class AutogenStatusDashboardService {
   static const _sessionTtl = Duration(hours: 24);
 
   // Real-time pipeline status.
-  final ValueNotifier<AutogenStatus> pipelineStatusNotifier =
-      ValueNotifier(const AutogenStatus());
+  final ValueNotifier<AutogenStatus> pipelineStatusNotifier = ValueNotifier(
+    const AutogenStatus(),
+  );
   final StreamController<AutogenStatus> _statusStreamController =
       StreamController.broadcast();
   StreamSubscription<AutogenStatus>? _statusSub;
@@ -144,7 +145,9 @@ class AutogenStatusDashboardService {
     if (covList.length > 10) covList.removeLast();
     await prefs.setStringList(_coverageSummariesKey, covList);
     _coverageSummaries.insert(
-        0, Map<String, int>.from(coverageHistogramNotifier.value));
+      0,
+      Map<String, int>.from(coverageHistogramNotifier.value),
+    );
     if (_coverageSummaries.length > 10) {
       _coverageSummaries.removeLast();
     }

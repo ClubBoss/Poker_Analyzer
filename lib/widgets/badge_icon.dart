@@ -9,13 +9,15 @@ class BadgeIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(boxShadow: [
-        BoxShadow(
-          color: AppColors.accent.withValues(alpha: 0.6),
-          blurRadius: 12,
-          spreadRadius: 2,
-        )
-      ]),
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.accent.withValues(alpha: 0.6),
+            blurRadius: 12,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
       child: ShaderMask(
         shaderCallback: (rect) => const LinearGradient(
           colors: [Colors.orange, Colors.yellowAccent],

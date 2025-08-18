@@ -6,8 +6,9 @@ void main() {
   test('reportSeedIssues updates notifier', () {
     final service = AutogenStatusDashboardService.instance;
     service.clear();
-    service.reportSeedIssues(
-        's1', [const SeedIssue(code: 'c', severity: 'warn', message: 'm')]);
+    service.reportSeedIssues('s1', [
+      const SeedIssue(code: 'c', severity: 'warn', message: 'm'),
+    ]);
     expect(service.seedIssuesNotifier.value.length, 1);
     final issue = service.seedIssuesNotifier.value.first;
     expect(issue.seedId, 's1');

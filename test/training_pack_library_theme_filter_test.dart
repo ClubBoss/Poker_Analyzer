@@ -23,7 +23,7 @@ void main() {
         name: 'B',
         trainingType: TrainingType.pushFold,
         meta: {
-          'theme': ['3bet', 'icm']
+          'theme': ['3bet', 'icm'],
         },
       ),
     );

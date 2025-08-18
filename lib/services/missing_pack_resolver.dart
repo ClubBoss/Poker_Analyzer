@@ -5,15 +5,20 @@ import 'pack_registry_service.dart';
 /// Resolves missing packs by triggering a focused autogen run.
 class MissingPackResolver {
   MissingPackResolver({
-    required Future<TrainingPackTemplateV2> Function(String packId,
-            {String? presetId})
-        generator,
+    required Future<TrainingPackTemplateV2> Function(
+      String packId, {
+      String? presetId,
+    })
+    generator,
     PackRegistryService? registry,
-  })  : _generator = generator,
-        _registry = registry ?? PackRegistryService.instance;
+  }) : _generator = generator,
+       _registry = registry ?? PackRegistryService.instance;
 
-  final Future<TrainingPackTemplateV2> Function(String packId,
-      {String? presetId}) _generator;
+  final Future<TrainingPackTemplateV2> Function(
+    String packId, {
+    String? presetId,
+  })
+  _generator;
   final PackRegistryService _registry;
 
   /// Attempts to generate [stage.packId] using an optional [presetId].

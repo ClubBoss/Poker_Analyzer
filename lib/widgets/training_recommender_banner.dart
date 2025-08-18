@@ -38,7 +38,7 @@ class _TrainingRecommenderBannerState extends State<TrainingRecommenderBanner> {
   Future<List<TrainingResult>> _resultsFromLogs(List<SessionLog> logs) async {
     await PackLibraryLoaderService.instance.loadLibrary();
     final library = {
-      for (final t in PackLibraryLoaderService.instance.library) t.id: t
+      for (final t in PackLibraryLoaderService.instance.library) t.id: t,
     };
     return [
       for (final log in logs)
@@ -50,7 +50,7 @@ class _TrainingRecommenderBannerState extends State<TrainingRecommenderBanner> {
               ? 0
               : log.correctCount * 100 / (log.correctCount + log.mistakeCount),
           tags: library[log.templateId]?.tags ?? log.categories.keys.toList(),
-        )
+        ),
     ];
   }
 
@@ -90,8 +90,9 @@ class _TrainingRecommenderBannerState extends State<TrainingRecommenderBanner> {
       pack = plan.mistakeReplayPack;
       goalId = 'mistake_replay';
     } else {
-      final track =
-          plan.recommendedTracks.firstWhereOrNull((t) => t.id == rec.packId);
+      final track = plan.recommendedTracks.firstWhereOrNull(
+        (t) => t.id == rec.packId,
+      );
       if (track != null) {
         pack = TrainingPackTemplateV2(
           id: track.id,
@@ -135,7 +136,10 @@ class _TrainingRecommenderBannerState extends State<TrainingRecommenderBanner> {
           Text(
             rec.title,
             style: const TextStyle(
-                color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 4),
           Text(

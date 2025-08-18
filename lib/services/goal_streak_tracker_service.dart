@@ -60,8 +60,11 @@ class GoalStreakTrackerService {
     final logs = await GoalProgressPersistenceService.instance.getAllLogs();
     final days = <DateTime>[];
     for (final l in logs) {
-      final d =
-          DateTime(l.completedAt.year, l.completedAt.month, l.completedAt.day);
+      final d = DateTime(
+        l.completedAt.year,
+        l.completedAt.month,
+        l.completedAt.day,
+      );
       if (days.isEmpty || days.last != d) {
         days.add(d);
       }
@@ -70,7 +73,8 @@ class GoalStreakTrackerService {
   }
 
   ({int current, int longest, DateTime? lastDay}) _calculateStreak(
-      List<DateTime> days) {
+    List<DateTime> days,
+  ) {
     if (days.isEmpty) {
       return (current: 0, longest: 0, lastDay: null);
     }
@@ -90,14 +94,21 @@ class GoalStreakTrackerService {
 
     final lastDay = days.last;
     final today = DateTime.now();
-    final diff =
-        DateTime(today.year, today.month, today.day).difference(lastDay).inDays;
+    final diff = DateTime(
+      today.year,
+      today.month,
+      today.day,
+    ).difference(lastDay).inDays;
     final current = diff > 1 ? 0 : count;
     return (current: current, longest: best, lastDay: lastDay);
   }
 
-  Future<void> _persistStreak(SharedPreferences prefs, int current, int longest,
-      DateTime? lastDay) async {
+  Future<void> _persistStreak(
+    SharedPreferences prefs,
+    int current,
+    int longest,
+    DateTime? lastDay,
+  ) async {
     await prefs.setInt(_currentKey, current);
     await prefs.setInt(_longestKey, longest);
     if (lastDay != null) {

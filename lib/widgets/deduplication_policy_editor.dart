@@ -15,8 +15,9 @@ class _DeduplicationPolicyEditorState extends State<DeduplicationPolicyEditor> {
   List<DeduplicationPolicy> _policies = const [];
   String _reason = 'duplicate';
   DeduplicationAction _action = DeduplicationAction.block;
-  final TextEditingController _thresholdCtrl =
-      TextEditingController(text: '1.0');
+  final TextEditingController _thresholdCtrl = TextEditingController(
+    text: '1.0',
+  );
 
   @override
   void initState() {
@@ -96,13 +97,11 @@ class _DeduplicationPolicyEditorState extends State<DeduplicationPolicyEditor> {
                     value: _action,
                     items: [
                       for (final a in DeduplicationAction.values)
-                        DropdownMenuItem(
-                          value: a,
-                          child: Text(a.name),
-                        ),
+                        DropdownMenuItem(value: a, child: Text(a.name)),
                     ],
                     onChanged: (v) => setState(
-                        () => _action = v ?? DeduplicationAction.block),
+                      () => _action = v ?? DeduplicationAction.block,
+                    ),
                   ),
                 ),
                 Expanded(
@@ -112,10 +111,7 @@ class _DeduplicationPolicyEditorState extends State<DeduplicationPolicyEditor> {
                     keyboardType: TextInputType.number,
                   ),
                 ),
-                ElevatedButton(
-                  onPressed: _addPolicy,
-                  child: const Text('Add'),
-                ),
+                ElevatedButton(onPressed: _addPolicy, child: const Text('Add')),
               ],
             ),
           ],

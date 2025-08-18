@@ -14,10 +14,10 @@ class InlineTheoryLinkerService {
     TheoryMiniLessonNavigator? navigator,
     TheoryEngagementAnalyticsService? analytics,
     TheorySuggestionEngagementTrackerService? tracker,
-  })  : _library = library ?? MiniLessonLibraryService.instance,
-        _navigator = navigator ?? TheoryMiniLessonNavigator.instance,
-        _analytics = analytics ?? const TheoryEngagementAnalyticsService(),
-        _tracker = tracker ?? TheorySuggestionEngagementTrackerService.instance;
+  }) : _library = library ?? MiniLessonLibraryService.instance,
+       _navigator = navigator ?? TheoryMiniLessonNavigator.instance,
+       _analytics = analytics ?? const TheoryEngagementAnalyticsService(),
+       _tracker = tracker ?? TheorySuggestionEngagementTrackerService.instance;
 
   final MiniLessonLibraryService _library;
   final TheoryMiniLessonNavigator _navigator;
@@ -52,10 +52,7 @@ class InlineTheoryLinkerService {
       final keywords = lesson.title.split(RegExp('\\s+'));
       for (final k in keywords) {
         if (k.isEmpty) continue;
-        final regex = RegExp(
-          '\\b${RegExp.escape(k)}\\b',
-          caseSensitive: false,
-        );
+        final regex = RegExp('\\b${RegExp.escape(k)}\\b', caseSensitive: false);
         for (final m in regex.allMatches(description)) {
           matches.add(_Match(m.start, m.end, lesson.tags.first));
         }

@@ -11,6 +11,6 @@ List<List<int>> duplicateSpotGroupsStatic(List<TrainingPackSpot> spots) {
   }
   return [
     for (final g in map.values)
-      if (g.length > 1) g
+      if (g.length > 1) g,
   ];
 }

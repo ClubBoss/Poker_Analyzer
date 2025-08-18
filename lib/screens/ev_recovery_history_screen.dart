@@ -11,8 +11,11 @@ class EVRecoveryHistoryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final hands = context.watch<SavedHandManagerService>().hands;
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day)
-        .subtract(const Duration(days: 13));
+    final start = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(const Duration(days: 13));
     final days = [for (var i = 0; i < 14; i++) start.add(Duration(days: i))];
     final Map<DateTime, double> map = {};
     for (final h in hands) {

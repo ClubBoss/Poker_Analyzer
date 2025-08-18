@@ -54,11 +54,15 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
     }
     if (_dateFilter == '7 дней') {
       return DateTimeRange(
-          start: now.subtract(const Duration(days: 7)), end: now);
+        start: now.subtract(const Duration(days: 7)),
+        end: now,
+      );
     }
     if (_dateFilter == '30 дней') {
       return DateTimeRange(
-          start: now.subtract(const Duration(days: 30)), end: now);
+        start: now.subtract(const Duration(days: 30)),
+        end: now,
+      );
     }
     return null;
   }
@@ -105,7 +109,7 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
             (hand.evLoss == null ||
                 (hand.evLoss! >= _evRange.start &&
                     hand.evLoss! <= _evRange.end)))
-          hand
+          hand,
     ];
     final query = _searchController.text.toLowerCase();
     if (query.isNotEmpty) {
@@ -114,7 +118,7 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
           if (h.tags.any((t) => t.toLowerCase().contains(query)) ||
               (h.comment?.toLowerCase().contains(query) ?? false) ||
               h.heroPosition.toLowerCase().contains(query))
-            h
+            h,
       ];
     }
 
@@ -138,8 +142,9 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
           ),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            padding:
-                const EdgeInsets.symmetric(horizontal: AppConstants.padding16),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppConstants.padding16,
+            ),
             child: Row(
               children: [
                 DropdownButton<String>(
@@ -236,8 +241,8 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
               initialAccuracy: _accuracyFilter == 'Только верные'
                   ? 'correct'
                   : _accuracyFilter == 'Только ошибки'
-                      ? 'errors'
-                      : null,
+                  ? 'errors'
+                  : null,
               showAccuracyToggle: false,
               onTap: (hand) {
                 showSavedHandViewerDialog(context, hand);
@@ -269,8 +274,9 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
     await Share.shareXFiles([XFile(path)], text: 'saved_hands_archive.zip');
     if (context.mounted) {
       final name = path.split(Platform.pathSeparator).last;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
     }
   }
 }

@@ -15,8 +15,9 @@ class SmartTheoryBatchGenerator {
 
   /// Generates theory packs for missing tags and adds them to [PackLibrary.staging].
   /// Returns the list of newly created packs.
-  Future<List<TrainingPackTemplateV2>> generateMissing(
-      {List<String>? tags}) async {
+  Future<List<TrainingPackTemplateV2>> generateMissing({
+    List<String>? tags,
+  }) async {
     final list = tags ?? TheoryTemplateIndex.tags;
     final created = <TrainingPackTemplateV2>[];
     var count = 0;

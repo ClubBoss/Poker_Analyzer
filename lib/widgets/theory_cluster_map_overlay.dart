@@ -50,11 +50,14 @@ class TheoryClusterMapOverlay extends StatelessWidget {
                     GestureDetector(
                       onTap: () async {
                         if (onTap != null) onTap!(n);
-                        final lesson =
-                            MiniLessonLibraryService.instance.getById(n.id);
+                        final lesson = MiniLessonLibraryService.instance
+                            .getById(n.id);
                         if (lesson != null) {
                           await ClusterNodeNavigator.handleTap(
-                              context, lesson, profile);
+                            context,
+                            lesson,
+                            profile,
+                          );
                         }
                       },
                       child: Container(

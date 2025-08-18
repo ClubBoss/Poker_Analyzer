@@ -51,11 +51,23 @@ void main() {
 
     final lessons = [
       const TheoryMiniLessonNode(
-          id: 'l1', title: 'L1', content: '', tags: ['a']),
+        id: 'l1',
+        title: 'L1',
+        content: '',
+        tags: ['a'],
+      ),
       const TheoryMiniLessonNode(
-          id: 'l2', title: 'L2', content: '', tags: ['b']),
+        id: 'l2',
+        title: 'L2',
+        content: '',
+        tags: ['b'],
+      ),
       const TheoryMiniLessonNode(
-          id: 'l3', title: 'L3', content: '', tags: ['a', 'b']),
+        id: 'l3',
+        title: 'L3',
+        content: '',
+        tags: ['a', 'b'],
+      ),
     ];
 
     final logs = [

@@ -5,8 +5,14 @@ import 'saved_hand_manager_service.dart';
 
 class SavedHandSessionStats {
   SavedHandSessionStats(
-      this.start, this.end, this.count, this.correct, this.incorrect,
-      {this.evAvg, this.icmAvg});
+    this.start,
+    this.end,
+    this.count,
+    this.correct,
+    this.incorrect, {
+    this.evAvg,
+    this.icmAvg,
+  });
 
   final DateTime start;
   final DateTime end;
@@ -25,7 +31,7 @@ class SavedHandSessionStats {
 
 class SavedHandStatsService extends ChangeNotifier {
   SavedHandStatsService({required SavedHandManagerService manager})
-      : _manager = manager {
+    : _manager = manager {
     _manager.addListener(notifyListeners);
   }
 
@@ -75,19 +81,29 @@ class SavedHandStatsService extends ChangeNotifier {
     }
     final evAvg = evCount > 0 ? evSum / evCount : null;
     final icmAvg = icmCount > 0 ? icmSum / icmCount : null;
-    return SavedHandSessionStats(start, end, list.length, correct, incorrect,
-        evAvg: evAvg, icmAvg: icmAvg);
+    return SavedHandSessionStats(
+      start,
+      end,
+      list.length,
+      correct,
+      incorrect,
+      evAvg: evAvg,
+      icmAvg: icmAvg,
+    );
   }
 
-  List<SavedHand> filtered(
-      {String? tag, String? position, DateTimeRange? range}) {
+  List<SavedHand> filtered({
+    String? tag,
+    String? position,
+    DateTimeRange? range,
+  }) {
     return [
       for (final h in hands)
         if ((tag == null || h.tags.contains(tag)) &&
             (position == null || h.heroPosition == position) &&
             (range == null ||
                 (!h.date.isBefore(range.start) && !h.date.isAfter(range.end))))
-          h
+          h,
     ];
   }
 
@@ -143,7 +159,7 @@ class SavedHandStatsService extends ChangeNotifier {
             h.gtoAction != null &&
             h.expectedAction!.trim().toLowerCase() !=
                 h.gtoAction!.trim().toLowerCase())
-          h
+          h,
     ];
     result.sort((a, b) => (b.evLoss ?? 0).compareTo(a.evLoss ?? 0));
     return result;

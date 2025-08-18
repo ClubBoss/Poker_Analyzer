@@ -53,8 +53,10 @@ void main() {
     );
     final unlocked = await PackUnlockingRulesEngine.instance.isUnlocked(tpl);
     expect(unlocked, isFalse);
-    expect(PackUnlockingRulesEngine.instance.getUnlockRule(tpl)?.unlockHint,
-        'Complete pack A first');
+    expect(
+      PackUnlockingRulesEngine.instance.getUnlockRule(tpl)?.unlockHint,
+      'Complete pack A first',
+    );
   });
 
   test('dev override unlocks in debug mode', () async {

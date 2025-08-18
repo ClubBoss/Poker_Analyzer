@@ -52,18 +52,26 @@ class _DecayDashboardScreenState extends State<DecayDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Всего тегов: ${s.totalTags}',
-              style: const TextStyle(color: Colors.white)),
+          Text(
+            'Всего тегов: ${s.totalTags}',
+            style: const TextStyle(color: Colors.white),
+          ),
           const SizedBox(height: 4),
-          Text('Средний decay: ${(s.averageDecay * 100).toStringAsFixed(0)}%',
-              style: const TextStyle(color: Colors.white70)),
+          Text(
+            'Средний decay: ${(s.averageDecay * 100).toStringAsFixed(0)}%',
+            style: const TextStyle(color: Colors.white70),
+          ),
           const SizedBox(height: 4),
-          Text('Забытых тегов: ${s.decayedTags}',
-              style: const TextStyle(color: Colors.white70)),
+          Text(
+            'Забытых тегов: ${s.decayedTags}',
+            style: const TextStyle(color: Colors.white70),
+          ),
           if (s.topForgotten.isNotEmpty) ...[
             const SizedBox(height: 4),
-            Text('Топ забытых: ${s.topForgotten.join(', ')}',
-                style: const TextStyle(color: Colors.white70)),
+            Text(
+              'Топ забытых: ${s.topForgotten.join(', ')}',
+              style: const TextStyle(color: Colors.white70),
+            ),
           ],
         ],
       ),
@@ -83,9 +91,10 @@ class _DecayDashboardScreenState extends State<DecayDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('План на сегодня',
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          const Text(
+            'План на сегодня',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
           Text(tags, style: const TextStyle(color: Colors.white70)),
         ],

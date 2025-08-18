@@ -26,19 +26,23 @@ class YamlPackHistoryService {
     if (await src.exists()) {
       final current = await src.readAsString();
       if (current != pack.toYaml()) {
-        final arcDir =
-            Directory(p.join(docs.path, 'training_packs', 'archive', pack.id));
+        final arcDir = Directory(
+          p.join(docs.path, 'training_packs', 'archive', pack.id),
+        );
         await arcDir.create(recursive: true);
         final ts2 = DateTime.now().toIso8601String();
         final bak = File(p.join(arcDir.path, '${pack.id}_$ts2.bak.yaml'));
         await bak.writeAsString(current);
-        final files = arcDir
-            .listSync()
-            .whereType<File>()
-            .where((f) => f.path.endsWith('.bak.yaml'))
-            .toList()
-          ..sort(
-              (a, b) => b.statSync().modified.compareTo(a.statSync().modified));
+        final files =
+            arcDir
+                .listSync()
+                .whereType<File>()
+                .where((f) => f.path.endsWith('.bak.yaml'))
+                .toList()
+              ..sort(
+                (a, b) =>
+                    b.statSync().modified.compareTo(a.statSync().modified),
+              );
         for (var i = 10; i < files.length; i++) {
           try {
             files[i].deleteSync();
@@ -60,7 +64,8 @@ class YamlPackHistoryService {
       'date': DateFormat('yyyy-MM-dd').format(DateTime.now()),
       'comment': comment,
     };
-    final list = (pack.meta['changeLog'] as List?)
+    final list =
+        (pack.meta['changeLog'] as List?)
             ?.map((e) => Map<String, String>.from(e as Map))
             .toList() ??
         <Map<String, String>>[];

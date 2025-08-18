@@ -26,14 +26,14 @@ class PackExportService {
         'CallsMask',
         'EV_BB',
         'ICM_EV',
-        'Tags'
+        'Tags',
       ],
     ];
     for (final spot in tpl.spots) {
       final hand = spot.hand;
       final stacks = [
         for (var i = 0; i < hand.playerCount; i++)
-          hand.stacks['$i']?.toString() ?? ''
+          hand.stacks['$i']?.toString() ?? '',
       ].join('/');
       final pre = hand.actions[0] ?? [];
       final callsMask = hand.playerCount == 2
@@ -42,7 +42,7 @@ class PackExportService {
               for (var i = 0; i < hand.playerCount; i++)
                 pre.any((a) => a.playerIndex == i && a.action == 'call')
                     ? '1'
-                    : '0'
+                    : '0',
             ].join();
       rows.add([
         spot.title,
@@ -79,15 +79,19 @@ class PackExportService {
         pageFormat: PdfPageFormat.a4,
         build: (context) {
           return [
-            pw.Text(tpl.name,
-                style: pw.TextStyle(font: boldFont, fontSize: 24)),
+            pw.Text(
+              tpl.name,
+              style: pw.TextStyle(font: boldFont, fontSize: 24),
+            ),
             pw.SizedBox(height: 16),
             for (int i = 0; i < tpl.spots.length; i++)
               pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  pw.Text('Spot ${i + 1}',
-                      style: pw.TextStyle(font: boldFont, fontSize: 18)),
+                  pw.Text(
+                    'Spot ${i + 1}',
+                    style: pw.TextStyle(font: boldFont, fontSize: 18),
+                  ),
                   pw.Bullet(
                     text: 'Position: ${tpl.spots[i].hand.position.label}',
                     style: pw.TextStyle(font: regularFont),
@@ -152,9 +156,12 @@ class PackExportService {
   }
 
   static Future<File> exportSessionCsv(
-      List<SavedHand> hands, List<double> evs, List<double> icms) async {
+    List<SavedHand> hands,
+    List<double> evs,
+    List<double> icms,
+  ) async {
     final rows = <List<dynamic>>[
-      ['#', 'Name', 'HeroPos', 'Hero', 'GTO', 'EV', 'ICM', 'Tags']
+      ['#', 'Name', 'HeroPos', 'Hero', 'GTO', 'EV', 'ICM', 'Tags'],
     ];
     for (var i = 0; i < hands.length; i++) {
       final h = hands[i];
@@ -183,7 +190,10 @@ class PackExportService {
   }
 
   static Future<File> exportSessionPdf(
-      List<SavedHand> hands, List<double> evs, List<double> icms) async {
+    List<SavedHand> hands,
+    List<double> evs,
+    List<double> icms,
+  ) async {
     final regularFont = await pw.PdfGoogleFonts.robotoRegular();
     final boldFont = await pw.PdfGoogleFonts.robotoBold();
     final pdf = pw.Document();
@@ -212,21 +222,31 @@ class PackExportService {
           final preIcm = icms.isNotEmpty ? icms.first : 0.0;
           final postIcm = icms.isNotEmpty ? icms.last : 0.0;
           return [
-            pw.Text('Session Report',
-                style: pw.TextStyle(font: boldFont, fontSize: 24)),
+            pw.Text(
+              'Session Report',
+              style: pw.TextStyle(font: boldFont, fontSize: 24),
+            ),
             pw.SizedBox(height: 16),
-            pw.Text('Hands: ${hands.length}',
-                style: pw.TextStyle(font: regularFont)),
-            pw.Text('Accuracy: ${accuracy.toStringAsFixed(1)}%',
-                style: pw.TextStyle(font: regularFont)),
-            pw.Text('Mistakes: $mistakes',
-                style: pw.TextStyle(font: regularFont)),
             pw.Text(
-                'EV: ${preEv.toStringAsFixed(2)} ➜ ${postEv.toStringAsFixed(2)}',
-                style: pw.TextStyle(font: regularFont)),
+              'Hands: ${hands.length}',
+              style: pw.TextStyle(font: regularFont),
+            ),
             pw.Text(
-                'ICM: ${preIcm.toStringAsFixed(2)} ➜ ${postIcm.toStringAsFixed(2)}',
-                style: pw.TextStyle(font: regularFont)),
+              'Accuracy: ${accuracy.toStringAsFixed(1)}%',
+              style: pw.TextStyle(font: regularFont),
+            ),
+            pw.Text(
+              'Mistakes: $mistakes',
+              style: pw.TextStyle(font: regularFont),
+            ),
+            pw.Text(
+              'EV: ${preEv.toStringAsFixed(2)} ➜ ${postEv.toStringAsFixed(2)}',
+              style: pw.TextStyle(font: regularFont),
+            ),
+            pw.Text(
+              'ICM: ${preIcm.toStringAsFixed(2)} ➜ ${postIcm.toStringAsFixed(2)}',
+              style: pw.TextStyle(font: regularFont),
+            ),
             pw.SizedBox(height: 16),
             pw.Table.fromTextArray(
               headers: const ['#', 'Name', 'Hero', 'GTO', 'EV', 'ICM'],
@@ -239,7 +259,7 @@ class PackExportService {
                     hands[i].gtoAction ?? '',
                     evs[i].toStringAsFixed(2),
                     icms[i].toStringAsFixed(2),
-                  ]
+                  ],
               ],
             ),
           ];
@@ -269,11 +289,14 @@ class PackExportService {
       ..writeln('- **ID:** ${tpl.id}')
       ..writeln('- **Spots:** $total')
       ..writeln(
-          '- **EV coverage:** ${total == 0 ? 0 : (evCovered / total * 100).toStringAsFixed(1)}%')
+        '- **EV coverage:** ${total == 0 ? 0 : (evCovered / total * 100).toStringAsFixed(1)}%',
+      )
       ..writeln(
-          '- **ICM coverage:** ${total == 0 ? 0 : (icmCovered / total * 100).toStringAsFixed(1)}%')
+        '- **ICM coverage:** ${total == 0 ? 0 : (icmCovered / total * 100).toStringAsFixed(1)}%',
+      )
       ..writeln(
-          '- **Created:** ${DateFormat('yyyy-MM-dd').format(tpl.createdAt)}');
+        '- **Created:** ${DateFormat('yyyy-MM-dd').format(tpl.createdAt)}',
+      );
     final tags = tpl.tags.toSet().where((e) => e.isNotEmpty).toList();
     if (tags.isNotEmpty) buffer.writeln('- **Tags:** ${tags.join(', ')}');
     final preview = spots.where((s) => s.heroEv != null).take(5);
@@ -284,7 +307,8 @@ class PackExportService {
         ..writeln('|---|---|---|---|---|');
       for (final spot in preview) {
         buffer.writeln(
-            '|${spot.hand.position.name}|${spot.hand.heroCards}|${spot.hand.board.join(' ')}|${spot.heroEv!.toStringAsFixed(2)}|${spot.tags.join(', ')}|');
+          '|${spot.hand.position.name}|${spot.hand.heroCards}|${spot.hand.board.join(' ')}|${spot.heroEv!.toStringAsFixed(2)}|${spot.tags.join(', ')}|',
+        );
       }
     }
     return buffer.toString().trimRight();

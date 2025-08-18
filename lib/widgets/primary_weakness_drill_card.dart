@@ -12,9 +12,9 @@ class PrimaryWeaknessDrillCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final list = context
-        .watch<SavedHandStatsService>()
-        .getTopMistakeCategories(limit: 1);
+    final list = context.watch<SavedHandStatsService>().getTopMistakeCategories(
+      limit: 1,
+    );
     if (list.isEmpty) return const SizedBox.shrink();
     final entry = list.first;
     final accent = Theme.of(context).colorScheme.secondary;
@@ -44,8 +44,10 @@ class PrimaryWeaknessDrillCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(name, style: const TextStyle(color: Colors.white)),
           const SizedBox(height: 4),
-          Text('-${entry.value.toStringAsFixed(1)} EV',
-              style: const TextStyle(color: Colors.white70)),
+          Text(
+            '-${entry.value.toStringAsFixed(1)} EV',
+            style: const TextStyle(color: Colors.white70),
+          ),
           const SizedBox(height: 8),
           SizedBox(
             width: double.infinity,
@@ -53,14 +55,17 @@ class PrimaryWeaknessDrillCard extends StatelessWidget {
               onPressed: () async {
                 final session = context.read<TrainingSessionService>();
                 final tpl = await TrainingPackService.createDrillFromCategory(
-                    context, entry.key);
+                  context,
+                  entry.key,
+                );
                 if (tpl == null) return;
                 await session.startSession(tpl);
                 if (context.mounted) {
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (_) => const TrainingSessionScreen()),
+                      builder: (_) => const TrainingSessionScreen(),
+                    ),
                   );
                 }
               },

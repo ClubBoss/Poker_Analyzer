@@ -6,11 +6,8 @@ import 'package:poker_analyzer/services/staged_path_promoter.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  LearningPathTemplateV2 tpl(String id) => LearningPathTemplateV2(
-        id: id,
-        title: id,
-        description: '',
-      );
+  LearningPathTemplateV2 tpl(String id) =>
+      LearningPathTemplateV2(id: id, title: id, description: '');
 
   test('promoteAll filters by prefix and overwrites', () {
     final staging = LearningPathLibrary.staging;

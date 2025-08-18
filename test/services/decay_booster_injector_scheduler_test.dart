@@ -31,8 +31,10 @@ void main() {
   test('skips when recent', () async {
     final now = DateTime(2024, 1, 2, 10);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('decay_booster_inject_last',
-        now.subtract(const Duration(hours: 2)).toIso8601String());
+    await prefs.setString(
+      'decay_booster_inject_last',
+      now.subtract(const Duration(hours: 2)).toIso8601String(),
+    );
     final injector = _FakeInjector();
     final sched = DecayBoosterInjectorScheduler(injector: injector);
     await sched.maybeInject(now: now);

@@ -11,7 +11,8 @@ const kPrefix = 'store/v1/';
 Future<void> main(List<String> args) async {
   if (args.isEmpty) {
     stderr.writeln(
-        'Usage: dart run tool/upload_assets.dart <assetsDir> [--bucket=bucket-name] [--dry]');
+      'Usage: dart run tool/upload_assets.dart <assetsDir> [--bucket=bucket-name] [--dry]',
+    );
     exit(1);
   }
   final dir = Directory(args.first);
@@ -34,8 +35,9 @@ Future<void> main(List<String> args) async {
     stderr.writeln('Bucket not specified');
     exit(1);
   }
-  bucket =
-      bucket.replaceAll(RegExp(r'^gs://'), '').replaceAll(RegExp(r'/$'), '');
+  bucket = bucket
+      .replaceAll(RegExp(r'^gs://'), '')
+      .replaceAll(RegExp(r'/$'), '');
   final storage = FirebaseStorage.instanceFor(bucket: bucket);
   final manifestFile = File(p.join(dir.path, 'manifest.json'));
   if (!manifestFile.existsSync()) {
@@ -95,16 +97,18 @@ Future<void> main(List<String> args) async {
 
   for (var i = 0; i < pngNames.length; i += 8) {
     final batch = pngNames.skip(i).take(8).toList();
-    await Future.wait(batch.map((name) async {
-      final file = File(p.join(dir.path, name));
-      if (!file.existsSync()) {
-        stdout.writeln('[ERROR] ${kPrefix}preview/$name  (missing)');
-        errors++;
-        return;
-      }
-      final ref = storage.ref('${kPrefix}preview/$name');
-      await handle(file, ref, '${kPrefix}preview/$name', 'image/png');
-    }));
+    await Future.wait(
+      batch.map((name) async {
+        final file = File(p.join(dir.path, name));
+        if (!file.existsSync()) {
+          stdout.writeln('[ERROR] ${kPrefix}preview/$name  (missing)');
+          errors++;
+          return;
+        }
+        final ref = storage.ref('${kPrefix}preview/$name');
+        await handle(file, ref, '${kPrefix}preview/$name', 'image/png');
+      }),
+    );
   }
   await handle(
     manifestFile,
@@ -114,8 +118,9 @@ Future<void> main(List<String> args) async {
     encoding: 'utf-8',
   );
   final elapsed = DateTime.now().difference(start).inMilliseconds / 1000;
-  stdout
-      .writeln('Uploaded: $uploaded  |  Skipped: $skipped  |  Errors: $errors');
+  stdout.writeln(
+    'Uploaded: $uploaded  |  Skipped: $skipped  |  Errors: $errors',
+  );
   stdout.writeln('Time: ${elapsed.toStringAsFixed(1)} s');
   if (errors > 0) exitCode = 1;
 }

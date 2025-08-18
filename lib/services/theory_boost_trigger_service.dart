@@ -17,15 +17,17 @@ class TheoryBoostTriggerService {
     RecapEffectivenessAnalyzer? analyzer,
     MiniLessonLibraryService? library,
     this.cooldown = const Duration(hours: 12),
-  })  : tracker = tracker ?? RecapCompletionTracker.instance,
-        analyzer = analyzer ?? RecapEffectivenessAnalyzer.instance,
-        library = library ?? MiniLessonLibraryService.instance;
+  }) : tracker = tracker ?? RecapCompletionTracker.instance,
+       analyzer = analyzer ?? RecapEffectivenessAnalyzer.instance,
+       library = library ?? MiniLessonLibraryService.instance;
 
   static final TheoryBoostTriggerService instance = TheoryBoostTriggerService();
 
   Future<bool> _underCooldown(String tag) =>
-      TheoryReplayCooldownManager.isUnderCooldown('boost:$tag',
-          cooldown: cooldown);
+      TheoryReplayCooldownManager.isUnderCooldown(
+        'boost:$tag',
+        cooldown: cooldown,
+      );
 
   Future<void> _markCooldown(String tag) =>
       TheoryReplayCooldownManager.markSuggested('boost:$tag');

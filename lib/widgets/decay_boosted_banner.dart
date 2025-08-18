@@ -39,9 +39,9 @@ class _DecayBoostedBannerState extends State<DecayBoostedBanner> {
     await const DecayBoosterTrainingLauncher().launch();
     if (!mounted) return;
     setState(() => _visible = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Навык восстановлен')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Навык восстановлен')));
   }
 
   void _dismiss() {

@@ -7,10 +7,14 @@ void main() {
 
   test('estimate returns word count, time and ratio', () {
     final text = List.filled(100, 'word').join(' ');
-    final pack = TheoryPackModel(id: 't', title: 'T', sections: [
-      TheorySectionModel(title: 'a', text: text, type: 'info'),
-      TheorySectionModel(title: 'b', text: text, type: 'info'),
-    ]);
+    final pack = TheoryPackModel(
+      id: 't',
+      title: 'T',
+      sections: [
+        TheorySectionModel(title: 'a', text: text, type: 'info'),
+        TheorySectionModel(title: 'b', text: text, type: 'info'),
+      ],
+    );
 
     final data = estimator.estimate(pack, readSections: {'a'});
 

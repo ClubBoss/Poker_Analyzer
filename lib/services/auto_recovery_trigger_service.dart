@@ -17,8 +17,8 @@ class AutoRecoveryTriggerService {
     required this.queue,
     TagGoalTrackerService? goals,
     PackLibraryService? library,
-  })  : goals = goals ?? TagGoalTrackerService.instance,
-        library = library ?? PackLibraryService.instance;
+  }) : goals = goals ?? TagGoalTrackerService.instance,
+       library = library ?? PackLibraryService.instance;
 
   /// Checks for skill losses and schedules review packs if needed.
   Future<void> run() async {

@@ -37,7 +37,7 @@ void main() {
     final library = _FakeBlockLibrary({block1.id: block1, block2.id: block2});
     final evaluator = _FakeEvaluator({
       'b1': ['t1'],
-      'b2': ['t2']
+      'b2': ['t2'],
     });
 
     final provider = SmartPinnedBlockBoosterProvider(
@@ -82,14 +82,18 @@ class _FakeEvaluator extends DecayRecallEvaluatorService {
   const _FakeEvaluator(this._map);
 
   @override
-  Future<List<String>> getDecayedTags(TheoryBlockModel block,
-      {double threshold = 30}) async {
+  Future<List<String>> getDecayedTags(
+    TheoryBlockModel block, {
+    double threshold = 30,
+  }) async {
     return _map[block.id] ?? [];
   }
 
   @override
-  Future<bool> hasDecayedTags(TheoryBlockModel block,
-      {double threshold = 30}) async {
+  Future<bool> hasDecayedTags(
+    TheoryBlockModel block, {
+    double threshold = 30,
+  }) async {
     return (await getDecayedTags(block, threshold: threshold)).isNotEmpty;
   }
 }

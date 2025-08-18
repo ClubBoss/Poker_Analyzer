@@ -19,15 +19,29 @@ void main() {
   test('recommendations sorted and buildPack follows logic', () async {
     final hands = _FakeSavedHandManagerService();
     final progress = _FakePlayerProgressService({
-      HeroPosition.sb:
-          const PositionProgress(hands: 10, correct: 7, ev: 0, icm: 0),
-      HeroPosition.bb:
-          const PositionProgress(hands: 10, correct: 6, ev: -1, icm: 0),
-      HeroPosition.co:
-          const PositionProgress(hands: 10, correct: 5, ev: 0, icm: -1),
+      HeroPosition.sb: const PositionProgress(
+        hands: 10,
+        correct: 7,
+        ev: 0,
+        icm: 0,
+      ),
+      HeroPosition.bb: const PositionProgress(
+        hands: 10,
+        correct: 6,
+        ev: -1,
+        icm: 0,
+      ),
+      HeroPosition.co: const PositionProgress(
+        hands: 10,
+        correct: 5,
+        ev: 0,
+        icm: -1,
+      ),
     });
-    final service =
-        WeakSpotRecommendationService(hands: hands, progress: progress);
+    final service = WeakSpotRecommendationService(
+      hands: hands,
+      progress: progress,
+    );
     final order = service.recommendations.map((e) => e.position).toList();
     expect(order, [HeroPosition.co, HeroPosition.bb, HeroPosition.sb]);
     final tpl = await service.buildPack(HeroPosition.co);

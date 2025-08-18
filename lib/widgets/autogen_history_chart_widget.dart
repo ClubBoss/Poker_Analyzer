@@ -41,16 +41,20 @@ class _AutogenHistoryChartWidgetState extends State<AutogenHistoryChartWidget> {
             .map((e) => e.generated)
             .fold<int>(0, (a, b) => b > a ? b : a);
         final spotsGenerated = history
-            .map((e) => FlSpot(
-                  e.timestamp.millisecondsSinceEpoch.toDouble(),
-                  e.generated.toDouble(),
-                ))
+            .map(
+              (e) => FlSpot(
+                e.timestamp.millisecondsSinceEpoch.toDouble(),
+                e.generated.toDouble(),
+              ),
+            )
             .toList();
         final spotsScore = history
-            .map((e) => FlSpot(
-                  e.timestamp.millisecondsSinceEpoch.toDouble(),
-                  e.avgQualityScore * maxGenerated,
-                ))
+            .map(
+              (e) => FlSpot(
+                e.timestamp.millisecondsSinceEpoch.toDouble(),
+                e.avgQualityScore * maxGenerated,
+              ),
+            )
             .toList();
         return LineChart(
           LineChartData(
@@ -76,24 +80,27 @@ class _AutogenHistoryChartWidgetState extends State<AutogenHistoryChartWidget> {
                 sideTitles: SideTitles(
                   showTitles: true,
                   getTitlesWidget: (value, _) {
-                    final date =
-                        DateTime.fromMillisecondsSinceEpoch(value.toInt());
-                    return Text('${date.month}/${date.day}',
-                        style: const TextStyle(fontSize: 10));
+                    final date = DateTime.fromMillisecondsSinceEpoch(
+                      value.toInt(),
+                    );
+                    return Text(
+                      '${date.month}/${date.day}',
+                      style: const TextStyle(fontSize: 10),
+                    );
                   },
                 ),
               ),
-              leftTitles: AxisTitles(
-                sideTitles: SideTitles(showTitles: true),
-              ),
+              leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
               rightTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
                   getTitlesWidget: (value, _) {
                     if (maxGenerated == 0) return const Text('');
                     final score = value / maxGenerated;
-                    return Text(score.toStringAsFixed(1),
-                        style: const TextStyle(fontSize: 10));
+                    return Text(
+                      score.toStringAsFixed(1),
+                      style: const TextStyle(fontSize: 10),
+                    );
                   },
                 ),
               ),

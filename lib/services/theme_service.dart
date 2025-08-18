@@ -11,50 +11,48 @@ class ThemeService extends ChangeNotifier {
   Color get accentColor => _accent;
 
   ThemeData get lightTheme => ThemeData(
-        brightness: Brightness.light,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: _accent,
-          brightness: Brightness.light,
+    brightness: Brightness.light,
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: _accent,
+      brightness: Brightness.light,
+    ),
+    scaffoldBackgroundColor: AppColors.lightBackground,
+    cardColor: AppColors.lightCard,
+    textTheme: ThemeData.light().textTheme
+        .copyWith(
+          bodySmall: const TextStyle(fontSize: AppConstants.fontSize14),
+          bodyMedium: const TextStyle(fontSize: AppConstants.fontSize16),
+          bodyLarge: const TextStyle(fontSize: AppConstants.fontSize18),
+          labelSmall: const TextStyle(fontSize: AppConstants.fontSize12),
+        )
+        .apply(
+          fontFamily: 'Roboto',
+          bodyColor: AppColors.textPrimaryLight,
+          displayColor: AppColors.textPrimaryLight,
         ),
-        scaffoldBackgroundColor: AppColors.lightBackground,
-        cardColor: AppColors.lightCard,
-        textTheme: ThemeData.light()
-            .textTheme
-            .copyWith(
-              bodySmall: const TextStyle(fontSize: AppConstants.fontSize14),
-              bodyMedium: const TextStyle(fontSize: AppConstants.fontSize16),
-              bodyLarge: const TextStyle(fontSize: AppConstants.fontSize18),
-              labelSmall: const TextStyle(fontSize: AppConstants.fontSize12),
-            )
-            .apply(
-              fontFamily: 'Roboto',
-              bodyColor: AppColors.textPrimaryLight,
-              displayColor: AppColors.textPrimaryLight,
-            ),
-      );
+  );
 
   ThemeData get darkTheme => ThemeData(
-        brightness: Brightness.dark,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: _accent,
-          brightness: Brightness.dark,
+    brightness: Brightness.dark,
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: _accent,
+      brightness: Brightness.dark,
+    ),
+    scaffoldBackgroundColor: AppColors.darkBackground,
+    cardColor: AppColors.darkCard,
+    textTheme: ThemeData.dark().textTheme
+        .copyWith(
+          bodySmall: const TextStyle(fontSize: AppConstants.fontSize14),
+          bodyMedium: const TextStyle(fontSize: AppConstants.fontSize16),
+          bodyLarge: const TextStyle(fontSize: AppConstants.fontSize18),
+          labelSmall: const TextStyle(fontSize: AppConstants.fontSize12),
+        )
+        .apply(
+          fontFamily: 'Roboto',
+          bodyColor: AppColors.textPrimaryDark,
+          displayColor: AppColors.textPrimaryDark,
         ),
-        scaffoldBackgroundColor: AppColors.darkBackground,
-        cardColor: AppColors.darkCard,
-        textTheme: ThemeData.dark()
-            .textTheme
-            .copyWith(
-              bodySmall: const TextStyle(fontSize: AppConstants.fontSize14),
-              bodyMedium: const TextStyle(fontSize: AppConstants.fontSize16),
-              bodyLarge: const TextStyle(fontSize: AppConstants.fontSize18),
-              labelSmall: const TextStyle(fontSize: AppConstants.fontSize12),
-            )
-            .apply(
-              fontFamily: 'Roboto',
-              bodyColor: AppColors.textPrimaryDark,
-              displayColor: AppColors.textPrimaryDark,
-            ),
-      );
+  );
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -65,7 +63,8 @@ class ThemeService extends ChangeNotifier {
       _mode = ThemeMode.dark;
     }
     _accent = Color(
-        prefs.getInt(AppConstants.prefsAccentColor) ?? AppColors.accent.value);
+      prefs.getInt(AppConstants.prefsAccentColor) ?? AppColors.accent.value,
+    );
     AppColors.accent = _accent;
     notifyListeners();
   }

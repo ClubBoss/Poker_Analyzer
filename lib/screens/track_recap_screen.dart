@@ -37,16 +37,14 @@ class _TrackRecapScreenState extends State<TrackRecapScreen> {
     final allSteps = await LessonLoaderService.instance.loadAllLessons();
     _steps = [
       for (final id in widget.track.stepIds)
-        allSteps.firstWhereOrNull((s) => s.id == id)
+        allSteps.firstWhereOrNull((s) => s.id == id),
     ].whereType<LessonStep>().toList();
 
     final masteryService = context.read<TagMasteryService>();
     final masteryMap = await masteryService.computeMastery();
     final entries = masteryMap.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    _mastery = {
-      for (final e in entries.take(5)) e.key: e.value,
-    };
+    _mastery = {for (final e in entries.take(5)) e.key: e.value};
 
     final path = LessonPathProgressService.instance;
     final progress = await path.computeTrackProgress();
@@ -75,18 +73,21 @@ class _TrackRecapScreenState extends State<TrackRecapScreen> {
     final groups = <BarChartGroupData>[];
     for (var i = 0; i < values.length; i++) {
       groups.add(
-        BarChartGroupData(x: i, barRods: [
-          BarChartRodData(
-            toY: values[i],
-            width: 14,
-            borderRadius: BorderRadius.circular(4),
-            gradient: LinearGradient(
-              colors: [accent.withValues(alpha: 0.7), accent],
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter,
+        BarChartGroupData(
+          x: i,
+          barRods: [
+            BarChartRodData(
+              toY: values[i],
+              width: 14,
+              borderRadius: BorderRadius.circular(4),
+              gradient: LinearGradient(
+                colors: [accent.withValues(alpha: 0.7), accent],
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+              ),
             ),
-          ),
-        ]),
+          ],
+        ),
       );
     }
     return SizedBox(
@@ -98,12 +99,15 @@ class _TrackRecapScreenState extends State<TrackRecapScreen> {
           alignment: BarChartAlignment.spaceBetween,
           gridData: const FlGridData(show: false),
           titlesData: FlTitlesData(
-            topTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            leftTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            leftTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -164,8 +168,10 @@ class _TrackRecapScreenState extends State<TrackRecapScreen> {
                   for (final s in _steps)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 2),
-                      child: Text('✔ ${s.title}',
-                          style: const TextStyle(color: Colors.white70)),
+                      child: Text(
+                        '✔ ${s.title}',
+                        style: const TextStyle(color: Colors.white70),
+                      ),
                     ),
                   const SizedBox(height: 16),
                 ],

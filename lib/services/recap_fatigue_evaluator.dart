@@ -6,7 +6,7 @@ import 'recap_history_tracker.dart';
 class RecapFatigueEvaluator {
   final RecapHistoryTracker tracker;
   RecapFatigueEvaluator({RecapHistoryTracker? tracker})
-      : tracker = tracker ?? RecapHistoryTracker.instance;
+    : tracker = tracker ?? RecapHistoryTracker.instance;
 
   static final RecapFatigueEvaluator instance = RecapFatigueEvaluator();
 
@@ -109,8 +109,9 @@ class RecapFatigueEvaluator {
     if (dismiss24 >= 3) return true;
 
     // Events filtered for the specific lesson
-    final lessonEvents =
-        history.where((e) => e.lessonId == lessonId).toList(growable: false);
+    final lessonEvents = history
+        .where((e) => e.lessonId == lessonId)
+        .toList(growable: false);
 
     // Last time the lesson banner was shown
     for (final e in lessonEvents) {

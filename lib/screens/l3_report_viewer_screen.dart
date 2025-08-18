@@ -188,8 +188,11 @@ class L3ReportViewerScreen extends StatelessWidget {
             const _CopyPathIntent(),
         const SingleActivator(LogicalKeyboardKey.keyC, meta: true):
             const _CopyPathIntent(),
-        const SingleActivator(LogicalKeyboardKey.keyR,
-            control: true, shift: true): const _RevealIntent(),
+        const SingleActivator(
+          LogicalKeyboardKey.keyR,
+          control: true,
+          shift: true,
+        ): const _RevealIntent(),
         const SingleActivator(LogicalKeyboardKey.keyR, meta: true, shift: true):
             const _RevealIntent(),
         if (logPath != null)

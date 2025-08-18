@@ -44,11 +44,13 @@ class _FakeLibrary implements MiniLessonLibraryService {
   TheoryMiniLessonNode? getById(String id) =>
       lessons.firstWhere((l) => l.id == id, orElse: () => null);
   @override
-  List<TheoryMiniLessonNode> findByTags(List<String> tags) =>
-      [for (final t in tags) ...lessons.where((l) => l.tags.contains(t))];
+  List<TheoryMiniLessonNode> findByTags(List<String> tags) => [
+    for (final t in tags) ...lessons.where((l) => l.tags.contains(t)),
+  ];
   @override
-  List<TheoryMiniLessonNode> getByTags(Set<String> tags) =>
-      [for (final t in tags) ...lessons.where((l) => l.tags.contains(t))];
+  List<TheoryMiniLessonNode> getByTags(Set<String> tags) => [
+    for (final t in tags) ...lessons.where((l) => l.tags.contains(t)),
+  ];
 }
 
 TrainingSpotAttempt _attempt(String id) {
@@ -93,11 +95,9 @@ void main() {
         type: StageType.practice,
       ),
     );
-    await MistakeTagHistoryService.logTags(
-      'p1',
-      _attempt('spot1'),
-      [MistakeTag.overpush],
-    );
+    await MistakeTagHistoryService.logTags('p1', _attempt('spot1'), [
+      MistakeTag.overpush,
+    ]);
 
     final engine = SmartTheoryInjectionEngine(
       detector: detector,
@@ -131,11 +131,9 @@ void main() {
         type: StageType.practice,
       ),
     );
-    await MistakeTagHistoryService.logTags(
-      'p1',
-      _attempt('spot1'),
-      [MistakeTag.overpush],
-    );
+    await MistakeTagHistoryService.logTags('p1', _attempt('spot1'), [
+      MistakeTag.overpush,
+    ]);
     await MiniLessonProgressTracker.instance.markViewed('m1');
     await BoosterCooldownScheduler.instance.recordDismissed('skill_gap');
 

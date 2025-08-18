@@ -22,8 +22,9 @@ class GoalEngine extends ChangeNotifier with SingletonMixin<GoalEngine> {
     if (raw != null) {
       try {
         final data = jsonDecode(raw) as List;
-        _goals.addAll(data
-            .map((e) => Goal.fromJson(Map<String, dynamic>.from(e as Map))));
+        _goals.addAll(
+          data.map((e) => Goal.fromJson(Map<String, dynamic>.from(e as Map))),
+        );
       } catch (_) {
         _goals.addAll(_defaultGoals());
       }
@@ -42,8 +43,11 @@ class GoalEngine extends ChangeNotifier with SingletonMixin<GoalEngine> {
         type: GoalType.daily,
         targetXP: 200,
         currentXP: 0,
-        deadline:
-            DateTime(now.year, now.month, now.day).add(const Duration(days: 1)),
+        deadline: DateTime(
+          now.year,
+          now.month,
+          now.day,
+        ).add(const Duration(days: 1)),
       ),
       Goal(
         id: 'weekly',
@@ -51,8 +55,11 @@ class GoalEngine extends ChangeNotifier with SingletonMixin<GoalEngine> {
         type: GoalType.weekly,
         targetXP: 1000,
         currentXP: 0,
-        deadline: DateTime(now.year, now.month, now.day)
-            .add(Duration(days: 8 - now.weekday)),
+        deadline: DateTime(
+          now.year,
+          now.month,
+          now.day,
+        ).add(Duration(days: 8 - now.weekday)),
       ),
       Goal(
         id: 'progress',
@@ -68,7 +75,9 @@ class GoalEngine extends ChangeNotifier with SingletonMixin<GoalEngine> {
   Future<void> _save() async {
     final prefs = await PreferencesService.getInstance();
     await prefs.setString(
-        _prefsKey, jsonEncode([for (final g in _goals) g.toJson()]));
+      _prefsKey,
+      jsonEncode([for (final g in _goals) g.toJson()]),
+    );
   }
 
   Future<void> updateXP(int xpDelta) async {

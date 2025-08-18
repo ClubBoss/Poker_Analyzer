@@ -41,12 +41,15 @@ class _PinnedHubScreenState extends State<PinnedHubScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final lessons =
-        _service.items.where((e) => e.type == 'lesson').toList(growable: false);
-    final packs =
-        _service.items.where((e) => e.type == 'pack').toList(growable: false);
-    final blocks =
-        _service.items.where((e) => e.type == 'block').toList(growable: false);
+    final lessons = _service.items
+        .where((e) => e.type == 'lesson')
+        .toList(growable: false);
+    final packs = _service.items
+        .where((e) => e.type == 'pack')
+        .toList(growable: false);
+    final blocks = _service.items
+        .where((e) => e.type == 'block')
+        .toList(growable: false);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pinned Items'),
@@ -68,7 +71,10 @@ class _PinnedHubScreenState extends State<PinnedHubScreen> {
   }
 
   Widget _buildSection(
-      String title, List<PinnedLearningItem> items, String type) {
+    String title,
+    List<PinnedLearningItem> items,
+    String type,
+  ) {
     if (items.isEmpty) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),
@@ -161,11 +167,8 @@ class _PinnedHubScreenState extends State<PinnedHubScreen> {
                 )
               : null,
           onTap: () => _openPack(tpl, item),
-          onLongPress: () => showPinnedLearningMenu(
-            context,
-            item,
-            () => _openPack(tpl, item),
-          ),
+          onLongPress: () =>
+              showPinnedLearningMenu(context, item, () => _openPack(tpl, item)),
         );
       },
     );
@@ -204,10 +207,8 @@ class _PinnedHubScreenState extends State<PinnedHubScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => TrainingPackScreen(
-          pack: tpl,
-          initialPosition: item.lastPosition,
-        ),
+        builder: (_) =>
+            TrainingPackScreen(pack: tpl, initialPosition: item.lastPosition),
       ),
     );
   }

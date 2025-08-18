@@ -18,9 +18,9 @@ class ConstraintResolverV3 {
     FullBoardGeneratorV2? boardGenerator,
     LineGraphEngine? lineEngine,
     Uuid? uuid,
-  })  : _boardGenerator = boardGenerator ?? const FullBoardGeneratorV2(),
-        _lineEngine = lineEngine ?? LineGraphEngine(),
-        _uuid = uuid ?? const Uuid();
+  }) : _boardGenerator = boardGenerator ?? const FullBoardGeneratorV2(),
+       _lineEngine = lineEngine ?? LineGraphEngine(),
+       _uuid = uuid ?? const Uuid();
 
   /// Applies [sets] to [base] producing all valid [TrainingPackSpot]
   /// variations. Each set may contain board generation rules via
@@ -92,8 +92,9 @@ class ConstraintResolverV3 {
 
         // Apply line pattern results.
         if (lineResult != null) {
-          spot.hand.position =
-              parseHeroPosition(lineResult.heroPosition.toString());
+          spot.hand.position = parseHeroPosition(
+            lineResult.heroPosition.toString(),
+          );
           if (villainActions.isNotEmpty) {
             spot.villainAction = villainActions.last;
           }

@@ -66,7 +66,9 @@ class LessonProgressTrackerService {
   Future<void> _saveLesson(String lessonId) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(
-        _stepsPrefix + lessonId, _progress[lessonId]?.toList() ?? <String>[]);
+      _stepsPrefix + lessonId,
+      _progress[lessonId]?.toList() ?? <String>[],
+    );
   }
 
   Future<void> _saveLessons() async {

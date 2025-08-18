@@ -25,8 +25,9 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
   int _tableSize = 6;
   int _heroIndex = 0;
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _blindController =
-      TextEditingController(text: '100');
+  final TextEditingController _blindController = TextEditingController(
+    text: '100',
+  );
   final TextEditingController _actionsController = TextEditingController();
   final TextEditingController _recommendedAmountController =
       TextEditingController();
@@ -47,8 +48,9 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
   void _initStacks() {
     _stackControllers
       ..clear()
-      ..addAll(List.generate(
-          _tableSize, (_) => TextEditingController(text: '1000')));
+      ..addAll(
+        List.generate(_tableSize, (_) => TextEditingController(text: '1000')),
+      );
   }
 
   @override
@@ -64,8 +66,9 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
     super.dispose();
   }
 
-  Set<String> _usedCards() =>
-      {for (final c in _boardCards) '${c.rank}${c.suit}'};
+  Set<String> _usedCards() => {
+    for (final c in _boardCards) '${c.rank}${c.suit}',
+  };
 
   void _selectCard(int index, CardModel card) {
     setState(() {
@@ -91,16 +94,19 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
       final p = int.tryParse(parts[0]);
       if (p == null || p < 1 || p > _tableSize) continue;
       final amount = parts.length > 2 ? double.tryParse(parts[2]) : null;
-      actions
-          .add(ActionEntry(0, p - 1, parts[1].toLowerCase(), amount: amount));
+      actions.add(
+        ActionEntry(0, p - 1, parts[1].toLowerCase(), amount: amount),
+      );
     }
     return actions;
   }
 
   String _formatActions(List<ActionEntry> actions) {
     return actions
-        .map((a) =>
-            '${a.playerIndex + 1} ${a.action}${a.amount != null ? ' ${a.amount}' : ''}')
+        .map(
+          (a) =>
+              '${a.playerIndex + 1} ${a.action}${a.amount != null ? ' ${a.amount}' : ''}',
+        )
         .join('\n');
   }
 
@@ -140,12 +146,13 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
   Future<void> _save() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Введите название')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Введите название')));
       return;
     }
     final stacks = [
-      for (final c in _stackControllers) int.tryParse(c.text) ?? 0
+      for (final c in _stackControllers) int.tryParse(c.text) ?? 0,
     ];
     final tags = _tagsController.text
         .split(',')
@@ -170,9 +177,9 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
     );
     await _storage.addSpot(spot);
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Spot saved')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Spot saved')));
     Navigator.pop(context, true);
   }
 
@@ -196,17 +203,21 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
             TextField(
               controller: _nameController,
               decoration: const InputDecoration(
-                  labelText: 'Название', border: OutlineInputBorder()),
+                labelText: 'Название',
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<int>(
               value: _tableSize,
               decoration: const InputDecoration(
-                  labelText: 'Игроков', border: OutlineInputBorder()),
+                labelText: 'Игроков',
+                border: OutlineInputBorder(),
+              ),
               dropdownColor: const Color(0xFF3A3B3E),
               items: [
                 for (int i = 3; i <= 9; i++)
-                  DropdownMenuItem(value: i, child: Text('$i'))
+                  DropdownMenuItem(value: i, child: Text('$i')),
               ],
               onChanged: (v) {
                 if (v == null) return;
@@ -221,11 +232,13 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
             DropdownButtonFormField<int>(
               value: _heroIndex,
               decoration: const InputDecoration(
-                  labelText: 'Позиция героя', border: OutlineInputBorder()),
+                labelText: 'Позиция героя',
+                border: OutlineInputBorder(),
+              ),
               dropdownColor: const Color(0xFF3A3B3E),
               items: [
                 for (int i = 0; i < _positions.length; i++)
-                  DropdownMenuItem(value: i, child: Text(_positions[i]))
+                  DropdownMenuItem(value: i, child: Text(_positions[i])),
               ],
               onChanged: (v) => setState(() => _heroIndex = v ?? 0),
             ),
@@ -233,7 +246,9 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
             TextField(
               controller: _blindController,
               decoration: const InputDecoration(
-                  labelText: 'Блайнд', border: OutlineInputBorder()),
+                labelText: 'Блайнд',
+                border: OutlineInputBorder(),
+              ),
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 16),
@@ -282,8 +297,9 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
             DropdownButtonFormField<String>(
               value: _recommendedAction,
               decoration: const InputDecoration(
-                  labelText: 'Recommended Action',
-                  border: OutlineInputBorder()),
+                labelText: 'Recommended Action',
+                border: OutlineInputBorder(),
+              ),
               dropdownColor: const Color(0xFF3A3B3E),
               items: const [
                 DropdownMenuItem(value: 'fold', child: Text('fold')),
@@ -298,15 +314,18 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
                 controller: _recommendedAmountController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
-                    labelText: 'Raise Amount', border: OutlineInputBorder()),
+                  labelText: 'Raise Amount',
+                  border: OutlineInputBorder(),
+                ),
               ),
             ],
             const SizedBox(height: 16),
             TextField(
               controller: _tagsController,
               decoration: const InputDecoration(
-                  labelText: 'Теги (через запятую)',
-                  border: OutlineInputBorder()),
+                labelText: 'Теги (через запятую)',
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 24),
             ElevatedButton(onPressed: _save, child: const Text('Сохранить')),

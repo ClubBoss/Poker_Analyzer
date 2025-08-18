@@ -69,7 +69,8 @@ class PotAnimationService {
     final tableWidth = screen.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screen.width / 2 + 10;
-    final centerY = screen.height / 2 -
+    final centerY =
+        screen.height / 2 -
         TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
     final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
@@ -84,15 +85,17 @@ class PotAnimationService {
       final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
       final start = Offset(centerX, centerY);
       final end = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
-      flights.add(ChipFlight(
-        key: UniqueKey(),
-        start: start,
-        end: end,
-        amount: amount,
-        playerIndex: player,
-        color: AppColors.accent,
-        scale: scale,
-      ));
+      flights.add(
+        ChipFlight(
+          key: UniqueKey(),
+          start: start,
+          end: end,
+          amount: amount,
+          playerIndex: player,
+          color: AppColors.accent,
+          scale: scale,
+        ),
+      );
       registerResetAnimation();
     });
 
@@ -104,7 +107,8 @@ class PotAnimationService {
       final prevPot = displayedPots[currentStreet];
       if (prevPot > 0) {
         setPotCountAnimation(
-            IntTween(begin: prevPot, end: 0).animate(potCountController));
+          IntTween(begin: prevPot, end: 0).animate(potCountController),
+        );
         potCountController.forward(from: 0);
         displayedPots[currentStreet] = 0;
       }
@@ -141,7 +145,8 @@ class PotAnimationService {
     final tableWidth = screen.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screen.width / 2 + 10;
-    final centerY = screen.height / 2 -
+    final centerY =
+        screen.height / 2 -
         TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
     final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
@@ -159,8 +164,8 @@ class PotAnimationService {
       Future.delayed(Duration(milliseconds: delay), () {
         if (!mounted) return;
         payouts.forEach((player, value) {
-          final amount =
-              (potAmount * (value / (totalWin == 0 ? 1 : totalWin))).round();
+          final amount = (potAmount * (value / (totalWin == 0 ? 1 : totalWin)))
+              .round();
           if (amount <= 0) return;
           final i = (player - viewIndex() + numberOfPlayers) % numberOfPlayers;
           final angle = 2 * pi * i / numberOfPlayers + pi / 2;
@@ -168,15 +173,17 @@ class PotAnimationService {
           final dy = radiusY * sin(angle);
           final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
           final end = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
-          flights.add(ChipFlight(
-            key: UniqueKey(),
-            start: start,
-            end: end,
-            amount: amount,
-            playerIndex: player,
-            color: AppColors.accent,
-            scale: scale,
-          ));
+          flights.add(
+            ChipFlight(
+              key: UniqueKey(),
+              start: start,
+              end: end,
+              amount: amount,
+              playerIndex: player,
+              color: AppColors.accent,
+              scale: scale,
+            ),
+          );
           registerResetAnimation();
         });
         refresh();
@@ -192,7 +199,8 @@ class PotAnimationService {
       final prevPot = displayedPots[currentStreet];
       if (prevPot > 0) {
         setPotCountAnimation(
-            IntTween(begin: prevPot, end: 0).animate(potCountController));
+          IntTween(begin: prevPot, end: 0).animate(potCountController),
+        );
         potCountController.forward(from: 0);
         displayedPots[currentStreet] = 0;
       }
@@ -219,7 +227,8 @@ class PotAnimationService {
     final tableWidth = screen.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screen.width / 2 + 10;
-    final centerY = screen.height / 2 -
+    final centerY =
+        screen.height / 2 -
         TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
     final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
@@ -234,21 +243,25 @@ class PotAnimationService {
       final bias = TableGeometryHelper.verticalBiasFromAngle(angle) * scale;
       final start = Offset(centerX, centerY);
       final end = Offset(centerX + dx, centerY + dy + bias + 92 * scale);
-      flights.add(ChipFlight(
-        key: UniqueKey(),
-        start: start,
-        end: end,
-        amount: amount,
-        playerIndex: player,
-        color: Colors.lightBlueAccent,
-        scale: scale,
-      ));
+      flights.add(
+        ChipFlight(
+          key: UniqueKey(),
+          start: start,
+          end: end,
+          amount: amount,
+          playerIndex: player,
+          color: Colors.lightBlueAccent,
+          scale: scale,
+        ),
+      );
       registerResetAnimation();
     });
   }
 
   Future<void> triggerRefundAnimations(
-      Map<int, int> refunds, PlayerZoneRegistry registry) async {
+    Map<int, int> refunds,
+    PlayerZoneRegistry registry,
+  ) async {
     for (final entry in refunds.entries) {
       final playerIndex = entry.key;
       final amount = entry.value;

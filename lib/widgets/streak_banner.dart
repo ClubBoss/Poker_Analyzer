@@ -30,10 +30,7 @@ class _StreakBannerState extends State<StreakBanner>
     _iconScale = TweenSequence<double>([
       TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.3), weight: 50),
       TweenSequenceItem(tween: Tween(begin: 1.3, end: 1.0), weight: 50),
-    ]).animate(CurvedAnimation(
-      parent: _iconController,
-      curve: Curves.easeOut,
-    ));
+    ]).animate(CurvedAnimation(parent: _iconController, curve: Curves.easeOut));
   }
 
   @override
@@ -89,8 +86,10 @@ class _StreakBannerState extends State<StreakBanner>
               },
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.grey[850],
                   borderRadius: BorderRadius.circular(8),
@@ -140,8 +139,9 @@ class _StreakBannerState extends State<StreakBanner>
                                 child: LinearProgressIndicator(
                                   value: value,
                                   backgroundColor: Colors.white24,
-                                  valueColor:
-                                      AlwaysStoppedAnimation<Color>(accent),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    accent,
+                                  ),
                                   minHeight: 4,
                                 ),
                               );

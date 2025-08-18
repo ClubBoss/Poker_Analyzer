@@ -37,10 +37,18 @@ class _Response extends Stream<List<int>> implements HttpClientResponse {
   @override
   int get statusCode => HttpStatus.ok;
   @override
-  StreamSubscription<List<int>> listen(void Function(List<int>)? onData,
-      {Function? onError, void Function()? onDone, bool? cancelOnError}) {
-    return Stream<List<int>>.fromIterable([data]).listen(onData,
-        onError: onError, onDone: onDone, cancelOnError: cancelOnError);
+  StreamSubscription<List<int>> listen(
+    void Function(List<int>)? onData, {
+    Function? onError,
+    void Function()? onDone,
+    bool? cancelOnError,
+  }) {
+    return Stream<List<int>>.fromIterable([data]).listen(
+      onData,
+      onError: onError,
+      onDone: onDone,
+      cancelOnError: cancelOnError,
+    );
   }
 
   @override
@@ -61,8 +69,9 @@ void main() {
     PathProviderPlatform.instance = _FakePathProvider(dir.path);
     final pluginsDir = Directory('${dir.path}/plugins');
     await pluginsDir.create();
-    await File('${pluginsDir.path}/plugin_config.json')
-        .writeAsString('{"X.dart": false}');
+    await File(
+      '${pluginsDir.path}/plugin_config.json',
+    ).writeAsString('{"X.dart": false}');
     final loader = PluginLoader();
     final config = await loader.loadConfig();
     expect(config['X.dart'], false);
@@ -115,8 +124,9 @@ void main(List<String> args, SendPort port) {
     PathProviderPlatform.instance = _FakePathProvider(dir.path);
     HttpOverrides.runZoned(() async {
       final loader = PluginLoader();
-      final downloaded =
-          await loader.downloadFromUrl('http://x/TestPlugin.dart');
+      final downloaded = await loader.downloadFromUrl(
+        'http://x/TestPlugin.dart',
+      );
       expect(downloaded, true);
       final file = File('${dir.path}/plugins/TestPlugin.dart');
       expect(await file.exists(), true);

@@ -35,7 +35,7 @@ class SmartTheoryPackGenerator {
           playerCount: 2,
           stacks: const {'0': 10, '1': 10},
           actions: {
-            0: [ActionEntry(0, 0, 'fold')]
+            0: [ActionEntry(0, 0, 'fold')],
           },
         ),
       ),
@@ -55,7 +55,7 @@ class SmartTheoryPackGenerator {
             0: [
               ActionEntry(0, 0, 'push', amount: 10),
               ActionEntry(0, 1, 'call', amount: 9.5),
-            ]
+            ],
           },
         ),
       ),

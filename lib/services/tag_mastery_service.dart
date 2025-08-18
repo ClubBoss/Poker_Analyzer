@@ -312,7 +312,7 @@ class TagMasteryService {
     await logs.load();
     await PackLibraryLoaderService.instance.loadLibrary();
     final library = {
-      for (final t in PackLibraryLoaderService.instance.library) t.id: t
+      for (final t in PackLibraryLoaderService.instance.library) t.id: t,
     };
 
     final counts = <String, int>{};

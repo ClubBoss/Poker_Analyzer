@@ -34,7 +34,9 @@ class LessonStreakEngine {
     }
 
     await prefs.setString(
-        _lastDayKey, today.toIso8601String().split('T').first);
+      _lastDayKey,
+      today.toIso8601String().split('T').first,
+    );
     await prefs.setInt(_countKey, count);
     _controller.add(count);
   }

@@ -58,9 +58,9 @@ void main() {
         b.turn,
         b.river,
       ].map((c) => CardModel(rank: c[0], suit: c[1])).toList();
-      final clusters = BoardClusterLibrary.getClusters(cards)
-          .map((c) => c.toLowerCase())
-          .toSet();
+      final clusters = BoardClusterLibrary.getClusters(
+        cards,
+      ).map((c) => c.toLowerCase()).toSet();
       expect(clusters.contains('broadway-heavy'), isTrue);
       expect(clusters.contains('trap'), isFalse);
     }

@@ -29,10 +29,10 @@ class TrainingPackFilterMemoryService {
       stackFilters = {for (final i in json['stack'] as List? ?? []) i as int};
       positionFilters = {
         for (final p in json['pos'] as List? ?? [])
-          HeroPosition.values.byName(p as String)
+          HeroPosition.values.byName(p as String),
       };
       themeFilters = {
-        for (final t in json['themes'] as List? ?? []) t as String
+        for (final t in json['themes'] as List? ?? []) t as String,
       };
       difficulty = json['difficulty'] as String?;
       groupByTag = json['groupByTag'] as bool? ?? false;

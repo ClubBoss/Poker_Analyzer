@@ -57,7 +57,9 @@ class _PackMergeExplorerScreenState extends State<PackMergeExplorerScreen> {
               padding: const EdgeInsets.all(16),
               children: [
                 ElevatedButton(
-                    onPressed: _load, child: const Text('🔄 Обновить')),
+                  onPressed: _load,
+                  child: const Text('🔄 Обновить'),
+                ),
                 const SizedBox(height: 16),
                 for (final g in _items)
                   ExpansionTile(
@@ -70,7 +72,8 @@ class _PackMergeExplorerScreenState extends State<PackMergeExplorerScreen> {
                               : null,
                           title: Text('${c.a.name} ↔ ${c.b.name}'),
                           subtitle: Text(
-                              'score ${c.score.toStringAsFixed(2)}, overlap ${(c.overlap * 100).toStringAsFixed(0)}%'),
+                            'score ${c.score.toStringAsFixed(2)}, overlap ${(c.overlap * 100).toStringAsFixed(0)}%',
+                          ),
                           onTap: () => _openDiff(c),
                         ),
                     ],
@@ -115,14 +118,16 @@ Future<List<_Group>> _exploreTask(String _) async {
   if (!dir.existsSync()) return [];
   const reader = YamlReader();
   final packs = <TrainingPackTemplateV2>[];
-  for (final f in dir
-      .listSync(recursive: true)
-      .whereType<File>()
-      .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
+  for (final f
+      in dir
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
     try {
       final map = reader.read(await f.readAsString());
-      packs
-          .add(TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map)));
+      packs.add(
+        TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map)),
+      );
     } catch (_) {}
   }
   final pairs = <_Candidate>[];
@@ -132,16 +137,18 @@ Future<List<_Group>> _exploreTask(String _) async {
       final b = packs[j];
       final res = _compare(a, b);
       if (res['score'] >= 2 || res['overlap'] > 0.5) {
-        pairs.add(_Candidate(
-          a: a,
-          b: b,
-          score: res['score'],
-          overlap: res['overlap'],
-          sameTitle: res['sameTitle'],
-          sameBlind: res['sameBlind'],
-          blind: res['blind'],
-          commonTags: List<String>.from(res['commonTags']),
-        ));
+        pairs.add(
+          _Candidate(
+            a: a,
+            b: b,
+            score: res['score'],
+            overlap: res['overlap'],
+            sameTitle: res['sameTitle'],
+            sameBlind: res['sameBlind'],
+            blind: res['blind'],
+            commonTags: List<String>.from(res['commonTags']),
+          ),
+        );
       }
     }
   }
@@ -158,7 +165,9 @@ Future<List<_Group>> _exploreTask(String _) async {
 }
 
 Map<String, dynamic> _compare(
-    TrainingPackTemplateV2 a, TrainingPackTemplateV2 b) {
+  TrainingPackTemplateV2 a,
+  TrainingPackTemplateV2 b,
+) {
   final sameType = a.type == b.type;
   final sameTitle = a.name.trim().toLowerCase() == b.name.trim().toLowerCase();
   final tagsA = a.tags.toSet();

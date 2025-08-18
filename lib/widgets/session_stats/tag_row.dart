@@ -26,26 +26,32 @@ class SessionTagRow extends StatelessWidget {
       fontWeight: selected ? FontWeight.bold : FontWeight.normal,
     );
 
-    final content = LayoutBuilder(builder: (context, constraints) {
-      if (constraints.maxWidth < 360) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    final content = LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 360) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(tag, style: style.copyWith(fontSize: 14 * scale)),
+              SizedBox(height: 4 * scale),
+              Text(
+                count.toString(),
+                style: style.copyWith(fontSize: 14 * scale),
+              ),
+            ],
+          );
+        }
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(tag, style: style.copyWith(fontSize: 14 * scale)),
-            SizedBox(height: 4 * scale),
+            Expanded(
+              child: Text(tag, style: style.copyWith(fontSize: 14 * scale)),
+            ),
             Text(count.toString(), style: style.copyWith(fontSize: 14 * scale)),
           ],
         );
-      }
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-              child: Text(tag, style: style.copyWith(fontSize: 14 * scale))),
-          Text(count.toString(), style: style.copyWith(fontSize: 14 * scale)),
-        ],
-      );
-    });
+      },
+    );
 
     return InkWell(
       onTap: onTap,

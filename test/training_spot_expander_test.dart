@@ -22,8 +22,9 @@ void main() {
     expect(generated.every((s) => s.meta['variation'] == true), true);
     final boards = generated.map((s) => s.hand.board.take(3).toList());
     expect(
-        boards.any((b) => !const ListEquality().equals(b, ['Kh', 'Qd', '2c'])),
-        true);
+      boards.any((b) => !const ListEquality().equals(b, ['Kh', 'Qd', '2c'])),
+      true,
+    );
   });
 
   test('expandPack updates spotCount', () {

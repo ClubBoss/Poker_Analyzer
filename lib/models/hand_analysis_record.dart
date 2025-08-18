@@ -32,9 +32,9 @@ class HandAnalysisRecord {
   }) : date = date ?? DateTime.now();
 
   List<CardModel> get cards => [
-        CardModel(rank: card1[0], suit: card1.substring(1)),
-        CardModel(rank: card2[0], suit: card2.substring(1)),
-      ];
+    CardModel(rank: card1[0], suit: card1.substring(1)),
+    CardModel(rank: card2[0], suit: card2.substring(1)),
+  ];
 
   factory HandAnalysisRecord.fromJson(Map<String, dynamic> json) =>
       _$HandAnalysisRecordFromJson(json);

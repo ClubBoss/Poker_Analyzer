@@ -23,9 +23,9 @@ class StageCompletionCelebrationService {
     SkillTreeLibraryService? library,
     SkillTreeNodeProgressTracker? progress,
     SkillTreeStageCompletionEvaluator? evaluator,
-  })  : library = library ?? SkillTreeLibraryService.instance,
-        progress = progress ?? SkillTreeNodeProgressTracker.instance,
-        evaluator = evaluator ?? const SkillTreeStageCompletionEvaluator();
+  }) : library = library ?? SkillTreeLibraryService.instance,
+       progress = progress ?? SkillTreeNodeProgressTracker.instance,
+       evaluator = evaluator ?? const SkillTreeStageCompletionEvaluator();
 
   static StageCompletionCelebrationService instance =
       StageCompletionCelebrationService();

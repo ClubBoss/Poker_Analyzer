@@ -46,18 +46,26 @@ class ResultScreen extends StatelessWidget {
               winnings: winnings,
             ),
             const SizedBox(height: 8),
-            Text('Пот: $potSize',
-                style: const TextStyle(fontSize: 16, color: Colors.white70)),
+            Text(
+              'Пот: $potSize',
+              style: const TextStyle(fontSize: 16, color: Colors.white70),
+            ),
             const SizedBox(height: 16),
-            const Text('Стек после раздачи:',
-                style: TextStyle(fontSize: 16, color: Colors.white)),
+            const Text(
+              'Стек после раздачи:',
+              style: TextStyle(fontSize: 16, color: Colors.white),
+            ),
             const SizedBox(height: 8),
             for (final entry in finalStacks.entries)
-              Text('Игрок ${entry.key + 1}: ${entry.value}',
-                  style: const TextStyle(color: Colors.white70)),
+              Text(
+                'Игрок ${entry.key + 1}: ${entry.value}',
+                style: const TextStyle(color: Colors.white70),
+              ),
             const SizedBox(height: 16),
-            const Text('Действия:',
-                style: TextStyle(fontSize: 16, color: Colors.white)),
+            const Text(
+              'Действия:',
+              style: TextStyle(fontSize: 16, color: Colors.white),
+            ),
             const SizedBox(height: 8),
             Expanded(
               child: ListView.builder(
@@ -104,24 +112,29 @@ class _PotBreakdown extends StatelessWidget {
       if (potAmount <= 0) continue;
       final shares = <int, int>{};
       winnings.forEach((player, amount) {
-        final share =
-            (potAmount * (amount / (totalWin == 0 ? 1 : totalWin))).round();
+        final share = (potAmount * (amount / (totalWin == 0 ? 1 : totalWin)))
+            .round();
         if (share > 0) shares[player] = share;
       });
-      final winnersText =
-          shares.entries.map((e) => 'P${e.key + 1} wins ${e.value}').join(', ');
-      lines.add(Text(
-        '${names[i]} → $winnersText',
-        style: const TextStyle(fontSize: 16, color: Colors.white70),
-      ));
+      final winnersText = shares.entries
+          .map((e) => 'P${e.key + 1} wins ${e.value}')
+          .join(', ');
+      lines.add(
+        Text(
+          '${names[i]} → $winnersText',
+          style: const TextStyle(fontSize: 16, color: Colors.white70),
+        ),
+      );
     }
 
     if (lines.isEmpty) return const SizedBox.shrink();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Pot Breakdown:',
-            style: TextStyle(fontSize: 16, color: Colors.white)),
+        const Text(
+          'Pot Breakdown:',
+          style: TextStyle(fontSize: 16, color: Colors.white),
+        ),
         const SizedBox(height: 4),
         ...lines,
       ],

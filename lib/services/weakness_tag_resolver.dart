@@ -9,10 +9,14 @@ class WeaknessTagResolver {
       StageID('push_fold_cash_stage', tags: ['sb', 'pushfold', 'cash']),
     ],
     '3betpot': [
-      StageID('3bet_push_sb_vs_btn_stage',
-          tags: ['sb', 'btn', '3bet-push', 'mtt']),
-      StageID('3bet_push_co_vs_btn_stage',
-          tags: ['co', 'btn', '3bet-push', 'mtt']),
+      StageID(
+        '3bet_push_sb_vs_btn_stage',
+        tags: ['sb', 'btn', '3bet-push', 'mtt'],
+      ),
+      StageID(
+        '3bet_push_co_vs_btn_stage',
+        tags: ['co', 'btn', '3bet-push', 'mtt'],
+      ),
     ],
     'openfold': [
       StageID('open_fold_lj_mtt_stage', tags: ['lj', 'openfold', 'mtt']),

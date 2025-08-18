@@ -34,8 +34,10 @@ class _FakeLauncher extends TrainingSessionLauncher {
   TrainingPackTemplateV2? launched;
   _FakeLauncher() : super();
   @override
-  Future<void> launch(TrainingPackTemplateV2 template,
-      {int startIndex = 0}) async {
+  Future<void> launch(
+    TrainingPackTemplateV2 template, {
+    int startIndex = 0,
+  }) async {
     launched = template;
   }
 }
@@ -95,8 +97,11 @@ void main() {
       type: StageType.practice,
     );
     final key = GlobalKey();
-    await tester
-        .pumpWidget(MaterialApp(home: Scaffold(body: Container(key: key))));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(body: Container(key: key)),
+      ),
+    );
     await service.launch(key.currentContext!, stage);
     expect(launcher.launched?.id, 'p1');
     expect(UserActionLogger.instance.events.last['event'], 'stage_opened');
@@ -119,8 +124,12 @@ void main() {
       type: StageType.theory,
     );
     final key = GlobalKey();
-    await tester.pumpWidget(MaterialApp(
-        navigatorKey: GlobalKey(), home: Scaffold(body: Container(key: key))));
+    await tester.pumpWidget(
+      MaterialApp(
+        navigatorKey: GlobalKey(),
+        home: Scaffold(body: Container(key: key)),
+      ),
+    );
     await service.launch(key.currentContext!, stage);
     await tester.pumpAndSettle();
     expect(find.byType(TheoryPackReaderScreen), findsOneWidget);
@@ -143,8 +152,12 @@ void main() {
       type: StageType.booster,
     );
     final key = GlobalKey();
-    await tester.pumpWidget(MaterialApp(
-        navigatorKey: GlobalKey(), home: Scaffold(body: Container(key: key))));
+    await tester.pumpWidget(
+      MaterialApp(
+        navigatorKey: GlobalKey(),
+        home: Scaffold(body: Container(key: key)),
+      ),
+    );
     await service.launch(key.currentContext!, stage);
     await tester.pumpAndSettle();
     expect(find.byType(TheoryPackReaderScreen), findsOneWidget);

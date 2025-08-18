@@ -17,27 +17,31 @@ void main() {
           title: 'Spot 1',
           hand: HandData(),
           evalResult: EvaluationResult(
-              correct: true,
-              expectedAction: '-',
-              userEquity: 0,
-              expectedEquity: 0),
+            correct: true,
+            expectedAction: '-',
+            userEquity: 0,
+            expectedEquity: 0,
+          ),
         ),
         TrainingPackSpot(
           id: 's2',
           title: 'Spot 2',
           hand: HandData(),
           evalResult: EvaluationResult(
-              correct: false,
-              expectedAction: '-',
-              userEquity: 0,
-              expectedEquity: 0),
+            correct: false,
+            expectedAction: '-',
+            userEquity: 0,
+            expectedEquity: 0,
+          ),
         ),
       ],
       createdAt: DateTime.now(),
     );
-    await tester.pumpWidget(MaterialApp(
-      home: TrainingPackTemplateEditorScreen(template: tpl, templates: [tpl]),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: TrainingPackTemplateEditorScreen(template: tpl, templates: [tpl]),
+      ),
+    );
     await tester.pumpAndSettle();
     expect(find.text('Spot 1'), findsOneWidget);
     expect(find.text('Spot 2'), findsOneWidget);

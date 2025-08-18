@@ -6,7 +6,7 @@ import 'mini_lesson_library_service.dart';
 /// Provides fuzzy search over theory mini lessons.
 class LessonSearchEngine {
   LessonSearchEngine({List<TheoryMiniLessonNode>? library})
-      : _library = library;
+    : _library = library;
 
   final List<TheoryMiniLessonNode>? _library;
 
@@ -21,10 +21,11 @@ class LessonSearchEngine {
       final title = _normalize(lesson.resolvedTitle);
       final content = _normalize(lesson.resolvedContent);
       final tagScores = [
-        for (final t in lesson.tags) _similarity(q, _normalize(t))
+        for (final t in lesson.tags) _similarity(q, _normalize(t)),
       ];
       final tagScore = tagScores.isEmpty ? 0.0 : tagScores.reduce(max);
-      final score = _similarity(q, title) * 0.6 +
+      final score =
+          _similarity(q, title) * 0.6 +
           tagScore * 0.3 +
           _similarity(q, content) * 0.1;
       if (score > 0) scored.add(_ScoredLesson(lesson, score));
@@ -112,7 +113,7 @@ class LessonSearchEngine {
       'Ü': 'u',
       'Ç': 'c',
       'Ñ': 'n',
-      'Ý': 'y'
+      'Ý': 'y',
     };
     final buffer = StringBuffer();
     for (final code in str.runes) {

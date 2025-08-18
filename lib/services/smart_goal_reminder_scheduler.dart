@@ -11,10 +11,7 @@ import 'goal_analytics_service.dart';
 
 /// Schedules gentle reminders for stale user goals.
 class SmartGoalReminderScheduler with WidgetsBindingObserver {
-  SmartGoalReminderScheduler({
-    required this.goals,
-    required this.reminder,
-  });
+  SmartGoalReminderScheduler({required this.goals, required this.reminder});
 
   /// Engine providing the list of user goals.
   final UserGoalEngine goals;
@@ -86,8 +83,9 @@ class SmartGoalReminderScheduler with WidgetsBindingObserver {
           continue;
         }
       }
-      await reminder
-          .scheduleOneTimePush('📝 Цель "${g.title}" ждёт продолжения');
+      await reminder.scheduleOneTimePush(
+        '📝 Цель "${g.title}" ждёт продолжения',
+      );
       log[g.id] = now.toIso8601String();
     }
 

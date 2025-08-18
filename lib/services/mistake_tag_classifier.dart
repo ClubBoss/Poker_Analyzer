@@ -23,8 +23,9 @@ class MistakeTagClassifier {
     const engine = MistakeCategorizationEngine();
     final strength = engine.computeHandStrength(attempt.spot.hand.heroCards);
     final diff = attempt.evDiff.abs().clamp(0, 5);
-    final severity =
-        ((strength * 0.7) + (diff / 5 * 0.3)).clamp(0, 1).toDouble();
+    final severity = ((strength * 0.7) + (diff / 5 * 0.3))
+        .clamp(0, 1)
+        .toDouble();
 
     return MistakeTagClassification(tag: tag, severity: severity);
   }

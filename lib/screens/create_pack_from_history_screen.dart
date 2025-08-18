@@ -43,7 +43,7 @@ class _CreatePackFromHistoryScreenState
         if (h.name.toLowerCase().contains(q) ||
             h.tags.any((t) => t.toLowerCase().contains(q)) ||
             (h.comment?.toLowerCase().contains(q) ?? false))
-          h
+          h,
     ];
   }
 
@@ -72,8 +72,9 @@ class _CreatePackFromHistoryScreenState
     context.read<TemplateStorageService>().addTemplate(tpl);
     if (!mounted) return;
     Navigator.pop(context);
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Пак "${tpl.name}" создан')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Пак "${tpl.name}" создан')));
   }
 
   Future<void> _export() async {
@@ -99,15 +100,17 @@ class _CreatePackFromHistoryScreenState
     final filtered = _filter(hands);
     return Scaffold(
       appBar: AppBar(
-          title: const Text('Пак из истории'),
-          actions: [SyncStatusIcon.of(context)]),
+        title: const Text('Пак из истории'),
+        actions: [SyncStatusIcon.of(context)],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             TextField(
-                controller: _name,
-                decoration: const InputDecoration(labelText: 'Название')),
+              controller: _name,
+              decoration: const InputDecoration(labelText: 'Название'),
+            ),
             const SizedBox(height: 12),
             TextField(
               controller: _search,
@@ -138,16 +141,18 @@ class _CreatePackFromHistoryScreenState
                 Row(
                   children: [
                     ElevatedButton(
-                        onPressed: _selected.isEmpty ? null : _export,
-                        child: const Text('Экспорт')),
+                      onPressed: _selected.isEmpty ? null : _export,
+                      child: const Text('Экспорт'),
+                    ),
                     const SizedBox(width: 8),
                     ElevatedButton(
-                        onPressed: _selected.isEmpty ? null : _create,
-                        child: const Text('Создать')),
+                      onPressed: _selected.isEmpty ? null : _create,
+                      child: const Text('Создать'),
+                    ),
                   ],
-                )
+                ),
               ],
-            )
+            ),
           ],
         ),
       ),

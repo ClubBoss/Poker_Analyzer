@@ -48,9 +48,11 @@ class _FakeFormatSelector extends AutoFormatSelector {
 class _PassGatekeeper extends PackQualityGatekeeperService {
   const _PassGatekeeper();
   @override
-  bool isQualityAcceptable(pack,
-          {double minScore = 0.7, seedIssues = const {}}) =>
-      true;
+  bool isQualityAcceptable(
+    pack, {
+    double minScore = 0.7,
+    seedIssues = const {},
+  }) => true;
 }
 
 void main() {
@@ -60,8 +62,9 @@ void main() {
 
   test('second identical plan within window is idempotent-skip', () async {
     const user = 'u2';
-    await UserSkillModelService.instance
-        .recordAttempt(user, ['tag'], correct: false);
+    await UserSkillModelService.instance.recordAttempt(user, [
+      'tag',
+    ], correct: false);
     final tempDir = await Directory.systemTemp.createTemp('idem');
     final store = LearningPathStore(rootDir: tempDir.path);
     final planExec = AdaptivePlanExecutor(
@@ -86,8 +89,9 @@ void main() {
     );
     final modules2 = await store.listModules(user);
     expect(modules2.length, modules1.length);
-    final status =
-        AutogenStatusDashboardService.instance.getStatus('PathHardening');
+    final status = AutogenStatusDashboardService.instance.getStatus(
+      'PathHardening',
+    );
     final data = jsonDecode(status!.currentStage) as Map<String, dynamic>;
     expect(data['action'], 'skip');
     await tempDir.delete(recursive: true);

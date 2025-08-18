@@ -9,11 +9,11 @@ String get _dartExe => Platform.resolvedExecutable;
 
 /// Runs a CLI with `--help` and returns exitCode + stdout.
 Future<ProcessResult> _runHelp(String scriptPath) {
-  return Process.run(
-    _dartExe,
-    ['run', scriptPath, '--help'],
-    workingDirectory: _repoRoot,
-  );
+  return Process.run(_dartExe, [
+    'run',
+    scriptPath,
+    '--help',
+  ], workingDirectory: _repoRoot);
 }
 
 void main() {

@@ -8,8 +8,8 @@ class PackAugmentationEngine {
   final Uuid _uuid;
 
   const PackAugmentationEngine({TrainingSpotExpander? expander, Uuid? uuid})
-      : expander = expander ?? const TrainingSpotExpander(),
-        _uuid = uuid ?? const Uuid();
+    : expander = expander ?? const TrainingSpotExpander(),
+      _uuid = uuid ?? const Uuid();
 
   /// Returns the original list combined with auto generated packs that contain
   /// expanded spots for additional training variety.

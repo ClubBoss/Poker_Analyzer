@@ -9,13 +9,13 @@ class PathSuggestionEngine {
   }) async {
     final remaining = [
       for (final p in allPaths)
-        if (!completedPathIds.contains(p.id)) p
+        if (!completedPathIds.contains(p.id)) p,
     ];
     if (remaining.isEmpty) return null;
 
     final preferred = [
       for (final p in remaining)
-        if (_isRecommended(p)) p
+        if (_isRecommended(p)) p,
     ];
     final list = preferred.isNotEmpty ? preferred : remaining;
 

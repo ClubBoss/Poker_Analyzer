@@ -17,22 +17,16 @@ class LessonTrackUnlockEngine {
     'leak_fixer': 'live_exploit',
   };
 
-  final Map<String, int> _streakReq = {
-    'leak_fixer': 5,
-  };
+  final Map<String, int> _streakReq = {'leak_fixer': 5};
 
-  final Map<String, int> _xpReq = {
-    'live_exploit': 500,
-    'leak_fixer': 1000,
-  };
+  final Map<String, int> _xpReq = {'live_exploit': 500, 'leak_fixer': 1000};
 
-  final Map<String, int> _stepReq = {
-    'live_exploit': 5,
-  };
+  final Map<String, int> _stepReq = {'live_exploit': 5};
 
   /// Returns progress information for each unlock requirement of [trackId].
   Future<List<TrackUnlockRequirementProgress>> getRequirementProgress(
-      String trackId) async {
+    String trackId,
+  ) async {
     final List<TrackUnlockRequirementProgress> reqs = [];
 
     final prereq = _prereq[trackId];

@@ -77,7 +77,7 @@ class SuggestedNextStepEngine {
 
       final incomplete = [
         for (final id in packs)
-          if (!completed.contains(id)) id
+          if (!completed.contains(id)) id,
       ];
       if (incomplete.isEmpty) {
         previousCompleted = true;
@@ -92,8 +92,9 @@ class SuggestedNextStepEngine {
           tpl,
           type: TrainingType.pushFold,
         );
-        tplV2.trainingType =
-            const TrainingTypeEngine().detectTrainingType(tplV2);
+        tplV2.trainingType = const TrainingTypeEngine().detectTrainingType(
+          tplV2,
+        );
         if (!await PackUnlockingRulesEngine.instance.isUnlocked(tplV2)) {
           continue;
         }

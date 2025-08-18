@@ -26,7 +26,7 @@ void main() {
       createdAt: DateTime.now(),
       triggerReason: 'test',
       metrics: const {
-        'clusterTags': ['math']
+        'clusterTags': ['math'],
       },
     );
     await store.upsertModule('u1', module);

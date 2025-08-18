@@ -23,7 +23,9 @@ class WinnerLabel extends StatelessWidget {
           scale: scaleAnimation,
           child: Container(
             padding: EdgeInsets.symmetric(
-                horizontal: 6 * scale, vertical: 2 * scale),
+              horizontal: 6 * scale,
+              vertical: 2 * scale,
+            ),
             decoration: BoxDecoration(
               color: AppColors.accent,
               borderRadius: BorderRadius.circular(8 * scale),

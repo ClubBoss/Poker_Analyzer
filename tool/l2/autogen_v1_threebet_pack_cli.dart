@@ -36,12 +36,14 @@ void main(List<String> args) {
 
   final mix = L2TbMix.mvsDefault();
   final pack = buildThreebetPack(seed: seed, count: count, mix: mix);
-  final json =
-      format == 'pretty' ? encodeTbPackPretty(pack) : encodeTbPackCompact(pack);
+  final json = format == 'pretty'
+      ? encodeTbPackPretty(pack)
+      : encodeTbPackCompact(pack);
   stdout.write(json);
 }
 
 void _usage() {
   stderr.writeln(
-      'Usage: dart run tool/l2/autogen_v1_threebet_pack_cli.dart --seed <int> [--count <int>] [--preset mvs] [--format compact|pretty]');
+    'Usage: dart run tool/l2/autogen_v1_threebet_pack_cli.dart --seed <int> [--count <int>] [--preset mvs] [--format compact|pretty]',
+  );
 }

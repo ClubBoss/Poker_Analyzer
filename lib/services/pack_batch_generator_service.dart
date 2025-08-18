@@ -11,9 +11,10 @@ import 'tag_frequency_analyzer.dart';
 import 'training_pack_index_writer.dart';
 
 class PackBatchGeneratorService {
-  const PackBatchGeneratorService(
-      {required this.gpt, PackYamlConfigParser? parser})
-      : parser = parser ?? const PackYamlConfigParser();
+  const PackBatchGeneratorService({
+    required this.gpt,
+    PackYamlConfigParser? parser,
+  }) : parser = parser ?? const PackYamlConfigParser();
 
   final GptPackTemplateGenerator gpt;
   final PackYamlConfigParser parser;
@@ -42,8 +43,9 @@ class PackBatchGeneratorService {
           '$_basePrompt для audience: $audience, tags: $tagStr, формат: 10 BB турниры';
       final yaml = await gpt.generateYamlTemplate(prompt);
       if (yaml.isEmpty) {
-        ErrorLogger.instance
-            .logError('Skip empty result for $audience $tagStr');
+        ErrorLogger.instance.logError(
+          'Skip empty result for $audience $tagStr',
+        );
         continue;
       }
       try {
@@ -54,8 +56,9 @@ class PackBatchGeneratorService {
         }
         final ts = DateFormat('yyyyMMdd_HHmm').format(DateTime.now());
         final safeA = audience.replaceAll(' ', '_');
-        final safeT =
-            tags.isNotEmpty ? tags.first.replaceAll(' ', '_') : 'pack';
+        final safeT = tags.isNotEmpty
+            ? tags.first.replaceAll(' ', '_')
+            : 'pack';
         final file = File('${out.path}/lib_${safeA}_${safeT}_$ts.yaml');
         await file.writeAsString(yaml);
         success++;

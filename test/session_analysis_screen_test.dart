@@ -21,18 +21,22 @@ import 'package:poker_analyzer/services/evaluation_executor_service.dart';
 
 class _FakeExecutor extends EvaluationExecutorService {
   @override
-  Future<void> evaluateSingle(BuildContext context, TrainingPackSpot spot,
-      {TrainingPackTemplate? template,
-      int anteBb = 0,
-      EvaluationMode mode = EvaluationMode.ev,
-      SavedHand? hand}) async {}
+  Future<void> evaluateSingle(
+    BuildContext context,
+    TrainingPackSpot spot, {
+    TrainingPackTemplate? template,
+    int anteBb = 0,
+    EvaluationMode mode = EvaluationMode.ev,
+    SavedHand? hand,
+  }) async {}
 }
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('mistake pack button launches training and keeps note',
-      (tester) async {
+  testWidgets('mistake pack button launches training and keeps note', (
+    tester,
+  ) async {
     SharedPreferences.setMockInitialValues({});
     final templateService = TemplateStorageService();
     final manager = SavedHandManagerService(storage: SavedHandStorageService());
@@ -60,14 +64,19 @@ void main() {
       playerTypes: const {0: PlayerType.unknown, 1: PlayerType.unknown},
       sessionId: 1,
     );
-    await tester.pumpWidget(MultiProvider(providers: [
-      ChangeNotifierProvider.value(value: templateService),
-      ChangeNotifierProvider.value(value: review),
-      ChangeNotifierProvider.value(value: training),
-      ChangeNotifierProvider.value(value: notes),
-      ChangeNotifierProvider.value(value: manager),
-      Provider<EvaluationExecutorService>(create: (_) => _FakeExecutor()),
-    ], child: MaterialApp(home: SessionAnalysisScreen(hands: [hand]))));
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider.value(value: templateService),
+          ChangeNotifierProvider.value(value: review),
+          ChangeNotifierProvider.value(value: training),
+          ChangeNotifierProvider.value(value: notes),
+          ChangeNotifierProvider.value(value: manager),
+          Provider<EvaluationExecutorService>(create: (_) => _FakeExecutor()),
+        ],
+        child: MaterialApp(home: SessionAnalysisScreen(hands: [hand])),
+      ),
+    );
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'note');
     await tester.pump();

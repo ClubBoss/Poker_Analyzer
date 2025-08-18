@@ -43,10 +43,10 @@ class XPTrackerService extends ChangeNotifier {
   }
 
   Map<String, dynamic> _toMap() => {
-        'xp': _xp,
-        'entries': [for (final e in _history) e.toJson()],
-        'updatedAt': DateTime.now().toIso8601String(),
-      };
+    'xp': _xp,
+    'entries': [for (final e in _history) e.toJson()],
+    'updatedAt': DateTime.now().toIso8601String(),
+  };
 
   Future<void> _persist(DateTime ts) async {
     await _saveXp();
@@ -79,28 +79,35 @@ class XPTrackerService extends ChangeNotifier {
     }
     _history
       ..clear()
-      ..addAll(_box!.toMap().entries.where((e) => e.value is Map).map((e) {
-        final map = Map<String, dynamic>.from(e.value as Map);
-        return XPEntry.fromJson({'id': e.key.toString(), ...map});
-      }));
+      ..addAll(
+        _box!.toMap().entries.where((e) => e.value is Map).map((e) {
+          final map = Map<String, dynamic>.from(e.value as Map);
+          return XPEntry.fromJson({'id': e.key.toString(), ...map});
+        }),
+      );
     _xp = prefs.getInt(_xpKey) ?? 0;
     if (cloud != null) {
       final remote = await cloud!.downloadXp();
       if (remote != null) {
         final remoteAt =
             DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
-                DateTime.fromMillisecondsSinceEpoch(0);
-        final localAt = DateTime.tryParse(prefs.getString(_timeKey) ?? '') ??
+            DateTime.fromMillisecondsSinceEpoch(0);
+        final localAt =
+            DateTime.tryParse(prefs.getString(_timeKey) ?? '') ??
             DateTime.fromMillisecondsSinceEpoch(0);
         if (remoteAt.isAfter(localAt)) {
           final list = remote['entries'];
           if (list is List) {
             _history
               ..clear()
-              ..addAll(list.map((e) =>
-                  XPEntry.fromJson(Map<String, dynamic>.from(e as Map))));
+              ..addAll(
+                list.map(
+                  (e) => XPEntry.fromJson(Map<String, dynamic>.from(e as Map)),
+                ),
+              );
             _trim();
-            _xp = (remote['xp'] as num?)?.toInt() ??
+            _xp =
+                (remote['xp'] as num?)?.toInt() ??
                 _history.fold(0, (p, e) => p + e.xp);
             await _persist(remoteAt);
           }
@@ -119,8 +126,11 @@ class XPTrackerService extends ChangeNotifier {
     await prefs.setInt(_xpKey, _xp);
   }
 
-  Future<void> add(
-      {required int xp, required String source, int? streak}) async {
+  Future<void> add({
+    required int xp,
+    required String source,
+    int? streak,
+  }) async {
     final entry = XPEntry(
       date: DateTime.now(),
       xp: xp,
@@ -149,8 +159,10 @@ class XPTrackerService extends ChangeNotifier {
     return 1.0;
   }
 
-  Future<void> addPerTagXP(Map<String, int> tagXp,
-      {required String source}) async {
+  Future<void> addPerTagXP(
+    Map<String, int> tagXp, {
+    required String source,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
     final now = DateTime.now();
     for (final entry in tagXp.entries) {
@@ -165,8 +177,9 @@ class XPTrackerService extends ChangeNotifier {
           data = {};
         }
       }
-      final history =
-          List<Map<String, dynamic>>.from(data['history'] as List? ?? []);
+      final history = List<Map<String, dynamic>>.from(
+        data['history'] as List? ?? [],
+      );
       history.insert(0, {
         'date': now.toIso8601String(),
         'xp': entry.value,
@@ -177,7 +190,9 @@ class XPTrackerService extends ChangeNotifier {
       }
       final total = (data['total'] as num?)?.toInt() ?? 0;
       await prefs.setString(
-          key, jsonEncode({'total': total + entry.value, 'history': history}));
+        key,
+        jsonEncode({'total': total + entry.value, 'history': history}),
+      );
     }
   }
 

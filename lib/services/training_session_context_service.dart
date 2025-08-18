@@ -28,10 +28,12 @@ class TrainingSessionContextService {
       source: source,
     );
     _current = fp;
-    unawaited(UserActionLogger.instance.logEvent({
-      'event': 'trainingSessionStart',
-      ...fp.toJson(),
-    }));
+    unawaited(
+      UserActionLogger.instance.logEvent({
+        'event': 'trainingSessionStart',
+        ...fp.toJson(),
+      }),
+    );
     return fp;
   }
 

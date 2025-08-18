@@ -17,8 +17,9 @@ class PlanProgress {
   }
 }
 
-Future<PlanProgress> loadPlanProgress(
-    {String path = 'out/plan/plan_progress_v1.json'}) async {
+Future<PlanProgress> loadPlanProgress({
+  String path = 'out/plan/plan_progress_v1.json',
+}) async {
   final f = File(path);
   if (!await f.exists()) return const PlanProgress({});
   try {
@@ -28,8 +29,10 @@ Future<PlanProgress> loadPlanProgress(
   return const PlanProgress({});
 }
 
-Future<void> savePlanProgress(PlanProgress p,
-    {String path = 'out/plan/plan_progress_v1.json'}) async {
+Future<void> savePlanProgress(
+  PlanProgress p, {
+  String path = 'out/plan/plan_progress_v1.json',
+}) async {
   final file = File(path);
   await file.parent.create(recursive: true);
   final json = const JsonEncoder.withIndent('  ').convert(p.toJson());

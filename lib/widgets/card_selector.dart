@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../models/card_model.dart';
 
-Future<CardModel?> showCardSelector(BuildContext context,
-    {Set<String> disabledCards = const {}}) async {
+Future<CardModel?> showCardSelector(
+  BuildContext context, {
+  Set<String> disabledCards = const {},
+}) async {
   final ranks = [
     'A',
     'K',
@@ -16,7 +18,7 @@ Future<CardModel?> showCardSelector(BuildContext context,
     '5',
     '4',
     '3',
-    '2'
+    '2',
   ];
   const suits = ['♠', '♥', '♦', '♣'];
 
@@ -57,7 +59,7 @@ Future<CardModel?> showCardSelector(BuildContext context,
                             color: Colors.black.withValues(alpha: 0.25),
                             blurRadius: 3,
                             offset: const Offset(1, 2),
-                          )
+                          ),
                         ],
                       ),
                       child: Text(

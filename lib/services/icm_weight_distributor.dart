@@ -53,8 +53,10 @@ class ICMWeightDistributor {
       rawWeights[spot] = weight;
     }
 
-    final double total =
-        rawWeights.values.fold(0, (double a, double b) => a + b);
+    final double total = rawWeights.values.fold(
+      0,
+      (double a, double b) => a + b,
+    );
     if (total == 0) {
       final double equal = 1 / spots.length;
       for (final spot in spots) {

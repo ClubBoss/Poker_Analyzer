@@ -17,8 +17,9 @@ void main() {
     final svc = ABOrchestratorService.instance;
     final file = File('assets/ab_experiments.json');
     final orig = await file.readAsString();
-    await file
-        .writeAsString(orig.replaceFirst('"traffic": 1.0', '"traffic": 0.5'));
+    await file.writeAsString(
+      orig.replaceFirst('"traffic": 1.0', '"traffic": 0.5'),
+    );
     addTearDown(() async {
       await file.writeAsString(orig);
       svc.clearCache();
@@ -48,14 +49,16 @@ void main() {
     final svc = ABOrchestratorService.instance;
     final file = File('assets/ab_experiments.json');
     final orig = await file.readAsString();
-    await file
-        .writeAsString(orig.replaceFirst('"traffic": 1.0', '"traffic": 1.0'));
+    await file.writeAsString(
+      orig.replaceFirst('"traffic": 1.0', '"traffic": 1.0'),
+    );
     svc.clearCache();
     final user = 'sticky';
     final first = await svc.resolveActiveArms(user, 'regular');
     final armId = first.isEmpty ? 'none' : first.first.armId;
-    await file
-        .writeAsString(orig.replaceFirst('"traffic": 1.0', '"traffic": 0.0'));
+    await file.writeAsString(
+      orig.replaceFirst('"traffic": 1.0', '"traffic": 0.0'),
+    );
     svc.clearCache();
     final second = await svc.resolveActiveArms(user, 'regular');
     final armId2 = second.isEmpty ? 'none' : second.first.armId;

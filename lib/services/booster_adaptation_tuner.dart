@@ -12,7 +12,7 @@ class BoosterAdaptationTuner {
   final BoosterEffectivenessAnalyzer analyzer;
 
   BoosterAdaptationTuner({BoosterEffectivenessAnalyzer? analyzer})
-      : analyzer = analyzer ?? BoosterEffectivenessAnalyzer();
+    : analyzer = analyzer ?? BoosterEffectivenessAnalyzer();
 
   static final BoosterAdaptationTuner instance = BoosterAdaptationTuner();
 
@@ -37,7 +37,7 @@ class BoosterAdaptationTuner {
         if (data is Map) {
           _cache = {
             for (final e in data.entries)
-              e.key.toString(): _parseAdaptation(e.value.toString())
+              e.key.toString(): _parseAdaptation(e.value.toString()),
           };
         }
       } catch (_) {}

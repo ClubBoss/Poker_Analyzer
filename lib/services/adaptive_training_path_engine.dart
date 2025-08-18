@@ -10,8 +10,9 @@ import 'weakness_cluster_engine_v2.dart';
 class AdaptiveTrainingPathEngine {
   final WeaknessClusterEngine clusterEngine;
 
-  const AdaptiveTrainingPathEngine(
-      {this.clusterEngine = const WeaknessClusterEngine()});
+  const AdaptiveTrainingPathEngine({
+    this.clusterEngine = const WeaknessClusterEngine(),
+  });
 
   /// Returns IDs of stages unlocked based on completed prerequisites and
   /// player's weaknesses.

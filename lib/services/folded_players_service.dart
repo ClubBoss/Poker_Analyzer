@@ -52,7 +52,7 @@ class FoldedPlayersService extends ChangeNotifier {
   void recompute(List<ActionEntry> actions) {
     restore({
       for (final a in actions)
-        if (a.action == 'fold') a.playerIndex
+        if (a.action == 'fold') a.playerIndex,
     });
   }
 
@@ -66,14 +66,18 @@ class FoldedPlayersService extends ChangeNotifier {
   /// Update folded state after removing [entry].
   void removeFromAction(ActionEntry entry, List<ActionEntry> remaining) {
     if (entry.action != 'fold') return;
-    final stillFolded = remaining
-        .any((a) => a.playerIndex == entry.playerIndex && a.action == 'fold');
+    final stillFolded = remaining.any(
+      (a) => a.playerIndex == entry.playerIndex && a.action == 'fold',
+    );
     if (!stillFolded) remove(entry.playerIndex);
   }
 
   /// Update folded state after editing an action.
   void editAction(
-      ActionEntry oldEntry, ActionEntry newEntry, List<ActionEntry> actions) {
+    ActionEntry oldEntry,
+    ActionEntry newEntry,
+    List<ActionEntry> actions,
+  ) {
     removeFromAction(oldEntry, actions);
     addFromAction(newEntry);
   }

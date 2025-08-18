@@ -8,10 +8,7 @@ class GoalSlotAssignment {
   final XPGuidedGoal goal;
   final String slot; // 'home', 'theory', or 'postrecap'
 
-  const GoalSlotAssignment({
-    required this.goal,
-    required this.slot,
-  });
+  const GoalSlotAssignment({required this.goal, required this.slot});
 }
 
 /// Routes XP goals to delivery slots based on urgency and context.
@@ -24,8 +21,8 @@ class GoalSlotAllocator {
     this.insights = const MistakeTagInsightsService(),
     BoosterPathHistoryService? history,
     MiniLessonLibraryService? library,
-  })  : history = history ?? BoosterPathHistoryService.instance,
-        library = library ?? MiniLessonLibraryService.instance;
+  }) : history = history ?? BoosterPathHistoryService.instance,
+       library = library ?? MiniLessonLibraryService.instance;
 
   static final GoalSlotAllocator instance = GoalSlotAllocator();
 

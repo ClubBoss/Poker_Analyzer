@@ -20,8 +20,9 @@ void main() {
 
   testWidgets('shows reward dialog after track completion', (tester) async {
     await tracker.markTrackCompleted('T');
-    final granted =
-        await TrackCompletionRewardService.instance.grantReward('T');
+    final granted = await TrackCompletionRewardService.instance.grantReward(
+      'T',
+    );
     final svc = TrackRewardUnlockerService(progress: tracker);
 
     await tester.pumpWidget(

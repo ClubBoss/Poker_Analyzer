@@ -89,11 +89,7 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
     final List<TrainingSession> list = [];
     for (final value in _box!.values) {
       if (value is Map) {
-        list.add(
-          TrainingSession.fromJson(
-            Map<String, dynamic>.from(value),
-          ),
-        );
+        list.add(TrainingSession.fromJson(Map<String, dynamic>.from(value)));
       }
     }
     list.sort((a, b) => b.startedAt.compareTo(a.startedAt));
@@ -117,12 +113,14 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
                 s.templateId == _template) &&
             (_tag == null || _tag!.isEmpty
                 ? true
-                : hands.any((h) =>
-                    !h.savedAt.isBefore(s.startedAt) &&
-                    (s.completedAt == null ||
-                        !h.savedAt.isAfter(s.completedAt!)) &&
-                    h.tags.contains(_tag))))
-          s
+                : hands.any(
+                    (h) =>
+                        !h.savedAt.isBefore(s.startedAt) &&
+                        (s.completedAt == null ||
+                            !h.savedAt.isAfter(s.completedAt!)) &&
+                        h.tags.contains(_tag),
+                  )))
+          s,
     ];
   }
 
@@ -132,8 +130,9 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
     final path = await notes.exportAsPdf(stats);
     if (path == null || !mounted) return;
     final name = path.split(Platform.pathSeparator).last;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Файл сохранён: $name')));
   }
 
   @override
@@ -163,11 +162,9 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
                 if (index == 0) {
                   final manager = context.watch<SavedHandManagerService>();
                   final tags = manager.allTags.toList()..sort();
-                  final templates = _sessions
-                      .map((e) => e.templateId)
-                      .toSet()
-                      .toList()
-                    ..sort();
+                  final templates =
+                      _sessions.map((e) => e.templateId).toSet().toList()
+                        ..sort();
                   return Padding(
                     padding: const EdgeInsets.all(8),
                     child: Wrap(
@@ -187,9 +184,11 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
                               _savePrefs();
                             }
                           },
-                          child: Text(_startDate == null
-                              ? 'Start'
-                              : formatDate(_startDate!)),
+                          child: Text(
+                            _startDate == null
+                                ? 'Start'
+                                : formatDate(_startDate!),
+                          ),
                         ),
                         OutlinedButton(
                           onPressed: () async {
@@ -205,7 +204,8 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
                             }
                           },
                           child: Text(
-                              _endDate == null ? 'End' : formatDate(_endDate!)),
+                            _endDate == null ? 'End' : formatDate(_endDate!),
+                          ),
                         ),
                         DropdownButton<String>(
                           value: _tag?.isEmpty ?? true ? null : _tag,
@@ -213,14 +213,17 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
                           dropdownColor: const Color(0xFF2A2B2D),
                           onChanged: (v) {
                             setState(
-                                () => _tag = v?.isEmpty ?? true ? null : v);
+                              () => _tag = v?.isEmpty ?? true ? null : v,
+                            );
                             _savePrefs();
                           },
                           items: [
                             const DropdownMenuItem(
-                                value: '', child: Text('All')),
+                              value: '',
+                              child: Text('All'),
+                            ),
                             for (final t in tags)
-                              DropdownMenuItem(value: t, child: Text(t))
+                              DropdownMenuItem(value: t, child: Text(t)),
                           ],
                         ),
                         DropdownButton<String>(
@@ -228,15 +231,18 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
                           hint: const Text('Template'),
                           dropdownColor: const Color(0xFF2A2B2D),
                           onChanged: (v) {
-                            setState(() =>
-                                _template = v?.isEmpty ?? true ? null : v);
+                            setState(
+                              () => _template = v?.isEmpty ?? true ? null : v,
+                            );
                             _savePrefs();
                           },
                           items: [
                             const DropdownMenuItem(
-                                value: '', child: Text('All')),
+                              value: '',
+                              child: Text('All'),
+                            ),
                             for (final t in templates)
-                              DropdownMenuItem(value: t, child: Text(t))
+                              DropdownMenuItem(value: t, child: Text(t)),
                           ],
                         ),
                       ],
@@ -272,12 +278,14 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
                     ),
                   ),
                   onTap: () {
-                    final allHands =
-                        context.read<SavedHandManagerService>().hands;
+                    final allHands = context
+                        .read<SavedHandManagerService>()
+                        .hands;
                     final List<SavedHand> sessionHands = [];
                     for (final h in allHands) {
                       final afterStart = !h.savedAt.isBefore(s.startedAt);
-                      final beforeEnd = s.completedAt == null ||
+                      final beforeEnd =
+                          s.completedAt == null ||
                           !h.savedAt.isAfter(s.completedAt!);
                       if (afterStart && beforeEnd) sessionHands.add(h);
                     }

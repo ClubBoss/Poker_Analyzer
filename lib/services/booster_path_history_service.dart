@@ -33,7 +33,7 @@ class BoosterPathHistoryService {
           _logs = [
             for (final e in data)
               if (e is Map)
-                BoosterPathLogEntry.fromJson(Map<String, dynamic>.from(e))
+                BoosterPathLogEntry.fromJson(Map<String, dynamic>.from(e)),
           ];
           _logs.sort((a, b) => b.shownAt.compareTo(a.shownAt));
         }
@@ -74,12 +74,14 @@ class BoosterPathHistoryService {
         return;
       }
     }
-    _logs.add(BoosterPathLogEntry(
-      lessonId: lessonId,
-      tag: normTag,
-      shownAt: DateTime.now(),
-      completedAt: DateTime.now(),
-    ));
+    _logs.add(
+      BoosterPathLogEntry(
+        lessonId: lessonId,
+        tag: normTag,
+        shownAt: DateTime.now(),
+        completedAt: DateTime.now(),
+      ),
+    );
     await _save();
   }
 

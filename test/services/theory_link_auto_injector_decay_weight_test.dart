@@ -41,14 +41,19 @@ void main() {
     final policy = TheoryLinkPolicyEngine(prefs: prefs);
 
     final retention = DecayTagRetentionTrackerService();
-    await retention.markTheoryReviewed('x',
-        time: DateTime.now().subtract(const Duration(days: 30)));
-    await retention.markTheoryReviewed('y',
-        time: DateTime.now().subtract(const Duration(days: 1)));
+    await retention.markTheoryReviewed(
+      'x',
+      time: DateTime.now().subtract(const Duration(days: 30)),
+    );
+    await retention.markTheoryReviewed(
+      'y',
+      time: DateTime.now().subtract(const Duration(days: 1)),
+    );
 
-    final bundle =
-        _FakeBundle('[{"id":"th_x","title":"X","uri":"x","tags":["x"]},'
-            '{"id":"th_y","title":"Y","uri":"y","tags":["y"]}]');
+    final bundle = _FakeBundle(
+      '[{"id":"th_x","title":"X","uri":"x","tags":["x"]},'
+      '{"id":"th_y","title":"Y","uri":"y","tags":["y"]}]',
+    );
 
     final store = LearningPathStore(rootDir: 'test_cache_decay/path');
     final module = InjectedPathModule(
@@ -74,8 +79,9 @@ void main() {
       store: store,
       libraryIndex: TheoryLibraryIndex(assetPath: 'unused', bundle: bundle),
       telemetry: MistakeTelemetryStore(),
-      noveltyRegistry:
-          TheoryNoveltyRegistry(path: 'test_cache_decay/novelty.json'),
+      noveltyRegistry: TheoryNoveltyRegistry(
+        path: 'test_cache_decay/novelty.json',
+      ),
       retention: retention,
       packLibrary: packLibrary,
       policy: policy,

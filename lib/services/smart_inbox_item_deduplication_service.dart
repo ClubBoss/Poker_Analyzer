@@ -14,7 +14,8 @@ class SmartInboxItemDeduplicationService {
   /// Priority is determined by how long ago the booster was shown and preferring
   /// `resumePack` over `reviewTheory` when ties occur.
   Future<List<PinnedBlockBoosterSuggestion>> deduplicate(
-      List<PinnedBlockBoosterSuggestion> input) async {
+    List<PinnedBlockBoosterSuggestion> input,
+  ) async {
     if (input.isEmpty) return [];
 
     final now = DateTime.now();
@@ -54,8 +55,10 @@ class SmartInboxItemDeduplicationService {
       final tag = s.suggestion.tag;
       final block = s.suggestion.blockId;
       if (byTag.containsKey(tag) || byBlock.containsKey(block)) {
-        await SmartBoosterExclusionTrackerService()
-            .logExclusion(tag, 'deduplicated');
+        await SmartBoosterExclusionTrackerService().logExclusion(
+          tag,
+          'deduplicated',
+        );
         continue;
       }
       byTag[tag] = s.suggestion;

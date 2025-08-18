@@ -19,8 +19,9 @@ class FakeTheoryIndexService extends TheoryIndexService {
 void main() {
   SharedPreferences.setMockInitialValues({});
   test('spot with missing tags -> no card', () async {
-    final controller =
-        PackRunController(theoryIndex: FakeTheoryIndexService(null));
+    final controller = PackRunController(
+      theoryIndex: FakeTheoryIndexService(null),
+    );
     final snippet = await controller.onResult('s1', false, []);
     expect(snippet, isNull);
   });
@@ -31,10 +32,12 @@ void main() {
       title: 'Push/Fold Basics',
       bullets: ['Always push'],
     );
-    final controller =
-        PackRunController(theoryIndex: FakeTheoryIndexService(snippet));
-    final RecallSnippetResult? result =
-        await controller.onResult('s1', false, ['push']);
+    final controller = PackRunController(
+      theoryIndex: FakeTheoryIndexService(snippet),
+    );
+    final RecallSnippetResult? result = await controller.onResult('s1', false, [
+      'push',
+    ]);
     expect(result?.snippet.id, snippet.id);
     expect(result?.snippet.title, snippet.title);
   });

@@ -13,14 +13,14 @@ class _Result extends TrainingResult {
   final bool isCorrect;
   final double heroEv;
   _Result({required this.spotId, required this.isCorrect, required this.heroEv})
-      : super(
-          date: DateTime.now(),
-          total: 1,
-          correct: isCorrect ? 1 : 0,
-          accuracy: isCorrect ? 100 : 0,
-          tags: const ['cbet'],
-          evDiff: heroEv - 1,
-        );
+    : super(
+        date: DateTime.now(),
+        total: 1,
+        correct: isCorrect ? 1 : 0,
+        accuracy: isCorrect ? 100 : 0,
+        tags: const ['cbet'],
+        evDiff: heroEv - 1,
+      );
 }
 
 TrainingPackSpot _spot(String id, String tag, double ev) {
@@ -56,7 +56,7 @@ void main() {
     ];
     final mastery = {'cbet': 0.4};
     final packs = [
-      _pack('p', [_spot('s1', 'cbet', -0.5), _spot('s2', 'cbet', 0.2)])
+      _pack('p', [_spot('s1', 'cbet', -0.5), _spot('s2', 'cbet', 0.2)]),
     ];
 
     final plan = engine.generate(

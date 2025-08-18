@@ -16,10 +16,10 @@ class _PathRegistryEntry {
   });
 
   Map<String, dynamic> toJson() => {
-        'userId': userId,
-        'clusterHash': clusterHash,
-        'ts': ts.toIso8601String(),
-      };
+    'userId': userId,
+    'clusterHash': clusterHash,
+    'ts': ts.toIso8601String(),
+  };
 
   static _PathRegistryEntry fromJson(Map<String, dynamic> json) =>
       _PathRegistryEntry(
@@ -54,19 +54,25 @@ class PathRegistry {
   Future<void> record(String userId, List<String> tags) async {
     final entries = await _load();
     final hash = hashTags(tags);
-    entries.add(_PathRegistryEntry(
-        userId: userId, clusterHash: hash, ts: DateTime.now()));
+    entries.add(
+      _PathRegistryEntry(userId: userId, clusterHash: hash, ts: DateTime.now()),
+    );
     await _save(entries);
   }
 
   Future<bool> hasRecent(
-      String userId, String clusterHash, Duration within) async {
+    String userId,
+    String clusterHash,
+    Duration within,
+  ) async {
     final entries = await _load();
     final cutoff = DateTime.now().subtract(within);
-    return entries.any((e) =>
-        e.userId == userId &&
-        e.clusterHash == clusterHash &&
-        e.ts.isAfter(cutoff));
+    return entries.any(
+      (e) =>
+          e.userId == userId &&
+          e.clusterHash == clusterHash &&
+          e.ts.isAfter(cutoff),
+    );
   }
 
   Future<int> countSince(String userId, DateTime since) async {

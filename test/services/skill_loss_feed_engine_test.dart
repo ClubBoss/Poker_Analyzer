@@ -91,10 +91,7 @@ void main() {
     });
     final library = _FakeLibrary({'a': _tpl('pa', 'a'), 'b': _tpl('pb', 'b')});
     final reviews = _FakeReviews({
-      'a': TagReviewRecord(
-        accuracy: 0.9,
-        timestamp: DateTime.now(),
-      ),
+      'a': TagReviewRecord(accuracy: 0.9, timestamp: DateTime.now()),
     });
     final engine = SkillLossFeedEngine(
       goals: goals,

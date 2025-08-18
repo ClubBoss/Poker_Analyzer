@@ -21,10 +21,7 @@ class LearningPathSummaryCache {
   final TrainingPathProgressService path;
   final TagMasteryService mastery;
 
-  LearningPathSummaryCache({
-    required this.path,
-    required this.mastery,
-  });
+  LearningPathSummaryCache({required this.path, required this.mastery});
 
   LearningPathSummary? _summary;
   Future<void>? _refreshing;

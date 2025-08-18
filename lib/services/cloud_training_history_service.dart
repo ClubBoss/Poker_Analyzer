@@ -21,9 +21,11 @@ class CloudTrainingHistoryService {
 
   Future<void> saveSession(List<ResultEntry> results) async {
     if (_uid == null) return;
-    final data =
-        CloudTrainingSession(path: '', date: DateTime.now(), results: results)
-            .toJson();
+    final data = CloudTrainingSession(
+      path: '',
+      date: DateTime.now(),
+      results: results,
+    ).toJson();
     await _db
         .collection('users')
         .doc(_uid)
@@ -41,7 +43,7 @@ class CloudTrainingHistoryService {
         .get();
     return [
       for (final d in snap.docs)
-        CloudTrainingSession.fromJson(d.data(), path: d.id)
+        CloudTrainingSession.fromJson(d.data(), path: d.id),
     ];
   }
 

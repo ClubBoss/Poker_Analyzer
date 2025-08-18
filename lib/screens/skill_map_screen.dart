@@ -48,8 +48,9 @@ class _SkillMapScreenState extends State<SkillMapScreen> {
     setState(() => _loading = true);
     final masteryService = context.read<TagMasteryService>();
     final xpService = context.read<XPTrackerService>();
-    final insights = await const MistakeTagInsightsService()
-        .buildInsights(sortByEvLoss: true);
+    final insights = await const MistakeTagInsightsService().buildInsights(
+      sortByEvLoss: true,
+    );
     final clusters = const MistakeClusterAnalyticsService().compute(insights);
     const clusterSvc = MistakeTagClusterService();
     final byCluster = <MistakeTagCluster, List<MistakeInsight>>{};
@@ -58,8 +59,9 @@ class _SkillMapScreenState extends State<SkillMapScreen> {
       byCluster.putIfAbsent(c, () => []).add(i);
     }
     clusters.sort((a, b) => b.avgEvLoss.compareTo(a.avgEvLoss));
-    final maxLoss =
-        clusters.isEmpty ? 0.0 : clusters.map((e) => e.avgEvLoss).reduce(max);
+    final maxLoss = clusters.isEmpty
+        ? 0.0
+        : clusters.map((e) => e.avgEvLoss).reduce(max);
     final map = await masteryService.computeMastery(force: true);
     final xpMap = await xpService.getTotalXpPerTag();
     final entries = map.entries.toList();
@@ -77,8 +79,10 @@ class _SkillMapScreenState extends State<SkillMapScreen> {
   }
 
   void _sort(List<MapEntry<String, double>> list) {
-    list.sort((a, b) =>
-        _weakFirst ? a.value.compareTo(b.value) : b.value.compareTo(a.value));
+    list.sort(
+      (a, b) =>
+          _weakFirst ? a.value.compareTo(b.value) : b.value.compareTo(a.value),
+    );
   }
 
   void _toggleSort() {
@@ -93,21 +97,21 @@ class _SkillMapScreenState extends State<SkillMapScreen> {
   void _openTag(String tag) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => TagInsightScreen(tag: tag),
-      ),
+      MaterialPageRoute(builder: (_) => TagInsightScreen(tag: tag)),
     );
   }
 
   Future<void> _reviewCluster(Set<MistakeTag> tags) async {
     final templates = context.read<TemplateStorageService>();
-    var spots = await SmartReviewService.instance
-        .getMistakeSpots(templates, context: context);
+    var spots = await SmartReviewService.instance.getMistakeSpots(
+      templates,
+      context: context,
+    );
     if (tags.isNotEmpty) {
       final allowed = tags.map((e) => e.name.toLowerCase()).toSet();
       spots = [
         for (final s in spots)
-          if (s.tags.any((t) => allowed.contains(t.toLowerCase()))) s
+          if (s.tags.any((t) => allowed.contains(t.toLowerCase()))) s,
       ];
     }
     if (spots.isEmpty) return;
@@ -141,14 +145,20 @@ class _SkillMapScreenState extends State<SkillMapScreen> {
       child: ExpansionTile(
         collapsedIconColor: Colors.white,
         iconColor: Colors.white,
-        title: Text(c.cluster.label,
-            style: const TextStyle(
-                color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text(
+          c.cluster.label,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Avg EV loss: ${c.avgEvLoss.toStringAsFixed(2)}',
-                style: const TextStyle(color: Colors.white70)),
+            Text(
+              'Avg EV loss: ${c.avgEvLoss.toStringAsFixed(2)}',
+              style: const TextStyle(color: Colors.white70),
+            ),
             const SizedBox(height: 4),
             ClipRRect(
               borderRadius: BorderRadius.circular(4),
@@ -180,8 +190,10 @@ class _SkillMapScreenState extends State<SkillMapScreen> {
                   child: TextButton(
                     onPressed: () =>
                         _reviewCluster(insights.map((e) => e.tag).toSet()),
-                    child: const Text('Review',
-                        style: TextStyle(color: Colors.white)),
+                    child: const Text(
+                      'Review',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
               ],

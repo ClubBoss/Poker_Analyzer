@@ -28,18 +28,20 @@ class TrainingSpotFilterPanel extends StatelessWidget {
             value: positionValue,
             underline: const SizedBox.shrink(),
             onChanged: onPositionChanged,
-            items: ['All', ...positions]
-                .map((p) => DropdownMenuItem(value: p, child: Text(p)))
-                .toList(),
+            items: [
+              'All',
+              ...positions,
+            ].map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
           ),
           const SizedBox(width: 12),
           DropdownButton<String>(
             value: tagValue,
             underline: const SizedBox.shrink(),
             onChanged: onTagChanged,
-            items: ['All', ...tags]
-                .map((t) => DropdownMenuItem(value: t, child: Text(t)))
-                .toList(),
+            items: [
+              'All',
+              ...tags,
+            ].map((t) => DropdownMenuItem(value: t, child: Text(t))).toList(),
           ),
         ],
       ),

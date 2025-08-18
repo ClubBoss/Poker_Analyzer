@@ -44,8 +44,10 @@ class _TrainingProgressChartScreenState
           final tagMap = Map<String, dynamic>.from(value['tagBreakdown'] ?? {});
           for (final entry in tagMap.entries) {
             final data = Map<String, dynamic>.from(entry.value as Map);
-            final tagStat =
-                stat.tagStats.putIfAbsent(entry.key, () => _TagStats());
+            final tagStat = stat.tagStats.putIfAbsent(
+              entry.key,
+              () => _TagStats(),
+            );
             tagStat.correct += (data['correct'] ?? 0) as int;
             tagStat.total += (data['total'] ?? 0) as int;
           }
@@ -141,10 +143,12 @@ class _AccuracyChart extends StatelessWidget {
                 },
               ),
             ),
-            topTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
           ),
           gridData: const FlGridData(
             show: true,
@@ -178,10 +182,12 @@ class _HandsChart extends StatelessWidget {
     for (var i = 0; i < data.length; i++) {
       final total = data[i].total.toDouble();
       maxY = total > maxY ? total : maxY;
-      groups.add(BarChartGroupData(
-        x: i,
-        barRods: [BarChartRodData(toY: total)],
-      ));
+      groups.add(
+        BarChartGroupData(
+          x: i,
+          barRods: [BarChartRodData(toY: total)],
+        ),
+      );
     }
     final labels = _dateLabels(data);
     return _ChartCard(
@@ -210,10 +216,12 @@ class _HandsChart extends StatelessWidget {
                 },
               ),
             ),
-            topTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
           ),
           borderData: FlBorderData(show: true),
           gridData: const FlGridData(show: false),
@@ -246,13 +254,15 @@ class _TagAccuracyChart extends StatelessWidget {
             : stat.correct / stat.total * 100;
         spots.add(FlSpot(i.toDouble(), acc));
       }
-      lines.add(LineChartBarData(
-        spots: spots,
-        isCurved: true,
-        barWidth: 2,
-        color: colors[colorIndex % colors.length],
-        dotData: const FlDotData(show: false),
-      ));
+      lines.add(
+        LineChartBarData(
+          spots: spots,
+          isCurved: true,
+          barWidth: 2,
+          color: colors[colorIndex % colors.length],
+          dotData: const FlDotData(show: false),
+        ),
+      );
       colorIndex++;
     }
     final labels = _dateLabels(data);
@@ -282,10 +292,12 @@ class _TagAccuracyChart extends StatelessWidget {
                 },
               ),
             ),
-            topTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
           ),
           gridData: const FlGridData(
             show: true,

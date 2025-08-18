@@ -10,9 +10,7 @@ void main() {
     final factory = TheoryMiniLessonFactoryService(
       extractor: const TheoryLessonMetaTagExtractorService(),
       templateService: const TheoryMiniLessonContentTemplateService(
-        templateMap: {
-          'BTN vs BB, Flop CBet': 'auto text',
-        },
+        templateMap: {'BTN vs BB, Flop CBet': 'auto text'},
       ),
     );
 

@@ -39,13 +39,14 @@ class _BoosterRecommendationBannerState
   }
 
   Future<void> _start() async {
-    final tpl =
-        BoosterLibraryService.instance.getById(widget.recommendation.boosterId);
+    final tpl = BoosterLibraryService.instance.getById(
+      widget.recommendation.boosterId,
+    );
     if (tpl == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Booster pack not found')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Booster pack not found')));
       return;
     }
     await const TrainingSessionLauncher().launch(tpl);
@@ -90,8 +91,10 @@ class _BoosterRecommendationBannerState
             ],
           ),
           const SizedBox(height: 4),
-          Text('Booster: ${rec.reasonTag}',
-              style: const TextStyle(color: Colors.white70)),
+          Text(
+            'Booster: ${rec.reasonTag}',
+            style: const TextStyle(color: Colors.white70),
+          ),
           const SizedBox(height: 8),
           Align(
             alignment: Alignment.centerRight,

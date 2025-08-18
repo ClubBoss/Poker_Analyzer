@@ -4,10 +4,7 @@ import 'tag_mastery_history_service.dart';
 class SkillTagDecayTracker {
   final SessionLogService logs;
   final TagMasteryHistoryService history;
-  const SkillTagDecayTracker({
-    required this.logs,
-    required this.history,
-  });
+  const SkillTagDecayTracker({required this.logs, required this.history});
 
   double _computeSlope(List<double> values) {
     if (values.length < 2) return 0;
@@ -16,8 +13,9 @@ class SkillTagDecayTracker {
     final sumX = xs.reduce((a, b) => a + b);
     final sumX2 = xs.map((e) => e * e).reduce((a, b) => a + b);
     final sumY = values.reduce((a, b) => a + b);
-    final sumXY =
-        [for (var i = 0; i < n; i++) xs[i] * values[i]].reduce((a, b) => a + b);
+    final sumXY = [
+      for (var i = 0; i < n; i++) xs[i] * values[i],
+    ].reduce((a, b) => a + b);
     final denom = n * sumX2 - sumX * sumX;
     if (denom == 0) return 0;
     return (n * sumXY - sumX * sumY) / denom;
@@ -44,7 +42,7 @@ class SkillTagDecayTracker {
 
       final tagLogs = [
         for (final l in logs.logs)
-          if (l.tags.contains(tag)) l
+          if (l.tags.contains(tag)) l,
       ];
       if (tagLogs.isEmpty) {
         // Score purely based on inactivity
@@ -54,8 +52,11 @@ class SkillTagDecayTracker {
       }
 
       tagLogs.sort((a, b) => a.completedAt.compareTo(b.completedAt));
-      final recent =
-          tagLogs.reversed.take(recentSessions).toList().reversed.toList();
+      final recent = tagLogs.reversed
+          .take(recentSessions)
+          .toList()
+          .reversed
+          .toList();
       final acc = <double>[];
       for (final l in recent) {
         final total = l.correctCount + l.mistakeCount;

@@ -39,11 +39,7 @@ void main() {
           'lessonId': 'l1',
           'timestamp': now.subtract(const Duration(days: 1)).toIso8601String(),
         },
-        {
-          'spotId': 'b',
-          'lessonId': 'l2',
-          'timestamp': now.toIso8601String(),
-        },
+        {'spotId': 'b', 'lessonId': 'l2', 'timestamp': now.toIso8601String()},
       ]),
     });
     TheoryAutoInjectionLoggerService.instance.resetForTest();
@@ -100,14 +96,11 @@ void main() {
     final counts = await TheoryAutoInjectionLoggerService.instance
         .getDailyInjectionCounts(days: 3);
 
-    expect(
-      counts,
-      {
-        format(now.subtract(const Duration(days: 2))): 1,
-        format(now.subtract(const Duration(days: 1))): 2,
-        format(now): 1,
-      },
-    );
+    expect(counts, {
+      format(now.subtract(const Duration(days: 2))): 1,
+      format(now.subtract(const Duration(days: 1))): 2,
+      format(now): 1,
+    });
   });
 
   test('getTopLessonInjections returns most frequent lessons', () async {

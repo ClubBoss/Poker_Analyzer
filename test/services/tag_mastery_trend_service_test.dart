@@ -15,28 +15,38 @@ void main() {
 
   test('computeTrends detects rising, flat and falling', () async {
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day)
-        .subtract(const Duration(days: 13));
+    final start = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(const Duration(days: 13));
     final rising = [
       for (int i = 0; i < 14; i++)
-        TagXpHistoryEntry(date: start.add(Duration(days: i)), xp: i, source: '')
+        TagXpHistoryEntry(
+          date: start.add(Duration(days: i)),
+          xp: i,
+          source: '',
+        ),
     ];
     final falling = [
       for (int i = 0; i < 14; i++)
         TagXpHistoryEntry(
-            date: start.add(Duration(days: i)), xp: 13 - i, source: '')
+          date: start.add(Duration(days: i)),
+          xp: 13 - i,
+          source: '',
+        ),
     ];
     final flat = [
       for (int i = 0; i < 14; i++)
-        TagXpHistoryEntry(date: start.add(Duration(days: i)), xp: 5, source: '')
+        TagXpHistoryEntry(
+          date: start.add(Duration(days: i)),
+          xp: 5,
+          source: '',
+        ),
     ];
 
     final service = TagMasteryTrendService(
-      history: _FakeHistoryService({
-        'r': rising,
-        'f': falling,
-        'n': flat,
-      }),
+      history: _FakeHistoryService({'r': rising, 'f': falling, 'n': flat}),
     );
 
     final trends = await service.computeTrends(days: 14);

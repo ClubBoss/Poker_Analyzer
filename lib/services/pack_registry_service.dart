@@ -21,8 +21,11 @@ class PackRegistryService {
   ///
   /// Used for runtime-generated packs that are not part of the static
   /// library. Only minimal template data is stored in memory.
-  void registerGenerated(String id,
-      {String source = '', Map<String, dynamic>? meta}) {
+  void registerGenerated(
+    String id, {
+    String source = '',
+    Map<String, dynamic>? meta,
+  }) {
     final tpl = TrainingPackTemplateV2(
       id: id,
       name: id,

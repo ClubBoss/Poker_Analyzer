@@ -24,9 +24,9 @@ class SmartPackRecommender {
     WeaknessClusterEngine? clusterEngine,
     LearningPathAdvancer? advancer,
     TrainingPathUnlockService? unlockService,
-  })  : _clusterEngine = clusterEngine ?? const WeaknessClusterEngine(),
-        _advancer = advancer ?? const LearningPathAdvancer(),
-        _unlockService = unlockService ?? const TrainingPathUnlockService();
+  }) : _clusterEngine = clusterEngine ?? const WeaknessClusterEngine(),
+       _advancer = advancer ?? const LearningPathAdvancer(),
+       _unlockService = unlockService ?? const TrainingPathUnlockService();
 
   List<RecommendedPack> getTopRecommendations({
     required List<TrainingPackTemplateV2> allPacks,
@@ -79,10 +79,12 @@ class SmartPackRecommender {
         ...p.tags.map((e) => e.toLowerCase()),
         if (p.category != null) p.category!.toLowerCase(),
       }..removeWhere((e) => e.isEmpty);
-      labels.addAll(p.positions
-          .map(parseHeroPosition)
-          .where((pos) => pos != HeroPosition.unknown)
-          .map((pos) => pos.label.toLowerCase()));
+      labels.addAll(
+        p.positions
+            .map(parseHeroPosition)
+            .where((pos) => pos != HeroPosition.unknown)
+            .map((pos) => pos.label.toLowerCase()),
+      );
 
       double clusterScore = 0;
       String? clusterLabel;
@@ -94,9 +96,11 @@ class SmartPackRecommender {
         }
       }
 
-      final recentMistake = attemptsByPack[p.id]?.any((a) =>
-              a.accuracy < 0.7 &&
-              current.difference(a.timestamp).inDays <= 7) ??
+      final recentMistake =
+          attemptsByPack[p.id]?.any(
+            (a) =>
+                a.accuracy < 0.7 && current.difference(a.timestamp).inDays <= 7,
+          ) ??
           false;
       final decayed = stat != null && current.difference(stat.last).inDays >= 7;
 
@@ -129,6 +133,9 @@ class _PackScore {
   final String packId;
   final double score;
   final String reason;
-  const _PackScore(
-      {required this.packId, required this.score, required this.reason});
+  const _PackScore({
+    required this.packId,
+    required this.score,
+    required this.reason,
+  });
 }

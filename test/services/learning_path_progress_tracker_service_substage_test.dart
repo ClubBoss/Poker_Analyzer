@@ -36,7 +36,7 @@ void main() {
             requiredAccuracy: 60,
           ),
         ],
-      )
+      ),
     ],
   );
 

@@ -93,17 +93,23 @@ class _TagTrainingHeatmapSummaryScreenState
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Стрик: $_streak',
-                        style: const TextStyle(color: Colors.white)),
-                    Text('Среднее XP: ${_avgXp.toStringAsFixed(1)}',
-                        style: const TextStyle(color: Colors.white)),
+                    Text(
+                      'Стрик: $_streak',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    Text(
+                      'Среднее XP: ${_avgXp.toStringAsFixed(1)}',
+                      style: const TextStyle(color: Colors.white),
+                    ),
                   ],
                 ),
                 SwitchListTile(
                   value: _xpOnly,
                   onChanged: (v) => setState(() => _xpOnly = v),
-                  title: const Text('Только активные дни',
-                      style: TextStyle(color: Colors.white)),
+                  title: const Text(
+                    'Только активные дни',
+                    style: TextStyle(color: Colors.white),
+                  ),
                   activeColor: Colors.greenAccent,
                 ),
               ],

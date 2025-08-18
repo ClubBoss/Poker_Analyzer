@@ -17,14 +17,15 @@ void main() {
         heroIndex: 0,
         stacks: {'0': bb.toDouble()},
         actions: {
-          0: [ActionEntry(0, 0, 'push')]
+          0: [ActionEntry(0, 0, 'push')],
         },
       ),
       evalResult: EvaluationResult(
-          correct: true,
-          expectedAction: 'push',
-          userEquity: 0,
-          expectedEquity: 0),
+        correct: true,
+        expectedAction: 'push',
+        userEquity: 0,
+        expectedEquity: 0,
+      ),
     );
   }
 
@@ -44,9 +45,15 @@ void main() {
 
   test('rateAll returns map by id', () {
     final a = TrainingPackTemplateV2(
-        id: 'a', name: 'A', trainingType: TrainingType.pushFold);
+      id: 'a',
+      name: 'A',
+      trainingType: TrainingType.pushFold,
+    );
     final b = TrainingPackTemplateV2(
-        id: 'b', name: 'B', trainingType: TrainingType.pushFold);
+      id: 'b',
+      name: 'B',
+      trainingType: TrainingType.pushFold,
+    );
     final res = const YamlPackRatingEngine().rateAll([a, b]);
     expect(res.keys, containsAll(['a', 'b']));
   });

@@ -62,10 +62,7 @@ class _AchievementsDashboardScreenState
 class _AchievementTile extends StatelessWidget {
   final GoalCompletionEvent event;
   final String Function(DateTime) dateFormatter;
-  const _AchievementTile({
-    required this.event,
-    required this.dateFormatter,
-  });
+  const _AchievementTile({required this.event, required this.dateFormatter});
 
   @override
   Widget build(BuildContext context) {

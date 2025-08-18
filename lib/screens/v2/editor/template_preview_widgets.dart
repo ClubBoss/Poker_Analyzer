@@ -29,44 +29,46 @@ class TemplateSummaryPanel extends StatelessWidget {
         children: [
           Text('Spots: $spots', style: const TextStyle(color: Colors.white)),
           const SizedBox(height: 4),
-          Builder(builder: (_) {
-            final evPct = spots == 0 ? 0 : (evCount / spots * 100).round();
-            final icmPct = spots == 0 ? 0 : (icmCount / spots * 100).round();
-            final off = MediaQuery.of(context).padding.top;
-            return Row(
-              children: [
-                Tooltip(
-                  message: _evTooltip,
-                  waitDuration: const Duration(milliseconds: 300),
-                  preferBelow: false,
-                  preferAbove: false,
-                  verticalOffset: off,
-                  child: Semantics(
-                    label: _evTooltip,
-                    child: Text(
-                      'EV: $evCount/$spots ($evPct%)',
-                      style: const TextStyle(color: Colors.white70),
+          Builder(
+            builder: (_) {
+              final evPct = spots == 0 ? 0 : (evCount / spots * 100).round();
+              final icmPct = spots == 0 ? 0 : (icmCount / spots * 100).round();
+              final off = MediaQuery.of(context).padding.top;
+              return Row(
+                children: [
+                  Tooltip(
+                    message: _evTooltip,
+                    waitDuration: const Duration(milliseconds: 300),
+                    preferBelow: false,
+                    preferAbove: false,
+                    verticalOffset: off,
+                    child: Semantics(
+                      label: _evTooltip,
+                      child: Text(
+                        'EV: $evCount/$spots ($evPct%)',
+                        style: const TextStyle(color: Colors.white70),
+                      ),
                     ),
                   ),
-                ),
-                const Text(' • ', style: TextStyle(color: Colors.white70)),
-                Tooltip(
-                  message: _icmTooltip,
-                  waitDuration: const Duration(milliseconds: 300),
-                  preferBelow: false,
-                  preferAbove: false,
-                  verticalOffset: off,
-                  child: Semantics(
-                    label: _icmTooltip,
-                    child: Text(
-                      'ICM: $icmCount/$spots ($icmPct%)',
-                      style: const TextStyle(color: Colors.white70),
+                  const Text(' • ', style: TextStyle(color: Colors.white70)),
+                  Tooltip(
+                    message: _icmTooltip,
+                    waitDuration: const Duration(milliseconds: 300),
+                    preferBelow: false,
+                    preferAbove: false,
+                    verticalOffset: off,
+                    child: Semantics(
+                      label: _icmTooltip,
+                      child: Text(
+                        'ICM: $icmCount/$spots ($icmPct%)',
+                        style: const TextStyle(color: Colors.white70),
+                      ),
                     ),
                   ),
-                ),
-              ],
-            );
-          }),
+                ],
+              );
+            },
+          ),
           if (tags.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 8),
@@ -76,8 +78,10 @@ class TemplateSummaryPanel extends StatelessWidget {
                   for (final t in tags)
                     Chip(
                       backgroundColor: Colors.grey[800],
-                      label:
-                          Text(t, style: const TextStyle(color: Colors.white)),
+                      label: Text(
+                        t,
+                        style: const TextStyle(color: Colors.white),
+                      ),
                     ),
                 ],
               ),
@@ -159,8 +163,10 @@ class _MatrixPickerPageState extends State<MatrixPickerPage> {
               margin: const EdgeInsets.all(2),
               color: _selected.contains(h) ? Colors.blue : Colors.grey[800],
               child: Center(
-                child: Text(h,
-                    style: const TextStyle(color: Colors.white, fontSize: 10)),
+                child: Text(
+                  h,
+                  style: const TextStyle(color: Colors.white, fontSize: 10),
+                ),
               ),
             ),
           ),
@@ -182,14 +188,17 @@ const _hands = [
   '55',
   '44',
   '33',
-  '22'
+  '22',
 ];
 
 class DragAutoScroll extends StatefulWidget {
   final Widget child;
   final ScrollController controller;
-  const DragAutoScroll(
-      {super.key, required this.child, required this.controller});
+  const DragAutoScroll({
+    super.key,
+    required this.child,
+    required this.controller,
+  });
 
   @override
   State<DragAutoScroll> createState() => _DragAutoScrollState();

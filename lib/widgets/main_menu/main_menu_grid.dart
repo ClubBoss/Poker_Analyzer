@@ -29,10 +29,7 @@ class MainMenuGrid extends StatelessWidget {
   });
 
   void _push(BuildContext context, Widget page) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => page),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (_) => page));
   }
 
   List<_MenuItem> _buildMenuItems(BuildContext context) {

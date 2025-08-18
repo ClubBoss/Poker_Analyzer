@@ -21,8 +21,8 @@ class BoosterPackSimilarityReporter {
   const BoosterPackSimilarityReporter({
     BoosterSimilarityEngine? engine,
     double threshold = 0.85,
-  })  : _engine = engine ?? const BoosterSimilarityEngine(),
-        _threshold = threshold;
+  }) : _engine = engine ?? const BoosterSimilarityEngine(),
+       _threshold = threshold;
 
   BoosterPackSimilarityReport computeSimilarity(
     TrainingPackTemplateV2 a,

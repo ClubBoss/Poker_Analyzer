@@ -6,11 +6,7 @@ class SpotListSection extends StatelessWidget {
   final List<TrainingPackSpot> spots;
   final VoidCallback? onAdd;
 
-  const SpotListSection({
-    super.key,
-    required this.spots,
-    this.onAdd,
-  });
+  const SpotListSection({super.key, required this.spots, this.onAdd});
 
   @override
   Widget build(BuildContext context) {

@@ -18,7 +18,7 @@ class PostflopLine {
   }
 
   Map<String, dynamic> toJson() => {
-        'line': line,
-        if (weight != 1) 'weight': weight,
-      };
+    'line': line,
+    if (weight != 1) 'weight': weight,
+  };
 }

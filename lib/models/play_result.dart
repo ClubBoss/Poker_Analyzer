@@ -14,17 +14,18 @@ class PlayResult {
   });
 
   Map<String, dynamic> toJson() => {
-        'spotId': spotId,
-        'isCorrect': isCorrect,
-        if (evGain != null) 'evGain': evGain,
-        'spot': spot.toJson(),
-      };
+    'spotId': spotId,
+    'isCorrect': isCorrect,
+    if (evGain != null) 'evGain': evGain,
+    'spot': spot.toJson(),
+  };
 
   factory PlayResult.fromJson(Map<String, dynamic> json) => PlayResult(
-        spotId: json['spotId'] as String? ?? '',
-        spot: TrainingPackSpot.fromJson(
-            Map<String, dynamic>.from(json['spot'] as Map)),
-        isCorrect: json['isCorrect'] as bool? ?? false,
-        evGain: (json['evGain'] as num?)?.toDouble(),
-      );
+    spotId: json['spotId'] as String? ?? '',
+    spot: TrainingPackSpot.fromJson(
+      Map<String, dynamic>.from(json['spot'] as Map),
+    ),
+    isCorrect: json['isCorrect'] as bool? ?? false,
+    evGain: (json['evGain'] as num?)?.toDouble(),
+  );
 }

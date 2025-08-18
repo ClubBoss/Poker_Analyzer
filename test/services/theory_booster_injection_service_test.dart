@@ -46,12 +46,16 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('returns lesson for decayed tag', () async {
-    const lesson =
-        TheoryMiniLessonNode(id: 'l1', title: 'T', content: '', tags: ['a']);
+    const lesson = TheoryMiniLessonNode(
+      id: 'l1',
+      title: 'T',
+      content: '',
+      tags: ['a'],
+    );
     final service = TheoryBoosterInjectionService(
       engine: _FakeEngine('a'),
       library: _FakeLibrary({
-        'a': [lesson]
+        'a': [lesson],
       }),
     );
     final result = await service.getLesson();

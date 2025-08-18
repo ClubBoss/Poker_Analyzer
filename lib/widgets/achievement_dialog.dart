@@ -13,8 +13,10 @@ class AchievementDialog extends StatelessWidget {
     });
     return AlertDialog(
       backgroundColor: Colors.black87,
-      title: const Text('Achievement unlocked!',
-          style: TextStyle(color: Colors.white)),
+      title: const Text(
+        'Achievement unlocked!',
+        style: TextStyle(color: Colors.white),
+      ),
       content: Text(
         achievement.title,
         style: const TextStyle(color: Colors.white),
@@ -30,7 +32,9 @@ class AchievementDialog extends StatelessWidget {
 }
 
 Future<void> showAchievementDialog(
-    BuildContext context, AchievementBasic achievement) {
+  BuildContext context,
+  AchievementBasic achievement,
+) {
   return showDialog(
     context: context,
     builder: (_) => AchievementDialog(achievement: achievement),

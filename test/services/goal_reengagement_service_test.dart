@@ -48,9 +48,10 @@ void main() {
     final service = GoalReengagementService(logs: _FakeLogService(logs));
     await GoalEngagementTracker.instance.log(
       GoalEngagement(
-          tag: 'cbet',
-          action: 'start',
-          timestamp: now.subtract(const Duration(days: 10))),
+        tag: 'cbet',
+        action: 'start',
+        timestamp: now.subtract(const Duration(days: 10)),
+      ),
     );
     final goal = await service.pickReengagementGoal();
     expect(goal?.tag, 'cbet');

@@ -21,7 +21,7 @@ class _FakeOrchestrator extends LearningPathGraphOrchestrator {
 class _FakeProgress extends TrainingPathProgressServiceV2 {
   final Set<String> completed;
   _FakeProgress(this.completed)
-      : super(logs: SessionLogService(sessions: TrainingSessionService()));
+    : super(logs: SessionLogService(sessions: TrainingSessionService()));
   @override
   Future<void> loadProgress(String pathId) async {}
   @override
@@ -67,13 +67,21 @@ void main() {
   test('auto expands mini lesson chain on completion', () async {
     SharedPreferences.setMockInitialValues({});
     final a = TheoryMiniLessonNode(
-        id: 'a', title: 'A', content: '', nextIds: const ['b']);
+      id: 'a',
+      title: 'A',
+      content: '',
+      nextIds: const ['b'],
+    );
     final orch = _FakeOrchestrator([a]);
     final progress = _FakeProgress({});
     final library = _FakeLibrary([
       a,
       TheoryMiniLessonNode(
-          id: 'b', title: 'B', content: '', nextIds: const ['c']),
+        id: 'b',
+        title: 'B',
+        content: '',
+        nextIds: const ['c'],
+      ),
       TheoryMiniLessonNode(id: 'c', title: 'C', content: '', nextIds: const []),
     ]);
     final expander = LearningPathAutoExpander(library: library);

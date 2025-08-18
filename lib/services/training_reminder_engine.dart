@@ -19,8 +19,9 @@ class TrainingReminderEngine {
     if (_initialized) return;
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
-    await _plugin
-        .initialize(const InitializationSettings(android: android, iOS: ios));
+    await _plugin.initialize(
+      const InitializationSettings(android: android, iOS: ios),
+    );
     tz.initializeTimeZones();
     _initialized = true;
   }
@@ -57,8 +58,12 @@ class TrainingReminderEngine {
     await _init();
     final now = tz.TZDateTime.now(tz.local);
     final today = tz.TZDateTime(tz.local, now.year, now.month, now.day);
-    final lastDay = tz.TZDateTime(tz.local, lastTrainingTime.year,
-        lastTrainingTime.month, lastTrainingTime.day);
+    final lastDay = tz.TZDateTime(
+      tz.local,
+      lastTrainingTime.year,
+      lastTrainingTime.month,
+      lastTrainingTime.day,
+    );
     if (lastDay.isAtSameMomentAs(today)) return;
 
     var when = tz.TZDateTime(tz.local, today.year, today.month, today.day, 20);

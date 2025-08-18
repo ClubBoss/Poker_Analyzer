@@ -55,8 +55,8 @@ class SpotSeed {
     this.difficulty,
     this.audience,
     Map<String, dynamic>? meta,
-  })  : tags = tags ?? const <String>[],
-        meta = meta ?? const <String, dynamic>{};
+  }) : tags = tags ?? const <String>[],
+       meta = meta ?? const <String, dynamic>{};
 }
 
 /// Holds positional information.

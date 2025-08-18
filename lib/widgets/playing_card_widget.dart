@@ -4,11 +4,8 @@ import '../models/card_model.dart';
 class PlayingCardWidget extends StatelessWidget {
   final CardModel card;
   final double scale;
-  const PlayingCardWidget({
-    Key? key,
-    required this.card,
-    this.scale = 1.0,
-  }) : super(key: key);
+  const PlayingCardWidget({Key? key, required this.card, this.scale = 1.0})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +22,7 @@ class PlayingCardWidget extends StatelessWidget {
             color: Colors.black.withValues(alpha: 0.25),
             blurRadius: 3,
             offset: const Offset(1, 2),
-          )
+          ),
         ],
       ),
       alignment: Alignment.center,

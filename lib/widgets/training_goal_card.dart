@@ -43,7 +43,9 @@ class TrainingGoalCard extends StatelessWidget {
                   child: Text(
                     goal.title,
                     style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold),
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 if (prog != null) _GoalProgressBadge(progress: prog),

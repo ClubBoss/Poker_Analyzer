@@ -41,21 +41,22 @@ class AutoTheoryReviewEngine {
     TheoryBoosterReinjectionPolicy? reinjectionPolicy,
     TheoryPackLibraryService? library,
     SmartBoosterSummaryEngine? summaryEngine,
-  })  : engine = engine ?? LearningPathEngine.instance,
-        planner = planner ?? SmartWeakReviewPlanner.instance,
-        injector = injector ?? TheoryBoosterInjector.instance,
-        miniPlanner = miniPlanner ?? SmartMiniBoosterPlanner.instance,
-        miniInjector = miniInjector ?? const MiniLessonBoosterEngine(),
-        scheduler = scheduler ?? const MiniLessonScheduler(),
-        clusterEngine = clusterEngine ?? const WeaknessClusterEngine(),
-        masteryService = masteryService ??
-            TagMasteryService(
-              logs: SessionLogService(sessions: TrainingSessionService()),
-            ),
-        reinjectionPolicy =
-            reinjectionPolicy ?? TheoryBoosterReinjectionPolicy.instance,
-        library = library ?? TheoryPackLibraryService.instance,
-        summaryEngine = summaryEngine ?? const SmartBoosterSummaryEngine();
+  }) : engine = engine ?? LearningPathEngine.instance,
+       planner = planner ?? SmartWeakReviewPlanner.instance,
+       injector = injector ?? TheoryBoosterInjector.instance,
+       miniPlanner = miniPlanner ?? SmartMiniBoosterPlanner.instance,
+       miniInjector = miniInjector ?? const MiniLessonBoosterEngine(),
+       scheduler = scheduler ?? const MiniLessonScheduler(),
+       clusterEngine = clusterEngine ?? const WeaknessClusterEngine(),
+       masteryService =
+           masteryService ??
+           TagMasteryService(
+             logs: SessionLogService(sessions: TrainingSessionService()),
+           ),
+       reinjectionPolicy =
+           reinjectionPolicy ?? TheoryBoosterReinjectionPolicy.instance,
+       library = library ?? TheoryPackLibraryService.instance,
+       summaryEngine = summaryEngine ?? const SmartBoosterSummaryEngine();
 
   static final AutoTheoryReviewEngine instance = AutoTheoryReviewEngine();
 
@@ -85,8 +86,11 @@ class AutoTheoryReviewEngine {
         if (toInject.isNotEmpty) {
           await injector.injectBefore(current.id, toInject);
           for (final id in toInject) {
-            await TheoryReinforcementLogService.instance
-                .logInjection(id, 'standard', 'auto');
+            await TheoryReinforcementLogService.instance.logInjection(
+              id,
+              'standard',
+              'auto',
+            );
           }
         }
       }
@@ -102,8 +106,11 @@ class AutoTheoryReviewEngine {
           final nodes = engine.engine?.allNodes ?? [];
           if (nodes.any((n) => n.id == id)) continue;
           await miniInjector.injectBefore(current.id, mini.tags, max: 1);
-          await TheoryReinforcementLogService.instance
-              .logInjection(id, 'mini', 'auto');
+          await TheoryReinforcementLogService.instance.logInjection(
+            id,
+            'mini',
+            'auto',
+          );
         }
       }
     } catch (e, stack) {

@@ -65,7 +65,7 @@ class HistoryListItem extends StatelessWidget {
                           label: Text(t),
                           backgroundColor: colorFromHex(service.colorOf(t)),
                         ),
-                      )
+                      ),
                   ],
                 ),
               ),

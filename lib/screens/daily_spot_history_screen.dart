@@ -87,10 +87,15 @@ class _DailySpotHistoryScreenState extends State<DailySpotHistoryScreen> {
           Text(
             _selectedDay == null
                 ? '-'
-                : _history.contains(DateTime(_selectedDay!.year,
-                        _selectedDay!.month, _selectedDay!.day))
-                    ? '✅ Выполнено'
-                    : '-',
+                : _history.contains(
+                    DateTime(
+                      _selectedDay!.year,
+                      _selectedDay!.month,
+                      _selectedDay!.day,
+                    ),
+                  )
+                ? '✅ Выполнено'
+                : '-',
             style: const TextStyle(color: Colors.white),
           ),
         ],

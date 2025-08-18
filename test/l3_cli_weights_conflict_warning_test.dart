@@ -19,8 +19,10 @@ void main() {
         'aggro',
       ]);
       expect(res.exitCode, 0, reason: res.stderr.toString());
-      expect(res.stderr.toString(),
-          contains('both --weights and --weightsPreset'));
+      expect(
+        res.stderr.toString(),
+        contains('both --weights and --weightsPreset'),
+      );
       expect(File(outPath).existsSync(), isTrue);
     } finally {
       tmp.deleteSync(recursive: true);
@@ -42,8 +44,10 @@ void main() {
         '{"spr_low":0.1}',
       ]);
       expect(res.exitCode, 0, reason: res.stderr.toString());
-      expect(res.stderr.toString(),
-          isNot(contains('both --weights and --weightsPreset')));
+      expect(
+        res.stderr.toString(),
+        isNot(contains('both --weights and --weightsPreset')),
+      );
       expect(File(outPath).existsSync(), isTrue);
     } finally {
       tmp.deleteSync(recursive: true);
@@ -65,8 +69,10 @@ void main() {
         'aggro',
       ]);
       expect(res.exitCode, 0, reason: res.stderr.toString());
-      expect(res.stderr.toString(),
-          isNot(contains('both --weights and --weightsPreset')));
+      expect(
+        res.stderr.toString(),
+        isNot(contains('both --weights and --weightsPreset')),
+      );
       expect(File(outPath).existsSync(), isTrue);
     } finally {
       tmp.deleteSync(recursive: true);

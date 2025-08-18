@@ -35,11 +35,7 @@ class SmartStageUnlockService {
       final stage = path.stages[i];
       final done = isStageUnlocked(stage);
       if (done) completed.add(stage.id);
-      if (gatekeeper.isStageUnlocked(
-        index: i,
-        path: path,
-        logs: logs,
-      )) {
+      if (gatekeeper.isStageUnlocked(index: i, path: path, logs: logs)) {
         defaultUnlocked.add(stage.id);
       }
     }

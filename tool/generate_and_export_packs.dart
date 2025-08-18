@@ -38,7 +38,8 @@ Future<void> main(List<String> args) async {
     var total = 0;
     for (final p in packs) {
       stdout.writeln(
-          '${p.name}: ${p.spots.length} hands, ${p.gameType.name} ${p.heroBbStack}bb');
+        '${p.name}: ${p.spots.length} hands, ${p.gameType.name} ${p.heroBbStack}bb',
+      );
       total += p.spots.length;
     }
     stdout.writeln('Total packs: ${packs.length}, total hands: $total');

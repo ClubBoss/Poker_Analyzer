@@ -232,9 +232,9 @@ class _PackGenerationSectionState extends State<PackGenerationSection> {
     );
     if (!mounted) return;
     setState(() => _batchLoading = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Создано: $success')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Создано: $success')));
   }
 
   @override
@@ -248,7 +248,9 @@ class _PackGenerationSectionState extends State<PackGenerationSection> {
           items: const [
             DropdownMenuItem(value: 'Beginner', child: Text('Beginner')),
             DropdownMenuItem(
-                value: 'Intermediate', child: Text('Intermediate')),
+              value: 'Intermediate',
+              child: Text('Intermediate'),
+            ),
             DropdownMenuItem(value: 'Advanced', child: Text('Advanced')),
           ],
           onChanged: (v) => setState(() => _audience = v ?? _audience),

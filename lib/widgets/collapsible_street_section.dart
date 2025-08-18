@@ -49,11 +49,14 @@ class _CollapsibleStreetSectionState extends State<CollapsibleStreetSection> {
 
   String _buildSummary(List<ActionEntry> actions) {
     if (actions.isEmpty) return 'Нет действий';
-    return actions.map((a) {
-      final label =
-          a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action;
-      return '${_capitalize(label)}${a.amount != null ? ' ${a.amount}' : ''}';
-    }).join(' - ');
+    return actions
+        .map((a) {
+          final label = a.action == 'custom'
+              ? (a.customLabel ?? 'custom')
+              : a.action;
+          return '${_capitalize(label)}${a.amount != null ? ' ${a.amount}' : ''}';
+        })
+        .join(' - ');
   }
 
   @override
@@ -110,16 +113,16 @@ class _CollapsibleStreetSectionState extends State<CollapsibleStreetSection> {
                             ),
                             if (hasNegative) ...[
                               const SizedBox(width: 4),
-                              const Icon(Icons.warning,
-                                  color: Colors.red, size: 16),
-                            ]
+                              const Icon(
+                                Icons.warning,
+                                color: Colors.red,
+                                size: 16,
+                              ),
+                            ],
                           ],
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          summary,
-                          style: TextStyle(color: summaryColor),
-                        ),
+                        Text(summary, style: TextStyle(color: summaryColor)),
                       ],
                     ),
                   ),
@@ -138,8 +141,10 @@ class _CollapsibleStreetSectionState extends State<CollapsibleStreetSection> {
               duration: const Duration(milliseconds: 300),
               heightFactor: _open ? 1 : 0,
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8.0,
+                  vertical: 4.0,
+                ),
                 child: StreetActionsList(
                   street: widget.street,
                   actions: widget.actions,

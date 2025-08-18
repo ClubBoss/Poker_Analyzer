@@ -41,16 +41,15 @@ class StreetActionsWidget extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: isSelected ? Colors.amber : Colors.grey[800],
                 foregroundColor: isSelected ? Colors.black : Colors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: Text(
-                streets[index],
-                style: const TextStyle(fontSize: 16),
-              ),
+              child: Text(streets[index], style: const TextStyle(fontSize: 16)),
             );
           }),
         ],

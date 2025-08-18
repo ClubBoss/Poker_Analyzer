@@ -63,10 +63,7 @@ class _DecayReviewRecapBannerState extends State<DecayReviewRecapBanner> {
         children: [
           const Text(
             'Восстановленные навыки',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           for (final entry in _boosters.entries)
@@ -78,10 +75,7 @@ class _DecayReviewRecapBannerState extends State<DecayReviewRecapBanner> {
                 children: [
                   const Icon(Icons.bolt, color: Colors.orange, size: 16),
                   const SizedBox(width: 4),
-                  Text(
-                    entry.key,
-                    style: const TextStyle(color: Colors.white),
-                  ),
+                  Text(entry.key, style: const TextStyle(color: Colors.white)),
                 ],
               ),
               children: [

@@ -10,14 +10,15 @@ class GoalCompletionLog {
   GoalCompletionLog({required this.goalId, required this.completedAt});
 
   Map<String, dynamic> toJson() => {
-        'goalId': goalId,
-        'completedAt': completedAt.toIso8601String(),
-      };
+    'goalId': goalId,
+    'completedAt': completedAt.toIso8601String(),
+  };
 
   factory GoalCompletionLog.fromJson(Map<String, dynamic> json) =>
       GoalCompletionLog(
         goalId: json['goalId'] as String? ?? '',
-        completedAt: DateTime.tryParse(json['completedAt'] as String? ?? '') ??
+        completedAt:
+            DateTime.tryParse(json['completedAt'] as String? ?? '') ??
             DateTime.now(),
       );
 }
@@ -48,8 +49,13 @@ class GoalProgressPersistenceService {
         final data = jsonDecode(raw) as List;
         _logs
           ..clear()
-          ..addAll(data.map((e) =>
-              GoalCompletionLog.fromJson(Map<String, dynamic>.from(e as Map))));
+          ..addAll(
+            data.map(
+              (e) => GoalCompletionLog.fromJson(
+                Map<String, dynamic>.from(e as Map),
+              ),
+            ),
+          );
       } catch (_) {
         _logs.clear();
       }
@@ -80,7 +86,7 @@ class GoalProgressPersistenceService {
     final end = start.add(const Duration(days: 1));
     return [
       for (final l in _logs)
-        if (!l.completedAt.isBefore(start) && l.completedAt.isBefore(end)) l
+        if (!l.completedAt.isBefore(start) && l.completedAt.isBefore(end)) l,
     ];
   }
 
@@ -97,8 +103,11 @@ class GoalProgressPersistenceService {
   Future<int> getWeeklyXP({int xpPerGoal = 25}) async {
     await _load();
     final now = DateTime.now();
-    final startOfWeek = DateTime(now.year, now.month, now.day)
-        .subtract(Duration(days: now.weekday - 1));
+    final startOfWeek = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(Duration(days: now.weekday - 1));
     final endOfWeek = startOfWeek.add(const Duration(days: 7));
     int count = 0;
     for (final l in _logs) {

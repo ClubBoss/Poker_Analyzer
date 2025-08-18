@@ -12,9 +12,9 @@ import 'package:poker_analyzer/services/tag_mastery_service.dart';
 class _FakeUnlockEngine extends LearningPathUnlockEngine {
   final List<LessonTrack> tracks;
   _FakeUnlockEngine(this.tracks)
-      : super(
-            masteryService:
-                TrackMasteryService(mastery: _DummyMasteryService()));
+    : super(
+        masteryService: TrackMasteryService(mastery: _DummyMasteryService()),
+      );
 
   @override
   Future<List<LessonTrack>> getUnlockableTracks() async => tracks;
@@ -22,7 +22,7 @@ class _FakeUnlockEngine extends LearningPathUnlockEngine {
 
 class _DummyMasteryService extends TagMasteryService {
   _DummyMasteryService()
-      : super(logs: SessionLogService(sessions: TrainingSessionService()));
+    : super(logs: SessionLogService(sessions: TrainingSessionService()));
 
   @override
   Future<Map<String, double>> computeMastery({bool force = false}) async => {};
@@ -48,16 +48,21 @@ void main() {
   test('prefers track with lower mastery', () async {
     final tracks = [
       const LessonTrack(
-          id: 't1', title: 'T1', description: '', stepIds: ['s1']),
+        id: 't1',
+        title: 'T1',
+        description: '',
+        stepIds: ['s1'],
+      ),
       const LessonTrack(
-          id: 't2', title: 'T2', description: '', stepIds: ['s2']),
+        id: 't2',
+        title: 'T2',
+        description: '',
+        stepIds: ['s2'],
+      ),
     ];
     final unlock = _FakeUnlockEngine(tracks);
     final mastery = _FakeTrackMasteryService({'t1': 0.8, 't2': 0.2});
-    final engine = NextUpEngine(
-      unlockEngine: unlock,
-      masteryService: mastery,
-    );
+    final engine = NextUpEngine(unlockEngine: unlock, masteryService: mastery);
     final next = await engine.getNextRecommendedStep();
     expect(next?.trackId, 't2');
     expect(next?.stepId, 's2');

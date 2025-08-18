@@ -23,6 +23,6 @@ List<int> determineWinners(
   final winningHands = Hand.winners(hands.values.toList());
   return [
     for (final entry in hands.entries)
-      if (winningHands.contains(entry.value)) entry.key
+      if (winningHands.contains(entry.value)) entry.key,
   ];
 }

@@ -35,8 +35,11 @@ class _TheoryAutoInjectionAnalyticsPanelState
     final topMap = await logger.getTopLessonInjections(limit: 5);
 
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day)
-        .subtract(const Duration(days: 6));
+    final start = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(const Duration(days: 6));
     _daily = [
       for (int i = 0; i < 7; i++)
         _DailyData(
@@ -47,7 +50,7 @@ class _TheoryAutoInjectionAnalyticsPanelState
                   .split('T')
                   .first] ??
               0,
-        )
+        ),
     ];
 
     await MiniLessonLibraryService.instance.loadAll();
@@ -58,8 +61,8 @@ class _TheoryAutoInjectionAnalyticsPanelState
           count: e.value,
           title:
               MiniLessonLibraryService.instance.getById(e.key)?.resolvedTitle ??
-                  e.key,
-        )
+              e.key,
+        ),
     ];
 
     if (mounted) setState(() => _loading = false);
@@ -81,11 +84,12 @@ class _TheoryAutoInjectionAnalyticsPanelState
   }
 
   Widget _buildDailyChart(BuildContext context) {
-    final maxY =
-        _daily.map((e) => e.count).fold<int>(0, (a, b) => a > b ? a : b);
+    final maxY = _daily
+        .map((e) => e.count)
+        .fold<int>(0, (a, b) => a > b ? a : b);
     final spots = [
       for (int i = 0; i < _daily.length; i++)
-        FlSpot(i.toDouble(), _daily[i].count.toDouble())
+        FlSpot(i.toDouble(), _daily[i].count.toDouble()),
     ];
     return Container(
       decoration: BoxDecoration(
@@ -138,7 +142,9 @@ class _TheoryAutoInjectionAnalyticsPanelState
                       getTitlesWidget: (value, meta) => Text(
                         value.toInt().toString(),
                         style: const TextStyle(
-                            color: Colors.white70, fontSize: 10),
+                          color: Colors.white70,
+                          fontSize: 10,
+                        ),
                       ),
                     ),
                   ),
@@ -155,15 +161,19 @@ class _TheoryAutoInjectionAnalyticsPanelState
                         return Text(
                           '${d.month}/${d.day}',
                           style: const TextStyle(
-                              color: Colors.white70, fontSize: 10),
+                            color: Colors.white70,
+                            fontSize: 10,
+                          ),
                         );
                       },
                     ),
                   ),
                   rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
                   topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
                 ),
                 borderData: FlBorderData(show: false),
                 lineBarsData: [
@@ -184,8 +194,9 @@ class _TheoryAutoInjectionAnalyticsPanelState
   }
 
   Widget _buildTopLessonsChart(BuildContext context) {
-    final maxY =
-        _topLessons.map((e) => e.count).fold<int>(0, (a, b) => a > b ? a : b);
+    final maxY = _topLessons
+        .map((e) => e.count)
+        .fold<int>(0, (a, b) => a > b ? a : b);
     final groups = <BarChartGroupData>[];
     for (var i = 0; i < _topLessons.length; i++) {
       groups.add(
@@ -198,10 +209,9 @@ class _TheoryAutoInjectionAnalyticsPanelState
               borderRadius: BorderRadius.circular(4),
               gradient: LinearGradient(
                 colors: [
-                  Theme.of(context)
-                      .colorScheme
-                      .secondary
-                      .withValues(alpha: 0.7),
+                  Theme.of(
+                    context,
+                  ).colorScheme.secondary.withValues(alpha: 0.7),
                   Theme.of(context).colorScheme.secondary,
                 ],
                 begin: Alignment.bottomCenter,
@@ -220,10 +230,7 @@ class _TheoryAutoInjectionAnalyticsPanelState
       child: ExpansionTile(
         initiallyExpanded: _lessonsExpanded,
         onExpansionChanged: (v) => setState(() => _lessonsExpanded = v),
-        title: const Text(
-          'Top lessons',
-          style: TextStyle(color: Colors.white),
-        ),
+        title: const Text('Top lessons', style: TextStyle(color: Colors.white)),
         collapsedIconColor: Colors.white,
         iconColor: Colors.white,
         textColor: Colors.white,
@@ -244,7 +251,8 @@ class _TheoryAutoInjectionAnalyticsPanelState
                           MaterialPageRoute(
                             builder: (_) =>
                                 DrillDownAutoInjectionLogScreen.lesson(
-                                    lessonId),
+                                  lessonId,
+                                ),
                           ),
                         );
                       }
@@ -262,7 +270,9 @@ class _TheoryAutoInjectionAnalyticsPanelState
                       getTitlesWidget: (value, meta) => Text(
                         value.toInt().toString(),
                         style: const TextStyle(
-                            color: Colors.white70, fontSize: 10),
+                          color: Colors.white70,
+                          fontSize: 10,
+                        ),
                       ),
                     ),
                   ),
@@ -283,7 +293,9 @@ class _TheoryAutoInjectionAnalyticsPanelState
                                 ? '${title.substring(0, 10)}...'
                                 : title,
                             style: const TextStyle(
-                                color: Colors.white70, fontSize: 10),
+                              color: Colors.white70,
+                              fontSize: 10,
+                            ),
                             textAlign: TextAlign.center,
                           ),
                         );
@@ -291,9 +303,11 @@ class _TheoryAutoInjectionAnalyticsPanelState
                     ),
                   ),
                   rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
                   topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false)),
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
                 ),
                 borderData: FlBorderData(show: false),
                 alignment: BarChartAlignment.spaceAround,

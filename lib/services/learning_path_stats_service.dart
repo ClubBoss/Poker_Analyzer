@@ -21,12 +21,14 @@ class LearningPathStatsService {
     for (final section in path.sections) {
       final total = section.stageIds.length;
       final done = section.stageIds.where(completed.contains).length;
-      sections.add(SectionStats(
-        id: section.id,
-        title: section.title,
-        completedStages: done,
-        totalStages: total,
-      ));
+      sections.add(
+        SectionStats(
+          id: section.id,
+          title: section.title,
+          completedStages: done,
+          totalStages: total,
+        ),
+      );
     }
 
     final baseUnlocked = progress.unlockedStageIds().toSet();

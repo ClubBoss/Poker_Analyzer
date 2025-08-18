@@ -5,11 +5,7 @@ class GoalProgressBar extends StatelessWidget {
   final int good;
   final double scale;
 
-  const GoalProgressBar({
-    super.key,
-    required this.good,
-    required this.scale,
-  });
+  const GoalProgressBar({super.key, required this.good, required this.scale});
 
   @override
   Widget build(BuildContext context) {
@@ -20,35 +16,50 @@ class GoalProgressBar extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          LayoutBuilder(builder: (context, constraints) {
-            if (constraints.maxWidth < 360) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Цель месяца: 10 сессий с точностью > 90%',
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth < 360) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Цель месяца: 10 сессий с точностью > 90%',
                       style: TextStyle(
-                          color: Colors.white70, fontSize: 14 * scale)),
-                  SizedBox(height: 4 * scale),
-                  Text('$good из 10',
-                      style:
-                          TextStyle(color: Colors.white, fontSize: 14 * scale)),
+                        color: Colors.white70,
+                        fontSize: 14 * scale,
+                      ),
+                    ),
+                    SizedBox(height: 4 * scale),
+                    Text(
+                      '$good из 10',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14 * scale,
+                      ),
+                    ),
+                  ],
+                );
+              }
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Text(
+                      'Цель месяца: 10 сессий с точностью > 90%',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14 * scale,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '$good из 10',
+                    style: TextStyle(color: Colors.white, fontSize: 14 * scale),
+                  ),
                 ],
               );
-            }
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                  child: Text('Цель месяца: 10 сессий с точностью > 90%',
-                      style: TextStyle(
-                          color: Colors.white70, fontSize: 14 * scale)),
-                ),
-                Text('$good из 10',
-                    style:
-                        TextStyle(color: Colors.white, fontSize: 14 * scale)),
-              ],
-            );
-          }),
+            },
+          ),
           SizedBox(height: 4 * scale),
           ClipRRect(
             borderRadius: BorderRadius.circular(4),

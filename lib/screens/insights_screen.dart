@@ -56,19 +56,23 @@ class _InsightsScreenState extends State<InsightsScreen> {
                 const FlLine(color: Colors.white24, strokeWidth: 1),
           ),
           titlesData: FlTitlesData(
-            topTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            rightTitles:
-                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
                 interval:
                     data.map((e) => e.value).reduce((a, b) => a > b ? a : b) /
-                        4,
+                    4,
                 reservedSize: 30,
-                getTitlesWidget: (v, meta) => Text(v.toInt().toString(),
-                    style: const TextStyle(color: Colors.white, fontSize: 10)),
+                getTitlesWidget: (v, meta) => Text(
+                  v.toInt().toString(),
+                  style: const TextStyle(color: Colors.white, fontSize: 10),
+                ),
               ),
             ),
             bottomTitles: AxisTitles(
@@ -85,9 +89,10 @@ class _InsightsScreenState extends State<InsightsScreen> {
                   final label = _mode == _Mode.weekly
                       ? '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}'
                       : '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
-                  return Text(label,
-                      style:
-                          const TextStyle(color: Colors.white, fontSize: 10));
+                  return Text(
+                    label,
+                    style: const TextStyle(color: Colors.white, fontSize: 10),
+                  );
                 },
               ),
             ),
@@ -106,7 +111,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
               color: AppColors.accent,
               barWidth: 2,
               dotData: const FlDotData(show: false),
-            )
+            ),
           ],
         ),
       ),
@@ -125,8 +130,10 @@ class _InsightsScreenState extends State<InsightsScreen> {
         title: goals.isNotEmpty
             ? '${(completed * 100 / goals.length).round()}%'
             : '0%',
-        titleStyle:
-            const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        titleStyle: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       PieChartSectionData(
         value: (goals.length - completed).toDouble(),
@@ -135,8 +142,10 @@ class _InsightsScreenState extends State<InsightsScreen> {
         title: goals.isNotEmpty
             ? '${((goals.length - completed) * 100 / goals.length).round()}%'
             : '0%',
-        titleStyle:
-            const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        titleStyle: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     ];
     return Container(
@@ -179,9 +188,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (_) => const StreakCalendarScreen(),
-                ),
+                MaterialPageRoute(builder: (_) => const StreakCalendarScreen()),
               );
             },
             child: const TrainingCalendarWidget(),

@@ -18,7 +18,7 @@ class RecentSpotHistoryService {
       if (data is List) {
         return [
           for (final id in data)
-            if (id is String) id
+            if (id is String) id,
         ];
       }
     } catch (_) {}

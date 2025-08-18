@@ -29,10 +29,7 @@ class _TrainingStatsScreenState extends State<TrainingStatsScreen> {
     final service = context.read<TrainingStatsService>();
     final templates = context.read<TemplateStorageService>();
     final streak = context.read<StreakService>();
-    final stats = await service.aggregate(
-      templates: templates,
-      streak: streak,
-    );
+    final stats = await service.aggregate(templates: templates, streak: streak);
     if (mounted) setState(() => _stats = stats);
   }
 
@@ -54,7 +51,7 @@ class _TrainingStatsScreenState extends State<TrainingStatsScreen> {
               icon: const Icon(Icons.share),
               onPressed: () =>
                   context.read<TrainingStatsService>().shareProgress(),
-            )
+            ),
           ],
         ),
         body: const Center(child: CircularProgressIndicator()),
@@ -69,7 +66,7 @@ class _TrainingStatsScreenState extends State<TrainingStatsScreen> {
             icon: const Icon(Icons.share),
             onPressed: () =>
                 context.read<TrainingStatsService>().shareProgress(),
-          )
+          ),
         ],
       ),
       body: ListView(
@@ -84,7 +81,8 @@ class _TrainingStatsScreenState extends State<TrainingStatsScreen> {
                   Text('Total Spots: ${s.totalSpots}'),
                   const SizedBox(height: 4),
                   Text(
-                      'Average Accuracy: ${(s.avgAccuracy * 100).toStringAsFixed(1)}%'),
+                    'Average Accuracy: ${(s.avgAccuracy * 100).toStringAsFixed(1)}%',
+                  ),
                   const SizedBox(height: 4),
                   Text('Streak: ${s.streakDays} days'),
                 ],
@@ -93,9 +91,9 @@ class _TrainingStatsScreenState extends State<TrainingStatsScreen> {
           ),
           const SizedBox(height: 16),
           EvIcmTrendChart(
-            sessionDates: context
-                .watch<TrainingStatsService>()
-                .sessionHistory(context.watch<SavedHandManagerService>().hands),
+            sessionDates: context.watch<TrainingStatsService>().sessionHistory(
+              context.watch<SavedHandManagerService>().hands,
+            ),
           ),
           const SizedBox(height: 16),
           const StreakHistoryCalendar(),

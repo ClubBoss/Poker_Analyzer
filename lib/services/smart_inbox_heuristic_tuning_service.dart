@@ -7,7 +7,7 @@ class SmartInboxHeuristicTuningService {
   SmartInboxHeuristicTuningService({
     BoosterExclusionAnalyticsDashboardService? analytics,
   }) : analytics =
-            analytics ?? const BoosterExclusionAnalyticsDashboardService();
+           analytics ?? const BoosterExclusionAnalyticsDashboardService();
 
   final BoosterExclusionAnalyticsDashboardService analytics;
 
@@ -37,7 +37,8 @@ class SmartInboxHeuristicTuningService {
       if (total > overuseThreshold) {
         cooldownOverrides[tag] = const Duration(hours: 12);
         developer.log(
-            'SmartInboxHeuristicTuningService: increased cooldown for $tag due to $total exclusions');
+          'SmartInboxHeuristicTuningService: increased cooldown for $tag due to $total exclusions',
+        );
       }
 
       final dedup = reasons['deduplicated'] ?? 0;
@@ -45,14 +46,16 @@ class SmartInboxHeuristicTuningService {
         priorityAdjustments[tag] =
             (priorityAdjustments[tag] ?? 0) - 0.5; // lower priority
         developer.log(
-            'SmartInboxHeuristicTuningService: lowered priority for $tag due to $dedup deduplications');
+          'SmartInboxHeuristicTuningService: lowered priority for $tag due to $dedup deduplications',
+        );
       }
 
       final rateLimited = reasons['rateLimited'] ?? 0;
       if (rateLimited > reasonThreshold) {
         dailyLimitAdjustments[tag] = (dailyLimitAdjustments[tag] ?? 0) + 1;
         developer.log(
-            'SmartInboxHeuristicTuningService: increased daily limit for $tag due to $rateLimited rate limits');
+          'SmartInboxHeuristicTuningService: increased daily limit for $tag due to $rateLimited rate limits',
+        );
       }
     }
 
@@ -61,12 +64,14 @@ class SmartInboxHeuristicTuningService {
     final dedupTotal = data.exclusionsByReason['deduplicated'] ?? 0;
     if (dedupTotal > globalThreshold) {
       developer.log(
-          'SmartInboxHeuristicTuningService: high global deduplicated count ($dedupTotal), consider relaxing dedupe rules');
+        'SmartInboxHeuristicTuningService: high global deduplicated count ($dedupTotal), consider relaxing dedupe rules',
+      );
     }
     final rateLimitTotal = data.exclusionsByReason['rateLimited'] ?? 0;
     if (rateLimitTotal > globalThreshold) {
       developer.log(
-          'SmartInboxHeuristicTuningService: high global rateLimited count ($rateLimitTotal), consider adjusting rate limits');
+        'SmartInboxHeuristicTuningService: high global rateLimited count ($rateLimitTotal), consider adjusting rate limits',
+      );
     }
   }
 }

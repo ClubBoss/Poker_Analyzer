@@ -81,10 +81,7 @@ class _AchievementUnlockedOverlayState extends State<AchievementUnlockedOverlay>
                       children: [
                         const Text(
                           'Новое достижение!',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
-                          ),
+                          style: TextStyle(color: Colors.white70, fontSize: 12),
                         ),
                         Text(
                           widget.title,
@@ -108,7 +105,10 @@ class _AchievementUnlockedOverlayState extends State<AchievementUnlockedOverlay>
 }
 
 void showAchievementUnlockedOverlay(
-    BuildContext context, IconData icon, String title) {
+  BuildContext context,
+  IconData icon,
+  String title,
+) {
   final overlay = Overlay.of(context);
   late OverlayEntry entry;
   entry = OverlayEntry(

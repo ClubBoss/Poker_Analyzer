@@ -12,9 +12,9 @@ class TopCategoriesDrillCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final list = context
-        .watch<SavedHandStatsService>()
-        .getTopMistakeCategories(limit: 3);
+    final list = context.watch<SavedHandStatsService>().getTopMistakeCategories(
+      limit: 3,
+    );
     if (list.isEmpty) return const SizedBox.shrink();
     final accent = Theme.of(context).colorScheme.secondary;
     return Container(
@@ -54,16 +54,19 @@ class TopCategoriesDrillCard extends StatelessWidget {
                     onPressed: () async {
                       final tpl =
                           await TrainingPackService.createDrillFromCategory(
-                              context, e.key);
+                            context,
+                            e.key,
+                          );
                       if (tpl == null) return;
-                      await context
-                          .read<TrainingSessionService>()
-                          .startSession(tpl);
+                      await context.read<TrainingSessionService>().startSession(
+                        tpl,
+                      );
                       if (context.mounted) {
                         await Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const TrainingSessionScreen()),
+                            builder: (_) => const TrainingSessionScreen(),
+                          ),
                         );
                       }
                     },
@@ -71,7 +74,7 @@ class TopCategoriesDrillCard extends StatelessWidget {
                   ),
                 ],
               ),
-            )
+            ),
         ],
       ),
     );

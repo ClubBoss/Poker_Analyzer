@@ -36,8 +36,9 @@ class BoosterSuggestionEngine {
     final current = now ?? DateTime.now();
     final improvementMap =
         improvement ?? await TrainingPackStatsServiceV2.improvementByTag();
-    insights ??= await const MistakeTagInsightsService()
-        .buildInsights(sortByEvLoss: true);
+    insights ??= await const MistakeTagInsightsService().buildInsights(
+      sortByEvLoss: true,
+    );
     history ??= await TrainingHistoryServiceV2.getHistory(limit: 50);
 
     await TrainingPackLibraryV2.instance.loadFromFolder();
@@ -46,7 +47,7 @@ class BoosterSuggestionEngine {
     final recentCutoff = current.subtract(const Duration(days: 3));
     final recentPackIds = <String>{
       for (final h in history)
-        if (h.timestamp.isAfter(recentCutoff)) h.packId
+        if (h.timestamp.isAfter(recentCutoff)) h.packId,
     };
 
     final boosterMap = <String, TrainingPackTemplateV2>{};
@@ -147,8 +148,9 @@ class BoosterSuggestionEngine {
     meta['tag'] = tag;
     meta['generatedBy'] = 'BoosterSuggestionEngine v1';
     map['meta'] = meta;
-    final booster =
-        TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+    final booster = TrainingPackTemplateV2.fromJson(
+      Map<String, dynamic>.from(map),
+    );
 
     final outDir = Directory(dir);
     await outDir.create(recursive: true);

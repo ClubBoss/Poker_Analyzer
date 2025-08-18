@@ -16,7 +16,7 @@ class DailyChallengeHistoryService {
     final raw = prefs.getStringList(_historyKey) ?? [];
     return [
       for (final s in raw)
-        if (DateTime.tryParse(s) != null) DateTime.parse(s)
+        if (DateTime.tryParse(s) != null) DateTime.parse(s),
     ];
   }
 

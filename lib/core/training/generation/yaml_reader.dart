@@ -23,8 +23,10 @@ class YamlReader {
       final source = await rootBundle.loadString(path);
       return TrainingPackTemplateV2.fromYamlAuto(source);
     }
-    final map =
-        await TheoryYamlSafeReader().read(path: path, schema: 'TemplateSet');
+    final map = await TheoryYamlSafeReader().read(
+      path: path,
+      schema: 'TemplateSet',
+    );
     return TrainingPackTemplateV2.fromJson(map);
   }
 
@@ -42,12 +44,15 @@ class YamlReader {
         final set = TrainingPackTemplateSet.fromJson(map);
         return const TrainingPackTemplateSetGenerator().generate(set);
       }
-      final tpl =
-          TrainingPackTemplateV2.fromJson(Map<String, dynamic>.from(map));
+      final tpl = TrainingPackTemplateV2.fromJson(
+        Map<String, dynamic>.from(map),
+      );
       return [tpl];
     }
-    final map =
-        await TheoryYamlSafeReader().read(path: path, schema: 'TemplateSet');
+    final map = await TheoryYamlSafeReader().read(
+      path: path,
+      schema: 'TemplateSet',
+    );
     if ((map['template'] is Map && map['variants'] is List) ||
         map['templateSet'] is List ||
         (map['base'] is Map && map['variations'] is List)) {

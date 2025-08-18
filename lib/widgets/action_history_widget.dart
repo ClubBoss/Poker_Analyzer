@@ -29,8 +29,9 @@ class ActionHistoryWidget extends StatelessWidget {
   }
 
   Widget _buildStreetTile(BuildContext context, int street, String title) {
-    final streetActions =
-        actions.where((a) => a.street == street && !a.generated).toList();
+    final streetActions = actions
+        .where((a) => a.street == street && !a.generated)
+        .toList();
     if (streetActions.isEmpty) return const SizedBox.shrink();
 
     final last = streetActions.last;
@@ -40,10 +41,7 @@ class ActionHistoryWidget extends StatelessWidget {
     final header = '$title - $lastAction от $pos';
 
     return ExpansionTile(
-      title: Text(
-        header,
-        style: const TextStyle(color: Colors.white),
-      ),
+      title: Text(header, style: const TextStyle(color: Colors.white)),
       collapsedTextColor: Colors.white,
       textColor: Colors.white,
       iconColor: Colors.white,
@@ -62,7 +60,7 @@ class ActionHistoryWidget extends StatelessWidget {
               style: const TextStyle(color: Colors.white),
             ),
           ),
-        ]
+        ],
       ],
     );
   }

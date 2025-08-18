@@ -46,9 +46,10 @@ class _BetSlideChipsState extends State<BetSlideChips>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
-    _position = Tween<Offset>(begin: widget.start, end: widget.end).animate(
-      CurvedAnimation(parent: _moveController, curve: Curves.easeOut),
-    );
+    _position = Tween<Offset>(
+      begin: widget.start,
+      end: widget.end,
+    ).animate(CurvedAnimation(parent: _moveController, curve: Curves.easeOut));
     _moveController.forward();
     _timer = Timer(widget.holdDuration, () {
       if (mounted) _fadeController.forward();

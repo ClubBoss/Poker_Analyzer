@@ -42,21 +42,29 @@ class _StagePreviewDialogState extends State<StagePreviewDialog> {
       title: Text(widget.stage.title),
       content: _loading
           ? const SizedBox(
-              height: 100, child: Center(child: CircularProgressIndicator()))
+              height: 100,
+              child: Center(child: CircularProgressIndicator()),
+            )
           : Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (widget.stage.description.isNotEmpty)
-                  Text(widget.stage.description,
-                      style: const TextStyle(color: Colors.white70)),
+                  Text(
+                    widget.stage.description,
+                    style: const TextStyle(color: Colors.white70),
+                  ),
                 if (pack != null) ...[
                   const SizedBox(height: 8),
-                  Text('Spots: ${pack.spotCount}',
-                      style: const TextStyle(color: Colors.white70)),
+                  Text(
+                    'Spots: ${pack.spotCount}',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
                   if (estMinutes != null)
-                    Text('Estimated time: ${estMinutes}m',
-                        style: const TextStyle(color: Colors.white70)),
+                    Text(
+                      'Estimated time: ${estMinutes}m',
+                      style: const TextStyle(color: Colors.white70),
+                    ),
                 ],
                 if (widget.stage.objectives.isNotEmpty) ...[
                   const SizedBox(height: 8),

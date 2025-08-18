@@ -19,8 +19,10 @@ class TheoryBlockLauncher {
     String? trackId,
   }) async {
     if (trackId != null) {
-      await TheoryTrackResumeService.instance
-          .saveLastVisitedBlock(trackId, block.id);
+      await TheoryTrackResumeService.instance.saveLastVisitedBlock(
+        trackId,
+        block.id,
+      );
     }
     await PinnedLearningService.instance.recordOpen('block', block.id);
     await MiniLessonLibraryService.instance.loadAll();
@@ -32,9 +34,7 @@ class TheoryBlockLauncher {
         if (lesson != null) {
           await Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (_) => MiniLessonScreen(lesson: lesson),
-            ),
+            MaterialPageRoute(builder: (_) => MiniLessonScreen(lesson: lesson)),
           );
         }
         return;
@@ -51,8 +51,9 @@ class TheoryBlockLauncher {
       }
     }
     if (context.mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Block Completed')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Block Completed')));
     }
   }
 }

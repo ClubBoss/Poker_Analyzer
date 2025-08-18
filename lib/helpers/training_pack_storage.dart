@@ -24,7 +24,7 @@ class TrainingPackStorage {
     if (raw == null || raw.isEmpty) {
       final generated = [
         for (final id in _presetIds)
-          TrainingPackAuthorService.generateFromPreset(id)
+          TrainingPackAuthorService.generateFromPreset(id),
       ];
       await save(generated);
       return generated;
@@ -33,7 +33,7 @@ class TrainingPackStorage {
     if (list.isEmpty) {
       final generated = [
         for (final id in _presetIds)
-          TrainingPackAuthorService.generateFromPreset(id)
+          TrainingPackAuthorService.generateFromPreset(id),
       ];
       await save(generated);
       return generated;

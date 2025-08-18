@@ -22,12 +22,14 @@ class LearningPathStageLauncher {
     PackLibraryService? library,
     TheoryPackLibraryService? theoryLibrary,
     TrainingSessionLauncher launcher = const TrainingSessionLauncher(),
-  })  : _library = library ?? PackLibraryService.instance,
-        _theoryLibrary = theoryLibrary ?? TheoryPackLibraryService.instance,
-        _launcher = launcher;
+  }) : _library = library ?? PackLibraryService.instance,
+       _theoryLibrary = theoryLibrary ?? TheoryPackLibraryService.instance,
+       _launcher = launcher;
 
   Future<void> launch(
-      BuildContext context, LearningPathStageModel stage) async {
+    BuildContext context,
+    LearningPathStageModel stage,
+  ) async {
     await UserActionLogger.instance.logEvent({
       'event': 'stage_opened',
       'type': stage.type.name,
@@ -85,9 +87,9 @@ class LearningPathStageLauncher {
           (p) => stage.tags.any((t) => p.tags.contains(t)),
         );
         if (booster == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Booster not found')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Booster not found')));
           return;
         }
         await Navigator.push(

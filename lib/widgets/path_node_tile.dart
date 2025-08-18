@@ -28,8 +28,9 @@ class PathNodeTile extends StatelessWidget {
     String title;
     Widget icon;
     if (node.type == LearningPathNodeType.theory) {
-      final lesson =
-          MiniLessonLibraryService.instance.getById(node.miniLessonId ?? '');
+      final lesson = MiniLessonLibraryService.instance.getById(
+        node.miniLessonId ?? '',
+      );
       title = lesson?.resolvedTitle ?? node.miniLessonId ?? '';
       icon = const Text('📘', style: TextStyle(fontSize: 24));
     } else {

@@ -14,8 +14,10 @@ class _FakeLauncher extends TrainingSessionLauncher {
   List<String>? tags;
   const _FakeLauncher();
   @override
-  Future<void> launchForMiniLesson(TheoryMiniLessonNode lesson,
-      {List<String>? sessionTags}) async {
+  Future<void> launchForMiniLesson(
+    TheoryMiniLessonNode lesson, {
+    List<String>? sessionTags,
+  }) async {
     count++;
     tags = sessionTags;
   }
@@ -40,10 +42,12 @@ void main() {
     );
 
     await controller.showManually(
-        const TheoryMiniLessonNode(id: 'l1', title: 't', content: ''));
+      const TheoryMiniLessonNode(id: 'l1', title: 't', content: ''),
+    );
     await tester.pump();
-    await service
-        .launch(const TheoryMiniLessonNode(id: 'l1', title: 't', content: ''));
+    await service.launch(
+      const TheoryMiniLessonNode(id: 'l1', title: 't', content: ''),
+    );
 
     expect(launcher.count, 1);
     expect(launcher.tags, ['recap', 'reinforcement']);
@@ -70,10 +74,12 @@ void main() {
     );
 
     await controller.showManually(
-        const TheoryMiniLessonNode(id: 'l1', title: 't', content: ''));
+      const TheoryMiniLessonNode(id: 'l1', title: 't', content: ''),
+    );
     await tester.pump();
-    await service
-        .launch(const TheoryMiniLessonNode(id: 'l1', title: 't', content: ''));
+    await service.launch(
+      const TheoryMiniLessonNode(id: 'l1', title: 't', content: ''),
+    );
 
     expect(launcher.count, 0);
     expect(launcher.tags, isNull);

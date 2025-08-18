@@ -15,7 +15,8 @@ class SmartBoosterDiversitySchedulerService {
 
   /// Returns [all] suggestions ordered to avoid repetitive nudges.
   Future<List<PinnedBlockBoosterSuggestion>> schedule(
-      List<PinnedBlockBoosterSuggestion> all) async {
+    List<PinnedBlockBoosterSuggestion> all,
+  ) async {
     if (all.isEmpty) return [];
 
     final now = DateTime.now();
@@ -76,8 +77,10 @@ class SmartBoosterDiversitySchedulerService {
 
     for (final list in byTag.values) {
       for (final leftover in list) {
-        await SmartBoosterExclusionTrackerService()
-            .logExclusion(leftover.suggestion.tag, 'filteredByType');
+        await SmartBoosterExclusionTrackerService().logExclusion(
+          leftover.suggestion.tag,
+          'filteredByType',
+        );
       }
     }
 

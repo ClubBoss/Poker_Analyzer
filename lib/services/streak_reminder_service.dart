@@ -36,8 +36,9 @@ class StreakReminderService extends ChangeNotifier {
   Future<void> _initPlugin() async {
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
-    await _plugin
-        .initialize(const InitializationSettings(android: android, iOS: ios));
+    await _plugin.initialize(
+      const InitializationSettings(android: android, iOS: ios),
+    );
     tz.initializeTimeZones();
   }
 
@@ -52,11 +53,17 @@ class StreakReminderService extends ChangeNotifier {
   }
 
   bool _hasTrainedToday() {
-    final today =
-        DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    final today = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+    );
     for (final log in logs.logs) {
       final d = DateTime(
-          log.completedAt.year, log.completedAt.month, log.completedAt.day);
+        log.completedAt.year,
+        log.completedAt.month,
+        log.completedAt.day,
+      );
       if (d == today) return true;
       if (d.isBefore(today)) break;
     }
@@ -78,8 +85,10 @@ class StreakReminderService extends ChangeNotifier {
       'Don\u2019t break your streak! Quick session to keep the momentum.',
       when,
       const NotificationDetails(
-        android:
-            AndroidNotificationDetails('streak_reminder', 'Streak Reminder'),
+        android: AndroidNotificationDetails(
+          'streak_reminder',
+          'Streak Reminder',
+        ),
         iOS: DarwinNotificationDetails(),
       ),
       androidAllowWhileIdle: true,

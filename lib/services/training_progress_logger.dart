@@ -37,8 +37,10 @@ class TrainingProgressLogger {
   static Future<void> startSession(String packId) async {
     final stat = await TrainingPackStatsService.getStats(packId);
     final hands = await TrainingPackStatsService.getHandsCompleted(packId);
-    _starts[packId] =
-        _SessionSnapshot(accuracy: stat?.accuracy ?? 0, hands: hands);
+    _starts[packId] = _SessionSnapshot(
+      accuracy: stat?.accuracy ?? 0,
+      hands: hands,
+    );
     unawaited(UserActionLogger.instance.log('training_session_start:$packId'));
   }
 
@@ -61,7 +63,8 @@ class TrainingProgressLogger {
 
     bool? unlockGoalReached;
     if (requiredAccuracy != null || minHands != null) {
-      unlockGoalReached = (requiredAccuracy == null ||
+      unlockGoalReached =
+          (requiredAccuracy == null ||
               accuracyAfter * 100 >= requiredAccuracy) &&
           (minHands == null || handsAfter >= minHands);
     }
@@ -75,17 +78,19 @@ class TrainingProgressLogger {
       unlockGoalReached: unlockGoalReached,
     );
 
-    unawaited(UserActionLogger.instance.logEvent({
-      'event': 'training_session_complete',
-      'id': packId,
-      'hands': hands,
-      if (evPercent != null) 'evPercent': evPercent,
-      if (accuracyBefore != null) 'accuracyBefore': accuracyBefore * 100,
-      'accuracyAfter': accuracyAfter * 100,
-      if (handsBefore != null) 'handsBefore': handsBefore,
-      'handsAfter': handsAfter,
-      if (unlockGoalReached != null) 'unlockGoalReached': unlockGoalReached,
-    }));
+    unawaited(
+      UserActionLogger.instance.logEvent({
+        'event': 'training_session_complete',
+        'id': packId,
+        'hands': hands,
+        if (evPercent != null) 'evPercent': evPercent,
+        if (accuracyBefore != null) 'accuracyBefore': accuracyBefore * 100,
+        'accuracyAfter': accuracyAfter * 100,
+        if (handsBefore != null) 'handsBefore': handsBefore,
+        'handsAfter': handsAfter,
+        if (unlockGoalReached != null) 'unlockGoalReached': unlockGoalReached,
+      }),
+    );
   }
 
   /// Legacy wrapper.

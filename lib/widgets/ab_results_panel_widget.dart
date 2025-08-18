@@ -26,12 +26,15 @@ class _ABResultsPanelWidgetState extends State<ABResultsPanelWidget> {
             Row(
               children: [
                 Text(
-                    'Recommended: '
-                    '${results.isNotEmpty ? results.first.armId : '-'}',
-                    style: Theme.of(context).textTheme.titleMedium),
+                  'Recommended: '
+                  '${results.isNotEmpty ? results.first.armId : '-'}',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 const Spacer(),
                 IconButton(
-                    onPressed: _showSettings, icon: const Icon(Icons.settings)),
+                  onPressed: _showSettings,
+                  icon: const Icon(Icons.settings),
+                ),
               ],
             ),
             SingleChildScrollView(
@@ -51,16 +54,18 @@ class _ABResultsPanelWidgetState extends State<ABResultsPanelWidget> {
                 ],
                 rows: [
                   for (final r in results)
-                    DataRow(cells: [
-                      DataCell(Text(r.armId)),
-                      DataCell(Text(r.n.toString())),
-                      DataCell(Text(r.accuracy.toStringAsFixed(2))),
-                      DataCell(Text(r.dropoffRate.toStringAsFixed(2))),
-                      DataCell(Text(r.timeToComplete.toStringAsFixed(2))),
-                      DataCell(Text(r.novelty.toStringAsFixed(2))),
-                      DataCell(Text(r.compositeScore.toStringAsFixed(2))),
-                      DataCell(Text(r.confidence.toStringAsFixed(2))),
-                    ])
+                    DataRow(
+                      cells: [
+                        DataCell(Text(r.armId)),
+                        DataCell(Text(r.n.toString())),
+                        DataCell(Text(r.accuracy.toStringAsFixed(2))),
+                        DataCell(Text(r.dropoffRate.toStringAsFixed(2))),
+                        DataCell(Text(r.timeToComplete.toStringAsFixed(2))),
+                        DataCell(Text(r.novelty.toStringAsFixed(2))),
+                        DataCell(Text(r.compositeScore.toStringAsFixed(2))),
+                        DataCell(Text(r.confidence.toStringAsFixed(2))),
+                      ],
+                    ),
                 ],
               ),
             ),
@@ -71,7 +76,10 @@ class _ABResultsPanelWidgetState extends State<ABResultsPanelWidget> {
   }
 
   DataColumn _buildColumn(
-      String label, int idx, Comparable Function(ABArmResult r) selector) {
+    String label,
+    int idx,
+    Comparable Function(ABArmResult r) selector,
+  ) {
     final service = AutogenStatusDashboardService.instance;
     return DataColumn(
       label: Text(label),
@@ -94,14 +102,18 @@ class _ABResultsPanelWidgetState extends State<ABResultsPanelWidget> {
     final comparator = TrainingRunABComparator();
     final weights = await comparator.getWeights();
     final control = await comparator.getControlArm() ?? '';
-    final accCtrl =
-        TextEditingController(text: weights['accuracy']!.toStringAsFixed(2));
-    final dropCtrl =
-        TextEditingController(text: weights['dropoff']!.toStringAsFixed(2));
-    final timeCtrl =
-        TextEditingController(text: weights['time']!.toStringAsFixed(2));
-    final novCtrl =
-        TextEditingController(text: weights['novelty']!.toStringAsFixed(2));
+    final accCtrl = TextEditingController(
+      text: weights['accuracy']!.toStringAsFixed(2),
+    );
+    final dropCtrl = TextEditingController(
+      text: weights['dropoff']!.toStringAsFixed(2),
+    );
+    final timeCtrl = TextEditingController(
+      text: weights['time']!.toStringAsFixed(2),
+    );
+    final novCtrl = TextEditingController(
+      text: weights['novelty']!.toStringAsFixed(2),
+    );
     final controlCtrl = TextEditingController(text: control);
 
     await showDialog(
@@ -118,26 +130,30 @@ class _ABResultsPanelWidgetState extends State<ABResultsPanelWidget> {
               ),
               TextField(
                 controller: accCtrl,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 decoration: const InputDecoration(labelText: 'Accuracy Weight'),
               ),
               TextField(
                 controller: dropCtrl,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 decoration: const InputDecoration(labelText: 'Dropoff Weight'),
               ),
               TextField(
                 controller: timeCtrl,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 decoration: const InputDecoration(labelText: 'Time Weight'),
               ),
               TextField(
                 controller: novCtrl,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 decoration: const InputDecoration(labelText: 'Novelty Weight'),
               ),
             ],
@@ -145,7 +161,9 @@ class _ABResultsPanelWidgetState extends State<ABResultsPanelWidget> {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
           TextButton(
             onPressed: () async {
               final w = {

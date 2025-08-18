@@ -36,10 +36,7 @@ class FirstLaunchOverlay extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: onClose,
-                  child: const Text('Got it'),
-                ),
+                ElevatedButton(onPressed: onClose, child: const Text('Got it')),
               ],
             ),
           ),

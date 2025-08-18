@@ -17,7 +17,7 @@ class UnfinishedPack {
 
 class SmartResumeEngine {
   SmartResumeEngine({List<ResumeStrategy>? strategies})
-      : _strategies = strategies ?? [PinnedBlockResumeStrategy()];
+    : _strategies = strategies ?? [PinnedBlockResumeStrategy()];
 
   static final SmartResumeEngine instance = SmartResumeEngine();
 
@@ -44,7 +44,8 @@ class SmartResumeEngine {
       orElse: () => TrainingPackTemplate(id: '', name: ''),
     );
     if (t.id.isEmpty) return 0;
-    final idx = prefs.getInt('$_playPrefix$templateId') ??
+    final idx =
+        prefs.getInt('$_playPrefix$templateId') ??
         prefs.getInt('$_sessionPrefix$templateId');
     if (idx == null) return 0;
     final count = t.spots.length;

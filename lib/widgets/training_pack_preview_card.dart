@@ -18,8 +18,10 @@ class TrainingPackPreviewCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(spot.position.toUpperCase(),
-              style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(
+            spot.position.toUpperCase(),
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
           Text(spot.hand, style: const TextStyle(fontFamily: 'monospace')),
           Text(spot.action, style: const TextStyle(color: Colors.white70)),
         ],

@@ -31,8 +31,10 @@ class PackReviewStatsExporter {
       final spot = template.spots[i];
       final task = result.tasks[i];
       for (final tag in spot.tags) {
-        final stat =
-            tagStats.putIfAbsent(tag, () => {'total': 0, 'correct': 0});
+        final stat = tagStats.putIfAbsent(
+          tag,
+          () => {'total': 0, 'correct': 0},
+        );
         stat['total'] = (stat['total'] ?? 0) + 1;
         if (task.correct) {
           stat['correct'] = (stat['correct'] ?? 0) + 1;

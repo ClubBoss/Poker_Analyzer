@@ -38,14 +38,15 @@ class LearningPathEngine {
     TrainingPathProgressServiceV2? progress,
     LearningPathLevelOneBuilderService? levelOneBuilder,
     LearningPathAutoExpander? autoExpander,
-  })  : orchestrator = orchestrator ?? LearningPathGraphOrchestrator(),
-        progress = progress ??
-            TrainingPathProgressServiceV2(
-              logs: SessionLogService(sessions: TrainingSessionService()),
-            ),
-        levelOneBuilder =
-            levelOneBuilder ?? const LearningPathLevelOneBuilderService(),
-        autoExpander = autoExpander ?? const LearningPathAutoExpander();
+  }) : orchestrator = orchestrator ?? LearningPathGraphOrchestrator(),
+       progress =
+           progress ??
+           TrainingPathProgressServiceV2(
+             logs: SessionLogService(sessions: TrainingSessionService()),
+           ),
+       levelOneBuilder =
+           levelOneBuilder ?? const LearningPathLevelOneBuilderService(),
+       autoExpander = autoExpander ?? const LearningPathAutoExpander();
 
   static final LearningPathEngine instance = LearningPathEngine();
 
@@ -67,14 +68,16 @@ class LearningPathEngine {
         if (existing.contains(id) || !added.add(id)) return;
         final mini = MiniLessonLibraryService.instance.getById(id);
         if (mini != null) {
-          toAdd.add(TheoryMiniLessonNode(
-            id: mini.id,
-            refId: mini.refId,
-            title: mini.title,
-            content: mini.content,
-            tags: List<String>.from(mini.tags),
-            nextIds: List<String>.from(mini.nextIds),
-          ));
+          toAdd.add(
+            TheoryMiniLessonNode(
+              id: mini.id,
+              refId: mini.refId,
+              title: mini.title,
+              content: mini.content,
+              tags: List<String>.from(mini.tags),
+              nextIds: List<String>.from(mini.nextIds),
+            ),
+          );
           for (final next in mini.nextIds) {
             addNode(next);
           }
@@ -218,7 +221,8 @@ class LearningPathEngine {
       if (node is LearningBranchNode) {
         final branches = Map<String, String>.from(node.branches);
         branches.updateAll(
-            (key, value) => value == nodeId ? (replacement ?? value) : value);
+          (key, value) => value == nodeId ? (replacement ?? value) : value,
+        );
         branches.removeWhere((key, value) => value.isEmpty);
         return LearningBranchNode(
           id: node.id,
@@ -229,7 +233,7 @@ class LearningPathEngine {
       } else if (node is TrainingStageNode) {
         final next = [
           for (final n in node.nextIds)
-            if (n != nodeId) n
+            if (n != nodeId) n,
         ];
         if (replacement != null) {
           for (var i = 0; i < node.nextIds.length; i++) {
@@ -245,7 +249,7 @@ class LearningPathEngine {
       } else if (node is TheoryStageNode) {
         final next = [
           for (final n in node.nextIds)
-            if (n != nodeId) n
+            if (n != nodeId) n,
         ];
         if (replacement != null) {
           for (var i = 0; i < node.nextIds.length; i++) {
@@ -261,7 +265,7 @@ class LearningPathEngine {
       } else if (node is TheoryLessonNode) {
         final next = [
           for (final n in node.nextIds)
-            if (n != nodeId) n
+            if (n != nodeId) n,
         ];
         if (replacement != null) {
           for (var i = 0; i < node.nextIds.length; i++) {
@@ -279,7 +283,7 @@ class LearningPathEngine {
       } else if (node is TheoryMiniLessonNode) {
         final next = [
           for (final n in node.nextIds)
-            if (n != nodeId) n
+            if (n != nodeId) n,
         ];
         if (replacement != null) {
           for (var i = 0; i < node.nextIds.length; i++) {
@@ -301,7 +305,7 @@ class LearningPathEngine {
 
     final updated = <LearningPathNode>[
       for (final n in nodes)
-        if (n.id != nodeId) clone(n)
+        if (n.id != nodeId) clone(n),
     ];
 
     final state = mapEngine.getState();

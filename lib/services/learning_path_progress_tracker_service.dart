@@ -67,8 +67,9 @@ class LearningPathProgressTrackerService {
           minHands += sub.minHands;
           accSum += acc;
         }
-        final accAvg =
-            stage.subStages.isEmpty ? 0.0 : accSum / stage.subStages.length;
+        final accAvg = stage.subStages.isEmpty
+            ? 0.0
+            : accSum / stage.subStages.length;
         result[stage.id] =
             '$hands / $minHands рук · ${accAvg.toStringAsFixed(0)}%';
       }

@@ -34,23 +34,21 @@ void main() {
     final dir = await Directory.systemTemp.createTemp();
     PathProviderPlatform.instance = _FakePathProvider(dir.path);
 
-    await MistakeTagHistoryService.logTags(
-      'p1',
-      _attempt('s1'),
-      [MistakeTag.overfoldBtn],
-    );
-    await MistakeTagHistoryService.logTags(
-      'p1',
-      _attempt('s2'),
-      [MistakeTag.overfoldBtn, MistakeTag.missedEvPush],
-    );
+    await MistakeTagHistoryService.logTags('p1', _attempt('s1'), [
+      MistakeTag.overfoldBtn,
+    ]);
+    await MistakeTagHistoryService.logTags('p1', _attempt('s2'), [
+      MistakeTag.overfoldBtn,
+      MistakeTag.missedEvPush,
+    ]);
 
     final freq = await MistakeTagHistoryService.getTagsByFrequency();
     expect(freq[MistakeTag.overfoldBtn], 2);
     expect(freq[MistakeTag.missedEvPush], 1);
 
     final recent = await MistakeTagHistoryService.getRecentMistakesByTag(
-        MistakeTag.overfoldBtn);
+      MistakeTag.overfoldBtn,
+    );
     expect(recent.length, 2);
     expect(recent.first.spotId, 's2');
   });
@@ -69,11 +67,9 @@ void main() {
         correctAction: 'push',
         evDiff: -1,
       );
-      await MistakeTagHistoryService.logTags(
-        'p1',
-        attempt,
-        [MistakeTag.overfoldBtn],
-      );
+      await MistakeTagHistoryService.logTags('p1', attempt, [
+        MistakeTag.overfoldBtn,
+      ]);
       final file = File('${dir.path}/app_data/mistake_tag_history.json');
       final data = await file.readAsString();
       final list = List<Map<String, dynamic>>.from(jsonDecode(data) as List);
@@ -81,8 +77,9 @@ void main() {
       await file.writeAsString(jsonEncode(list), flush: true);
     }
 
-    final trend =
-        await MistakeTagHistoryService.getTrend(MistakeTag.overfoldBtn);
+    final trend = await MistakeTagHistoryService.getTrend(
+      MistakeTag.overfoldBtn,
+    );
     expect(trend, TagTrend.rising);
   });
 }

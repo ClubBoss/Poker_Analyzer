@@ -19,15 +19,17 @@ void main() {
     );
 
     Set<String>? selected;
-    await tester.pumpWidget(MaterialApp(
-      home: SizedBox(
-        width: 200,
-        child: TheoryLessonTagSidebar(
-          lessons: const [l1, l2],
-          onChanged: (s) => selected = s,
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SizedBox(
+          width: 200,
+          child: TheoryLessonTagSidebar(
+            lessons: const [l1, l2],
+            onChanged: (s) => selected = s,
+          ),
         ),
       ),
-    ));
+    );
     await tester.pumpAndSettle();
 
     expect(find.text('defense (1)'), findsOneWidget);

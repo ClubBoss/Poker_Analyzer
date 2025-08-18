@@ -7,7 +7,9 @@ class TrainingGoalSuggestionEngine {
   const TrainingGoalSuggestionEngine();
 
   List<TrainingGoal> suggest(
-      UserProfile user, List<TrainingPackTemplateV2> packs) {
+    UserProfile user,
+    List<TrainingPackTemplateV2> packs,
+  ) {
     final goals = <TrainingGoal>[];
     final sbTotal = packs.where((p) => p.positions.contains('SB')).length;
     final sbDone = user.completedPackIds.where((id) {
@@ -28,8 +30,11 @@ class TrainingGoalSuggestionEngine {
     if (user.completedPackIds.isNotEmpty) {
       goals.add(const TrainingGoal('🔁 Повтори паки с ошибками'));
     }
-    goals.add(const TrainingGoal(
-        '🔥 Заверши 1 тренировку каждый день в течение 3 дней'));
+    goals.add(
+      const TrainingGoal(
+        '🔥 Заверши 1 тренировку каждый день в течение 3 дней',
+      ),
+    );
     return goals;
   }
 }

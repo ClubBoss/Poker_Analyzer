@@ -38,8 +38,10 @@ class PlayerBetIndicator extends StatelessWidget {
       ),
       child: Container(
         key: ValueKey('$action-$amount'),
-        padding:
-            EdgeInsets.symmetric(horizontal: 4 * scale, vertical: 2 * scale),
+        padding: EdgeInsets.symmetric(
+          horizontal: 4 * scale,
+          vertical: 2 * scale,
+        ),
         decoration: BoxDecoration(
           color: Colors.black45,
           borderRadius: BorderRadius.circular(8 * scale),

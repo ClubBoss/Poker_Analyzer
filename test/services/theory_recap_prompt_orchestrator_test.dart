@@ -15,8 +15,10 @@ class _FakeQueue implements TheoryReinforcementQueueService {
   @override
   Future<void> registerFailure(String lessonId) async {}
   @override
-  Future<List<TheoryMiniLessonNode>> getDueLessons(
-      {int max = 3, MiniLessonLibraryService? library}) async {
+  Future<List<TheoryMiniLessonNode>> getDueLessons({
+    int max = 3,
+    MiniLessonLibraryService? library,
+  }) async {
     return due.take(max).toList();
   }
 }
@@ -36,8 +38,11 @@ void main() {
   });
 
   test('returns due lesson when available', () async {
-    final dueLesson =
-        const TheoryMiniLessonNode(id: 'l1', title: 'A', content: '');
+    final dueLesson = const TheoryMiniLessonNode(
+      id: 'l1',
+      title: 'A',
+      content: '',
+    );
     final orch = TheoryRecapPromptOrchestrator(
       queue: _FakeQueue([dueLesson]),
       boosterPicker: const _FakePicker([]),
@@ -47,11 +52,17 @@ void main() {
   });
 
   test('skips cooldowned lesson and picks booster', () async {
-    final dueLesson =
-        const TheoryMiniLessonNode(id: 'l1', title: 'A', content: '');
+    final dueLesson = const TheoryMiniLessonNode(
+      id: 'l1',
+      title: 'A',
+      content: '',
+    );
     await TheoryReplayCooldownManager.markSuggested('l1');
-    final booster =
-        const TheoryMiniLessonNode(id: 'l2', title: 'B', content: '');
+    final booster = const TheoryMiniLessonNode(
+      id: 'l2',
+      title: 'B',
+      content: '',
+    );
     final orch = TheoryRecapPromptOrchestrator(
       queue: _FakeQueue([dueLesson]),
       boosterPicker: _FakePicker([booster]),
@@ -61,8 +72,11 @@ void main() {
   });
 
   test('does not repeat the same lesson in one session', () async {
-    final lesson =
-        const TheoryMiniLessonNode(id: 'l1', title: 'A', content: '');
+    final lesson = const TheoryMiniLessonNode(
+      id: 'l1',
+      title: 'A',
+      content: '',
+    );
     final orch = TheoryRecapPromptOrchestrator(
       queue: _FakeQueue([lesson]),
       boosterPicker: const _FakePicker([]),

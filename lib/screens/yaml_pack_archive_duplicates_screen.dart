@@ -33,7 +33,7 @@ class _YamlPackArchiveDuplicatesScreenState
     for (final e in data.entries) {
       map[e.key] = {
         for (final g in e.value.entries)
-          g.key: [for (final pth in g.value) File(pth)]
+          g.key: [for (final pth in g.value) File(pth)],
       };
     }
     setState(() {
@@ -47,8 +47,9 @@ class _YamlPackArchiveDuplicatesScreenState
   Future<void> _deleteGroup(String id, String hash) async {
     final files = _items[id]?[hash];
     if (files == null || files.length <= 1) return;
-    files
-        .sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
+    files.sort(
+      (a, b) => b.statSync().modified.compareTo(a.statSync().modified),
+    );
     final keep = files.first;
     int deleted = 0;
     for (final f in files.skip(1)) {
@@ -59,8 +60,9 @@ class _YamlPackArchiveDuplicatesScreenState
     }
     await _load();
     if (mounted && deleted > 0) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Удалено файлов: $deleted')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Удалено файлов: $deleted')));
     }
   }
 
@@ -72,11 +74,13 @@ class _YamlPackArchiveDuplicatesScreenState
         title: const Text('Удалить все дубликаты?'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Нет')),
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Нет'),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Да')),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Да'),
+          ),
         ],
       ),
     );
@@ -86,7 +90,8 @@ class _YamlPackArchiveDuplicatesScreenState
       for (final files in map.values) {
         if (files.length <= 1) continue;
         files.sort(
-            (a, b) => b.statSync().modified.compareTo(a.statSync().modified));
+          (a, b) => b.statSync().modified.compareTo(a.statSync().modified),
+        );
         for (final f in files.skip(1)) {
           try {
             f.deleteSync();
@@ -97,8 +102,9 @@ class _YamlPackArchiveDuplicatesScreenState
     }
     await _load();
     if (mounted && deleted > 0) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Удалено файлов: $deleted')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Удалено файлов: $deleted')));
     }
   }
 
@@ -109,7 +115,7 @@ class _YamlPackArchiveDuplicatesScreenState
       appBar: AppBar(
         title: const Text('Дубликаты архива'),
         actions: [
-          IconButton(onPressed: _load, icon: const Icon(Icons.refresh))
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh)),
         ],
       ),
       backgroundColor: AppColors.background,
@@ -130,7 +136,8 @@ class _YamlPackArchiveDuplicatesScreenState
                               children: [
                                 ListTile(
                                   title: Text(
-                                      '${g.key.substring(0, 8)} (${g.value.length})'),
+                                    '${g.key.substring(0, 8)} (${g.value.length})',
+                                  ),
                                   trailing: IconButton(
                                     icon: const Icon(Icons.delete),
                                     onPressed: () => _deleteGroup(e.key, g.key),
@@ -140,8 +147,10 @@ class _YamlPackArchiveDuplicatesScreenState
                                   ListTile(
                                     title: Text(p.basename(f.path)),
                                     subtitle: Text(
-                                        DateFormat('yyyy-MM-dd HH:mm')
-                                            .format(f.statSync().modified)),
+                                      DateFormat(
+                                        'yyyy-MM-dd HH:mm',
+                                      ).format(f.statSync().modified),
+                                    ),
                                   ),
                               ],
                             ),

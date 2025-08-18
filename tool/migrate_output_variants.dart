@@ -76,9 +76,10 @@ void main(List<String> args) {
       .listSync(recursive: true)
       .whereType<File>()
       .where((f) {
-    final l = f.path.toLowerCase();
-    return l.endsWith('.yaml') || l.endsWith('.yml');
-  }).toList();
+        final l = f.path.toLowerCase();
+        return l.endsWith('.yaml') || l.endsWith('.yml');
+      })
+      .toList();
 
   final changes = <Map<String, Object>>[];
   var failures = 0;
@@ -115,7 +116,8 @@ void main(List<String> args) {
       final before = c['before'];
       final after = c['after'];
       stdout.writeln(
-          '${path.padRight(60)}${before.toString().padLeft(6)} ${after.toString().padLeft(5)}');
+        '${path.padRight(60)}${before.toString().padLeft(6)} ${after.toString().padLeft(5)}',
+      );
     }
   }
 

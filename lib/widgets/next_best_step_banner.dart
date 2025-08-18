@@ -33,8 +33,9 @@ class _NextBestStepBannerState extends State<NextBestStepBanner> {
     final steps = await LessonLoaderService.instance.loadAllLessons();
     final completed = await path.getCompletedStepMap();
     final templates = context.read<TrainingPackTemplateStorageService>();
-    final profile =
-        await SmartReviewService.instance.getMistakeProfile(templates);
+    final profile = await SmartReviewService.instance.getMistakeProfile(
+      templates,
+    );
 
     final advisor = LearningPathAdvisor(steps: steps);
     final step = advisor.recommendNextStep(
@@ -77,8 +78,10 @@ class _NextBestStepBannerState extends State<NextBestStepBanner> {
             children: [
               Text(
                 '🔁 Next Step: ${data.step.title}',
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               if (data.track != null)
                 Padding(

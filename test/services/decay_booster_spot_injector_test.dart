@@ -39,9 +39,9 @@ class _FakeLessonLibrary implements MiniLessonLibraryService {
 
   @override
   List<TheoryMiniLessonNode> findByTags(List<String> tags) => [
-        for (final l in lessons)
-          if (l.tags.any(tags.contains)) l
-      ];
+    for (final l in lessons)
+      if (l.tags.any(tags.contains)) l,
+  ];
 
   @override
   List<TheoryMiniLessonNode> getByTags(Set<String> tags) =>
@@ -76,13 +76,14 @@ class _FakePackLibrary implements TrainingPackLibraryV2 {
         if ((gameType == null || p.gameType == gameType) &&
             (type == null || p.trainingType == type) &&
             (tags == null || tags.every((t) => p.tags.contains(t))))
-          p
+          p,
     ];
   }
 
   @override
-  Future<void> loadFromFolder(
-      [String path = TrainingPackLibraryV2.packsDir]) async {}
+  Future<void> loadFromFolder([
+    String path = TrainingPackLibraryV2.packsDir,
+  ]) async {}
 
   @override
   Future<void> reload() async {}
@@ -95,18 +96,18 @@ TrainingPackTemplateV2 _pack(String id, String tag, String spotId) {
     trainingType: TrainingType.pushFold,
     tags: [tag],
     spots: [
-      TrainingPackSpot(id: spotId, tags: [tag])
+      TrainingPackSpot(id: spotId, tags: [tag]),
     ],
     spotCount: 1,
   );
 }
 
 TrainingHistoryEntryV2 _hist(String packId) => TrainingHistoryEntryV2(
-      timestamp: DateTime.now(),
-      tags: const [],
-      packId: packId,
-      type: TrainingType.pushFold,
-    );
+  timestamp: DateTime.now(),
+  tags: const [],
+  packId: packId,
+  type: TrainingType.pushFold,
+);
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

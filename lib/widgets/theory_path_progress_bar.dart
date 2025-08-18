@@ -80,11 +80,7 @@ class TheoryPathProgressBar extends StatelessWidget {
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              bar,
-              const SizedBox(height: 4),
-              label,
-            ],
+            children: [bar, const SizedBox(height: 4), label],
           ),
         );
       },

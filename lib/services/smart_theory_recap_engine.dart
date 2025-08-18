@@ -33,10 +33,10 @@ class SmartTheoryRecapEngine {
     SmartBoosterDropoffDetector? dropoff,
     SmartTheoryRecapDismissalMemory? dismissalMemory,
     SmartTheoryRecapScoreWeighting? weighting,
-  })  : dropoff = dropoff ?? SmartBoosterDropoffDetector.instance,
-        dismissalMemory =
-            dismissalMemory ?? SmartTheoryRecapDismissalMemory.instance,
-        weighting = weighting ?? SmartTheoryRecapScoreWeighting.instance;
+  }) : dropoff = dropoff ?? SmartBoosterDropoffDetector.instance,
+       dismissalMemory =
+           dismissalMemory ?? SmartTheoryRecapDismissalMemory.instance,
+       weighting = weighting ?? SmartTheoryRecapScoreWeighting.instance;
 
   static const _dismissKey = 'smart_theory_recap_dismissed';
   static final SmartTheoryRecapEngine instance = SmartTheoryRecapEngine();
@@ -65,10 +65,13 @@ class SmartTheoryRecapEngine {
       link = await linker.linkForLesson(lessonId);
     }
     if (link == null && tags != null && tags.isNotEmpty) {
-      final scores =
-          await weighting.computeScores([for (final t in tags) 'tag:$t']);
-      final sorted = [...tags]..sort(
-          (a, b) => (scores['tag:$b'] ?? 0).compareTo(scores['tag:$a'] ?? 0));
+      final scores = await weighting.computeScores([
+        for (final t in tags) 'tag:$t',
+      ]);
+      final sorted = [...tags]
+        ..sort(
+          (a, b) => (scores['tag:$b'] ?? 0).compareTo(scores['tag:$a'] ?? 0),
+        );
       link = await linker.linkForTags(sorted);
     }
     link ??= await linker.linkForTags(tags ?? const []);
@@ -85,8 +88,8 @@ class SmartTheoryRecapEngine {
     final tags = await retention.getDecayedTags();
     if (tags.isEmpty) return null;
     final tag = tags.first;
-    final TheoryMiniLessonNode? lesson =
-        await const TheoryBoostRecapLinker().fetchLesson(tag);
+    final TheoryMiniLessonNode? lesson = await const TheoryBoostRecapLinker()
+        .fetchLesson(tag);
     if (lesson != null) return lesson;
     await MiniLessonLibraryService.instance.loadAll();
     return MiniLessonLibraryService.instance.findByTags([tag]).firstOrNull;
@@ -133,8 +136,10 @@ class SmartTheoryRecapEngine {
       );
       return;
     }
-    if (await BoosterFatigueGuard.instance
-        .isFatigued(lessonId: lessonId ?? '', trigger: trigger)) {
+    if (await BoosterFatigueGuard.instance.isFatigued(
+      lessonId: lessonId ?? '',
+      trigger: trigger,
+    )) {
       return;
     }
     final keys = <String>[];

@@ -33,17 +33,19 @@ class _YamlPackQuickPreviewScreenState
     final libDir = Directory('${dir.path}/training_packs/library');
     const reader = YamlReader();
     final list = <(File, TrainingPackTemplateV2)>[];
-    for (final f in libDir
-        .listSync(recursive: true)
-        .whereType<File>()
-        .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
+    for (final f
+        in libDir
+            .listSync(recursive: true)
+            .whereType<File>()
+            .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
       try {
         final yaml = await f.readAsString();
         list.add((f, TrainingPackTemplateV2.fromYamlAuto(yaml)));
       } catch (_) {}
     }
     list.sort(
-        (a, b) => b.$1.statSync().modified.compareTo(a.$1.statSync().modified));
+      (a, b) => b.$1.statSync().modified.compareTo(a.$1.statSync().modified),
+    );
     if (!mounted) return;
     setState(() {
       _items
@@ -60,7 +62,8 @@ class _YamlPackQuickPreviewScreenState
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (_) => YamlViewerScreen(yamlText: yaml, title: name)),
+        builder: (_) => YamlViewerScreen(yamlText: yaml, title: name),
+      ),
     );
   }
 

@@ -8,7 +8,7 @@ import 'package:poker_analyzer/models/theory_mini_lesson_node.dart';
 class _FakeLibrary extends MiniLessonLibraryService {
   final Map<String, TheoryMiniLessonNode> items;
   _FakeLibrary(List<TheoryMiniLessonNode> lessons)
-      : items = {for (final l in lessons) l.id: l};
+    : items = {for (final l in lessons) l.id: l};
 
   @override
   Future<void> loadAll() async {}
@@ -28,9 +28,17 @@ void main() {
   test('computeTagBoostScores calculates scores', () async {
     final lessons = [
       const TheoryMiniLessonNode(
-          id: 'l1', title: 'A', content: '', tags: ['icm']),
+        id: 'l1',
+        title: 'A',
+        content: '',
+        tags: ['icm'],
+      ),
       const TheoryMiniLessonNode(
-          id: 'l2', title: 'B', content: '', tags: ['call']),
+        id: 'l2',
+        title: 'B',
+        content: '',
+        tags: ['call'],
+      ),
     ];
     final library = _FakeLibrary(lessons);
 

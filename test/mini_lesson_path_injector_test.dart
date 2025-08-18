@@ -22,7 +22,7 @@ class _FakeOrchestrator extends LearningPathGraphOrchestrator {
 class _FakeProgress extends TrainingPathProgressServiceV2 {
   final Set<String> completed;
   _FakeProgress(this.completed)
-      : super(logs: SessionLogService(sessions: TrainingSessionService()));
+    : super(logs: SessionLogService(sessions: TrainingSessionService()));
   @override
   Future<void> loadProgress(String pathId) async {}
   @override
@@ -72,8 +72,11 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test('inject inserts lessons after matching stage', () async {
-    final branch =
-        LearningBranchNode(id: 'b1', prompt: '', branches: {'a': 's1'});
+    final branch = LearningBranchNode(
+      id: 'b1',
+      prompt: '',
+      branches: {'a': 's1'},
+    );
     final stage = TrainingStageNode(id: 's1', nextIds: ['end']);
     final end = TrainingStageNode(id: 'end');
 

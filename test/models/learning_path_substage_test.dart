@@ -21,8 +21,8 @@ void main() {
           'minHands': 5,
           'unlockCondition': {'dependsOn': 'p0', 'minAccuracy': 60},
         },
-        {'id': 'p2', 'packId': 'p2', 'title': 'B'}
-      ]
+        {'id': 'p2', 'packId': 'p2', 'title': 'B'},
+      ],
     };
     final stage = LearningPathStageModel.fromJson(json);
     expect(stage.subStages.length, 2);

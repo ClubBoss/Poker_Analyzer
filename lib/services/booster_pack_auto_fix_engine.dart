@@ -34,6 +34,9 @@ class BoosterPackAutoFixEngine extends TheoryPackAutoFixEngine {
     }
 
     return TheoryPackModel(
-        id: fixed.id, title: fixed.title, sections: sections);
+      id: fixed.id,
+      title: fixed.title,
+      sections: sections,
+    );
   }
 }

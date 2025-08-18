@@ -35,10 +35,9 @@ void main() {
         '${yesterday.year.toString().padLeft(4, '0')}-${yesterday.month.toString().padLeft(2, '0')}-${yesterday.day.toString().padLeft(2, '0')}';
     await prefs.setString('booster_inbox_total_date', dateKey);
     await prefs.setInt(
-        'booster_inbox_last_t1',
-        DateTime.now()
-            .subtract(const Duration(hours: 49))
-            .millisecondsSinceEpoch);
+      'booster_inbox_last_t1',
+      DateTime.now().subtract(const Duration(hours: 49)).millisecondsSinceEpoch,
+    );
 
     expect(await limiter.getTotalBoostersShownToday(), 0);
     expect(await limiter.canShow('t1'), isTrue);

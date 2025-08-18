@@ -92,13 +92,14 @@ class UserGoalEngine extends ChangeNotifier {
     final ctx = navigatorKey.currentContext;
     if (ctx != null) {
       showConfettiOverlay(ctx);
-      ScaffoldMessenger.of(ctx)
-          .showSnackBar(SnackBar(content: Text('Goal completed: ${g.title}')));
+      ScaffoldMessenger.of(
+        ctx,
+      ).showSnackBar(SnackBar(content: Text('Goal completed: ${g.title}')));
       unawaited(
         ctx.read<XPTrackerService>().add(
-              xp: XPTrackerService.achievementXp,
-              source: 'goal',
-            ),
+          xp: XPTrackerService.achievementXp,
+          source: 'goal',
+        ),
       );
     }
   }

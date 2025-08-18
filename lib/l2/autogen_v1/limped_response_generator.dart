@@ -71,10 +71,7 @@ class L2LimpMix {
       StackBin.bb15: 0.25,
       StackBin.bb20: 0.25,
     },
-    limpersPct: {
-      Limpers.one: 0.60,
-      Limpers.multi: 0.40,
-    },
+    limpersPct: {Limpers.one: 0.60, Limpers.multi: 0.40},
   );
 
   static L2LimpMix mvsDefault() => _mvs;
@@ -180,13 +177,15 @@ List<LimpSpot> generateLimpSpots({
     final key = '$hand|${pos.name}|${stack.name}|${limpers.name}';
     if (used.contains(key)) continue;
     final action = _decide(hand, pos, limpers);
-    items.add(LimpSpot(
-      hand: hand,
-      pos: pos,
-      stack: stack,
-      limpers: limpers,
-      action: action,
-    ));
+    items.add(
+      LimpSpot(
+        hand: hand,
+        pos: pos,
+        stack: stack,
+        limpers: limpers,
+        action: action,
+      ),
+    );
     used.add(key);
   }
 
@@ -208,8 +207,9 @@ Map<T, int> _buildQuotas<T>(Map<T, double> pct, int total, List<T> order) {
   var remaining = total;
   for (var i = 0; i < order.length; i++) {
     final v = order[i];
-    final q =
-        i == order.length - 1 ? remaining : (total * (pct[v] ?? 0)).round();
+    final q = i == order.length - 1
+        ? remaining
+        : (total * (pct[v] ?? 0)).round();
     quotas[v] = q;
     remaining -= q;
   }

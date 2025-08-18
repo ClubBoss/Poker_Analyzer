@@ -33,9 +33,7 @@ class PinnedLearningService extends ChangeNotifier {
         final list = jsonDecode(raw) as List;
         for (final e in list) {
           _items.add(
-            PinnedLearningItem.fromJson(
-              Map<String, dynamic>.from(e as Map),
-            ),
+            PinnedLearningItem.fromJson(Map<String, dynamic>.from(e as Map)),
           );
         }
       } catch (_) {}
@@ -55,7 +53,8 @@ class PinnedLearningService extends ChangeNotifier {
 
   Future<void> toggle(String type, String id) async {
     if (type == 'block') {
-      final block = TheoryBlockLibraryService.instance.getById(id) ??
+      final block =
+          TheoryBlockLibraryService.instance.getById(id) ??
           TheoryBlockModel(
             id: id,
             title: '',
@@ -91,9 +90,11 @@ class PinnedLearningService extends ChangeNotifier {
       _items.removeWhere((e) => e.type == 'block' && e.id == id);
       await prefs.remove('pinned_block_$id');
     } else {
-      _items.removeWhere((e) =>
-          (e.type == 'lesson' && block.nodeIds.contains(e.id)) ||
-          (e.type == 'pack' && block.practicePackIds.contains(e.id)));
+      _items.removeWhere(
+        (e) =>
+            (e.type == 'lesson' && block.nodeIds.contains(e.id)) ||
+            (e.type == 'pack' && block.practicePackIds.contains(e.id)),
+      );
       await prefs.setBool('pinned_block_$id', true);
       _items.insert(0, PinnedLearningItem(type: 'block', id: id));
     }
@@ -140,10 +141,7 @@ class PinnedLearningService extends ChangeNotifier {
     for (var i = 0; i < _items.length; i++) {
       final e = _items[i];
       if (e.type == type && e.id == id) {
-        _items[i] = e.copyWith(
-          lastSeen: now,
-          openCount: e.openCount + 1,
-        );
+        _items[i] = e.copyWith(lastSeen: now, openCount: e.openCount + 1);
         await _save();
         notifyListeners();
         break;

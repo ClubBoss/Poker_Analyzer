@@ -50,14 +50,17 @@ void main() {
     final watcher = TheoryStageCompletionWatcher(
       autoCompleteDelay: const Duration(seconds: 5),
     );
-    await tester
-        .pumpWidget(_TestWidget(controller: controller, watcher: watcher));
+    await tester.pumpWidget(
+      _TestWidget(controller: controller, watcher: watcher),
+    );
     await tester.pump();
 
     controller.jumpTo(controller.position.maxScrollExtent);
     await tester.pump();
-    expect(await TheoryStageProgressTracker.instance.isCompleted('stage1'),
-        isTrue);
+    expect(
+      await TheoryStageProgressTracker.instance.isCompleted('stage1'),
+      isTrue,
+    );
   });
 
   testWidgets('marks completed after delay', (tester) async {
@@ -65,11 +68,14 @@ void main() {
     final watcher = TheoryStageCompletionWatcher(
       autoCompleteDelay: const Duration(milliseconds: 500),
     );
-    await tester
-        .pumpWidget(_TestWidget(controller: controller, watcher: watcher));
+    await tester.pumpWidget(
+      _TestWidget(controller: controller, watcher: watcher),
+    );
     await tester.pump(const Duration(seconds: 1));
 
-    expect(await TheoryStageProgressTracker.instance.isCompleted('stage1'),
-        isTrue);
+    expect(
+      await TheoryStageProgressTracker.instance.isCompleted('stage1'),
+      isTrue,
+    );
   });
 }

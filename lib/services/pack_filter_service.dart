@@ -34,7 +34,7 @@ class PackFilterService {
           level,
           goalStr,
         ))
-          t
+          t,
     ];
   }
 

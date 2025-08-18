@@ -19,12 +19,14 @@ class _FakeBoosterEngine extends TargetedPackBoosterEngine {
     String triggerReason = 'cluster',
   }) async {
     return clusters
-        .map((c) => TrainingPackTemplateV2(
-              id: 'boost_${c.clusterId}',
-              name: 'Boost',
-              trainingType: TrainingType.booster,
-              tags: c.tags,
-            ))
+        .map(
+          (c) => TrainingPackTemplateV2(
+            id: 'boost_${c.clusterId}',
+            name: 'Boost',
+            trainingType: TrainingType.booster,
+            tags: c.tags,
+          ),
+        )
         .toList();
   }
 }
@@ -64,20 +66,30 @@ void main() {
 
     test('injects module for eligible cluster', () async {
       final cluster = SkillTagCluster(
-          tags: ['a', 'b'], clusterId: 'c1', themeName: 'Theme');
-      final modules =
-          await engine.injectForClusters(clusters: [cluster], userId: 'u1');
+        tags: ['a', 'b'],
+        clusterId: 'c1',
+        themeName: 'Theme',
+      );
+      final modules = await engine.injectForClusters(
+        clusters: [cluster],
+        userId: 'u1',
+      );
       expect(modules, hasLength(1));
       final m = modules.first;
       expect(m.boosterPackIds, contains('boost_c1'));
       final count = await registry.countSince(
-          'u1', DateTime.now().subtract(const Duration(days: 1)));
+        'u1',
+        DateTime.now().subtract(const Duration(days: 1)),
+      );
       expect(count, 1);
     });
 
     test('respects recency limit', () async {
-      final cluster =
-          SkillTagCluster(tags: ['a'], clusterId: 'c1', themeName: 'Theme');
+      final cluster = SkillTagCluster(
+        tags: ['a'],
+        clusterId: 'c1',
+        themeName: 'Theme',
+      );
       await registry.record('u1', cluster.tags);
       final decision = await engine.evaluateOpportunity(cluster, 'u1');
       expect(decision.shouldInject, isFalse);

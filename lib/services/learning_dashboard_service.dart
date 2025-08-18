@@ -20,8 +20,9 @@ class LearningDashboardData {
 class LearningDashboardService {
   final MasteryForecastEngine forecast;
 
-  const LearningDashboardService(
-      {this.forecast = const MasteryForecastEngine()});
+  const LearningDashboardService({
+    this.forecast = const MasteryForecastEngine(),
+  });
 
   LearningDashboardData getDashboardData({
     required List<TrackPlayHistory> trackHistory,
@@ -33,7 +34,7 @@ class LearningDashboardService {
 
     final accValues = [
       for (final h in completed)
-        if (h.accuracy != null) h.accuracy!
+        if (h.accuracy != null) h.accuracy!,
     ];
     final averageAccuracy = accValues.isEmpty
         ? 0.0
@@ -41,15 +42,17 @@ class LearningDashboardService {
 
     final dates = {
       for (final h in completed)
-        DateTime(h.completedAt!.year, h.completedAt!.month, h.completedAt!.day)
-    }.toList()
-      ..sort();
+        DateTime(h.completedAt!.year, h.completedAt!.month, h.completedAt!.day),
+    }.toList()..sort();
     int streak = 0;
     if (dates.isNotEmpty) {
       final today = DateTime.now();
-      for (int i = 0;; i++) {
-        final day = DateTime(today.year, today.month, today.day)
-            .subtract(Duration(days: i));
+      for (int i = 0; ; i++) {
+        final day = DateTime(
+          today.year,
+          today.month,
+          today.day,
+        ).subtract(Duration(days: i));
         if (dates.contains(day)) {
           streak += 1;
         } else {

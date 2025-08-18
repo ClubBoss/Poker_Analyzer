@@ -25,9 +25,9 @@ class _TestPathProvider extends PathProviderPlatform {
   @override
   Future<List<String>?> getExternalCachePaths() async => [path];
   @override
-  Future<List<String>?> getExternalStoragePaths(
-          {StorageDirectory? type}) async =>
-      [path];
+  Future<List<String>?> getExternalStoragePaths({
+    StorageDirectory? type,
+  }) async => [path];
   @override
   Future<String?> getDownloadsPath() async => path;
 }
@@ -51,9 +51,15 @@ void main() {
       tags: const ['tag1'],
     );
     final r1 = TrainingSessionResult(
-        date: DateTime(2024, 1, 1), total: 10, correct: 5);
+      date: DateTime(2024, 1, 1),
+      total: 10,
+      correct: 5,
+    );
     final r2 = TrainingSessionResult(
-        date: DateTime(2024, 1, 2), total: 10, correct: 8);
+      date: DateTime(2024, 1, 2),
+      total: 10,
+      correct: 8,
+    );
 
     await service.logBoosterResult(tpl, r1);
     await service.logBoosterResult(tpl, r2);

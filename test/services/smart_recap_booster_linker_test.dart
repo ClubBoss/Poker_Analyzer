@@ -65,7 +65,7 @@ void main() {
         description: '',
         category: 'A',
         filters: {
-          'tags': ['cbet']
+          'tags': ['cbet'],
         },
       ),
       const TrainingPackTemplateModel(
@@ -74,14 +74,11 @@ void main() {
         description: '',
         category: 'B',
         filters: {
-          'tags': ['call']
+          'tags': ['call'],
         },
       ),
     ],
-    {
-      'p1': pack1,
-      'p2': pack2,
-    },
+    {'p1': pack1, 'p2': pack2},
   );
 
   final linker = SmartRecapBoosterLinker(

@@ -35,10 +35,10 @@ class AdaptiveTrainingPlanner {
     DecayTagRetentionTrackerService? retention,
     AutoSkillGapClusterer? clusterer,
     LearningPathStore? store,
-  })  : skillService = skillService ?? UserSkillModelService.instance,
-        retention = retention ?? const DecayTagRetentionTrackerService(),
-        clusterer = clusterer ?? const AutoSkillGapClusterer(),
-        store = store ?? const LearningPathStore();
+  }) : skillService = skillService ?? UserSkillModelService.instance,
+       retention = retention ?? const DecayTagRetentionTrackerService(),
+       clusterer = clusterer ?? const AutoSkillGapClusterer(),
+       store = store ?? const LearningPathStore();
 
   Future<AdaptivePlan> plan({
     required String userId,
@@ -69,12 +69,15 @@ class AdaptiveTrainingPlanner {
     for (final tag in allTags) {
       final mastery = skills[tag]?.mastery ?? 0.0;
       final decay = decays[tag] ?? 1.0;
-      final rawImpact =
-          await BanditWeightLearner.instance.getImpact(userId, tag);
-      final impact = (rawImpact.isNaN
-              ? (prefs.getDouble('planner.impact.$tag') ?? 1.0)
-              : rawImpact)
-          .clamp(0.0, 2.0);
+      final rawImpact = await BanditWeightLearner.instance.getImpact(
+        userId,
+        tag,
+      );
+      final impact =
+          (rawImpact.isNaN
+                  ? (prefs.getDouble('planner.impact.$tag') ?? 1.0)
+                  : rawImpact)
+              .clamp(0.0, 2.0);
       tagScores[tag] = wErr * (1 - mastery) + wDecay * decay + wImpact * impact;
     }
     final sorted = tagScores.entries.toList()
@@ -106,8 +109,9 @@ class AdaptiveTrainingPlanner {
         }
       }
     }
-    final boosterAvg =
-        boosterCount > 0 ? (boosterSum / boosterCount).round() : 10;
+    final boosterAvg = boosterCount > 0
+        ? (boosterSum / boosterCount).round()
+        : 10;
     final assessAvg = assessCount > 0 ? (assessSum / assessCount).round() : 8;
     final theoryAvg = theoryCount > 0
         ? (theorySum / theoryCount).round()
@@ -123,13 +127,15 @@ class AdaptiveTrainingPlanner {
     }
 
     Map<String, int> mix = mixFor(selected.length, audience, format);
-    int estMins = mix['theory']! * theoryAvg +
+    int estMins =
+        mix['theory']! * theoryAvg +
         mix['booster']! * boosterAvg +
         mix['assessment']! * assessAvg;
     while (estMins > budget && selected.isNotEmpty) {
       selected.removeLast();
       mix = mixFor(selected.length, audience, format);
-      estMins = mix['theory']! * theoryAvg +
+      estMins =
+          mix['theory']! * theoryAvg +
           mix['booster']! * boosterAvg +
           mix['assessment']! * assessAvg;
     }
@@ -157,7 +163,11 @@ class AdaptiveTrainingPlanner {
 
     final weights = {for (final t in selected) t: tagScores[t]!};
     return AdaptivePlan(
-        clusters: clusters, estMins: estMins, tagWeights: weights, mix: mix);
+      clusters: clusters,
+      estMins: estMins,
+      tagWeights: weights,
+      mix: mix,
+    );
   }
 
   static Map<String, int> mixFor(int tagCount, String audience, String format) {
@@ -170,9 +180,7 @@ class AdaptiveTrainingPlanner {
       'regular': const {'theory': 2, 'booster': 3, 'assessment': 1},
       'advanced': const {'theory': 1, 'booster': 2, 'assessment': 3},
     };
-    final ratios = Map<String, double>.from(
-      base[audience] ?? base['regular']!,
-    );
+    final ratios = Map<String, double>.from(base[audience] ?? base['regular']!);
 
     if (format == 'quick') {
       ratios['booster'] = ratios['booster']! * 1.5;
@@ -187,16 +195,14 @@ class AdaptiveTrainingPlanner {
     }
 
     final raw = {
-      for (final k in ratios.keys) k: (ratios[k]! / total) * tagCount
+      for (final k in ratios.keys) k: (ratios[k]! / total) * tagCount,
     };
     final result = {for (final k in raw.keys) k: raw[k]!.floor()};
     final used = result.values.fold<int>(0, (a, b) => a + b);
 
     if (used < tagCount) {
       final remainder = tagCount - used;
-      final frac = {
-        for (final k in raw.keys) k: raw[k]! - raw[k]!.floor(),
-      };
+      final frac = {for (final k in raw.keys) k: raw[k]! - raw[k]!.floor()};
       final keys = frac.keys.toList()
         ..sort((a, b) => frac[b]!.compareTo(frac[a]!));
       for (var i = 0; i < remainder; i++) {

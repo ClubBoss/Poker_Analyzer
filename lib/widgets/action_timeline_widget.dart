@@ -34,9 +34,11 @@ class ActionTimelineWidget extends StatelessWidget {
         itemBuilder: (context, index) {
           final action = actions[index];
           final isSelected = index == playbackIndex;
-          final pos = playerPositions?[action.playerIndex] ??
+          final pos =
+              playerPositions?[action.playerIndex] ??
               'P${action.playerIndex + 1}';
-          final dim = focusPlayerIndex != null &&
+          final dim =
+              focusPlayerIndex != null &&
               action.playerIndex != focusPlayerIndex;
 
           return GestureDetector(
@@ -46,7 +48,9 @@ class ActionTimelineWidget extends StatelessWidget {
               child: Container(
                 margin: EdgeInsets.symmetric(horizontal: 4 * scale),
                 padding: EdgeInsets.symmetric(
-                    horizontal: 10 * scale, vertical: 6 * scale),
+                  horizontal: 10 * scale,
+                  vertical: 6 * scale,
+                ),
                 decoration: BoxDecoration(
                   color: isSelected ? Colors.deepPurple : Colors.grey[800],
                   borderRadius: BorderRadius.circular(8 * scale),

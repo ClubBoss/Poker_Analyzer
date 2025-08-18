@@ -8,8 +8,11 @@ import 'pack_run_screen.dart';
 class LearningPathScreen extends StatefulWidget {
   final String pathId;
   final LearningPathController? controller;
-  const LearningPathScreen(
-      {super.key, this.pathId = 'default', this.controller});
+  const LearningPathScreen({
+    super.key,
+    this.pathId = 'default',
+    this.controller,
+  });
 
   @override
   State<LearningPathScreen> createState() => _LearningPathScreenState();
@@ -58,24 +61,25 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     final statusIcon = progress.completed
         ? const Icon(Icons.check, color: Colors.green)
         : unlocked
-            ? controller.currentStageId == stage.id
-                ? const Icon(Icons.play_arrow)
-                : const SizedBox.shrink()
-            : const Icon(Icons.lock);
+        ? controller.currentStageId == stage.id
+              ? const Icon(Icons.play_arrow)
+              : const SizedBox.shrink()
+        : const Icon(Icons.lock);
     return ListTile(
       title: Text(stage.title),
       subtitle: Text(
-          'Hands ${progress.handsPlayed}/${stage.requiredHands} · Acc ${(progress.accuracy * 100).toStringAsFixed(0)}%'),
+        'Hands ${progress.handsPlayed}/${stage.requiredHands} · Acc ${(progress.accuracy * 100).toStringAsFixed(0)}%',
+      ),
       trailing: statusIcon,
       onTap: unlocked
           ? () {
               controller.startStage(stage.id);
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => PackRunScreen(
-                  controller: controller,
-                  stage: stage,
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) =>
+                      PackRunScreen(controller: controller, stage: stage),
                 ),
-              ));
+              );
             }
           : null,
     );

@@ -30,10 +30,11 @@ void main() {
       trainingType: TrainingType.pushFold,
       spots: [
         _spot(
-            id: 's1',
-            pos: HeroPosition.utg,
-            villain: 'none',
-            heroOpts: ['open', 'fold']),
+          id: 's1',
+          pos: HeroPosition.utg,
+          villain: 'none',
+          heroOpts: ['open', 'fold'],
+        ),
       ],
       positions: ['utg'],
       bb: 20,
@@ -48,9 +49,7 @@ void main() {
       id: 'p2',
       name: 'Test',
       trainingType: TrainingType.pushFold,
-      spots: [
-        _spot(id: 's1', pos: HeroPosition.bb),
-      ],
+      spots: [_spot(id: 's1', pos: HeroPosition.bb)],
       positions: ['sb', 'bb'],
       bb: 20,
     );

@@ -30,10 +30,10 @@ class SmartPathSeedGenerator {
       final packId = packIdMap[stageId] ?? '${stageId}_main';
       final subTokens = parts.length > 1
           ? parts[1]
-              .split(',')
-              .map((e) => e.trim())
-              .where((e) => e.isNotEmpty)
-              .toList()
+                .split(',')
+                .map((e) => e.trim())
+                .where((e) => e.isNotEmpty)
+                .toList()
           : <String>[];
 
       final subStages = <SubStageTemplateInput>[];

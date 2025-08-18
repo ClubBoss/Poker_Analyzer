@@ -23,26 +23,32 @@ class TheorySuggestionEngagementTrackerService {
     final raw = prefs.getStringList(_prefsKey) ?? [];
     _events
       ..clear()
-      ..addAll(raw.map((e) => TheorySuggestionEngagementEvent.fromJson(
-          jsonDecode(e) as Map<String, dynamic>)));
+      ..addAll(
+        raw.map(
+          (e) => TheorySuggestionEngagementEvent.fromJson(
+            jsonDecode(e) as Map<String, dynamic>,
+          ),
+        ),
+      );
     _loaded = true;
   }
 
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(
-      _prefsKey,
-      [for (final e in _events) jsonEncode(e.toJson())],
-    );
+    await prefs.setStringList(_prefsKey, [
+      for (final e in _events) jsonEncode(e.toJson()),
+    ]);
   }
 
   Future<void> _log(String lessonId, String action) async {
     await _load();
-    _events.add(TheorySuggestionEngagementEvent(
-      lessonId: lessonId,
-      action: action,
-      timestamp: DateTime.now(),
-    ));
+    _events.add(
+      TheorySuggestionEngagementEvent(
+        lessonId: lessonId,
+        action: action,
+        timestamp: DateTime.now(),
+      ),
+    );
     await _save();
   }
 
@@ -67,7 +73,8 @@ class TheorySuggestionEngagementTrackerService {
 
   /// Returns all events matching [action].
   Future<List<TheorySuggestionEngagementEvent>> eventsByAction(
-      String action) async {
+    String action,
+  ) async {
     await _load();
     return _events.where((e) => e.action == action).toList(growable: false);
   }

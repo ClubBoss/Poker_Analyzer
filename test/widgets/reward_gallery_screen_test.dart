@@ -7,16 +7,21 @@ import 'package:poker_analyzer/screens/reward_gallery_screen.dart';
 class _FakeSharePlatform extends SharePlatform {
   bool shared = false;
   @override
-  Future<void> share(String? text,
-      {String? subject, ShareOptions? sharePositionOrigin}) async {
+  Future<void> share(
+    String? text, {
+    String? subject,
+    ShareOptions? sharePositionOrigin,
+  }) async {
     shared = true;
   }
 
   @override
-  Future<void> shareXFiles(List<XFile> files,
-      {String? text,
-      String? subject,
-      ShareOptions? sharePositionOrigin}) async {
+  Future<void> shareXFiles(
+    List<XFile> files, {
+    String? text,
+    String? subject,
+    ShareOptions? sharePositionOrigin,
+  }) async {
     shared = true;
   }
 }

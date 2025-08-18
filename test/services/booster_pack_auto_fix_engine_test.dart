@@ -15,7 +15,10 @@ void main() {
         TheorySectionModel(title: '  ', text: 'x', type: 'info'),
         TheorySectionModel(title: 'Good', text: 'Word ' * 10, type: 'info'),
         TheorySectionModel(
-            title: 'Tip', text: 'Many words here ' * 5, type: 'tip'),
+          title: 'Tip',
+          text: 'Many words here ' * 5,
+          type: 'tip',
+        ),
       ],
     );
 

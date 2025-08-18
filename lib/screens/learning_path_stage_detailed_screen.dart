@@ -139,8 +139,9 @@ class _LearningPathStageDetailedScreenState
         }
       }
       for (final c in blocked) {
-        if (widget.stage.tags
-            .any((t) => t.toLowerCase() == c.label.toLowerCase())) {
+        if (widget.stage.tags.any(
+          (t) => t.toLowerCase() == c.label.toLowerCase(),
+        )) {
           reasons.add('Частые ошибки: ${c.label}');
         }
       }
@@ -173,13 +174,14 @@ class _LearningPathStageDetailedScreenState
   }
 
   Future<void> _start() async {
-    final template =
-        await PackLibraryService.instance.getById(widget.stage.packId);
+    final template = await PackLibraryService.instance.getById(
+      widget.stage.packId,
+    );
     if (template == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Training pack not found')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Training pack not found')));
       return;
     }
     await const TrainingSessionLauncher().launch(template);
@@ -190,15 +192,16 @@ class _LearningPathStageDetailedScreenState
     final template = await PackLibraryService.instance.getById(sub.packId);
     if (template == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Training pack not found')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Training pack not found')));
       return;
     }
     final copy = TrainingPackTemplateV2.fromJson(template.toJson())
       ..name = sub.title
-      ..description =
-          sub.description.isNotEmpty ? sub.description : template.description;
+      ..description = sub.description.isNotEmpty
+          ? sub.description
+          : template.description;
     await const TrainingSessionLauncher().launch(copy);
     if (mounted) _load();
   }
@@ -299,7 +302,8 @@ class _LearningPathStageDetailedScreenState
                         onPressed: () =>
                             const TrainingSessionLauncher().launch(booster),
                         style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.orange),
+                          backgroundColor: Colors.orange,
+                        ),
                         child: const Text('Усилить 🔥'),
                       ),
                     ),
@@ -433,8 +437,10 @@ class _LearningPathStageDetailedScreenState
                   for (final r in _reasons)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 2),
-                      child: Text('- $r',
-                          style: const TextStyle(color: Colors.white70)),
+                      child: Text(
+                        '- $r',
+                        style: const TextStyle(color: Colors.white70),
+                      ),
                     ),
                 ],
                 if (_boosters.isNotEmpty) ...[
@@ -461,8 +467,9 @@ class _LearningPathStageDetailedScreenState
                     : Align(
                         alignment: Alignment.centerRight,
                         child: ElevatedButton(
-                          onPressed:
-                              _status == StageStatus.unlocked ? _start : null,
+                          onPressed: _status == StageStatus.unlocked
+                              ? _start
+                              : null,
                           child: const Text('Начать тренировку'),
                         ),
                       ),

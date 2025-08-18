@@ -60,12 +60,14 @@ class _RecapEffectivenessTrackerUIState
         mistakes += log.mistakeCount;
       }
       if (total > 0) mistakeRate = mistakes / total;
-      list.add(_TagInfo(
-        tag: tag,
-        mistakeRate: mistakeRate,
-        repeatRate: effect?.repeatRate ?? 0,
-        improvement: improvements[tag]?.improvement ?? 0,
-      ));
+      list.add(
+        _TagInfo(
+          tag: tag,
+          mistakeRate: mistakeRate,
+          repeatRate: effect?.repeatRate ?? 0,
+          improvement: improvements[tag]?.improvement ?? 0,
+        ),
+      );
     }
     return list;
   }
@@ -94,9 +96,7 @@ class _RecapEffectivenessTrackerUIState
         if (items.isEmpty) return const SizedBox.shrink();
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            for (final info in items) _buildRow(info),
-          ],
+          children: [for (final info in items) _buildRow(info)],
         );
       },
     );
@@ -116,10 +116,7 @@ class _RecapEffectivenessTrackerUIState
           Icon(trendIcon, color: trendColor, size: 20),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(
-              info.tag,
-              style: const TextStyle(color: Colors.white),
-            ),
+            child: Text(info.tag, style: const TextStyle(color: Colors.white)),
           ),
           Text(
             'Mistakes: $mistakes',

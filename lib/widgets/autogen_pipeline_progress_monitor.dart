@@ -23,8 +23,9 @@ class AutogenPipelineProgressMonitor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<AutoGenStepStatus>>(
-      stream:
-          AutogenPipelineSessionTrackerService.instance.watchSession(sessionId),
+      stream: AutogenPipelineSessionTrackerService.instance.watchSession(
+        sessionId,
+      ),
       initialData: const [],
       builder: (context, snapshot) {
         final steps = snapshot.data ?? [];

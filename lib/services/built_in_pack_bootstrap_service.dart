@@ -12,8 +12,8 @@ class BuiltInPackBootstrapService {
   const BuiltInPackBootstrapService({
     PackLibraryService? library,
     SharedPreferences? prefs,
-  })  : _library = library ?? PackLibraryService.instance,
-        _prefs = prefs;
+  }) : _library = library ?? PackLibraryService.instance,
+       _prefs = prefs;
 
   final PackLibraryService _library;
   final SharedPreferences? _prefs;
@@ -44,12 +44,11 @@ class BuiltInPackBootstrapService {
       final id = item['id']?.toString();
       final file = item['file']?.toString();
       if (id == null || file == null) continue;
-      unawaited(
-        telemetry.logImport('starter_import_started', id, _version),
-      );
+      unawaited(telemetry.logImport('starter_import_started', id, _version));
       try {
-        final packRaw =
-            await rootBundle.loadString('assets/packs_builtin/$file');
+        final packRaw = await rootBundle.loadString(
+          'assets/packs_builtin/$file',
+        );
         final map = jsonDecode(packRaw) as Map<String, dynamic>;
         final tpl = TrainingPackTemplateV2.fromJson(map);
         _library.addOrUpdate(tpl);
@@ -57,9 +56,7 @@ class BuiltInPackBootstrapService {
           telemetry.logImport('starter_import_completed', id, _version),
         );
       } catch (_) {
-        unawaited(
-          telemetry.logImport('starter_import_failed', id, _version),
-        );
+        unawaited(telemetry.logImport('starter_import_failed', id, _version));
         // Swallow errors to avoid blocking startup
       }
     }

@@ -27,8 +27,9 @@ class _PackInsightsBannerState extends State<PackInsightsBanner> {
 
   Future<void> _load() async {
     final stat = await TrainingPackStatsService.getStats(widget.templateId);
-    final completed =
-        await TrainingPackStatsService.getHandsCompleted(widget.templateId);
+    final completed = await TrainingPackStatsService.getHandsCompleted(
+      widget.templateId,
+    );
     final logs = context.read<SessionLogService>().logs;
     final mistakes = <String, int>{};
     double timeSum = 0;
@@ -50,13 +51,14 @@ class _PackInsightsBannerState extends State<PackInsightsBanner> {
         ..sort((a, b) => b.value.compareTo(a.value));
       top = entries.first.key;
     }
-    final mastered =
-        await TrainingPackStatsService.isMastered(widget.templateId);
+    final mastered = await TrainingPackStatsService.isMastered(
+      widget.templateId,
+    );
     final rec = mastered
         ? 'Освоено'
         : (stat != null && stat.accuracy >= 0.8
-            ? 'Попробуйте похожее'
-            : 'Повторить');
+              ? 'Попробуйте похожее'
+              : 'Повторить');
     if (mounted) {
       setState(() {
         _accuracy = stat?.accuracy;
@@ -86,23 +88,35 @@ class _PackInsightsBannerState extends State<PackInsightsBanner> {
             children: [
               Icon(Icons.insights, color: accent),
               const SizedBox(width: 8),
-              const Text('Pack Insights',
-                  style: TextStyle(color: Colors.white, fontSize: 16)),
+              const Text(
+                'Pack Insights',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
             ],
           ),
           const SizedBox(height: 8),
-          Text('Средняя точность: ${(_accuracy! * 100).toStringAsFixed(1)}%',
-              style: const TextStyle(color: Colors.white)),
+          Text(
+            'Средняя точность: ${(_accuracy! * 100).toStringAsFixed(1)}%',
+            style: const TextStyle(color: Colors.white),
+          ),
           if (_avgTime != null)
-            Text('Среднее время ответа: ${_avgTime!.toStringAsFixed(1)} c',
-                style: const TextStyle(color: Colors.white)),
+            Text(
+              'Среднее время ответа: ${_avgTime!.toStringAsFixed(1)} c',
+              style: const TextStyle(color: Colors.white),
+            ),
           if (_topMistake != null)
-            Text('Частая ошибка: $_topMistake',
-                style: const TextStyle(color: Colors.white)),
-          Text('Рекомендация: $_recommendation',
-              style: const TextStyle(color: Colors.white)),
-          Text('Сессий завершено: $_sessions',
-              style: const TextStyle(color: Colors.white)),
+            Text(
+              'Частая ошибка: $_topMistake',
+              style: const TextStyle(color: Colors.white),
+            ),
+          Text(
+            'Рекомендация: $_recommendation',
+            style: const TextStyle(color: Colors.white),
+          ),
+          Text(
+            'Сессий завершено: $_sessions',
+            style: const TextStyle(color: Colors.white),
+          ),
         ],
       ),
     );

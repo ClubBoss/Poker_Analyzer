@@ -30,9 +30,17 @@ void main() {
     final svc = UserErrorRateService.instance;
     for (int i = 0; i < 5; i++) {
       await svc.recordAttempt(
-          packId: 'p', tags: {'hi'}, isCorrect: false, ts: now);
+        packId: 'p',
+        tags: {'hi'},
+        isCorrect: false,
+        ts: now,
+      );
       await svc.recordAttempt(
-          packId: 'p', tags: {'lo'}, isCorrect: true, ts: now);
+        packId: 'p',
+        tags: {'lo'},
+        isCorrect: true,
+        ts: now,
+      );
     }
     final pool = [_spot('s1', 'hi'), _spot('s2', 'lo')];
     int hi = 0;
@@ -49,11 +57,17 @@ void main() {
     final pool = [_spot('a', 'x'), _spot('b', 'y'), _spot('c', 'z')];
     final sched = AdaptiveSpotScheduler(seed: 1);
     final recent = <String>[];
-    final first =
-        await sched.next(packId: 'p', pool: pool, recentSpotIds: recent);
+    final first = await sched.next(
+      packId: 'p',
+      pool: pool,
+      recentSpotIds: recent,
+    );
     recent.add(first.id);
-    final second =
-        await sched.next(packId: 'p', pool: pool, recentSpotIds: recent);
+    final second = await sched.next(
+      packId: 'p',
+      pool: pool,
+      recentSpotIds: recent,
+    );
     expect(second.id, isNot(first.id));
   });
 
@@ -62,7 +76,11 @@ void main() {
     final svc = UserErrorRateService.instance;
     for (int i = 0; i < 5; i++) {
       await svc.recordAttempt(
-          packId: 'p', tags: {'x'}, isCorrect: false, ts: now);
+        packId: 'p',
+        tags: {'x'},
+        isCorrect: false,
+        ts: now,
+      );
     }
     final pool = [_spot('a', 'x'), _spot('b', 'y')];
     int low = 0;
@@ -71,7 +89,11 @@ void main() {
     for (int i = 0; i < trials; i++) {
       final sched = AdaptiveSpotScheduler(seed: i);
       final pick = await sched.next(
-          packId: 'p', pool: pool, recentSpotIds: [], epsilon: eps);
+        packId: 'p',
+        pool: pool,
+        recentSpotIds: [],
+        epsilon: eps,
+      );
       if (pick.id == 'b') low++;
     }
     // Expect around 50 selections of the lower-weight spot with epsilon=0.5.

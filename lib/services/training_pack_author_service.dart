@@ -14,18 +14,7 @@ class TrainingPackAuthorService {
       '10bb CO vs BB',
       HeroPosition.co,
       10,
-      [
-        'AJo',
-        'ATo',
-        'KQo',
-        'QJo',
-        'JTo',
-        'T9s',
-        '98s',
-        '77',
-        '66',
-        '55',
-      ],
+      ['AJo', 'ATo', 'KQo', 'QJo', 'JTo', 'T9s', '98s', '77', '66', '55'],
       category: 'Push/Fold',
       description: '10 bb, CO vs BB push-fold',
     ),
@@ -33,18 +22,7 @@ class TrainingPackAuthorService {
       '10bb SB vs BB',
       HeroPosition.sb,
       10,
-      [
-        'A9o',
-        'A8o',
-        'A5s',
-        'KQo',
-        'Q9s',
-        'J9s',
-        'T8s',
-        '66',
-        '55',
-        '44',
-      ],
+      ['A9o', 'A8o', 'A5s', 'KQo', 'Q9s', 'J9s', 'T8s', '66', '55', '44'],
       category: 'Push/Fold',
       description: '10 bb, SB vs BB push-fold',
     ),
@@ -52,17 +30,7 @@ class TrainingPackAuthorService {
       '15bb HJ vs BB',
       HeroPosition.mp,
       15,
-      [
-        'AJs',
-        'ATo',
-        'KQo',
-        'KJs',
-        'QJs',
-        'JTs',
-        'T9s',
-        '99',
-        '88',
-      ],
+      ['AJs', 'ATo', 'KQo', 'KJs', 'QJs', 'JTs', 'T9s', '99', '88'],
       category: 'Push/Fold',
       description: '15 bb, HJ vs BB push-fold',
     ),
@@ -70,16 +38,7 @@ class TrainingPackAuthorService {
       '25bb CO vs BTN 3bet',
       HeroPosition.co,
       25,
-      [
-        'AQo',
-        'AJs',
-        'KQs',
-        'TT',
-        '99',
-        '88',
-        'A5s',
-        'KQo',
-      ],
+      ['AQo', 'AJs', 'KQs', 'TT', '99', '88', 'A5s', 'KQo'],
       category: '3bet',
       description: '25 bb, CO vs BTN 3bet',
     ),
@@ -87,21 +46,15 @@ class TrainingPackAuthorService {
       'ICM Final Table 6max 12bb CO',
       HeroPosition.co,
       12,
-      [
-        'ATo',
-        'A9s',
-        'KQo',
-        'KJs',
-        'QTs',
-        'JTs',
-      ],
+      ['ATo', 'A9s', 'KQo', 'KJs', 'QTs', 'JTs'],
       category: 'ICM',
       description: 'ICM FT 6-max, CO 12 bb push-fold',
     ),
   };
 
-  static Map<String, String> get presets =>
-      {for (final e in _presets.entries) e.key: e.value.name};
+  static Map<String, String> get presets => {
+    for (final e in _presets.entries) e.key: e.value.name,
+  };
 
   static Map<String, PresetConfig> get presetConfigs => _presets;
 
@@ -126,7 +79,7 @@ class TrainingPackAuthorService {
           0: [
             ActionEntry(0, 0, 'raise', amount: 2.5, ev: 0, icmEv: 0),
             ActionEntry(0, 1, 'raise', amount: 7.5),
-          ]
+          ],
         };
         playerCount = 2;
       } else if (isIcm) {
@@ -134,11 +87,15 @@ class TrainingPackAuthorService {
         heroIndex = 2;
         actions = {
           0: [
-            ActionEntry(0, heroIndex, 'push',
-                amount: playerStacks[heroIndex].toDouble()),
+            ActionEntry(
+              0,
+              heroIndex,
+              'push',
+              amount: playerStacks[heroIndex].toDouble(),
+            ),
             for (var j = 0; j < playerStacks.length; j++)
               if (j != heroIndex) ActionEntry(0, j, 'fold'),
-          ]
+          ],
         };
         final chipEv = computePushEV(
           heroBbStack: playerStacks[heroIndex],
@@ -155,17 +112,23 @@ class TrainingPackAuthorService {
         actions[0]![0] = actions[0]![0].copyWith(ev: chipEv, icmEv: icmEv);
         stacks = {
           for (var j = 0; j < playerStacks.length; j++)
-            '$j': playerStacks[j].toDouble()
+            '$j': playerStacks[j].toDouble(),
         };
         playerCount = playerStacks.length;
       } else {
         stacks = {'0': stackValue.toDouble(), '1': stackValue.toDouble()};
         actions = {
           0: [
-            ActionEntry(0, 0, 'push',
-                amount: stackValue.toDouble(), ev: 0, icmEv: 0),
+            ActionEntry(
+              0,
+              0,
+              'push',
+              amount: stackValue.toDouble(),
+              ev: 0,
+              icmEv: 0,
+            ),
             ActionEntry(0, 1, 'fold'),
-          ]
+          ],
         };
         playerCount = 2;
       }
@@ -192,8 +155,9 @@ class TrainingPackAuthorService {
       gameType: config.gameType,
       spots: spots,
       heroBbStack: isIcm ? 12 : stackValue,
-      playerStacksBb:
-          isIcm ? const [25, 20, 12, 18, 9, 6] : [stackValue, stackValue],
+      playerStacksBb: isIcm
+          ? const [25, 20, 12, 18, 9, 6]
+          : [stackValue, stackValue],
       heroPos: config.pos,
       spotCount: spots.length,
       bbCallPct: 0,

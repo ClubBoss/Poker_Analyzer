@@ -18,11 +18,11 @@ class LearningPathNodeV2 implements LearningPathNode {
     required this.id,
     required String miniLessonId,
     this.recoveredFromMistake = false,
-  })  : type = LearningPathNodeType.theory,
-        miniLessonId = miniLessonId,
-        trainingPackTemplateId = null,
-        dynamicPackId = null,
-        dynamicMeta = null;
+  }) : type = LearningPathNodeType.theory,
+       miniLessonId = miniLessonId,
+       trainingPackTemplateId = null,
+       dynamicPackId = null,
+       dynamicMeta = null;
 
   const LearningPathNodeV2.training({
     required this.id,
@@ -30,7 +30,7 @@ class LearningPathNodeV2 implements LearningPathNode {
     this.dynamicPackId,
     this.dynamicMeta,
     this.recoveredFromMistake = false,
-  })  : type = LearningPathNodeType.training,
-        miniLessonId = null,
-        trainingPackTemplateId = trainingPackTemplateId;
+  }) : type = LearningPathNodeType.training,
+       miniLessonId = null,
+       trainingPackTemplateId = trainingPackTemplateId;
 }

@@ -22,8 +22,12 @@ class SkillBoostLogService extends ChangeNotifier {
         if (data is List) {
           _logs
             ..clear()
-            ..addAll(data.map((e) =>
-                SkillBoostLogEntry.fromJson(Map<String, dynamic>.from(e))));
+            ..addAll(
+              data.map(
+                (e) =>
+                    SkillBoostLogEntry.fromJson(Map<String, dynamic>.from(e)),
+              ),
+            );
           _logs.sort((a, b) => b.timestamp.compareTo(a.timestamp));
         }
       } catch (_) {}
@@ -34,7 +38,9 @@ class SkillBoostLogService extends ChangeNotifier {
   Future<void> _save() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
-        _key, jsonEncode([for (final l in _logs) l.toJson()]));
+      _key,
+      jsonEncode([for (final l in _logs) l.toJson()]),
+    );
   }
 
   Future<void> add(SkillBoostLogEntry entry) async {
@@ -48,8 +54,11 @@ class SkillBoostLogService extends ChangeNotifier {
     final map = <String, double>{};
     for (final l in _logs) {
       final key = l.tag.toLowerCase();
-      map.update(key, (v) => v + (l.accuracyAfter - l.accuracyBefore),
-          ifAbsent: () => l.accuracyAfter - l.accuracyBefore);
+      map.update(
+        key,
+        (v) => v + (l.accuracyAfter - l.accuracyBefore),
+        ifAbsent: () => l.accuracyAfter - l.accuracyBefore,
+      );
     }
     return map;
   }

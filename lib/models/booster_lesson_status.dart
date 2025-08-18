@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum BoosterLessonStatus {
-  newLesson,
-  inProgress,
-  repeated,
-  skipped,
-}
+enum BoosterLessonStatus { newLesson, inProgress, repeated, skipped }
 
 extension BoosterLessonStatusText on BoosterLessonStatus {
   String get label {

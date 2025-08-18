@@ -30,31 +30,32 @@ class SubStageModel {
       packId: json['packId'] as String? ?? json['id'] as String? ?? '',
       title: json['title'] as String? ?? '',
       description: json['description'] as String? ?? '',
-      requiredHands: (json['requiredHands'] as num?)?.toInt() ??
+      requiredHands:
+          (json['requiredHands'] as num?)?.toInt() ??
           (json['minHands'] as num?)?.toInt() ??
           0,
       requiredAccuracy: (json['requiredAccuracy'] as num?)?.toDouble() ?? 0.0,
       objectives: [
-        for (final o in (json['objectives'] as List? ?? [])) o.toString()
+        for (final o in (json['objectives'] as List? ?? [])) o.toString(),
       ],
       unlockCondition: json['unlockCondition'] is Map
           ? UnlockCondition.fromJson(
-              Map<String, dynamic>.from(json['unlockCondition'] as Map))
+              Map<String, dynamic>.from(json['unlockCondition'] as Map),
+            )
           : null,
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'packId': packId,
-        'title': title,
-        if (description.isNotEmpty) 'description': description,
-        if (requiredHands > 0) 'requiredHands': requiredHands,
-        if (requiredAccuracy > 0) 'requiredAccuracy': requiredAccuracy,
-        if (objectives.isNotEmpty) 'objectives': objectives,
-        if (unlockCondition != null)
-          'unlockCondition': unlockCondition!.toJson(),
-      };
+    'id': id,
+    'packId': packId,
+    'title': title,
+    if (description.isNotEmpty) 'description': description,
+    if (requiredHands > 0) 'requiredHands': requiredHands,
+    if (requiredAccuracy > 0) 'requiredAccuracy': requiredAccuracy,
+    if (objectives.isNotEmpty) 'objectives': objectives,
+    if (unlockCondition != null) 'unlockCondition': unlockCondition!.toJson(),
+  };
 
   factory SubStageModel.fromYaml(Map yaml) {
     final map = <String, dynamic>{};

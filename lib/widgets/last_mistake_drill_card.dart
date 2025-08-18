@@ -68,14 +68,17 @@ class _LastMistakeDrillCardState extends State<LastMistakeDrillCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Последняя ошибка',
-                    style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Последняя ошибка',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 4),
                 Text(cat, style: const TextStyle(color: Colors.white)),
                 const SizedBox(height: 4),
-                Text('-${ev.toStringAsFixed(1)} EV',
-                    style: const TextStyle(color: Colors.white70)),
+                Text(
+                  '-${ev.toStringAsFixed(1)} EV',
+                  style: const TextStyle(color: Colors.white70),
+                ),
               ],
             ),
           ),
@@ -89,7 +92,8 @@ class _LastMistakeDrillCardState extends State<LastMistakeDrillCard> {
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (_) => const TrainingSessionScreen()),
+                    builder: (_) => const TrainingSessionScreen(),
+                  ),
                 );
               });
             },

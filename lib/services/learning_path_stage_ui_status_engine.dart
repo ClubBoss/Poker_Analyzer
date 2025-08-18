@@ -19,7 +19,10 @@ class LearningPathStageUIStatusEngine {
       if (completedStageIds.contains(stage.id)) {
         states[stage.id] = LearningStageUIState.done;
       } else if (unlockEngine.isStageUnlocked(
-          path, stage.id, completedStageIds)) {
+        path,
+        stage.id,
+        completedStageIds,
+      )) {
         states[stage.id] = LearningStageUIState.active;
       } else {
         states[stage.id] = LearningStageUIState.locked;

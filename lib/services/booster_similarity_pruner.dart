@@ -8,14 +8,17 @@ class BoosterSimilarityPruner {
   final BoosterSimilarityEngine _engine;
   final double _threshold;
 
-  const BoosterSimilarityPruner(
-      {BoosterSimilarityEngine? engine, double threshold = 0.85})
-      : _engine = engine ?? const BoosterSimilarityEngine(),
-        _threshold = threshold;
+  const BoosterSimilarityPruner({
+    BoosterSimilarityEngine? engine,
+    double threshold = 0.85,
+  }) : _engine = engine ?? const BoosterSimilarityEngine(),
+       _threshold = threshold;
 
   /// Returns a copy of [pack] with similar spots removed.
-  TrainingPackTemplateV2 prune(TrainingPackTemplateV2 pack,
-      {double? threshold}) {
+  TrainingPackTemplateV2 prune(
+    TrainingPackTemplateV2 pack, {
+    double? threshold,
+  }) {
     final thr = threshold ?? _threshold;
     final results = _engine.analyzePack(pack, threshold: thr);
     if (results.isEmpty) return TrainingPackTemplateV2.fromJson(pack.toJson());
@@ -44,7 +47,7 @@ class BoosterSimilarityPruner {
 
     final spots = [
       for (final s in pack.spots)
-        if (!toRemove.contains(s.id)) s
+        if (!toRemove.contains(s.id)) s,
     ];
     final copy = TrainingPackTemplateV2.fromJson(pack.toJson());
     copy.spots

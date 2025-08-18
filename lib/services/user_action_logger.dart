@@ -24,10 +24,7 @@ class UserActionLogger extends ChangeNotifier {
   }
 
   Future<void> log(String action) async {
-    final event = {
-      'event': action,
-      'time': DateTime.now().toIso8601String(),
-    };
+    final event = {'event': action, 'time': DateTime.now().toIso8601String()};
     _events.add(event);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(
@@ -37,8 +34,10 @@ class UserActionLogger extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> logThrottled(String action,
-      [Duration delay = const Duration(seconds: 2)]) async {
+  Future<void> logThrottled(
+    String action, [
+    Duration delay = const Duration(seconds: 2),
+  ]) async {
     final now = DateTime.now();
     if (_lastAction == action &&
         _last != null &&

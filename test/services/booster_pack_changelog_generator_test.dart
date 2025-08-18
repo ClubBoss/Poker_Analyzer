@@ -33,7 +33,7 @@ void main() {
         heroCards: 'AhKh',
         position: HeroPosition.button,
         actions: {
-          0: [ActionEntry(0, 0, 'push', ev: 1)]
+          0: [ActionEntry(0, 0, 'push', ev: 1)],
         },
       ),
       explanation: 'A',
@@ -46,7 +46,7 @@ void main() {
         heroCards: 'AhKh',
         position: HeroPosition.smallBlind,
         actions: {
-          0: [ActionEntry(0, 0, 'push', ev: 2)]
+          0: [ActionEntry(0, 0, 'push', ev: 2)],
         },
       ),
       explanation: 'B',
@@ -54,8 +54,10 @@ void main() {
     final spotC = TrainingPackSpot(id: 's2', hand: HandData());
     final newPack = pack([spotB, spotC], ['btnPush', 'new']);
 
-    final md =
-        const BoosterPackChangelogGenerator().buildChangelog(oldPack, newPack);
+    final md = const BoosterPackChangelogGenerator().buildChangelog(
+      oldPack,
+      newPack,
+    );
 
     expect(md, contains('Spots')); // spot count change
     expect(md, contains('New tags')); // new tag

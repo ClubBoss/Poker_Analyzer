@@ -14,10 +14,9 @@ class TrainingActivityByWeekdayScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final packs = context
-        .watch<TrainingPackStorageService>()
-        .packs
-        .where((p) => !p.isBuiltIn);
+    final packs = context.watch<TrainingPackStorageService>().packs.where(
+      (p) => !p.isBuiltIn,
+    );
     final counts = List<int>.filled(7, 0);
     for (final p in packs) {
       for (final r in p.history) {
@@ -98,7 +97,9 @@ class TrainingActivityByWeekdayScreen extends StatelessWidget {
                   getTooltipItem: (group, groupIndex, rod, rodIndex) {
                     final c = counts[group.x];
                     return BarTooltipItem(
-                        '$c попыток', const TextStyle(color: Colors.white));
+                      '$c попыток',
+                      const TextStyle(color: Colors.white),
+                    );
                   },
                 ),
               ),
@@ -114,9 +115,13 @@ class TrainingActivityByWeekdayScreen extends StatelessWidget {
                       }
                       final c = counts[index];
                       return c > 0
-                          ? Text('$c',
+                          ? Text(
+                              '$c',
                               style: const TextStyle(
-                                  color: Colors.white, fontSize: 10))
+                                color: Colors.white,
+                                fontSize: 10,
+                              ),
+                            )
                           : const SizedBox.shrink();
                     },
                   ),
@@ -143,14 +148,17 @@ class TrainingActivityByWeekdayScreen extends StatelessWidget {
                       }
                       return Text(
                         labels[index],
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 10),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                        ),
                       );
                     },
                   ),
                 ),
-                rightTitles:
-                    const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                rightTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
               ),
               borderData: FlBorderData(
                 show: true,

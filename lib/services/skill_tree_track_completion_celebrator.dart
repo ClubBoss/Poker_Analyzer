@@ -30,8 +30,11 @@ class SkillTreeTrackCompletionCelebrator {
 
     shown.add(trackId);
     await prefs.setStringList(_prefsKey, shown);
-    unawaited(SkillTreeMilestoneAnalyticsLogger.instance
-        .logTrackCompleted(trackId: trackId));
+    unawaited(
+      SkillTreeMilestoneAnalyticsLogger.instance.logTrackCompleted(
+        trackId: trackId,
+      ),
+    );
 
     await Navigator.push(
       context,

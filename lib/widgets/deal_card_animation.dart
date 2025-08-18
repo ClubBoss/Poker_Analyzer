@@ -48,9 +48,10 @@ class _DealCardAnimationState extends State<DealCardAnimation>
     super.initState();
     _controller = AnimationController(vsync: this, duration: widget.duration);
     _progress = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
-    _scaleAnim = Tween<double>(begin: 0.2, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
-    );
+    _scaleAnim = Tween<double>(
+      begin: 0.2,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
     _rotation = Tween<double>(begin: -0.4, end: 0.0).animate(_progress);
     _opacity = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: const Interval(0.85, 1.0)),
@@ -74,7 +75,8 @@ class _DealCardAnimationState extends State<DealCardAnimation>
     final width = 36 * widget.scale;
     final height = 52 * widget.scale;
     final isRed = widget.card.suit == '♥' || widget.card.suit == '♦';
-    final control = Offset.lerp(widget.start, widget.end, 0.3)! -
+    final control =
+        Offset.lerp(widget.start, widget.end, 0.3)! -
         Offset(0, 60 * widget.scale);
     return AnimatedBuilder(
       animation: _controller,
@@ -87,10 +89,7 @@ class _DealCardAnimationState extends State<DealCardAnimation>
             opacity: _opacity,
             child: Transform.rotate(
               angle: _rotation.value,
-              child: Transform.scale(
-                scale: _scaleAnim.value,
-                child: child,
-              ),
+              child: Transform.scale(scale: _scaleAnim.value, child: child),
             ),
           ),
         );
@@ -106,7 +105,7 @@ class _DealCardAnimationState extends State<DealCardAnimation>
               color: Colors.black.withValues(alpha: 0.25),
               blurRadius: 3,
               offset: const Offset(1, 2),
-            )
+            ),
           ],
         ),
         alignment: Alignment.center,

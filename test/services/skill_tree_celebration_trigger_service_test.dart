@@ -16,7 +16,9 @@ class _FakeOverlay extends SkillTreeMilestoneOverlayService {
 
   @override
   Future<void> maybeShow(
-      BuildContext context, SkillTreeProgressStats stats) async {
+    BuildContext context,
+    SkillTreeProgressStats stats,
+  ) async {
     calls++;
   }
 }
@@ -29,7 +31,11 @@ void main() {
 
   SkillTreeNodeModel node(String id, {List<String>? prereqs}) =>
       SkillTreeNodeModel(
-          id: id, title: id, category: 'PF', prerequisites: prereqs);
+        id: id,
+        title: id,
+        category: 'PF',
+        prerequisites: prereqs,
+      );
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
@@ -39,7 +45,7 @@ void main() {
   testWidgets('celebrates when tree completed', (tester) async {
     final tree = builder.build([
       node('a'),
-      node('b', prereqs: ['a'])
+      node('b', prereqs: ['a']),
     ]).tree;
     await tracker.markCompleted('a');
     await tracker.markCompleted('b');

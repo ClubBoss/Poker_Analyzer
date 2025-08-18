@@ -21,10 +21,11 @@ class TheoryClusterProgressService {
   final MiniLessonProgressTracker progress;
 
   const TheoryClusterProgressService({MiniLessonProgressTracker? progress})
-      : progress = progress ?? MiniLessonProgressTracker.instance;
+    : progress = progress ?? MiniLessonProgressTracker.instance;
 
   Future<List<ClusterProgress>> computeProgress(
-      List<TheoryLessonCluster> clusters) async {
+    List<TheoryLessonCluster> clusters,
+  ) async {
     final result = <ClusterProgress>[];
     for (final c in clusters) {
       final total = c.lessons.length;

@@ -30,7 +30,8 @@ class PluginManager {
         _info
           ..clear()
           ..addAll(
-              map.map((k, v) => MapEntry(k, Map<String, dynamic>.from(v))));
+            map.map((k, v) => MapEntry(k, Map<String, dynamic>.from(v))),
+          );
       } catch (_) {}
     }
   }

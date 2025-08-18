@@ -32,9 +32,9 @@ class _FakeLessonLibrary implements MiniLessonLibraryService {
 
   @override
   List<TheoryMiniLessonNode> findByTags(List<String> tags) => [
-        for (final l in lessons)
-          if (l.tags.any(tags.contains)) l
-      ];
+    for (final l in lessons)
+      if (l.tags.any(tags.contains)) l,
+  ];
 
   @override
   List<TheoryMiniLessonNode> getByTags(Set<String> tags) =>
@@ -61,11 +61,13 @@ void main() {
       lessons: _FakeLessonLibrary(const [lesson]),
     );
 
-    await tester.pumpWidget(MaterialApp(
-      home: Builder(
-        builder: (context) => injector.build(context, 'n1', spot),
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => injector.build(context, 'n1', spot),
+        ),
       ),
-    ));
+    );
     await tester.pumpAndSettle();
 
     expect(find.text('Push fold basics'), findsOneWidget);

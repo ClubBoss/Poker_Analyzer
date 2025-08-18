@@ -46,8 +46,11 @@ class _FakeFormatSelector extends AutoFormatSelector {
 class _PassGatekeeper extends PackQualityGatekeeperService {
   const _PassGatekeeper();
   @override
-  bool isQualityAcceptable(pack,
-      {double minScore = 0.7, seedIssues = const {}}) {
+  bool isQualityAcceptable(
+    pack, {
+    double minScore = 0.7,
+    seedIssues = const {},
+  }) {
     return true;
   }
 }
@@ -76,8 +79,11 @@ void main() {
   });
 
   test('identical plan within window is skipped', () async {
-    final cluster =
-        SkillTagCluster(tags: ['a'], clusterId: 'c1', themeName: 'T');
+    final cluster = SkillTagCluster(
+      tags: ['a'],
+      clusterId: 'c1',
+      themeName: 'T',
+    );
     final plan = AdaptivePlan(
       clusters: [cluster],
       estMins: 0,
@@ -101,8 +107,11 @@ void main() {
   });
 
   test('creates module when tags change or window elapsed', () async {
-    final cluster =
-        SkillTagCluster(tags: ['a'], clusterId: 'c1', themeName: 'T');
+    final cluster = SkillTagCluster(
+      tags: ['a'],
+      clusterId: 'c1',
+      themeName: 'T',
+    );
     final plan = AdaptivePlan(
       clusters: [cluster],
       estMins: 0,
@@ -110,10 +119,14 @@ void main() {
       mix: const {'theory': 0, 'booster': 1, 'assessment': 1},
     );
     await exec.execute(
-        userId: 'u1', plan: plan, budgetMinutes: 20, sig: 'sig1');
+      userId: 'u1',
+      plan: plan,
+      budgetMinutes: 20,
+      sig: 'sig1',
+    );
     final changed = AdaptivePlan(
       clusters: [
-        SkillTagCluster(tags: ['a', 'b'], clusterId: 'c1', themeName: 'T')
+        SkillTagCluster(tags: ['a', 'b'], clusterId: 'c1', themeName: 'T'),
       ],
       estMins: 0,
       tagWeights: const {'a': 1.0, 'b': 1.0},
@@ -129,19 +142,21 @@ void main() {
 
     final modules = await store.listModules('u1');
     final aged = modules
-        .map((m) => InjectedPathModule(
-              moduleId: m.moduleId,
-              clusterId: m.clusterId,
-              themeName: m.themeName,
-              theoryIds: m.theoryIds,
-              boosterPackIds: m.boosterPackIds,
-              assessmentPackId: m.assessmentPackId,
-              createdAt: m.createdAt.subtract(const Duration(days: 15)),
-              triggerReason: m.triggerReason,
-              status: m.status,
-              metrics: m.metrics,
-              itemsDurations: m.itemsDurations,
-            ))
+        .map(
+          (m) => InjectedPathModule(
+            moduleId: m.moduleId,
+            clusterId: m.clusterId,
+            themeName: m.themeName,
+            theoryIds: m.theoryIds,
+            boosterPackIds: m.boosterPackIds,
+            assessmentPackId: m.assessmentPackId,
+            createdAt: m.createdAt.subtract(const Duration(days: 15)),
+            triggerReason: m.triggerReason,
+            status: m.status,
+            metrics: m.metrics,
+            itemsDurations: m.itemsDurations,
+          ),
+        )
         .toList();
     for (final m in modules) {
       await store.removeModule('u1', m.moduleId);

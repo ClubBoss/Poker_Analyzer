@@ -86,25 +86,32 @@ class _BoosterProgressChartWidgetState
             spots.add(FlSpot(x, p.accuracy * 100));
           }
           allSpots.addAll(spots);
-          lines.add(LineChartBarData(
-            spots: spots,
-            isCurved: true,
-            barWidth: 2,
-            color: color,
-            dotData: const FlDotData(show: false),
-          ));
-          legends.add(Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-              ),
-              const SizedBox(width: 4),
-              Text(entry.key),
-            ],
-          ));
+          lines.add(
+            LineChartBarData(
+              spots: spots,
+              isCurved: true,
+              barWidth: 2,
+              color: color,
+              dotData: const FlDotData(show: false),
+            ),
+          );
+          legends.add(
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Text(entry.key),
+              ],
+            ),
+          );
           colorIndex++;
         }
 
@@ -126,9 +133,11 @@ class _BoosterProgressChartWidgetState
                   borderData: FlBorderData(show: false),
                   titlesData: FlTitlesData(
                     rightTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                     topTitles: const AxisTitles(
-                        sideTitles: SideTitles(showTitles: false)),
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
@@ -147,7 +156,8 @@ class _BoosterProgressChartWidgetState
                         interval: (maxX - minX) / 4,
                         getTitlesWidget: (value, meta) {
                           final date = DateTime.fromMillisecondsSinceEpoch(
-                              value.toInt());
+                            value.toInt(),
+                          );
                           return Text(
                             DateFormat('MM/dd').format(date),
                             style: const TextStyle(fontSize: 10),

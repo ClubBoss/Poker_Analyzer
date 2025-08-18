@@ -107,8 +107,10 @@ class DecayTagRetentionTrackerService {
   ///
   /// Each entry contains the tag and its normalized decay score
   /// (0-1 range where higher means more decayed).
-  Future<List<MapEntry<String, double>>> getMostDecayedTags(int limit,
-      {DateTime? now}) async {
+  Future<List<MapEntry<String, double>>> getMostDecayedTags(
+    int limit, {
+    DateTime? now,
+  }) async {
     if (limit <= 0) return [];
     final scores = await getAllDecayScores(now: now);
     final entries = scores.entries.toList()

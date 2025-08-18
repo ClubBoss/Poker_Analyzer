@@ -31,8 +31,9 @@ void main() {
       final dir = await Directory.systemTemp.createTemp('import_stage');
       await TheoryPackExporterService().export(lessons, dir.path);
 
-      final imported =
-          await TheoryPackImporterService().importLessons(dir.path);
+      final imported = await TheoryPackImporterService().importLessons(
+        dir.path,
+      );
       expect(imported.length, 2);
       final map = {for (final l in imported) l.id: l};
       expect(map['a']!.stage, 'level1');
@@ -62,11 +63,15 @@ void main() {
       );
 
       final dir = await Directory.systemTemp.createTemp('import_cluster');
-      await TheoryPackExporterService()
-          .export([l1, l2, l3], dir.path, groupBy: 'cluster');
+      await TheoryPackExporterService().export(
+        [l1, l2, l3],
+        dir.path,
+        groupBy: 'cluster',
+      );
 
-      final imported =
-          await TheoryPackImporterService().importLessons(dir.path);
+      final imported = await TheoryPackImporterService().importLessons(
+        dir.path,
+      );
       expect(imported.length, 3);
       final map = {for (final l in imported) l.id: l};
       expect(map['a']!.nextIds, ['b']);

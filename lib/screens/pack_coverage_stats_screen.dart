@@ -67,9 +67,13 @@ class _PackCoverageStatsScreenState extends State<PackCoverageStatsScreen> {
                 : null,
             cells: [
               DataCell(Text(e.key)),
-              DataCell(Text(_total == 0
-                  ? '0%'
-                  : '${(e.value * 100 / _total).toStringAsFixed(1)}%')),
+              DataCell(
+                Text(
+                  _total == 0
+                      ? '0%'
+                      : '${(e.value * 100 / _total).toStringAsFixed(1)}%',
+                ),
+              ),
               DataCell(Text('${e.value}')),
             ],
           ),
@@ -79,20 +83,21 @@ class _PackCoverageStatsScreenState extends State<PackCoverageStatsScreen> {
 
   Widget _filterButtons() {
     Widget btn(String id, String label) => TextButton(
-          onPressed: () {
-            setState(() => _filter = id);
-            _load();
-          },
-          child: Text(label,
-              style: TextStyle(
-                  color: _filter == id ? Colors.amber : Colors.white)),
-        );
+      onPressed: () {
+        setState(() => _filter = id);
+        _load();
+      },
+      child: Text(
+        label,
+        style: TextStyle(color: _filter == id ? Colors.amber : Colors.white),
+      ),
+    );
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         btn('base', 'Base'),
         btn('archive', 'Archive'),
-        btn('all', 'All')
+        btn('all', 'All'),
       ],
     );
   }
@@ -104,7 +109,7 @@ class _PackCoverageStatsScreenState extends State<PackCoverageStatsScreen> {
       appBar: AppBar(
         title: const Text('Pack Coverage Stats'),
         actions: [
-          IconButton(onPressed: _load, icon: const Icon(Icons.refresh))
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh)),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
@@ -153,12 +158,12 @@ Future<Map<String, dynamic>> _statsTask(String filter) async {
         final r = bb >= 21
             ? '21+'
             : bb >= 13
-                ? '13-20'
-                : bb >= 8
-                    ? '8-12'
-                    : bb >= 5
-                        ? '5-7'
-                        : '<5';
+            ? '13-20'
+            : bb >= 8
+            ? '8-12'
+            : bb >= 5
+            ? '5-7'
+            : '<5';
         if (r != '<5') stack[r] = (stack[r] ?? 0) + 1;
       }
     } catch (_) {}

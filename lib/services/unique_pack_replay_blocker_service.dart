@@ -11,10 +11,10 @@ class UniquePackReplayBlockerService {
     SharedPreferences? prefs,
     TrainingPackFingerprintGenerator? fingerprintGenerator,
     TrainingSessionFingerprintRecorder? recorder,
-  })  : _prefs = prefs,
-        _fingerprintGenerator =
-            fingerprintGenerator ?? const TrainingPackFingerprintGenerator(),
-        _recorder = recorder ?? TrainingSessionFingerprintRecorder.instance;
+  }) : _prefs = prefs,
+       _fingerprintGenerator =
+           fingerprintGenerator ?? const TrainingPackFingerprintGenerator(),
+       _recorder = recorder ?? TrainingSessionFingerprintRecorder.instance;
 
   SharedPreferences? _prefs;
   final TrainingPackFingerprintGenerator _fingerprintGenerator;

@@ -52,8 +52,11 @@ class TagGoalTrackerService {
     int streak = prefs.getInt(streakKey) ?? 0;
     if (last != null) {
       final lastDay = DateTime(last.year, last.month, last.day);
-      final diff =
-          DateTime(now.year, now.month, now.day).difference(lastDay).inDays;
+      final diff = DateTime(
+        now.year,
+        now.month,
+        now.day,
+      ).difference(lastDay).inDays;
       if (diff == 1) {
         streak += 1;
       } else if (diff > 1) {

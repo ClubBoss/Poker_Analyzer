@@ -10,7 +10,7 @@ import '../models/autogen_preset.dart';
 /// Centralized logger aggregating key metrics during hyperscale autogeneration.
 class AutogenStatsDashboardService extends ChangeNotifier {
   AutogenStatsDashboardService._({String logPath = 'autogen_report.log'})
-      : _logFile = File(logPath);
+    : _logFile = File(logPath);
 
   static final AutogenStatsDashboardService _instance =
       AutogenStatsDashboardService._();
@@ -115,7 +115,7 @@ class AutogenStatsDashboardService extends ChangeNotifier {
     if (theoryLinked > 0) {
       avgTheoryScore =
           ((avgTheoryScore * (theoryLinked - linked)) + avgScore * linked) /
-              theoryLinked;
+          theoryLinked;
     }
     _logFile.writeAsString(
       'Theory linked: $linked avg:${avgScore.toStringAsFixed(2)} '
@@ -180,8 +180,10 @@ class AutogenStatsDashboardService extends ChangeNotifier {
       }
       final under = underrepresentedCategories();
       if (under.isNotEmpty) {
-        buffer.writeln('Underrepresented: '
-            '${under.map((e) => e.key).join(', ')}');
+        buffer.writeln(
+          'Underrepresented: '
+          '${under.map((e) => e.key).join(', ')}',
+        );
       }
     }
 
@@ -192,12 +194,12 @@ class AutogenStatsDashboardService extends ChangeNotifier {
     await _logFile.writeAsString(report);
   }
 
-  List<MapEntry<String, double>> underrepresentedCategories(
-      [double threshold = 0.6]) {
-    final entries = categoryCoverage.entries
-        .where((e) => e.value < threshold)
-        .toList()
-      ..sort((a, b) => a.value.compareTo(b.value));
+  List<MapEntry<String, double>> underrepresentedCategories([
+    double threshold = 0.6,
+  ]) {
+    final entries =
+        categoryCoverage.entries.where((e) => e.value < threshold).toList()
+          ..sort((a, b) => a.value.compareTo(b.value));
     return entries;
   }
 }

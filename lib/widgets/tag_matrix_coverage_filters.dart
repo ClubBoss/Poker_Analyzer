@@ -18,27 +18,31 @@ class TagMatrixCoverageFilters extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(children: [
-      DropdownButton<TrainingType?>(
-        value: type,
-        hint: const Text('All'),
-        onChanged: onTypeChanged,
-        items: [
-          const DropdownMenuItem(value: null, child: Text('All')),
-          ...[
-            for (final t in TrainingType.values)
-              DropdownMenuItem(value: t, child: Text(t.name))
-          ]
-        ],
-      ),
-      const SizedBox(width: 16),
-      Row(children: [
-        Checkbox(
-          value: starter,
-          onChanged: (v) => onStarterChanged(v ?? false),
+    return Row(
+      children: [
+        DropdownButton<TrainingType?>(
+          value: type,
+          hint: const Text('All'),
+          onChanged: onTypeChanged,
+          items: [
+            const DropdownMenuItem(value: null, child: Text('All')),
+            ...[
+              for (final t in TrainingType.values)
+                DropdownMenuItem(value: t, child: Text(t.name)),
+            ],
+          ],
         ),
-        const Text('starter'),
-      ])
-    ]);
+        const SizedBox(width: 16),
+        Row(
+          children: [
+            Checkbox(
+              value: starter,
+              onChanged: (v) => onStarterChanged(v ?? false),
+            ),
+            const Text('starter'),
+          ],
+        ),
+      ],
+    );
   }
 }

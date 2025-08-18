@@ -27,10 +27,7 @@ class _TutorialCompletionScreenState extends State<TutorialCompletionScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'Обучение завершено',
-              style: TextStyle(fontSize: 24),
-            ),
+            const Text('Обучение завершено', style: TextStyle(fontSize: 24)),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: widget.onRepeat,

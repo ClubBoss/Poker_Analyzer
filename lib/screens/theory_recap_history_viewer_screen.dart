@@ -46,7 +46,9 @@ class _TheoryRecapHistoryViewerScreenState
           .getSuppressionReason(lessonId: e.lessonId, trigger: e.trigger);
       final cooldown = e.lessonId.isNotEmpty
           ? await TheoryBoosterRecapDelayManager.isUnderCooldown(
-              'lesson:${e.lessonId}', const Duration(hours: 24))
+              'lesson:${e.lessonId}',
+              const Duration(hours: 24),
+            )
           : false;
       items.add(_EntryInfo(e, reason != null, reason, cooldown));
       _triggers.add(e.trigger);
@@ -89,7 +91,9 @@ class _TheoryRecapHistoryViewerScreenState
                         value: _filter,
                         items: [
                           const DropdownMenuItem(
-                              value: null, child: Text('All')),
+                            value: null,
+                            child: Text('All'),
+                          ),
                           ..._triggers.map(
                             (t) => DropdownMenuItem(value: t, child: Text(t)),
                           ),
@@ -116,9 +120,11 @@ class _TheoryRecapHistoryViewerScreenState
                       return Card(
                         color: AppColors.cardBackground,
                         child: ListTile(
-                          title: Text(item.entry.lessonId.isEmpty
-                              ? '(no lesson)'
-                              : item.entry.lessonId),
+                          title: Text(
+                            item.entry.lessonId.isEmpty
+                                ? '(no lesson)'
+                                : item.entry.lessonId,
+                          ),
                           subtitle: Text('${item.entry.trigger} • $ts'),
                           trailing: Column(
                             crossAxisAlignment: CrossAxisAlignment.end,

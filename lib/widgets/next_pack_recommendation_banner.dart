@@ -30,8 +30,9 @@ class _NextPackRecommendationBannerState
 
   Future<void> _load() async {
     final engine = context.read<SuggestedNextPackEngine>();
-    final tpl =
-        await engine.suggestNextPack(currentPackId: widget.currentPackId);
+    final tpl = await engine.suggestNextPack(
+      currentPackId: widget.currentPackId,
+    );
     if (mounted) {
       setState(() {
         _pack = tpl;
@@ -58,7 +59,8 @@ class _NextPackRecommendationBannerState
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (_) => TrainingPackPreviewScreen(template: tpl)),
+        builder: (_) => TrainingPackPreviewScreen(template: tpl),
+      ),
     );
   }
 
@@ -95,7 +97,7 @@ class _NextPackRecommendationBannerState
                 child: const Text('Start'),
               ),
             ],
-          )
+          ),
         ],
       ),
     );

@@ -24,12 +24,12 @@ class Achievement {
   bool get completed => progress >= target;
 
   Achievement copyWith({int? progress, DateTime? completedAt}) => Achievement(
-        title: title,
-        icon: icon,
-        progress: progress ?? this.progress,
-        target: target,
-        completedAt: completedAt ?? this.completedAt,
-      );
+    title: title,
+    icon: icon,
+    progress: progress ?? this.progress,
+    target: target,
+    completedAt: completedAt ?? this.completedAt,
+  );
 }
 
 /// Handles achievement progress and notifications.
@@ -111,8 +111,9 @@ class AchievementManager {
         target: 1,
       ),
     ];
-    _achievementShown =
-        await persistence.loadAchievementShown(_achievements.length);
+    _achievementShown = await persistence.loadAchievementShown(
+      _achievements.length,
+    );
   }
 
   Achievement _withProgress(Achievement a, int progress) {
@@ -124,18 +125,24 @@ class AchievementManager {
   }
 
   void checkAchievements(BuildContext context) {
-    for (var i = 0;
-        i < _achievements.length && i < _achievementShown.length;
-        i++) {
+    for (
+      var i = 0;
+      i < _achievements.length && i < _achievementShown.length;
+      i++
+    ) {
       if (!_achievementShown[i] && _achievements[i].completed) {
         _achievementShown[i] = true;
         persistence.saveAchievementShown(i);
-        context
-            .read<XPTrackerService>()
-            .add(xp: XPTrackerService.achievementXp, source: 'achievement');
+        context.read<XPTrackerService>().add(
+          xp: XPTrackerService.achievementXp,
+          source: 'achievement',
+        );
         if (context.mounted) {
           showAchievementUnlockedOverlay(
-              context, _achievements[i].icon, _achievements[i].title);
+            context,
+            _achievements[i].icon,
+            _achievements[i].title,
+          );
         }
       }
     }
@@ -182,11 +189,7 @@ class AchievementManager {
     required int totalGoals,
   }) {
     bool changed = false;
-    final values = [
-      correctHands,
-      streakDays,
-      goalCompleted ? 1 : 0,
-    ];
+    final values = [correctHands, streakDays, goalCompleted ? 1 : 0];
     for (var i = 0; i < _achievements.length && i < values.length; i++) {
       final updated = _withProgress(_achievements[i], values[i]);
       if (_achievements[i].progress != updated.progress) {

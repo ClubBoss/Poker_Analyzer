@@ -90,8 +90,9 @@ class _CollapsibleActionHistoryState extends State<CollapsibleActionHistory>
             const SizedBox(width: 4),
             Expanded(
               child: Text(
-                  '$pos ${a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action}$size',
-                  style: style),
+                '$pos ${a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action}$size',
+                style: style,
+              ),
             ),
           ],
         );
@@ -114,10 +115,14 @@ class _CollapsibleActionHistoryState extends State<CollapsibleActionHistory>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Action History',
-                    style: TextStyle(color: Colors.white)),
-                Icon(_open ? Icons.expand_less : Icons.expand_more,
-                    color: Colors.white),
+                const Text(
+                  'Action History',
+                  style: TextStyle(color: Colors.white),
+                ),
+                Icon(
+                  _open ? Icons.expand_less : Icons.expand_more,
+                  color: Colors.white,
+                ),
               ],
             ),
           ),

@@ -57,7 +57,7 @@ class TrainingPackTagAnalyticsService extends ChangeNotifier {
           launches: e.value.launches,
           totalTrained: e.value.total,
           mistakes: e.value.mistakes,
-        )
+        ),
     ]..sort((a, b) => b.valueScore.compareTo(a.valueScore));
     return list;
   }

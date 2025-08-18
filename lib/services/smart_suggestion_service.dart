@@ -35,7 +35,7 @@ class SmartSuggestionService {
             spots: const [],
             difficulty: t.difficultyLevel,
             isBuiltIn: t.isBuiltIn,
-          )
+          ),
       ];
     }
     list.sort((a, b) {
@@ -58,12 +58,12 @@ class SmartSuggestionService {
 
     List<TrainingPack> almost = [
       for (final p in packs)
-        if (p.pctComplete >= 0.6 && p.pctComplete < 1) p
+        if (p.pctComplete >= 0.6 && p.pctComplete < 1) p,
     ]..sort((a, b) => b.pctComplete.compareTo(a.pctComplete));
 
     List<TrainingPack> stale = [
       for (final p in packs)
-        if (now.difference(p.lastAttemptDate).inDays > 7) p
+        if (now.difference(p.lastAttemptDate).inDays > 7) p,
     ]..sort((a, b) => a.lastAttemptDate.compareTo(b.lastAttemptDate));
 
     final goal = goals.currentGoal;
@@ -100,7 +100,8 @@ class SmartSuggestionService {
     final completed = prefs
         .getKeys()
         .where(
-            (k) => k.startsWith('completed_tpl_') && prefs.getBool(k) == true)
+          (k) => k.startsWith('completed_tpl_') && prefs.getBool(k) == true,
+        )
         .map((k) => k.substring('completed_tpl_'.length))
         .toSet();
     final docs = await getApplicationDocumentsDirectory();

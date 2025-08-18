@@ -11,11 +11,7 @@ void main() {
       board: ['Ah', 'Kd', 'Qs'],
     );
 
-    final spots = [
-      base,
-      base.copyWith(id: 's2'),
-      base.copyWith(id: 's3'),
-    ];
+    final spots = [base, base.copyWith(id: 's2'), base.copyWith(id: 's3')];
     final pack = TrainingPackModel(id: 'p1', title: 'Pack', spots: spots);
 
     final issues = PackQualityInspectorService.instance.analyzePack(pack);

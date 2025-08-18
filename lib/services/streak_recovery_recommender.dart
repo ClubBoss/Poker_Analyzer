@@ -16,8 +16,8 @@ class StreakRecoveryRecommender {
   const StreakRecoveryRecommender({
     TrainingStatsService? stats,
     BoosterSuggestionEngine? booster,
-  })  : _stats = stats ?? TrainingStatsService.instance!,
-        _booster = booster ?? const BoosterSuggestionEngine();
+  }) : _stats = stats ?? TrainingStatsService.instance!,
+       _booster = booster ?? const BoosterSuggestionEngine();
 
   Future<List<StreakRecoverySuggestion>> suggest({DateTime? now}) async {
     final last = _stats.lastTrainingDate;
@@ -30,8 +30,9 @@ class StreakRecoveryRecommender {
     final library = TrainingPackLibraryV2.instance.packs;
     final history = await TrainingHistoryServiceV2.getHistory(limit: 50);
     final improvement = await TrainingPackStatsServiceV2.improvementByTag();
-    final insights = await const MistakeTagInsightsService()
-        .buildInsights(sortByEvLoss: true);
+    final insights = await const MistakeTagInsightsService().buildInsights(
+      sortByEvLoss: true,
+    );
 
     // Detect most common format
     final formatCount = <String, int>{};
@@ -53,7 +54,7 @@ class StreakRecoveryRecommender {
         ? library
         : [
             for (final p in library)
-              if (p.meta['format']?.toString().toLowerCase() == topFormat) p
+              if (p.meta['format']?.toString().toLowerCase() == topFormat) p,
           ];
 
     final boosterId = await _booster.suggestBooster(
@@ -98,12 +99,14 @@ class StreakRecoveryRecommender {
     }
 
     if (suggestions.isEmpty) {
-      suggestions.add(const StreakRecoverySuggestion(
-        title: 'Spot of the Day',
-        packId: 'spot_of_the_day',
-        tagFocus: null,
-        ctaText: 'Warm Up',
-      ));
+      suggestions.add(
+        const StreakRecoverySuggestion(
+          title: 'Spot of the Day',
+          packId: 'spot_of_the_day',
+          tagFocus: null,
+          ctaText: 'Warm Up',
+        ),
+      );
     }
 
     return suggestions.take(2).toList();

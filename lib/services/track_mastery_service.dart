@@ -11,9 +11,10 @@ class TrackMasteryService {
   final TagMasteryService mastery;
   final LessonStepTagProvider tagProvider;
 
-  TrackMasteryService(
-      {required this.mastery, LessonStepTagProvider? tagProvider})
-      : tagProvider = tagProvider ?? LessonStepTagService.instance;
+  TrackMasteryService({
+    required this.mastery,
+    LessonStepTagProvider? tagProvider,
+  }) : tagProvider = tagProvider ?? LessonStepTagService.instance;
 
   static Map<String, double>? _cache;
   static DateTime _cacheTime = DateTime.fromMillisecondsSinceEpoch(0);
@@ -43,7 +44,7 @@ class TrackMasteryService {
       }
       final values = [
         for (final tag in tags)
-          if (tagSkill.containsKey(tag)) tagSkill[tag]!
+          if (tagSkill.containsKey(tag)) tagSkill[tag]!,
       ];
       if (values.isEmpty) continue;
       final avg = values.reduce((a, b) => a + b) / values.length;

@@ -15,8 +15,10 @@ class WeakTagDetectorService {
   /// [minAttempts] sets the minimum attempt count per tag and [limit]
   /// limits the number of returned results.
 
-  static Future<List<TagPerformance>> detectWeakTags(
-      {int minAttempts = 10, int limit = 5}) async {
+  static Future<List<TagPerformance>> detectWeakTags({
+    int minAttempts = 10,
+    int limit = 5,
+  }) async {
     final now = DateTime.now();
     if (_cache != null &&
         _cacheAttempts == minAttempts &&

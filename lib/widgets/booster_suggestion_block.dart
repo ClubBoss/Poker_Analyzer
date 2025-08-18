@@ -16,7 +16,7 @@ import '../screens/training_session_screen.dart';
 class BoosterSuggestionBlock extends StatefulWidget {
   final BoosterSuggestionCache cache;
   const BoosterSuggestionBlock({super.key, BoosterSuggestionCache? cache})
-      : cache = cache ?? const BoosterSuggestionCache();
+    : cache = cache ?? const BoosterSuggestionCache();
 
   @override
   State<BoosterSuggestionBlock> createState() =>
@@ -73,12 +73,10 @@ class _BoosterSuggestionBlockState extends State<BoosterSuggestionBlock> {
     );
   }
 
-  double _clusterMastery(
-    String label,
-    Map<String, double> masteryMap,
-  ) {
-    final cluster =
-        MistakeTagCluster.values.firstWhereOrNull((c) => c.label == label);
+  double _clusterMastery(String label, Map<String, double> masteryMap) {
+    final cluster = MistakeTagCluster.values.firstWhereOrNull(
+      (c) => c.label == label,
+    );
     if (cluster == null) return 0;
     final tags = _clusterTags[cluster] ?? const <MistakeTag>[];
     var sum = 0.0;
@@ -134,11 +132,15 @@ class _BoosterSuggestionBlockState extends State<BoosterSuggestionBlock> {
     );
   }
 
-  Widget _buildPackTile(TrainingPackTemplateV2 pack,
-      Map<String, double> masteryMap, Color accent) {
+  Widget _buildPackTile(
+    TrainingPackTemplateV2 pack,
+    Map<String, double> masteryMap,
+    Color accent,
+  ) {
     final tag = pack.meta['tag'] as String?;
-    final mastery =
-        tag != null ? (_clusterMastery(tag, masteryMap) * 100).round() : null;
+    final mastery = tag != null
+        ? (_clusterMastery(tag, masteryMap) * 100).round()
+        : null;
     return Container(
       width: 180,
       padding: kCardPadding,
@@ -173,7 +175,7 @@ class _BoosterSuggestionBlockState extends State<BoosterSuggestionBlock> {
               style: ElevatedButton.styleFrom(backgroundColor: accent),
               child: const Text('Start Training'),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -195,7 +197,5 @@ const Map<MistakeTagCluster, List<MistakeTag>> _clusterTags = {
     MistakeTag.missedEvCall,
     MistakeTag.missedEvRaise,
   ],
-  MistakeTagCluster.aggressiveMistakes: [
-    MistakeTag.overpush,
-  ],
+  MistakeTagCluster.aggressiveMistakes: [MistakeTag.overpush],
 };

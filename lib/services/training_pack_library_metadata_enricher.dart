@@ -8,7 +8,7 @@ class TrainingPackLibraryMetadataEnricher {
   final TrainingPackLibraryV2 library;
 
   TrainingPackLibraryMetadataEnricher({TrainingPackLibraryV2? library})
-      : library = library ?? TrainingPackLibraryV2.instance;
+    : library = library ?? TrainingPackLibraryV2.instance;
 
   /// Iterates over all packs and enriches each with UX metadata.
   void enrichAll() {
@@ -44,11 +44,13 @@ class TrainingPackLibraryMetadataEnricher {
     if (tags.any((t) => t.contains('push'))) {
       return TrainingPackTopic.pushFold;
     }
-    if (tags.any((t) =>
-        t.contains('flop') ||
-        t.contains('turn') ||
-        t.contains('river') ||
-        t.contains('postflop'))) {
+    if (tags.any(
+      (t) =>
+          t.contains('flop') ||
+          t.contains('turn') ||
+          t.contains('river') ||
+          t.contains('postflop'),
+    )) {
       return TrainingPackTopic.postflop;
     }
     if (p.trainingType == TrainingType.postflop) {

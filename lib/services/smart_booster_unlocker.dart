@@ -32,11 +32,11 @@ class SmartBoosterUnlocker {
     this.mistakeLimit = 10,
     this.lessonsPerTag = 2,
     this.decayThreshold = 30.0,
-  })  : lessons = lessons ?? MiniLessonLibraryService.instance,
-        recapQueue = recapQueue ?? RecapBoosterQueue.instance,
-        goalQueue = goalQueue ?? GoalQueue.instance,
-        decayTracker = decayTracker ?? TheoryTagDecayTracker(),
-        _history = historyLoader ?? MistakeTagHistoryService.getRecentHistory;
+  }) : lessons = lessons ?? MiniLessonLibraryService.instance,
+       recapQueue = recapQueue ?? RecapBoosterQueue.instance,
+       goalQueue = goalQueue ?? GoalQueue.instance,
+       decayTracker = decayTracker ?? TheoryTagDecayTracker(),
+       _history = historyLoader ?? MistakeTagHistoryService.getRecentHistory;
 
   /// Analyzes recent mistakes and mastery to enqueue targeted boosters.
   Future<void> schedule() async {
@@ -91,13 +91,15 @@ class SmartBoosterUnlocker {
           continue;
         }
         if (urgent) {
-          if (!await BoosterCooldownBlockerService.instance
-              .isCoolingDown('recap')) {
+          if (!await BoosterCooldownBlockerService.instance.isCoolingDown(
+            'recap',
+          )) {
             await recapQueue.add(lesson.id);
           }
         } else {
-          if (!await BoosterCooldownBlockerService.instance
-              .isCoolingDown('goal')) {
+          if (!await BoosterCooldownBlockerService.instance.isCoolingDown(
+            'goal',
+          )) {
             goalQueue.push(lesson);
           }
         }

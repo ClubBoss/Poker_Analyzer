@@ -39,13 +39,13 @@ class PathInjectionEngine {
     PathRegistry? registry,
     LearningPathStore? store,
     AssessmentPackSynthesizer? synthesizer,
-  })  : theoryClusterer = theoryClusterer ?? InlinePackTheoryClusterer(),
-        boosterEngine = boosterEngine ?? TargetedPackBoosterEngine(),
-        noveltyGuard = noveltyGuard ?? const PackNoveltyGuardService(),
-        dashboard = dashboard ?? AutogenStatusDashboardService.instance,
-        registry = registry ?? const PathRegistry(),
-        store = store ?? const LearningPathStore(),
-        synthesizer = synthesizer ?? const AssessmentPackSynthesizer();
+  }) : theoryClusterer = theoryClusterer ?? InlinePackTheoryClusterer(),
+       boosterEngine = boosterEngine ?? TargetedPackBoosterEngine(),
+       noveltyGuard = noveltyGuard ?? const PackNoveltyGuardService(),
+       dashboard = dashboard ?? AutogenStatusDashboardService.instance,
+       registry = registry ?? const PathRegistry(),
+       store = store ?? const LearningPathStore(),
+       synthesizer = synthesizer ?? const AssessmentPackSynthesizer();
 
   Future<List<InjectedPathModule>> injectForClusters({
     required List<SkillTagCluster> clusters,
@@ -67,8 +67,9 @@ class PathInjectionEngine {
         continue;
       }
       final theoryIds = c.tags.take(2).map((t) => 'theory_$t').toList();
-      final boosters =
-          await boosterEngine.generateClusterBoosterPacks(clusters: [c]);
+      final boosters = await boosterEngine.generateClusterBoosterPacks(
+        clusters: [c],
+      );
       final boosterIds = boosters.map((b) => b.id).toList();
       final assessment = await synthesizer.createAssessment(
         tags: c.tags,
@@ -92,9 +93,7 @@ class PathInjectionEngine {
         assessmentPackId: assessmentId,
         createdAt: DateTime.now(),
         triggerReason: 'autoCluster',
-        metrics: {
-          'clusterTags': c.tags,
-        },
+        metrics: {'clusterTags': c.tags},
         itemsDurations: {
           'theoryMins': theoryMins,
           'boosterMins': boosterMins,
@@ -122,7 +121,9 @@ class PathInjectionEngine {
   }
 
   Future<PathInjectionDecision> evaluateOpportunity(
-      SkillTagCluster c, String userId) async {
+    SkillTagCluster c,
+    String userId,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
     final recentHours = prefs.getInt('path.inject.recentHours') ?? 72;
     final maxPerWeek = prefs.getInt('path.inject.maxPerWeek') ?? 3;
@@ -168,13 +169,20 @@ class PathInjectionEngine {
     dashboard.recordPathModuleStarted();
   }
 
-  Future<void> onModuleCompleted(String userId, String moduleId,
-      {required double passRate}) async {
+  Future<void> onModuleCompleted(
+    String userId,
+    String moduleId, {
+    required double passRate,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
     final threshold = prefs.getDouble('path.module.completeThreshold') ?? 0.7;
     final status = passRate >= threshold ? 'completed' : 'in_progress';
-    await store.updateModuleStatus(userId, moduleId, status,
-        passRate: passRate);
+    await store.updateModuleStatus(
+      userId,
+      moduleId,
+      status,
+      passRate: passRate,
+    );
     if (status == 'completed') {
       LearningPathEvents.moduleCompleted(userId, moduleId, passRate);
       dashboard.recordPathModuleCompleted(passRate);

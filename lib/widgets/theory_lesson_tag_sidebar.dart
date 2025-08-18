@@ -94,10 +94,7 @@ class _TheoryLessonTagSidebarState extends State<TheoryLessonTagSidebar> {
             ],
           ),
         ),
-        TextButton(
-          onPressed: _reset,
-          child: const Text('Показать всё'),
-        ),
+        TextButton(onPressed: _reset, child: const Text('Показать всё')),
       ],
     );
   }

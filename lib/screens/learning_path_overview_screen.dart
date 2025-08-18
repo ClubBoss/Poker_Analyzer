@@ -91,8 +91,8 @@ class _LearningPathOverviewScreenState
                             future: _streakFuture,
                             builder: (context, streakSnap) {
                               final streak = streakSnap.data;
-                              final msg = streak != null &&
-                                      streak.currentStreak > 0
+                              final msg =
+                                  streak != null && streak.currentStreak > 0
                                   ? '🔥 ${streak.currentStreak}-day streak! Keep it up!'
                                   : 'Продолжай \uD83D\uDCAA';
                               return LearningPathOverviewHeader(

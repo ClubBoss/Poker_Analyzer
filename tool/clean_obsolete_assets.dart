@@ -10,7 +10,8 @@ const kPrefix = 'store/v1/';
 Future<void> main(List<String> args) async {
   if (args.isEmpty) {
     stderr.writeln(
-        'Usage: dart run tool/clean_obsolete_assets.dart <assetsDir> [--bucket=bucket-name] [--dry]');
+      'Usage: dart run tool/clean_obsolete_assets.dart <assetsDir> [--bucket=bucket-name] [--dry]',
+    );
     exit(1);
   }
   final dir = Directory(args.first);
@@ -36,8 +37,9 @@ Future<void> main(List<String> args) async {
     stderr.writeln('Bucket not specified');
     exit(1);
   }
-  bucket =
-      bucket.replaceAll(RegExp(r'^gs://'), '').replaceAll(RegExp(r'/$'), '');
+  bucket = bucket
+      .replaceAll(RegExp(r'^gs://'), '')
+      .replaceAll(RegExp(r'/$'), '');
   final storage = FirebaseStorage.instanceFor(bucket: bucket);
 
   final manifestFile = File(p.join(dir.path, 'manifest.json'));
@@ -46,9 +48,7 @@ Future<void> main(List<String> args) async {
     exit(1);
   }
   final manifest = jsonDecode(await manifestFile.readAsString()) as List;
-  final keep = <String>{
-    storage.ref(p.join(kPrefix, 'manifest.json')).fullPath,
-  };
+  final keep = <String>{storage.ref(p.join(kPrefix, 'manifest.json')).fullPath};
   final manifestRegex = RegExp(r'manifest.*\.json$');
   for (final item in manifest) {
     final name = (item as Map<String, dynamic>)['png'] as String?;
@@ -64,8 +64,9 @@ Future<void> main(List<String> args) async {
     final ref = queue.removeLast();
     String? token;
     do {
-      final res =
-          await ref.list(ListOptions(maxResults: 1000, pageToken: token));
+      final res = await ref.list(
+        ListOptions(maxResults: 1000, pageToken: token),
+      );
       remote.addAll(res.items);
       queue.addAll(res.prefixes);
       token = res.nextPageToken;
@@ -110,7 +111,8 @@ Future<void> main(List<String> args) async {
   }
   final elapsed = DateTime.now().difference(start).inMilliseconds / 1000;
   stdout.writeln(
-      'Deleted: $deleted${dry ? '  |  Would delete: $wouldDelete' : ''}  |  Skipped: $skipped  |  Errors: $errors');
+    'Deleted: $deleted${dry ? '  |  Would delete: $wouldDelete' : ''}  |  Skipped: $skipped  |  Errors: $errors',
+  );
   stdout.writeln('Time: ${elapsed.toStringAsFixed(1)} s');
   if (errors > 0) exitCode = 1;
 }

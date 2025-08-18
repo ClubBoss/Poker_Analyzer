@@ -40,7 +40,8 @@ class TrainingSpotListState extends State<TrainingSpotList> {
     _filtered = [...widget.spots];
     _loadPrefs();
     WidgetsBinding.instance.addPostFrameCallback(
-        (_) => InlineTheoryLinkerCache.instance.ensureReady());
+      (_) => InlineTheoryLinkerCache.instance.ensureReady(),
+    );
   }
 
   Future<void> _loadPrefs() async {
@@ -55,9 +56,11 @@ class TrainingSpotListState extends State<TrainingSpotList> {
   }
 
   void _sort() {
-    _filtered.sort((a, b) => _ascending
-        ? a.createdAt.compareTo(b.createdAt)
-        : b.createdAt.compareTo(a.createdAt));
+    _filtered.sort(
+      (a, b) => _ascending
+          ? a.createdAt.compareTo(b.createdAt)
+          : b.createdAt.compareTo(a.createdAt),
+    );
     setState(() {});
     _savePrefs();
   }

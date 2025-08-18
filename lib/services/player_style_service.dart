@@ -38,7 +38,8 @@ class PlayerStyleService extends ChangeNotifier {
       final pct = aggr / total;
       if (pct > 0.6) {
         newStyle = PlayerStyle.aggressive;
-      } else if (pct < 0.4) newStyle = PlayerStyle.passive;
+      } else if (pct < 0.4)
+        newStyle = PlayerStyle.passive;
     }
     if (newStyle != _style) {
       _style = newStyle;

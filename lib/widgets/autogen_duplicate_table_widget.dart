@@ -25,12 +25,14 @@ class AutogenDuplicateTableWidget extends StatelessWidget {
             ],
             rows: [
               for (final d in duplicates)
-                DataRow(cells: [
-                  DataCell(Text(d.candidateId)),
-                  DataCell(Text(d.existingId)),
-                  DataCell(Text((d.similarity * 100).toStringAsFixed(1))),
-                  DataCell(Text(d.reason)),
-                ]),
+                DataRow(
+                  cells: [
+                    DataCell(Text(d.candidateId)),
+                    DataCell(Text(d.existingId)),
+                    DataCell(Text((d.similarity * 100).toStringAsFixed(1))),
+                    DataCell(Text(d.reason)),
+                  ],
+                ),
             ],
           ),
         );

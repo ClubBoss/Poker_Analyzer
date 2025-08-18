@@ -20,7 +20,7 @@ class LearningPathConfigLoader {
       final yaml = loadYaml(raw);
       if (yaml is! Map) return;
       final packPaths = [
-        for (final p in (yaml['packs'] as List? ?? [])) p.toString()
+        for (final p in (yaml['packs'] as List? ?? [])) p.toString(),
       ];
       final reader = const YamlReader();
       var index = 0;

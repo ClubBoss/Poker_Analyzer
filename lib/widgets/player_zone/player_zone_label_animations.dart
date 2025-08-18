@@ -2,25 +2,31 @@ import 'package:flutter/material.dart';
 
 /// Groups animation controllers related to player labels and textual overlays.
 class PlayerZoneLabelAnimations {
-  PlayerZoneLabelAnimations(
-      {required TickerProvider vsync, required bool isHero}) {
+  PlayerZoneLabelAnimations({
+    required TickerProvider vsync,
+    required bool isHero,
+  }) {
     showdownLabelController = AnimationController(
       vsync: vsync,
       duration: const Duration(milliseconds: 300),
     );
-    showdownLabelOpacity =
-        CurvedAnimation(parent: showdownLabelController, curve: Curves.easeIn);
+    showdownLabelOpacity = CurvedAnimation(
+      parent: showdownLabelController,
+      curve: Curves.easeIn,
+    );
 
     finalStackController = AnimationController(
       vsync: vsync,
       duration: const Duration(milliseconds: 300),
     );
-    finalStackOpacity =
-        CurvedAnimation(parent: finalStackController, curve: Curves.easeIn);
+    finalStackOpacity = CurvedAnimation(
+      parent: finalStackController,
+      curve: Curves.easeIn,
+    );
     finalStackOffset =
         Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
-            CurvedAnimation(
-                parent: finalStackController, curve: Curves.easeOut));
+          CurvedAnimation(parent: finalStackController, curve: Curves.easeOut),
+        );
 
     winnerLabelController = AnimationController(
       vsync: vsync,
@@ -28,26 +34,34 @@ class PlayerZoneLabelAnimations {
     );
     winnerLabelOpacity = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween(begin: 0.0, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeOut)),
+        tween: Tween(
+          begin: 0.0,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 20,
       ),
       const TweenSequenceItem(tween: ConstantTween(1.0), weight: 60),
       TweenSequenceItem(
-        tween:
-            Tween(begin: 1.0, end: 0.0).chain(CurveTween(curve: Curves.easeIn)),
+        tween: Tween(
+          begin: 1.0,
+          end: 0.0,
+        ).chain(CurveTween(curve: Curves.easeIn)),
         weight: 20,
       ),
     ]).animate(winnerLabelController);
     winnerLabelScale = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween(begin: 0.9, end: 1.05)
-            .chain(CurveTween(curve: Curves.easeOut)),
+        tween: Tween(
+          begin: 0.9,
+          end: 1.05,
+        ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 50,
       ),
       TweenSequenceItem(
-        tween: Tween(begin: 1.05, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeIn)),
+        tween: Tween(
+          begin: 1.05,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeIn)),
         weight: 50,
       ),
     ]).animate(winnerLabelController);
@@ -56,10 +70,13 @@ class PlayerZoneLabelAnimations {
       vsync: vsync,
       duration: const Duration(milliseconds: 300),
     );
-    heroLabelOpacity =
-        CurvedAnimation(parent: heroLabelController, curve: Curves.easeIn);
+    heroLabelOpacity = CurvedAnimation(
+      parent: heroLabelController,
+      curve: Curves.easeIn,
+    );
     heroLabelScale = Tween<double>(begin: 0.8, end: 1.0).animate(
-        CurvedAnimation(parent: heroLabelController, curve: Curves.easeOut));
+      CurvedAnimation(parent: heroLabelController, curve: Curves.easeOut),
+    );
     if (isHero) {
       heroLabelController.forward();
     }
@@ -70,14 +87,18 @@ class PlayerZoneLabelAnimations {
     );
     victoryOpacity = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween(begin: 0.0, end: 1.0)
-            .chain(CurveTween(curve: Curves.easeOut)),
+        tween: Tween(
+          begin: 0.0,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 20,
       ),
       const TweenSequenceItem(tween: ConstantTween(1.0), weight: 60),
       TweenSequenceItem(
-        tween:
-            Tween(begin: 1.0, end: 0.0).chain(CurveTween(curve: Curves.easeIn)),
+        tween: Tween(
+          begin: 1.0,
+          end: 0.0,
+        ).chain(CurveTween(curve: Curves.easeIn)),
         weight: 20,
       ),
     ]).animate(victoryController);

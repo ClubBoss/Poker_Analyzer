@@ -38,10 +38,10 @@ positions:
   - bb
 ''');
 
-    await const LearningPathStageSeeder().seedStages(
-      [file1.path, file2.path],
-      audience: 'Beginner',
-    );
+    await const LearningPathStageSeeder().seedStages([
+      file1.path,
+      file2.path,
+    ], audience: 'Beginner');
 
     final stages = LearningPathStageLibrary.instance.stages;
     expect(stages, hasLength(2));
@@ -63,8 +63,9 @@ positions:
 ''',
     });
     final binding = TestWidgetsFlutterBinding.ensureInitialized();
-    binding.defaultBinaryMessenger.setMockMessageHandler('flutter/assets',
-        (message) async {
+    binding.defaultBinaryMessenger.setMockMessageHandler('flutter/assets', (
+      message,
+    ) async {
       final key = utf8.decode(message.buffer.asUint8List());
       final data = bundle.data[key];
       if (data != null) {

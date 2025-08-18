@@ -38,8 +38,9 @@ class _MistakeReviewScreenState extends State<MistakeReviewScreen> {
       setState(() => _loading = false);
       return;
     }
-    final insights =
-        await const MistakeTagInsightsService(exampleCount: 2).buildInsights();
+    final insights = await const MistakeTagInsightsService(
+      exampleCount: 2,
+    ).buildInsights();
     const clusterSvc = MistakeTagClusterService();
     for (final ins in insights) {
       final c = clusterSvc.getClusterForTag(ins.tag);
@@ -50,8 +51,10 @@ class _MistakeReviewScreenState extends State<MistakeReviewScreen> {
 
   Future<void> _startReview() async {
     final templates = context.read<TemplateStorageService>();
-    final spots = await SmartReviewService.instance
-        .getMistakeSpots(templates, context: context);
+    final spots = await SmartReviewService.instance.getMistakeSpots(
+      templates,
+      context: context,
+    );
     if (!mounted || spots.isEmpty) return;
     final tpl = TrainingPackTemplate(
       id: const Uuid().v4(),
@@ -68,12 +71,15 @@ class _MistakeReviewScreenState extends State<MistakeReviewScreen> {
   }
 
   Widget _clusterCard(
-      MistakeTagCluster cluster, List<MistakeInsight> insights) {
+    MistakeTagCluster cluster,
+    List<MistakeInsight> insights,
+  ) {
     final tags = insights.take(2).toList();
     final count = insights.fold<int>(0, (a, b) => a + b.count);
     final evLoss = insights.fold<double>(0, (a, b) => a + b.evLoss);
-    final example =
-        tags.first.examples.isNotEmpty ? tags.first.examples.first : null;
+    final example = tags.first.examples.isNotEmpty
+        ? tags.first.examples.first
+        : null;
     return Card(
       color: AppColors.cardBackground,
       child: Padding(
@@ -81,19 +87,29 @@ class _MistakeReviewScreenState extends State<MistakeReviewScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(cluster.label,
-                style: const TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold)),
+            Text(
+              cluster.label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             const SizedBox(height: 8),
             for (final t in tags)
-              Text('${t.tag.label}: ${t.shortExplanation}',
-                  style: const TextStyle(color: Colors.white70)),
+              Text(
+                '${t.tag.label}: ${t.shortExplanation}',
+                style: const TextStyle(color: Colors.white70),
+              ),
             const SizedBox(height: 8),
-            Text('Ошибок: $count',
-                style: const TextStyle(color: Colors.white70)),
+            Text(
+              'Ошибок: $count',
+              style: const TextStyle(color: Colors.white70),
+            ),
             if (evLoss > 0)
-              Text('Потеря EV: ${evLoss.toStringAsFixed(2)}',
-                  style: const TextStyle(color: Colors.white70)),
+              Text(
+                'Потеря EV: ${evLoss.toStringAsFixed(2)}',
+                style: const TextStyle(color: Colors.white70),
+              ),
             if (example != null) ...[
               const SizedBox(height: 8),
               TrainingPackSpotPreviewCard(spot: example.spot),
@@ -105,7 +121,7 @@ class _MistakeReviewScreenState extends State<MistakeReviewScreen> {
                 onPressed: _startReview,
                 child: const Text('Повторить ошибки'),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -131,13 +147,15 @@ class _MistakeReviewScreenState extends State<MistakeReviewScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text('Вы отлично справляетесь!',
-                  style: TextStyle(color: Colors.white70)),
+              const Text(
+                'Вы отлично справляетесь!',
+                style: TextStyle(color: Colors.white70),
+              ),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _startReview,
                 child: const Text('Повторить прошлые ошибки'),
-              )
+              ),
             ],
           ),
         ),
@@ -151,7 +169,7 @@ class _MistakeReviewScreenState extends State<MistakeReviewScreen> {
           for (final entry in _clusters.entries) ...[
             _clusterCard(entry.key, entry.value),
             const SizedBox(height: 16),
-          ]
+          ],
         ],
       ),
     );

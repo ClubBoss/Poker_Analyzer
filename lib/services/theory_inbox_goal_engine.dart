@@ -15,18 +15,20 @@ class TheoryInboxGoalEngine with SingletonMixin<TheoryInboxGoalEngine> {
     BoosterSuggestionEngine? booster,
     InboxBoosterTrackerService? tracker,
     RecapEffectivenessAnalyzer? recap,
-  })  : booster = booster ?? const BoosterSuggestionEngine(),
-        tracker = tracker ?? InboxBoosterTrackerService.instance,
-        recap = recap ?? RecapEffectivenessAnalyzer.instance;
+  }) : booster = booster ?? const BoosterSuggestionEngine(),
+       tracker = tracker ?? InboxBoosterTrackerService.instance,
+       recap = recap ?? RecapEffectivenessAnalyzer.instance;
 
   static TheoryInboxGoalEngine get instance =>
       SingletonMixin.instance<TheoryInboxGoalEngine>(
-          () => TheoryInboxGoalEngine());
+        () => TheoryInboxGoalEngine(),
+      );
 
   Future<List<XPGuidedGoal>> generateGoals({int maxGoals = 2}) async {
     if (maxGoals <= 0) return [];
-    final lessons =
-        await booster.getRecommendedBoosters(maxCount: maxGoals * 3);
+    final lessons = await booster.getRecommendedBoosters(
+      maxCount: maxGoals * 3,
+    );
     if (lessons.isEmpty) return [];
 
     await recap.refresh();
@@ -40,8 +42,8 @@ class TheoryInboxGoalEngine with SingletonMixin<TheoryInboxGoalEngine> {
       final urgency = stat == null
           ? 0.0
           : 1 / (stat.count + 1) +
-              1 / (stat.averageDuration.inSeconds + 1) +
-              (1 - stat.repeatRate);
+                1 / (stat.averageDuration.inSeconds + 1) +
+                (1 - stat.repeatRate);
       final clicks = interactionMap[l.id]?['clicks'] as int? ?? 0;
       final score = urgency - clicks * 0.1;
       items.add(_Candidate(l, score));
@@ -59,8 +61,10 @@ class TheoryInboxGoalEngine with SingletonMixin<TheoryInboxGoalEngine> {
           source: 'booster',
           onComplete: () {
             tracker.markClicked(l.id);
-            GoalProgressPersistenceService.instance
-                .markCompleted(l.id, DateTime.now());
+            GoalProgressPersistenceService.instance.markCompleted(
+              l.id,
+              DateTime.now(),
+            );
           },
         ),
       );

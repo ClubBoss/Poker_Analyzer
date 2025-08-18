@@ -3,8 +3,11 @@ class SessionSummary {
   final int total;
   final int correct;
 
-  SessionSummary(
-      {required this.date, required this.total, required this.correct});
+  SessionSummary({
+    required this.date,
+    required this.total,
+    required this.correct,
+  });
 
   double get accuracy => total == 0 ? 0 : correct * 100 / total;
 
@@ -17,8 +20,8 @@ class SessionSummary {
   }
 
   Map<String, dynamic> toJson() => {
-        'date': date.toIso8601String(),
-        'total': total,
-        'correct': correct,
-      };
+    'date': date.toIso8601String(),
+    'total': total,
+    'correct': correct,
+  };
 }

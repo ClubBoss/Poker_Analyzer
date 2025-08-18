@@ -32,8 +32,11 @@ class StreakCounterService extends ChangeNotifier {
   DateTime? get lastSuccess => _last;
   int get max => _max;
 
-  StreakCounterService(
-      {required this.stats, required this.target, required this.xp}) {
+  StreakCounterService({
+    required this.stats,
+    required this.target,
+    required this.xp,
+  }) {
     _init();
   }
 
@@ -70,8 +73,9 @@ class StreakCounterService extends ChangeNotifier {
     final level = thresholds[_count];
     if (level != null && level > _rewardLevel) {
       _rewardLevel = level;
-      await RewardSystemService.instance
-          .applyAchievementReward(AchievementProgress(level));
+      await RewardSystemService.instance.applyAchievementReward(
+        AchievementProgress(level),
+      );
       await _save();
       final ctx = navigatorKey.currentContext;
       if (ctx != null) {
@@ -79,7 +83,8 @@ class StreakCounterService extends ChangeNotifier {
         final xp = level * 50;
         ScaffoldMessenger.of(ctx).showSnackBar(
           SnackBar(
-              content: Text('🔥 Вы достигли $_count-дневной цепочки! +$xp XP')),
+            content: Text('🔥 Вы достигли $_count-дневной цепочки! +$xp XP'),
+          ),
         );
       }
     }

@@ -33,8 +33,11 @@ class SessionNoteService extends ChangeNotifier {
         final Map<String, dynamic> data = jsonDecode(raw);
         _notes
           ..clear()
-          ..addEntries(data.entries
-              .map((e) => MapEntry(int.parse(e.key), e.value as String)));
+          ..addEntries(
+            data.entries.map(
+              (e) => MapEntry(int.parse(e.key), e.value as String),
+            ),
+          );
       } catch (_) {
         _notes.clear();
       }
@@ -44,16 +47,20 @@ class SessionNoteService extends ChangeNotifier {
       if (remote != null) {
         final remoteAt =
             DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
-                DateTime.fromMillisecondsSinceEpoch(0);
-        final localAt = DateTime.tryParse(prefs.getString(_timeKey) ?? '') ??
+            DateTime.fromMillisecondsSinceEpoch(0);
+        final localAt =
+            DateTime.tryParse(prefs.getString(_timeKey) ?? '') ??
             DateTime.fromMillisecondsSinceEpoch(0);
         if (remoteAt.isAfter(localAt)) {
           final map = remote['notes'];
           if (map is Map) {
             _notes
               ..clear()
-              ..addEntries(map.entries
-                  .map((e) => MapEntry(int.parse(e.key), e.value as String)));
+              ..addEntries(
+                map.entries.map(
+                  (e) => MapEntry(int.parse(e.key), e.value as String),
+                ),
+              );
             await _persist();
           }
         } else if (localAt.isAfter(remoteAt)) {
@@ -96,23 +103,34 @@ class SessionNoteService extends ChangeNotifier {
         pageFormat: PdfPageFormat.a4,
         build: (context) {
           return [
-            pw.Text('Session Notes',
-                style: pw.TextStyle(font: boldFont, fontSize: 24)),
-            pw.SizedBox(height: 16),
-            pw.Text('Sessions: ${stats.sessionsCompleted}',
-                style: pw.TextStyle(font: regularFont)),
-            pw.Text('Hands: ${stats.handsReviewed}',
-                style: pw.TextStyle(font: regularFont)),
-            pw.Text('Mistakes: ${stats.mistakesFixed}',
-                style: pw.TextStyle(font: regularFont)),
             pw.Text(
-                'Accuracy: ${(stats.evalAccuracy * 100).toStringAsFixed(1)}%',
-                style: pw.TextStyle(font: regularFont)),
+              'Session Notes',
+              style: pw.TextStyle(font: boldFont, fontSize: 24),
+            ),
+            pw.SizedBox(height: 16),
+            pw.Text(
+              'Sessions: ${stats.sessionsCompleted}',
+              style: pw.TextStyle(font: regularFont),
+            ),
+            pw.Text(
+              'Hands: ${stats.handsReviewed}',
+              style: pw.TextStyle(font: regularFont),
+            ),
+            pw.Text(
+              'Mistakes: ${stats.mistakesFixed}',
+              style: pw.TextStyle(font: regularFont),
+            ),
+            pw.Text(
+              'Accuracy: ${(stats.evalAccuracy * 100).toStringAsFixed(1)}%',
+              style: pw.TextStyle(font: regularFont),
+            ),
             pw.SizedBox(height: 12),
             for (final e in entries)
               if (e.value.trim().isNotEmpty) ...[
-                pw.Text('Session ${e.key}',
-                    style: pw.TextStyle(font: boldFont, fontSize: 18)),
+                pw.Text(
+                  'Session ${e.key}',
+                  style: pw.TextStyle(font: boldFont, fontSize: 18),
+                ),
                 pw.Text(e.value.trim(), style: pw.TextStyle(font: regularFont)),
                 pw.SizedBox(height: 8),
               ],

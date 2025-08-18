@@ -10,11 +10,7 @@ class StageShareButton extends StatelessWidget {
   final LearningPathTemplateV2 path;
   final LearningPathStageModel stage;
 
-  const StageShareButton({
-    super.key,
-    required this.path,
-    required this.stage,
-  });
+  const StageShareButton({super.key, required this.path, required this.stage});
 
   String get _link =>
       'https://pokeranalyzer.app/path/${path.id}/stage/${stage.id}';

@@ -79,7 +79,7 @@ class PlaybackManagerService extends ChangeNotifier {
     // Determine players with chip animations up to the current index.
     final previous = {
       for (final e in animatedPlayersPerStreet.entries)
-        e.key: Set<int>.from(e.value)
+        e.key: Set<int>.from(e.value),
     };
     final Map<int, Set<int>> newAnimated = {};
     for (final a in subset) {
@@ -105,7 +105,9 @@ class PlaybackManagerService extends ChangeNotifier {
 
     // Pot sizes are synchronized via [PotSyncService].
     potSync.updateForPlayback(
-        _playbackService.playbackIndex, actionSync.analyzerActions);
+      _playbackService.playbackIndex,
+      actionSync.analyzerActions,
+    );
     for (int i = 0; i < pots.length; i++) {
       pots[i] = potSync.pots[i];
     }

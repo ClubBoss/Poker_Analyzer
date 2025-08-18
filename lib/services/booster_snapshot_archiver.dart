@@ -10,8 +10,10 @@ class BoosterSnapshotArchiver {
   const BoosterSnapshotArchiver();
 
   /// Saves [pack] to `yaml_out/booster_archive` using a timestamped filename.
-  Future<File?> archive(TrainingPackTemplateV2 pack,
-      {String dir = 'yaml_out/booster_archive'}) async {
+  Future<File?> archive(
+    TrainingPackTemplateV2 pack, {
+    String dir = 'yaml_out/booster_archive',
+  }) async {
     if (!kDebugMode) return null;
     final id = pack.id.trim();
     if (id.isEmpty) return null;
@@ -29,18 +31,25 @@ class BoosterSnapshotArchiver {
   }
 
   /// Loads archived versions of a booster pack by [id]. Most recent first.
-  Future<List<File>> loadHistory(String id,
-      {String dir = 'yaml_out/booster_archive'}) async {
+  Future<List<File>> loadHistory(
+    String id, {
+    String dir = 'yaml_out/booster_archive',
+  }) async {
     final directory = Directory(dir);
     if (!directory.existsSync()) return [];
-    final files = directory
-        .listSync()
-        .whereType<File>()
-        .where((f) =>
-            f.path.endsWith('.bak.yaml') &&
-            p.basename(f.path).startsWith('$id__'))
-        .toList()
-      ..sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
+    final files =
+        directory
+            .listSync()
+            .whereType<File>()
+            .where(
+              (f) =>
+                  f.path.endsWith('.bak.yaml') &&
+                  p.basename(f.path).startsWith('$id__'),
+            )
+            .toList()
+          ..sort(
+            (a, b) => b.statSync().modified.compareTo(a.statSync().modified),
+          );
     return files;
   }
 }

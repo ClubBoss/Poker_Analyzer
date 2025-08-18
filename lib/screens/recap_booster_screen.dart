@@ -28,7 +28,7 @@ class _RecapBoosterScreenState extends State<RecapBoosterScreen> {
     final ids = RecapBoosterQueue.instance.getQueue();
     await MiniLessonLibraryService.instance.loadAll();
     final list = [
-      for (final id in ids) MiniLessonLibraryService.instance.getById(id)
+      for (final id in ids) MiniLessonLibraryService.instance.getById(id),
     ].whereType<TheoryMiniLessonNode>().toList();
     if (!mounted) return;
     setState(() {
@@ -43,10 +43,7 @@ class _RecapBoosterScreenState extends State<RecapBoosterScreen> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => MiniLessonScreen(
-          lesson: lesson,
-          recapTag: 'recap',
-        ),
+        builder: (_) => MiniLessonScreen(lesson: lesson, recapTag: 'recap'),
       ),
     );
   }
@@ -70,33 +67,32 @@ class _RecapBoosterScreenState extends State<RecapBoosterScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _lessons.isEmpty
-              ? const Center(
-                  child: Text(
-                    'Нет бустеров',
-                    style: TextStyle(color: Colors.white70),
+          ? const Center(
+              child: Text(
+                'Нет бустеров',
+                style: TextStyle(color: Colors.white70),
+              ),
+            )
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                for (final l in _lessons)
+                  BoosterTheoryWidget(
+                    lesson: l,
+                    slot: BoosterSlot.recap,
+                    onActionTap: () => _openLesson(l),
                   ),
-                )
-              : ListView(
-                  padding: const EdgeInsets.all(16),
-                  children: [
-                    for (final l in _lessons)
-                      BoosterTheoryWidget(
-                        lesson: l,
-                        slot: BoosterSlot.recap,
-                        onActionTap: () => _openLesson(l),
-                      ),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _done,
-                        style:
-                            ElevatedButton.styleFrom(backgroundColor: accent),
-                        child: const Text('Готово'),
-                      ),
-                    ),
-                  ],
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _done,
+                    style: ElevatedButton.styleFrom(backgroundColor: accent),
+                    child: const Text('Готово'),
+                  ),
                 ),
+              ],
+            ),
     );
   }
 }

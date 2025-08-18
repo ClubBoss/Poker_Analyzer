@@ -14,19 +14,19 @@ class TheoryGap {
   });
 
   Map<String, dynamic> toJson() => {
-        'topic': topic,
-        'coverageCount': coverageCount,
-        'targetCoverage': targetCoverage,
-        'candidatePacks': candidatePacks,
-        'priorityScore': priorityScore,
-      };
+    'topic': topic,
+    'coverageCount': coverageCount,
+    'targetCoverage': targetCoverage,
+    'candidatePacks': candidatePacks,
+    'priorityScore': priorityScore,
+  };
 
   factory TheoryGap.fromJson(Map<String, dynamic> json) => TheoryGap(
-        topic: json['topic'] as String? ?? '',
-        coverageCount: json['coverageCount'] as int? ?? 0,
-        targetCoverage: json['targetCoverage'] as int? ?? 0,
-        candidatePacks:
-            (json['candidatePacks'] as List?)?.cast<String>() ?? const [],
-        priorityScore: (json['priorityScore'] as num?)?.toDouble() ?? 0,
-      );
+    topic: json['topic'] as String? ?? '',
+    coverageCount: json['coverageCount'] as int? ?? 0,
+    targetCoverage: json['targetCoverage'] as int? ?? 0,
+    candidatePacks:
+        (json['candidatePacks'] as List?)?.cast<String>() ?? const [],
+    priorityScore: (json['priorityScore'] as num?)?.toDouble() ?? 0,
+  );
 }

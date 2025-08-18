@@ -16,7 +16,10 @@ class BoosterAnalyticsPanel extends StatelessWidget {
   });
 
   List<Widget> _tagRows(
-      BuildContext context, List<MapEntry<String, int>> entries, int max) {
+    BuildContext context,
+    List<MapEntry<String, int>> entries,
+    int max,
+  ) {
     final accent = Theme.of(context).colorScheme.secondary;
     return [
       for (final e in entries)
@@ -43,11 +46,13 @@ class BoosterAnalyticsPanel extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Text('${e.value}',
-                  style: const TextStyle(color: Colors.white, fontSize: 12)),
+              Text(
+                '${e.value}',
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+              ),
             ],
           ),
-        )
+        ),
     ];
   }
 
@@ -55,27 +60,34 @@ class BoosterAnalyticsPanel extends StatelessWidget {
     final accent = Theme.of(context).colorScheme.secondary;
     final cells = <Widget>[];
     final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day)
-        .subtract(const Duration(days: 27));
+    final start = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(const Duration(days: 27));
     for (var i = 0; i < 28; i++) {
       final d = start.add(Duration(days: i));
       final last = boosterStats.lastCompleted;
       bool active = false;
       if (last != null) {
-        final diff = DateTime(last.year, last.month, last.day)
-            .difference(DateTime(d.year, d.month, d.day))
-            .inDays;
+        final diff = DateTime(
+          last.year,
+          last.month,
+          last.day,
+        ).difference(DateTime(d.year, d.month, d.day)).inDays;
         active = diff >= 0 && diff < boosterStats.streak;
       }
-      cells.add(Container(
-        width: 8,
-        height: 8,
-        margin: const EdgeInsets.all(1),
-        decoration: BoxDecoration(
-          color: active ? accent : Colors.grey[700],
-          borderRadius: BorderRadius.circular(2),
+      cells.add(
+        Container(
+          width: 8,
+          height: 8,
+          margin: const EdgeInsets.all(1),
+          decoration: BoxDecoration(
+            color: active ? accent : Colors.grey[700],
+            borderRadius: BorderRadius.circular(2),
+          ),
         ),
-      ));
+      );
     }
     return Wrap(children: cells);
   }
@@ -110,10 +122,14 @@ class BoosterAnalyticsPanel extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          Text('Streak: ${profile.boosterStreak}',
-              style: const TextStyle(color: Colors.white)),
-          Text('Completed: ${boosterStats.totalCompleted}',
-              style: const TextStyle(color: Colors.white)),
+          Text(
+            'Streak: ${profile.boosterStreak}',
+            style: const TextStyle(color: Colors.white),
+          ),
+          Text(
+            'Completed: ${boosterStats.totalCompleted}',
+            style: const TextStyle(color: Colors.white),
+          ),
           const SizedBox(height: 8),
           _streakCalendar(context),
           const SizedBox(height: 8),

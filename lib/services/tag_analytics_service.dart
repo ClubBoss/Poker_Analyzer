@@ -32,11 +32,14 @@ class TagAnalyticsService {
         if (tags.isEmpty) continue;
         final key = (tags.toList()..sort()).join('|');
         tagSets[key] = (tagSets[key] ?? 0) + 1;
-        final ev = (map['evScore'] as num?)?.toDouble() ??
+        final ev =
+            (map['evScore'] as num?)?.toDouble() ??
             (tpl.meta['evScore'] as num?)?.toDouble();
-        final icm = (map['icmScore'] as num?)?.toDouble() ??
+        final icm =
+            (map['icmScore'] as num?)?.toDouble() ??
             (tpl.meta['icmScore'] as num?)?.toDouble();
-        final rank = (map['meta']?['rankScore'] as num?)?.toDouble() ??
+        final rank =
+            (map['meta']?['rankScore'] as num?)?.toDouble() ??
             (tpl.meta['rankScore'] as num?)?.toDouble();
         packs.add(_PackInfo(tags, key));
         for (final t in tags) {

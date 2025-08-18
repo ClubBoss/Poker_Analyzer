@@ -64,8 +64,8 @@ void main() {
       }),
     );
 
-    final List<GoalRecommendation> list =
-        await service.recommendDecayRecoveryGoals();
+    final List<GoalRecommendation> list = await service
+        .recommendDecayRecoveryGoals();
     expect(list.length, 2);
     expect(list.first.type, GoalRecommendationType.decay);
     expect(list.first.tag, 'a');

@@ -13,22 +13,22 @@ class DailyTipService extends ChangeNotifier {
       'Focus on playing in position.',
       'Study opponents\' tendencies.',
       "Don't bluff too often.",
-      'Analyze your mistakes regularly.'
+      'Analyze your mistakes regularly.',
     ],
     'Discipline': [
       'Stay patient and wait for good spots.',
       'Manage your bankroll wisely.',
       'Take breaks to avoid tilt.',
       'Keep emotions in check.',
-      'Stay disciplined with starting hands.'
+      'Stay disciplined with starting hands.',
     ],
     'Motivation': [
       'Believe in your edge and stay confident.',
       'Small improvements lead to big wins.',
       'Stick to your plan and keep grinding.',
       'Every session is a chance to learn.',
-      'Focus on progress, not perfection.'
-    ]
+      'Focus on progress, not perfection.',
+    ],
   };
 
   final Map<String, int> _indexes = {};
@@ -72,10 +72,7 @@ class DailyTipService extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final data = {
       for (final c in _indexes.keys)
-        c: {
-          'i': _indexes[c],
-          'd': _dates[c]?.toIso8601String(),
-        }
+        c: {'i': _indexes[c], 'd': _dates[c]?.toIso8601String()},
     };
     await prefs.setString(_dataKey, jsonEncode(data));
     await prefs.setString(_categoryKey, _category);

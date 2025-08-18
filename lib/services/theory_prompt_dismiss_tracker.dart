@@ -23,8 +23,13 @@ class TheoryPromptDismissTracker {
       try {
         final data = jsonDecode(raw);
         if (data is List) {
-          _history.addAll(data.whereType<Map>().map((e) =>
-              TheoryPromptDismissEntry.fromJson(Map<String, dynamic>.from(e))));
+          _history.addAll(
+            data.whereType<Map>().map(
+              (e) => TheoryPromptDismissEntry.fromJson(
+                Map<String, dynamic>.from(e),
+              ),
+            ),
+          );
         }
       } catch (_) {}
     }
@@ -67,8 +72,10 @@ class TheoryPromptDismissTracker {
       markDismissed(lessonId, trigger: trigger);
 
   /// Returns true if [lessonId] was dismissed within [cooldown].
-  Future<bool> isRecentlyDismissed(String lessonId,
-      {Duration cooldown = const Duration(hours: 12)}) async {
+  Future<bool> isRecentlyDismissed(
+    String lessonId, {
+    Duration cooldown = const Duration(hours: 12),
+  }) async {
     await _load();
     for (final e in _history) {
       if (e.lessonId == lessonId &&

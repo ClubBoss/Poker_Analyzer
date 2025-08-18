@@ -26,9 +26,9 @@ class _FakeStats extends PackRecallStatsService {
   final List<String> upcoming;
   _FakeStats(this.upcoming);
   @override
-  Future<List<String>> upcomingReviewPacks(
-          {Duration leadTime = const Duration(days: 3)}) async =>
-      upcoming;
+  Future<List<String>> upcomingReviewPacks({
+    Duration leadTime = const Duration(days: 3),
+  }) async => upcoming;
 }
 
 void main() {
@@ -59,7 +59,9 @@ void main() {
       queue: BoosterQueueService.instance,
     );
     final reminders = await orch.getRankedReminders();
-    expect(reminders.map((e) => e.type).toList(),
-        [MemoryReminderType.brokenStreak, MemoryReminderType.upcomingReview]);
+    expect(reminders.map((e) => e.type).toList(), [
+      MemoryReminderType.brokenStreak,
+      MemoryReminderType.upcomingReview,
+    ]);
   });
 }

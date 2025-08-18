@@ -17,17 +17,17 @@ class LearningTrackSectionModel {
       title: json['title'] as String? ?? '',
       description: json['description'] as String? ?? '',
       stageIds: [
-        for (final s in (json['stageIds'] as List? ?? [])) s.toString()
+        for (final s in (json['stageIds'] as List? ?? [])) s.toString(),
       ],
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'title': title,
-        'description': description,
-        if (stageIds.isNotEmpty) 'stageIds': stageIds,
-      };
+    'id': id,
+    'title': title,
+    'description': description,
+    if (stageIds.isNotEmpty) 'stageIds': stageIds,
+  };
 
   factory LearningTrackSectionModel.fromYaml(Map yaml) {
     final map = <String, dynamic>{};

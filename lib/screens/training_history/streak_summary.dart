@@ -5,11 +5,12 @@ class StreakSummary extends StatelessWidget {
   final bool show;
   final int current;
   final int best;
-  const StreakSummary(
-      {super.key,
-      required this.show,
-      required this.current,
-      required this.best});
+  const StreakSummary({
+    super.key,
+    required this.show,
+    required this.current,
+    required this.best,
+  });
 
   @override
   Widget build(BuildContext context) {

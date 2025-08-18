@@ -26,8 +26,9 @@ class MistakeHistoryQueryService {
   }) async {
     if (limit <= 0) return [];
     final spottings = await loadSpottings();
-    final successes =
-        loadSuccesses != null ? await loadSuccesses!() : <RecallSuccessEntry>[];
+    final successes = loadSuccesses != null
+        ? await loadSuccesses!()
+        : <RecallSuccessEntry>[];
 
     final successMap = <String, List<DateTime>>{};
     for (final s in successes) {
@@ -44,10 +45,9 @@ class MistakeHistoryQueryService {
 
     for (final s in spottings) {
       if (entries.length >= limit) break;
-      final spotTags = (await resolveTags(s.spotId))
-          .map((e) => e.trim().toLowerCase())
-          .where((e) => e.isNotEmpty)
-          .toList();
+      final spotTags = (await resolveTags(
+        s.spotId,
+      )).map((e) => e.trim().toLowerCase()).where((e) => e.isNotEmpty).toList();
       if (spotTags.isEmpty) continue;
 
       String? spotStreet;
@@ -69,13 +69,15 @@ class MistakeHistoryQueryService {
         if (successesForTag != null) {
           recovered = successesForTag.any((ts) => ts.isAfter(s.timestamp));
         }
-        entries.add(MistakeHistoryEntry(
-          spotId: s.spotId,
-          timestamp: s.timestamp,
-          decayStage: s.decayStage,
-          tag: t,
-          wasRecovered: recovered,
-        ));
+        entries.add(
+          MistakeHistoryEntry(
+            spotId: s.spotId,
+            timestamp: s.timestamp,
+            decayStage: s.decayStage,
+            tag: t,
+            wasRecovered: recovered,
+          ),
+        );
         if (entries.length >= limit) break;
       }
     }

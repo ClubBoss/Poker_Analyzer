@@ -21,10 +21,7 @@ class DraggableCard extends StatelessWidget {
       child: Draggable<String>(
         data: imagePath,
         feedback: _buildCardImage(),
-        childWhenDragging: Opacity(
-          opacity: 0.3,
-          child: _buildCardImage(),
-        ),
+        childWhenDragging: Opacity(opacity: 0.3, child: _buildCardImage()),
         onDragEnd: (details) {
           onDragEnd(details.offset);
         },
@@ -34,11 +31,7 @@ class DraggableCard extends StatelessWidget {
   }
 
   Widget _buildCardImage() {
-    return Image.asset(
-      imagePath,
-      width: 48,
-      height: 64,
-    );
+    return Image.asset(imagePath, width: 48, height: 64);
   }
 }
 

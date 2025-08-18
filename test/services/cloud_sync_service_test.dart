@@ -31,7 +31,7 @@ void main() {
         completedAt: DateTime.utc(2024, 1, 1),
         correctCount: 1,
         mistakeCount: 0,
-      )
+      ),
     ];
     await service.uploadSessionLogs(logs);
     final snap = await firestore
@@ -71,7 +71,7 @@ void main() {
     final queue = {
       'pending': [request.toJson()],
       'failed': <dynamic>[],
-      'completed': <dynamic>[]
+      'completed': <dynamic>[],
     };
     await service.uploadQueue(queue);
     final snap = await firestore

@@ -50,14 +50,17 @@ class _PackLibraryHealthScreenState extends State<PackLibraryHealthScreen> {
               padding: const EdgeInsets.all(16),
               children: [
                 ElevatedButton(
-                    onPressed: _load, child: const Text('🔄 Обновить')),
+                  onPressed: _load,
+                  child: const Text('🔄 Обновить'),
+                ),
                 const SizedBox(height: 16),
                 Text('Ошибок: $_errors, Предупреждений: $_warnings'),
                 const SizedBox(height: 16),
                 for (final i in _issues)
                   ListTile(
                     title: Text(
-                        File(i.$1).path.split(Platform.pathSeparator).last),
+                      File(i.$1).path.split(Platform.pathSeparator).last,
+                    ),
                     subtitle: Text(i.$2),
                   ),
               ],

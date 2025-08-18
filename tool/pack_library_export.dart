@@ -30,6 +30,7 @@ Future<void> main(List<String> args) async {
 
   const exporter = TrainingPackLibraryExporter();
   final files = await exporter.saveToDirectory(packs, outDir.path);
-  stdout
-      .writeln('Exported ${files.length} packs to ${p.normalize(outDir.path)}');
+  stdout.writeln(
+    'Exported ${files.length} packs to ${p.normalize(outDir.path)}',
+  );
 }

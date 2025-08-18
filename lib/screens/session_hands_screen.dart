@@ -33,10 +33,12 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
   void initState() {
     super.initState();
     final noteService = context.read<SessionNoteService>();
-    _noteController =
-        TextEditingController(text: noteService.noteFor(widget.sessionId));
+    _noteController = TextEditingController(
+      text: noteService.noteFor(widget.sessionId),
+    );
     _noteController.addListener(
-        () => noteService.setNote(widget.sessionId, _noteController.text));
+      () => noteService.setNote(widget.sessionId, _noteController.text),
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         showSessionLabelOverlay(context, 'Сессия ${widget.sessionId}');
@@ -68,9 +70,10 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
     return PageRouteBuilder(
       pageBuilder: (_, __, ___) => SessionHandsScreen(sessionId: targetId),
       transitionsBuilder: (_, animation, __, child) {
-        final offset = Tween(begin: begin, end: Offset.zero)
-            .chain(CurveTween(curve: Curves.easeOut))
-            .animate(animation);
+        final offset = Tween(
+          begin: begin,
+          end: Offset.zero,
+        ).chain(CurveTween(curve: Curves.easeOut)).animate(animation);
         return SlideTransition(position: offset, child: child);
       },
       transitionDuration: const Duration(milliseconds: 300),
@@ -103,7 +106,9 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
 
     return Padding(
       padding: const EdgeInsets.symmetric(
-          horizontal: AppConstants.padding16, vertical: 8),
+        horizontal: AppConstants.padding16,
+        vertical: 8,
+      ),
       child: Card(
         color: AppColors.cardBackground,
         child: Padding(
@@ -111,22 +116,34 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Раздач: ${hands.length}',
-                  style: const TextStyle(color: Colors.white)),
+              Text(
+                'Раздач: ${hands.length}',
+                style: const TextStyle(color: Colors.white),
+              ),
               const SizedBox(height: 4),
-              Text('Начало: ${formatDateTime(start)}',
-                  style: const TextStyle(color: Colors.white)),
-              Text('Конец: ${formatDateTime(end)}',
-                  style: const TextStyle(color: Colors.white)),
-              Text('Длительность: ${formatDuration(duration)}',
-                  style: const TextStyle(color: Colors.white)),
+              Text(
+                'Начало: ${formatDateTime(start)}',
+                style: const TextStyle(color: Colors.white),
+              ),
+              Text(
+                'Конец: ${formatDateTime(end)}',
+                style: const TextStyle(color: Colors.white),
+              ),
+              Text(
+                'Длительность: ${formatDuration(duration)}',
+                style: const TextStyle(color: Colors.white),
+              ),
               const SizedBox(height: 4),
-              Text('Верно: $correct • Ошибки: $incorrect',
-                  style: const TextStyle(color: Colors.white)),
+              Text(
+                'Верно: $correct • Ошибки: $incorrect',
+                style: const TextStyle(color: Colors.white),
+              ),
               if (winrate != null) ...[
                 const SizedBox(height: 4),
-                Text('Winrate: $winrate% • EV: ${ev >= 0 ? '+' : ''}$ev',
-                    style: const TextStyle(color: Colors.white)),
+                Text(
+                  'Winrate: $winrate% • EV: ${ev >= 0 ? '+' : ''}$ev',
+                  style: const TextStyle(color: Colors.white),
+                ),
               ],
             ],
           ),
@@ -138,7 +155,9 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
   Widget _buildNoteField() {
     return Padding(
       padding: const EdgeInsets.symmetric(
-          horizontal: AppConstants.padding16, vertical: 8),
+        horizontal: AppConstants.padding16,
+        vertical: 8,
+      ),
       child: Card(
         color: AppColors.cardBackground,
         child: Padding(
@@ -171,15 +190,19 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
   Future<void> _exportMarkdown(BuildContext context) async {
     final exporter = context.read<SavedHandExportService>();
     final note = context.read<SessionNoteService>().noteFor(widget.sessionId);
-    final path =
-        await exporter.exportSessionHandsMarkdown(widget.sessionId, note: note);
+    final path = await exporter.exportSessionHandsMarkdown(
+      widget.sessionId,
+      note: note,
+    );
     if (path == null) return;
-    await Share.shareXFiles([XFile(path)],
-        text: 'session_${widget.sessionId}.md');
+    await Share.shareXFiles([
+      XFile(path),
+    ], text: 'session_${widget.sessionId}.md');
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text('Файл сохранён: session_${widget.sessionId}.md')),
+          content: Text('Файл сохранён: session_${widget.sessionId}.md'),
+        ),
       );
     }
   }
@@ -187,15 +210,19 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
   Future<void> _exportPdf(BuildContext context) async {
     final exporter = context.read<SavedHandExportService>();
     final note = context.read<SessionNoteService>().noteFor(widget.sessionId);
-    final path =
-        await exporter.exportSessionHandsPdf(widget.sessionId, note: note);
+    final path = await exporter.exportSessionHandsPdf(
+      widget.sessionId,
+      note: note,
+    );
     if (path == null) return;
-    await Share.shareXFiles([XFile(path)],
-        text: 'session_${widget.sessionId}.pdf');
+    await Share.shareXFiles([
+      XFile(path),
+    ], text: 'session_${widget.sessionId}.pdf');
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text('Файл сохранён: session_${widget.sessionId}.pdf')),
+          content: Text('Файл сохранён: session_${widget.sessionId}.pdf'),
+        ),
       );
     }
   }
@@ -204,10 +231,9 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
   Widget build(BuildContext context) {
     final manager = context.watch<SavedHandManagerService>();
     final stats = context.watch<SavedHandStatsService>();
-    final hands = manager.hands
-        .where((h) => h.sessionId == widget.sessionId)
-        .toList()
-      ..sort((a, b) => b.savedAt.compareTo(a.savedAt));
+    final hands =
+        manager.hands.where((h) => h.sessionId == widget.sessionId).toList()
+          ..sort((a, b) => b.savedAt.compareTo(a.savedAt));
 
     final sessionIds = stats.handsBySession().keys.toList()..sort();
     final currentIndex = sessionIds.indexOf(widget.sessionId);
@@ -256,7 +282,7 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
                     showSavedHandViewerDialog(context, hand);
                   },
                 ),
-            ]
+            ],
         ],
       );
     }
@@ -312,9 +338,9 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () async {
-                              await context
-                                  .read<SessionManager>()
-                                  .reset(widget.sessionId);
+                              await context.read<SessionManager>().reset(
+                                widget.sessionId,
+                              );
                               if (context.mounted) Navigator.pop(context);
                             },
                             child: const Text('Reset Session'),

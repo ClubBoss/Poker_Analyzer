@@ -6,7 +6,7 @@ class TheoryTagSummaryService {
   final MiniLessonLibraryService library;
 
   TheoryTagSummaryService({MiniLessonLibraryService? library})
-      : library = library ?? MiniLessonLibraryService.instance;
+    : library = library ?? MiniLessonLibraryService.instance;
 
   /// Returns statistics for each tag found in [library].
   Future<Map<String, TheoryTagStats>> computeSummary() async {
@@ -45,14 +45,17 @@ class TheoryTagSummaryService {
 
   /// Builds a markdown table from [stats]. Useful for diagnostics.
   String buildMarkdownReport(Map<String, TheoryTagStats> stats) {
-    final buffer =
-        StringBuffer('| Tag | Lessons | Examples | Avg Length | Connected |\n');
+    final buffer = StringBuffer(
+      '| Tag | Lessons | Examples | Avg Length | Connected |\n',
+    );
     buffer.writeln('| --- | --- | --- | --- | --- |');
     final entries = stats.values.toList()
       ..sort((a, b) => a.tag.compareTo(b.tag));
     for (final s in entries) {
-      buffer.writeln('| ${s.tag} | ${s.lessonCount} | ${s.exampleCount} | '
-          '${s.avgLength.toStringAsFixed(1)} | ${s.connectedToPath} |');
+      buffer.writeln(
+        '| ${s.tag} | ${s.lessonCount} | ${s.exampleCount} | '
+        '${s.avgLength.toStringAsFixed(1)} | ${s.connectedToPath} |',
+      );
     }
     return buffer.toString();
   }
@@ -60,8 +63,11 @@ class TheoryTagSummaryService {
   int _countWords(String text) => RegExp(r'\w+').allMatches(text).length;
 
   int _countExamples(String text) {
-    final reg = RegExp(r'^(?:Example|Пример|Например)[:\-]',
-        caseSensitive: false, multiLine: true);
+    final reg = RegExp(
+      r'^(?:Example|Пример|Например)[:\-]',
+      caseSensitive: false,
+      multiLine: true,
+    );
     return reg.allMatches(text).length;
   }
 }

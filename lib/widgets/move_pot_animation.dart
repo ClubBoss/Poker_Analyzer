@@ -64,10 +64,7 @@ class _MovePotAnimationState extends State<MovePotAnimation>
         return Positioned(
           left: pos.dx,
           top: pos.dy,
-          child: FadeTransition(
-            opacity: _fade,
-            child: child,
-          ),
+          child: FadeTransition(opacity: _fade, child: child),
         );
       },
       child: Container(
