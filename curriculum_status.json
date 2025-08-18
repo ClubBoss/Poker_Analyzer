@@ -1,6 +1,7 @@
 {
   "modules_done": [
     "core_rules_and_setup",
-    "cash:l3:v1"
+    "cash:l3:v1",
+    "icm:l4:mix:v1"
   ]
 }
