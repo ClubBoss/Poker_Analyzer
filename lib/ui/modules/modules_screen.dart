@@ -218,8 +218,10 @@ class _ModulesScreenState extends State<ModulesScreen> {
             Builder(
               builder: (context) {
                 final ready = isReady(moduleId);
+                final title = ssot.kModuleTitles[moduleId] ?? moduleId;
                 return ListTile(
-                  title: Text(moduleId),
+                  title: Text(title),
+                  subtitle: Text(moduleId),
                   trailing: ready
                       ? null
                       : const Chip(label: Text('Coming soon')),
