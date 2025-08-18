@@ -7,6 +7,11 @@ import 'package:poker_analyzer/ui/modules/icm_packs.dart';
 import 'package:poker_analyzer/ui/modules/icm_bubble_packs.dart';
 import 'package:poker_analyzer/ui/modules/icm_ladder_packs.dart';
 
+import 'package:poker_analyzer/ui/session_player/spot_specs.dart'
+    as specs show isJamFold; // ignore: unused_import
+import '../../../tooling/curriculum_ids.dart' as ssot;
+import 'package:poker_analyzer/content/manifest.dart';
+
 import '../../services/spot_importer.dart';
 import '../session_player/models.dart';
 import '../session_player/mvs_player.dart';
@@ -21,39 +26,6 @@ class ModulesScreen extends StatefulWidget {
 }
 
 class _ModulesScreenState extends State<ModulesScreen> {
-  List<UiSpot> _preflopCore() {
-    const stacks = {'10bb', '20bb', '40bb', '100bb'};
-    final res = <UiSpot>[];
-    final perCell = <String, int>{};
-    for (final s in widget.spots) {
-      if (s.kind.name != 'callVsJam') continue;
-      if (!stacks.contains(s.stack)) continue;
-      final key = '${s.pos}-${s.stack}';
-      final c = perCell[key] ?? 0;
-      if (c >= 2) continue;
-      perCell[key] = c + 1;
-      res.add(s);
-      if (res.length >= 20) break;
-    }
-    return res;
-  }
-
-  List<UiSpot> _flopJam() {
-    final res = <UiSpot>[];
-    for (final s in widget.spots) {
-      if (s.kind.name != 'l3_postflop_jam') continue;
-      res.add(s);
-      if (res.length >= 20) break;
-    }
-    return res;
-  }
-
-  List<UiSpot> _mixed() {
-    final list = List<UiSpot>.from(widget.spots);
-    list.shuffle(Random(0));
-    return list.take(min(20, list.length)).toList();
-  }
-
   Future<void> _pasteSpots() async {
     final data = await Clipboard.getData('text/plain');
     final content = data?.text?.trim();
@@ -89,9 +61,6 @@ class _ModulesScreenState extends State<ModulesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final pre = _preflopCore();
-    final flop = _flopJam();
-    final mix = _mixed();
     return Scaffold(
       appBar: AppBar(title: const Text('Modules')),
       body: ListView(
@@ -240,48 +209,21 @@ class _ModulesScreenState extends State<ModulesScreen> {
               ],
             ),
           ),
-          ListTile(
-            title: const Text('Preflop Core'),
-            subtitle: const Text('10/20/40/100bb × positions'),
-            trailing: Chip(label: Text('${pre.length} spots')),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) =>
-                      MvsSessionPlayer(spots: pre, packId: 'mod:preflop'),
-                ),
-              );
-            },
-          ),
-          ListTile(
-            title: const Text('Flop Jam'),
-            subtitle: const Text('SPR<3'),
-            trailing: Chip(label: Text('${flop.length} spots')),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) =>
-                      MvsSessionPlayer(spots: flop, packId: 'mod:flopjam'),
-                ),
-              );
-            },
-          ),
-          ListTile(
-            title: const Text('Mixed Drill'),
-            subtitle: const Text('random 20 from current pool'),
-            trailing: Chip(label: Text('${mix.length} spots')),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) =>
-                      MvsSessionPlayer(spots: mix, packId: 'mod:mixed'),
-                ),
-              );
-            },
-          ),
+          for (final moduleId in ssot.kCurriculumModuleIds)
+            Builder(
+              builder: (context) {
+                final ready = isReady(moduleId);
+                return ListTile(
+                  title: Text(moduleId),
+                  trailing:
+                      ready ? null : const Chip(label: Text('Coming soon')),
+                  enabled: ready,
+                  onTap: ready
+                      ? () => showMiniToast(context, moduleId)
+                      : null,
+                );
+              },
+            ),
         ],
       ),
     );
