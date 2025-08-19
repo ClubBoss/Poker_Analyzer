@@ -28,6 +28,7 @@
     "mtt_bubble_and_FT",
     "mtt_pko_strategy",
     "mtt_satellite_strategy",
-    "hu_preflop"
+    "hu_preflop",
+    "hu_postflop"
   ]
 }
