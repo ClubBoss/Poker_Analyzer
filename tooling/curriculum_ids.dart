@@ -30,6 +30,13 @@ const List<String> kCurriculumModuleIds = [
   'hu_preflop_strategy',
   'hu_postflop_play',
   'hu_exploit_adv',
+  'spr_basics',
+  'live_tells_and_dynamics',
+  'online_tells_and_dynamics',
+  'hu_preflop',
+  'hu_postflop',
+  'hu_turn_play',
+  'hu_river_play',
 ];
 
 String? firstMissing(Iterable<String> done) {
