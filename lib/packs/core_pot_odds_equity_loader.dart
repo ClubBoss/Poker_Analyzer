@@ -1,4 +1,3 @@
-// Placeholder pack for core_pot_odds_equity.
 import '../ui/session_player/models.dart';
 import '../services/spot_importer.dart';
 

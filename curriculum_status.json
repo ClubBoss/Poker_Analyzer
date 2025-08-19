@@ -1,8 +1,7 @@
 {
   "modules_done": [
     "core_rules_and_setup",
-    "cash:l3:v1",
-    "icm:l4:mix:v1",
+    "core_pot_odds_equity",
     "core_starting_hands",
     "core_flop_play",
     "core_turn_river_play",
@@ -10,7 +9,6 @@
     "core_equity_realization",
     "core_bet_sizing_fe",
     "core_gto_vs_exploit",
-    "core_bankroll_management",
-    "core_pot_odds_equity"
+    "core_bankroll_management"
   ]
 }
