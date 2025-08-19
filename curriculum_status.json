@@ -31,6 +31,7 @@
     "hu_preflop_strategy",
     "hu_postflop_play",
     "hu_exploit_adv",
-    "spr_basics"
+    "spr_basics",
+    "live_tells_and_dynamics"
   ]
 }
