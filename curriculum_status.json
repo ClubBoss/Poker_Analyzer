@@ -26,6 +26,7 @@
     "mtt_deep_stack",
     "mtt_icm_basics",
     "mtt_bubble_and_FT",
-    "mtt_pko_strategy"
+    "mtt_pko_strategy",
+    "mtt_satellite_strategy"
   ]
 }
