@@ -19,6 +19,7 @@
     "cash_blind_defense",
     "cash_isolation_raises",
     "cash_short_handed",
-    "cash_population_exploits"
+    "cash_population_exploits",
+    "mtt_antes_phases"
   ]
 }
