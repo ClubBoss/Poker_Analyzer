@@ -18,6 +18,7 @@
     "cash_multiway_pots",
     "cash_blind_defense",
     "cash_isolation_raises",
-    "cash_short_handed"
+    "cash_short_handed",
+    "cash_population_exploits"
   ]
 }
