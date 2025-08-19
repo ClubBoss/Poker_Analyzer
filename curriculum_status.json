@@ -7,6 +7,7 @@
     "core_starting_hands",
     "core_flop_play",
     "core_turn_river_play",
-    "core_blockers_combos"
+    "core_blockers_combos",
+    "core_equity_realization"
   ]
 }
