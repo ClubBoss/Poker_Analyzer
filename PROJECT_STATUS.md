@@ -21,4 +21,3 @@ We now fill each module with content (theory, demos, drills).
 - Demos: 2–3 concise walk-throughs.
 - Drills: 12–16 varied, one-line rationales.
 - Goal = maximize EV: less reading, more doing.
-
