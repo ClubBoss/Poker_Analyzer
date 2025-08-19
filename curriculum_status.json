@@ -37,6 +37,7 @@
     "hu_preflop",
     "hu_postflop",
     "hu_turn_play",
-    "hu_river_play"
+    "hu_river_play",
+    "core_positions_and_initiative"
   ]
 }
