@@ -41,10 +41,40 @@ const List<String> kCurriculumModuleIds = [
   'core_board_textures',
 ];
 
+const Map<String, int> kModulePriority = {
+  'core_positions_and_initiative': 0,
+  'core_board_textures': 1,
+};
+
+List<String> logicalOrder() {
+  final entries = kCurriculumModuleIds.asMap().entries.toList()
+    ..sort((a, b) {
+      final pa = kModulePriority[a.value] ?? 999;
+      final pb = kModulePriority[b.value] ?? 999;
+      if (pa != pb) {
+        return pa.compareTo(pb);
+      }
+      return a.key.compareTo(b.key);
+    });
+  return [for (final e in entries) e.value];
+}
+
 String? firstMissing(Iterable<String> done) {
   final doneSet = done.toSet();
   for (final id in kCurriculumModuleIds) {
     if (!doneSet.contains(id)) {
+      return id;
+    }
+  }
+  return null;
+}
+
+String? recommendedNext(Set<String> done) {
+  for (final id in logicalOrder()) {
+    if (id.contains(':')) {
+      continue;
+    }
+    if (!done.contains(id)) {
       return id;
     }
   }
