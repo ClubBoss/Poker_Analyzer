@@ -7,9 +7,7 @@ void main() {
   test('ICM BB pack loads and has jam/fold wiring', () {
     final spots = loadIcmL4BbV1();
     expect(spots, isNotEmpty);
-    expect(spots.map((s) => s.kind).toSet(), {
-      SpotKind.l4_icm_bb_jam_vs_fold,
-    });
+    expect(spots.map((s) => s.kind).toSet(), {SpotKind.l4_icm_bb_jam_vs_fold});
     expect(actionsMap[SpotKind.l4_icm_bb_jam_vs_fold], ['jam', 'fold']);
     expect(
       subtitlePrefix[SpotKind.l4_icm_bb_jam_vs_fold],

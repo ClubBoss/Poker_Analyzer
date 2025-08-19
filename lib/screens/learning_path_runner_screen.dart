@@ -81,8 +81,10 @@ class _LearningPathRunnerScreenState extends State<LearningPathRunnerScreen> {
             color: Colors.transparent,
             child: InkWell(
               borderRadius: BorderRadius.circular(8),
-              onTap: () =>
-                  const LearningPathBlockTapHandler().handleTap(context, block!),
+              onTap: () => const LearningPathBlockTapHandler().handleTap(
+                context,
+                block!,
+              ),
               child: w,
             ),
           ),

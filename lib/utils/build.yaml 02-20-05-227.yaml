@@ -1,0 +1,14 @@
+
+targets:
+  $default:
+    sources:
+      include:
+        - lib/**
+        - bin/**
+        - main.dart
+        - pubspec.yaml
+        - assets/**
+      exclude:
+        - lib/**.g.dart
+        - lib/**.freezed.dart
+        - test/**   # временно исключаем тесты из генерации

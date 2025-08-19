@@ -20,10 +20,7 @@ class DecayBadgeBanner extends StatelessWidget {
         children: [
           Text(
             '🔥 \$milestone-day streak!',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 4),
           Text(

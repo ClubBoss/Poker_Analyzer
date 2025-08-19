@@ -1153,10 +1153,12 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       }
       if (isLadder && passed && !_moduleMasteredLogged) {
         _moduleMasteredLogged = true;
-        unawaited(Telemetry.logEvent(
-          'module_mastered',
-          buildModuleMastered(moduleId: widget.packId ?? ''),
-        ));
+        unawaited(
+          Telemetry.logEvent(
+            'module_mastered',
+            buildModuleMastered(moduleId: widget.packId ?? ''),
+          ),
+        );
       }
       child = Column(
         children: [

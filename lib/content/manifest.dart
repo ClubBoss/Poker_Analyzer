@@ -24,4 +24,3 @@ class ContentManifest {
 
 bool isReady(String moduleId, {String path = ContentManifest.path}) =>
     ContentManifest.loadSync(path: path).isReady(moduleId);
-

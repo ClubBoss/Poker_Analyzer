@@ -93,10 +93,7 @@ class _TheoryRecapDialogState extends State<TheoryRecapDialog> {
       return const Scaffold(
         backgroundColor: AppColors.background,
         body: Center(
-          child: Text(
-            'No theory found',
-            style: TextStyle(color: Colors.white),
-          ),
+          child: Text('No theory found', style: TextStyle(color: Colors.white)),
         ),
       );
     }

@@ -9,4 +9,3 @@ List<UiSpot> loadIcmL4MixV1Stub() {
   final r = SpotImporter.parse(_icmL4MixV1Stub, format: 'jsonl');
   return r.spots;
 }
-

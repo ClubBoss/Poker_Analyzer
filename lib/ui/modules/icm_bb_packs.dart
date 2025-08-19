@@ -22,4 +22,3 @@ List<UiSpot> loadIcmL4BbV1() {
   final r = SpotImporter.parse(icmL4BbV1Jsonl, format: 'jsonl');
   return r.spots;
 }
-

@@ -9,12 +9,10 @@ void main() {
     expect(spots.isNotEmpty, true);
     final kinds = spots.map((s) => s.kind).toSet();
     expect(
-      kinds
-          .difference({
-            SpotKind.l4_icm_sb_jam_vs_fold,
-            SpotKind.l4_icm_bb_jam_vs_fold,
-          })
-          .isEmpty,
+      kinds.difference({
+        SpotKind.l4_icm_sb_jam_vs_fold,
+        SpotKind.l4_icm_bb_jam_vs_fold,
+      }).isEmpty,
       true,
     );
     for (final k in kinds) {

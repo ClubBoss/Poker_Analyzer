@@ -21,4 +21,3 @@ List<UiSpot> loadIcmL4BubbleV1() {
   final r = SpotImporter.parse(icmL4BubbleV1Jsonl, format: 'jsonl');
   return r.spots;
 }
-

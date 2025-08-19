@@ -311,7 +311,12 @@ class _SkillTreePathScreenState extends State<SkillTreePathScreen> {
         unlockedNodeIds: _unlocked,
         completedNodeIds: _completed,
         justUnlockedNodeIds: _justUnlocked,
-        padding: const EdgeInsets.fromLTRB(12, 12 + _stickyHeaderHeight, 12, 12),
+        padding: const EdgeInsets.fromLTRB(
+          12,
+          12 + _stickyHeaderHeight,
+          12,
+          12,
+        ),
         spacing: 20,
         onNodeTap: _openNode,
         stageKeys: _stageKeys,

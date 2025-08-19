@@ -91,10 +91,14 @@ class _RecapFatigueCooldownVisualizerState
       );
     }
     if (fatigued) {
-      chips.add(const _ChipInfo('💤', 'Fatigue', 'User dismissed previous prompts'));
+      chips.add(
+        const _ChipInfo('💤', 'Fatigue', 'User dismissed previous prompts'),
+      );
     }
     if (suppressed) {
-      chips.add(const _ChipInfo('🚫', 'Suppressed', 'Suppressed by analytics rules'));
+      chips.add(
+        const _ChipInfo('🚫', 'Suppressed', 'Suppressed by analytics rules'),
+      );
     }
     if (dismissed) {
       chips.add(

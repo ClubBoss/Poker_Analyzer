@@ -169,7 +169,10 @@ class _AutogenMetricsDashboardScreenState
                 const SizedBox(height: 16),
                 const AutogenDebugControlPanelWidget(),
                 const SizedBox(height: 16),
-                const SizedBox(height: 300, child: AutogenEventLogViewerWidget()),
+                const SizedBox(
+                  height: 300,
+                  child: AutogenEventLogViewerWidget(),
+                ),
                 const SizedBox(height: 16),
                 const AutogenErrorInspectorWidget(),
                 const SizedBox(height: 16),
