@@ -37,6 +37,8 @@ const List<String> kCurriculumModuleIds = [
   'hu_postflop',
   'hu_turn_play',
   'hu_river_play',
+  'core_positions_and_initiative',
+  'core_board_textures',
 ];
 
 String? firstMissing(Iterable<String> done) {
