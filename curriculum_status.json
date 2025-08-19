@@ -17,6 +17,7 @@
     "cash_threebet_pots",
     "cash_multiway_pots",
     "cash_blind_defense",
-    "cash_isolation_raises"
+    "cash_isolation_raises",
+    "cash_short_handed"
   ]
 }
