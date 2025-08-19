@@ -15,6 +15,7 @@
     "cash_rake_and_stakes",
     "cash_single_raised_pots",
     "cash_threebet_pots",
-    "cash_multiway_pots"
+    "cash_multiway_pots",
+    "cash_blind_defense"
   ]
 }
