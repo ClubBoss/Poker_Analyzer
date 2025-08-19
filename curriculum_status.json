@@ -10,6 +10,7 @@
     "core_bet_sizing_fe",
     "core_gto_vs_exploit",
     "core_bankroll_management",
-    "core_mental_game"
+    "core_mental_game",
+    "core_note_taking"
   ]
 }
