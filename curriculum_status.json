@@ -2,6 +2,7 @@
   "modules_done": [
     "core_rules_and_setup",
     "core_pot_odds_equity",
+    "core_starting_hands",
     "core_flop_play",
     "core_turn_river_play",
     "core_blockers_combos",
@@ -27,13 +28,7 @@
     "mtt_bubble_and_FT",
     "mtt_pko_strategy",
     "mtt_satellite_strategy",
-    "hu_preflop",
-    "hu_postflop",
-    "hu_turn_play",
-    "hu_river_play",
-    "spr_basics",
-    "live_tells_and_dynamics",
-    "online_tells_and_dynamics",
-    "core_starting_hands"
+    "hu_preflop_strategy",
+    "hu_postflop_play"
   ]
 }
