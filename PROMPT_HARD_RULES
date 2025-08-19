@@ -1,0 +1,45 @@
+Poker Analyzer — Prompt Hard Rules (Codex)
+
+Purpose
+Prevent regressions in Codex prompts. This document is an add-on to PROMPT_RULES.md and PROJECT_INSTRUCTIONS.txt.
+
+Scope
+Applies to all Codex-generated prompts for skeleton modules.
+
+Hard Invariants
+
+1. curriculum_status.json
+   • Append-only. Never reorder or remove existing moduleIds.  
+   • Order must follow tooling/curriculum_ids.dart exactly.  
+   • The only allowed change: add "<NEXT>" at the end of modules_done.
+
+2. Loaders
+   • Modify exactly 1 loader file per NEXT (lib/packs/<NEXT>_loader.dart).  
+   • Do not touch loaders for non-NEXT modules. No downgrades to placeholders.  
+   • If a loader file already exists for another module, leave it untouched.
+
+3. Files per PR
+   • Exactly 2 files changed:  
+     – lib/packs/<NEXT>_loader.dart (new stub or minimal skeleton)  
+     – curriculum_status.json (append the moduleId).  
+   • No other files must be touched.
+
+4. Counter and Prompt Format
+   • Counter increments each merge.  
+   • Prompt must include: Progress, Codex prompt with (a) Task, (b) Key notes, (c) Goal (DoD).  
+   • Footer must repeat quality gates.
+
+5. Quality Gates
+   • enum append-only (last + comma, no dups).  
+   • dart format — no diffs.  
+   • dart analyze — clean.  
+   • Canonical guard unchanged, single site.  
+   • actions/subtitle via maps, no legacy switches.  
+   • Tests pure-Dart where possible.
+
+Severity
+Violations of rules (1) or (2) are P0 regressions (fix immediately).
+Violations of rules (3-5) are P1 (fix within 24h).
+
+Reference
+See also: PROJECT_INSTRUCTIONS.txt, PROMPT_RULES.md, NEXT_RUNBOOK.md.
