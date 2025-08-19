@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:file_picker/file_picker.dart';
 import '../services/template_storage_service.dart';
-import '../core/training/generation/yaml_reader.dart';
 
 const _validStreets = ['preflop', 'flop', 'turn', 'river'];
 

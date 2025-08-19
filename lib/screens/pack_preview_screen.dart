@@ -12,7 +12,6 @@ import '../services/pack_generator_service.dart';
 import '../services/training_session_service.dart';
 import '../services/smart_suggestion_service.dart';
 import '../services/pack_favorite_service.dart';
-import '../core/training/generation/yaml_reader.dart';
 import 'training_session_screen.dart';
 
 class PackPreviewScreen extends StatefulWidget {
