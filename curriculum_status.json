@@ -21,6 +21,7 @@
     "cash_short_handed",
     "cash_population_exploits",
     "mtt_antes_phases",
-    "mtt_short_stack"
+    "mtt_short_stack",
+    "mtt_mid_stack"
   ]
 }
