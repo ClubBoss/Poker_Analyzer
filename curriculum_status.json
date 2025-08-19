@@ -30,6 +30,7 @@
     "mtt_satellite_strategy",
     "hu_preflop",
     "hu_postflop",
-    "hu_turn_play"
+    "hu_turn_play",
+    "hu_river_play"
   ]
 }
