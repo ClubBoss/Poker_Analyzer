@@ -22,6 +22,7 @@
     "cash_population_exploits",
     "mtt_antes_phases",
     "mtt_short_stack",
-    "mtt_mid_stack"
+    "mtt_mid_stack",
+    "mtt_deep_stack"
   ]
 }
