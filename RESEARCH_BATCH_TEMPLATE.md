@@ -1,23 +1,18 @@
 # Research Batch Template — Content Phase
 
 ## Input
+```
 GO MODULES: <id1>,<id2>,<id3>
 STYLE OVERRIDE: (as in PROMPT_RULES.md)
-
-perl
-Copy
-Edit
+```
 
 ## Output
 For each `<id>` produce exactly 3 files:
-
+```
 content/<id>/v1/theory.md
 content/<id>/v1/demos.jsonl
 content/<id>/v1/drills.jsonl
-
-markdown
-Copy
-Edit
+```
 
 ### theory.md
 - 450–550 words max.
