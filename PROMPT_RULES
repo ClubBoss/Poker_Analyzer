@@ -1,0 +1,47 @@
+Poker Analyzer — Prompt Rules (Codex)
+
+Cadence & Scope
+
+Strict loop: Prompt -> Codex -> PR -> merge -> analysis -> next Prompt.
+
+If no PR: reply only "ACK: waiting for PR."
+
+Produce Codex prompts (EN) only. No code dumps.
+
+Each prompt targets 1-2 code files (ASCII-only, tiny, reversible). Update curriculum_status.json in the same PR.
+
+SSOT & Coverage
+
+Order: tooling/curriculum_ids.dart (append-only).
+
+Status: curriculum_status.json (modules_done; append-only).
+
+NEXT: printed by test/curriculum_status_test.dart.
+
+SpotKind enum: append-only; no rename/reorder.
+
+Data-driven UI: actionsMap, subtitlePrefix; no legacy switches.
+
+Quality Gates
+
+enum append-only (last + comma, no dups)
+
+dart format — no diffs
+
+dart analyze — clean
+
+actions/subtitle via data maps
+
+Canonical guard unchanged, single site:
+!correct&&autoWhy&&(spot.kind==SpotKind.l3_flop_jam_vs_raise||spot.kind==SpotKind.l3_turn_jam_vs_raise||spot.kind==SpotKind.l3_river_jam_vs_raise)&&!_replayed.contains(spot)
+
+Prefer pure-Dart tests; mobile-only UX
+
+Reply Format
+Progress — 1-3 lines.
+Codex prompt (EN, <=3 blocks):
+Counter — X/100 (+Δ%)
+(a) Task — surgical change; 1-2 files; ASCII-only
+(b) Key notes — invariants, SSOT refs
+(c) Goal (DoD) — builds; analyzer clean; visible outcome
+Quality Footer — enum append-only; dart format; dart analyze; actions/subtitle; guard; tests.
