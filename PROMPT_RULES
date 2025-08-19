@@ -1,87 +1,19 @@
-# PROMPT_RULES.md
+# Prompt Rules — Poker Analyzer
 
-## Operating mode
+## General
+- Always 1 prompt → 1 response → merge → next.
+- Tiny diffs in Codex (1–2 files). No new deps.
+- Content lives in Research chat, not Codex.
 
-- Cadence: Prompt -> Codex -> PR -> merge -> analysis -> next.
-- Assistant outputs Codex prompts only (EN). No code from assistant.
-- PR scope: 1–2 files, tiny reversible diffs, ASCII-only. No new deps unless explicitly requested.
-- This chat handles loaders/maps/tests/telemetry/wiring. Lesson content is generated in the Research chat.
-- Priorities: functional gaps -> correctness -> polish. Bugs: P0 now, P1 <=24h, P2 batched end of sprint.
+## Codex Chat
+- Purpose: structure, loaders, status, validation.
+- Skeleton phase: DONE.
+- Now: only maintenance (if enum or loader needs update).
+- Never generate lesson text here.
 
-## Quality gates (every PR)
+## Research Chat
+- Purpose: generate module content (theory/demos/drills).
+- Entry point: paste `GO MODULES: <id1>,<id2>,…`.
+- Always add STYLE OVERRIDE:
 
-1) Enum discipline: append-only; last item ends with a comma; no duplicates.  
-2) `dart format` -> no diffs.  
-3) `dart analyze` -> clean.  
-4) UI data sources: `actionsMap` and `subtitlePrefix` only. No legacy `switch` on `spot.kind`.  
-5) Canonical auto-replay guard unchanged exactly as below.  
-6) Tests prefer pure-Dart (no Flutter). Mobile UX only (no desktop hotkeys).
 
-Canonical guard (do not change):
-!correct && autoWhy && (spot.kind == SpotKind.l3_flop_jam_vs_raise || spot.kind == SpotKind.l3_turn_jam_vs_raise || spot.kind == SpotKind.l3_river_jam_vs_raise) && !_replayed.contains(spot)
-
-## CI hygiene
-
-- CI runs `flutter analyze` and `flutter test`. Keep builds green and fast.
-- Local pre-commit one-liner:
-dart format --set-exit-if-changed . && dart analyze
-
-## Curriculum governance (SSOT + overlay)
-
-- SSOT: `tooling/curriculum_ids.dart`
-  - `kCurriculumModuleIds` is append-only. No reordering. No renames. ASCII IDs.
-  - `firstMissing(done)` iterates the base list order.
-- Status: `curriculum_status.json`
-  - `modules_done` records merged modules. It must be a subset of `kCurriculumModuleIds`.
-- Recommendation overlay:
-  - `kModulePriority` is a tiny layer for recommendations only. It never changes SSOT order.
-  - Use `recommendedNext(done)` for user-facing "NEXT". It:
-    - sorts by priority first, then by original index in `kCurriculumModuleIds`;
-    - skips any ID containing `:` (pack IDs are not modules).
-  - Overlay constraints:
-    - keys limited to `core_*` or `spr_*`;
-    - size <= 5 entries total;
-    - deterministic tie-break by base index.
-- Guard tests:
-  - `test/curriculum_consistency_test.dart`:
-    - `modules_done` ⊆ `kCurriculumModuleIds`;
-    - no duplicates in `kCurriculumModuleIds`;
-    - core stub loader returns exactly one spot of expected kind.
-  - `test/curriculum_next_test.dart`:
-    - prints `NEXT: <id>` or `NEXT: done` using `recommendedNext(done)`;
-    - any suggested `<id>` is in `kCurriculumModuleIds` and does not contain `:`.
-  - `test/curriculum_overlay_guard_test.dart`:
-    - overlay size/type/keys constraints;
-    - `logicalOrder()` is a permutation of the base list;
-    - `recommendedNext({})` returns a valid non-pack ID or null.
-
-## Packs and titles
-
-- Pack IDs like `cash:l3:v1` are not curriculum module IDs. Do not use them in `kCurriculumModuleIds`. They may appear in `kModuleTitles` for UI labels.
-- `recommendedNext` must skip any ID containing `:`.
-
-## SpotKind and naming
-
-- `SpotKind` is append-only. No renames, no reorders (indices are persisted).
-- Preferred pattern: `l{level}_{scope}_{pattern}`.
-- Optional dev validator may warn in tests, but must not affect prod.
-
-## Telemetry
-
-- Existing events must not be renamed. New events require clear naming, ASCII-only.
-- Log non-blocking. Avoid double-logging. Tests remain pure-Dart.
-
-## Internationalization
-
-- Use `intl ^0.19`. Keep `ActionEntry` immutable. Use `AppLocalizations` for UI strings.
-- Tests should not depend on localization files.
-
-## PR template checklist (copy into PR description)
-
-- [ ] Scope: 1–2 files. Tiny reversible diff. ASCII-only.
-- [ ] SSOT unchanged or append-only; no renames; no reorders.
-- [ ] Exactly one occurrence of the canonical guard condition site; logic unchanged.
-- [ ] UI reads `actionsMap` / `subtitlePrefix` only; no `switch` on `spot.kind`.
-- [ ] `dart format` clean; `dart analyze` clean.
-- [ ] Tests updated/added; pure-Dart where possible; CI green.
-- [ ] If curriculum touched: `modules_done` ⊆ `kCurriculumModuleIds`; use `recommendedNext` for NEXT.
