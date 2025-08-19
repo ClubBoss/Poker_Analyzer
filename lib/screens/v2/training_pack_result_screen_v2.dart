@@ -17,7 +17,6 @@ import '../../services/mistake_review_pack_service.dart';
 import '../../utils/responsive.dart';
 import '../../services/smart_suggestion_service.dart';
 import '../../services/training_session_service.dart';
-import '../../core/training/generation/yaml_reader.dart';
 import '../../services/weak_spot_recommendation_service.dart';
 import '../training_session_screen.dart';
 import '../../services/auto_mistake_tagger_engine.dart';
