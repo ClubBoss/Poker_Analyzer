@@ -32,6 +32,7 @@
     "hu_postflop",
     "hu_turn_play",
     "hu_river_play",
-    "spr_basics"
+    "spr_basics",
+    "live_tells_and_dynamics"
   ]
 }
