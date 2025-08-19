@@ -5,6 +5,7 @@
     "icm:l4:mix:v1",
     "core_pot_odds_equity",
     "core_starting_hands",
-    "core_flop_play"
+    "core_flop_play",
+    "core_turn_river_play"
   ]
 }
