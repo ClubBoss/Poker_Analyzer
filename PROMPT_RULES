@@ -16,4 +16,36 @@
 - Entry point: paste `GO MODULES: <id1>,<id2>,…`.
 - Always add STYLE OVERRIDE:
 
+STYLE OVERRIDE:
 
+Audience: user-friendly, amateur-friendly, mobile-first
+
+Theory.md = 450–550 words
+
+What it is (2–3 lines)
+
+Why it matters (2–3 lines)
+
+Rules of thumb (3–5 bullets)
+
+Mini example (3–5 lines)
+
+Common mistakes (3 bullets)
+
+Demos.jsonl: 2–3 items, step <= 1 line
+
+Drills.jsonl: 12–16 items, rationale <= 1 line
+
+ASCII only, IDs per schema
+
+diff
+Copy
+Edit
+
+- Generated files must pass [CONTENT_SCHEMAS.md] and test/content_schema_test.dart.
+
+## Quality Gates
+- ASCII-only, schema-valid.
+- SpotKind enum append-only.
+- Canonical guard unchanged.
+- Tests: pure-Dart validation of content.
