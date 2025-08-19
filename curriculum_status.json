@@ -36,6 +36,7 @@
     "online_tells_and_dynamics",
     "hu_preflop",
     "hu_postflop",
-    "hu_turn_play"
+    "hu_turn_play",
+    "hu_river_play"
   ]
 }
