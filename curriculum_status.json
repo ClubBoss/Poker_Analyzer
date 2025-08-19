@@ -9,6 +9,7 @@
     "core_turn_river_play",
     "core_blockers_combos",
     "core_equity_realization",
-    "core_bet_sizing_fe"
+    "core_bet_sizing_fe",
+    "core_gto_vs_exploit"
   ]
 }
