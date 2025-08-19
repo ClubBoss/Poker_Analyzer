@@ -11,6 +11,7 @@
     "core_bet_sizing_fe",
     "core_gto_vs_exploit",
     "core_bankroll_management",
-    "core_pot_odds_equity"
+    "core_pot_odds_equity",
+    "core_position_basics"
   ]
 }
