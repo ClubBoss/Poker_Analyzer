@@ -1,3 +1,12 @@
+/// Curriculum module IDs and overlay priorities.
+///
+/// `kCurriculumModuleIds` is the single source of truth for the curriculum.
+/// Add new IDs only to the end; never reorder or rename existing entries.
+/// `kModulePriority` is a tiny overlay used only for `recommendedNext`
+/// suggestions and does not change the canonical order. The overlay may list
+/// at most five `core_*` or `spr_*` IDs. When priorities tie, the original
+/// index in `kCurriculumModuleIds` is used, and `recommendedNext` skips any ID
+/// containing a colon.
 const List<String> kCurriculumModuleIds = [
   'core_rules_and_setup',
   'core_pot_odds_equity',
