@@ -29,6 +29,7 @@
     "mtt_pko_strategy",
     "mtt_satellite_strategy",
     "hu_preflop_strategy",
-    "hu_postflop_play"
+    "hu_postflop_play",
+    "hu_exploit_adv"
   ]
 }
