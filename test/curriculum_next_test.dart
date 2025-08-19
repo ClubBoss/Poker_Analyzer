@@ -11,19 +11,12 @@ void main() {
             as Map<String, dynamic>;
     final done = (status['modules_done'] as List).cast<String>().toSet();
 
-    String? nextId;
-    for (final id in kCurriculumModuleIds) {
-      if (!done.contains(id)) {
-        nextId = id;
-        break;
-      }
-    }
-
+    final nextId = recommendedNext(done);
     print(nextId == null ? 'NEXT: done' : 'NEXT: $nextId');
 
     if (nextId != null) {
-      expect(nextId.contains(':'), isFalse);
       expect(kCurriculumModuleIds, contains(nextId));
+      expect(nextId.contains(':'), isFalse);
     }
   });
 }
