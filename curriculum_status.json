@@ -34,6 +34,7 @@
     "spr_basics",
     "live_tells_and_dynamics",
     "online_tells_and_dynamics",
-    "core_starting_hands"
+    "core_starting_hands",
+    "core_flop_play"
   ]
 }
