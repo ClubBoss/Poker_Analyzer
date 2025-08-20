@@ -1,0 +1,3 @@
+{ "id": "core_note_taking:demo:01", "title": "Turn a hand into a note", "steps": ["Extract seat, action, sizes", "Write one tagged line", "Save with context"], "hints": ["Facts first, tags second"] }
+{ "id": "core_note_taking:demo:02", "title": "Tag library", "steps": ["List 10 core tags", "Agree on codes with study group", "Keep each note under one line"], "hints": ["Consistency beats flair"] }
+{ "id": "core_note_taking:demo:03", "title": "Weekly review", "steps": ["Scan for repeats", "Promote to exploits", "Archive stale or noisy notes"], "hints": ["Trim and focus"] }
