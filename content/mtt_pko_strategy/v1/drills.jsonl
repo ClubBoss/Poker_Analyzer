@@ -1,0 +1,14 @@
+{ "id": "mtt_pko_strategy:drill:01", "spotKind": "l1_core_call_vs_price", "params": { "price": "2bb", "potBefore": "8bb" }, "target": ["call","fold"], "rationale": "Small c-bet; bounty irrelevant here" }
+{ "id": "mtt_pko_strategy:drill:02", "spotKind": "l1_core_call_vs_price", "params": { "price": "5bb", "potBefore": "10bb" }, "target": ["call","fold"], "rationale": "Jam math when you cover bounty" }
+{ "id": "mtt_pko_strategy:drill:03", "spotKind": "l1_core_call_vs_price", "params": { "price": "3bb", "potBefore": "12bb" }, "target": ["call","fold"], "rationale": "Quarter-pot stab; plan to isolate later" }
+{ "id": "mtt_pko_strategy:drill:04", "spotKind": "l1_core_call_vs_price", "params": { "price": "6bb", "potBefore": "9bb" }, "target": ["call","fold"], "rationale": "Two-thirds; covered by villain, tighten" }
+{ "id": "mtt_pko_strategy:drill:05", "spotKind": "l1_core_call_vs_price", "params": { "price": "7bb", "potBefore": "21bb" }, "target": ["call","fold"], "rationale": "One-third turn; bounty target ahead" }
+{ "id": "mtt_pko_strategy:drill:06", "spotKind": "l1_core_call_vs_price", "params": { "price": "9bb", "potBefore": "9bb" }, "target": ["call","fold"], "rationale": "Pot-size all-in; call wider if you cover" }
+{ "id": "mtt_pko_strategy:drill:07", "spotKind": "l1_core_call_vs_price", "params": { "price": "2.2bb", "potBefore": "6.6bb" }, "target": ["call","fold"], "rationale": "Quarter-pot; set up iso on later street" }
+{ "id": "mtt_pko_strategy:drill:08", "spotKind": "l1_core_call_vs_price", "params": { "price": "10bb", "potBefore": "20bb" }, "target": ["call","fold"], "rationale": "Half-pot turn; protect bounty when covered" }
+{ "id": "mtt_pko_strategy:drill:09", "spotKind": "l1_core_call_vs_price", "params": { "price": "12bb", "potBefore": "24bb" }, "target": ["call","fold"], "rationale": "Two-thirds river; bounty rarely justifies hero" }
+{ "id": "mtt_pko_strategy:drill:10", "spotKind": "l1_core_call_vs_price", "params": { "price": "3.5bb", "potBefore": "7bb" }, "target": ["call","fold"], "rationale": "Half-pot tiny pot; conserve when covered" }
+{ "id": "mtt_pko_strategy:drill:11", "spotKind": "l1_core_call_vs_price", "params": { "price": "6.5bb", "potBefore": "13bb" }, "target": ["call","fold"], "rationale": "Near two-thirds; isolate only with equity" }
+{ "id": "mtt_pko_strategy:drill:12", "spotKind": "l1_core_call_vs_price", "params": { "price": "8bb", "potBefore": "16bb" }, "target": ["call","fold"], "rationale": "Half-pot turn; bounty-aware fold equity" }
+{ "id": "mtt_pko_strategy:drill:13", "spotKind": "l1_core_call_vs_price", "params": { "price": "5bb", "potBefore": "25bb" }, "target": ["call","fold"], "rationale": "Half-pot after checks; chase bounty heads-up" }
+{ "id": "mtt_pko_strategy:drill:14", "spotKind": "l1_core_call_vs_price", "params": { "price": "14bb", "potBefore": "28bb" }, "target": ["call","fold"], "rationale": "Large river; bounty seldom enough" }

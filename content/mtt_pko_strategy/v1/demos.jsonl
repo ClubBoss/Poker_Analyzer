@@ -1,0 +1,3 @@
+{ "id": "mtt_pko_strategy:demo:01", "title": "Coverage check", "steps": ["Ask if you cover the all-in", "Estimate bounty size vs buy-in", "Loosen or tighten accordingly"], "hints": ["Cover = wider calls"] }
+{ "id": "mtt_pko_strategy:demo:02", "title": "Isolate the bounty", "steps": ["Short stack jams with bounty", "Raise to isolate if needed", "Play heads-up for capture"], "hints": ["Avoid multiway traps"] }
+{ "id": "mtt_pko_strategy:demo:03", "title": "Late-stage upgrade", "steps": ["Spot big bounties", "Prefer lines that realize equity", "Balance risk if covered"], "hints": ["Bounties grow in value late"] }

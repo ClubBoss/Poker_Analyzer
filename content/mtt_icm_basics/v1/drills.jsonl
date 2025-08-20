@@ -1,0 +1,14 @@
+{ "id": "mtt_icm_basics:drill:01", "spotKind": "l1_core_call_vs_price", "params": { "price": "2bb", "potBefore": "8bb" }, "target": ["call","fold"], "rationale": "Ante pot but covered; defend tighter" }
+{ "id": "mtt_icm_basics:drill:02", "spotKind": "l1_core_call_vs_price", "params": { "price": "3bb", "potBefore": "9bb" }, "target": ["call","fold"], "rationale": "Half-pot with pay jump looming" }
+{ "id": "mtt_icm_basics:drill:03", "spotKind": "l1_core_call_vs_price", "params": { "price": "6bb", "potBefore": "9bb" }, "target": ["call","fold"], "rationale": "Two-thirds vs stack that covers you" }
+{ "id": "mtt_icm_basics:drill:04", "spotKind": "l1_core_call_vs_price", "params": { "price": "1.5bb", "potBefore": "10.5bb" }, "target": ["call","fold"], "rationale": "Cheap peel but ICM pressure high" }
+{ "id": "mtt_icm_basics:drill:05", "spotKind": "l1_core_call_vs_price", "params": { "price": "7bb", "potBefore": "21bb" }, "target": ["call","fold"], "rationale": "One-third turn; covered continues tighten" }
+{ "id": "mtt_icm_basics:drill:06", "spotKind": "l1_core_call_vs_price", "params": { "price": "9bb", "potBefore": "9bb" }, "target": ["call","fold"], "rationale": "Pot-size shove; ladder risk large" }
+{ "id": "mtt_icm_basics:drill:07", "spotKind": "l1_core_call_vs_price", "params": { "price": "2.2bb", "potBefore": "6.6bb" }, "target": ["call","fold"], "rationale": "Quarter-pot; still fold weak vs CL" }
+{ "id": "mtt_icm_basics:drill:08", "spotKind": "l1_core_call_vs_price", "params": { "price": "10bb", "potBefore": "20bb" }, "target": ["call","fold"], "rationale": "Half-pot turn facing cover stack" }
+{ "id": "mtt_icm_basics:drill:09", "spotKind": "l1_core_call_vs_price", "params": { "price": "12bb", "potBefore": "24bb" }, "target": ["call","fold"], "rationale": "Two-thirds river; fold many bluff-catchers" }
+{ "id": "mtt_icm_basics:drill:10", "spotKind": "l1_core_call_vs_price", "params": { "price": "3.5bb", "potBefore": "7bb" }, "target": ["call","fold"], "rationale": "Half-pot tiny pot; pay jump discipline" }
+{ "id": "mtt_icm_basics:drill:11", "spotKind": "l1_core_call_vs_price", "params": { "price": "6.5bb", "potBefore": "13bb" }, "target": ["call","fold"], "rationale": "Near two-thirds vs chip leader" }
+{ "id": "mtt_icm_basics:drill:12", "spotKind": "l1_core_call_vs_price", "params": { "price": "8bb", "potBefore": "16bb" }, "target": ["call","fold"], "rationale": "Half-pot turn; prefer shove lines earlier" }
+{ "id": "mtt_icm_basics:drill:13", "spotKind": "l1_core_call_vs_price", "params": { "price": "5bb", "potBefore": "25bb" }, "target": ["call","fold"], "rationale": "Half-pot after checks; pressure middles" }
+{ "id": "mtt_icm_basics:drill:14", "spotKind": "l1_core_call_vs_price", "params": { "price": "14bb", "potBefore": "28bb" }, "target": ["call","fold"], "rationale": "Large river facing cover; fold more" }
