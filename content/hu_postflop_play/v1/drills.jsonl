@@ -1,0 +1,14 @@
+{ "id": "hu_postflop_play:drill:01", "spotKind": "l1_core_call_vs_price", "params": { "price": "1bb", "potBefore": "4bb" }, "target": ["call","fold"], "rationale": "Quarter-pot HU c-bet defense" }
+{ "id": "hu_postflop_play:drill:02", "spotKind": "l1_core_call_vs_price", "params": { "price": "2bb", "potBefore": "6bb" }, "target": ["call","fold"], "rationale": "Third-pot on dry Axx" }
+{ "id": "hu_postflop_play:drill:03", "spotKind": "l1_core_call_vs_price", "params": { "price": "3bb", "potBefore": "6bb" }, "target": ["call","fold"], "rationale": "Half-pot; continue with equity" }
+{ "id": "hu_postflop_play:drill:04", "spotKind": "l1_core_call_vs_price", "params": { "price": "4bb", "potBefore": "8bb" }, "target": ["call","fold"], "rationale": "Half-pot again on wetter board" }
+{ "id": "hu_postflop_play:drill:05", "spotKind": "l1_core_call_vs_price", "params": { "price": "6bb", "potBefore": "9bb" }, "target": ["call","fold"], "rationale": "Two-thirds; fold weak backdoors" }
+{ "id": "hu_postflop_play:drill:06", "spotKind": "l1_core_call_vs_price", "params": { "price": "9bb", "potBefore": "9bb" }, "target": ["call","fold"], "rationale": "Pot-size polar; need blockers" }
+{ "id": "hu_postflop_play:drill:07", "spotKind": "l1_core_call_vs_price", "params": { "price": "1.2bb", "potBefore": "4.8bb" }, "target": ["call","fold"], "rationale": "Small stab; float wide IP" }
+{ "id": "hu_postflop_play:drill:08", "spotKind": "l1_core_call_vs_price", "params": { "price": "5bb", "potBefore": "20bb" }, "target": ["call","fold"], "rationale": "Half-pot turn leverage node" }
+{ "id": "hu_postflop_play:drill:09", "spotKind": "l1_core_call_vs_price", "params": { "price": "7bb", "potBefore": "21bb" }, "target": ["call","fold"], "rationale": "One-third turn; deny equity" }
+{ "id": "hu_postflop_play:drill:10", "spotKind": "l1_core_call_vs_price", "params": { "price": "12bb", "potBefore": "24bb" }, "target": ["call","fold"], "rationale": "Two-thirds river; call with blockers" }
+{ "id": "hu_postflop_play:drill:11", "spotKind": "l1_core_call_vs_price", "params": { "price": "2.2bb", "potBefore": "6.6bb" }, "target": ["call","fold"], "rationale": "Quarter-pot; stab back as IP" }
+{ "id": "hu_postflop_play:drill:12", "spotKind": "l1_core_call_vs_price", "params": { "price": "8bb", "potBefore": "16bb" }, "target": ["call","fold"], "rationale": "Half-pot turn; plan river jam" }
+{ "id": "hu_postflop_play:drill:13", "spotKind": "l1_core_call_vs_price", "params": { "price": "10bb", "potBefore": "30bb" }, "target": ["call","fold"], "rationale": "One-third river blocker bet math" }
+{ "id": "hu_postflop_play:drill:14", "spotKind": "l1_core_call_vs_price", "params": { "price": "14bb", "potBefore": "28bb" }, "target": ["call","fold"], "rationale": "Large river polar; fold thin" }

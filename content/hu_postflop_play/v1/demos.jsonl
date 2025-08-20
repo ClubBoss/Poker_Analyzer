@@ -1,0 +1,3 @@
+{ "id": "hu_postflop_play:demo:01", "title": "Board to size", "steps": ["Identify high-card dry vs low wet", "Pick small or big size", "Assign value/bluffs accordingly"], "hints": ["Dry small, wet big"] }
+{ "id": "hu_postflop_play:demo:02", "title": "Turn barrel test", "steps": ["Ask who card helps", "Keep equity/backdoor bluffs", "Cut air on bad cards"], "hints": ["Card quality drives frequency"] }
+{ "id": "hu_postflop_play:demo:03", "title": "River selection", "steps": ["List value and bluffs", "Check blockers to calls/folds", "Choose polar size or check"], "hints": ["Unblock folds when bluffing"] }

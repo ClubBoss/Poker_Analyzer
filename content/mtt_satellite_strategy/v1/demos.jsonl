@@ -1,0 +1,3 @@
+{ "id": "mtt_satellite_strategy:demo:01", "title": "Seat line tracker", "steps": ["Compute total chips/seats", "Compare your stack to line", "Choose build or preserve gear"], "hints": [">1.2x line = fold-first"] }
+{ "id": "mtt_satellite_strategy:demo:02", "title": "Shove vs call", "steps": ["Ask who covers whom", "Prefer shoves to create FE", "Fold thin call-offs near bubble"], "hints": ["Calls bear full risk"] }
+{ "id": "mtt_satellite_strategy:demo:03", "title": "Table targeting", "steps": ["Pressure stacks you cover", "Avoid covered confrontations", "Open smaller to risk less"], "hints": ["ICM is extreme"] }

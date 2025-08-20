@@ -1,0 +1,14 @@
+{ "id": "mtt_satellite_strategy:drill:01", "spotKind": "l1_core_call_vs_price", "params": { "price": "2bb", "potBefore": "10bb" }, "target": ["call","fold"], "rationale": "Ante pot but safe stack; preserve" }
+{ "id": "mtt_satellite_strategy:drill:02", "spotKind": "l1_core_call_vs_price", "params": { "price": "5bb", "potBefore": "10bb" }, "target": ["call","fold"], "rationale": "Half-pot vs stack that covers you" }
+{ "id": "mtt_satellite_strategy:drill:03", "spotKind": "l1_core_call_vs_price", "params": { "price": "6bb", "potBefore": "9bb" }, "target": ["call","fold"], "rationale": "Two-thirds bubble pressure; overfold" }
+{ "id": "mtt_satellite_strategy:drill:04", "spotKind": "l1_core_call_vs_price", "params": { "price": "1.8bb", "potBefore": "10.2bb" }, "target": ["call","fold"], "rationale": "Cheap peel but covered; pass" }
+{ "id": "mtt_satellite_strategy:drill:05", "spotKind": "l1_core_call_vs_price", "params": { "price": "9bb", "potBefore": "9bb" }, "target": ["call","fold"], "rationale": "Pot-size all-in; seat line above" }
+{ "id": "mtt_satellite_strategy:drill:06", "spotKind": "l1_core_call_vs_price", "params": { "price": "7bb", "potBefore": "21bb" }, "target": ["call","fold"], "rationale": "One-third turn; fold-first mode" }
+{ "id": "mtt_satellite_strategy:drill:07", "spotKind": "l1_core_call_vs_price", "params": { "price": "3bb", "potBefore": "12bb" }, "target": ["call","fold"], "rationale": "Quarter-pot; avoid multiway" }
+{ "id": "mtt_satellite_strategy:drill:08", "spotKind": "l1_core_call_vs_price", "params": { "price": "10bb", "potBefore": "20bb" }, "target": ["call","fold"], "rationale": "Half-pot turn facing cover stack" }
+{ "id": "mtt_satellite_strategy:drill:09", "spotKind": "l1_core_call_vs_price", "params": { "price": "12bb", "potBefore": "24bb" }, "target": ["call","fold"], "rationale": "Two-thirds river; fold bluff-catchers" }
+{ "id": "mtt_satellite_strategy:drill:10", "spotKind": "l1_core_call_vs_price", "params": { "price": "2.2bb", "potBefore": "8.8bb" }, "target": ["call","fold"], "rationale": "Quarter-pot steal; preserve stack" }
+{ "id": "mtt_satellite_strategy:drill:11", "spotKind": "l1_core_call_vs_price", "params": { "price": "4bb", "potBefore": "20bb" }, "target": ["call","fold"], "rationale": "Half-pot after checks; say no" }
+{ "id": "mtt_satellite_strategy:drill:12", "spotKind": "l1_core_call_vs_price", "params": { "price": "14bb", "potBefore": "28bb" }, "target": ["call","fold"], "rationale": "Large river; seat > chips" }
+{ "id": "mtt_satellite_strategy:drill:13", "spotKind": "l1_core_call_vs_price", "params": { "price": "5bb", "potBefore": "25bb" }, "target": ["call","fold"], "rationale": "Half-pot vs short you cover; pressure" }
+{ "id": "mtt_satellite_strategy:drill:14", "spotKind": "l1_core_call_vs_price", "params": { "price": "8bb", "potBefore": "32bb" }, "target": ["call","fold"], "rationale": "Quarter-pot river; fold anyway when safe" }
