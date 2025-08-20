@@ -1,0 +1,12 @@
+{ "id": "core_rules_and_setup:drill:01", "spotKind": "l1_core_call_vs_price", "params": { "price": "2bb", "potBefore": "6bb" }, "target": ["call","fold"], "rationale": "Practice pot counting inside a rules context" }
+{ "id": "core_rules_and_setup:drill:02", "spotKind": "l1_core_call_vs_price", "params": { "price": "3bb", "potBefore": "9bb" }, "target": ["call","fold"], "rationale": "Reinforce action legality and sizing awareness" }
+{ "id": "core_rules_and_setup:drill:03", "spotKind": "l1_core_call_vs_price", "params": { "price": "1.5bb", "potBefore": "5bb" }, "target": ["call","fold"], "rationale": "Estimate pot odds quickly" }
+{ "id": "core_rules_and_setup:drill:04", "spotKind": "l1_core_call_vs_price", "params": { "price": "4bb", "potBefore": "10bb" }, "target": ["call","fold"], "rationale": "Link bet sizes to decisions" }
+{ "id": "core_rules_and_setup:drill:05", "spotKind": "l1_core_call_vs_price", "params": { "price": "2.5bb", "potBefore": "7.5bb" }, "target": ["call","fold"], "rationale": "Round numbers for fast math" }
+{ "id": "core_rules_and_setup:drill:06", "spotKind": "l1_core_call_vs_price", "params": { "price": "5bb", "potBefore": "12bb" }, "target": ["call","fold"], "rationale": "Bigger bets shift odds sharply" }
+{ "id": "core_rules_and_setup:drill:07", "spotKind": "l1_core_call_vs_price", "params": { "price": "1bb", "potBefore": "4bb" }, "target": ["call","fold"], "rationale": "Small calls still require equity" }
+{ "id": "core_rules_and_setup:drill:08", "spotKind": "l1_core_call_vs_price", "params": { "price": "6bb", "potBefore": "14bb" }, "target": ["call","fold"], "rationale": "Test threshold intuition" }
+{ "id": "core_rules_and_setup:drill:09", "spotKind": "l1_core_call_vs_price", "params": { "price": "3.5bb", "potBefore": "9bb" }, "target": ["call","fold"], "rationale": "Edge cases near breakeven" }
+{ "id": "core_rules_and_setup:drill:10", "spotKind": "l1_core_call_vs_price", "params": { "price": "2bb", "potBefore": "11bb" }, "target": ["call","fold"], "rationale": "Deep pot discounts call price" }
+{ "id": "core_rules_and_setup:drill:11", "spotKind": "l1_core_call_vs_price", "params": { "price": "7bb", "potBefore": "16bb" }, "target": ["call","fold"], "rationale": "High pressure decisions" }
+{ "id": "core_rules_and_setup:drill:12", "spotKind": "l1_core_call_vs_price", "params": { "price": "2.25bb", "potBefore": "6.75bb" }, "target": ["call","fold"], "rationale": "Mixed fractional sizes" }

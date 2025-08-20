@@ -1,0 +1,2 @@
+{ "id": "core_starting_hands:demo:01", "title": "Position-driven opens", "steps": ["List seats from UTG to BTN", "Assign tighter to wider ranges by seat", "Adjust for raise size and table looseness"], "hints": ["Position increases hand value"] }
+{ "id": "core_starting_hands:demo:02", "title": "3-bet or call?", "steps": ["Identify opener and size", "Check blockers and playability", "Choose 3-bet/value or fold; call only when justified"], "hints": ["SB prefers 3-bet-or-fold"] }

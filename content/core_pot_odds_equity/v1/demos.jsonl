@@ -1,0 +1,2 @@
+{ "id": "core_pot_odds_equity:demo:01", "title": "Compute required equity fast", "steps": ["Note potBefore and price", "Add them for total after call", "Divide price by total for threshold"], "hints": ["Threshold = price / (potBefore + price)"] }
+{ "id": "core_pot_odds_equity:demo:02", "title": "Apply to a flush draw", "steps": ["PotBefore 12bb, price 4bb", "Threshold 4/16 = 25%", "Estimate draw ~35%", "Decision: call or raise"], "hints": ["Compare estimate to threshold"] }

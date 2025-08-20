@@ -1,0 +1,15 @@
+{ "id": "core_starting_hands:drill:01", "spotKind": "l1_core_call_vs_price", "params": { "price": "2bb", "potBefore": "7bb" }, "target": ["call","fold"], "rationale": "Anchor preflop defense to price" }
+{ "id": "core_starting_hands:drill:02", "spotKind": "l1_core_call_vs_price", "params": { "price": "3bb", "potBefore": "4.5bb" }, "target": ["call","fold"], "rationale": "Versus large open, defend tighter" }
+{ "id": "core_starting_hands:drill:03", "spotKind": "l1_core_call_vs_price", "params": { "price": "2.5bb", "potBefore": "6.5bb" }, "target": ["call","fold"], "rationale": "CO open, BB defense math" }
+{ "id": "core_starting_hands:drill:04", "spotKind": "l1_core_call_vs_price", "params": { "price": "2.2bb", "potBefore": "5.8bb" }, "target": ["call","fold"], "rationale": "Modern small open sizes" }
+{ "id": "core_starting_hands:drill:05", "spotKind": "l1_core_call_vs_price", "params": { "price": "4bb", "potBefore": "6bb" }, "target": ["call","fold"], "rationale": "Live larger opens test discipline" }
+{ "id": "core_starting_hands:drill:06", "spotKind": "l1_core_call_vs_price", "params": { "price": "2bb", "potBefore": "5bb" }, "target": ["call","fold"], "rationale": "Button vs blind discount" }
+{ "id": "core_starting_hands:drill:07", "spotKind": "l1_core_call_vs_price", "params": { "price": "2.5bb", "potBefore": "9bb" }, "target": ["call","fold"], "rationale": "Multiway risk increases threshold" }
+{ "id": "core_starting_hands:drill:08", "spotKind": "l1_core_call_vs_price", "params": { "price": "3.5bb", "potBefore": "7bb" }, "target": ["call","fold"], "rationale": "Squeeze sizing pressure" }
+{ "id": "core_starting_hands:drill:09", "spotKind": "l1_core_call_vs_price", "params": { "price": "2.8bb", "potBefore": "8bb" }, "target": ["call","fold"], "rationale": "Loose table opens wider" }
+{ "id": "core_starting_hands:drill:10", "spotKind": "l1_core_call_vs_price", "params": { "price": "3bb", "potBefore": "10bb" }, "target": ["call","fold"], "rationale": "Big blind defend versus CO" }
+{ "id": "core_starting_hands:drill:11", "spotKind": "l1_core_call_vs_price", "params": { "price": "2.2bb", "potBefore": "7.8bb" }, "target": ["call","fold"], "rationale": "BTN vs SB decision frame" }
+{ "id": "core_starting_hands:drill:12", "spotKind": "l1_core_call_vs_price", "params": { "price": "5bb", "potBefore": "9bb" }, "target": ["call","fold"], "rationale": "Live splashy open forces folds" }
+{ "id": "core_starting_hands:drill:13", "spotKind": "l1_core_call_vs_price", "params": { "price": "2bb", "potBefore": "9bb" }, "target": ["call","fold"], "rationale": "Excellent direct pot odds" }
+{ "id": "core_starting_hands:drill:14", "spotKind": "l1_core_call_vs_price", "params": { "price": "3.2bb", "potBefore": "6.8bb" }, "target": ["call","fold"], "rationale": "Awkward middling sizes" }
+{ "id": "core_starting_hands:drill:15", "spotKind": "l1_core_call_vs_price", "params": { "price": "4.5bb", "potBefore": "11bb" }, "target": ["call","fold"], "rationale": "Facing a big 3-bet preflop" }
