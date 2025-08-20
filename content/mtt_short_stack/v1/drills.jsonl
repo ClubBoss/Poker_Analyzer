@@ -1,0 +1,3 @@
+{"id":"mtt_short_stack:drill:01","spotKind":"l1_core_call_vs_price","params":{"price":"5bb","potBefore":"10bb"},"target":["call","fold"],"rationale":"Half-pot threshold at short stack"}
+{"id":"mtt_short_stack:drill:02","spotKind":"l1_core_call_vs_price","params":{"price":"7bb","potBefore":"21bb"},"target":["call","fold"],"rationale":"One-third jam/fold pot"} 
+{"id":"mtt_short_stack:drill:03","spotKind":"l1_core_call_vs_price","params":{"price":"9bb","potBefore":"9bb"},"target":["call","fold"],"rationale":"Pot-sized call at risk"} 

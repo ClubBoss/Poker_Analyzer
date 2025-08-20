@@ -1,0 +1,3 @@
+{"id":"mtt_deep_stack:drill:01","spotKind":"l1_core_call_vs_price","params":{"price":"3bb","potBefore":"9bb"},"target":["call","fold"],"rationale":"One-third pot deep"} 
+{"id":"mtt_deep_stack:drill:02","spotKind":"l1_core_call_vs_price","params":{"price":"6bb","potBefore":"12bb"},"target":["call","fold"],"rationale":"Half-pot deep"} 
+{"id":"mtt_deep_stack:drill:03","spotKind":"l1_core_call_vs_price","params":{"price":"9bb","potBefore":"9bb"},"target":["call","fold"],"rationale":"Pot-size deep stack defense"} 
