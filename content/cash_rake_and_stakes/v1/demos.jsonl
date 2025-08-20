@@ -1,0 +1,3 @@
+{ "id": "cash_rake_and_stakes:demo:01", "title": "Read a rake sheet", "steps": ["Note percent and cap", "Check method (per pot or time)", "Adjust open sizes and targets"], "hints": ["Cap reached = later streets cleaner"] }
+{ "id": "cash_rake_and_stakes:demo:02", "title": "Pick a stake", "steps": ["Estimate hourly at each stake", "Include rake and lineup quality", "Choose best EV with acceptable swing"], "hints": ["bb/100 and $/h both matter"] }
+{ "id": "cash_rake_and_stakes:demo:03", "title": "Cap-aware plan", "steps": ["Build pot with value", "Avoid limp pots", "Press thin value after cap"], "hints": ["Cap unlocks aggression"] }

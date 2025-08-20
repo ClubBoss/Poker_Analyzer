@@ -1,0 +1,3 @@
+{"id": "cash_multiway_pots:demo:01", "title": "Tighten continuation", "steps": ["Count players", "Classify board wet/dry", "Keep bets to strong value and premium draws"], "hints": ["More players = stronger threshold"]}
+{"id": "cash_multiway_pots:demo:02", "title": "Overcall math", "steps": ["Note price and callers", "Require higher equity", "Fold weak backdoors"], "hints": ["Each caller improves odds for others"]}
+{"id": "cash_multiway_pots:demo:03", "title": "IP advantage", "steps": ["Prefer position for stabs", "Check OOP medium hands", "Barrel good turns only"], "hints": ["Position realizes equity"]}

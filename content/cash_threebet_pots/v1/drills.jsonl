@@ -1,0 +1,14 @@
+{ "id": "cash_threebet_pots:drill:01", "spotKind": "l1_core_call_vs_price", "params": { "price": "7bb", "potBefore": "21bb" }, "target": ["call","fold"], "rationale": "3-bet pot one-third defense" }
+{ "id": "cash_threebet_pots:drill:02", "spotKind": "l1_core_call_vs_price", "params": { "price": "10bb", "potBefore": "20bb" }, "target": ["call","fold"], "rationale": "Half-pot at low SPR" }
+{ "id": "cash_threebet_pots:drill:03", "spotKind": "l1_core_call_vs_price", "params": { "price": "14bb", "potBefore": "28bb" }, "target": ["call","fold"], "rationale": "Two-thirds IP vs OOP check" }
+{ "id": "cash_threebet_pots:drill:04", "spotKind": "l1_core_call_vs_price", "params": { "price": "21bb", "potBefore": "21bb" }, "target": ["call","fold"], "rationale": "Pot-size pressure at SPR~3" }
+{ "id": "cash_threebet_pots:drill:05", "spotKind": "l1_core_call_vs_price", "params": { "price": "5bb", "potBefore": "25bb" }, "target": ["call","fold"], "rationale": "Small stab; defend enough IP" }
+{ "id": "cash_threebet_pots:drill:06", "spotKind": "l1_core_call_vs_price", "params": { "price": "12bb", "potBefore": "24bb" }, "target": ["call","fold"], "rationale": "Half-pot turn in 3-bet pot" }
+{ "id": "cash_threebet_pots:drill:07", "spotKind": "l1_core_call_vs_price", "params": { "price": "16bb", "potBefore": "32bb" }, "target": ["call","fold"], "rationale": "Two-thirds river polarization" }
+{ "id": "cash_threebet_pots:drill:08", "spotKind": "l1_core_call_vs_price", "params": { "price": "9bb", "potBefore": "36bb" }, "target": ["call","fold"], "rationale": "Quarter-pot blocker bet math" }
+{ "id": "cash_threebet_pots:drill:09", "spotKind": "l1_core_call_vs_price", "params": { "price": "18bb", "potBefore": "27bb" }, "target": ["call","fold"], "rationale": "Two-thirds OOP tough spot" }
+{ "id": "cash_threebet_pots:drill:10", "spotKind": "l1_core_call_vs_price", "params": { "price": "24bb", "potBefore": "24bb" }, "target": ["call","fold"], "rationale": "Pot-size river; strong blockers" }
+{ "id": "cash_threebet_pots:drill:11", "spotKind": "l1_core_call_vs_price", "params": { "price": "6bb", "potBefore": "18bb" }, "target": ["call","fold"], "rationale": "One-third small board bet" }
+{ "id": "cash_threebet_pots:drill:12", "spotKind": "l1_core_call_vs_price", "params": { "price": "11bb", "potBefore": "22bb" }, "target": ["call","fold"], "rationale": "Half-pot larger numbers" }
+{ "id": "cash_threebet_pots:drill:13", "spotKind": "l1_core_call_vs_price", "params": { "price": "3bb", "potBefore": "12bb" }, "target": ["call","fold"], "rationale": "Quarter-pot IP float in 3BP" }
+{ "id": "cash_threebet_pots:drill:14", "spotKind": "l1_core_call_vs_price", "params": { "price": "8bb", "potBefore": "16bb" }, "target": ["call","fold"], "rationale": "Half-pot flop check-call" }

@@ -1,0 +1,14 @@
+{"id": "cash_blind_defense:drill:01", "spotKind": "l1_core_call_vs_price", "params": {"price": "1.8bb", "potBefore": "5.2bb"}, "target": ["call", "fold"], "rationale": "BB vs 2.2x open; wide defend"}
+{"id": "cash_blind_defense:drill:02", "spotKind": "l1_core_call_vs_price", "params": {"price": "2.5bb", "potBefore": "6.5bb"}, "target": ["call", "fold"], "rationale": "BB vs 2.5x; still decent price"}
+{"id": "cash_blind_defense:drill:03", "spotKind": "l1_core_call_vs_price", "params": {"price": "3bb", "potBefore": "7bb"}, "target": ["call", "fold"], "rationale": "BB vs 3x; tighten range"}
+{"id": "cash_blind_defense:drill:04", "spotKind": "l1_core_call_vs_price", "params": {"price": "2.5bb", "potBefore": "4.5bb"}, "target": ["call", "fold"], "rationale": "SB call price looks ok, but OOP"}
+{"id": "cash_blind_defense:drill:05", "spotKind": "l1_core_call_vs_price", "params": {"price": "4bb", "potBefore": "8bb"}, "target": ["call", "fold"], "rationale": "Flop half-pot from raiser"}
+{"id": "cash_blind_defense:drill:06", "spotKind": "l1_core_call_vs_price", "params": {"price": "6bb", "potBefore": "9bb"}, "target": ["call", "fold"], "rationale": "Flop two-thirds OOP needs strength"}
+{"id": "cash_blind_defense:drill:07", "spotKind": "l1_core_call_vs_price", "params": {"price": "9bb", "potBefore": "9bb"}, "target": ["call", "fold"], "rationale": "Pot-size; fold dominated trash"}
+{"id": "cash_blind_defense:drill:08", "spotKind": "l1_core_call_vs_price", "params": {"price": "3bb", "potBefore": "12bb"}, "target": ["call", "fold"], "rationale": "Quarter-pot; defend with backdoors"}
+{"id": "cash_blind_defense:drill:09", "spotKind": "l1_core_call_vs_price", "params": {"price": "7bb", "potBefore": "21bb"}, "target": ["call", "fold"], "rationale": "One-third turn probe; evaluate"}
+{"id": "cash_blind_defense:drill:10", "spotKind": "l1_core_call_vs_price", "params": {"price": "10bb", "potBefore": "20bb"}, "target": ["call", "fold"], "rationale": "Half-pot turn; realization matters"}
+{"id": "cash_blind_defense:drill:11", "spotKind": "l1_core_call_vs_price", "params": {"price": "12bb", "potBefore": "24bb"}, "target": ["call", "fold"], "rationale": "River two-thirds; blockers help"}
+{"id": "cash_blind_defense:drill:12", "spotKind": "l1_core_call_vs_price", "params": {"price": "2.2bb", "potBefore": "6.6bb"}, "target": ["call", "fold"], "rationale": "BB defend vs small c-bet"}
+{"id": "cash_blind_defense:drill:13", "spotKind": "l1_core_call_vs_price", "params": {"price": "5.5bb", "potBefore": "11bb"}, "target": ["call", "fold"], "rationale": "Half-pot awkward OOP spot"}
+{"id": "cash_blind_defense:drill:14", "spotKind": "l1_core_call_vs_price", "params": {"price": "8bb", "potBefore": "16bb"}, "target": ["call", "fold"], "rationale": "Two-thirds; choose strong continues"}

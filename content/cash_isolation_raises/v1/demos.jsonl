@@ -1,0 +1,3 @@
+{"id": "cash_isolation_raises:demo:01", "title": "Pick iso size", "steps": ["Count limpers", "Note position (IP/OOP)", "Apply 4x+ rule IP or 5-6x+ OOP"], "hints": ["Bigger OOP to thin field"]}
+{"id": "cash_isolation_raises:demo:02", "title": "Select hands", "steps": ["Favor playability", "Avoid offsuit trash OOP", "Prefer dominance vs limper range"], "hints": ["Value first versus stations"]}
+{"id": "cash_isolation_raises:demo:03", "title": "Overcall plan", "steps": ["Expect multiway sometimes", "C-bet small on dry", "Check more on wet"], "hints": ["Keep ranges coherent"]}

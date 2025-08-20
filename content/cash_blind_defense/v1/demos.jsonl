@@ -1,0 +1,3 @@
+{"id": "cash_blind_defense:demo:01", "title": "SB 3-bet-or-fold", "steps": ["Identify opener and size", "Select value + Axs/Kxs bluffs", "Fold marginal flats OOP"], "hints": ["Realization is poor in SB"]}
+{"id": "cash_blind_defense:demo:02", "title": "BB price ladder", "steps": ["Read size (min/2.5x/3x)", "Add or remove suited/connected hands", "Adjust for EP vs LP"], "hints": ["Smaller size, wider defend"]}
+{"id": "cash_blind_defense:demo:03", "title": "Flop defense OOP", "steps": ["Note bet size and texture", "Keep pairs/draws/backdoors", "Fold low-EV floats"], "hints": ["Price dictates continue set"]}
