@@ -1,0 +1,14 @@
+{ "id": "core_turn_river_play:drill:01", "spotKind": "l1_core_call_vs_price", "params": { "price": "5bb", "potBefore": "10bb" }, "target": ["call","fold"], "rationale": "Turn half-pot threshold" }
+{ "id": "core_turn_river_play:drill:02", "spotKind": "l1_core_call_vs_price", "params": { "price": "8bb", "potBefore": "12bb" }, "target": ["call","fold"], "rationale": "Turn two-thirds needs ~40%" }
+{ "id": "core_turn_river_play:drill:03", "spotKind": "l1_core_call_vs_price", "params": { "price": "12bb", "potBefore": "12bb" }, "target": ["call","fold"], "rationale": "Turn pot-size needs 50%" }
+{ "id": "core_turn_river_play:drill:04", "spotKind": "l1_core_call_vs_price", "params": { "price": "7bb", "potBefore": "21bb" }, "target": ["call","fold"], "rationale": "Small turn stab discount" }
+{ "id": "core_turn_river_play:drill:05", "spotKind": "l1_core_call_vs_price", "params": { "price": "15bb", "potBefore": "20bb" }, "target": ["call","fold"], "rationale": "Turn big size pressure" }
+{ "id": "core_turn_river_play:drill:06", "spotKind": "l1_core_call_vs_price", "params": { "price": "6bb", "potBefore": "24bb" }, "target": ["call","fold"], "rationale": "Quarter-pot blocker bet math" }
+{ "id": "core_turn_river_play:drill:07", "spotKind": "l1_core_call_vs_price", "params": { "price": "10bb", "potBefore": "30bb" }, "target": ["call","fold"], "rationale": "River one-third ~25%" }
+{ "id": "core_turn_river_play:drill:08", "spotKind": "l1_core_call_vs_price", "params": { "price": "15bb", "potBefore": "30bb" }, "target": ["call","fold"], "rationale": "River half-pot ~33%" }
+{ "id": "core_turn_river_play:drill:09", "spotKind": "l1_core_call_vs_price", "params": { "price": "20bb", "potBefore": "30bb" }, "target": ["call","fold"], "rationale": "River two-thirds ~40%" }
+{ "id": "core_turn_river_play:drill:10", "spotKind": "l1_core_call_vs_price", "params": { "price": "30bb", "potBefore": "30bb" }, "target": ["call","fold"], "rationale": "River pot-size ~50%" }
+{ "id": "core_turn_river_play:drill:11", "spotKind": "l1_core_call_vs_price", "params": { "price": "9bb", "potBefore": "18bb" }, "target": ["call","fold"], "rationale": "Turn half-pot again for fluency" }
+{ "id": "core_turn_river_play:drill:12", "spotKind": "l1_core_call_vs_price", "params": { "price": "25bb", "potBefore": "20bb" }, "target": ["call","fold"], "rationale": "River overbet needs >50%" }
+{ "id": "core_turn_river_play:drill:13", "spotKind": "l1_core_call_vs_price", "params": { "price": "4bb", "potBefore": "16bb" }, "target": ["call","fold"], "rationale": "Small turn sizing drill" }
+{ "id": "core_turn_river_play:drill:14", "spotKind": "l1_core_call_vs_price", "params": { "price": "11bb", "potBefore": "22bb" }, "target": ["call","fold"], "rationale": "Turn half-pot larger numbers" }

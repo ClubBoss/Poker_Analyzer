@@ -1,0 +1,3 @@
+{ "id": "core_blockers_combos:demo:01", "title": "Quick combo math", "steps": ["Start from 16 combos for two ranks", "Subtract 4 if suited only", "Remove seen cards and board suits"], "hints": ["Pairs 6, suited 4, offsuit 12"] }
+{ "id": "core_blockers_combos:demo:02", "title": "Pick the bluff", "steps": ["List candidate bluff hands", "Strike hands that block folds", "Keep hands that block calls and add backdoors"], "hints": ["Block value, unblock folds"] }
+{ "id": "core_blockers_combos:demo:03", "title": "Choose the call", "steps": ["List villain value and bluff region", "Check if your hand blocks bluffs or value", "Call more when blocking bluffs"], "hints": ["Unblock value? Fold more"] }

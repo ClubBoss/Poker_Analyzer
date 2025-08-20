@@ -1,0 +1,15 @@
+{ "id": "core_blockers_combos:drill:01", "spotKind": "l1_core_call_vs_price", "params": { "price": "7bb", "potBefore": "21bb" }, "target": ["call","fold"], "rationale": "River third-pot; weigh blockers" }
+{ "id": "core_blockers_combos:drill:02", "spotKind": "l1_core_call_vs_price", "params": { "price": "12bb", "potBefore": "24bb" }, "target": ["call","fold"], "rationale": "River half-pot; need ~33% with blockers" }
+{ "id": "core_blockers_combos:drill:03", "spotKind": "l1_core_call_vs_price", "params": { "price": "18bb", "potBefore": "27bb" }, "target": ["call","fold"], "rationale": "River two-thirds; blockers critical" }
+{ "id": "core_blockers_combos:drill:04", "spotKind": "l1_core_call_vs_price", "params": { "price": "27bb", "potBefore": "27bb" }, "target": ["call","fold"], "rationale": "River pot-size; strong blockers needed" }
+{ "id": "core_blockers_combos:drill:05", "spotKind": "l1_core_call_vs_price", "params": { "price": "9bb", "potBefore": "36bb" }, "target": ["call","fold"], "rationale": "Small river block-bet math" }
+{ "id": "core_blockers_combos:drill:06", "spotKind": "l1_core_call_vs_price", "params": { "price": "20bb", "potBefore": "20bb" }, "target": ["call","fold"], "rationale": "Even-money river; combo read matters" }
+{ "id": "core_blockers_combos:drill:07", "spotKind": "l1_core_call_vs_price", "params": { "price": "5bb", "potBefore": "25bb" }, "target": ["call","fold"], "rationale": "Tiny river probe vs your blockers" }
+{ "id": "core_blockers_combos:drill:08", "spotKind": "l1_core_call_vs_price", "params": { "price": "14bb", "potBefore": "28bb" }, "target": ["call","fold"], "rationale": "Half-pot again; compare blockers" }
+{ "id": "core_blockers_combos:drill:09", "spotKind": "l1_core_call_vs_price", "params": { "price": "22bb", "potBefore": "33bb" }, "target": ["call","fold"], "rationale": "Large river; fold without key blockers" }
+{ "id": "core_blockers_combos:drill:10", "spotKind": "l1_core_call_vs_price", "params": { "price": "11bb", "potBefore": "44bb" }, "target": ["call","fold"], "rationale": "Cheap call; prefer unblockers" }
+{ "id": "core_blockers_combos:drill:11", "spotKind": "l1_core_call_vs_price", "params": { "price": "16bb", "potBefore": "24bb" }, "target": ["call","fold"], "rationale": "Two-thirds; tough without blockers" }
+{ "id": "core_blockers_combos:drill:12", "spotKind": "l1_core_call_vs_price", "params": { "price": "24bb", "potBefore": "48bb" }, "target": ["call","fold"], "rationale": "Half-pot large; check combo math" }
+{ "id": "core_blockers_combos:drill:13", "spotKind": "l1_core_call_vs_price", "params": { "price": "6bb", "potBefore": "18bb" }, "target": ["call","fold"], "rationale": "Third-pot; pay attention to suits" }
+{ "id": "core_blockers_combos:drill:14", "spotKind": "l1_core_call_vs_price", "params": { "price": "28bb", "potBefore": "28bb" }, "target": ["call","fold"], "rationale": "Pot-size; only best blockers continue" }
+{ "id": "core_blockers_combos:drill:15", "spotKind": "l1_core_call_vs_price", "params": { "price": "8bb", "potBefore": "32bb" }, "target": ["call","fold"], "rationale": "Quarter-pot; unblock folds when bluffing" }
