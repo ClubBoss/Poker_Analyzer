@@ -17,12 +17,20 @@ void main() {
     for (final id in done) {
       expect(seen.contains(id), isFalse, reason: 'Duplicate id: $id');
       seen.add(id);
-      expect(kCurriculumModuleIds.contains(id), isTrue, reason: 'Unknown id: $id');
+      expect(
+        kCurriculumModuleIds.contains(id),
+        isTrue,
+        reason: 'Unknown id: $id',
+      );
     }
 
     for (var i = 0; i < done.length; i++) {
-      expect(done[i], equals(kCurriculumModuleIds[i]),
-          reason: 'Order mismatch at $i: expected ${kCurriculumModuleIds[i]}, got ${done[i]}');
+      expect(
+        done[i],
+        equals(kCurriculumModuleIds[i]),
+        reason:
+            'Order mismatch at $i: expected ${kCurriculumModuleIds[i]}, got ${done[i]}',
+      );
     }
   });
 
@@ -33,7 +41,11 @@ void main() {
       print('NEXT: done');
     } else {
       print('NEXT: $next');
-      expect(kCurriculumModuleIds.contains(next), isTrue, reason: 'NEXT must be in SSOT');
+      expect(
+        kCurriculumModuleIds.contains(next),
+        isTrue,
+        reason: 'NEXT must be in SSOT',
+      );
       expect(next.contains(':'), isFalse, reason: 'NEXT must not be a pack id');
     }
   });

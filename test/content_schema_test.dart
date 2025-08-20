@@ -17,7 +17,7 @@ void main() {
     group('content schema for $m', () {
       final v1 = Directory('content/$m/v1');
       final theory = File('content/$m/v1/theory.md');
-      final demos  = File('content/$m/v1/demos.jsonl');
+      final demos = File('content/$m/v1/demos.jsonl');
       final drills = File('content/$m/v1/drills.jsonl');
 
       test('required files present', () {
@@ -28,13 +28,21 @@ void main() {
       });
 
       test('demos.jsonl: 2–3 valid JSON lines', () {
-        final lines = demos.readAsLinesSync().where((l)=>l.trim().isNotEmpty).toList();
+        final lines = demos
+            .readAsLinesSync()
+            .where((l) => l.trim().isNotEmpty)
+            .toList();
         expect(lines.length >= 2 && lines.length <= 3, true);
-        for (final l in lines) { json.decode(l); }
+        for (final l in lines) {
+          json.decode(l);
+        }
       });
 
       test('drills.jsonl: 10–20 valid JSON lines with required fields', () {
-        final lines = drills.readAsLinesSync().where((l)=>l.trim().isNotEmpty).toList();
+        final lines = drills
+            .readAsLinesSync()
+            .where((l) => l.trim().isNotEmpty)
+            .toList();
         expect(lines.length >= 10 && lines.length <= 20, true);
         for (final l in lines) {
           final obj = json.decode(l);

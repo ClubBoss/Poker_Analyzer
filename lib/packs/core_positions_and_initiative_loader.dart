@@ -10,6 +10,9 @@ const String _corePositionsAndInitiativeStub = '''
 ''';
 
 List<UiSpot> loadCorePositionsAndInitiativeStub() {
-  final r = SpotImporter.parse(_corePositionsAndInitiativeStub, format: 'jsonl');
+  final r = SpotImporter.parse(
+    _corePositionsAndInitiativeStub,
+    format: 'jsonl',
+  );
   return r.spots;
 }
