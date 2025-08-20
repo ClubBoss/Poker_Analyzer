@@ -1,0 +1,3 @@
+{"id": "hu_turn_play:demo:01", "title": "Card quality scan", "steps": ["Ask who the turn helps", "Add or cut bluffs accordingly", "Pick small or big size"], "hints": ["Better for you => barrel more"]}
+{"id": "hu_turn_play:demo:02", "title": "Probe after checks", "steps": ["Flop checks through", "Lead turns favoring you", "Choose thin value or polar"], "hints": ["IP capped after flop x/x"]}
+{"id": "hu_turn_play:demo:03", "title": "River setup", "steps": ["Choose turn size by SPR", "List jam rivers", "Abort on bad rivers"], "hints": ["Plan two streets ahead"]}
