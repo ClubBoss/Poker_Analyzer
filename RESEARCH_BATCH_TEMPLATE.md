@@ -1,18 +1,14 @@
 # Research Batch Template — Content Phase
 
 ## Input
-```
 GO MODULES: <id1>,<id2>,<id3>
 STYLE OVERRIDE: (as in PROMPT_RULES.md)
-```
 
 ## Output
-For each `<id>` produce exactly 3 files:
-```
+For each <id> produce exactly 3 files:
 content/<id>/v1/theory.md
 content/<id>/v1/demos.jsonl
 content/<id>/v1/drills.jsonl
-```
 
 ### theory.md
 - 450–550 words max.
@@ -27,13 +23,13 @@ content/<id>/v1/drills.jsonl
 ### demos.jsonl
 - 2–3 entries.
 - Walk-through style, step-by-step in <= 1 line per step.
-- ID format: `<moduleId>:demo:NN`.
+- ID format: <moduleId>:demo:NN.
 
 ### drills.jsonl
 - 12–16 entries.
 - Varied parameters.
 - Rationale <= 1 line.
-- ID format: `<moduleId>:drill:NN`.
+- ID format: <moduleId>:drill:NN.
 - SpotKind must match enum in lib/ui/session_player/models.dart.
 
 ## Constraints

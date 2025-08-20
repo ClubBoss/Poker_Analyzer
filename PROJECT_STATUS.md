@@ -1,8 +1,8 @@
 # Project Status — Poker Analyzer
 
 ## Phase
-**CONTENT**  
-Skeleton phase is complete. All curriculum loaders and status scaffolding are in place.  
+**CONTENT**
+Skeleton phase is complete. All curriculum loaders and status scaffolding are in place.
 We now fill each module with content (theory, demos, drills).
 
 ## Active Docs
