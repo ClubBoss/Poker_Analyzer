@@ -1,0 +1,2 @@
+{ "id": "core_equity_realization:demo:01", "title": "Position and realization", "steps": ["Compare same hand IP vs OOP", "Note higher realization IP", "Adjust calling frequency accordingly"], "hints": ["Position converts equity into chips"] }
+{ "id": "core_equity_realization:demo:02", "title": "Playability filter", "steps": ["List clean outs and nuttiness", "Flag dominated or dirty draws", "Keep lines that keep nut hands in range"], "hints": ["Nut potential wins big pots"] }
