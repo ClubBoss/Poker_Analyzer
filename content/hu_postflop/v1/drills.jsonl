@@ -1,0 +1,1 @@
+{ "id": "hu_postflop:drill:01", "spotKind": "l1_core_call_vs_price", "params": { "price": "1bb", "potBefore": "4bb" }, "target": ["call","fold"], "rationale": "Quarter-pot HU defense on dry board" }

@@ -1,0 +1,1 @@
+{ "id": "hu_preflop:drill:01", "spotKind": "l1_core_call_vs_price", "params": { "price": "1bb", "potBefore": "2bb" }, "target": ["call","fold"], "rationale": "BB vs 2x open price awareness" }
