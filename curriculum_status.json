@@ -48,6 +48,7 @@
     "cash_multiway_3bet_pots",
     "cash_delayed_cbet_and_probe_systems",
     "cash_overbets_and_blocker_bets",
-    "mtt_icm_endgame_advanced"
+    "mtt_icm_endgame_advanced",
+    "mtt_final_table_playbooks"
   ]
 }
