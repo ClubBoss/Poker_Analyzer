@@ -1,3 +1,0 @@
-{ "id": "v1:demo:01", "title": "Breakeven FE quick math", "steps": ["Take bet size", "Add potBefore", "Compute bet/(potBefore+bet)"], "hints": ["Half-pot ~33%, pot ~50%"] }
-{ "id": "v1:demo:02", "title": "Board to size", "steps": ["Assess dryness and range advantage", "Polarized or merged?", "Pick small or big size accordingly"], "hints": ["Dry small, wet big"] }
-{ "id": "v1:demo:03", "title": "Block-bet line", "steps": ["IP with medium hand", "Choose ~25% pot", "Plan to fold to huge raises"], "hints": ["Set your own price"] }

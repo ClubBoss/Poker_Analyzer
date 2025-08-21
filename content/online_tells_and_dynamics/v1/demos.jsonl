@@ -1,3 +1,0 @@
-{ "id": "v1:demo:01", "title": "Timing ladder", "steps": ["Classify snap vs tank", "Map to medium vs nutted", "Adjust value/bluff mix"], "hints": ["Timing biases, not truths"] }
-{ "id": "v1:demo:02", "title": "Size decoder", "steps": ["Flag tiny/half/overbet", "Assign likely intent", "Pick counterline"], "hints": ["Tiny = control, overbet = polar"] }
-{ "id": "v1:demo:03", "title": "Dynamic shift", "steps": ["Note last showdown", "Predict pool reaction", "Change steals or folds"], "hints": ["Session mood matters"] }

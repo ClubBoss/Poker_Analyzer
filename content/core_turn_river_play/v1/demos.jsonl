@@ -1,2 +1,0 @@
-{ "id": "v1:demo:01", "title": "Turn barrel checklist", "steps": ["Ask who the card helps", "Classify your hand: value, draw, air", "Pick size: big if polarized, small if block-bet"], "hints": ["Card quality drives frequency"] }
-{ "id": "v1:demo:02", "title": "River decision tree", "steps": ["List your value and bluffs", "Check blockers to calls and folds", "Choose bet size or check based on polarization"], "hints": ["Unblock folds when bluffing"] }

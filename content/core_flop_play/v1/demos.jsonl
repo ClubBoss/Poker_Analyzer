@@ -1,3 +1,0 @@
-{ "id": "v1:demo:01", "title": "Map board to size", "steps": ["Identify who has range and nut advantage", "Classify board: dry, semi-wet, wet", "Pick small or big size based on goals"], "hints": ["Small on dry, big on wet"] }
-{ "id": "v1:demo:02", "title": "Build a betting set", "steps": ["List value hands first", "Add bluffs with overcards or backdoors", "Leave pure air in checks"], "hints": ["Bluffs need future equity"] }
-{ "id": "v1:demo:03", "title": "Caller defense", "steps": ["Note bet size and pot odds", "Continue with pairs, strong draws, and good backdoors", "Fold trash that lacks equity"], "hints": ["Price dictates defense"] }

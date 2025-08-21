@@ -1,2 +1,0 @@
-{ "id": "v1:drill:01", "spotKind": "l1_core_call_vs_price", "params": { "price": "1.2bb", "potBefore": "4.8bb" }, "target": ["call","fold"], "rationale": "Snap 20% turn probe = weak range bias" }
-{ "id": "v1:drill:02", "spotKind": "l1_core_call_vs_price", "params": { "price": "2bb", "potBefore": "6bb" }, "target": ["call","fold"], "rationale": "Instant flop call vs 1/3; medium density" }

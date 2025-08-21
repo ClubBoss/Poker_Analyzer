@@ -1,1 +1,0 @@
-{"id": "v1:drill:01","spotKind":"l1_core_call_vs_price","params":{"price":"2bb","potBefore":"8bb"},"target":["call","fold"],"rationale":"Ante pot third-pot defense"}

@@ -1,3 +1,0 @@
-{ "id": "v1:demo:01", "title": "SRP board to size", "steps": ["Identify range/nut edge", "Classify board dry vs wet", "Pick small or big c-bet"], "hints": ["Dry small, wet big"] }
-{ "id": "v1:demo:02", "title": "Caller defense", "steps": ["Read bet size and price", "Keep pairs/draws/backdoors", "Fold trash OOP"], "hints": ["Price dictates defense"] }
-{ "id": "v1:demo:03", "title": "Multiway simplifier", "steps": ["Tighten bluffs", "Favor clear value", "Use simpler sizes"], "hints": ["More players, stronger ranges"] }
