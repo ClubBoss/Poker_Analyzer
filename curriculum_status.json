@@ -14,6 +14,7 @@
     "math_combo_blockers",
     "math_ev_calculations",
     "math_icm_basics",
-    "math_icm_advanced"
+    "math_icm_advanced",
+    "math_solver_basics"
   ]
 }
