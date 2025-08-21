@@ -47,6 +47,7 @@ import 'training_progress_logger.dart';
 import '../app_bootstrap.dart';
 import 'training_session_context_service.dart';
 import 'training_session_fingerprint_logger_service.dart';
+import '../infra/telemetry.dart';
 
 class TrainingSessionService extends ChangeNotifier {
   Box<dynamic>? _box;
@@ -410,6 +411,7 @@ class TrainingSessionService extends ChangeNotifier {
       ..clear()
       ..addAll(sessionTags ?? []);
     unawaited(TrainingProgressLogger.startSession(template.id));
+    unawaited(Telemetry.logEvent('session_start', {'packId': template.id}));
     final total = template.totalWeight;
     _preEvPct = total == 0 ? 0 : template.evCovered * 100 / total;
     _preIcmPct = total == 0 ? 0 : template.icmCovered * 100 / total;
@@ -676,6 +678,11 @@ class TrainingSessionService extends ChangeNotifier {
     _saveActive();
     unawaited(_saveIndex());
     notifyListeners();
+    unawaited(
+      Telemetry.logEvent(
+        isCorrect ? 'answer_correct' : 'answer_wrong',
+      ),
+    );
   }
 
   TrainingPackSpot? nextSpot() {
@@ -695,6 +702,12 @@ class TrainingSessionService extends ChangeNotifier {
       _timer?.cancel();
       final total = _session!.results.length;
       final correct = _session!.results.values.where((e) => e).length;
+      unawaited(
+        Telemetry.logEvent('session_end', {
+          'total': total,
+          'correct': correct,
+        }),
+      );
       final tags = <String>{...?_template?.tags, ..._sessionTags};
       final fp = TrainingSessionFingerprint(
         packId: _template?.id ?? '',
