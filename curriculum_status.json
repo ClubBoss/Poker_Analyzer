@@ -5,6 +5,7 @@
     "core_pot_odds_equity",
     "core_starting_hands",
     "core_flop_fundamentals",
-    "core_turn_fundamentals"
+    "core_turn_fundamentals",
+    "core_river_fundamentals"
   ]
 }
