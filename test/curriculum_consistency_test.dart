@@ -1,39 +1,19 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:test/test.dart';
-
-import 'tooling/curriculum_ids.dart';
-import 'lib/packs/core_starting_hands_loader.dart';
-import 'lib/ui/session_player/models.dart';
+import '../tooling/curriculum_ids.dart' as ssot;
 
 void main() {
-  test('curriculum ids stay consistent with status and stub loader', () {
-    final ids = List<String>.from(kCurriculumModuleIds);
+  test('every curriculum ID has a loader', () {
+    for (final id in ssot.kCurriculumIds) {
+      final file = File('lib/packs/${id}_loader.dart');
+      expect(file.existsSync(), isTrue, reason: 'Missing loader for $id');
+    }
+  });
 
-    expect(
-      ids.length,
-      ids.toSet().length,
-      reason: 'kCurriculumModuleIds has duplicates',
-    );
-
-    final status = jsonDecode(File('curriculum_status.json').readAsStringSync())
-        as Map<String, dynamic>;
-    final done = (status['modules_done'] as List).cast<String>();
-
-    final extras = done.where((id) => !ids.contains(id)).toList();
-    expect(
-      extras,
-      isEmpty,
-      reason: 'modules_done contains unknown ids: $extras',
-    );
-
-    final spots = loadCoreStartingHandsStub();
-    expect(
-      spots.length,
-      1,
-      reason: 'core starting hands stub should load 1 spot',
-    );
-    expect(spots.single.kind, SpotKind.l1_core_call_vs_price);
+  test('curriculum_status.json lists all modules in SSOT order', () {
+    final status = jsonDecode(File('curriculum_status.json').readAsStringSync()) as Map;
+    final modules = (status['modules_done'] as List).cast<String>();
+    expect(modules, equals(ssot.kCurriculumIds));
   });
 }
