@@ -170,6 +170,10 @@ Future<void> _bootstrap() async {
     );
   });
   unawaited(Telemetry.logEvent('app_open'));
+  // TODO(session_start): call when a training session begins.
+  // TODO(session_end): call when a training session ends.
+  // TODO(answer_correct): call when a question is answered correctly.
+  // TODO(answer_wrong): call when a question is answered incorrectly.
   // TODO(answer_skip): call when a question is skipped.
   // TODO(replay_errors): call when replaying past mistakes.
 }
