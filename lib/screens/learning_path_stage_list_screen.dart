@@ -35,9 +35,8 @@ class LearningPathStageListScreen extends StatelessWidget {
     final sorted = _sortedStages();
     return Scaffold(
       appBar: AppBar(title: const Text('Learning Path')),
-      body: hasSections
-          ? _buildSectionedList(sorted)
-          : _buildSimpleList(sorted),
+      body:
+          hasSections ? _buildSectionedList(sorted) : _buildSimpleList(sorted),
     );
   }
 
@@ -80,9 +79,8 @@ class _SectionWidget extends StatelessWidget {
     return ExpansionTile(
       initiallyExpanded: true,
       title: Text(section.title),
-      subtitle: section.description.isNotEmpty
-          ? Text(section.description)
-          : null,
+      subtitle:
+          section.description.isNotEmpty ? Text(section.description) : null,
       children: [
         for (int i = 0; i < stages.length; i++)
           Padding(

@@ -37,19 +37,18 @@ class BoosterSnapshotArchiver {
   }) async {
     final directory = Directory(dir);
     if (!directory.existsSync()) return [];
-    final files =
-        directory
-            .listSync()
-            .whereType<File>()
-            .where(
-              (f) =>
-                  f.path.endsWith('.bak.yaml') &&
-                  p.basename(f.path).startsWith('$id__'),
-            )
-            .toList()
-          ..sort(
-            (a, b) => b.statSync().modified.compareTo(a.statSync().modified),
-          );
+    final files = directory
+        .listSync()
+        .whereType<File>()
+        .where(
+          (f) =>
+              f.path.endsWith('.bak.yaml') &&
+              p.basename(f.path).startsWith('$id__'),
+        )
+        .toList()
+      ..sort(
+        (a, b) => b.statSync().modified.compareTo(a.statSync().modified),
+      );
     return files;
   }
 }

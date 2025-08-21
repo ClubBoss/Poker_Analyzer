@@ -16,9 +16,9 @@ class _FakeRepo extends TrainingPackRepository {
 }
 
 TrainingPackSpot _spot(String id) => TrainingPackSpot(
-  id: id,
-  hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10),
-);
+      id: id,
+      hand: HandData.fromSimpleInput('AhAs', HeroPosition.sb, 10),
+    );
 
 void main() {
   test('generateFromWeakness collects unique spots', () async {

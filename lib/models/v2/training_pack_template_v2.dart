@@ -82,14 +82,14 @@ class TrainingPackTemplateV2 {
     this.minHands,
     bool? isGeneratedPack,
     bool? isSampledPack,
-  }) : tags = tags ?? [],
-       spots = spots ?? [],
-       dynamicSpots = dynamicSpots ?? [],
-       positions = positions ?? [],
-       created = created ?? DateTime.now(),
-       meta = meta ?? {},
-       isGeneratedPack = isGeneratedPack ?? false,
-       isSampledPack = isSampledPack ?? false {
+  })  : tags = tags ?? [],
+        spots = spots ?? [],
+        dynamicSpots = dynamicSpots ?? [],
+        positions = positions ?? [],
+        created = created ?? DateTime.now(),
+        meta = meta ?? {},
+        isGeneratedPack = isGeneratedPack ?? false,
+        isSampledPack = isSampledPack ?? false {
     if (theme != null) meta['theme'] = theme;
     if (requiredAccuracy != null) meta['requiredAccuracy'] = requiredAccuracy;
     if (minHands != null) meta['minHands'] = minHands;
@@ -101,14 +101,12 @@ class TrainingPackTemplateV2 {
       final m = ConstraintResolverEngine.normalizeParams(
         Map<String, dynamic>.from(meta['dynamicParams']),
       );
-      final tagList = (m['handGroupTags'] as List?)
-          ?.map((e) => e.toString())
-          .toList();
+      final tagList =
+          (m['handGroupTags'] as List?)?.map((e) => e.toString()).toList();
       if (tagList != null && tagList.isNotEmpty) {
         final expanded = HandGroupTagLibraryService.expandTags(tagList);
-        final existing = (m['handGroup'] as List? ?? [])
-            .map((e) => e.toString())
-            .toList();
+        final existing =
+            (m['handGroup'] as List? ?? []).map((e) => e.toString()).toList();
         m['handGroup'] = [...existing, ...expanded];
       }
       Map<String, dynamic>? boardFilter;
@@ -163,9 +161,8 @@ class TrainingPackTemplateV2 {
   }
 
   factory TrainingPackTemplateV2.fromJson(Map<String, dynamic> j) {
-    final metaMap = j['meta'] != null
-        ? Map<String, dynamic>.from(j['meta'])
-        : {};
+    final metaMap =
+        j['meta'] != null ? Map<String, dynamic>.from(j['meta']) : {};
 
     final dynParams = metaMap['dynamicParams'];
     var dynamicList = <DynamicSpotTemplate>[];
@@ -175,9 +172,8 @@ class TrainingPackTemplateV2 {
       final norm = ConstraintResolverEngine.normalizeParams(
         Map<String, dynamic>.from(dynParams),
       );
-      final tagList = (norm['handGroupTags'] as List?)
-          ?.map((e) => e.toString())
-          .toList();
+      final tagList =
+          (norm['handGroupTags'] as List?)?.map((e) => e.toString()).toList();
       if (tagList != null && tagList.isNotEmpty) {
         final expanded = HandGroupTagLibraryService.expandTags(tagList);
         final existing = (norm['handGroup'] as List? ?? [])
@@ -259,8 +255,7 @@ class TrainingPackTemplateV2 {
       name: j['name'] as String? ?? '',
       description: j['description'] as String? ?? '',
       goal: j['goal'] as String? ?? '',
-      audience:
-          j['audience'] as String? ??
+      audience: j['audience'] as String? ??
           (j['meta'] is Map ? (j['meta']['audience'] as String?) : null),
       theme: j['meta'] is Map ? (j['meta']['theme'] as String?) : null,
       tags: [for (final t in (j['tags'] as List? ?? [])) t.toString()],
@@ -279,8 +274,7 @@ class TrainingPackTemplateV2 {
         for (final p in (j['positions'] as List? ?? [])) p.toString(),
       ],
       meta: metaMap,
-      recommended:
-          j['recommended'] as bool? ??
+      recommended: j['recommended'] as bool? ??
           (j['meta'] is Map ? j['meta']['recommended'] == true : false),
       requiresTheoryCompleted: j['meta'] is Map
           ? j['meta']['requiresTheoryCompleted'] == true
@@ -292,9 +286,8 @@ class TrainingPackTemplateV2 {
       requiredAccuracy: j['meta'] is Map
           ? (j['meta']['requiredAccuracy'] as num?)?.toDouble()
           : null,
-      minHands: j['meta'] is Map
-          ? (j['meta']['minHands'] as num?)?.toInt()
-          : null,
+      minHands:
+          j['meta'] is Map ? (j['meta']['minHands'] as num?)?.toInt() : null,
       dynamicSpots: dynamicList,
     );
     tpl.category ??= tpl.tags.isNotEmpty ? tpl.tags.first : null;
@@ -410,27 +403,30 @@ class TrainingPackTemplateV2 {
   factory TrainingPackTemplateV2.fromTemplate(
     TrainingPackTemplate template, {
     required TrainingType type,
-  }) => TrainingPackTemplateV2(
-    id: template.id,
-    name: template.name,
-    description: template.description,
-    goal: template.goal,
-    audience: template.meta['audience'] as String?,
-    theme: template.meta['theme'] as String?,
-    tags: List<String>.from(template.tags),
-    category: template.tags.isNotEmpty ? template.tags.first : null,
-    trainingType: type,
-    spots: List<SpotTemplate>.from(template.spots),
-    spotCount: template.spotCount,
-    created: template.createdAt,
-    gameType: template.gameType,
-    bb: template.heroBbStack,
-    positions: [template.heroPos.name],
-    meta: Map<String, dynamic>.from(template.meta),
-    recommended: template.recommended,
-    requiresTheoryCompleted: template.meta['requiresTheoryCompleted'] == true,
-    targetStreet: template.targetStreet,
-    requiredAccuracy: (template.meta['requiredAccuracy'] as num?)?.toDouble(),
-    minHands: (template.meta['minHands'] as num?)?.toInt(),
-  );
+  }) =>
+      TrainingPackTemplateV2(
+        id: template.id,
+        name: template.name,
+        description: template.description,
+        goal: template.goal,
+        audience: template.meta['audience'] as String?,
+        theme: template.meta['theme'] as String?,
+        tags: List<String>.from(template.tags),
+        category: template.tags.isNotEmpty ? template.tags.first : null,
+        trainingType: type,
+        spots: List<SpotTemplate>.from(template.spots),
+        spotCount: template.spotCount,
+        created: template.createdAt,
+        gameType: template.gameType,
+        bb: template.heroBbStack,
+        positions: [template.heroPos.name],
+        meta: Map<String, dynamic>.from(template.meta),
+        recommended: template.recommended,
+        requiresTheoryCompleted:
+            template.meta['requiresTheoryCompleted'] == true,
+        targetStreet: template.targetStreet,
+        requiredAccuracy:
+            (template.meta['requiredAccuracy'] as num?)?.toDouble(),
+        minHands: (template.meta['minHands'] as num?)?.toInt(),
+      );
 }

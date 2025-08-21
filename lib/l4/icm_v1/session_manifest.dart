@@ -16,12 +16,12 @@ class L4IcmSessionItem {
   });
 
   Map<String, dynamic> toJson() => {
-    'hand': hand,
-    'heroPos': heroPos,
-    'stackBb': stackBb,
-    'stacks': stacks,
-    'action': action,
-  };
+        'hand': hand,
+        'heroPos': heroPos,
+        'stackBb': stackBb,
+        'stacks': stacks,
+        'action': action,
+      };
 }
 
 class L4IcmSessionManifest {
@@ -42,13 +42,13 @@ class L4IcmSessionManifest {
   });
 
   Map<String, dynamic> toJson() => {
-    'version': version,
-    'preset': preset,
-    'total': total,
-    'seeds': seeds,
-    'perSeed': perSeed,
-    'items': items.map((e) => e.toJson()).toList(),
-  };
+        'version': version,
+        'preset': preset,
+        'total': total,
+        'seeds': seeds,
+        'perSeed': perSeed,
+        'items': items.map((e) => e.toJson()).toList(),
+      };
 }
 
 String encodeIcmManifestCompact(L4IcmSessionManifest m) =>

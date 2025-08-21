@@ -8,13 +8,13 @@ import 'package:poker_analyzer/services/skill_tree_node_progress_tracker.dart';
 class OptionalNode extends SkillTreeNodeModel {
   final bool isOptional;
   const OptionalNode({required String id, List<String>? prerequisites})
-    : isOptional = true,
-      super(
-        id: id,
-        title: id,
-        category: 'Push/Fold',
-        prerequisites: prerequisites,
-      );
+      : isOptional = true,
+        super(
+          id: id,
+          title: id,
+          category: 'Push/Fold',
+          prerequisites: prerequisites,
+        );
 }
 
 void main() {

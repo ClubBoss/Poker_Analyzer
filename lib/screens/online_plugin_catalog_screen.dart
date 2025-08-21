@@ -116,47 +116,48 @@ class _OnlinePluginCatalogScreenState extends State<OnlinePluginCatalogScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _plugins.isEmpty
-          ? const Center(child: Text('No plugins'))
-          : ListView.separated(
-              itemCount: _plugins.length,
-              separatorBuilder: (_, __) => const Divider(height: 1),
-              itemBuilder: (context, index) {
-                final plugin = _plugins[index];
-                final file = p.basename(Uri.parse(plugin.url).path);
-                final localVersion = _status[file]?['version'] as String?;
-                final installed = localVersion != null;
-                final needsUpdate = installed && localVersion != plugin.version;
-                final subtitle = <Widget>[Text('v${plugin.version}')];
-                if (plugin.description != null)
-                  subtitle.add(Text(plugin.description!));
-                if (needsUpdate)
-                  subtitle.add(
-                    Text(
-                      'Installed v$localVersion',
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  );
-                return ListTile(
-                  title: Text(plugin.name),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: subtitle,
-                  ),
-                  trailing: TextButton(
-                    onPressed: installed && !needsUpdate
-                        ? null
-                        : () => _install(plugin),
-                    child: Text(
-                      needsUpdate
-                          ? 'Update'
-                          : installed
-                          ? 'Installed'
-                          : 'Install',
-                    ),
-                  ),
-                );
-              },
-            ),
+              ? const Center(child: Text('No plugins'))
+              : ListView.separated(
+                  itemCount: _plugins.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  itemBuilder: (context, index) {
+                    final plugin = _plugins[index];
+                    final file = p.basename(Uri.parse(plugin.url).path);
+                    final localVersion = _status[file]?['version'] as String?;
+                    final installed = localVersion != null;
+                    final needsUpdate =
+                        installed && localVersion != plugin.version;
+                    final subtitle = <Widget>[Text('v${plugin.version}')];
+                    if (plugin.description != null)
+                      subtitle.add(Text(plugin.description!));
+                    if (needsUpdate)
+                      subtitle.add(
+                        Text(
+                          'Installed v$localVersion',
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      );
+                    return ListTile(
+                      title: Text(plugin.name),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: subtitle,
+                      ),
+                      trailing: TextButton(
+                        onPressed: installed && !needsUpdate
+                            ? null
+                            : () => _install(plugin),
+                        child: Text(
+                          needsUpdate
+                              ? 'Update'
+                              : installed
+                                  ? 'Installed'
+                                  : 'Install',
+                        ),
+                      ),
+                    );
+                  },
+                ),
     );
   }
 }

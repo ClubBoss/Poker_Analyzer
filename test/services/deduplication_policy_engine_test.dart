@@ -20,9 +20,9 @@ TrainingPackTemplateV2 _pack(String id, List<TrainingPackSpot> spots) =>
     );
 
 TrainingPackSpot _spot(String id, String cards) => TrainingPackSpot(
-  id: id,
-  hand: HandData.fromSimpleInput(cards, HeroPosition.btn, 10),
-);
+      id: id,
+      hand: HandData.fromSimpleInput(cards, HeroPosition.btn, 10),
+    );
 
 void main() {
   late Directory dir;

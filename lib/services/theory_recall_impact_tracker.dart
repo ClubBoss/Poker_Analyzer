@@ -103,14 +103,14 @@ class _Entry {
   final DateTime timestamp;
 
   factory _Entry.fromJson(Map<String, dynamic> json) => _Entry(
-    tag: json['tag'] as String,
-    lessonId: json['lessonId'] as String,
-    timestamp: DateTime.parse(json['timestamp'] as String),
-  );
+        tag: json['tag'] as String,
+        lessonId: json['lessonId'] as String,
+        timestamp: DateTime.parse(json['timestamp'] as String),
+      );
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'tag': tag,
-    'lessonId': lessonId,
-    'timestamp': timestamp.toIso8601String(),
-  };
+        'tag': tag,
+        'lessonId': lessonId,
+        'timestamp': timestamp.toIso8601String(),
+      };
 }

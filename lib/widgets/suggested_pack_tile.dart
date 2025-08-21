@@ -37,8 +37,8 @@ class _SuggestedPackTileState extends State<SuggestedPackTile> {
     );
     if (tpl == null) return;
     String? reason;
-    final weakCategory = await const TrainingGapDetectorService()
-        .detectWeakCategory();
+    final weakCategory =
+        await const TrainingGapDetectorService().detectWeakCategory();
     if (weakCategory != null && tpl.category == weakCategory) {
       reason = 'Слабая категория: ${translateCategory(weakCategory)}';
     } else {

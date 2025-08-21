@@ -18,9 +18,9 @@ class MiniLessonPathInjector {
     LearningPathEngine? engine,
     MiniLessonLibraryService? library,
     LearningPathStageLibrary? stageLibrary,
-  }) : engine = engine ?? LearningPathEngine.instance,
-       library = library ?? MiniLessonLibraryService.instance,
-       stageLibrary = stageLibrary ?? LearningPathStageLibrary.instance;
+  })  : engine = engine ?? LearningPathEngine.instance,
+        library = library ?? MiniLessonLibraryService.instance,
+        stageLibrary = stageLibrary ?? LearningPathStageLibrary.instance;
 
   static final MiniLessonPathInjector instance = MiniLessonPathInjector();
 
@@ -50,9 +50,8 @@ class MiniLessonPathInjector {
       if (target == null) continue;
       final tags = _tagsForNode(target);
       if (tags.isEmpty) continue;
-      final matched = filtered
-          .where((m) => m.tags.any((t) => tags.contains(t)))
-          .toList();
+      final matched =
+          filtered.where((m) => m.tags.any((t) => tags.contains(t))).toList();
       if (matched.isNotEmpty) {
         updated = _injectAfter(updated, targetId, matched);
       }

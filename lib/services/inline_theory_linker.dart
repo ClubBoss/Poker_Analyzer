@@ -20,9 +20,9 @@ class InlineTheoryLinker {
     MiniLessonLibraryService? library,
     TheoryMiniLessonNavigator? navigator,
     List<String>? priorityTags,
-  }) : _library = library ?? MiniLessonLibraryService.instance,
-       _navigator = navigator ?? TheoryMiniLessonNavigator.instance,
-       _priorityTags = priorityTags ?? const ['cbet', 'probe'];
+  })  : _library = library ?? MiniLessonLibraryService.instance,
+        _navigator = navigator ?? TheoryMiniLessonNavigator.instance,
+        _priorityTags = priorityTags ?? const ['cbet', 'probe'];
 
   final MiniLessonLibraryService _library;
   final TheoryMiniLessonNavigator _navigator;

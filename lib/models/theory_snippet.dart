@@ -12,8 +12,8 @@ class TheorySnippet {
   });
 
   const TheorySnippet.generic()
-    : id = 'generic',
-      title = 'Review key concepts before retrying',
-      bullets = const [],
-      uri = null;
+      : id = 'generic',
+        title = 'Review key concepts before retrying',
+        bullets = const [],
+        uri = null;
 }

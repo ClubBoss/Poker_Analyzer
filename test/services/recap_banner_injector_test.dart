@@ -26,13 +26,13 @@ class _FakeEngine extends SmartRecapSuggestionEngine {
 class _FakeDetector extends RecapOpportunityDetector {
   final bool value;
   _FakeDetector(this.value)
-    : super(
-        retention: TagRetentionTracker(
-          mastery: TagMasteryService(
-            logs: SessionLogService(sessions: TrainingSessionService()),
+      : super(
+          retention: TagRetentionTracker(
+            mastery: TagMasteryService(
+              logs: SessionLogService(sessions: TrainingSessionService()),
+            ),
           ),
-        ),
-      );
+        );
   @override
   Future<bool> isGoodRecapMoment() async => value;
 }

@@ -63,13 +63,11 @@ class IntermediateLearningPathSeeder {
     if (name.contains('3bet') ||
         name.contains('3-bet') ||
         tags.contains('3bet') ||
-        tags.contains('3bet-push'))
-      return 2;
+        tags.contains('3bet-push')) return 2;
     if (name.contains('float') ||
         name.contains('call') ||
         tags.contains('float') ||
-        tags.contains('call'))
-      return 3;
+        tags.contains('call')) return 3;
     if (name.contains('delayed') || tags.contains('delayed')) return 4;
     return 5;
   }

@@ -20,10 +20,8 @@ class StreakTrendChart extends StatelessWidget {
       for (var i = 0; i < data.length; i++)
         FlSpot(i.toDouble(), data[i].value.toDouble()),
     ];
-    final maxY = data
-        .map((e) => e.value)
-        .reduce((a, b) => a > b ? a : b)
-        .toDouble();
+    final maxY =
+        data.map((e) => e.value).reduce((a, b) => a > b ? a : b).toDouble();
     final interval = maxY <= 5 ? 1.0 : (maxY / 5).ceilToDouble();
     final step = (data.length / 6).ceil();
     return Container(

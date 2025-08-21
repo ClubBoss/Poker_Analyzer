@@ -30,7 +30,7 @@ class YamlPackExporterService {
     if (fmt == 'markdown') {
       final md =
           const YamlPackMarkdownPreviewService().generateMarkdownPreview(tpl) ??
-          '';
+              '';
       await file.writeAsString(md);
     } else {
       await const YamlWriter().write(tpl.toJson(), file.path);

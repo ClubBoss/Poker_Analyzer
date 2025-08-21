@@ -33,9 +33,8 @@ class TrainingPackTemplateInstanceExpanderService {
     for (var i = 0; i < spots.length; i++) {
       final spot = spots[i];
       final id = '${idPrefix}_${i + 1}';
-      final boardSuffix = spot.board.isNotEmpty
-          ? ' - ${spot.board.join(' ')}'
-          : '';
+      final boardSuffix =
+          spot.board.isNotEmpty ? ' - ${spot.board.join(' ')}' : '';
       final packTitle = '$baseTitle$boardSuffix';
       final mergedTags = {...tags, ...spot.tags}.toList()..sort();
       final mergedMeta = {...metadata, ...spot.meta};

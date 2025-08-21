@@ -101,51 +101,51 @@ class _HandAnalysisHistoryScreenState extends State<HandAnalysisHistoryScreen> {
   }
 
   Widget _list(List<HandAnalysisRecord> data) => ListView.builder(
-    padding: const EdgeInsets.all(16),
-    itemCount: data.length,
-    itemBuilder: (context, index) {
-      final r = data[index];
-      final d = r.date;
-      final label =
-          '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
-      return Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        decoration: BoxDecoration(
-          color: AppColors.cardBackground,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
+        padding: const EdgeInsets.all(16),
+        itemCount: data.length,
+        itemBuilder: (context, index) {
+          final r = data[index];
+          final d = r.date;
+          final label =
+              '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
+          return Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: AppColors.cardBackground,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.3),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: ListTile(
-          leading: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [for (final c in r.cards) _card(c)],
-          ),
-          title: Text(
-            'EV ${r.ev.toStringAsFixed(2)} BB • ICM ${r.icm.toStringAsFixed(2)}',
-            style: const TextStyle(color: Colors.white),
-          ),
-          subtitle: Text(
-            '${r.action} • $label\n${r.hint}',
-            style: const TextStyle(color: Colors.white70),
-          ),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => QuickHandAnalysisScreen(record: r),
+            child: ListTile(
+              leading: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [for (final c in r.cards) _card(c)],
               ),
-            );
-          },
-        ),
+              title: Text(
+                'EV ${r.ev.toStringAsFixed(2)} BB • ICM ${r.icm.toStringAsFixed(2)}',
+                style: const TextStyle(color: Colors.white),
+              ),
+              subtitle: Text(
+                '${r.action} • $label\n${r.hint}',
+                style: const TextStyle(color: Colors.white70),
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => QuickHandAnalysisScreen(record: r),
+                  ),
+                );
+              },
+            ),
+          );
+        },
       );
-    },
-  );
 
   Widget _summary(List<HandAnalysisRecord> data) {
     if (data.isEmpty) return const SizedBox.shrink();

@@ -15,9 +15,9 @@ class TheoryInboxGoalEngine with SingletonMixin<TheoryInboxGoalEngine> {
     BoosterSuggestionEngine? booster,
     InboxBoosterTrackerService? tracker,
     RecapEffectivenessAnalyzer? recap,
-  }) : booster = booster ?? const BoosterSuggestionEngine(),
-       tracker = tracker ?? InboxBoosterTrackerService.instance,
-       recap = recap ?? RecapEffectivenessAnalyzer.instance;
+  })  : booster = booster ?? const BoosterSuggestionEngine(),
+        tracker = tracker ?? InboxBoosterTrackerService.instance,
+        recap = recap ?? RecapEffectivenessAnalyzer.instance;
 
   static TheoryInboxGoalEngine get instance =>
       SingletonMixin.instance<TheoryInboxGoalEngine>(
@@ -42,8 +42,8 @@ class TheoryInboxGoalEngine with SingletonMixin<TheoryInboxGoalEngine> {
       final urgency = stat == null
           ? 0.0
           : 1 / (stat.count + 1) +
-                1 / (stat.averageDuration.inSeconds + 1) +
-                (1 - stat.repeatRate);
+              1 / (stat.averageDuration.inSeconds + 1) +
+              (1 - stat.repeatRate);
       final clicks = interactionMap[l.id]?['clicks'] as int? ?? 0;
       final score = urgency - clicks * 0.1;
       items.add(_Candidate(l, score));

@@ -12,13 +12,12 @@ class TheoryTagDecayTracker {
     MiniLessonLibraryService? library,
     MiniLessonProgressTracker? progress,
     TheoryTagSummaryService? summary,
-  }) : library = library ?? MiniLessonLibraryService.instance,
-       progress = progress ?? MiniLessonProgressTracker.instance,
-       summary =
-           summary ??
-           TheoryTagSummaryService(
-             library: library ?? MiniLessonLibraryService.instance,
-           );
+  })  : library = library ?? MiniLessonLibraryService.instance,
+        progress = progress ?? MiniLessonProgressTracker.instance,
+        summary = summary ??
+            TheoryTagSummaryService(
+              library: library ?? MiniLessonLibraryService.instance,
+            );
 
   /// Returns decay scores for all tags using [now] as reference time.
   Future<Map<String, double>> computeDecayScores({DateTime? now}) async {
@@ -44,9 +43,8 @@ class TheoryTagDecayTracker {
       final tag = entry.key;
       final coverage = entry.value.lessonCount;
       final ts = lastTimes[tag];
-      final days = ts == null
-          ? 9999.0
-          : current.difference(ts).inDays.toDouble();
+      final days =
+          ts == null ? 9999.0 : current.difference(ts).inDays.toDouble();
       final decay = days / (coverage > 0 ? coverage : 1);
       scores[tag] = decay;
     }

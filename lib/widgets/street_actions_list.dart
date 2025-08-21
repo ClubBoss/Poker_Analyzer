@@ -54,9 +54,8 @@ class StreetActionsList extends StatelessWidget {
   ) {
     final color = actionColor(a.action);
     final pos = playerPositions[a.playerIndex] ?? 'P${a.playerIndex + 1}';
-    final actLabel = a.action == 'custom'
-        ? (a.customLabel ?? 'custom')
-        : a.action;
+    final actLabel =
+        a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action;
     final baseTitle = '$pos - $actLabel';
     final title = a.generated ? '$baseTitle (auto)' : baseTitle;
 
@@ -323,10 +322,8 @@ class StreetActionsList extends StatelessWidget {
                 if (newIndex >= streetActions.length) {
                   newGlobal = actions.indexOf(streetActions.last) + 1;
                 } else {
-                  final target =
-                      streetActions[newIndex > oldIndex
-                          ? newIndex - 1
-                          : newIndex];
+                  final target = streetActions[
+                      newIndex > oldIndex ? newIndex - 1 : newIndex];
                   newGlobal = actions.indexOf(target);
                   if (newIndex > oldIndex) newGlobal += 1;
                 }
@@ -335,8 +332,7 @@ class StreetActionsList extends StatelessWidget {
               itemCount: streetActions.length,
               itemBuilder: (context, index) {
                 final entry = streetActions[index];
-                final showDivider =
-                    index > 0 &&
+                final showDivider = index > 0 &&
                     (entry.action == 'bet' || entry.action == 'raise');
                 return Dismissible(
                   key: ValueKey(entry.timestamp.microsecondsSinceEpoch),

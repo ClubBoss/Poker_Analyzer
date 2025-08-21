@@ -112,13 +112,12 @@ class _PotBreakdown extends StatelessWidget {
       if (potAmount <= 0) continue;
       final shares = <int, int>{};
       winnings.forEach((player, amount) {
-        final share = (potAmount * (amount / (totalWin == 0 ? 1 : totalWin)))
-            .round();
+        final share =
+            (potAmount * (amount / (totalWin == 0 ? 1 : totalWin))).round();
         if (share > 0) shares[player] = share;
       });
-      final winnersText = shares.entries
-          .map((e) => 'P${e.key + 1} wins ${e.value}')
-          .join(', ');
+      final winnersText =
+          shares.entries.map((e) => 'P${e.key + 1} wins ${e.value}').join(', ');
       lines.add(
         Text(
           '${names[i]} → $winnersText',

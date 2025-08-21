@@ -11,11 +11,11 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   TrainingSpotAttempt attempt(String id) => TrainingSpotAttempt(
-    spot: TrainingPackSpot(id: id, hand: HandData()),
-    userAction: '',
-    correctAction: '',
-    evDiff: 0,
-  );
+        spot: TrainingPackSpot(id: id, hand: HandData()),
+        userAction: '',
+        correctAction: '',
+        evDiff: 0,
+      );
 
   test('dominant tag triggers trainTagPack', () async {
     final insights = [

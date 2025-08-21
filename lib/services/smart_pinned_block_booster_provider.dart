@@ -24,9 +24,9 @@ class SmartPinnedBlockBoosterProvider {
     PinnedBlockTrackerService? tracker,
     TheoryBlockLibraryService? library,
     DecayRecallEvaluatorService? evaluator,
-  }) : tracker = tracker ?? PinnedBlockTrackerService.instance,
-       library = library ?? TheoryBlockLibraryService.instance,
-       evaluator = evaluator ?? const DecayRecallEvaluatorService();
+  })  : tracker = tracker ?? PinnedBlockTrackerService.instance,
+        library = library ?? TheoryBlockLibraryService.instance,
+        evaluator = evaluator ?? const DecayRecallEvaluatorService();
 
   final PinnedBlockTrackerService tracker;
   final TheoryBlockLibraryService library;

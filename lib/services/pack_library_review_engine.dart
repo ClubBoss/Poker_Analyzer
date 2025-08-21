@@ -24,8 +24,7 @@ class PackLibraryReviewEngine {
         if (!seen.add(v.toLowerCase())) warnings.add('duplicate_tag:$t');
       }
     }
-    final total =
-        (pack.meta['totalWeight'] as num?)?.toDouble() ??
+    final total = (pack.meta['totalWeight'] as num?)?.toDouble() ??
         pack.spotCount.toDouble();
     if (total > 0) {
       final ev = (pack.meta['evCovered'] as num?)?.toDouble() ?? 0;

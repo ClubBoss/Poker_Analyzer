@@ -13,8 +13,8 @@ class PackLibraryAssemblerService {
   const PackLibraryAssemblerService({
     PackYamlConfigParser? parser,
     TrainingTypeEngine? engine,
-  }) : parser = parser ?? const PackYamlConfigParser(),
-       engine = engine ?? TrainingTypeEngine();
+  })  : parser = parser ?? const PackYamlConfigParser(),
+        engine = engine ?? TrainingTypeEngine();
 
   Future<void> buildJsonLibrary() async {
     final dir = await getApplicationDocumentsDirectory();

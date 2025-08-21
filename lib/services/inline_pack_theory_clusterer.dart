@@ -61,8 +61,8 @@ class InlinePackTheoryClusterer {
     this.weightTagMatch = 0.2,
     AutogenStatusDashboardService? dashboard,
     PackNoveltyGuardService? noveltyGuard,
-  }) : _dashboard = dashboard ?? AutogenStatusDashboardService.instance,
-       _noveltyGuard = noveltyGuard ?? const PackNoveltyGuardService();
+  })  : _dashboard = dashboard ?? AutogenStatusDashboardService.instance,
+        _noveltyGuard = noveltyGuard ?? const PackNoveltyGuardService();
 
   final int maxPerPack;
   final int maxPerSpot;

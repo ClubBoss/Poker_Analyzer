@@ -4,8 +4,7 @@ import 'icm_packs.dart';
 import 'icm_bb_packs.dart';
 
 /// JSONL for ICM L4 Mix v1: SB + BB concatenated (newline-separated).
-const String icmL4MixV1Jsonl =
-    '''
+const String icmL4MixV1Jsonl = '''
 $icmL4SbV1Jsonl
 $icmL4BbV1Jsonl
 ''';

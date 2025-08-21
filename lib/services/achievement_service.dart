@@ -210,8 +210,8 @@ class AchievementService extends ChangeNotifier {
   Future<void> _checkFirstLevel() async {
     final ach = _achievements.firstWhere((a) => a.id == 'first_level');
     if (ach.unlocked) return;
-    final stages = await LearningPathProgressService.instance
-        .getCurrentStageState();
+    final stages =
+        await LearningPathProgressService.instance.getCurrentStageState();
     if (stages.isEmpty) return;
     final first = stages.first;
     final completed = LearningPathProgressService.instance.isStageCompleted(

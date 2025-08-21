@@ -53,31 +53,31 @@ void main() {
   const engine = AdaptiveTrainingPathEngine();
 
   LearningPathTemplateV2 path() => const LearningPathTemplateV2(
-    id: 'p',
-    title: 'Path',
-    description: '',
-    stages: [
-      LearningPathStageModel(
-        id: 's1',
-        title: 'S1',
+        id: 'p',
+        title: 'Path',
         description: '',
-        packId: 'p1',
-        requiredAccuracy: 90,
-        minHands: 0,
-        unlocks: ['s2'],
-        tags: ['a'],
-      ),
-      LearningPathStageModel(
-        id: 's2',
-        title: 'S2',
-        description: '',
-        packId: 'p2',
-        requiredAccuracy: 90,
-        minHands: 0,
-        tags: ['b'],
-      ),
-    ],
-  );
+        stages: [
+          LearningPathStageModel(
+            id: 's1',
+            title: 'S1',
+            description: '',
+            packId: 'p1',
+            requiredAccuracy: 90,
+            minHands: 0,
+            unlocks: ['s2'],
+            tags: ['a'],
+          ),
+          LearningPathStageModel(
+            id: 's2',
+            title: 'S2',
+            description: '',
+            packId: 'p2',
+            requiredAccuracy: 90,
+            minHands: 0,
+            tags: ['b'],
+          ),
+        ],
+      );
 
   test('unlocks next stage when weakness detected and prereqs met', () {
     final packs = [_pack('p1', 'a'), _pack('p2', 'b')];

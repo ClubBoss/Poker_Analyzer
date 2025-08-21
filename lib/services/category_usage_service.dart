@@ -19,9 +19,8 @@ class CategoryUsageService extends ChangeNotifier {
   void _recompute() {
     final counts = <String, int>{};
     for (final t in templates.templates) {
-      final c = (t.category?.isNotEmpty == true)
-          ? t.category!
-          : 'Uncategorized';
+      final c =
+          (t.category?.isNotEmpty == true) ? t.category! : 'Uncategorized';
       counts[c] = (counts[c] ?? 0) + 1;
     }
     for (final p in packs.packs) {

@@ -46,13 +46,13 @@ class LearningPathStageModel {
     this.isOptional = false,
     this.unlockCondition,
     this.type = StageType.practice,
-  }) : requiredHands = requiredHands ?? minHands,
-       unlocks = unlocks ?? const [],
-       unlockAfter = unlockAfter ?? const [],
-       tags = tags ?? const [],
-       objectives = objectives ?? const [],
-       subStages = subStages ?? const [],
-       sideQuests = sideQuests ?? const [];
+  })  : requiredHands = requiredHands ?? minHands,
+        unlocks = unlocks ?? const [],
+        unlockAfter = unlockAfter ?? const [],
+        tags = tags ?? const [],
+        objectives = objectives ?? const [],
+        subStages = subStages ?? const [],
+        sideQuests = sideQuests ?? const [];
 
   factory LearningPathStageModel.fromJson(Map<String, dynamic> json) {
     return LearningPathStageModel(
@@ -67,8 +67,7 @@ class LearningPathStageModel {
           b.toString(),
       ],
       requiredAccuracy: (json['requiredAccuracy'] as num?)?.toDouble() ?? 0.0,
-      requiredHands:
-          (json['requiredHands'] as num?)?.toInt() ??
+      requiredHands: (json['requiredHands'] as num?)?.toInt() ??
           (json['minHands'] as num?)?.toInt() ??
           0,
       unlocks: [for (final u in (json['unlocks'] as List? ?? [])) u.toString()],
@@ -109,28 +108,29 @@ class LearningPathStageModel {
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'title': title,
-    'description': description,
-    'packId': packId,
-    'type': type.name,
-    if (theoryPackId != null) 'theoryPackId': theoryPackId,
-    if (boosterTheoryPackIds != null && boosterTheoryPackIds!.isNotEmpty)
-      'boosterTheoryPackIds': boosterTheoryPackIds,
-    'requiredAccuracy': requiredAccuracy,
-    'requiredHands': requiredHands,
-    if (unlocks.isNotEmpty) 'unlocks': unlocks,
-    if (unlockAfter.isNotEmpty) 'unlockAfter': unlockAfter,
-    if (tags.isNotEmpty) 'tags': tags,
-    if (objectives.isNotEmpty) 'objectives': objectives,
-    'order': order,
-    if (isOptional) 'isOptional': true,
-    if (unlockCondition != null) 'unlockCondition': unlockCondition!.toJson(),
-    if (subStages.isNotEmpty)
-      'subStages': [for (final s in subStages) s.toJson()],
-    if (sideQuests.isNotEmpty)
-      'sideQuests': [for (final q in sideQuests) q.toJson()],
-  };
+        'id': id,
+        'title': title,
+        'description': description,
+        'packId': packId,
+        'type': type.name,
+        if (theoryPackId != null) 'theoryPackId': theoryPackId,
+        if (boosterTheoryPackIds != null && boosterTheoryPackIds!.isNotEmpty)
+          'boosterTheoryPackIds': boosterTheoryPackIds,
+        'requiredAccuracy': requiredAccuracy,
+        'requiredHands': requiredHands,
+        if (unlocks.isNotEmpty) 'unlocks': unlocks,
+        if (unlockAfter.isNotEmpty) 'unlockAfter': unlockAfter,
+        if (tags.isNotEmpty) 'tags': tags,
+        if (objectives.isNotEmpty) 'objectives': objectives,
+        'order': order,
+        if (isOptional) 'isOptional': true,
+        if (unlockCondition != null)
+          'unlockCondition': unlockCondition!.toJson(),
+        if (subStages.isNotEmpty)
+          'subStages': [for (final s in subStages) s.toJson()],
+        if (sideQuests.isNotEmpty)
+          'sideQuests': [for (final q in sideQuests) q.toJson()],
+      };
 
   factory LearningPathStageModel.fromYaml(Map yaml) {
     final map = yamlToDart(yaml) as Map<String, dynamic>;

@@ -12,14 +12,15 @@ void main() {
     List<String>? prerequisites,
     List<String>? unlocks,
     int level = 0,
-  }) => SkillTreeNodeModel(
-    id: id,
-    title: id,
-    category: 'cat',
-    prerequisites: prerequisites,
-    unlockedNodeIds: unlocks,
-    level: level,
-  );
+  }) =>
+      SkillTreeNodeModel(
+        id: id,
+        title: id,
+        category: 'cat',
+        prerequisites: prerequisites,
+        unlockedNodeIds: unlocks,
+        level: level,
+      );
 
   SkillTree buildTree(List<SkillTreeNodeModel> nodes) =>
       builder.build(nodes).tree;

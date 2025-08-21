@@ -13,12 +13,12 @@ class LearningPathRepository {
   LearningPathRepository({
     LearningPathRegistryService? registry,
     LearningPathTrackLibraryService? trackLibrary,
-  }) : registry = registry ?? LearningPathRegistryService.instance,
-       tracks = trackLibrary ?? LearningPathTrackLibraryService.instance;
+  })  : registry = registry ?? LearningPathRegistryService.instance,
+        tracks = trackLibrary ?? LearningPathTrackLibraryService.instance;
 
   /// Loads all tracks and their learning paths.
   Future<Map<LearningPathTrackModel, List<LearningPathTemplateV2>>>
-  loadAllTracksWithPaths() async {
+      loadAllTracksWithPaths() async {
     await tracks.reload();
     final templates = await registry.loadAll();
     final result = <LearningPathTrackModel, List<LearningPathTemplateV2>>{};

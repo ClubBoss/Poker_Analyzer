@@ -26,8 +26,7 @@ class _CategoryDrillCardState extends State<CategoryDrillCard> {
     SharedPreferences.getInstance().then((p) {
       final done = p.getBool(_key) ?? false;
       final ts = p.getInt(_tsKey);
-      final hide =
-          ts != null &&
+      final hide = ts != null &&
           DateTime.now()
                   .difference(DateTime.fromMillisecondsSinceEpoch(ts))
                   .inDays <

@@ -37,7 +37,7 @@ class StageStatsWithHistory extends StageStats {
 
 class SessionLogService extends ChangeNotifier {
   SessionLogService({required TrainingSessionService sessions, this.cloud})
-    : _sessions = sessions {
+      : _sessions = sessions {
     _listener = _handle;
     _sessions.addListener(_listener!);
   }
@@ -103,8 +103,8 @@ class SessionLogService extends ChangeNotifier {
       ..clear()
       ..addAll(
         _box!.values.whereType<Map>().map(
-          (e) => SessionLog.fromJson(Map<String, dynamic>.from(e)),
-        ),
+              (e) => SessionLog.fromJson(Map<String, dynamic>.from(e)),
+            ),
       )
       ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
     _logged.addAll(_logs.map((e) => e.sessionId));
@@ -114,9 +114,8 @@ class SessionLogService extends ChangeNotifier {
         final prefs = await SharedPreferences.getInstance();
         final remoteAt =
             DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
-            DateTime.fromMillisecondsSinceEpoch(0);
-        final localAt =
-            DateTime.tryParse(prefs.getString(_timeKey) ?? '') ??
+                DateTime.fromMillisecondsSinceEpoch(0);
+        final localAt = DateTime.tryParse(prefs.getString(_timeKey) ?? '') ??
             DateTime.fromMillisecondsSinceEpoch(0);
         if (remoteAt.isAfter(localAt)) {
           final list = remote['logs'];

@@ -14,8 +14,8 @@ class TheoryRecapPromptOrchestrator {
   TheoryRecapPromptOrchestrator({
     TheoryReinforcementQueueService? queue,
     TheoryBoosterCandidatePicker? boosterPicker,
-  }) : queue = queue ?? TheoryReinforcementQueueService.instance,
-       boosterPicker = boosterPicker ?? const TheoryBoosterCandidatePicker();
+  })  : queue = queue ?? TheoryReinforcementQueueService.instance,
+        boosterPicker = boosterPicker ?? const TheoryBoosterCandidatePicker();
 
   /// Picks a lesson for recap if one is due and not under cooldown.
   Future<TheoryMiniLessonNode?> pickRecapCandidate() async {

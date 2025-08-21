@@ -14,16 +14,16 @@ class TheorySuggestion {
   });
 
   Map<String, dynamic> toJson() => {
-    'tag': tag,
-    'proposedTitle': proposedTitle,
-    'proposedPackId': proposedPackId,
-  };
+        'tag': tag,
+        'proposedTitle': proposedTitle,
+        'proposedPackId': proposedPackId,
+      };
 
   factory TheorySuggestion.fromJson(Map<String, dynamic> j) => TheorySuggestion(
-    tag: j['tag']?.toString() ?? '',
-    proposedTitle: j['proposedTitle']?.toString() ?? '',
-    proposedPackId: j['proposedPackId']?.toString() ?? '',
-  );
+        tag: j['tag']?.toString() ?? '',
+        proposedTitle: j['proposedTitle']?.toString() ?? '',
+        proposedPackId: j['proposedPackId']?.toString() ?? '',
+      );
 }
 
 class SmartTheorySuggestionEngine {

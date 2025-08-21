@@ -15,10 +15,10 @@ import 'package:poker_analyzer/models/recap_tag_performance.dart';
 class _FakeDecay extends SkillTagDecayTracker {
   final List<String> tags;
   _FakeDecay(this.tags)
-    : super(
-        logs: SessionLogService(sessions: TrainingSessionService()),
-        history: TagMasteryHistoryService(),
-      );
+      : super(
+          logs: SessionLogService(sessions: TrainingSessionService()),
+          history: TagMasteryHistoryService(),
+        );
   @override
   Future<List<String>> getDecayingTags({
     int maxTags = 5,
@@ -34,7 +34,7 @@ class _FakeDecay extends SkillTagDecayTracker {
 class _FakeAnalytics extends RecapTagAnalyticsService {
   final Map<String, double> map;
   _FakeAnalytics(this.map)
-    : super(logs: SessionLogService(sessions: TrainingSessionService()));
+      : super(logs: SessionLogService(sessions: TrainingSessionService()));
   @override
   Future<Map<String, RecapTagPerformance>> computeRecapTagImprovements() async {
     return {

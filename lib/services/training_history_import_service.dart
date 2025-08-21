@@ -7,7 +7,7 @@ import 'error_logger_service.dart';
 
 class TrainingHistoryImportService {
   TrainingHistoryImportService({TrainingSpotStorageService? storage})
-    : _storage = storage ?? TrainingSpotStorageService();
+      : _storage = storage ?? TrainingSpotStorageService();
 
   final TrainingSpotStorageService _storage;
 

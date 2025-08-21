@@ -105,5 +105,6 @@ class YamlPackMergeEngine {
   TrainingPackTemplateV2 mergeTwo(
     TrainingPackTemplateV2 a,
     TrainingPackTemplateV2 b,
-  ) => merge([a, b]);
+  ) =>
+      merge([a, b]);
 }

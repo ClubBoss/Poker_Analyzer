@@ -118,9 +118,8 @@ mixin TrainingPackTemplateFilterPanel on State<TrainingPackTemplateListScreen> {
       );
       items.add(const SizedBox(height: 4));
     }
-    final progVal = total > 0
-        ? (_progress[t.id]?.clamp(0, total) ?? 0) / total
-        : 0.0;
+    final progVal =
+        total > 0 ? (_progress[t.id]?.clamp(0, total) ?? 0) / total : 0.0;
     final progColor = t.goalAchieved ? Colors.green : Colors.orange;
     items.add(
       LinearProgressIndicator(

@@ -10,15 +10,15 @@ class GoalEngagement {
   });
 
   Map<String, dynamic> toJson() => {
-    'tag': tag,
-    'action': action,
-    'timestamp': timestamp.toIso8601String(),
-  };
+        'tag': tag,
+        'action': action,
+        'timestamp': timestamp.toIso8601String(),
+      };
 
   factory GoalEngagement.fromJson(Map<String, dynamic> json) => GoalEngagement(
-    tag: json['tag'] as String? ?? '',
-    action: json['action'] as String? ?? '',
-    timestamp:
-        DateTime.tryParse(json['timestamp'] as String? ?? '') ?? DateTime.now(),
-  );
+        tag: json['tag'] as String? ?? '',
+        action: json['action'] as String? ?? '',
+        timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ??
+            DateTime.now(),
+      );
 }

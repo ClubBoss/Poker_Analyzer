@@ -23,8 +23,8 @@ class Open3betSpotTemplateGeneratorService {
   Open3betSpotTemplateGeneratorService({
     Random? random,
     TrainingPackExporterV2? exporter,
-  }) : _random = random ?? Random(),
-       _exporter = exporter ?? const TrainingPackExporterV2();
+  })  : _random = random ?? Random(),
+        _exporter = exporter ?? const TrainingPackExporterV2();
 
   /// Generates a list of [TrainingPackTemplateV2] objects representing
   /// 3bet-push spots.

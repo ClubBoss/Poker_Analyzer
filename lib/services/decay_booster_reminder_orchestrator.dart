@@ -16,10 +16,10 @@ class DecayBoosterReminderOrchestrator {
     DecayBoosterReminderEngine? boosterEngine,
     ReviewStreakEvaluatorService? streak,
     PackRecallStatsService? recall,
-  }) : queue = queue ?? BoosterQueueService.instance,
-       boosterEngine = boosterEngine ?? DecayBoosterReminderEngine(),
-       streak = streak ?? const ReviewStreakEvaluatorService(),
-       recall = recall ?? PackRecallStatsService.instance;
+  })  : queue = queue ?? BoosterQueueService.instance,
+        boosterEngine = boosterEngine ?? DecayBoosterReminderEngine(),
+        streak = streak ?? const ReviewStreakEvaluatorService(),
+        recall = recall ?? PackRecallStatsService.instance;
 
   /// Whether a decay booster banner should be shown.
   Future<bool> shouldShowDecayBoosterBanner() async {

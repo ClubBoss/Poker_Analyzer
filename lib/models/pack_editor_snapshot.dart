@@ -23,20 +23,20 @@ class PackEditorSnapshot {
     required this.views,
     required this.filters,
     this.isAuto = false,
-  }) : id = id ?? const Uuid().v4(),
-       timestamp = timestamp ?? DateTime.now();
+  })  : id = id ?? const Uuid().v4(),
+        timestamp = timestamp ?? DateTime.now();
 
   factory PackEditorSnapshot.fromJson(Map<String, dynamic> json) =>
       _$PackEditorSnapshotFromJson(json);
   Map<String, dynamic> toJson() => _$PackEditorSnapshotToJson(this);
 
   PackEditorSnapshot copyWith({String? name}) => PackEditorSnapshot(
-    id: id,
-    name: name ?? this.name,
-    timestamp: timestamp,
-    hands: hands,
-    views: views,
-    filters: filters,
-    isAuto: isAuto,
-  );
+        id: id,
+        name: name ?? this.name,
+        timestamp: timestamp,
+        hands: hands,
+        views: views,
+        filters: filters,
+        isAuto: isAuto,
+      );
 }

@@ -15,11 +15,10 @@ class EvaluationScoringService {
     const reader = YamlReader();
     const writer = YamlWriter();
     var count = 0;
-    for (final file
-        in dir
-            .listSync(recursive: true)
-            .whereType<File>()
-            .where((f) => f.path.toLowerCase().endsWith('.yaml'))) {
+    for (final file in dir
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((f) => f.path.toLowerCase().endsWith('.yaml'))) {
       try {
         final yaml = await file.readAsString();
         final map = reader.read(yaml);

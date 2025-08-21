@@ -5,7 +5,7 @@ import 'pack_runtime_builder.dart';
 
 class TrainingPackPlayService {
   TrainingPackPlayService({PackRuntimeBuilder? builder})
-    : _builder = builder ?? const PackRuntimeBuilder();
+      : _builder = builder ?? const PackRuntimeBuilder();
 
   final PackRuntimeBuilder _builder;
   String? _lastKey;

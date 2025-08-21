@@ -13,11 +13,10 @@ class MistakeStreakService extends ChangeNotifier {
 
   int get count => _count;
   List<MapEntry<DateTime, int>> get history {
-    final list =
-        _history.entries
-            .map((e) => MapEntry(DateTime.parse(e.key), e.value))
-            .toList()
-          ..sort((a, b) => a.key.compareTo(b.key));
+    final list = _history.entries
+        .map((e) => MapEntry(DateTime.parse(e.key), e.value))
+        .toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
     return list;
   }
 

@@ -10,7 +10,7 @@ import 'evaluation_executor_service.dart';
 class SpotTemplateEngine {
   final EvaluationExecutorService executor;
   SpotTemplateEngine({EvaluationExecutorService? executor})
-    : executor = executor ?? EvaluationExecutorService();
+      : executor = executor ?? EvaluationExecutorService();
 
   Future<TrainingPackTemplate> generate({
     required HeroPosition heroPosition,
@@ -34,8 +34,7 @@ class SpotTemplateEngine {
       );
       spots.add(TrainingPackSpot(id: uuid.v4(), hand: hand));
     }
-    final templateName =
-        name ??
+    final templateName = name ??
         _buildName(
           actionType,
           heroPosition,

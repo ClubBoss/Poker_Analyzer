@@ -16,9 +16,9 @@ class DecayTopicSuppressorService {
     MiniLessonLibraryService? lessons,
     MiniLessonProgressTracker? progress,
     TheoryTagDecayTracker? decay,
-  }) : lessons = lessons ?? MiniLessonLibraryService.instance,
-       progress = progress ?? MiniLessonProgressTracker.instance,
-       decay = decay ?? TheoryTagDecayTracker();
+  })  : lessons = lessons ?? MiniLessonLibraryService.instance,
+        progress = progress ?? MiniLessonProgressTracker.instance,
+        decay = decay ?? TheoryTagDecayTracker();
 
   static final DecayTopicSuppressorService instance =
       DecayTopicSuppressorService();
@@ -120,8 +120,7 @@ class DecayTopicSuppressorService {
     final score = scores[key] ?? 0.0;
     await _updateDecay(key, score);
     final since = _since[key];
-    final longDecay =
-        since != null &&
+    final longDecay = since != null &&
         DateTime.now().difference(since) > const Duration(days: 21);
 
     final ignoredCount = _ignored[key] ?? 0;

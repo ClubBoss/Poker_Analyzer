@@ -10,9 +10,8 @@ class TemplatePreviewDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final parts = template.version.split('.');
-    final version = parts.length >= 2
-        ? '${parts[0]}.${parts[1]}'
-        : template.version;
+    final version =
+        parts.length >= 2 ? '${parts[0]}.${parts[1]}' : template.version;
     final names = [
       for (final h in template.hands.take(5))
         h.name.isEmpty ? 'Без названия' : h.name,

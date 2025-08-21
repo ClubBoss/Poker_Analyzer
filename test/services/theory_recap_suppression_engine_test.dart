@@ -7,7 +7,7 @@ import 'package:poker_analyzer/services/theory_recap_analytics_summarizer.dart';
 class _StubSummarizer extends TheoryRecapAnalyticsSummarizer {
   final RecapAnalyticsSummary _summary;
   _StubSummarizer(this._summary)
-    : super(loader: ({int limit = 50}) async => []);
+      : super(loader: ({int limit = 50}) async => []);
   @override
   Future<RecapAnalyticsSummary> summarize({int limit = 50}) async => _summary;
 }

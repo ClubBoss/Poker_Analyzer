@@ -6,12 +6,12 @@ extension LevelStageX on LevelStage {
   String get label =>
       ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'][index];
   Color get color => const [
-    Color(0xffcd7f32),
-    Color(0xffc0c0c0),
-    Color(0xffffd700),
-    Color(0xffe5e4e2),
-    Color(0xffb9f2ff),
-  ][index];
+        Color(0xffcd7f32),
+        Color(0xffc0c0c0),
+        Color(0xffffd700),
+        Color(0xffe5e4e2),
+        Color(0xffb9f2ff),
+      ][index];
 }
 
 LevelStage stageForLevel(int level) {

@@ -16,10 +16,8 @@ class TheoryBoosterPackLinker {
     const suggester = TheoryPackAutoBoosterSuggester();
     const reviewEngine = TheoryPackReviewStatusEngine();
 
-    final baseTags = tagger
-        .autoTag(theoryPack)
-        .map((e) => e.toLowerCase().trim())
-        .toSet();
+    final baseTags =
+        tagger.autoTag(theoryPack).map((e) => e.toLowerCase().trim()).toSet();
 
     final candidates = <TheoryPackModel>[];
     for (final b in allBoosters) {
@@ -34,10 +32,8 @@ class TheoryBoosterPackLinker {
     final scored = <(String, double)>[];
     for (final id in suggested) {
       final pack = candidates.firstWhere((e) => e.id == id);
-      final tags = tagger
-          .autoTag(pack)
-          .map((e) => e.toLowerCase().trim())
-          .toSet();
+      final tags =
+          tagger.autoTag(pack).map((e) => e.toLowerCase().trim()).toSet();
       final inter = tags.intersection(baseTags).length.toDouble();
       final union = tags.union(baseTags).length.toDouble();
       var score = union == 0 ? 0 : inter / union;

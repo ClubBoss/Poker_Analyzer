@@ -15,8 +15,7 @@ class ConnectivitySyncController with WidgetsBindingObserver {
   final ValueNotifier<bool> online = ValueNotifier(true);
 
   void _onResult(ConnectivityResult result) {
-    final on =
-        result == ConnectivityResult.mobile ||
+    final on = result == ConnectivityResult.mobile ||
         result == ConnectivityResult.wifi;
     online.value = on;
     if (on) _sync();

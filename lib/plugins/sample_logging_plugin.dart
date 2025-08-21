@@ -26,8 +26,8 @@ class SampleLoggingPlugin implements Plugin {
 
   @override
   List<ServiceExtension<dynamic>> get extensions => <ServiceExtension<dynamic>>[
-    LoggerServiceExtension(),
-  ];
+        LoggerServiceExtension(),
+      ];
 
   @override
   String get name => 'Sample Logging';

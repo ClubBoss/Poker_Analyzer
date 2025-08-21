@@ -13,9 +13,9 @@ class RecallTagDecaySummaryService {
     DecayTagRetentionTrackerService? retention,
     RecallSuccessLoggerService? logger,
     InboxBoosterTunerService? tuner,
-  }) : retention = retention ?? const DecayTagRetentionTrackerService(),
-       logger = logger ?? RecallSuccessLoggerService.instance,
-       tuner = tuner ?? InboxBoosterTunerService.instance;
+  })  : retention = retention ?? const DecayTagRetentionTrackerService(),
+        logger = logger ?? RecallSuccessLoggerService.instance,
+        tuner = tuner ?? InboxBoosterTunerService.instance;
 
   /// Returns summary metrics for all known tags.
   Future<TagDecaySummary> getSummary() async {

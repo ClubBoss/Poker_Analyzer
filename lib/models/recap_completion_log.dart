@@ -12,18 +12,17 @@ class RecapCompletionLog {
   });
 
   Map<String, dynamic> toJson() => {
-    'lessonId': lessonId,
-    'tag': tag,
-    'timestamp': timestamp.toIso8601String(),
-    'durationMs': duration.inMilliseconds,
-  };
+        'lessonId': lessonId,
+        'tag': tag,
+        'timestamp': timestamp.toIso8601String(),
+        'durationMs': duration.inMilliseconds,
+      };
 
   factory RecapCompletionLog.fromJson(Map<String, dynamic> json) =>
       RecapCompletionLog(
         lessonId: json['lessonId'] as String? ?? '',
         tag: json['tag'] as String? ?? '',
-        timestamp:
-            DateTime.tryParse(json['timestamp'] as String? ?? '') ??
+        timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ??
             DateTime.now(),
         duration: Duration(milliseconds: (json['durationMs'] as int?) ?? 0),
       );

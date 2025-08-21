@@ -21,8 +21,8 @@ class LessonProgressService {
   Future<Set<String>> getCompletedSteps() async {
     final prefs = await SharedPreferences.getInstance();
     final keys = prefs.getKeys().where(
-      (k) => k.startsWith('lesson_completed_'),
-    );
+          (k) => k.startsWith('lesson_completed_'),
+        );
     return keys.map((k) => k.substring('lesson_completed_'.length)).toSet();
   }
 }

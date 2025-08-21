@@ -31,8 +31,8 @@ class TrainingPackTemplateModel with CopyWithMixin<TrainingPackTemplateModel> {
     DateTime? createdAt,
     this.lastGeneratedAt,
     this.rating = 0,
-  }) : filters = filters ?? const {},
-       createdAt = createdAt ?? DateTime.now();
+  })  : filters = filters ?? const {},
+        createdAt = createdAt ?? DateTime.now();
 
   factory TrainingPackTemplateModel.fromJson(Map<String, dynamic> json) =>
       _$TrainingPackTemplateModelFromJson(json);

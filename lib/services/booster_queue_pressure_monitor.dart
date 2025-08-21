@@ -25,10 +25,10 @@ class BoosterQueuePressureMonitor {
     this.maxGoal = 5,
     this.maxInbox = 5,
     this.maxSkillGap = 3,
-  }) : recapQueue = recapQueue ?? RecapBoosterQueue.instance,
-       goalQueue = goalQueue ?? GoalQueue.instance,
-       inboxQueue = inboxQueue ?? InboxBoosterTrackerService.instance,
-       skillGap = skillGap ?? const SmartSkillGapBoosterEngine();
+  })  : recapQueue = recapQueue ?? RecapBoosterQueue.instance,
+        goalQueue = goalQueue ?? GoalQueue.instance,
+        inboxQueue = inboxQueue ?? InboxBoosterTrackerService.instance,
+        skillGap = skillGap ?? const SmartSkillGapBoosterEngine();
 
   static final BoosterQueuePressureMonitor instance =
       BoosterQueuePressureMonitor();

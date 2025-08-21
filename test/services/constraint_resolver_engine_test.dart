@@ -12,8 +12,7 @@ void main() {
         [CardModel(rank: 'A', suit: 's'), CardModel(rank: 'K', suit: 'd')],
         for (int i = 0; i < 5; i++) <CardModel>[],
       ],
-      boardCards:
-          board ??
+      boardCards: board ??
           [
             CardModel(rank: '2', suit: 'h'),
             CardModel(rank: '7', suit: 'c'),

@@ -63,8 +63,7 @@ class TrainingProgressLogger {
 
     bool? unlockGoalReached;
     if (requiredAccuracy != null || minHands != null) {
-      unlockGoalReached =
-          (requiredAccuracy == null ||
+      unlockGoalReached = (requiredAccuracy == null ||
               accuracyAfter * 100 >= requiredAccuracy) &&
           (minHands == null || handsAfter >= minHands);
     }

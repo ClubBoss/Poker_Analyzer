@@ -235,8 +235,7 @@ class _LearningPathWeekPlannerScreenState
                           onTap: () => _open(info.stage),
                         ),
                         ValueListenableBuilder<
-                          Map<String, List<BoosterSuggestion>>
-                        >(
+                            Map<String, List<BoosterSuggestion>>>(
                           valueListenable: _boosterFeed.boosters,
                           builder: (_, map, __) {
                             final list = map[info.stage.id] ?? const [];

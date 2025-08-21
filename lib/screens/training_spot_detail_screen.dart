@@ -16,9 +16,9 @@ class TrainingSpotDetailScreen extends StatelessWidget {
   const TrainingSpotDetailScreen({super.key, required this.spot});
 
   Map<int, String> _posMap() => {
-    for (int i = 0; i < spot.numberOfPlayers; i++)
-      if (i < spot.positions.length) i: spot.positions[i],
-  };
+        for (int i = 0; i < spot.numberOfPlayers; i++)
+          if (i < spot.positions.length) i: spot.positions[i],
+      };
 
   @override
   Widget build(BuildContext context) {

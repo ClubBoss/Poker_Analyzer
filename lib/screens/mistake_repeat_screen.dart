@@ -38,22 +38,21 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
   }
 
   Map<String, List<SavedHand>> _groupMistakes(List<SavedHand> hands) {
-    final mistakes =
-        [
-          for (final h in hands)
-            if (h.expectedAction != null &&
-                h.gtoAction != null &&
-                h.expectedAction!.trim().toLowerCase() !=
-                    h.gtoAction!.trim().toLowerCase())
-              h,
-        ]..sort((a, b) {
-          final av = a.evLoss;
-          final bv = b.evLoss;
-          if (av == null && bv == null) return 0;
-          if (av == null) return 1;
-          if (bv == null) return -1;
-          return bv.compareTo(av);
-        });
+    final mistakes = [
+      for (final h in hands)
+        if (h.expectedAction != null &&
+            h.gtoAction != null &&
+            h.expectedAction!.trim().toLowerCase() !=
+                h.gtoAction!.trim().toLowerCase())
+          h,
+    ]..sort((a, b) {
+        final av = a.evLoss;
+        final bv = b.evLoss;
+        if (av == null && bv == null) return 0;
+        if (av == null) return 1;
+        if (bv == null) return -1;
+        return bv.compareTo(av);
+      });
 
     final Map<String, List<SavedHand>> grouped = {};
     for (final h in mistakes) {
@@ -66,9 +65,11 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
 
   Future<void> _exportPdf(BuildContext context) async {
     final hands = context.read<SavedHandManagerService>().hands;
-    final entries =
-        _groupMistakes(hands).entries.where((e) => e.value.length > 1).toList()
-          ..sort((a, b) => b.value.length.compareTo(a.value.length));
+    final entries = _groupMistakes(hands)
+        .entries
+        .where((e) => e.value.length > 1)
+        .toList()
+      ..sort((a, b) => b.value.length.compareTo(a.value.length));
 
     if (entries.isEmpty) return;
 
@@ -105,8 +106,7 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
     );
 
     final bytes = await pdf.save();
-    final dir =
-        await getDownloadsDirectory() ??
+    final dir = await getDownloadsDirectory() ??
         await getApplicationDocumentsDirectory();
     final fileName =
         'mistake_repeats_${DateTime.now().millisecondsSinceEpoch}.pdf';
@@ -128,9 +128,11 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
 
   Future<void> _exportMarkdown(BuildContext context) async {
     final hands = context.read<SavedHandManagerService>().hands;
-    final entries =
-        _groupMistakes(hands).entries.where((e) => e.value.length > 1).toList()
-          ..sort((a, b) => b.value.length.compareTo(a.value.length));
+    final entries = _groupMistakes(hands)
+        .entries
+        .where((e) => e.value.length > 1)
+        .toList()
+      ..sort((a, b) => b.value.length.compareTo(a.value.length));
 
     if (entries.isEmpty) return;
 
@@ -145,8 +147,7 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
       buffer.writeln();
     }
 
-    final dir =
-        await getDownloadsDirectory() ??
+    final dir = await getDownloadsDirectory() ??
         await getApplicationDocumentsDirectory();
     final fileName =
         'mistake_repeats_${DateTime.now().millisecondsSinceEpoch}.md';
@@ -297,8 +298,8 @@ class _MistakeRepeatScreenState extends State<MistakeRepeatScreen> {
                             showSavedHandViewerDialog(context, hand);
                           },
                           onFavoriteToggle: () {
-                            final manager = context
-                                .read<SavedHandManagerService>();
+                            final manager =
+                                context.read<SavedHandManagerService>();
                             final idx = manager.hands.indexOf(hand);
                             manager.update(
                               idx,

@@ -123,18 +123,16 @@ class _PokerTableViewState extends State<PokerTableView> {
         final positions = getPositionList(widget.playerCount);
         double width =
             (constraints.maxWidth.isFinite ? constraints.maxWidth : 220.0) *
-            widget.sizeFactor;
+                widget.sizeFactor;
         double height = width * 0.55;
         if (constraints.maxHeight.isFinite && height > constraints.maxHeight) {
           height = constraints.maxHeight;
           width = height / 0.55;
         }
-        final positiveStacks = widget.playerStacks
-            .where((s) => s > 0)
-            .toList(growable: false);
-        final effectiveStack = positiveStacks.isEmpty
-            ? 0.0
-            : positiveStacks.reduce(min);
+        final positiveStacks =
+            widget.playerStacks.where((s) => s > 0).toList(growable: false);
+        final effectiveStack =
+            positiveStacks.isEmpty ? 0.0 : positiveStacks.reduce(min);
         int? actionSeatIndex;
         if (widget.actionSeatId != null) {
           actionSeatIndex = int.tryParse(widget.actionSeatId!);
@@ -265,9 +263,8 @@ class _PokerTableViewState extends State<PokerTableView> {
             height / 2 + seat.dy - 20 * widget.scale,
           );
           final angle = 2 * pi * seatIndex / widget.playerCount + pi / 2;
-          final stack = i < widget.playerStacks.length
-              ? widget.playerStacks[i]
-              : 0.0;
+          final stack =
+              i < widget.playerStacks.length ? widget.playerStacks[i] : 0.0;
           if (actionSeatIndex != null && i == actionSeatIndex) {
             final radius = 24 * widget.scale;
             items.add(
@@ -444,9 +441,8 @@ class _PokerTableViewState extends State<PokerTableView> {
                 : '${stack.toStringAsFixed(0)} BB';
             final fontSize = (widget.compactMode ? 8 : 10) * widget.scale;
             final dx = widget.compactMode ? 28 * widget.scale : 0.0;
-            final dy = widget.compactMode
-                ? -4 * widget.scale
-                : -10 * widget.scale;
+            final dy =
+                widget.compactMode ? -4 * widget.scale : -10 * widget.scale;
             items.add(
               Positioned(
                 left: offset.dx + dx,
@@ -546,9 +542,8 @@ class _PokerTableViewState extends State<PokerTableView> {
 
           if (cardsToShow.isNotEmpty) {
             final dx = cos(angle) < 0 ? -40 * widget.scale : 40 * widget.scale;
-            final keyString = cardsToShow
-                .map((c) => '${c.rank}${c.suit}')
-                .join('-');
+            final keyString =
+                cardsToShow.map((c) => '${c.rank}${c.suit}').join('-');
             items.add(
               Positioned(
                 left: offset.dx + dx,

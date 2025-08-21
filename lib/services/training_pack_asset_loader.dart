@@ -33,8 +33,7 @@ class TrainingPackAssetLoader {
     final manifestRaw = await rootBundle.loadString('AssetManifest.json');
     final manifest = jsonDecode(manifestRaw) as Map<String, dynamic>;
     final List<String> paths = manifest.keys.where((e) {
-      final ok =
-          e.startsWith('assets/packs/') ||
+      final ok = e.startsWith('assets/packs/') ||
           e.startsWith('assets/training_templates/') ||
           e.startsWith('assets/templates/');
       return ok && (e.endsWith('.yaml') || e.endsWith('.json'));

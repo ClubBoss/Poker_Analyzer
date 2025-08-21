@@ -14,7 +14,7 @@ class DecayBoosterSpotInjector {
   final BoosterQueueService queue;
   final TrainingPackLibraryV2 library;
   final Future<List<TrainingHistoryEntryV2>> Function({int limit})
-  _historyLoader;
+      _historyLoader;
 
   DecayBoosterSpotInjector({
     TheoryTagDecayTracker? decay,
@@ -22,11 +22,11 @@ class DecayBoosterSpotInjector {
     BoosterQueueService? queue,
     TrainingPackLibraryV2? library,
     Future<List<TrainingHistoryEntryV2>> Function({int limit})? historyLoader,
-  }) : decay = decay ?? TheoryTagDecayTracker(),
-       lessons = lessons ?? MiniLessonLibraryService.instance,
-       queue = queue ?? BoosterQueueService.instance,
-       library = library ?? TrainingPackLibraryV2.instance,
-       _historyLoader = historyLoader ?? TrainingHistoryServiceV2.getHistory;
+  })  : decay = decay ?? TheoryTagDecayTracker(),
+        lessons = lessons ?? MiniLessonLibraryService.instance,
+        queue = queue ?? BoosterQueueService.instance,
+        library = library ?? TrainingPackLibraryV2.instance,
+        _historyLoader = historyLoader ?? TrainingHistoryServiceV2.getHistory;
 
   static final DecayBoosterSpotInjector instance = DecayBoosterSpotInjector();
 

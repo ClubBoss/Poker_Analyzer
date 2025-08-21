@@ -17,18 +17,17 @@ class TrainingHistoryEntryV2 {
   }) : id = id ?? const Uuid().v4();
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'timestamp': timestamp.toIso8601String(),
-    if (tags.isNotEmpty) 'tags': tags,
-    'packId': packId,
-    'type': type.name,
-  };
+        'id': id,
+        'timestamp': timestamp.toIso8601String(),
+        if (tags.isNotEmpty) 'tags': tags,
+        'packId': packId,
+        'type': type.name,
+      };
 
   factory TrainingHistoryEntryV2.fromJson(Map<String, dynamic> j) =>
       TrainingHistoryEntryV2(
         id: j['id'] as String?,
-        timestamp:
-            DateTime.tryParse(j['timestamp'] as String? ?? '') ??
+        timestamp: DateTime.tryParse(j['timestamp'] as String? ?? '') ??
             DateTime.now(),
         tags: [for (final t in (j['tags'] as List? ?? [])) t.toString()],
         packId: j['packId'] as String? ?? '',

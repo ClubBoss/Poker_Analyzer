@@ -5,7 +5,7 @@ import '../../services/mini_lesson_library_service.dart';
 /// Links river jam decision spots to relevant theory mini lessons.
 class PostflopJamDecisionTheoryLinker {
   PostflopJamDecisionTheoryLinker({MiniLessonLibraryService? library})
-    : _library = library ?? MiniLessonLibraryService.instance;
+      : _library = library ?? MiniLessonLibraryService.instance;
 
   final MiniLessonLibraryService _library;
 
@@ -28,9 +28,8 @@ class PostflopJamDecisionTheoryLinker {
 
     for (final pack in packs) {
       final topic = pack.meta['topic']?.toString().toLowerCase();
-      final hasTag = pack.tags
-          .map((t) => t.toLowerCase())
-          .contains('jamdecision');
+      final hasTag =
+          pack.tags.map((t) => t.toLowerCase()).contains('jamdecision');
       if (topic != 'river jam' && !hasTag) continue;
 
       for (final spot in pack.spots) {

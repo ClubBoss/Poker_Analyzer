@@ -26,8 +26,8 @@ class SkillTreeTrackListScreen extends StatefulWidget {
     SkillTreeTrackStateEvaluator? evaluator,
     SkillTreeCompletionBadgeService? badgeService,
     this.reloadLibrary = true,
-  }) : evaluator = evaluator ?? SkillTreeTrackStateEvaluator(),
-       badgeService = badgeService ?? const SkillTreeCompletionBadgeService();
+  })  : evaluator = evaluator ?? SkillTreeTrackStateEvaluator(),
+        badgeService = badgeService ?? const SkillTreeCompletionBadgeService();
 
   @override
   State<SkillTreeTrackListScreen> createState() =>
@@ -74,8 +74,7 @@ class _SkillTreeTrackListScreenState extends State<SkillTreeTrackListScreen> {
       for (final s in states)
         _Entry(
           state: s,
-          badge:
-              badgeMap[s.progress.tree.nodes.values.first.category] ??
+          badge: badgeMap[s.progress.tree.nodes.values.first.category] ??
               SkillTreeCompletionBadge(
                 trackId: s.progress.tree.nodes.values.first.category,
                 percentComplete: s.progress.completionRate,

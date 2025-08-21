@@ -207,8 +207,7 @@ class DebugPanelPreferences extends ChangeNotifier {
     final checkHighSpr = filters.contains('highspr');
     final searchActive = search.isNotEmpty;
 
-    final shouldFilter =
-        checkFeedback ||
+    final shouldFilter = checkFeedback ||
         checkOpponent ||
         checkFailed ||
         checkHighSpr ||

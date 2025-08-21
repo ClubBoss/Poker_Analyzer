@@ -26,15 +26,15 @@ class EvaluationResult {
   });
 
   Map<String, dynamic> toJson() => {
-    'correct': correct,
-    'expectedAction': expectedAction,
-    'userEquity': userEquity,
-    'expectedEquity': expectedEquity,
-    if (ev != null) 'ev': ev,
-    if (icmEv != null) 'icmEv': icmEv,
-    if (hint != null) 'hint': hint,
-    if (streets != null && streets!.isNotEmpty) 'streets': streets,
-  };
+        'correct': correct,
+        'expectedAction': expectedAction,
+        'userEquity': userEquity,
+        'expectedEquity': expectedEquity,
+        if (ev != null) 'ev': ev,
+        if (icmEv != null) 'icmEv': icmEv,
+        if (hint != null) 'hint': hint,
+        if (streets != null && streets!.isNotEmpty) 'streets': streets,
+      };
 
   factory EvaluationResult.fromJson(Map<String, dynamic> json) =>
       EvaluationResult(

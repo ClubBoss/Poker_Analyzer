@@ -8,8 +8,8 @@ class TrainingProgressTrackerService {
   TrainingProgressTrackerService._({
     TrainingProgressStorageService? storage,
     TrainingProgressNotifier? notifier,
-  }) : _storage = storage ?? const TrainingProgressStorageService(),
-       notifier = notifier ?? TrainingProgressNotifier();
+  })  : _storage = storage ?? const TrainingProgressStorageService(),
+        notifier = notifier ?? TrainingProgressNotifier();
 
   static final instance = TrainingProgressTrackerService._();
 

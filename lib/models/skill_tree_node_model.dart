@@ -19,8 +19,8 @@ class SkillTreeNodeModel {
     this.theoryLessonId = '',
     this.level = 0,
     this.isCompleted = false,
-  }) : prerequisites = prerequisites ?? const [],
-       unlockedNodeIds = unlockedNodeIds ?? const [];
+  })  : prerequisites = prerequisites ?? const [],
+        unlockedNodeIds = unlockedNodeIds ?? const [];
 
   factory SkillTreeNodeModel.fromJson(Map<String, dynamic> json) {
     return SkillTreeNodeModel(
@@ -41,16 +41,16 @@ class SkillTreeNodeModel {
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'title': title,
-    'category': category,
-    if (prerequisites.isNotEmpty) 'prerequisites': prerequisites,
-    if (unlockedNodeIds.isNotEmpty) 'unlockedNodeIds': unlockedNodeIds,
-    'trainingPackId': trainingPackId,
-    'theoryLessonId': theoryLessonId,
-    'level': level,
-    if (isCompleted) 'isCompleted': true,
-  };
+        'id': id,
+        'title': title,
+        'category': category,
+        if (prerequisites.isNotEmpty) 'prerequisites': prerequisites,
+        if (unlockedNodeIds.isNotEmpty) 'unlockedNodeIds': unlockedNodeIds,
+        'trainingPackId': trainingPackId,
+        'theoryLessonId': theoryLessonId,
+        'level': level,
+        if (isCompleted) 'isCompleted': true,
+      };
 
   factory SkillTreeNodeModel.fromYaml(Map yaml) {
     final map = <String, dynamic>{};

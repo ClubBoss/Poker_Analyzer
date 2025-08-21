@@ -57,7 +57,7 @@ abstract class EvaluationExecutor {
 /// Handles execution of a single evaluation request.
 class EvaluationExecutorService implements EvaluationExecutor {
   EvaluationExecutorService({EvaluationQueue? queue, EvaluationCache? cache})
-    : _cache = cache ?? EvaluationCache() {
+      : _cache = cache ?? EvaluationCache() {
     _queue = queue ?? EvaluationQueue(_evaluate);
     _initFuture;
   }
@@ -160,19 +160,16 @@ class EvaluationExecutorService implements EvaluationExecutor {
     final correct = normUser == expectedAction;
     final expectedEquity =
         spot.equities != null && spot.equities!.length > spot.heroIndex
-        ? spot.equities![spot.heroIndex].clamp(0.0, 1.0)
-        : 0.5;
-    final userEquity = correct
-        ? expectedEquity
-        : (expectedEquity - 0.1).clamp(0.0, 1.0);
+            ? spot.equities![spot.heroIndex].clamp(0.0, 1.0)
+            : 0.5;
+    final userEquity =
+        correct ? expectedEquity : (expectedEquity - 0.1).clamp(0.0, 1.0);
     double? ev;
     double? icmEv;
     if (spot.actionType == SpotActionType.callPush) {
-      final heroStack =
-          spot.heroStack ??
+      final heroStack = spot.heroStack ??
           (spot.stacks.isNotEmpty ? spot.stacks[spot.heroIndex] : 0);
-      final villainStack =
-          spot.villainStack ??
+      final villainStack = spot.villainStack ??
           (spot.stacks.length > 1
               ? spot.stacks[spot.heroIndex == 0 ? 1 : 0]
               : 0);
@@ -224,9 +221,8 @@ class EvaluationExecutorService implements EvaluationExecutor {
     final goals = GoalsService.instance;
     if (goals != null) {
       if (correct) {
-        final progress = goals.goals.length > 1
-            ? goals.goals[1].progress + 1
-            : 1;
+        final progress =
+            goals.goals.length > 1 ? goals.goals[1].progress + 1 : 1;
         goals.setProgress(1, progress, context: context);
         goals.updateErrorFreeStreak(true, context: context);
       } else {
@@ -246,8 +242,7 @@ class EvaluationExecutorService implements EvaluationExecutor {
   }
 
   String _expectedAction(TrainingSpot spot) {
-    final action =
-        spot.recommendedAction ??
+    final action = spot.recommendedAction ??
         (spot.actionType == SpotActionType.callPush
             ? _evaluateCallPush(spot)
             : _evaluatePushFold(spot)) ??
@@ -289,11 +284,9 @@ class EvaluationExecutorService implements EvaluationExecutor {
     if (spot.playerCards.length <= spot.heroIndex) return null;
     final cards = spot.playerCards[spot.heroIndex];
     if (cards.length < 2) return null;
-    final heroStack =
-        spot.heroStack ??
+    final heroStack = spot.heroStack ??
         (spot.stacks.isNotEmpty ? spot.stacks[spot.heroIndex] : 0);
-    final villainStack =
-        spot.villainStack ??
+    final villainStack = spot.villainStack ??
         (spot.stacks.length > 1 ? spot.stacks[spot.heroIndex == 0 ? 1 : 0] : 0);
     final code = handCode(
       '${cards[0].rank}${cards[0].suit} ${cards[1].rank}${cards[1].suit}',
@@ -532,8 +525,7 @@ class EvaluationExecutorService implements EvaluationExecutor {
         : '${(foldEv - heroPushEv).toStringAsFixed(2)} BB better to fold';
     if (template != null) {
       TemplateCoverageUtils.recountAll(template).applyTo(template.meta);
-      final changed =
-          prev == null ||
+      final changed = prev == null ||
           !const DeepCollectionEquality().equals(
             prev.toJson(),
             spot.evalResult!.toJson(),

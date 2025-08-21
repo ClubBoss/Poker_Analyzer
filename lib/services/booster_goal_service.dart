@@ -8,8 +8,8 @@ class BoosterGoalService {
   final InboxBoosterTrackerService tracker;
 
   BoosterGoalService({GoalQueue? queue, InboxBoosterTrackerService? tracker})
-    : queue = queue ?? GoalQueue.instance,
-      tracker = tracker ?? InboxBoosterTrackerService.instance;
+      : queue = queue ?? GoalQueue.instance,
+        tracker = tracker ?? InboxBoosterTrackerService.instance;
 
   static final BoosterGoalService instance = BoosterGoalService();
 

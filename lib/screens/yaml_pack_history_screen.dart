@@ -192,20 +192,20 @@ class _YamlPackHistoryScreenState extends State<YamlPackHistoryScreen> {
                   child: _preview == -1
                       ? const Text('Нет файла')
                       : _markdown != null
-                      ? SingleChildScrollView(
-                          controller: _ctrl,
-                          child: SelectableText(
-                            _markdown!,
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        )
-                      : SingleChildScrollView(
-                          controller: _ctrl,
-                          child: SelectableText(
-                            _yaml ?? '',
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        ),
+                          ? SingleChildScrollView(
+                              controller: _ctrl,
+                              child: SelectableText(
+                                _markdown!,
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            )
+                          : SingleChildScrollView(
+                              controller: _ctrl,
+                              child: SelectableText(
+                                _yaml ?? '',
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ),
                 );
                 if (c.maxWidth > 600) {
                   return Row(

@@ -17,9 +17,9 @@ class BoosterVariationInjector {
     BoosterSimilarityEngine? engine,
     double similarityThreshold = 0.8,
     int variationsPerSpot = 1,
-  }) : _engine = engine ?? const BoosterSimilarityEngine(),
-       _similarityThreshold = similarityThreshold,
-       _variationsPerSpot = variationsPerSpot;
+  })  : _engine = engine ?? const BoosterSimilarityEngine(),
+        _similarityThreshold = similarityThreshold,
+        _variationsPerSpot = variationsPerSpot;
 
   /// Returns a copy of [pack] with additional variation spots added.
   TrainingPackTemplateV2 injectVariations(
@@ -34,9 +34,8 @@ class BoosterVariationInjector {
     final newSpots = <TrainingPackSpot>[];
 
     for (final cluster in clusters) {
-      final originals = cluster.spots
-          .where((s) => idSet.contains(s.id))
-          .toList();
+      final originals =
+          cluster.spots.where((s) => idSet.contains(s.id)).toList();
       if (originals.length <= 1) continue;
       for (final orig in originals) {
         var counter = 1;

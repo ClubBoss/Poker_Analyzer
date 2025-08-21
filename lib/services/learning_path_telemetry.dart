@@ -10,7 +10,7 @@ import 'analytics_adapter.dart';
 /// Production-ready telemetry writer for learning path events.
 class LearningPathTelemetry {
   LearningPathTelemetry._({Directory? dir, this.maxBytes = 2 * 1024 * 1024})
-    : _dirOverride = dir;
+      : _dirOverride = dir;
 
   /// Default singleton instance.
   static final LearningPathTelemetry instance = LearningPathTelemetry._();
@@ -62,22 +62,20 @@ class LearningPathTelemetry {
       if (userId != null) 'userId': userId,
     };
     final line = jsonEncode(payload);
-    _queue = _queue
-        .then((_) async {
-          try {
-            await _rotateIfNeeded();
-            final file = await _logFile;
-            final sink = file.openWrite(mode: FileMode.append);
-            sink.writeln(line);
-            await sink.flush();
-            await sink.close();
-          } catch (_) {}
-        })
-        .then((_) async {
-          try {
-            await adapter.send(event, payload);
-          } catch (_) {}
-        });
+    _queue = _queue.then((_) async {
+      try {
+        await _rotateIfNeeded();
+        final file = await _logFile;
+        final sink = file.openWrite(mode: FileMode.append);
+        sink.writeln(line);
+        await sink.flush();
+        await sink.close();
+      } catch (_) {}
+    }).then((_) async {
+      try {
+        await adapter.send(event, payload);
+      } catch (_) {}
+    });
     await _queue;
   }
 

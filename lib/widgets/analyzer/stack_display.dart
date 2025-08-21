@@ -66,8 +66,7 @@ class StackDisplay extends StatelessWidget {
     final tableWidth = screenSize.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screenSize.width / 2 + 10;
-    final centerY =
-        screenSize.height / 2 -
+    final centerY = screenSize.height / 2 -
         TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
     final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;

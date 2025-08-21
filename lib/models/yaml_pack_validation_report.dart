@@ -8,10 +8,10 @@ class YamlPackValidationReport {
     this.isValid = true,
   });
   Map<String, dynamic> toJson() => {
-    'errors': errors,
-    'warnings': warnings,
-    'isValid': isValid,
-  };
+        'errors': errors,
+        'warnings': warnings,
+        'isValid': isValid,
+      };
   factory YamlPackValidationReport.fromJson(Map<String, dynamic> j) =>
       YamlPackValidationReport(
         errors: [for (final e in j['errors'] as List? ?? []) e.toString()],

@@ -56,9 +56,8 @@ class PackBatchGeneratorService {
         }
         final ts = DateFormat('yyyyMMdd_HHmm').format(DateTime.now());
         final safeA = audience.replaceAll(' ', '_');
-        final safeT = tags.isNotEmpty
-            ? tags.first.replaceAll(' ', '_')
-            : 'pack';
+        final safeT =
+            tags.isNotEmpty ? tags.first.replaceAll(' ', '_') : 'pack';
         final file = File('${out.path}/lib_${safeA}_${safeT}_$ts.yaml');
         await file.writeAsString(yaml);
         success++;

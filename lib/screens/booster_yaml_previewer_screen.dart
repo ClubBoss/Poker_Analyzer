@@ -35,13 +35,12 @@ class _BoosterYAMLPreviewerScreenState
       if (mounted) setState(() => _loading = false);
       return;
     }
-    final list =
-        dir
-            .listSync(recursive: true)
-            .whereType<File>()
-            .where((f) => f.path.toLowerCase().endsWith('.yaml'))
-            .toList()
-          ..sort((a, b) => a.path.compareTo(b.path));
+    final list = dir
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((f) => f.path.toLowerCase().endsWith('.yaml'))
+        .toList()
+      ..sort((a, b) => a.path.compareTo(b.path));
     if (!mounted) return;
     setState(() {
       _files
@@ -67,71 +66,75 @@ class _BoosterYAMLPreviewerScreenState
   @override
   Widget build(BuildContext context) {
     if (!kDebugMode) return const SizedBox.shrink();
-    final jsonText = _json == null
-        ? ''
-        : const JsonEncoder.withIndent('  ').convert(_json);
+    final jsonText =
+        _json == null ? '' : const JsonEncoder.withIndent('  ').convert(_json);
     return Scaffold(
       appBar: AppBar(title: const Text('Booster YAML Preview')),
       backgroundColor: AppColors.background,
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _files.isEmpty
-          ? const Center(child: Text('No files'))
-          : Row(
-              children: [
-                SizedBox(
-                  width: 280,
-                  child: ListView.builder(
-                    itemCount: _files.length,
-                    itemBuilder: (_, i) {
-                      final f = _files[i];
-                      final name = f.path.split(Platform.pathSeparator).last;
-                      return ListTile(
-                        selected: i == _selected,
-                        title: Text(name),
-                        onTap: () => _select(f, i),
-                      );
-                    },
-                  ),
-                ),
-                const VerticalDivider(width: 1),
-                Expanded(
-                  child: DefaultTabController(
-                    length: 2,
-                    child: Column(
-                      children: [
-                        const TabBar(
-                          tabs: [
-                            Tab(text: 'YAML'),
-                            Tab(text: 'JSON'),
+              ? const Center(child: Text('No files'))
+              : Row(
+                  children: [
+                    SizedBox(
+                      width: 280,
+                      child: ListView.builder(
+                        itemCount: _files.length,
+                        itemBuilder: (_, i) {
+                          final f = _files[i];
+                          final name =
+                              f.path.split(Platform.pathSeparator).last;
+                          return ListTile(
+                            selected: i == _selected,
+                            title: Text(name),
+                            onTap: () => _select(f, i),
+                          );
+                        },
+                      ),
+                    ),
+                    const VerticalDivider(width: 1),
+                    Expanded(
+                      child: DefaultTabController(
+                        length: 2,
+                        child: Column(
+                          children: [
+                            const TabBar(
+                              tabs: [
+                                Tab(text: 'YAML'),
+                                Tab(text: 'JSON'),
+                              ],
+                            ),
+                            Expanded(
+                              child: TabBarView(
+                                children: [
+                                  SingleChildScrollView(
+                                    padding: const EdgeInsets.all(16),
+                                    child: SelectableText(
+                                      _yaml ?? 'Select file',
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                  SingleChildScrollView(
+                                    padding: const EdgeInsets.all(16),
+                                    child: SelectableText(
+                                      jsonText.isEmpty
+                                          ? 'Select file'
+                                          : jsonText,
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
-                        Expanded(
-                          child: TabBarView(
-                            children: [
-                              SingleChildScrollView(
-                                padding: const EdgeInsets.all(16),
-                                child: SelectableText(
-                                  _yaml ?? 'Select file',
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              ),
-                              SingleChildScrollView(
-                                padding: const EdgeInsets.all(16),
-                                child: SelectableText(
-                                  jsonText.isEmpty ? 'Select file' : jsonText,
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
     );
   }
 }

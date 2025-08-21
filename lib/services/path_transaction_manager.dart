@@ -63,13 +63,12 @@ class PathTransactionManager {
     final prefs = await SharedPreferences.getInstance();
     final keep = prefs.getInt('path.journal.keep') ?? 20;
     final dir = Directory(rootDir);
-    final journals =
-        dir
-            .listSync()
-            .whereType<File>()
-            .where((f) => f.path.contains('.journal.$userId'))
-            .toList()
-          ..sort((a, b) => a.path.compareTo(b.path));
+    final journals = dir
+        .listSync()
+        .whereType<File>()
+        .where((f) => f.path.contains('.journal.$userId'))
+        .toList()
+      ..sort((a, b) => a.path.compareTo(b.path));
     if (journals.length > keep) {
       for (final f in journals.take(journals.length - keep)) {
         f.deleteSync();

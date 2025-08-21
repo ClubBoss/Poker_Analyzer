@@ -14,13 +14,12 @@ class SmartBoosterUnlockScheduler with WidgetsBindingObserver {
     required this.sessions,
     SmartBoosterUnlocker? unlocker,
     this.debounce = const Duration(minutes: 15),
-  }) : unlocker =
-           unlocker ??
-           SmartBoosterUnlocker(
-             mastery: TagMasteryService(
-               logs: SessionLogService(sessions: sessions),
-             ),
-           );
+  }) : unlocker = unlocker ??
+            SmartBoosterUnlocker(
+              mastery: TagMasteryService(
+                logs: SessionLogService(sessions: sessions),
+              ),
+            );
 
   final TrainingSessionService sessions;
   final SmartBoosterUnlocker unlocker;

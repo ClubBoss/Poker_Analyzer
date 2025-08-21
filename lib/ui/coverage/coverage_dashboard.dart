@@ -58,9 +58,8 @@ class _CoverageDashboardState extends State<CoverageDashboard> {
     final target = showPreflop && showPostflop
         ? 48
         : (showPreflop || showPostflop ? 24 : 0);
-    final coverage = target == 0
-        ? 0
-        : ((total / target) * 100).clamp(0, 100).round();
+    final coverage =
+        target == 0 ? 0 : ((total / target) * 100).clamp(0, 100).round();
     return Scaffold(
       appBar: AppBar(title: const Text('Coverage')),
       body: SingleChildScrollView(

@@ -18,8 +18,8 @@ class AdaptivePackInboxNotifier with WidgetsBindingObserver {
     DecayBoosterReminderOrchestrator? orchestrator,
     InboxBoosterTrackerService? inbox,
     this.cooldown = const Duration(hours: 6),
-  }) : orchestrator = orchestrator ?? DecayBoosterReminderOrchestrator(),
-       inbox = inbox ?? InboxBoosterTrackerService.instance;
+  })  : orchestrator = orchestrator ?? DecayBoosterReminderOrchestrator(),
+        inbox = inbox ?? InboxBoosterTrackerService.instance;
 
   static const String _lastKey = 'adaptive_pack_inbox_last';
 

@@ -13,8 +13,8 @@ class InboxBoosterService {
   InboxBoosterService({
     InboxBoosterTrackerService? tracker,
     MiniLessonLibraryService? lessons,
-  }) : tracker = tracker ?? InboxBoosterTrackerService.instance,
-       lessons = lessons ?? MiniLessonLibraryService.instance;
+  })  : tracker = tracker ?? InboxBoosterTrackerService.instance,
+        lessons = lessons ?? MiniLessonLibraryService.instance;
 
   static final InboxBoosterService instance = InboxBoosterService();
 

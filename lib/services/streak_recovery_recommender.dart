@@ -16,8 +16,8 @@ class StreakRecoveryRecommender {
   const StreakRecoveryRecommender({
     TrainingStatsService? stats,
     BoosterSuggestionEngine? booster,
-  }) : _stats = stats ?? TrainingStatsService.instance!,
-       _booster = booster ?? const BoosterSuggestionEngine();
+  })  : _stats = stats ?? TrainingStatsService.instance!,
+        _booster = booster ?? const BoosterSuggestionEngine();
 
   Future<List<StreakRecoverySuggestion>> suggest({DateTime? now}) async {
     final last = _stats.lastTrainingDate;

@@ -16,13 +16,14 @@ class _FakeInsights extends MistakeTagInsightsService {
   @override
   Future<List<MistakeInsight>> buildInsights({
     bool sortByEvLoss = false,
-  }) async => list;
+  }) async =>
+      list;
 }
 
 class _FakeLibrary implements MiniLessonLibraryService {
   final Map<String, TheoryMiniLessonNode> items;
   _FakeLibrary(List<TheoryMiniLessonNode> lessons)
-    : items = {for (final l in lessons) l.id: l};
+      : items = {for (final l in lessons) l.id: l};
 
   @override
   List<TheoryMiniLessonNode> get all => items.values.toList();

@@ -95,9 +95,8 @@ class _SpotSolveScreenState extends State<SpotSolveScreen> {
                 position: widget.spot.positions.length > i
                     ? widget.spot.positions[i]
                     : '',
-                stack: widget.spot.stacks.length > i
-                    ? widget.spot.stacks[i]
-                    : 0,
+                stack:
+                    widget.spot.stacks.length > i ? widget.spot.stacks[i] : 0,
                 tag: '',
                 cards: cards,
                 lastAction: null,
@@ -121,9 +120,8 @@ class _SpotSolveScreenState extends State<SpotSolveScreen> {
                 onCardTap: null,
                 streetInvestment: 0,
                 currentBet: 0,
-                remainingStack: widget.spot.stacks.length > i
-                    ? widget.spot.stacks[i]
-                    : 0,
+                remainingStack:
+                    widget.spot.stacks.length > i ? widget.spot.stacks[i] : 0,
                 timersDisabled: true,
                 isBust: false,
               ),

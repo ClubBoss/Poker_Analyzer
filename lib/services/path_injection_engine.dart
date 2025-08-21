@@ -39,13 +39,13 @@ class PathInjectionEngine {
     PathRegistry? registry,
     LearningPathStore? store,
     AssessmentPackSynthesizer? synthesizer,
-  }) : theoryClusterer = theoryClusterer ?? InlinePackTheoryClusterer(),
-       boosterEngine = boosterEngine ?? TargetedPackBoosterEngine(),
-       noveltyGuard = noveltyGuard ?? const PackNoveltyGuardService(),
-       dashboard = dashboard ?? AutogenStatusDashboardService.instance,
-       registry = registry ?? const PathRegistry(),
-       store = store ?? const LearningPathStore(),
-       synthesizer = synthesizer ?? const AssessmentPackSynthesizer();
+  })  : theoryClusterer = theoryClusterer ?? InlinePackTheoryClusterer(),
+        boosterEngine = boosterEngine ?? TargetedPackBoosterEngine(),
+        noveltyGuard = noveltyGuard ?? const PackNoveltyGuardService(),
+        dashboard = dashboard ?? AutogenStatusDashboardService.instance,
+        registry = registry ?? const PathRegistry(),
+        store = store ?? const LearningPathStore(),
+        synthesizer = synthesizer ?? const AssessmentPackSynthesizer();
 
   Future<List<InjectedPathModule>> injectForClusters({
     required List<SkillTagCluster> clusters,

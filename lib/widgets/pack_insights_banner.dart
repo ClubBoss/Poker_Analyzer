@@ -57,8 +57,8 @@ class _PackInsightsBannerState extends State<PackInsightsBanner> {
     final rec = mastered
         ? 'Освоено'
         : (stat != null && stat.accuracy >= 0.8
-              ? 'Попробуйте похожее'
-              : 'Повторить');
+            ? 'Попробуйте похожее'
+            : 'Повторить');
     if (mounted) {
       setState(() {
         _accuracy = stat?.accuracy;

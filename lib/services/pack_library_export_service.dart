@@ -20,11 +20,10 @@ class PackLibraryExportService {
     );
     final invalid = {for (final e in errors) File(e.$1).path};
     var count = 0;
-    for (final f
-        in libDir
-            .listSync(recursive: true)
-            .whereType<File>()
-            .where((f) => f.path.toLowerCase().endsWith('.yaml'))) {
+    for (final f in libDir
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((f) => f.path.toLowerCase().endsWith('.yaml'))) {
       if (invalid.contains(f.path)) continue;
       await f.copy(p.join(dst.path, p.basename(f.path)));
       count++;

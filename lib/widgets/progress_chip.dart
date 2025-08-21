@@ -10,8 +10,8 @@ class ProgressChip extends StatelessWidget {
     final color = pct >= 1
         ? tint.withValues(alpha: .9)
         : pct >= .5
-        ? tint.withValues(alpha: .7)
-        : tint.withValues(alpha: .5);
+            ? tint.withValues(alpha: .7)
+            : tint.withValues(alpha: .5);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(

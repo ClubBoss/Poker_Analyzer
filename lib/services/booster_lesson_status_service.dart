@@ -12,8 +12,8 @@ class BoosterLessonStatusService {
   BoosterLessonStatusService({
     InboxBoosterTrackerService? tracker,
     BoosterPathHistoryService? history,
-  }) : tracker = tracker ?? InboxBoosterTrackerService.instance,
-       history = history ?? BoosterPathHistoryService.instance;
+  })  : tracker = tracker ?? InboxBoosterTrackerService.instance,
+        history = history ?? BoosterPathHistoryService.instance;
 
   static final BoosterLessonStatusService instance =
       BoosterLessonStatusService();

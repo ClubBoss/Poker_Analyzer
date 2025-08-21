@@ -24,15 +24,12 @@ class EvaluationQueue {
     if (_processing || _queue.isEmpty) return;
     _processing = true;
     final item = _queue.removeFirst();
-    _processor(item.request)
-        .then(item.completer.complete)
-        .catchError((e, s) {
-          item.completer.completeError(e, s);
-        })
-        .whenComplete(() {
-          _processing = false;
-          _process();
-        });
+    _processor(item.request).then(item.completer.complete).catchError((e, s) {
+      item.completer.completeError(e, s);
+    }).whenComplete(() {
+      _processing = false;
+      _process();
+    });
   }
 }
 

@@ -125,8 +125,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
       context.read<GiftDropService>().checkAndDropGift(context: context);
       context.read<SessionStreakOverlayPromptService>().run(context);
       context.read<DecayBadgeBannerController>().maybeShowStreakBadgeBanner(
-        context,
-      );
+            context,
+          );
     });
   }
 
@@ -150,17 +150,16 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     );
     if (mounted) {
       setState(
-        () => _tutorialCompleted = context
-            .read<UserPreferencesService>()
-            .tutorialCompleted,
+        () => _tutorialCompleted =
+            context.read<UserPreferencesService>().tutorialCompleted,
       );
     }
   }
 
   Future<void> _maybeShowTrainingReminder() async {
     await context.read<DailyTrainingReminderService>().maybeShowReminder(
-      context,
-    );
+          context,
+        );
   }
 
   Future<void> _maybeLaunchScheduledTraining() async {
@@ -333,8 +332,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
       _maybeLaunchScheduledTraining();
       unawaited(
         context.read<OverlayDecayBoosterOrchestrator>().maybeShowIfIdle(
-          context,
-        ),
+              context,
+            ),
       );
     }
   }

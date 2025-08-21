@@ -7,7 +7,7 @@ class TrainingPackTemplateImporter {
   final AutoDeduplicationEngine _dedup;
 
   TrainingPackTemplateImporter({AutoDeduplicationEngine? dedup})
-    : _dedup = dedup ?? AutoDeduplicationEngine();
+      : _dedup = dedup ?? AutoDeduplicationEngine();
 
   /// Merges [incoming] into [base], skipping any spots already present.
   TrainingPackTemplateV2 merge(

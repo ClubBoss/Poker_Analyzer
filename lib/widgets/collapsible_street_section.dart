@@ -49,14 +49,11 @@ class _CollapsibleStreetSectionState extends State<CollapsibleStreetSection> {
 
   String _buildSummary(List<ActionEntry> actions) {
     if (actions.isEmpty) return 'Нет действий';
-    return actions
-        .map((a) {
-          final label = a.action == 'custom'
-              ? (a.customLabel ?? 'custom')
-              : a.action;
-          return '${_capitalize(label)}${a.amount != null ? ' ${a.amount}' : ''}';
-        })
-        .join(' - ');
+    return actions.map((a) {
+      final label =
+          a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action;
+      return '${_capitalize(label)}${a.amount != null ? ' ${a.amount}' : ''}';
+    }).join(' - ');
   }
 
   @override

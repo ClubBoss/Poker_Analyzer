@@ -13,13 +13,12 @@ class TrainingProgressOverviewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final packs =
-        context
-            .watch<TrainingPackStorageService>()
-            .packs
-            .where((p) => !p.isBuiltIn)
-            .toList()
-          ..sort((a, b) => b.lastAttemptDate.compareTo(a.lastAttemptDate));
+    final packs = context
+        .watch<TrainingPackStorageService>()
+        .packs
+        .where((p) => !p.isBuiltIn)
+        .toList()
+      ..sort((a, b) => b.lastAttemptDate.compareTo(a.lastAttemptDate));
     return Scaffold(
       appBar: AppBar(
         title: const Text('Прогресс по тренировкам'),
@@ -31,9 +30,8 @@ class TrainingProgressOverviewScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
             child: ValueListenableBuilder<DateTime?>(
-              valueListenable: context
-                  .read<TrainingPackCloudSyncService>()
-                  .lastSync,
+              valueListenable:
+                  context.read<TrainingPackCloudSyncService>().lastSync,
               builder: (context, value, child) {
                 final text = value == null
                     ? 'Последняя синхр.: -'
@@ -59,8 +57,8 @@ class TrainingProgressOverviewScreen extends StatelessWidget {
                 final color = progress < 0.5
                     ? Colors.redAccent
                     : progress < 0.8
-                    ? AppColors.accent
-                    : Colors.greenAccent;
+                        ? AppColors.accent
+                        : Colors.greenAccent;
                 return Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(

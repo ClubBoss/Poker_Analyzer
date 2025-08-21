@@ -11,16 +11,16 @@ import 'package:poker_analyzer/helpers/poker_position_helper.dart';
 /// Converter for PokerStars text hand histories.
 class PokerStarsHandHistoryConverter extends ConverterPlugin {
   PokerStarsHandHistoryConverter()
-    : super(
-        formatId: 'pokerstars_hand_history',
-        description: 'PokerStars hand history format',
-        capabilities: const ConverterFormatCapabilities(
-          supportsImport: true,
-          supportsExport: false,
-          requiresBoard: false,
-          supportsMultiStreet: true,
-        ),
-      );
+      : super(
+          formatId: 'pokerstars_hand_history',
+          description: 'PokerStars hand history format',
+          capabilities: const ConverterFormatCapabilities(
+            supportsImport: true,
+            supportsExport: false,
+            requiresBoard: false,
+            supportsMultiStreet: true,
+          ),
+        );
 
   double _parseAmount(String s) => double.tryParse(s.replaceAll(',', '')) ?? 0;
 
@@ -52,11 +52,9 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
     List<ActionEntry> actions,
     Map<int, String?> actionTags,
   ) {
-    for (
-      int i = startIndex;
-      i < lines.length && (endIndex == -1 || i < endIndex);
-      i++
-    ) {
+    for (int i = startIndex;
+        i < lines.length && (endIndex == -1 || i < endIndex);
+        i++) {
       final line = lines[i].trim();
       if (line.isEmpty) continue;
       Match? m;
@@ -79,9 +77,8 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
         final idx = nameToIndex[m.group(1)!.toLowerCase()];
         if (idx != null) {
           final amt = _parseAmount(m.group(2)!);
-          final amount = bigBlind != null && bigBlind > 0
-              ? (amt / bigBlind)
-              : amt;
+          final amount =
+              bigBlind != null && bigBlind > 0 ? (amt / bigBlind) : amt;
           final isAllIn = m.group(3)!.toLowerCase().contains('all-in');
           final action = isAllIn ? 'all-in' : 'call';
           actions.add(ActionEntry(street, idx, action, amount: amount));
@@ -98,9 +95,8 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
         final idx = nameToIndex[m.group(1)!.toLowerCase()];
         if (idx != null) {
           final amt = _parseAmount(m.group(3)!);
-          final amount = bigBlind != null && bigBlind > 0
-              ? (amt / bigBlind)
-              : amt;
+          final amount =
+              bigBlind != null && bigBlind > 0 ? (amt / bigBlind) : amt;
           final isAllIn = m.group(4)!.toLowerCase().contains('all-in');
           final action = isAllIn ? 'all-in' : 'raise';
           actions.add(ActionEntry(street, idx, action, amount: amount));
@@ -613,18 +609,16 @@ class PokerStarsHandHistoryConverter extends ConverterPlugin {
       totalPrizePool: totalPrizePool,
       numberOfEntrants: numberOfEntrants,
       gameType: gameType,
-      eliminatedPositions: eliminatedPositions.isEmpty
-          ? null
-          : eliminatedPositions,
+      eliminatedPositions:
+          eliminatedPositions.isEmpty ? null : eliminatedPositions,
       playerPositions: playerPositions,
       playerTypes: {
         for (var i = 0; i < playerCount; i++) i: PlayerType.unknown,
       },
       comment: tableName,
       actionTags: actionTags.isEmpty ? null : actionTags,
-      showdownDescriptions: showdownDescriptions.isEmpty
-          ? null
-          : showdownDescriptions,
+      showdownDescriptions:
+          showdownDescriptions.isEmpty ? null : showdownDescriptions,
     );
   }
 }

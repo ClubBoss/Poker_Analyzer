@@ -12,26 +12,26 @@ class BoosterCompletionBanner extends SnackBar {
     required TrainingSessionResult result,
     BoosterStatsTrackerService? service,
   }) : super(
-         duration: const Duration(seconds: 5),
-         behavior: SnackBarBehavior.floating,
-         content: _BoosterCompletionContent(
-           template: template,
-           result: result,
-           service: service ?? BoosterStatsTrackerService(),
-           onClose: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
-         ),
-         action: SnackBarAction(
-           label: 'View Progress Chart',
-           onPressed: () {
-             Navigator.of(context).push(
-               MaterialPageRoute(
-                 builder: (_) =>
-                     BoosterProgressChartScreen(tags: template.tags),
-               ),
-             );
-           },
-         ),
-       );
+          duration: const Duration(seconds: 5),
+          behavior: SnackBarBehavior.floating,
+          content: _BoosterCompletionContent(
+            template: template,
+            result: result,
+            service: service ?? BoosterStatsTrackerService(),
+            onClose: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+          ),
+          action: SnackBarAction(
+            label: 'View Progress Chart',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) =>
+                      BoosterProgressChartScreen(tags: template.tags),
+                ),
+              );
+            },
+          ),
+        );
 }
 
 class _BoosterCompletionContent extends StatefulWidget {

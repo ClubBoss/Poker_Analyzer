@@ -5,7 +5,7 @@ class MiniLessonScheduler {
   final MiniLessonProgressTracker tracker;
 
   const MiniLessonScheduler({MiniLessonProgressTracker? tracker})
-    : tracker = tracker ?? MiniLessonProgressTracker.instance;
+      : tracker = tracker ?? MiniLessonProgressTracker.instance;
 
   /// Returns [max] lesson ids from [candidates] prioritized by usage data.
   /// Lessons that appear in [excludeIds] or are already completed are skipped.

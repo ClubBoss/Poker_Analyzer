@@ -36,10 +36,10 @@ class TrainingSessionCompletionScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 await context.read<TrainingSessionService>().startSession(
-                  template,
-                  persist: false,
-                  startIndex: 0,
-                );
+                      template,
+                      persist: false,
+                      startIndex: 0,
+                    );
                 if (!context.mounted) return;
                 Navigator.pushReplacement(
                   context,

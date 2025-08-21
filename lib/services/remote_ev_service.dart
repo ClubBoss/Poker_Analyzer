@@ -12,8 +12,9 @@ class RemoteEvService {
   static Box<dynamic>? _box;
 
   const RemoteEvService({String? endpoint, http.Client? client})
-    : endpoint = endpoint ?? EvaluationSettingsService.instance.remoteEndpoint,
-      client = client ?? const http.Client();
+      : endpoint =
+            endpoint ?? EvaluationSettingsService.instance.remoteEndpoint,
+        client = client ?? const http.Client();
 
   Future<void> _openBox() async {
     if (_box != null) return;

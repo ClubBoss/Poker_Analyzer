@@ -14,8 +14,8 @@ class LearningPathGraphOrchestrator {
   const LearningPathGraphOrchestrator({
     GraphPathTemplateParser? parser,
     GameModeProfileEngine? profiles,
-  }) : parser = parser ?? GraphPathTemplateParser(),
-       profiles = profiles ?? GameModeProfileEngine.instance;
+  })  : parser = parser ?? GraphPathTemplateParser(),
+        profiles = profiles ?? GameModeProfileEngine.instance;
 
   /// Loads the graph defined for the currently active profile.
   Future<List<LearningPathNode>> loadGraph() async {

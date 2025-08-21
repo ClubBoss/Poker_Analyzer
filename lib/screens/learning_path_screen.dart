@@ -61,10 +61,10 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     final statusIcon = progress.completed
         ? const Icon(Icons.check, color: Colors.green)
         : unlocked
-        ? controller.currentStageId == stage.id
-              ? const Icon(Icons.play_arrow)
-              : const SizedBox.shrink()
-        : const Icon(Icons.lock);
+            ? controller.currentStageId == stage.id
+                ? const Icon(Icons.play_arrow)
+                : const SizedBox.shrink()
+            : const Icon(Icons.lock);
     return ListTile(
       title: Text(stage.title),
       subtitle: Text(

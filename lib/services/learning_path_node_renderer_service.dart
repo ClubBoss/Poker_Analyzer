@@ -17,10 +17,10 @@ class LearningPathNodeRendererService {
     LearningPathEntryRenderer? entryRenderer,
     LearningPathNodeAnalyticsLogger? analyticsLogger,
     TheoryAutoRecallInjector? autoRecall,
-  }) : entryRenderer = entryRenderer ?? const LearningPathEntryRenderer(),
-       analyticsLogger =
-           analyticsLogger ?? const LearningPathNodeAnalyticsLogger(),
-       autoRecall = autoRecall ?? const TheoryAutoRecallInjector();
+  })  : entryRenderer = entryRenderer ?? const LearningPathEntryRenderer(),
+        analyticsLogger =
+            analyticsLogger ?? const LearningPathNodeAnalyticsLogger(),
+        autoRecall = autoRecall ?? const TheoryAutoRecallInjector();
 
   /// Builds a column widget displaying [groups] with headers and entry cards.
   Widget build(

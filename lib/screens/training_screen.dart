@@ -27,11 +27,11 @@ class TrainingScreen extends StatefulWidget {
   final int anteBb;
 
   const TrainingScreen({super.key, required TrainingSpot trainingSpot})
-    : spot = trainingSpot,
-      hands = null,
-      drillMode = false,
-      minEvForCorrect = 0.01,
-      anteBb = 0;
+      : spot = trainingSpot,
+        hands = null,
+        drillMode = false,
+        minEvForCorrect = 0.01,
+        anteBb = 0;
 
   const TrainingScreen.drill({
     super.key,
@@ -40,8 +40,8 @@ class TrainingScreen extends StatefulWidget {
     this.templateName,
     this.minEvForCorrect = 0.01,
     this.anteBb = 0,
-  }) : spot = null,
-       drillMode = true;
+  })  : spot = null,
+        drillMode = true;
 
   @override
   State<TrainingScreen> createState() => _TrainingScreenState();

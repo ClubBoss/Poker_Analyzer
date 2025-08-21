@@ -25,12 +25,13 @@ class _FakeRecommender extends AdaptivePackRecommenderService {
   Future<List<AdaptivePackRecommendation>> recommend({
     int count = 3,
     DateTime? now,
-  }) async => recs.take(count).toList();
+  }) async =>
+      recs.take(count).toList();
 }
 
 class _FakeMastery extends TagMasteryService {
   _FakeMastery()
-    : super(logs: SessionLogService(sessions: TrainingSessionService()));
+      : super(logs: SessionLogService(sessions: TrainingSessionService()));
   @override
   Future<Map<String, double>> computeMastery({bool force = false}) async => {};
 }
@@ -44,10 +45,10 @@ void main() {
   });
 
   TrainingPackTemplateV2 pack(String id) => TrainingPackTemplateV2(
-    id: id,
-    name: id,
-    trainingType: TrainingType.pushFold,
-  );
+        id: id,
+        name: id,
+        trainingType: TrainingType.pushFold,
+      );
 
   test('adds high score pack to inbox', () async {
     final recs = [AdaptivePackRecommendation(pack: pack('p1'), score: 4.5)];

@@ -66,7 +66,8 @@ class _FakeSuggestionService extends GoalSuggestionService {
   @override
   Future<List<TrainingGoal>> suggestGoals({
     required UserProgress progress,
-  }) async => goals;
+  }) async =>
+      goals;
 }
 
 void main() {

@@ -35,9 +35,8 @@ class BoosterEffectivenessAnalyzer {
       for (var i = 1; i < events.length; i++) {
         final prev = events[i - 1].completedAt!;
         final cur = events[i].completedAt!;
-        final next = i + 1 < events.length
-            ? events[i + 1].completedAt!
-            : current;
+        final next =
+            i + 1 < events.length ? events[i + 1].completedAt! : current;
         final initial = cur.difference(prev).inDays.toDouble();
         final post = i + 1 < events.length
             ? next.difference(cur).inDays.toDouble()

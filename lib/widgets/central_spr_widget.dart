@@ -10,7 +10,7 @@ class CentralSprWidget extends StatelessWidget {
   final double scale;
 
   const CentralSprWidget({Key? key, required this.text, this.scale = 1.0})
-    : super(key: key);
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {

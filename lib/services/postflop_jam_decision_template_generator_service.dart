@@ -24,10 +24,9 @@ class PostflopJamDecisionTemplateGeneratorService {
   PostflopJamDecisionTemplateGeneratorService({
     Random? random,
     FullBoardGeneratorService? boardGenerator,
-  }) : _random = random ?? Random(),
-       _boardGenerator =
-           boardGenerator ??
-           FullBoardGeneratorService(random: random ?? Random());
+  })  : _random = random ?? Random(),
+        _boardGenerator = boardGenerator ??
+            FullBoardGeneratorService(random: random ?? Random());
 
   /// Generates jam decision templates for river or delayed turn scenarios.
   List<TrainingPackTemplateV2> generate({
@@ -167,8 +166,8 @@ class PostflopJamDecisionTemplateGeneratorService {
       heroOptions: delayedTurn
           ? const ['call', 'fold']
           : facingJam
-          ? const ['call', 'fold']
-          : const ['shove', 'fold'],
+              ? const ['call', 'fold']
+              : const ['shove', 'fold'],
       tags: delayedTurn
           ? const ['turn', 'jam', 'delayCbet', 'call', 'fold']
           : const ['river', 'jam', 'call', 'potOdds'],

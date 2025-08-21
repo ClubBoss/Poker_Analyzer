@@ -27,16 +27,17 @@ class FakeUsageTracker implements AppUsageTracker {
 class FakeRetentionTracker extends TagRetentionTracker {
   final List<String> list;
   FakeRetentionTracker(this.list)
-    : super(
-        mastery: TagMasteryService(
-          logs: SessionLogService(sessions: TrainingSessionService()),
-        ),
-      );
+      : super(
+          mastery: TagMasteryService(
+            logs: SessionLogService(sessions: TrainingSessionService()),
+          ),
+        );
   @override
   Future<List<String>> getDecayedTags({
     double threshold = 0.75,
     DateTime? now,
-  }) async => list;
+  }) async =>
+      list;
 }
 
 class FakeStreakTrackerService implements SessionStreakTrackerService {

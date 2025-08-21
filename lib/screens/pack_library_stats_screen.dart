@@ -126,8 +126,7 @@ Future<Map<String, dynamic>> _statsTask(String _) async {
         for (final t in tpl.tags) {
           tags[t] = (tags[t] ?? 0) + 1;
         }
-        final ev =
-            (map['evScore'] as num?)?.toDouble() ??
+        final ev = (map['evScore'] as num?)?.toDouble() ??
             (tpl.meta['evScore'] as num?)?.toDouble();
         if (ev != null) {
           evSum += ev;

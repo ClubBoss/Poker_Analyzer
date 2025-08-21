@@ -50,16 +50,15 @@ class TagInsightTimeline extends StatelessWidget {
         final monday = e.date.subtract(Duration(days: e.date.weekday - 1));
         map.putIfAbsent(monday, () => []).add(e.accuracy);
       }
-      points =
-          map.entries
-              .map(
-                (e) => MapEntry(
-                  e.key,
-                  e.value.reduce((a, b) => a + b) / e.value.length,
-                ),
-              )
-              .toList()
-            ..sort((a, b) => a.key.compareTo(b.key));
+      points = map.entries
+          .map(
+            (e) => MapEntry(
+              e.key,
+              e.value.reduce((a, b) => a + b) / e.value.length,
+            ),
+          )
+          .toList()
+        ..sort((a, b) => a.key.compareTo(b.key));
     } else {
       points = [for (final e in data) MapEntry(e.date, e.accuracy)];
     }

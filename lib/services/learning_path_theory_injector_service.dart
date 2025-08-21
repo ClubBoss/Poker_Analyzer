@@ -32,11 +32,10 @@ class LearningPathTheoryInjectorService {
     if (tags.isEmpty) return [];
     final index = await _loadIndex();
     final lower = tags.map((e) => e.toLowerCase()).toSet();
-    final matches =
-        index
-            .where((e) => e.tags.any((t) => lower.contains(t.toLowerCase())))
-            .toList()
-          ..sort((a, b) => a.title.compareTo(b.title));
+    final matches = index
+        .where((e) => e.tags.any((t) => lower.contains(t.toLowerCase())))
+        .toList()
+      ..sort((a, b) => a.title.compareTo(b.title));
     final result = <TheorySnippet>[];
     for (final m in matches) {
       final md = await _loadMarkdown(m.uri);

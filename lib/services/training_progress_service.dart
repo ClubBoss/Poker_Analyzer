@@ -31,8 +31,7 @@ class TrainingProgressService {
 
   Future<double> getProgress(String templateId) async {
     final prefs = await SharedPreferences.getInstance();
-    final idx =
-        prefs.getInt('tpl_prog_$templateId') ??
+    final idx = prefs.getInt('tpl_prog_$templateId') ??
         prefs.getInt('progress_tpl_$templateId');
     if (idx == null) return 0.0;
     final tpl = TrainingPackTemplateService.getById(templateId);
@@ -169,9 +168,10 @@ class TrainingProgressService {
       improvements[t] = delta;
     }
 
-    final mostImprovedTags =
-        improvements.entries.where((e) => e.value > 0).toList()
-          ..sort((a, b) => b.value.compareTo(a.value));
+    final mostImprovedTags = improvements.entries
+        .where((e) => e.value > 0)
+        .toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
 
     final improved = [for (final e in mostImprovedTags.take(3)) e.key];
 
@@ -182,7 +182,7 @@ class TrainingProgressService {
         )
         .toSet();
     var streak = 0;
-    for (var i = 0; ; i++) {
+    for (var i = 0;; i++) {
       final day = DateTime(
         now.year,
         now.month,

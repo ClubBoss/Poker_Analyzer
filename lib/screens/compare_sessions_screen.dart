@@ -77,9 +77,8 @@ class _CompareSessionsScreenState extends State<CompareSessionsScreen> {
     Color leftColor;
     Color rightColor;
     if (c.firstCorrect == c.secondCorrect) {
-      leftColor = rightColor = c.firstCorrect
-          ? Colors.greenAccent
-          : Colors.white;
+      leftColor =
+          rightColor = c.firstCorrect ? Colors.greenAccent : Colors.white;
     } else {
       leftColor = c.firstCorrect ? Colors.greenAccent : Colors.redAccent;
       rightColor = c.secondCorrect ? Colors.greenAccent : Colors.redAccent;
@@ -127,8 +126,8 @@ class _CompareSessionsScreenState extends State<CompareSessionsScreen> {
       _second!.startedAt,
     );
     final overlap = _first!.results.keys.toSet().intersection(
-      _second!.results.keys.toSet(),
-    );
+          _second!.results.keys.toSet(),
+        );
     final spots = [
       for (final id in overlap)
         _SpotComparison(

@@ -8,7 +8,7 @@ class AssetManifest {
       .loadString('AssetManifest.json')
       .then((s) => jsonDecode(s) as Map<String, dynamic>)
       .catchError((e) {
-        debugPrint('🛑 AssetManifest load failed: $e');
-        return <String, dynamic>{};
-      });
+    debugPrint('🛑 AssetManifest load failed: $e');
+    return <String, dynamic>{};
+  });
 }

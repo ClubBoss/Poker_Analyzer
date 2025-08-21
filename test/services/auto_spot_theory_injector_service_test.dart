@@ -27,15 +27,15 @@ class _FakeLibrary implements MiniLessonLibraryService {
 
   @override
   List<TheoryMiniLessonNode> findByTags(List<String> tags) => [
-    for (final t in tags)
-      if (byTag[t] != null) byTag[t]!,
-  ];
+        for (final t in tags)
+          if (byTag[t] != null) byTag[t]!,
+      ];
 
   @override
   List<TheoryMiniLessonNode> getByTags(Set<String> tags) => [
-    for (final t in tags)
-      if (byTag[t] != null) byTag[t]!,
-  ];
+        for (final t in tags)
+          if (byTag[t] != null) byTag[t]!,
+      ];
 }
 
 class _FakeNavigator extends TheoryMiniLessonNavigator {

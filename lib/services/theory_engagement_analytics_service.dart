@@ -13,10 +13,10 @@ class TheoryEngagementAnalyticsService {
     TheoryMiniLessonUsageTracker? usageTracker,
     RecallBoostInteractionLogger? viewLogger,
     TheoryRecallEfficiencyEvaluatorService? efficiencyService,
-  }) : usageTracker = usageTracker ?? TheoryMiniLessonUsageTracker.instance,
-       viewLogger = viewLogger ?? RecallBoostInteractionLogger.instance,
-       efficiencyService =
-           efficiencyService ?? const TheoryRecallEfficiencyEvaluatorService();
+  })  : usageTracker = usageTracker ?? TheoryMiniLessonUsageTracker.instance,
+        viewLogger = viewLogger ?? RecallBoostInteractionLogger.instance,
+        efficiencyService =
+            efficiencyService ?? const TheoryRecallEfficiencyEvaluatorService();
 
   /// Returns aggregated engagement stats for all known theory lessons.
   Future<List<TheoryLessonEngagementStats>> getAllStats() async {

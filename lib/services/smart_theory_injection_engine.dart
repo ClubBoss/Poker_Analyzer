@@ -18,10 +18,10 @@ class SmartTheoryInjectionEngine {
     MiniLessonProgressTracker? progress,
     MiniLessonLibraryService? library,
     BoosterCooldownScheduler? cooldown,
-  }) : detector = detector ?? SkillGapDetectorService(),
-       progress = progress ?? MiniLessonProgressTracker.instance,
-       library = library ?? MiniLessonLibraryService.instance,
-       cooldown = cooldown ?? BoosterCooldownScheduler.instance;
+  })  : detector = detector ?? SkillGapDetectorService(),
+        progress = progress ?? MiniLessonProgressTracker.instance,
+        library = library ?? MiniLessonLibraryService.instance,
+        cooldown = cooldown ?? BoosterCooldownScheduler.instance;
 
   /// Returns a mini lesson to inject for [stageId] or `null`.
   Future<TheoryMiniLessonNode?> getInjectionCandidate(String stageId) async {

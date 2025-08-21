@@ -9,7 +9,7 @@ class PlayerStackLabel extends StatelessWidget {
   final double scale;
 
   const PlayerStackLabel({Key? key, required this.stack, this.scale = 1.0})
-    : super(key: key);
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {

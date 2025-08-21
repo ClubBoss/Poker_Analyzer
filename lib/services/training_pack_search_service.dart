@@ -14,9 +14,9 @@ class TrainingPackSearchService {
     TrainingPackLibraryV2? library,
     TrainingPackSearchIndexBuilder? indexBuilder,
     Stream<void>? libraryChanges,
-  }) : library = library ?? TrainingPackLibraryV2.instance,
-       indexBuilder = indexBuilder ?? TrainingPackSearchIndexBuilder(),
-       _libraryChanges = libraryChanges;
+  })  : library = library ?? TrainingPackLibraryV2.instance,
+        indexBuilder = indexBuilder ?? TrainingPackSearchIndexBuilder(),
+        _libraryChanges = libraryChanges;
 
   static final instance = TrainingPackSearchService();
 

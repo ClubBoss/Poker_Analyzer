@@ -10,17 +10,16 @@ class TheoryAutoInjectionLogEntry {
   });
 
   Map<String, dynamic> toJson() => {
-    'spotId': spotId,
-    'lessonId': lessonId,
-    'timestamp': timestamp.toIso8601String(),
-  };
+        'spotId': spotId,
+        'lessonId': lessonId,
+        'timestamp': timestamp.toIso8601String(),
+      };
 
   factory TheoryAutoInjectionLogEntry.fromJson(Map<String, dynamic> json) =>
       TheoryAutoInjectionLogEntry(
         spotId: json['spotId']?.toString() ?? '',
         lessonId: json['lessonId']?.toString() ?? '',
-        timestamp:
-            DateTime.tryParse(json['timestamp']?.toString() ?? '') ??
+        timestamp: DateTime.tryParse(json['timestamp']?.toString() ?? '') ??
             DateTime.now(),
       );
 }

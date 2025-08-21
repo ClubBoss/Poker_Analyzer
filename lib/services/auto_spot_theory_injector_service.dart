@@ -5,7 +5,7 @@ import 'inline_theory_linker.dart';
 /// based on their existing theory tags.
 class AutoSpotTheoryInjectorService {
   AutoSpotTheoryInjectorService({InlineTheoryLinker? linker})
-    : _linker = linker ?? InlineTheoryLinker();
+      : _linker = linker ?? InlineTheoryLinker();
 
   final InlineTheoryLinker _linker;
 

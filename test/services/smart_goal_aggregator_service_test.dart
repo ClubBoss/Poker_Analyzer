@@ -10,7 +10,8 @@ class _FakeDecay extends SmartDecayGoalGenerator {
   @override
   Future<List<GoalRecommendation>> recommendDecayRecoveryGoals({
     int max = 5,
-  }) async => list;
+  }) async =>
+      list;
 }
 
 class _FakeMistake extends SmartMistakeGoalGenerator {
@@ -21,7 +22,8 @@ class _FakeMistake extends SmartMistakeGoalGenerator {
     int max = 5,
     int minMistakes = 3,
     double evLossThreshold = 1.0,
-  }) async => list;
+  }) async =>
+      list;
 }
 
 void main() {

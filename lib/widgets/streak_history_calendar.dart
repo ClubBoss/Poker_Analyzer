@@ -37,9 +37,8 @@ class StreakHistoryCalendar extends StatelessWidget {
               decoration: BoxDecoration(
                 color: _color(active),
                 borderRadius: BorderRadius.circular(2),
-                border: today
-                    ? Border.all(color: Colors.black, width: 2)
-                    : null,
+                border:
+                    today ? Border.all(color: Colors.black, width: 2) : null,
               ),
             );
           }),
@@ -49,13 +48,13 @@ class StreakHistoryCalendar extends StatelessWidget {
   }
 
   Widget _legendItem(Color color, String text) => Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Container(width: 8, height: 8, color: color),
-      const SizedBox(width: 4),
-      Text(text, style: const TextStyle(color: Colors.white, fontSize: 10)),
-    ],
-  );
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(width: 8, height: 8, color: color),
+          const SizedBox(width: 4),
+          Text(text, style: const TextStyle(color: Colors.white, fontSize: 10)),
+        ],
+      );
 
   @override
   Widget build(BuildContext context) {

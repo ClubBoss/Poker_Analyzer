@@ -9,8 +9,8 @@ class SmartTheoryBoosterLinker {
   const SmartTheoryBoosterLinker({
     TheoryLessonTagClusterer? clusterer,
     TheoryClusterSummaryService? summaryService,
-  }) : clusterer = clusterer ?? TheoryLessonTagClusterer(),
-       summaryService = summaryService ?? TheoryClusterSummaryService();
+  })  : clusterer = clusterer ?? TheoryLessonTagClusterer(),
+        summaryService = summaryService ?? TheoryClusterSummaryService();
 
   /// Returns a deep link for the cluster containing [lessonId].
   Future<String?> linkForLesson(String lessonId) async {

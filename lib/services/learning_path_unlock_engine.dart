@@ -30,47 +30,45 @@ class LearningPathUnlockEngine {
     Map<String, int>? streakRequirements,
     Map<String, int>? goalRequirements,
     Map<String, Map<String, double>>? masteryRequirements,
-  }) : goalEngine = goalEngine ?? LessonGoalEngine.instance,
-       streakEngine = streakEngine ?? LessonStreakEngine.instance,
-       metaService = metaService ?? LessonTrackMetaService.instance,
-       trackEngine = trackEngine,
-       yamlLoader = yamlLoader ?? YamlLessonTrackLoader.instance,
-       _prereq =
-           prereq ??
-           const {
-             'live_exploit': ['mtt_pro'],
-             'leak_fixer': ['live_exploit'],
-           },
-       _streakReq = streakRequirements ?? const {'leak_fixer': 3},
-       _goalReq = goalRequirements ?? const {},
-       _masteryReq =
-           masteryRequirements ??
-           const {
-             'live_exploit': {'mtt_pro': 0.5},
-             'leak_fixer': {'live_exploit': 0.6},
-           };
+  })  : goalEngine = goalEngine ?? LessonGoalEngine.instance,
+        streakEngine = streakEngine ?? LessonStreakEngine.instance,
+        metaService = metaService ?? LessonTrackMetaService.instance,
+        trackEngine = trackEngine,
+        yamlLoader = yamlLoader ?? YamlLessonTrackLoader.instance,
+        _prereq = prereq ??
+            const {
+              'live_exploit': ['mtt_pro'],
+              'leak_fixer': ['live_exploit'],
+            },
+        _streakReq = streakRequirements ?? const {'leak_fixer': 3},
+        _goalReq = goalRequirements ?? const {},
+        _masteryReq = masteryRequirements ??
+            const {
+              'live_exploit': {'mtt_pro': 0.5},
+              'leak_fixer': {'live_exploit': 0.6},
+            };
 
   LearningPathUnlockEngine._default()
-    : masteryService = TrackMasteryService(
-        mastery: TagMasteryService(
-          logs: SessionLogService(sessions: TrainingSessionService()),
+      : masteryService = TrackMasteryService(
+          mastery: TagMasteryService(
+            logs: SessionLogService(sessions: TrainingSessionService()),
+          ),
         ),
-      ),
-      goalEngine = LessonGoalEngine.instance,
-      streakEngine = LessonStreakEngine.instance,
-      metaService = LessonTrackMetaService.instance,
-      trackEngine = const LearningTrackEngine(),
-      yamlLoader = YamlLessonTrackLoader.instance,
-      _prereq = const {
-        'live_exploit': ['mtt_pro'],
-        'leak_fixer': ['live_exploit'],
-      },
-      _streakReq = const {'leak_fixer': 3},
-      _goalReq = const {},
-      _masteryReq = const {
-        'live_exploit': {'mtt_pro': 0.5},
-        'leak_fixer': {'live_exploit': 0.6},
-      };
+        goalEngine = LessonGoalEngine.instance,
+        streakEngine = LessonStreakEngine.instance,
+        metaService = LessonTrackMetaService.instance,
+        trackEngine = const LearningTrackEngine(),
+        yamlLoader = YamlLessonTrackLoader.instance,
+        _prereq = const {
+          'live_exploit': ['mtt_pro'],
+          'leak_fixer': ['live_exploit'],
+        },
+        _streakReq = const {'leak_fixer': 3},
+        _goalReq = const {},
+        _masteryReq = const {
+          'live_exploit': {'mtt_pro': 0.5},
+          'leak_fixer': {'live_exploit': 0.6},
+        };
 
   static final LearningPathUnlockEngine instance =
       LearningPathUnlockEngine._default();

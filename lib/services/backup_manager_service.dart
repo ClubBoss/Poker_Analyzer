@@ -20,25 +20,22 @@ class BackupManagerService {
     AutoBackupService? autoBackupService,
     BackupImportExportService? importExportService,
     BackupSnapshotService? snapshotService,
-  }) : fileManager = fileManager ?? BackupFileManager(),
-       serializer = serializer ?? const EvaluationQueueSerializer() {
-    this.autoBackupService =
-        autoBackupService ??
+  })  : fileManager = fileManager ?? BackupFileManager(),
+        serializer = serializer ?? const EvaluationQueueSerializer() {
+    this.autoBackupService = autoBackupService ??
         AutoBackupService(
           queueService: queueService,
           fileManager: this.fileManager,
           serializer: this.serializer,
         );
-    this.importExportService =
-        importExportService ??
+    this.importExportService = importExportService ??
         BackupImportExportService(
           queueService: queueService,
           fileManager: this.fileManager,
           serializer: this.serializer,
           debugPanelCallback: () => debugPanelCallback?.call(),
         );
-    this.snapshotService =
-        snapshotService ??
+    this.snapshotService = snapshotService ??
         BackupSnapshotService(
           queueService: queueService,
           fileManager: this.fileManager,
@@ -98,7 +95,8 @@ class BackupManagerService {
     BuildContext context,
     String subfolder,
     String prefix,
-  ) => importExportService.exportArchive(context, subfolder, prefix);
+  ) =>
+      importExportService.exportArchive(context, subfolder, prefix);
 
   Future<void> exportAllEvaluationBackups(BuildContext context) =>
       importExportService.exportAllEvaluationBackups(context);
@@ -125,11 +123,12 @@ class BackupManagerService {
     Map<String, dynamic> state, {
     bool showNotification = true,
     bool snapshotRetentionEnabled = true,
-  }) => snapshotService.saveQueueSnapshot(
-    state,
-    showNotification: showNotification,
-    snapshotRetentionEnabled: snapshotRetentionEnabled,
-  );
+  }) =>
+      snapshotService.saveQueueSnapshot(
+        state,
+        showNotification: showNotification,
+        snapshotRetentionEnabled: snapshotRetentionEnabled,
+      );
 
   Future<dynamic> loadLatestQueueSnapshot() =>
       snapshotService.loadLatestQueueSnapshot();

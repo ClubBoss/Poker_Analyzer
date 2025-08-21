@@ -23,17 +23,17 @@ class _FakePathProvider extends PathProviderPlatform {
 }
 
 TrainingPackTemplateV2 _tpl(TrainingPackSpot spot) => TrainingPackTemplateV2(
-  id: 'b1',
-  name: 'b1',
-  trainingType: TrainingType.theory,
-  tags: const ['cbet'],
-  spots: [spot],
-  spotCount: 1,
-  created: DateTime.now(),
-  gameType: GameType.tournament,
-  positions: const [],
-  meta: const {},
-);
+      id: 'b1',
+      name: 'b1',
+      trainingType: TrainingType.theory,
+      tags: const ['cbet'],
+      spots: [spot],
+      spotCount: 1,
+      created: DateTime.now(),
+      gameType: GameType.tournament,
+      positions: const [],
+      meta: const {},
+    );
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

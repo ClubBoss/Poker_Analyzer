@@ -60,8 +60,7 @@ class StreakProgressService {
       DateTime.now().month,
       DateTime.now().day,
     );
-    final isTodayDone =
-        last != null &&
+    final isTodayDone = last != null &&
         DateTime(last.year, last.month, last.day).difference(today).inDays == 0;
     return StreakData(
       currentStreak: current,

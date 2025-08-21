@@ -101,8 +101,7 @@ class ABOrchestratorService {
           .cast<Map<String, dynamic>>()
           .firstWhere((a) => a['id'] == assigned, orElse: () => {});
       final overrides = armSpec['overrides'] as Map<String, dynamic>? ?? {};
-      final prefsOv =
-          (overrides['prefs'] as Map?)?.map(
+      final prefsOv = (overrides['prefs'] as Map?)?.map(
             (k, v) => MapEntry(k.toString(), v),
           ) ??
           const {};

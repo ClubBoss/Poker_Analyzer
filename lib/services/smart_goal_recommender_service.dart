@@ -55,8 +55,7 @@ class SmartGoalRecommenderService {
       for (final tag in weak) {
         for (final pack in packs.where((p) => p.tags.any((t) => t == tag))) {
           if (profile.completedPackIds.contains(pack.id) ||
-              recentIds.contains(pack.id))
-            continue;
+              recentIds.contains(pack.id)) continue;
           if (!used.add('pack:${pack.id}')) continue;
           goals.add(
             UserGoal(

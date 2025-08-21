@@ -12,9 +12,8 @@ void main() {
     SharedPreferences.setMockInitialValues({
       'retention.theoryReviewed.a': now.toIso8601String(),
       'retention.theoryReviewed.b': now.toIso8601String(),
-      'retention.theoryReviewed.c': now
-          .subtract(const Duration(days: 2))
-          .toIso8601String(),
+      'retention.theoryReviewed.c':
+          now.subtract(const Duration(days: 2)).toIso8601String(),
     });
 
     final library = _FakeLibrary({
@@ -45,12 +44,10 @@ void main() {
     final now = DateTime.now().toUtc();
     SharedPreferences.setMockInitialValues({
       'retention.theoryReviewed.t1': now.toIso8601String(),
-      'retention.theoryReviewed.t2': now
-          .subtract(const Duration(days: 1))
-          .toIso8601String(),
-      'retention.theoryReviewed.t3': now
-          .subtract(const Duration(days: 3))
-          .toIso8601String(),
+      'retention.theoryReviewed.t2':
+          now.subtract(const Duration(days: 1)).toIso8601String(),
+      'retention.theoryReviewed.t3':
+          now.subtract(const Duration(days: 3)).toIso8601String(),
     });
 
     final library = _FakeLibrary({

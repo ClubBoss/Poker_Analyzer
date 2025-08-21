@@ -53,7 +53,7 @@ class NextStepSuggestionDialog extends StatelessWidget {
     final accent = Theme.of(context).colorScheme.secondary;
     final tags =
         (step.meta['tags'] as List?)?.map((e) => e.toString()).toList() ??
-        const <String>[];
+            const <String>[];
     return AlertDialog(
       title: const Text('Next Recommended Step'),
       content: Column(

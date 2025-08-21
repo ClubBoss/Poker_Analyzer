@@ -37,9 +37,8 @@ class BoosterProgressOverlay extends StatelessWidget {
         final progress = total > 0 ? (index + 1) / total : 0.0;
         final accent = Theme.of(context).colorScheme.secondary;
         final textStyle = const TextStyle(color: Colors.white);
-        final motivator = progress >= 0.75
-            ? '💪 Almost there!'
-            : '🔥 Keep going!';
+        final motivator =
+            progress >= 0.75 ? '💪 Almost there!' : '🔥 Keep going!';
 
         return Positioned(
           top: 8,

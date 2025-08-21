@@ -9,7 +9,7 @@ class LearningPathBoosterEngine {
   final List<TrainingPackTemplateV2>? _libraryOverride;
 
   const LearningPathBoosterEngine({List<TrainingPackTemplateV2>? library})
-    : _libraryOverride = library;
+      : _libraryOverride = library;
 
   Future<List<TrainingPackTemplateV2>> getBoosterPacks({
     required TagMasteryService mastery,

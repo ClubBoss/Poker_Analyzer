@@ -414,11 +414,10 @@ class _ActionListWidgetState extends State<ActionListWidget> {
             final isBlind = index < 2 && a.action == 'post';
             final heroBg = (a.playerIndex == widget.heroIndex && a.ev != null)
                 ? (a.ev! >= 0
-                      ? Colors.green.withValues(alpha: 0.1)
-                      : Colors.red.withValues(alpha: 0.1))
+                    ? Colors.green.withValues(alpha: 0.1)
+                    : Colors.red.withValues(alpha: 0.1))
                 : null;
-            final bg =
-                heroBg ??
+            final bg = heroBg ??
                 (_errors[index] == null
                     ? Colors.transparent
                     : Colors.red.withValues(alpha: 0.15));

@@ -19,8 +19,7 @@ void main() {
   });
 
   test('stacks and calls mask', () {
-    const csv =
-        'Title,HeroPosition,HeroHand,StacksBB,HeroIndex,CallsMask\n'
+    const csv = 'Title,HeroPosition,HeroHand,StacksBB,HeroIndex,CallsMask\n'
         'A,SB,AA,5/10/20,1,010\n';
     final tpl = PackImportService.importFromCsv(
       csv: csv,

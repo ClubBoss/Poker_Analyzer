@@ -16,7 +16,8 @@ class _FakeTuner extends InboxBoosterTunerService {
   Future<Map<String, double>> computeTagBoostScores({
     DateTime? now,
     int recencyDays = 3,
-  }) async => scores;
+  }) async =>
+      scores;
 }
 
 class _FakeRecap extends RecapEffectivenessAnalyzer {

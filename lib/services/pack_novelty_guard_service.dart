@@ -44,7 +44,7 @@ class PackNoveltyGuardService {
   bool _initialized = false;
 
   PackNoveltyGuardService({PackFingerprintComparer? comparer})
-    : _comparer = comparer ?? const PackFingerprintComparer();
+      : _comparer = comparer ?? const PackFingerprintComparer();
 
   Future<void> _ensureInitialized() async {
     if (_initialized) return;

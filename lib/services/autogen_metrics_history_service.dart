@@ -21,10 +21,10 @@ class RunMetricsEntry {
   }
 
   Map<String, dynamic> toJson() => {
-    'timestamp': timestamp.toUtc().toIso8601String(),
-    'avgQualityScore': avgQualityScore,
-    'acceptanceRate': acceptanceRate,
-  };
+        'timestamp': timestamp.toUtc().toIso8601String(),
+        'avgQualityScore': avgQualityScore,
+        'acceptanceRate': acceptanceRate,
+      };
 }
 
 class AutogenMetricsHistoryService {

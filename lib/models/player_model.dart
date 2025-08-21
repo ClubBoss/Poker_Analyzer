@@ -41,34 +41,34 @@ class PlayerModel with CopyWithMixin<PlayerModel> {
     this.stack = 0,
     this.bet = 0,
     List<CardModel?>? revealedCards,
-  }) : cards = [],
-       revealedCards =
-           revealedCards ?? List<CardModel?>.filled(2, null, growable: false),
-       actions = {
-         PokerStreet.preflop: [],
-         PokerStreet.flop: [],
-         PokerStreet.turn: [],
-         PokerStreet.river: [],
-       };
+  })  : cards = [],
+        revealedCards =
+            revealedCards ?? List<CardModel?>.filled(2, null, growable: false),
+        actions = {
+          PokerStreet.preflop: [],
+          PokerStreet.flop: [],
+          PokerStreet.turn: [],
+          PokerStreet.river: [],
+        };
 
   @override
   Map<String, dynamic> toJson() => {
-    'name': name,
-    'cards': cards,
-    'revealedCards': [
-      for (final c in revealedCards)
-        c != null ? {'rank': c.rank, 'suit': c.suit} : null,
-    ],
-    'actions': actions.map(
-      (k, v) => MapEntry(pokerStreetToString(k), [
-        for (final a in v)
-          {'type': a.type.name, if (a.size != null) 'size': a.size},
-      ]),
-    ),
-    'type': type.name,
-    'stack': stack,
-    'bet': bet,
-  };
+        'name': name,
+        'cards': cards,
+        'revealedCards': [
+          for (final c in revealedCards)
+            c != null ? {'rank': c.rank, 'suit': c.suit} : null,
+        ],
+        'actions': actions.map(
+          (k, v) => MapEntry(pokerStreetToString(k), [
+            for (final a in v)
+              {'type': a.type.name, if (a.size != null) 'size': a.size},
+          ]),
+        ),
+        'type': type.name,
+        'stack': stack,
+        'bet': bet,
+      };
 
   factory PlayerModel.fromJson(Map<String, dynamic> json) {
     final model = PlayerModel(

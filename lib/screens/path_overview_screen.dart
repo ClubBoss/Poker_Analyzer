@@ -105,52 +105,52 @@ class _PathOverviewScreenState extends State<PathOverviewScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : tpl == null
-          ? const Center(child: Text('Path not found'))
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                if (tpl.coverAsset != null)
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.asset(tpl.coverAsset!, fit: BoxFit.cover),
-                  ),
-                if (tpl.description.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  Text(
-                    tpl.description,
-                    style: const TextStyle(color: Colors.white70),
-                  ),
-                ],
-                const SizedBox(height: 12),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: LinearProgressIndicator(
-                    value: _progress.clamp(0.0, 1.0),
-                    backgroundColor: Colors.white24,
-                    valueColor: AlwaysStoppedAnimation<Color>(accent),
-                    minHeight: 6,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${(_progress * 100).round()}%',
-                  style: const TextStyle(color: Colors.white70),
-                ),
-                const SizedBox(height: 12),
-                for (int i = 0; i < tpl.stages.length; i++)
-                  _buildStageTile(tpl.stages[i], i + 1),
-                const SizedBox(height: 20),
-                Align(
-                  alignment: Alignment.center,
-                  child: ElevatedButton(
-                    onPressed: _startLearning,
-                    child: Text(
-                      _progress > 0 ? 'Продолжить обучение' : 'Начать',
+              ? const Center(child: Text('Path not found'))
+              : ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    if (tpl.coverAsset != null)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.asset(tpl.coverAsset!, fit: BoxFit.cover),
+                      ),
+                    if (tpl.description.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        tpl.description,
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                    ],
+                    const SizedBox(height: 12),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: _progress.clamp(0.0, 1.0),
+                        backgroundColor: Colors.white24,
+                        valueColor: AlwaysStoppedAnimation<Color>(accent),
+                        minHeight: 6,
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${(_progress * 100).round()}%',
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                    const SizedBox(height: 12),
+                    for (int i = 0; i < tpl.stages.length; i++)
+                      _buildStageTile(tpl.stages[i], i + 1),
+                    const SizedBox(height: 20),
+                    Align(
+                      alignment: Alignment.center,
+                      child: ElevatedButton(
+                        onPressed: _startLearning,
+                        child: Text(
+                          _progress > 0 ? 'Продолжить обучение' : 'Начать',
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
     );
   }
 

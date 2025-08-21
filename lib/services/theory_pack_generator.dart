@@ -22,8 +22,7 @@ class TheoryPackGenerator {
     String solution = defaultSolution,
     String? explanation,
   }) {
-    final resolvedExplanation =
-        explanation ??
+    final resolvedExplanation = explanation ??
         BoosterThematicDescriptions.get(tag) ??
         defaultExplanation;
     final spot = TrainingPackSpot(

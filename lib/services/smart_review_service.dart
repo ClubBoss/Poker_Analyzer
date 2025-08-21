@@ -110,9 +110,9 @@ class SmartReviewService {
         ),
       );
       await context.read<TrainingSessionService>().startSession(
-        tpl,
-        persist: false,
-      );
+            tpl,
+            persist: false,
+          );
       await Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
@@ -167,9 +167,9 @@ class SmartReviewService {
       spots: spots,
     );
     await context.read<TrainingSessionService>().startSession(
-      tpl,
-      persist: false,
-    );
+          tpl,
+          persist: false,
+        );
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
@@ -204,8 +204,7 @@ class SmartReviewService {
       for (final r in _results) '${r[0]},${r[1]},${r[2]}',
     ]);
 
-    final ready =
-        _results.length >= 3 &&
+    final ready = _results.length >= 3 &&
         _results.every((r) => r[0] >= 0.9 && r[1] >= 0.85 && r[2] >= 0.85);
     if (ready && context != null) {
       final confirm = await showDialog<bool>(
@@ -229,9 +228,9 @@ class SmartReviewService {
         final mastery = context.read<TagMasteryService>();
         final tpl = await builder.buildAdvancedPack(mastery);
         await context.read<TrainingSessionService>().startSession(
-          tpl,
-          persist: false,
-        );
+              tpl,
+              persist: false,
+            );
         await Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),
@@ -242,8 +241,7 @@ class SmartReviewService {
       return;
     }
 
-    final weakReady =
-        _results.length >= 3 &&
+    final weakReady = _results.length >= 3 &&
         _results.every((r) => r[0] <= 0.7 || r[1] < 0.6 || r[2] < 0.6);
     if (weakReady && context != null) {
       final confirm = await showDialog<bool>(
@@ -267,9 +265,9 @@ class SmartReviewService {
         final mastery = context.read<TagMasteryService>();
         final tpl = await builder.buildWeaknessPack(mastery);
         await context.read<TrainingSessionService>().startSession(
-          tpl,
-          persist: false,
-        );
+              tpl,
+              persist: false,
+            );
         await Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const TrainingSessionScreen()),

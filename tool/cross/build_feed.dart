@@ -106,9 +106,8 @@ void main(List<String> args) {
     dir.createSync(recursive: true);
   }
   final outPath = outDir.endsWith('/') ? '$outDir$name' : '$outDir/$name';
-  final json = format == 'pretty'
-      ? encodeFeedPretty(feed)
-      : encodeFeedCompact(feed);
+  final json =
+      format == 'pretty' ? encodeFeedPretty(feed) : encodeFeedCompact(feed);
   File(outPath).writeAsStringSync(json);
 
   final total = items.length;

@@ -32,10 +32,10 @@ class CachedLearningPlan {
       );
 
   AdaptiveLearningPlan toPlan() => AdaptiveLearningPlan(
-    recommendedTracks: [for (final t in tracks) t.toTrack()],
-    goals: [for (final g in goals) g.toGoal()],
-    mistakeReplayPack: mistakePack,
-  );
+        recommendedTracks: [for (final t in tracks) t.toTrack()],
+        goals: [for (final g in goals) g.toGoal()],
+        mistakeReplayPack: mistakePack,
+      );
 
   factory CachedLearningPlan.fromJson(Map<String, dynamic> json) =>
       _$CachedLearningPlanFromJson(json);
@@ -60,20 +60,20 @@ class CachedLearningGoal {
   });
 
   factory CachedLearningGoal.fromGoal(LearningGoal goal) => CachedLearningGoal(
-    id: goal.id,
-    title: goal.title,
-    description: goal.description,
-    tag: goal.tag,
-    priority: goal.priorityScore,
-  );
+        id: goal.id,
+        title: goal.title,
+        description: goal.description,
+        tag: goal.tag,
+        priority: goal.priorityScore,
+      );
 
   LearningGoal toGoal() => LearningGoal(
-    id: id,
-    title: title,
-    description: description,
-    tag: tag,
-    priorityScore: priority,
-  );
+        id: id,
+        title: title,
+        description: description,
+        tag: tag,
+        priorityScore: priority,
+      );
 
   factory CachedLearningGoal.fromJson(Map<String, dynamic> json) =>
       _$CachedLearningGoalFromJson(json);
@@ -107,12 +107,12 @@ class CachedTrainingTrack {
       );
 
   TrainingTrack toTrack() => TrainingTrack(
-    id: id,
-    title: title,
-    goalId: goalId,
-    spots: spots,
-    tags: tags,
-  );
+        id: id,
+        title: title,
+        goalId: goalId,
+        spots: spots,
+        tags: tags,
+      );
 
   factory CachedTrainingTrack.fromJson(Map<String, dynamic> json) =>
       _$CachedTrainingTrackFromJson(json);

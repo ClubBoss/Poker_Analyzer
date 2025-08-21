@@ -11,7 +11,7 @@ class TrainingPackTemplateMetadataValidator {
   const TrainingPackTemplateMetadataValidator();
 
   ({List<TrainingPackTemplateV2> valid, List<TrainingPackTemplateV2> rejected})
-  filter(List<TrainingPackTemplateV2> packs) {
+      filter(List<TrainingPackTemplateV2> packs) {
     final valid = <TrainingPackTemplateV2>[];
     final rejected = <TrainingPackTemplateV2>[];
     for (final tpl in packs) {

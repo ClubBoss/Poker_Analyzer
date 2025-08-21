@@ -21,8 +21,8 @@ class BoosterClusterEngine {
   const BoosterClusterEngine({
     BoosterSimilarityEngine? engine,
     double threshold = 0.85,
-  }) : _engine = engine ?? const BoosterSimilarityEngine(),
-       _threshold = threshold;
+  })  : _engine = engine ?? const BoosterSimilarityEngine(),
+        _threshold = threshold;
 
   List<SpotCluster> analyzeSpots(
     List<TrainingPackSpot> spots, {

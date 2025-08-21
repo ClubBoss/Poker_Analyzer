@@ -67,13 +67,13 @@ class RecentUnlocksBanner extends StatelessWidget {
                     onPressed: () async {
                       final tpl =
                           await TrainingPackService.createDrillFromCategory(
-                            context,
-                            e.key,
-                          );
+                        context,
+                        e.key,
+                      );
                       if (tpl == null) return;
                       await context.read<TrainingSessionService>().startSession(
-                        tpl,
-                      );
+                            tpl,
+                          );
                       if (context.mounted) {
                         await Navigator.push(
                           context,

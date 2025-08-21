@@ -50,8 +50,8 @@ class WeakSpotCard extends StatelessWidget {
                       final tpl = await service.buildPack(r.position);
                       if (tpl == null) return;
                       await context.read<TrainingSessionService>().startSession(
-                        tpl,
-                      );
+                            tpl,
+                          );
                       if (context.mounted) {
                         await Navigator.push(
                           context,

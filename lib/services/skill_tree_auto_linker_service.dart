@@ -13,8 +13,8 @@ class SkillTreeNode {
     required this.id,
     List<String>? tags,
     Map<String, dynamic>? meta,
-  }) : tags = tags ?? const [],
-       meta = meta ?? <String, dynamic>{};
+  })  : tags = tags ?? const [],
+        meta = meta ?? <String, dynamic>{};
 }
 
 /// Result of linking a skill node to related packs and lessons.
@@ -23,8 +23,8 @@ class SkillLinkResult {
   final List<String> lessonIds;
 
   SkillLinkResult({List<String>? packIds, List<String>? lessonIds})
-    : packIds = packIds ?? const [],
-      lessonIds = lessonIds ?? const [];
+      : packIds = packIds ?? const [],
+        lessonIds = lessonIds ?? const [];
 }
 
 /// Service linking skill tree nodes to packs and theory lessons based on tags.

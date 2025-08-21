@@ -14,10 +14,10 @@ class BoardEditingService {
     required BoardSyncService boardSync,
     required PlayerManagerService playerManager,
     required PlayerProfileService profile,
-  }) : _boardManager = boardManager,
-       _boardSync = boardSync,
-       _playerManager = playerManager,
-       _profile = profile;
+  })  : _boardManager = boardManager,
+        _boardSync = boardSync,
+        _playerManager = playerManager,
+        _profile = profile;
 
   final BoardManagerService _boardManager;
   final BoardSyncService _boardSync;

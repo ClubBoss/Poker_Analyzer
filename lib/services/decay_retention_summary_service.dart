@@ -6,7 +6,7 @@ class DecayRetentionSummaryService {
   final TagDecayForecastService forecastService;
 
   DecayRetentionSummaryService({TagDecayForecastService? forecastService})
-    : forecastService = forecastService ?? TagDecayForecastService();
+      : forecastService = forecastService ?? TagDecayForecastService();
 
   /// Computes current decay summary for all tags.
   Future<DecayRetentionSummary> getSummary() async {

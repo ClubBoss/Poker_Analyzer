@@ -20,7 +20,7 @@ class SkillTreeProgressStats {
 class SkillTreeProgressAnalyticsService {
   final SkillTreeNodeProgressTracker progress;
   SkillTreeProgressAnalyticsService({SkillTreeNodeProgressTracker? progress})
-    : progress = progress ?? SkillTreeNodeProgressTracker.instance;
+      : progress = progress ?? SkillTreeNodeProgressTracker.instance;
 
   /// Returns completion statistics for [tree].
   Future<SkillTreeProgressStats> getStats(SkillTree tree) async {

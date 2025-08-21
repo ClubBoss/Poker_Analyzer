@@ -10,49 +10,49 @@ void main() {
   const tracker = LearningPathProgressTrackerService();
 
   LearningPathTemplateV2 path0() => const LearningPathTemplateV2(
-    id: 'p',
-    title: 'Path',
-    description: '',
-    stages: [
-      LearningPathStageModel(
-        id: 's1',
-        title: 'Stage 1',
+        id: 'p',
+        title: 'Path',
         description: '',
-        packId: 'pack1',
-        requiredAccuracy: 80,
-        minHands: 10,
-      ),
-      LearningPathStageModel(
-        id: 's2',
-        title: 'Stage 2',
-        description: '',
-        packId: 'pack2',
-        requiredAccuracy: 70,
-        minHands: 5,
-      ),
-    ],
-  );
+        stages: [
+          LearningPathStageModel(
+            id: 's1',
+            title: 'Stage 1',
+            description: '',
+            packId: 'pack1',
+            requiredAccuracy: 80,
+            minHands: 10,
+          ),
+          LearningPathStageModel(
+            id: 's2',
+            title: 'Stage 2',
+            description: '',
+            packId: 'pack2',
+            requiredAccuracy: 70,
+            minHands: 5,
+          ),
+        ],
+      );
 
   List<SessionLog> logs0() => [
-    SessionLog(
-      tags: const [],
-      sessionId: 'l1',
-      templateId: 'pack1',
-      startedAt: DateTime.now(),
-      completedAt: DateTime.now(),
-      correctCount: 8,
-      mistakeCount: 2,
-    ),
-    SessionLog(
-      tags: const [],
-      sessionId: 'l2',
-      templateId: 'pack2',
-      startedAt: DateTime.now(),
-      completedAt: DateTime.now(),
-      correctCount: 4,
-      mistakeCount: 1,
-    ),
-  ];
+        SessionLog(
+          tags: const [],
+          sessionId: 'l1',
+          templateId: 'pack1',
+          startedAt: DateTime.now(),
+          completedAt: DateTime.now(),
+          correctCount: 8,
+          mistakeCount: 2,
+        ),
+        SessionLog(
+          tags: const [],
+          sessionId: 'l2',
+          templateId: 'pack2',
+          startedAt: DateTime.now(),
+          completedAt: DateTime.now(),
+          correctCount: 4,
+          mistakeCount: 1,
+        ),
+      ];
 
   test('aggregateLogsByPack sums counts', () {
     final logs = [

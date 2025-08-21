@@ -49,17 +49,14 @@ class PackStatsIndexService {
           'id': tpl.id,
           'count': tpl.spotCount,
           if (map['evScore'] != null || tpl.meta['evScore'] != null)
-            'ev':
-                (map['evScore'] as num?)?.toDouble() ??
+            'ev': (map['evScore'] as num?)?.toDouble() ??
                 (tpl.meta['evScore'] as num?)?.toDouble(),
           if (map['icmScore'] != null || tpl.meta['icmScore'] != null)
-            'icm':
-                (map['icmScore'] as num?)?.toDouble() ??
+            'icm': (map['icmScore'] as num?)?.toDouble() ??
                 (tpl.meta['icmScore'] as num?)?.toDouble(),
           if (map['meta']?['rankScore'] != null ||
               tpl.meta['rankScore'] != null)
-            'difficulty':
-                (map['meta']?['rankScore'] as num?)?.toDouble() ??
+            'difficulty': (map['meta']?['rankScore'] as num?)?.toDouble() ??
                 (tpl.meta['rankScore'] as num?)?.toDouble(),
           if (tags.isNotEmpty) 'rarity': uniq / tags.length,
           if (tags.isNotEmpty) 'tagsMatch': match / tags.length,

@@ -13,7 +13,7 @@ class ResultSummaryView extends StatefulWidget {
   final VoidCallback onRestart;
   final ValueChanged<int>? onReplayOne; // index in [0..spots.length)
   final void Function(List<int> indices)?
-  onReplayMarked; // indices in [0..spots.length)
+      onReplayMarked; // indices in [0..spots.length)
 
   const ResultSummaryView({
     super.key,
@@ -154,8 +154,8 @@ class _ResultSummaryViewState extends State<ResultSummaryView> {
                       isScrollControlled: true,
                       backgroundColor:
                           Theme.of(context).brightness == Brightness.dark
-                          ? Colors.black87
-                          : null,
+                              ? Colors.black87
+                              : null,
                       builder: (_) =>
                           SpotReviewSheet(index: i + 1, spot: s, answer: a),
                     );

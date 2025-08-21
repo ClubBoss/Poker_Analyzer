@@ -14,11 +14,11 @@ class FeedItem {
   });
 
   Map<String, dynamic> toJson() => {
-    'kind': kind,
-    'file': file,
-    'count': count,
-    'version': version,
-  };
+        'kind': kind,
+        'file': file,
+        'count': count,
+        'version': version,
+      };
 }
 
 class TrainingFeed {
@@ -28,9 +28,9 @@ class TrainingFeed {
   const TrainingFeed({this.version = 'v1', required this.items});
 
   Map<String, dynamic> toJson() => {
-    'version': version,
-    'items': items.map((e) => e.toJson()).toList(),
-  };
+        'version': version,
+        'items': items.map((e) => e.toJson()).toList(),
+      };
 }
 
 String encodeFeedCompact(TrainingFeed f) => jsonEncode(f.toJson());

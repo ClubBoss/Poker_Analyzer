@@ -15,9 +15,8 @@ class LearningPathNodeGraphSnapshotService {
 
   /// Returns a formatted multiline snapshot of all nodes.
   String debugSnapshot() {
-    final autoInjected = LearningPathNodeHistory.instance
-        .getAutoInjectedIds()
-        .toSet();
+    final autoInjected =
+        LearningPathNodeHistory.instance.getAutoInjectedIds().toSet();
     final buffer = StringBuffer();
     for (final node in engine.allNodes.sortedBy((n) => n.id)) {
       final marker = autoInjected.contains(node.id) ? '*' : '';

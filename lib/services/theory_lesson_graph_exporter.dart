@@ -8,7 +8,7 @@ class TheoryLessonGraphExporter {
   final MiniLessonLibraryService library;
 
   TheoryLessonGraphExporter({MiniLessonLibraryService? library})
-    : library = library ?? MiniLessonLibraryService.instance;
+      : library = library ?? MiniLessonLibraryService.instance;
 
   /// Generates the DOT representation of all lessons in [library].
   ///

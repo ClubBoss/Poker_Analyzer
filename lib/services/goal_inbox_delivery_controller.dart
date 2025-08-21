@@ -7,7 +7,7 @@ class GoalInboxDeliveryController {
   final InboxBoosterTrackerService tracker;
 
   GoalInboxDeliveryController({InboxBoosterTrackerService? tracker})
-    : tracker = tracker ?? InboxBoosterTrackerService.instance;
+      : tracker = tracker ?? InboxBoosterTrackerService.instance;
 
   static final GoalInboxDeliveryController instance =
       GoalInboxDeliveryController();

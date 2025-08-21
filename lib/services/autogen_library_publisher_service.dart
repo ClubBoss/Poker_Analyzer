@@ -12,8 +12,8 @@ class AutogenLibraryPublisherService {
   final YamlWriter _writer;
 
   AutogenLibraryPublisherService({String? baseDir, YamlWriter? yamlWriter})
-    : baseDir = baseDir ?? 'assets/training_packs/generated',
-      _writer = yamlWriter ?? const YamlWriter();
+      : baseDir = baseDir ?? 'assets/training_packs/generated',
+        _writer = yamlWriter ?? const YamlWriter();
 
   Future<void> publish(List<TrainingPackModel> curatedPacks) async {
     final dir = Directory(baseDir);
@@ -58,12 +58,12 @@ class AutogenLibraryPublisherService {
   }
 
   Map<String, dynamic> _packToYaml(TrainingPackModel pack) => {
-    'id': pack.id,
-    'title': pack.title,
-    if (pack.tags.isNotEmpty) 'tags': pack.tags,
-    if (pack.metadata.isNotEmpty) 'metadata': pack.metadata,
-    'spots': [for (final s in pack.spots) s.toYaml()],
-  };
+        'id': pack.id,
+        'title': pack.title,
+        if (pack.tags.isNotEmpty) 'tags': pack.tags,
+        if (pack.metadata.isNotEmpty) 'metadata': pack.metadata,
+        'spots': [for (final s in pack.spots) s.toYaml()],
+      };
 
   Future<List<Map<String, dynamic>>> _readIndex(File file) async {
     if (await file.exists()) {
