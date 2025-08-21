@@ -10,6 +10,9 @@ const String _onlineFastfoldPoolDynamicsStub = '''
 ''';
 
 List<UiSpot> loadOnlineFastfoldPoolDynamicsStub() {
-  final r = SpotImporter.parse(_onlineFastfoldPoolDynamicsStub, format: 'jsonl');
+  final r = SpotImporter.parse(
+    _onlineFastfoldPoolDynamicsStub,
+    format: 'jsonl',
+  );
   return r.spots;
 }

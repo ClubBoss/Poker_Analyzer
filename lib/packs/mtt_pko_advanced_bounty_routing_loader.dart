@@ -6,7 +6,9 @@ const String _mttPkoAdvancedBountyRoutingStub = '''
 ''';
 
 List<UiSpot> loadMttPkoAdvancedBountyRoutingStub() {
-  final r =
-      SpotImporter.parse(_mttPkoAdvancedBountyRoutingStub, format: 'jsonl');
+  final r = SpotImporter.parse(
+    _mttPkoAdvancedBountyRoutingStub,
+    format: 'jsonl',
+  );
   return r.spots;
 }

@@ -35,11 +35,13 @@ class AppLogger {
         debugPrint(stack.toString());
       }
     } else {
-      unawaited(Telemetry.logEvent('error', {
-        'message': message,
-        if (error != null) 'error': error.toString(),
-        if (stack != null) 'stack': stack.toString(),
-      }));
+      unawaited(
+        Telemetry.logEvent('error', {
+          'message': message,
+          if (error != null) 'error': error.toString(),
+          if (stack != null) 'stack': stack.toString(),
+        }),
+      );
       if (error != null && stack != null) {
         unawaited(Telemetry.logError(error, stack));
       }

@@ -6,6 +6,9 @@ const String _databaseLeakfinderPlaybookStub = '''
 ''';
 
 List<UiSpot> loadDatabaseLeakfinderPlaybookStub() {
-  final r = SpotImporter.parse(_databaseLeakfinderPlaybookStub, format: 'jsonl');
+  final r = SpotImporter.parse(
+    _databaseLeakfinderPlaybookStub,
+    format: 'jsonl',
+  );
   return r.spots;
 }

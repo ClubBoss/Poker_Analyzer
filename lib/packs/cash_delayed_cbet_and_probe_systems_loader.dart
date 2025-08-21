@@ -6,6 +6,9 @@ const String _cashDelayedCbetAndProbeSystemsStub = '''
 ''';
 
 List<UiSpot> loadCashDelayedCbetAndProbeSystemsStub() {
-  final r = SpotImporter.parse(_cashDelayedCbetAndProbeSystemsStub, format: 'jsonl');
+  final r = SpotImporter.parse(
+    _cashDelayedCbetAndProbeSystemsStub,
+    format: 'jsonl',
+  );
   return r.spots;
 }
