@@ -42,6 +42,7 @@
     "core_board_textures",
     "core_river_play",
     "core_check_raise_systems",
-    "cash_blind_vs_blind"
+    "cash_blind_vs_blind",
+    "cash_fourbet_pots"
   ]
 }
