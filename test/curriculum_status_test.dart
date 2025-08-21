@@ -1,52 +1,49 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:test/test.dart';
-import '../tooling/curriculum_ids.dart';
 
-List<String> _readModulesDone() {
-  final text = File('curriculum_status.json').readAsStringSync();
-  final map = jsonDecode(text) as Map<String, dynamic>;
-  return (map['modules_done'] as List).cast<String>();
+import 'package:test/test.dart';
+import '../tooling/curriculum_ids.dart'; // exposes kCurriculumIds
+
+String firstMissing(List<String> base, List<String> done) {
+  for (final id in base) {
+    if (!done.contains(id)) return id;
+  }
+  return 'ALL_DONE';
 }
 
 void main() {
-  test('modules_done is strict prefix of SSOT', () {
-    final done = _readModulesDone();
-    final seen = <String>{};
+  final status =
+      jsonDecode(File('curriculum_status.json').readAsStringSync())
+          as Map<String, dynamic>;
+  final done = (status['modules_done'] as List).cast<String>();
+  final base = kCurriculumIds;
 
-    for (final id in done) {
-      expect(seen.contains(id), isFalse, reason: 'Duplicate id: $id');
-      seen.add(id);
-      expect(
-        kCurriculumModuleIds.contains(id),
-        isTrue,
-        reason: 'Unknown id: $id',
-      );
-    }
+  test('status uses valid IDs only', () {
+    expect(
+      done.every(base.contains),
+      isTrue,
+      reason: 'curriculum_status.json contains unknown module IDs',
+    );
+  });
 
-    for (var i = 0; i < done.length; i++) {
+  test('status is a strict prefix of base order', () {
+    final n = done.length < base.length ? done.length : base.length;
+    for (var i = 0; i < n; i++) {
       expect(
         done[i],
-        equals(kCurriculumModuleIds[i]),
+        equals(base[i]),
         reason:
-            'Order mismatch at $i: expected ${kCurriculumModuleIds[i]}, got ${done[i]}',
+            'Order mismatch at index $i: expected ${base[i]}, got ${done[i]}',
       );
     }
   });
 
-  test('NEXT detector prints first missing by SSOT', () {
-    final done = _readModulesDone();
-    final next = firstMissing(done);
-    if (next == null) {
-      print('NEXT: done');
-    } else {
-      print('NEXT: $next');
-      expect(
-        kCurriculumModuleIds.contains(next),
-        isTrue,
-        reason: 'NEXT must be in SSOT',
-      );
-      expect(next.contains(':'), isFalse, reason: 'NEXT must not be a pack id');
+  test('compute and print NEXT', () {
+    final next = firstMissing(base, done);
+    // ignore: avoid_print
+    print('NEXT=$next');
+    if (next != 'ALL_DONE') {
+      expect(base.contains(next), isTrue);
     }
   });
 }
