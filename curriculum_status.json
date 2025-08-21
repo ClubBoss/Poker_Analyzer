@@ -61,6 +61,7 @@
     "icm_bubble_blind_vs_blind",
     "live_full_ring_adjustments",
     "online_fastfold_pool_dynamics",
-    "cash_limp_pots_systems"
+    "cash_limp_pots_systems",
+    "mtt_pko_advanced_bounty_routing"
   ]
 }
