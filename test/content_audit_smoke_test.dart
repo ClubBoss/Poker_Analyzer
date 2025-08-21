@@ -6,7 +6,7 @@ void main() {
     final res = validateDemoLine({
       'id': 'm1:demo:01',
       'title': 't',
-      'steps': ['a']
+      'steps': ['a'],
     }, 'm1');
     expect(res.isValid, isTrue);
     expect(res.badIdPattern, isFalse);
@@ -18,7 +18,7 @@ void main() {
       'spotKind': 'kind',
       'params': {},
       'target': ['a'],
-      'rationale': 'because'
+      'rationale': 'because',
     }, 'm1');
     expect(res.isValid, isTrue);
     expect(res.badIdPattern, isFalse);
@@ -29,4 +29,3 @@ void main() {
     expect(isAscii('á'), isFalse);
   });
 }
-

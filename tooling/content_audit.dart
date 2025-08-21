@@ -1,3 +1,6 @@
+// tooling/content_audit.dart
+// ignore_for_file: avoid_print
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -5,7 +8,7 @@ class CheckResult {
   final String status;
   final List<String> reasons;
   CheckResult(this.status, [List<String>? reasons])
-      : reasons = reasons ?? const [];
+    : reasons = reasons ?? const [];
 }
 
 class LineValidation {
@@ -22,7 +25,7 @@ List<String> readModules() {
 }
 
 CheckResult checkTheory(String moduleId) {
-  final path = 'content/' + moduleId + '/v1/theory.md';
+  final path = 'content/$moduleId/v1/theory.md';
   final file = File(path);
   if (!file.existsSync()) {
     return CheckResult('MISSING');
@@ -44,10 +47,11 @@ bool idMatches(String id, String moduleId, String kind) {
 CheckResult checkJsonlFile(
   String moduleId,
   String name,
-  LineValidation Function(Map<String, dynamic>, String) validator,
-  {required int minLines, required int maxLines},
-) {
-  final path = 'content/' + moduleId + '/v1/' + name;
+  LineValidation Function(Map<String, dynamic>, String) validator, {
+  required int minLines,
+  required int maxLines,
+}) {
+  final path = 'content/$moduleId/v1/$name';
   final file = File(path);
   if (!file.existsSync()) {
     return CheckResult('MISSING');
@@ -59,6 +63,7 @@ CheckResult checkJsonlFile(
   int invalid = 0;
   int badId = 0;
   bool nonAscii = false;
+
   for (final line in lines) {
     if (!isAscii(line)) {
       nonAscii = true;
@@ -83,23 +88,15 @@ CheckResult checkJsonlFile(
       badId++;
     }
   }
+
   final reasons = <String>[];
-  if (invalid > 0) {
-    reasons.add('jsonl_invalid:$invalid');
-  }
-  if (badId > 0) {
-    reasons.add('bad_id_pattern:$badId');
-  }
-  if (lines.length < minLines || lines.length > maxLines) {
+  if (invalid > 0) reasons.add('jsonl_invalid:$invalid');
+  if (badId > 0) reasons.add('bad_id_pattern:$badId');
+  if (lines.length < minLines || lines.length > maxLines)
     reasons.add('wrong_count');
-  }
-  if (nonAscii) {
-    reasons.add('non_ascii');
-  }
-  if (reasons.isEmpty) {
-    return CheckResult('OK');
-  }
-  return CheckResult('INVALID', reasons);
+  if (nonAscii) reasons.add('non_ascii');
+
+  return reasons.isEmpty ? CheckResult('OK') : CheckResult('INVALID', reasons);
 }
 
 LineValidation validateDemoLine(Map<String, dynamic> data, String moduleId) {
@@ -108,9 +105,8 @@ LineValidation validateDemoLine(Map<String, dynamic> data, String moduleId) {
   final steps = data['steps'];
   final hints = data['hints'];
   bool badId = false;
-  if (id is! String || !idMatches(id, moduleId, 'demo')) {
-    badId = true;
-  }
+  if (id is! String || !idMatches(id, moduleId, 'demo')) badId = true;
+
   if (id is! String || title is! String || steps is! List) {
     return LineValidation(false, badIdPattern: badId);
   }
@@ -132,9 +128,8 @@ LineValidation validateDrillLine(Map<String, dynamic> data, String moduleId) {
   final target = data['target'];
   final rationale = data['rationale'];
   bool badId = false;
-  if (id is! String || !idMatches(id, moduleId, 'drill')) {
-    badId = true;
-  }
+  if (id is! String || !idMatches(id, moduleId, 'drill')) badId = true;
+
   if (id is! String ||
       spotKind is! String ||
       spotKind.trim().isEmpty ||
@@ -149,18 +144,15 @@ LineValidation validateDrillLine(Map<String, dynamic> data, String moduleId) {
   return LineValidation(!badId, badIdPattern: badId);
 }
 
-bool isAscii(String line) {
-  return line.codeUnits.every((c) => c <= 0x7f);
-}
+bool isAscii(String line) => line.codeUnits.every((c) => c <= 0x7f);
 
-String formatResult(CheckResult r) {
-  if (r.status != 'INVALID') return r.status;
-  return 'INVALID(' + r.reasons.join(',') + ')';
-}
+String formatResult(CheckResult r) =>
+    r.status != 'INVALID' ? r.status : 'INVALID(${r.reasons.join(',')})';
 
 void main() {
   final modules = readModules();
   final issueModules = <String>[];
+
   for (final m in modules) {
     final theory = checkTheory(m);
     final demos = checkJsonlFile(
@@ -177,27 +169,30 @@ void main() {
       minLines: 10,
       maxLines: 20,
     );
+
     if (theory.status != 'OK' ||
         demos.status != 'OK' ||
         drills.status != 'OK') {
       issueModules.add(m);
     }
+
     final idPadded = m.padRight(40);
     print(
-        '${idPadded} theory:${formatResult(theory)} demos:${formatResult(demos)} drills:${formatResult(drills)}');
+      '$idPadded theory:${formatResult(theory)} demos:${formatResult(demos)} drills:${formatResult(drills)}',
+    );
   }
-  print('Totals: ${modules.length} modules, ${issueModules.length} with issues');
+
+  print(
+    'Totals: ${modules.length} modules, ${issueModules.length} with issues',
+  );
+
   for (var i = 0; i < issueModules.length; i += 12) {
-    final end = i + 12 > issueModules.length ? issueModules.length : i + 12;
+    final end = (i + 12 > issueModules.length) ? issueModules.length : i + 12;
     final batch = issueModules.sublist(i, end);
     print('');
-    print('GO MODULES: ' + batch.join(','));
+    print('GO MODULES: ${batch.join(',')}');
     print('STYLE OVERRIDE: (per PROMPT_RULES.md)');
   }
-  if (issueModules.isEmpty) {
-    print('AUDIT:OK');
-  } else {
-    print('AUDIT:FAILED');
-  }
-}
 
+  print(issueModules.isEmpty ? 'AUDIT:OK' : 'AUDIT:FAILED');
+}
