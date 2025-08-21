@@ -44,6 +44,7 @@
     "core_check_raise_systems",
     "cash_blind_vs_blind",
     "cash_fourbet_pots",
-    "hu_river_play"
+    "hu_river_play",
+    "spr_advanced"
   ]
 }
