@@ -1,0 +1,3 @@
+{ "id": "mtt_bubble_and_FT:demo:01", "title": "Bubble steal map", "steps": ["Mark who you cover", "Open smaller vs those stacks", "Fold to big pressure from coverers"], "hints": ["Pressure down, avoid up"] }
+{ "id": "mtt_bubble_and_FT:demo:02", "title": "FT pay-jump filter", "steps": ["List next two jumps", "Tighten call-offs first", "Favor lines that keep FE"], "hints": ["Jumps change thresholds"] }
+{ "id": "mtt_bubble_and_FT:demo:03", "title": "Side-pot discipline", "steps": ["Identify all-in players", "Avoid creating side pots light", "Play nutted hands only"], "hints": ["Ladder first, glory later"] }

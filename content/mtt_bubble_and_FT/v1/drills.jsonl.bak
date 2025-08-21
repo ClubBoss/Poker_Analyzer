@@ -1,0 +1,14 @@
+{ "id": "mtt_bubble_and_FT:drill:01", "spotKind": "l1_core_call_vs_price", "params": { "price": "2bb", "potBefore": "8bb" }, "target": ["call","fold"], "rationale": "Bubble ante pot; defend but respect ICM" }
+{ "id": "mtt_bubble_and_FT:drill:02", "spotKind": "l1_core_call_vs_price", "params": { "price": "3bb", "potBefore": "9bb" }, "target": ["call","fold"], "rationale": "Half-pot vs stack that covers you" }
+{ "id": "mtt_bubble_and_FT:drill:03", "spotKind": "l1_core_call_vs_price", "params": { "price": "6bb", "potBefore": "9bb" }, "target": ["call","fold"], "rationale": "Two-thirds bubble pressure; fold more" }
+{ "id": "mtt_bubble_and_FT:drill:04", "spotKind": "l1_core_call_vs_price", "params": { "price": "1.5bb", "potBefore": "10.5bb" }, "target": ["call","fold"], "rationale": "Cheap peel but covered by CL" }
+{ "id": "mtt_bubble_and_FT:drill:05", "spotKind": "l1_core_call_vs_price", "params": { "price": "7bb", "potBefore": "21bb" }, "target": ["call","fold"], "rationale": "One-third turn vs mid stack you cover" }
+{ "id": "mtt_bubble_and_FT:drill:06", "spotKind": "l1_core_call_vs_price", "params": { "price": "9bb", "potBefore": "9bb" }, "target": ["call","fold"], "rationale": "Pot-size bet at FT; conserve $EV" }
+{ "id": "mtt_bubble_and_FT:drill:07", "spotKind": "l1_core_call_vs_price", "params": { "price": "2.2bb", "potBefore": "6.6bb" }, "target": ["call","fold"], "rationale": "Quarter-pot; widen steals when you cover" }
+{ "id": "mtt_bubble_and_FT:drill:08", "spotKind": "l1_core_call_vs_price", "params": { "price": "10bb", "potBefore": "20bb" }, "target": ["call","fold"], "rationale": "Half-pot turn vs covering stack" }
+{ "id": "mtt_bubble_and_FT:drill:09", "spotKind": "l1_core_call_vs_price", "params": { "price": "12bb", "potBefore": "24bb" }, "target": ["call","fold"], "rationale": "Two-thirds river at FT; fold thin" }
+{ "id": "mtt_bubble_and_FT:drill:10", "spotKind": "l1_core_call_vs_price", "params": { "price": "3.5bb", "potBefore": "7bb" }, "target": ["call","fold"], "rationale": "Half-pot tiny pot; adjust to jumps" }
+{ "id": "mtt_bubble_and_FT:drill:11", "spotKind": "l1_core_call_vs_price", "params": { "price": "6.5bb", "potBefore": "13bb" }, "target": ["call","fold"], "rationale": "Near two-thirds; covered fold frequency" }
+{ "id": "mtt_bubble_and_FT:drill:12", "spotKind": "l1_core_call_vs_price", "params": { "price": "8bb", "potBefore": "16bb" }, "target": ["call","fold"], "rationale": "Half-pot turn; mid stack vs CL" }
+{ "id": "mtt_bubble_and_FT:drill:13", "spotKind": "l1_core_call_vs_price", "params": { "price": "5bb", "potBefore": "25bb" }, "target": ["call","fold"], "rationale": "Half-pot after checks; steal wider" }
+{ "id": "mtt_bubble_and_FT:drill:14", "spotKind": "l1_core_call_vs_price", "params": { "price": "14bb", "potBefore": "28bb" }, "target": ["call","fold"], "rationale": "Large river; pay jump discipline" }
