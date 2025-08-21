@@ -101,6 +101,8 @@ Contributing
 
 Соблюдать enum append-only, single guard site, tiny diffs.
 
+Дополнительные инструкции см. в AGENTS.md.
+
 dart format и flutter analyze проходят в CI автоматически; локально можно воспроизвести:
 
 dart format --set-exit-if-changed .
