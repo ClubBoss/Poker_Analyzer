@@ -68,6 +68,7 @@
     "solver_node_locking_basics",
     "live_special_formats_straddle_bomb_ante",
     "online_economics_rakeback_promos",
-    "hudless_strategy_and_note_coding"
+    "hudless_strategy_and_note_coding",
+    "hand_review_and_annotation_standards"
   ]
 }
