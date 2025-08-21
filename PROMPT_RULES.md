@@ -1,37 +1,52 @@
 # Prompt Rules — Poker Analyzer
 
-## General
-- Always 1 prompt → 1 response → merge → next.
-- Tiny diffs in Codex (1–2 files). No new deps.
-- Content lives in Research chat, not Codex.
+## Core Principles
+- Tiny reversible diffs (Codex).  
+- One source of truth for modules: CURRICULUM_STRUCTURE.md.  
+- Content only generated via Research chat.  
 
-## Codex Chat
-- Purpose: structure, loaders, status, validation.
-- Skeleton phase: DONE.
-- Now: only maintenance (if enum or loader needs update).
-- Never generate lesson text here.
+## Research Prompts
+- Always start with:  
+  `GO MODULES: <ids>`  
+  `STYLE OVERRIDE: …`  
 
-## Research Chat
-- Purpose: generate module content (theory/demos/drills).
-- Entry point: paste `GO MODULES: <id1>,<id2>,…`.
-- Always add STYLE OVERRIDE:
+- Style override **must** include:  
+  - Audience: beginner-friendly, mobile-first.  
+  - Theory.md = 450–550 words, with explicit sections:
+    1. What it is  
+    2. Why it matters  
+    3. Rules of thumb (with *why* each rule matters)  
+    4. Mini example (step explained)  
+    5. Common mistakes (with explanation why they happen)  
+  - Demos.jsonl: 2–3 items, step ≤ 1 line.  
+  - Drills.jsonl: 12–16 items, rationale ≤ 1 line.  
+  - ASCII-only (7-bit). No long dashes, no smart quotes.  
+  - JSONL strictly valid, unique IDs.  
 
-STYLE OVERRIDE:
-- Audience: user-friendly, amateur-friendly, mobile-first
-- Theory.md = 450–550 words
-  1) What it is (2–3 lines)
-  2) Why it matters (2–3 lines)
-  3) Rules of thumb (3–5 bullets)
-  4) Mini example (3–5 lines)
-  5) Common mistakes (3 bullets)
-- Demos.jsonl: 2–3 items, step <= 1 line
-- Drills.jsonl: 12–16 items, rationale <= 1 line
-- ASCII only, IDs per schema
+## Zip Prompts
+- Must always return ZIP with correct structure: `content/<module>/v1/...`  
+- Must append universal pipeline:
 
-- Generated files must pass [CONTENT_SCHEMAS.md] and test/content_schema_test.dart.
+```bash
+ZIPFILE=$(ls -t batch*.zip | head -n1)
+rm -rf content
+unzip -o "$ZIPFILE" -d .
+dart format .
+dart analyze
+dart test test/content_audit_smoke_test.dart
+dart run tooling/content_audit.dart
+dart test
+git add .
+git commit -m "Add content batch"
+git push
+```
 
-## Quality Gates
-- ASCII-only, schema-valid.
-- SpotKind enum append-only.
-- Canonical guard unchanged.
-- Tests: pure-Dart validation of content.
+## Guard Clause
+Keep canonical auto-replay guard unchanged:
+```
+!correct && autoWhy &&
+(spot.kind == SpotKind.l3_flop_jam_vs_raise ||
+ spot.kind == SpotKind.l3_turn_jam_vs_raise ||
+ spot.kind == SpotKind.l3_river_jam_vs_raise)
+ && !_replayed.contains(spot)
+```

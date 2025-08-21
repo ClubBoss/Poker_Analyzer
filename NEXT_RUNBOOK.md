@@ -1,22 +1,20 @@
-Run the NEXT detector:
-dart test -r expanded test/curriculum_status_test.dart
+# NEXT Runbook — Poker Analyzer
 
-Read: NEXT: <moduleId>
+## Purpose
+Define how to compute NEXT batch/module for skeleton or content.
 
-Do:
+## Rules
+1. Curriculum source = CURRICULUM_STRUCTURE.md v3.1.  
+2. Status file = curriculum_status.json (tracks completed modules).  
+3. NEXT = first module in CURRICULUM_STRUCTURE.md that is not present at same index in curriculum_status.json.  
 
-Add lib/packs/<moduleId>_loader.dart (minimal stub pack; no content)
+## Flow
+- Codex: adds skeleton loader + updates curriculum_status.json.  
+- Research: generates batch content using STYLE OVERRIDE.  
+- Zip: packages, audits, commits.  
 
-Append "<moduleId>" to modules_done in curriculum_status.json (append-only)
-
-Checks:
-
-dart format (no diffs) • dart analyze (clean)
-
-Merge PR. Repeat.
-
-Notes:
-
-Touch 1-2 code files + the status file. Enum append-only only if required.
-
-Use actionsMap and subtitlePrefix; no legacy switches.
+## Notes
+- Never edit enums retroactively (append-only).  
+- Content audit must always pass before merging.  
+- Live vs Online differences must be explicit.  
+- Math modules progress step-by-step; no skipping.

@@ -1,0 +1,28 @@
+# Project Instructions — Poker Analyzer
+
+1. **SSOT for curriculum** is CURRICULUM_STRUCTURE.md (v3.1).  
+2. All generation flows (Research, Zip, Codex) must use this file as the single source of truth.  
+
+3. **Flow**
+- Core is mandatory.  
+- After Core → branch into Cash or MTT.  
+- Heads-Up (HU) is a separate optional path.  
+- Math is a separate optional path.  
+- Live/Online/Cross modules are side-branches.  
+
+4. **Style Rules**
+- Research must adapt STYLE OVERRIDE per batch.  
+- Use simple language, explain every term (no jargon without definition).  
+- Always include “why it matters” and “why this mistake is common” in bullets.  
+- Distinguish Live vs Online dynamics where relevant.  
+- Math path: gradual, beginner-friendly, step-by-step.  
+
+5. **Quality Gates**
+- ASCII-only (7-bit).  
+- JSONL strictly valid, unique IDs.  
+- Run `dart run tooling/content_audit.dart` locally; deliver only if all checks = OK.  
+
+6. **Chats**
+- Research chat: generates content.  
+- Zip chat: packages ZIP, provides pipeline commands.  
+- PM/Advisor chat: tracks roadmap, status, and next prompts.
