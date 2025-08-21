@@ -50,6 +50,7 @@
     "cash_overbets_and_blocker_bets",
     "mtt_icm_endgame_advanced",
     "mtt_final_table_playbooks",
-    "mtt_late_reg_strategy"
+    "mtt_late_reg_strategy",
+    "exploit_advanced"
   ]
 }
