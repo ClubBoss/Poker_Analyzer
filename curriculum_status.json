@@ -46,6 +46,7 @@
     "cash_fourbet_pots",
     "spr_advanced",
     "cash_multiway_3bet_pots",
-    "cash_delayed_cbet_and_probe_systems"
+    "cash_delayed_cbet_and_probe_systems",
+    "cash_overbets_and_blocker_bets"
   ]
 }
