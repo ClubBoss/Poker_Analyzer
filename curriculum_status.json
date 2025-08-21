@@ -63,6 +63,7 @@
     "online_fastfold_pool_dynamics",
     "cash_limp_pots_systems",
     "mtt_pko_advanced_bounty_routing",
-    "mtt_day2_bagging_and_reentry_ev"
+    "mtt_day2_bagging_and_reentry_ev",
+    "database_leakfinder_playbook"
   ]
 }
