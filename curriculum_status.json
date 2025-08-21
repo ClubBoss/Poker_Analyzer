@@ -67,6 +67,7 @@
     "database_leakfinder_playbook",
     "solver_node_locking_basics",
     "live_special_formats_straddle_bomb_ante",
-    "online_economics_rakeback_promos"
+    "online_economics_rakeback_promos",
+    "hudless_strategy_and_note_coding"
   ]
 }
