@@ -45,6 +45,7 @@
     "cash_blind_vs_blind",
     "cash_fourbet_pots",
     "hu_river_play",
-    "spr_advanced"
+    "spr_advanced",
+    "cash_multiway_3bet_pots"
   ]
 }
