@@ -13,6 +13,7 @@
     "math_pot_odds_equity",
     "math_combo_blockers",
     "math_ev_calculations",
-    "math_icm_basics"
+    "math_icm_basics",
+    "math_icm_advanced"
   ]
 }
