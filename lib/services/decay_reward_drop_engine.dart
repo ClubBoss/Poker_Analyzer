@@ -17,9 +17,9 @@ class DecayRewardDropEngine {
     DecayStreakTrackerService? streaks,
     DecayBoosterStreakMultiplierService? multiplier,
     Random? random,
-  })  : streaks = streaks ?? const DecayStreakTrackerService(),
-        multiplier = multiplier ?? const DecayBoosterStreakMultiplierService(),
-        _random = random ?? Random();
+  }) : streaks = streaks ?? const DecayStreakTrackerService(),
+       multiplier = multiplier ?? const DecayBoosterStreakMultiplierService(),
+       _random = random ?? Random();
 
   /// Singleton instance.
   static final DecayRewardDropEngine instance = DecayRewardDropEngine._();

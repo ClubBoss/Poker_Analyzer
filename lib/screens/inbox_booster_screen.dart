@@ -67,36 +67,35 @@ class _InboxBoosterScreenState extends State<InboxBoosterScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _lessons.isEmpty
-              ? const Center(
-                  child: Text(
-                    'Нет бустеров',
-                    style: TextStyle(color: Colors.white70),
+          ? const Center(
+              child: Text(
+                'Нет бустеров',
+                style: TextStyle(color: Colors.white70),
+              ),
+            )
+          : RefreshIndicator(
+              onRefresh: _load,
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  for (final l in _lessons)
+                    BoosterTheoryWidget(
+                      lesson: l,
+                      slot: BoosterSlot.inbox,
+                      onActionTap: () => _openLesson(l),
+                    ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _clear,
+                      style: ElevatedButton.styleFrom(backgroundColor: accent),
+                      child: const Text('Очистить'),
+                    ),
                   ),
-                )
-              : RefreshIndicator(
-                  onRefresh: _load,
-                  child: ListView(
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      for (final l in _lessons)
-                        BoosterTheoryWidget(
-                          lesson: l,
-                          slot: BoosterSlot.inbox,
-                          onActionTap: () => _openLesson(l),
-                        ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _clear,
-                          style:
-                              ElevatedButton.styleFrom(backgroundColor: accent),
-                          child: const Text('Очистить'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                ],
+              ),
+            ),
     );
   }
 }

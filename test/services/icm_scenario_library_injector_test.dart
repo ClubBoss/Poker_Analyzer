@@ -83,8 +83,10 @@ void main() {
       expect(result.spots.length, 12);
       expect(result.metadata['icmInjected'], isTrue);
       expect(result.metadata['icmScenarioCount'], 2);
-      final stages =
-          result.spots.take(2).map((s) => s.meta['icm']['stage']).toSet();
+      final stages = result.spots
+          .take(2)
+          .map((s) => s.meta['icm']['stage'])
+          .toSet();
       expect(stages.length, 2); // diversity by stage
       expect(result.spots.first.tags.contains('icm'), isTrue);
     });

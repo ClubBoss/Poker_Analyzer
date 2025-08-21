@@ -9,7 +9,7 @@ class SkillTreeMilestoneOverlayService {
   final SkillTreeMotivationalHintEngine engine;
 
   SkillTreeMilestoneOverlayService({SkillTreeMotivationalHintEngine? engine})
-      : engine = engine ?? SkillTreeMotivationalHintEngine.instance;
+    : engine = engine ?? SkillTreeMotivationalHintEngine.instance;
 
   OverlayEntry? _entry;
 

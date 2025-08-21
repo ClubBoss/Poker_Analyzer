@@ -27,12 +27,14 @@ class LearningPathLoader {
   Future<List<LearningPathTemplateV2>> loadAll() async {
     final manifestRaw = await rootBundle.loadString('AssetManifest.json');
     final manifest = jsonDecode(manifestRaw) as Map<String, dynamic>;
-    final paths = manifest.keys
-        .where(
-          (e) => e.startsWith('assets/learning_paths/') && e.endsWith('.yaml'),
-        )
-        .toList()
-      ..sort();
+    final paths =
+        manifest.keys
+            .where(
+              (e) =>
+                  e.startsWith('assets/learning_paths/') && e.endsWith('.yaml'),
+            )
+            .toList()
+          ..sort();
     final list = <LearningPathTemplateV2>[];
     for (final p in paths) {
       try {

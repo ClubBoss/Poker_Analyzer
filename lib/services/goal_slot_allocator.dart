@@ -21,8 +21,8 @@ class GoalSlotAllocator {
     this.insights = const MistakeTagInsightsService(),
     BoosterPathHistoryService? history,
     MiniLessonLibraryService? library,
-  })  : history = history ?? BoosterPathHistoryService.instance,
-        library = library ?? MiniLessonLibraryService.instance;
+  }) : history = history ?? BoosterPathHistoryService.instance,
+       library = library ?? MiniLessonLibraryService.instance;
 
   static final GoalSlotAllocator instance = GoalSlotAllocator();
 

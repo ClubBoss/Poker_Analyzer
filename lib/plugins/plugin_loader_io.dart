@@ -212,8 +212,8 @@ class PluginLoader {
     await dir.create(recursive: true);
     final file = File(p.join(dir.path, name));
     final cached = await _loadCache();
-    final cachedDigest =
-        (cached?['checksums'] as Map?)?.cast<String, String>()[name];
+    final cachedDigest = (cached?['checksums'] as Map?)
+        ?.cast<String, String>()[name];
     if (checksum != null &&
         cachedDigest != null &&
         cachedDigest == checksum.toLowerCase() &&
@@ -243,7 +243,8 @@ class PluginLoader {
         throw Exception('Checksum mismatch');
       }
       final cache = cached ?? <String, dynamic>{};
-      final checksums = (cache['checksums'] as Map?)?.cast<String, String>() ??
+      final checksums =
+          (cache['checksums'] as Map?)?.cast<String, String>() ??
           <String, String>{};
       checksums[name] = digest;
       cache['checksums'] = checksums;
@@ -276,7 +277,8 @@ class PluginLoader {
     final files =
         (cache['files'] as List?)?.cast<String>().toList() ?? <String>[];
     files.remove(name);
-    final checksums = (cache['checksums'] as Map?)?.cast<String, String>() ??
+    final checksums =
+        (cache['checksums'] as Map?)?.cast<String, String>() ??
         <String, String>{};
     checksums.remove(name);
     cache['files'] = files;
@@ -315,9 +317,11 @@ class PluginLoader {
     final cached = await _loadCache();
     final cachedFiles =
         (cached?['files'] as List?)?.cast<String>() ?? <String>[];
-    final cachedConfig = (cached?['config'] as Map?)?.cast<String, dynamic>() ??
+    final cachedConfig =
+        (cached?['config'] as Map?)?.cast<String, dynamic>() ??
         <String, dynamic>{};
-    final match = const DeepCollectionEquality().equals(cachedFiles, [
+    final match =
+        const DeepCollectionEquality().equals(cachedFiles, [
           for (final f in files) p.basename(f.path),
         ]) &&
         const DeepCollectionEquality().equals(

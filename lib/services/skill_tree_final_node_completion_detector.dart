@@ -6,7 +6,7 @@ class SkillTreeFinalNodeCompletionDetector {
   final SkillTreeNodeProgressTracker progress;
 
   SkillTreeFinalNodeCompletionDetector({SkillTreeNodeProgressTracker? progress})
-      : progress = progress ?? SkillTreeNodeProgressTracker.instance;
+    : progress = progress ?? SkillTreeNodeProgressTracker.instance;
 
   /// Returns `true` if all non-optional nodes in [tree] are completed.
   Future<bool> isTreeCompleted(SkillTree tree) async {

@@ -37,9 +37,9 @@ class CloudPreferencesService {
           .collection('preferences')
           .doc('main')
           .set({
-        key: value,
-        'updatedAt': DateTime.now().toIso8601String(),
-      }, SetOptions(merge: true));
+            key: value,
+            'updatedAt': DateTime.now().toIso8601String(),
+          }, SetOptions(merge: true));
     });
   }
 }

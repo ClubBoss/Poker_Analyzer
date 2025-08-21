@@ -1,8 +1,8 @@
 import '../models/learning_path_stage_model.dart';
 
 /// Stage template for BTN open/fold decisions facing a UTG 3bb raise in 6-max cash games.
-const LearningPathStageModel openFoldBtnVsUtgCashStageTemplate =
-    LearningPathStageModel(
+const LearningPathStageModel
+openFoldBtnVsUtgCashStageTemplate = LearningPathStageModel(
   id: 'openfold_btn_vs_utg_cash',
   title: 'BTN vs UTG Open/Fold (Cash)',
   description:

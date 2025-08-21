@@ -4,7 +4,7 @@ import 'range_import_export_service.dart';
 
 class RangeLibraryService {
   RangeLibraryService._([RangeImportExportService? io])
-      : _io = io ?? const RangeImportExportService();
+    : _io = io ?? const RangeImportExportService();
   static final instance = RangeLibraryService._();
 
   final RangeImportExportService _io;

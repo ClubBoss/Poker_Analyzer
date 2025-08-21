@@ -12,7 +12,7 @@ import 'board_splitter.dart';
 
 class LineGraphEngine {
   LineGraphEngine({TheoryLessonMetaTagExtractorService? extractor})
-      : _extractor = extractor ?? const TheoryLessonMetaTagExtractorService();
+    : _extractor = extractor ?? const TheoryLessonMetaTagExtractorService();
 
   final TheoryLessonMetaTagExtractorService _extractor;
 
@@ -59,7 +59,8 @@ class LineGraphEngine {
 
   /// Links [spot] to the graph by matching tags and target street.
   void linkSpot(TrainingPackSpot spot) {
-    final street = spot.meta['targetStreet']?.toString().toLowerCase() ??
+    final street =
+        spot.meta['targetStreet']?.toString().toLowerCase() ??
         _streetFromIndex(spot.street);
     for (final tag in spot.tags) {
       final parsed = _parseTag(tag);
@@ -103,9 +104,9 @@ class LineGraphEngine {
 
   /// Returns next possible nodes reachable from [node].
   List<LineGraphNode> findNextOptions(LineGraphNode node) => [
-        for (final e in _edges)
-          if (e.from == node) e.to,
-      ];
+    for (final e in _edges)
+      if (e.from == node) e.to,
+  ];
 
   LineGraphNode _ensureNode(
     String street,
@@ -216,8 +217,9 @@ class LineGraphEngine {
     }
     for (var i = 0; i < streets.length; i++) {
       final street = streets[i];
-      final tags =
-          grouped[i].map((act) => '$street${_capitalize(act)}').toList();
+      final tags = grouped[i]
+          .map((act) => '$street${_capitalize(act)}')
+          .toList();
       accumulatedTags.addAll(tags);
       seeds.add(
         SpotSeed(
@@ -238,9 +240,11 @@ class LineGraphEngine {
     final groups = <List<String>>[];
     var index = 0;
     var remaining = actions.length;
-    for (var remainingStreets = streetCount;
-        remainingStreets > 0;
-        remainingStreets--) {
+    for (
+      var remainingStreets = streetCount;
+      remainingStreets > 0;
+      remainingStreets--
+    ) {
       final minForRest = remainingStreets - 1;
       var size = remaining - minForRest;
       if (size < 0) size = 0;

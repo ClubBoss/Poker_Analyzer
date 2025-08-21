@@ -94,11 +94,14 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
   }
 
   List<SavedHand> _filteredHands(SavedHandManagerService manager) {
-    final hands = (_activeTag == null
-            ? manager.hands
-            : manager.hands.where((h) => h.tags.contains(_activeTag)).toList())
-        .where((h) => _selectedStreets.contains(h.boardStreet.clamp(0, 3)))
-        .toList();
+    final hands =
+        (_activeTag == null
+                ? manager.hands
+                : manager.hands
+                      .where((h) => h.tags.contains(_activeTag))
+                      .toList())
+            .where((h) => _selectedStreets.contains(h.boardStreet.clamp(0, 3)))
+            .toList();
     return hands;
   }
 
@@ -162,11 +165,14 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     SessionNoteService notes,
     Set<int> streets,
   ) {
-    final hands = (_activeTag == null
-            ? manager.hands
-            : manager.hands.where((h) => h.tags.contains(_activeTag)).toList())
-        .where((h) => streets.contains(h.boardStreet.clamp(0, 3)))
-        .toList();
+    final hands =
+        (_activeTag == null
+                ? manager.hands
+                : manager.hands
+                      .where((h) => h.tags.contains(_activeTag))
+                      .toList())
+            .where((h) => streets.contains(h.boardStreet.clamp(0, 3)))
+            .toList();
     final Map<int, List<SavedHand>> grouped = {};
     for (final hand in hands) {
       grouped.putIfAbsent(hand.sessionId, () => []).add(hand);
@@ -265,7 +271,8 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     for (final hand in hands) {
       final expected = hand.expectedAction;
       final gto = hand.gtoAction;
-      final isError = expected != null &&
+      final isError =
+          expected != null &&
           gto != null &&
           expected.trim().toLowerCase() != gto.trim().toLowerCase();
       for (final tag in hand.tags) {
@@ -408,19 +415,21 @@ class _SessionStatsScreenState extends State<SessionStatsScreen> {
     if (summary.positionTotals.values.any((v) => v > 0)) {
       buffer.writeln('## Ошибки по позициям');
       if (summary.positionTotals['SB']! > 0) {
-        final acc = (summary.positionCorrect['SB']! /
-                summary.positionTotals['SB']! *
-                100)
-            .round();
+        final acc =
+            (summary.positionCorrect['SB']! /
+                    summary.positionTotals['SB']! *
+                    100)
+                .round();
         buffer.writeln(
           '- SB - $acc% (${summary.positionCorrect['SB']} из ${summary.positionTotals['SB']} верно)',
         );
       }
       if (summary.positionTotals['BB']! > 0) {
-        final acc = (summary.positionCorrect['BB']! /
-                summary.positionTotals['BB']! *
-                100)
-            .round();
+        final acc =
+            (summary.positionCorrect['BB']! /
+                    summary.positionTotals['BB']! *
+                    100)
+                .round();
         buffer.writeln(
           '- BB - $acc% (${summary.positionCorrect['BB']} из ${summary.positionTotals['BB']} верно)',
         );

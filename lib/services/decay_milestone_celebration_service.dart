@@ -16,8 +16,8 @@ class DecayMilestoneCelebrationService {
   DecayMilestoneCelebrationService({
     DecayStreakTrackerService? tracker,
     CoinsService? coins,
-  })  : tracker = tracker ?? const DecayStreakTrackerService(),
-        coins = coins ?? CoinsService.instance;
+  }) : tracker = tracker ?? const DecayStreakTrackerService(),
+       coins = coins ?? CoinsService.instance;
 
   static const _prefsKey = 'decay_milestone_last';
   static const _milestones = [3, 7, 14, 30];

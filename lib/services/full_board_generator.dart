@@ -15,11 +15,11 @@ class FullBoardGenerator {
     BoardTextureFilterService? textureFilter,
     BoardFilteringServiceV2? boardFilter,
     BoardTextureClassifier? classifier,
-  })  : _random = random ?? Random(),
-        _deckService = deckService ?? const CardDeckService(),
-        _textureFilter = textureFilter ?? const BoardTextureFilterService(),
-        _boardFilter = boardFilter ?? const BoardFilteringServiceV2(),
-        _classifier = classifier ?? const BoardTextureClassifier();
+  }) : _random = random ?? Random(),
+       _deckService = deckService ?? const CardDeckService(),
+       _textureFilter = textureFilter ?? const BoardTextureFilterService(),
+       _boardFilter = boardFilter ?? const BoardFilteringServiceV2(),
+       _classifier = classifier ?? const BoardTextureClassifier();
 
   final Random _random;
   final CardDeckService _deckService;

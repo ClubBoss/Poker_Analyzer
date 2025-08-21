@@ -18,8 +18,8 @@ class LearningPathAutoExpander {
   const LearningPathAutoExpander({
     MiniLessonLibraryService? library,
     LearningPathStageLibrary? stageLibrary,
-  })  : library = library ?? MiniLessonLibraryService.instance,
-        stageLibrary = stageLibrary ?? LearningPathStageLibrary.instance;
+  }) : library = library ?? MiniLessonLibraryService.instance,
+       stageLibrary = stageLibrary ?? LearningPathStageLibrary.instance;
 
   /// Ensures that all nodes referenced by [from.nextIds] exist in [engine].
   /// Missing nodes are loaded from libraries and appended to the path.

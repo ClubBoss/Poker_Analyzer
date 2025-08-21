@@ -39,8 +39,8 @@ class RunComparisonWindow extends StatelessWidget {
                     color: acceptanceDelta > 0
                         ? Colors.green
                         : acceptanceDelta < 0
-                            ? Colors.red
-                            : Colors.grey,
+                        ? Colors.red
+                        : Colors.grey,
                   ),
                 ),
                 Text(
@@ -49,8 +49,8 @@ class RunComparisonWindow extends StatelessWidget {
                     color: qualityDelta > 0
                         ? Colors.green
                         : qualityDelta < 0
-                            ? Colors.red
-                            : Colors.grey,
+                        ? Colors.red
+                        : Colors.grey,
                   ),
                 ),
               ],

@@ -79,12 +79,12 @@ class _MyTrainingPacksScreenState extends State<MyTrainingPacksScreen> {
                   onTap: () async {
                     final model =
                         await Navigator.push<TrainingPackTemplateModel>(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            TrainingPackTemplateEditorScreen(initial: t),
-                      ),
-                    );
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                TrainingPackTemplateEditorScreen(initial: t),
+                          ),
+                        );
                     if (model != null && mounted) {
                       await context
                           .read<TrainingPackTemplateStorageService>()

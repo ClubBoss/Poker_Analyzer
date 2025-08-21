@@ -8,8 +8,8 @@ class TrackLockEvaluator {
   TrackLockEvaluator({
     SkillTreeNodeProgressTracker? progress,
     Map<String, String>? prerequisites,
-  })  : progress = progress ?? SkillTreeNodeProgressTracker.instance,
-        prerequisites = prerequisites ?? const {};
+  }) : progress = progress ?? SkillTreeNodeProgressTracker.instance,
+       prerequisites = prerequisites ?? const {};
 
   /// Returns `true` if [trackId] has a prerequisite that is not yet completed.
   Future<bool> isLocked(String trackId) async {

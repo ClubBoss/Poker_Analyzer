@@ -13,16 +13,17 @@ class TagMasteryAdjustmentEntry {
   });
 
   Map<String, dynamic> toJson() => {
-        'tag': tag,
-        'delta': delta,
-        'timestamp': timestamp.toIso8601String(),
-      };
+    'tag': tag,
+    'delta': delta,
+    'timestamp': timestamp.toIso8601String(),
+  };
 
   factory TagMasteryAdjustmentEntry.fromJson(Map<String, dynamic> json) =>
       TagMasteryAdjustmentEntry(
         tag: json['tag'] as String? ?? '',
         delta: (json['delta'] as num?)?.toDouble() ?? 0.0,
-        timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ??
+        timestamp:
+            DateTime.tryParse(json['timestamp'] as String? ?? '') ??
             DateTime.now(),
       );
 }

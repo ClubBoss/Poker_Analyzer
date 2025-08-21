@@ -14,8 +14,8 @@ class SkillTreeTrackCelebrationService {
   SkillTreeTrackCelebrationService({
     SkillTreeTrackCompletionEvaluator? evaluator,
     SkillTreeTrackProgressService? progress,
-  })  : evaluator = evaluator ?? SkillTreeTrackCompletionEvaluator(),
-        progress = progress ?? SkillTreeTrackProgressService();
+  }) : evaluator = evaluator ?? SkillTreeTrackCompletionEvaluator(),
+       progress = progress ?? SkillTreeTrackProgressService();
 
   /// Singleton instance.
   static final instance = SkillTreeTrackCelebrationService();

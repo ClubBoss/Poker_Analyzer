@@ -4,7 +4,7 @@ import '../models/theory_snippet.dart';
 class TheoryIndexService {
   final TheoryLibraryIndex _library;
   TheoryIndexService({TheoryLibraryIndex? library})
-      : _library = library ?? TheoryLibraryIndex();
+    : _library = library ?? TheoryLibraryIndex();
 
   /// Returns all snippets matching [tag].
   Future<List<TheorySnippet>> snippetsForTag(String tag) async {

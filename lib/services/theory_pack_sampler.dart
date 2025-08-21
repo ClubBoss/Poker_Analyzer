@@ -7,8 +7,9 @@ class TheoryPackSampler {
   /// Returns a new [TrainingPackTemplateV2] containing only spots
   /// with `type == "theory"`. Returns `null` if no such spots exist.
   TrainingPackTemplateV2? sample(TrainingPackTemplateV2 fullPack) {
-    final theorySpots =
-        fullPack.spots.where((s) => s.type == 'theory').toList();
+    final theorySpots = fullPack.spots
+        .where((s) => s.type == 'theory')
+        .toList();
     if (theorySpots.isEmpty) return null;
 
     final map = fullPack.toJson();

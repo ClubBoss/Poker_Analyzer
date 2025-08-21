@@ -17,8 +17,8 @@ class TrainingPackSortEngine {
   Future<void> preloadProgress(List<TrainingPackTemplate> templates) async {
     _progressCache.clear();
     for (final t in templates) {
-      _progressCache[t.id] =
-          await SmartResumeEngine.instance.getProgressPercent(t.id);
+      _progressCache[t.id] = await SmartResumeEngine.instance
+          .getProgressPercent(t.id);
     }
   }
 

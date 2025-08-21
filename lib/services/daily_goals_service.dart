@@ -145,23 +145,20 @@ class DailyGoalsService extends ChangeNotifier {
 
   int get progressSessions => stats.sessionsCompleted - _baseSessions;
   double get progressAccuracy => _calcAccuracy(
-        _handsSince(
-          DateTime(
-              DateTime.now().year, DateTime.now().month, DateTime.now().day),
-        ),
-      );
+    _handsSince(
+      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day),
+    ),
+  );
   double get progressEv => _calcEv(
-        _handsSince(
-          DateTime(
-              DateTime.now().year, DateTime.now().month, DateTime.now().day),
-        ),
-      );
+    _handsSince(
+      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day),
+    ),
+  );
   double get progressIcm => _calcIcm(
-        _handsSince(
-          DateTime(
-              DateTime.now().year, DateTime.now().month, DateTime.now().day),
-        ),
-      );
+    _handsSince(
+      DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day),
+    ),
+  );
 
   bool get anyIncomplete =>
       progressSessions < targetSessions ||

@@ -14,9 +14,9 @@ class PotSyncService extends ChangeNotifier {
     StackManagerService? stackService,
     PotHistoryService? historyService,
     this.initialPot = 0,
-  })  : _potCalculator = potCalculator ?? PotCalculator(),
-        _stackService = stackService,
-        _history = historyService ?? PotHistoryService();
+  }) : _potCalculator = potCalculator ?? PotCalculator(),
+       _stackService = stackService,
+       _history = historyService ?? PotHistoryService();
 
   final PotCalculator _potCalculator;
   StackManagerService? _stackService;

@@ -19,18 +19,18 @@ class _FakeBoosterEngine extends TargetedPackBoosterEngine {
     String triggerReason = 'cluster',
   }) async {
     List<TrainingPackTemplateV2> build(String id, List<String> tags) => [
-          TrainingPackTemplateV2(
-            id: id,
-            name: id,
-            trainingType: TrainingType.booster,
-            tags: tags,
-            spots: [
-              TrainingPackSpot(id: '${id}s', tags: tags, board: const ['Ah']),
-            ],
-            spotCount: 10,
-            meta: const {'qualityScore': 1.0},
-          ),
-        ];
+      TrainingPackTemplateV2(
+        id: id,
+        name: id,
+        trainingType: TrainingType.booster,
+        tags: tags,
+        spots: [
+          TrainingPackSpot(id: '${id}s', tags: tags, board: const ['Ah']),
+        ],
+        spotCount: 10,
+        meta: const {'qualityScore': 1.0},
+      ),
+    ];
     return [
       build('b1', ['a']).first,
       build('b2', ['b']).first,

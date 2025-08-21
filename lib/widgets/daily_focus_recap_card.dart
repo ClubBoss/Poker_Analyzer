@@ -36,8 +36,8 @@ class DailyFocusRecapCard extends StatelessWidget {
                   await service.markShown();
                   if (tpl == null || !context.mounted) return;
                   await context.read<TrainingSessionService>().startSession(
-                        tpl,
-                      );
+                    tpl,
+                  );
                   if (context.mounted) {
                     await Navigator.push(
                       context,

@@ -21,9 +21,9 @@ class LearningPathProgressEngine {
     LearningPathRegistryService? registry,
     LearningPathTrackLibraryService? trackLibrary,
     PackSizeLoader? packSizeLoader,
-  })  : registry = registry ?? LearningPathRegistryService.instance,
-        tracks = trackLibrary ?? LearningPathTrackLibraryService.instance,
-        _packSize = packSizeLoader ?? _defaultPackSize;
+  }) : registry = registry ?? LearningPathRegistryService.instance,
+       tracks = trackLibrary ?? LearningPathTrackLibraryService.instance,
+       _packSize = packSizeLoader ?? _defaultPackSize;
 
   static Future<int?> _defaultPackSize(String id) async {
     final tpl = await PackLibraryService.instance.getById(id);
@@ -96,8 +96,10 @@ class LearningPathProgressEngine {
     await tracks.reload();
     final track = tracks.getById(trackId);
     if (track == null || track.pathIds.isEmpty) return 0.0;
-    final values =
-        track.pathIds.map((id) => _pathProgress[id]).whereNotNull().toList();
+    final values = track.pathIds
+        .map((id) => _pathProgress[id])
+        .whereNotNull()
+        .toList();
     if (values.isEmpty) return 0.0;
     final sum = values.reduce((a, b) => a + b);
     return sum / values.length;

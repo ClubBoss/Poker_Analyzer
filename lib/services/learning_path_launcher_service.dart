@@ -14,8 +14,8 @@ class LearningPathLauncherService {
     required this.cache,
     PackLibraryService? library,
     TrainingSessionLauncher launcher = const TrainingSessionLauncher(),
-  })  : library = library ?? PackLibraryService.instance,
-        launcher = launcher;
+  }) : library = library ?? PackLibraryService.instance,
+       launcher = launcher;
 
   /// Loads [pathId] summary and starts training for the next stage if possible.
   Future<void> launchNextStage(String pathId, BuildContext context) async {

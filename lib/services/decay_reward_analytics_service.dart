@@ -22,9 +22,9 @@ class DecayRewardAnalyticsService {
         if (data is List) {
           _log.addAll(
             data.whereType<Map>().map(
-                  (e) => RewardAnalyticsEntry.fromJson(
-                      Map<String, dynamic>.from(e)),
-                ),
+              (e) =>
+                  RewardAnalyticsEntry.fromJson(Map<String, dynamic>.from(e)),
+            ),
           );
         }
       } catch (_) {}

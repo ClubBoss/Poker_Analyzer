@@ -46,10 +46,12 @@ class WeaknessInsightService {
       if (acc >= 0.8) continue;
       final score = (1 - acc) * (1 + 10 / h);
       final suggestion = packs.firstWhereOrNull((p) {
-        final tagMatch =
-            p.tags.map((e) => e.toLowerCase()).contains(entry.key.tag);
-        final posMatch =
-            p.positions.map(parseHeroPosition).contains(entry.key.pos);
+        final tagMatch = p.tags
+            .map((e) => e.toLowerCase())
+            .contains(entry.key.tag);
+        final posMatch = p.positions
+            .map(parseHeroPosition)
+            .contains(entry.key.pos);
         return tagMatch && posMatch && p.bb == entry.key.stack;
       });
       insights.add(

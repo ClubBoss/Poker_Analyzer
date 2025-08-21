@@ -198,12 +198,13 @@ class SavedHand {
     this.playbackIndex = 0,
     this.showFullBoard = false,
     int? revealStreet,
-  })  : tags = tags ?? [],
-        revealedCards = revealedCards ??
-            List.generate(numberOfPlayers, (_) => <CardModel>[]),
-        savedAt = savedAt ?? DateTime.now(),
-        date = date ?? DateTime.now(),
-        revealStreet = revealStreet ?? boardStreet;
+  }) : tags = tags ?? [],
+       revealedCards =
+           revealedCards ??
+           List.generate(numberOfPlayers, (_) => <CardModel>[]),
+       savedAt = savedAt ?? DateTime.now(),
+       date = date ?? DateTime.now(),
+       revealStreet = revealStreet ?? boardStreet;
 
   SavedHand copyWith({
     String? name,
@@ -271,25 +272,30 @@ class SavedHand {
       heroIndex: heroIndex ?? this.heroIndex,
       heroPosition: heroPosition ?? this.heroPosition,
       numberOfPlayers: numberOfPlayers ?? this.numberOfPlayers,
-      playerCards: playerCards ??
+      playerCards:
+          playerCards ??
           [for (final list in this.playerCards) List<CardModel>.from(list)],
       boardCards: boardCards ?? List<CardModel>.from(this.boardCards),
       boardStreet: boardStreet ?? this.boardStreet,
-      revealedCards: revealedCards ??
+      revealedCards:
+          revealedCards ??
           [for (final list in this.revealedCards) List<CardModel>.from(list)],
       opponentIndex: opponentIndex ?? this.opponentIndex,
       activePlayerIndex: activePlayerIndex ?? this.activePlayerIndex,
       actions: actions ?? List<ActionEntry>.from(this.actions),
       stackSizes: stackSizes ?? Map<int, int>.from(this.stackSizes),
-      currentBets: currentBets ??
+      currentBets:
+          currentBets ??
           (this.currentBets == null
               ? null
               : Map<int, int>.from(this.currentBets!)),
-      remainingStacks: remainingStacks ??
+      remainingStacks:
+          remainingStacks ??
           (this.remainingStacks == null
               ? null
               : Map<int, int>.from(this.remainingStacks!)),
-      winnings: winnings ??
+      winnings:
+          winnings ??
           (this.winnings == null ? null : Map<int, int>.from(this.winnings!)),
       totalPot: totalPot ?? this.totalPot,
       rake: rake ?? this.rake,
@@ -327,27 +333,33 @@ class SavedHand {
       collapsedHistoryStreets:
           collapsedHistoryStreets ?? this.collapsedHistoryStreets,
       firstActionTaken: firstActionTaken ?? this.firstActionTaken,
-      foldedPlayers: foldedPlayers ??
+      foldedPlayers:
+          foldedPlayers ??
           (this.foldedPlayers == null
               ? null
               : List<int>.from(this.foldedPlayers!)),
-      allInPlayers: allInPlayers ??
+      allInPlayers:
+          allInPlayers ??
           (this.allInPlayers == null
               ? null
               : List<int>.from(this.allInPlayers!)),
-      actionTags: actionTags ??
+      actionTags:
+          actionTags ??
           (this.actionTags == null
               ? null
               : Map<int, String?>.from(this.actionTags!)),
-      showdownDescriptions: showdownDescriptions ??
+      showdownDescriptions:
+          showdownDescriptions ??
           (this.showdownDescriptions == null
               ? null
               : Map<int, String>.from(this.showdownDescriptions!)),
-      eliminatedPositions: eliminatedPositions ??
+      eliminatedPositions:
+          eliminatedPositions ??
           (this.eliminatedPositions == null
               ? null
               : Map<int, int>.from(this.eliminatedPositions!)),
-      pendingEvaluations: pendingEvaluations ??
+      pendingEvaluations:
+          pendingEvaluations ??
           (this.pendingEvaluations == null
               ? null
               : [

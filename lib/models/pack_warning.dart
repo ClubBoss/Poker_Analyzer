@@ -4,13 +4,13 @@ class PackWarning {
   final String packId;
   const PackWarning(this.type, this.message, this.packId);
   Map<String, dynamic> toJson() => {
-        'type': type,
-        'message': message,
-        'packId': packId,
-      };
+    'type': type,
+    'message': message,
+    'packId': packId,
+  };
   factory PackWarning.fromJson(Map<String, dynamic> j) => PackWarning(
-        j['type']?.toString() ?? '',
-        j['message']?.toString() ?? '',
-        j['packId']?.toString() ?? '',
-      );
+    j['type']?.toString() ?? '',
+    j['message']?.toString() ?? '',
+    j['packId']?.toString() ?? '',
+  );
 }

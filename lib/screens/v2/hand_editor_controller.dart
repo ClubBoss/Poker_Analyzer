@@ -12,13 +12,12 @@ class HandEditorController extends ChangeNotifier {
   int street = 0;
 
   HandEditorController(this.spot)
-      : cardsCtr = TextEditingController(text: spot.hand.heroCards),
-        position = spot.hand.position,
-        stackCtr = [
-          for (var i = 0; i < spot.hand.playerCount; i++)
-            TextEditingController(
-                text: spot.hand.stacks['$i']?.toString() ?? ''),
-        ];
+    : cardsCtr = TextEditingController(text: spot.hand.heroCards),
+      position = spot.hand.position,
+      stackCtr = [
+        for (var i = 0; i < spot.hand.playerCount; i++)
+          TextEditingController(text: spot.hand.stacks['$i']?.toString() ?? ''),
+      ];
 
   void update() {
     updateStacks();

@@ -12,8 +12,8 @@ class SkillTagSessionCoverageTrackerService {
   SkillTagSessionCoverageTrackerService({
     TrainingSessionFingerprintLoggerService? logger,
     SharedPreferences? prefs,
-  })  : logger = logger ?? TrainingSessionFingerprintLoggerService(),
-        _prefs = prefs;
+  }) : logger = logger ?? TrainingSessionFingerprintLoggerService(),
+       _prefs = prefs;
 
   SharedPreferences? _prefs;
   static const _coverageKey = 'skill_tag_coverage_map';

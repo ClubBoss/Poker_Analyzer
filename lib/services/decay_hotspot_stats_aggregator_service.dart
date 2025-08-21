@@ -2,8 +2,8 @@ import '../models/recall_failure_spotting.dart';
 import '../models/recall_success_entry.dart';
 import '../models/decay_hotspot_stats.dart';
 
-typedef RecallFailureSpottingLoader = Future<List<RecallFailureSpotting>>
-    Function();
+typedef RecallFailureSpottingLoader =
+    Future<List<RecallFailureSpotting>> Function();
 typedef SpotTagResolver = Future<List<String>> Function(String spotId);
 typedef RecallSuccessLoader = Future<List<RecallSuccessEntry>> Function();
 
@@ -62,22 +62,22 @@ class DecayHotspotStatsAggregatorService {
         lastSeen: e.value.lastSeen ?? DateTime.fromMillisecondsSinceEpoch(0),
         decayStageDistribution: Map.unmodifiable(e.value.decayStages),
       );
-    }).toList()
-      ..sort((a, b) => b.count.compareTo(a.count));
+    }).toList()..sort((a, b) => b.count.compareTo(a.count));
 
-    final spotStats = spotMap.entries
-        .map(
-          (e) => DecayHotspotStat(
-            id: e.key,
-            count: e.value.count,
-            successRate: null,
-            lastSeen:
-                e.value.lastSeen ?? DateTime.fromMillisecondsSinceEpoch(0),
-            decayStageDistribution: Map.unmodifiable(e.value.decayStages),
-          ),
-        )
-        .toList()
-      ..sort((a, b) => b.count.compareTo(a.count));
+    final spotStats =
+        spotMap.entries
+            .map(
+              (e) => DecayHotspotStat(
+                id: e.key,
+                count: e.value.count,
+                successRate: null,
+                lastSeen:
+                    e.value.lastSeen ?? DateTime.fromMillisecondsSinceEpoch(0),
+                decayStageDistribution: Map.unmodifiable(e.value.decayStages),
+              ),
+            )
+            .toList()
+          ..sort((a, b) => b.count.compareTo(a.count));
 
     return DecayHotspotStats(
       topTags: tagStats.take(top).toList(),

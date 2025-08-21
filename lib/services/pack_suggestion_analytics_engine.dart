@@ -13,8 +13,8 @@ class PackSuggestionAnalyticsEngine {
     await logs.load();
     final history =
         await SuggestedTrainingPacksHistoryService.getRecentSuggestions(
-      limit: 100,
-    );
+          limit: 100,
+        );
     final cutoff = DateTime.now().subtract(since);
 
     final stats = <String, _MutableStat>{};
@@ -44,9 +44,9 @@ class _MutableStat {
   int completed = 0;
 
   PackEngagementStats toStats(String id) => PackEngagementStats(
-        packId: id,
-        shownCount: shown,
-        startedCount: started,
-        completedCount: completed,
-      );
+    packId: id,
+    shownCount: shown,
+    startedCount: started,
+    completedCount: completed,
+  );
 }

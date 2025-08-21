@@ -14,7 +14,7 @@ class PackLibraryGeneratorService {
   final TrainingPackTemplateCompiler _compiler;
 
   const PackLibraryGeneratorService({TrainingPackTemplateCompiler? compiler})
-      : _compiler = compiler ?? const TrainingPackTemplateCompiler();
+    : _compiler = compiler ?? const TrainingPackTemplateCompiler();
 
   /// Compiles [paths] and writes the resulting map to [outPath].
   Future<void> generate(

@@ -7,11 +7,10 @@ extension SortedByPriority on Iterable<TrainingPackTemplateV2> {
     final map = {
       for (var i = 0; i < kTplPriority.length; i++) kTplPriority[i]: i,
     };
-    return toList()
-      ..sort((a, b) {
-        final pa = map[a.category] ?? 999;
-        final pb = map[b.category] ?? 999;
-        return pa != pb ? pa - pb : a.name.compareTo(b.name);
-      });
+    return toList()..sort((a, b) {
+      final pa = map[a.category] ?? 999;
+      final pb = map[b.category] ?? 999;
+      return pa != pb ? pa - pb : a.name.compareTo(b.name);
+    });
   }
 }

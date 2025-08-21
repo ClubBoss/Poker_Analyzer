@@ -6,25 +6,25 @@ class HotkeysSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget row(String k, String d) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.75),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.white24, width: 1),
-                ),
-                child: Text(k, style: const TextStyle(color: Colors.white)),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(d, style: const TextStyle(color: Colors.white)),
-              ),
-            ],
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.75),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.white24, width: 1),
+            ),
+            child: Text(k, style: const TextStyle(color: Colors.white)),
           ),
-        );
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(d, style: const TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
 
     return SafeArea(
       child: Padding(

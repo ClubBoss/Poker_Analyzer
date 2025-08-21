@@ -74,10 +74,10 @@ LadderOutcome computeLadderOutcome(List<UiAnswer> answers) {
   final avgMs = total == 0
       ? 0
       : (answers
-              .map((a) => a.elapsed)
-              .fold(Duration.zero, (a, b) => a + b)
-              .inMilliseconds ~/
-          total);
+                .map((a) => a.elapsed)
+                .fold(Duration.zero, (a, b) => a + b)
+                .inMilliseconds ~/
+            total);
   final passed = accPct >= ladderPassAccPct && avgMs <= ladderPassAvgMs;
   return LadderOutcome(
     passed: passed,

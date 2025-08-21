@@ -17,8 +17,9 @@ void main() {
       reason: 'kCurriculumModuleIds has duplicates',
     );
 
-    final status = jsonDecode(File('curriculum_status.json').readAsStringSync())
-        as Map<String, dynamic>;
+    final status =
+        jsonDecode(File('curriculum_status.json').readAsStringSync())
+            as Map<String, dynamic>;
     final done = (status['modules_done'] as List).cast<String>();
 
     final extras = done.where((id) => !ids.contains(id)).toList();

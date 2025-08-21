@@ -8,11 +8,11 @@ import 'package:poker_analyzer/models/v2/hand_data.dart';
 class _StubHistoryService extends MistakeHistoryQueryService {
   final List<MistakeHistoryEntry> entries;
   _StubHistoryService(this.entries)
-      : super(
-          loadSpottings: () async => [],
-          resolveTags: (_) async => [],
-          resolveStreet: (_) async => null,
-        );
+    : super(
+        loadSpottings: () async => [],
+        resolveTags: (_) async => [],
+        resolveStreet: (_) async => null,
+      );
   @override
   Future<List<MistakeHistoryEntry>> queryMistakes({
     String? tag,

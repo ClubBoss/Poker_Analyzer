@@ -15,9 +15,9 @@ class LearningPathEntryGroupBuilder {
     SkillNodeDecayReviewInjector? decayInjector,
     InlineTheoryLinkerService? linker,
     PackLibraryService? packLibrary,
-  })  : decayInjector = decayInjector ?? SkillNodeDecayReviewInjector(),
-        linker = linker ?? InlineTheoryLinkerService(),
-        packLibrary = packLibrary ?? PackLibraryService.instance;
+  }) : decayInjector = decayInjector ?? SkillNodeDecayReviewInjector(),
+       linker = linker ?? InlineTheoryLinkerService(),
+       packLibrary = packLibrary ?? PackLibraryService.instance;
 
   /// Returns ordered groups of learning path entries for [node].
   Future<List<LearningPathEntryGroup>> build(SkillTreeNodeModel node) async {
@@ -32,8 +32,9 @@ class LearningPathEntryGroupBuilder {
       node.trainingPackId,
     );
 
-    final theory =
-        pack != null ? await linker.extractRelevantLessons(pack.tags) : [];
+    final theory = pack != null
+        ? await linker.extractRelevantLessons(pack.tags)
+        : [];
     if (theory.isNotEmpty) {
       groups.add(LearningPathEntryGroup(title: 'Theory', entries: theory));
     }

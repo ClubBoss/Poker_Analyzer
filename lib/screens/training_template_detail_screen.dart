@@ -28,8 +28,8 @@ class TrainingTemplateDetailScreen extends StatelessWidget {
     final focus = template.handTypeSummary();
     final diff = template.difficultyLevel;
     final hasMistakes = context.read<MistakeReviewPackService>().hasMistakes(
-          template.id,
-        );
+      template.id,
+    );
     return Scaffold(
       appBar: AppBar(title: Text(template.name)),
       body: Padding(
@@ -151,8 +151,8 @@ class TrainingTemplateDetailScreen extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () async {
                       await context.read<TrainingSessionService>().startSession(
-                            template,
-                          );
+                        template,
+                      );
                       if (context.mounted) {
                         await Navigator.push(
                           context,

@@ -31,8 +31,9 @@ class PackQualityScoreCalculatorService {
     final uniqueTags = tags.toSet().length;
     final tagDiversityScore = totalTags == 0 ? 0.0 : uniqueTags / totalTags;
 
-    final boardDiversityScore =
-        pack.spots.isEmpty ? 0.0 : boards.length / pack.spots.length;
+    final boardDiversityScore = pack.spots.isEmpty
+        ? 0.0
+        : boards.length / pack.spots.length;
 
     double balanceScore = 0.0;
     if (uniqueTags > 0) {
@@ -51,14 +52,17 @@ class PackQualityScoreCalculatorService {
       balanceScore = 1 / (1 + cv);
     }
 
-    final theoryRatio =
-        pack.spots.isEmpty ? 0.0 : theoryCount / pack.spots.length;
+    final theoryRatio = pack.spots.isEmpty
+        ? 0.0
+        : theoryCount / pack.spots.length;
     final hasTheoryLinks = theoryRatio >= 0.7 ? 1.0 : theoryRatio / 0.7;
 
-    final deduplicationScore =
-        pack.spots.isEmpty ? 1.0 : 1 - duplicates / pack.spots.length;
+    final deduplicationScore = pack.spots.isEmpty
+        ? 1.0
+        : 1 - duplicates / pack.spots.length;
 
-    final score = (tagDiversityScore +
+    final score =
+        (tagDiversityScore +
             boardDiversityScore +
             balanceScore +
             hasTheoryLinks +

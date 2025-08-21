@@ -175,8 +175,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       }
       boosterMap[stage.id] = boosterId;
     }
-    final skillMap =
-        LearningPathPersonalizationService.instance.getTagSkillMap();
+    final skillMap = LearningPathPersonalizationService.instance
+        .getTagSkillMap();
     final extra = _smartUnlock
         .getAdditionalUnlockedStageIds(
           skillMap: skillMap,
@@ -193,7 +193,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       final accuracy = total == 0 ? 0.0 : correct / total * 100;
       final boosterOk = boosterMap[stage.id] == null;
       final theoryOk = boosterOk && (theoryMap[stage.id] ?? true);
-      final done = theoryOk &&
+      final done =
+          theoryOk &&
           total >= stage.requiredHands &&
           accuracy >= stage.requiredAccuracy;
       if (done) {
@@ -434,9 +435,11 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     final context = key?.currentContext;
     if (context == null) return;
     final box = context.findRenderObject() as RenderBox;
-    final listBox = _scrollController.position.context.storageContext
-        .findRenderObject() as RenderBox;
-    final offset = box.localToGlobal(Offset.zero, ancestor: listBox).dy +
+    final listBox =
+        _scrollController.position.context.storageContext.findRenderObject()
+            as RenderBox;
+    final offset =
+        box.localToGlobal(Offset.zero, ancestor: listBox).dy +
         _scrollController.offset -
         16;
     _scrollDone = true;
@@ -613,8 +616,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       color: highlight
           ? Colors.amber.withValues(alpha: 0.2)
           : state == LearningStageUIState.locked
-              ? Colors.grey.shade800
-              : null,
+          ? Colors.grey.shade800
+          : null,
       child: ListTile(
         leading: Text('${index + 1}.', style: TextStyle(color: grey)),
         title: Text(stage.title, style: TextStyle(color: grey)),

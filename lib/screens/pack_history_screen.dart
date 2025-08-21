@@ -16,8 +16,8 @@ class PackHistoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final logs = context.watch<SessionLogService>().filter(
-          templateId: templateId,
-        )..sort((a, b) => b.completedAt.compareTo(a.completedAt));
+      templateId: templateId,
+    )..sort((a, b) => b.completedAt.compareTo(a.completedAt));
     final sessions = logs.take(10).toList();
 
     return Scaffold(

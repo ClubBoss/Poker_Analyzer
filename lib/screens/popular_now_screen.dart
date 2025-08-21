@@ -40,82 +40,78 @@ class _PopularNowScreenState extends State<PopularNowScreen> {
           body: snapshot.connectionState != ConnectionState.done
               ? const Center(child: CircularProgressIndicator())
               : (data == null || data.isEmpty)
-                  ? const Center(
-                      child: Text('Пусто',
-                          style: TextStyle(color: Colors.white70)),
-                    )
-                  : Column(
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.all(8),
-                          child: Text(
-                            'Часто тренируются сейчас',
-                            style:
-                                TextStyle(fontSize: 16, color: Colors.white70),
-                          ),
-                        ),
-                        Expanded(
-                          child: ListView.separated(
-                            padding: const EdgeInsets.all(8),
-                            itemCount: data.length,
-                            separatorBuilder: (_, __) =>
-                                const Divider(height: 1),
-                            itemBuilder: (context, index) {
-                              final item = data[index];
-                              final pack = item.$1;
-                              final count = item.$2;
-                              return ListTile(
-                                leading: Text(
-                                  '${index + 1}',
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                                title: Text(pack.name),
-                                subtitle: Row(
-                                  children: [
-                                    if (pack.colorTag.isNotEmpty)
-                                      Container(
-                                        width: 12,
-                                        height: 12,
-                                        margin: const EdgeInsets.only(right: 8),
-                                        decoration: BoxDecoration(
-                                          color: colorFromHex(pack.colorTag),
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                    DifficultyChip(pack.difficulty),
-                                  ],
-                                ),
-                                trailing: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.cardBackground,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Text(
-                                    '$count',
-                                    style:
-                                        const TextStyle(color: Colors.white70),
-                                  ),
-                                ),
-                                onTap: () async {
-                                  await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          TrainingPackScreen(pack: pack),
-                                    ),
-                                  );
-                                  if (mounted) _reload();
-                                },
-                              );
-                            },
-                          ),
-                        ),
-                      ],
+              ? const Center(
+                  child: Text('Пусто', style: TextStyle(color: Colors.white70)),
+                )
+              : Column(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Text(
+                        'Часто тренируются сейчас',
+                        style: TextStyle(fontSize: 16, color: Colors.white70),
+                      ),
                     ),
+                    Expanded(
+                      child: ListView.separated(
+                        padding: const EdgeInsets.all(8),
+                        itemCount: data.length,
+                        separatorBuilder: (_, __) => const Divider(height: 1),
+                        itemBuilder: (context, index) {
+                          final item = data[index];
+                          final pack = item.$1;
+                          final count = item.$2;
+                          return ListTile(
+                            leading: Text(
+                              '${index + 1}',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            title: Text(pack.name),
+                            subtitle: Row(
+                              children: [
+                                if (pack.colorTag.isNotEmpty)
+                                  Container(
+                                    width: 12,
+                                    height: 12,
+                                    margin: const EdgeInsets.only(right: 8),
+                                    decoration: BoxDecoration(
+                                      color: colorFromHex(pack.colorTag),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                DifficultyChip(pack.difficulty),
+                              ],
+                            ),
+                            trailing: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.cardBackground,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                '$count',
+                                style: const TextStyle(color: Colors.white70),
+                              ),
+                            ),
+                            onTap: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      TrainingPackScreen(pack: pack),
+                                ),
+                              );
+                              if (mounted) _reload();
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
         );
       },
     );

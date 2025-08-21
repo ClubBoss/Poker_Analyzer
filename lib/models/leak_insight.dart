@@ -14,18 +14,18 @@ class LeakInsight {
   });
 
   Map<String, dynamic> toJson() => {
-        'tag': tag,
-        'position': position,
-        'stack': stack,
-        'suggestedPackId': suggestedPackId,
-        'leakScore': leakScore,
-      };
+    'tag': tag,
+    'position': position,
+    'stack': stack,
+    'suggestedPackId': suggestedPackId,
+    'leakScore': leakScore,
+  };
 
   factory LeakInsight.fromJson(Map<String, dynamic> j) => LeakInsight(
-        tag: j['tag']?.toString() ?? '',
-        position: j['position']?.toString() ?? '',
-        stack: (j['stack'] as num?)?.toInt() ?? 0,
-        suggestedPackId: j['suggestedPackId']?.toString() ?? '',
-        leakScore: (j['leakScore'] as num?)?.toDouble() ?? 0,
-      );
+    tag: j['tag']?.toString() ?? '',
+    position: j['position']?.toString() ?? '',
+    stack: (j['stack'] as num?)?.toInt() ?? 0,
+    suggestedPackId: j['suggestedPackId']?.toString() ?? '',
+    leakScore: (j['leakScore'] as num?)?.toDouble() ?? 0,
+  );
 }

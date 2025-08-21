@@ -18,8 +18,8 @@ class TrainingPackRatingEngine {
       ...pack.positions,
       for (final s in pack.spots) s.hand.position.name,
     }..removeWhere((e) => e.trim().isEmpty);
-    final posScore =
-        (positions.length >= 5 ? 20 : positions.length * 4).toDouble();
+    final posScore = (positions.length >= 5 ? 20 : positions.length * 4)
+        .toDouble();
     if (positions.length < 5) warnings.add('low_position_coverage');
     insights.add('positions:${positions.length}');
 
@@ -56,13 +56,13 @@ class TrainingPackRatingEngine {
       final g = _handGroup(s.hand.heroCards);
       if (g.isNotEmpty) groups.add(g);
     }
-    final groupScore =
-        (groups.length >= 10 ? 20 : groups.length * 2).toDouble();
+    final groupScore = (groups.length >= 10 ? 20 : groups.length * 2)
+        .toDouble();
     if (groups.length < 10) warnings.add('low_hand_diversity');
     insights.add('groups:${groups.length}');
 
-    final content =
-        '${pack.name} ${pack.goal} ${pack.description}'.toLowerCase();
+    final content = '${pack.name} ${pack.goal} ${pack.description}'
+        .toLowerCase();
     final rel = [
       for (final t in pack.tags)
         if (content.contains(t.toLowerCase())) t,
@@ -90,10 +90,11 @@ class TrainingPackRatingEngine {
     const reader = YamlReader();
     const writer = YamlWriter();
     var count = 0;
-    for (final file in dir
-        .listSync(recursive: true)
-        .whereType<File>()
-        .where((f) => f.path.toLowerCase().endsWith('.yaml'))) {
+    for (final file
+        in dir
+            .listSync(recursive: true)
+            .whereType<File>()
+            .where((f) => f.path.toLowerCase().endsWith('.yaml'))) {
       try {
         final yaml = await file.readAsString();
         final map = reader.read(yaml);

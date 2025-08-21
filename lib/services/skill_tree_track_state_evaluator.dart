@@ -20,8 +20,8 @@ class SkillTreeTrackStateEvaluator {
   SkillTreeTrackStateEvaluator({
     SkillTreeTrackProgressService? progressService,
     Map<String, List<String>>? prerequisites,
-  })  : progressService = progressService ?? SkillTreeTrackProgressService(),
-        _prereq = prerequisites ?? const {};
+  }) : progressService = progressService ?? SkillTreeTrackProgressService(),
+       _prereq = prerequisites ?? const {};
 
   /// Returns a list of [TrackStateEntry] describing the state of each track.
   Future<List<TrackStateEntry>> evaluateStates() async {

@@ -31,8 +31,8 @@ class _MasterModeScreenState extends State<MasterModeScreen> {
   }
 
   Future<Map<String, dynamic>> _load() async {
-    final date =
-        await LearningPathCompletionService.instance.getCompletionDate();
+    final date = await LearningPathCompletionService.instance
+        .getCompletionDate();
     final tracks = const LearningTrackEngine().getTracks();
     var completedTracks = 0;
     for (final t in tracks) {

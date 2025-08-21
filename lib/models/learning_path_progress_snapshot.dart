@@ -14,12 +14,12 @@ class LearningPathProgressSnapshot {
   }) : subProgress = subProgress ?? const {};
 
   Map<String, dynamic> toJson() => {
-        'pathId': pathId,
-        'stageId': stageId,
-        if (subProgress.isNotEmpty) 'subProgress': subProgress,
-        'handsPlayed': handsPlayed,
-        'accuracy': accuracy,
-      };
+    'pathId': pathId,
+    'stageId': stageId,
+    if (subProgress.isNotEmpty) 'subProgress': subProgress,
+    'handsPlayed': handsPlayed,
+    'accuracy': accuracy,
+  };
 
   factory LearningPathProgressSnapshot.fromJson(Map<String, dynamic> json) {
     return LearningPathProgressSnapshot(

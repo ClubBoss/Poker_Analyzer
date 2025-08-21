@@ -41,8 +41,8 @@ class _LessonStepScreenState extends State<LessonStepScreen> {
     bool isFirst = false;
     if (trackId != null) {
       final track = const LearningTrackEngine().getTracks().firstWhereOrNull(
-            (t) => t.id == trackId,
-          );
+        (t) => t.id == trackId,
+      );
       if (track != null && track.stepIds.isNotEmpty) {
         isFirst = track.stepIds.first == widget.step.id;
       }

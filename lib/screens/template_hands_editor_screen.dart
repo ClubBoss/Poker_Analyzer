@@ -292,8 +292,9 @@ class _TemplateHandsEditorScreenState extends State<TemplateHandsEditorScreen> {
                 final title = hand.name.isEmpty ? 'Без названия' : hand.name;
                 return ListTile(
                   key: ValueKey(id),
-                  tileColor:
-                      selected ? Colors.blue.withValues(alpha: 0.3) : null,
+                  tileColor: selected
+                      ? Colors.blue.withValues(alpha: 0.3)
+                      : null,
                   onLongPress: () => setState(() => _selectedIds.add(id)),
                   onTap: _isSelecting
                       ? () {
@@ -307,8 +308,9 @@ class _TemplateHandsEditorScreenState extends State<TemplateHandsEditorScreen> {
                         }
                       : null,
                   title: Text(title),
-                  subtitle:
-                      hand.tags.isEmpty ? null : Text(hand.tags.join(', ')),
+                  subtitle: hand.tags.isEmpty
+                      ? null
+                      : Text(hand.tags.join(', ')),
                   trailing: _isSelecting
                       ? Checkbox(
                           value: selected,

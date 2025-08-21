@@ -5,7 +5,7 @@ class SkillTreeLearningMapLayoutService {
   final SkillTreeTrackProgressService tracks;
 
   SkillTreeLearningMapLayoutService({SkillTreeTrackProgressService? tracks})
-      : tracks = tracks ?? SkillTreeTrackProgressService();
+    : tracks = tracks ?? SkillTreeTrackProgressService();
 
   /// Returns a grid of [TrackProgressEntry] items laid out in [columns] per row.
   Future<List<List<TrackProgressEntry>>> buildLayout({int columns = 2}) async {

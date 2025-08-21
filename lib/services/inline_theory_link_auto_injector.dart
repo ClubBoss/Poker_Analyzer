@@ -22,11 +22,11 @@ class InlineTheoryInjectionResult {
   });
 
   Map<String, dynamic> toJson() => {
-        'linkedCount': linkedCount,
-        'avgScore': avgScore,
-        'uniqueTheoryBlocks': uniqueTheoryBlocks,
-        'rejectedLowScore': rejectedLowScore,
-      };
+    'linkedCount': linkedCount,
+    'avgScore': avgScore,
+    'uniqueTheoryBlocks': uniqueTheoryBlocks,
+    'rejectedLowScore': rejectedLowScore,
+  };
 }
 
 /// Injects references to [InlineTheoryEntry] into [TrainingPackSpot]s based on
@@ -230,7 +230,8 @@ class InlineTheoryLinkAutoInjector {
         : spotTags.intersection(theoryTags).length / union.length;
 
     double textureMatch = 0;
-    final spotTextures = (spot.meta['boardTextureTags'] as List?)
+    final spotTextures =
+        (spot.meta['boardTextureTags'] as List?)
             ?.map((e) => e.toString())
             .toSet() ??
         {};
@@ -249,8 +250,10 @@ class InlineTheoryLinkAutoInjector {
       spotClusters.add(sc);
     }
     if (spotClusters.isNotEmpty && entry.clusterIds.isNotEmpty) {
-      final intersection =
-          spotClusters.intersection(entry.clusterIds.toSet()).length.toDouble();
+      final intersection = spotClusters
+          .intersection(entry.clusterIds.toSet())
+          .length
+          .toDouble();
       clusterSim =
           intersection / sqrt(spotClusters.length * entry.clusterIds.length);
     }

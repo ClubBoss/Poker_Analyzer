@@ -8,13 +8,13 @@ class PackRatingReport {
     this.insights = const [],
   });
   Map<String, dynamic> toJson() => {
-        'score': score,
-        'warnings': warnings,
-        'insights': insights,
-      };
+    'score': score,
+    'warnings': warnings,
+    'insights': insights,
+  };
   factory PackRatingReport.fromJson(Map<String, dynamic> j) => PackRatingReport(
-        score: (j['score'] as num?)?.toInt() ?? 0,
-        warnings: [for (final w in j['warnings'] as List? ?? []) w.toString()],
-        insights: [for (final i in j['insights'] as List? ?? []) i.toString()],
-      );
+    score: (j['score'] as num?)?.toInt() ?? 0,
+    warnings: [for (final w in j['warnings'] as List? ?? []) w.toString()],
+    insights: [for (final i in j['insights'] as List? ?? []) i.toString()],
+  );
 }

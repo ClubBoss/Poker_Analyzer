@@ -7,12 +7,12 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   TrainingPackTemplate tpl(String id) => TrainingPackTemplate(
-        id: id,
-        name: 'Pack $id',
-        spots: [],
-        tags: [],
-        isBuiltIn: false,
-      );
+    id: id,
+    name: 'Pack $id',
+    spots: [],
+    tags: [],
+    isBuiltIn: false,
+  );
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});

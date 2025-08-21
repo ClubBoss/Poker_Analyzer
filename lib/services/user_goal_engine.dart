@@ -97,9 +97,9 @@ class UserGoalEngine extends ChangeNotifier {
       ).showSnackBar(SnackBar(content: Text('Goal completed: ${g.title}')));
       unawaited(
         ctx.read<XPTrackerService>().add(
-              xp: XPTrackerService.achievementXp,
-              source: 'goal',
-            ),
+          xp: XPTrackerService.achievementXp,
+          source: 'goal',
+        ),
       );
     }
   }

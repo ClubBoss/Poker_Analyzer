@@ -26,8 +26,8 @@ class TheoryYamlSafeReader {
   TheoryYamlSafeReader({
     AutogenStatusDashboardService? dashboard,
     ConfigSource? config,
-  })  : _dashboard = dashboard ?? AutogenStatusDashboardService.instance,
-        _config = config ?? ConfigSource.empty();
+  }) : _dashboard = dashboard ?? AutogenStatusDashboardService.instance,
+       _config = config ?? ConfigSource.empty();
 
   final AutogenStatusDashboardService _dashboard;
   final ConfigSource _config;
@@ -192,12 +192,13 @@ class TheoryYamlSafeReader {
     final base = p.basename(rel);
     final backupDir = Directory(p.join('theory_backups', p.dirname(rel)));
     if (!backupDir.existsSync()) return null;
-    final files = backupDir
-        .listSync()
-        .whereType<File>()
-        .where((f) => p.basename(f.path).startsWith('$base.'))
-        .toList()
-      ..sort((a, b) => b.path.compareTo(a.path));
+    final files =
+        backupDir
+            .listSync()
+            .whereType<File>()
+            .where((f) => p.basename(f.path).startsWith('$base.'))
+            .toList()
+          ..sort((a, b) => b.path.compareTo(a.path));
     for (final f in files) {
       try {
         final lines = await f.readAsLines();

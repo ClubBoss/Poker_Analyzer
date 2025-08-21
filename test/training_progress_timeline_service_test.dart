@@ -50,8 +50,9 @@ void main() {
       currentMastery: const {},
     );
 
-    final streaks =
-        result.where((e) => e.type == LearningEventType.streak).toList();
+    final streaks = result
+        .where((e) => e.type == LearningEventType.streak)
+        .toList();
     expect(streaks.length, 1);
     expect(streaks.first.meta?['days'], 3);
   });
@@ -63,8 +64,9 @@ void main() {
       previousMastery: const {'push': 0.4},
     );
 
-    final masteryEvents =
-        result.where((e) => e.type == LearningEventType.masteryUp).toList();
+    final masteryEvents = result
+        .where((e) => e.type == LearningEventType.masteryUp)
+        .toList();
     expect(masteryEvents.length, 1);
     expect(masteryEvents.first.label, 'push');
   });

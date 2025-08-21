@@ -52,13 +52,15 @@ class LearningPathRegistryService {
     try {
       final manifestRaw = await rootBundle.loadString('AssetManifest.json');
       final manifest = jsonDecode(manifestRaw) as Map<String, dynamic>;
-      final paths = manifest.keys
-          .where(
-            (e) =>
-                e.startsWith('assets/learning_paths/') && e.endsWith('.yaml'),
-          )
-          .toList()
-        ..sort();
+      final paths =
+          manifest.keys
+              .where(
+                (e) =>
+                    e.startsWith('assets/learning_paths/') &&
+                    e.endsWith('.yaml'),
+              )
+              .toList()
+            ..sort();
       for (final p in paths) {
         try {
           final raw = await rootBundle.loadString(p);
@@ -90,9 +92,9 @@ class LearningPathRegistryService {
 
   /// Returns templates that contain [tag].
   List<LearningPathTemplateV2> filterByTag(String tag) => [
-        for (final t in _templates)
-          if (t.tags.contains(tag)) t,
-      ];
+    for (final t in _templates)
+      if (t.tags.contains(tag)) t,
+  ];
 
   /// Validates that all stage references and prerequisites are valid.
   /// Logs errors and returns the list of messages.

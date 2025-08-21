@@ -54,14 +54,14 @@ class ProgressForecastService extends ChangeNotifier {
   Iterable<String> get tags => _tagHistory.keys;
   ProgressForecast get forecast => _forecast;
   List<MapEntry<DateTime, double>> get evSeries => [
-        for (final e in _history) MapEntry(e.date, e.ev),
-      ];
+    for (final e in _history) MapEntry(e.date, e.ev),
+  ];
   List<MapEntry<DateTime, double>> get icmSeries => [
-        for (final e in _history) MapEntry(e.date, e.icm),
-      ];
+    for (final e in _history) MapEntry(e.date, e.icm),
+  ];
   List<MapEntry<DateTime, double>> get accuracySeries => [
-        for (final e in _history) MapEntry(e.date, e.accuracy),
-      ];
+    for (final e in _history) MapEntry(e.date, e.accuracy),
+  ];
   List<ProgressEntry> get evIcmSeries => List.unmodifiable(_history);
   List<ProgressEntry> positionSeries(String pos) =>
       List.unmodifiable(_positionHistory[pos] ?? const []);

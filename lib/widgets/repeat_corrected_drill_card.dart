@@ -50,8 +50,8 @@ class RepeatCorrectedDrillCard extends StatelessWidget {
             onPressed: () async {
               final tpl =
                   await TrainingPackService.createDrillFromCorrectedHands(
-                context,
-              );
+                    context,
+                  );
               if (tpl == null) return;
               await context.read<TrainingSessionService>().startSession(tpl);
               if (context.mounted) {

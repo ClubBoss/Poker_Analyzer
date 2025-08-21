@@ -14,8 +14,8 @@ class MiniLessonBoosterEngine {
   const MiniLessonBoosterEngine({
     LearningPathEngine? engine,
     MiniLessonLibraryService? library,
-  })  : _engine = engine ?? LearningPathEngine.instance,
-        _library = library ?? MiniLessonLibraryService.instance;
+  }) : _engine = engine ?? LearningPathEngine.instance,
+       _library = library ?? MiniLessonLibraryService.instance;
 
   /// Inserts up to [max] mini lessons tagged by [tagList] before [targetNodeId].
   Future<void> injectBefore(

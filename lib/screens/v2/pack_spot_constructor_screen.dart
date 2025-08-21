@@ -70,11 +70,11 @@ class _PackSpotConstructorScreenState extends State<PackSpotConstructorScreen> {
       spots: [spot],
     );
     await context.read<EvaluationExecutorService>().evaluateSingle(
-          context,
-          spot,
-          template: tpl,
-          anteBb: spot.hand.anteBb,
-        );
+      context,
+      spot,
+      template: tpl,
+      anteBb: spot.hand.anteBb,
+    );
     await TrainingPackService.saveCustomSpot(spot);
     if (mounted) Navigator.pop(context, true);
   }

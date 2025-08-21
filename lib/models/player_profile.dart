@@ -22,8 +22,8 @@ class PlayerProfile {
     Map<String, int>? boosterCompletions,
     this.lastBoosterDate,
     this.boosterStreak = 0,
-  })  : tags = tags ?? <String>{},
-        completedLessonIds = completedLessonIds ?? <String>{},
-        tagAccuracy = tagAccuracy ?? <String, double>{},
-        boosterCompletions = boosterCompletions ?? <String, int>{};
+  }) : tags = tags ?? <String>{},
+       completedLessonIds = completedLessonIds ?? <String>{},
+       tagAccuracy = tagAccuracy ?? <String, double>{},
+       boosterCompletions = boosterCompletions ?? <String, int>{};
 }

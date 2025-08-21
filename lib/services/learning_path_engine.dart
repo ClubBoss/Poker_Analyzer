@@ -25,8 +25,8 @@ class LearningPathEngine {
     required this.masteryService,
     TrainingPackGeneratorV2? generator,
     TheoryStageProgressTracker? theoryTracker,
-  })  : generator = generator ?? const TrainingPackGeneratorV2(),
-        theoryTracker = theoryTracker ?? TheoryStageProgressTracker.instance;
+  }) : generator = generator ?? const TrainingPackGeneratorV2(),
+       theoryTracker = theoryTracker ?? TheoryStageProgressTracker.instance;
 
   /// Returns the next training pack for [stage].
   ///

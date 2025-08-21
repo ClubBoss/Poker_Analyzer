@@ -14,8 +14,8 @@ class TrackRewardUnlockerService {
   TrackRewardUnlockerService({
     SkillTreeNodeProgressTracker? progress,
     SkillTreeLibraryService? library,
-  })  : progress = progress ?? SkillTreeNodeProgressTracker.instance,
-        library = library ?? SkillTreeLibraryService.instance;
+  }) : progress = progress ?? SkillTreeNodeProgressTracker.instance,
+       library = library ?? SkillTreeLibraryService.instance;
 
   /// Singleton instance.
   static TrackRewardUnlockerService instance = TrackRewardUnlockerService();

@@ -61,8 +61,8 @@ void main() {
 
     final dir = Directory('assets/packs/l3/demo');
     final files = dir.listSync().whereType<File>().where(
-          (f) => f.path.endsWith('.yaml'),
-        );
+      (f) => f.path.endsWith('.yaml'),
+    );
     expect(files, isNotEmpty);
     for (final file in files) {
       final content = loadYaml(file.readAsStringSync()) as Map;
@@ -70,7 +70,8 @@ void main() {
       expect(spots.length >= 80, true, reason: 'insufficient spots');
       for (final spot in spots) {
         final tags = List.from((spot as Map)['tags'] as List? ?? []);
-        final hasTexture = tags.contains('monotone') ||
+        final hasTexture =
+            tags.contains('monotone') ||
             tags.contains('twoTone') ||
             tags.contains('rainbow');
         expect(hasTexture, true, reason: 'missing texture tag');

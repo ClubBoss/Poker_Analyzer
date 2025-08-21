@@ -9,8 +9,9 @@ HandData _hand(String pos, String hero, String board) {
   for (var i = 0; i + 1 < board.length; i += 2) {
     b.add(board.substring(i, i + 2));
   }
-  final hc =
-      hero.length == 4 ? '${hero.substring(0, 2)} ${hero.substring(2)}' : hero;
+  final hc = hero.length == 4
+      ? '${hero.substring(0, 2)} ${hero.substring(2)}'
+      : hero;
   return HandData(position: parseHeroPosition(pos), heroCards: hc, board: b);
 }
 

@@ -108,8 +108,8 @@ void main(List<String> args) {
     final sprBucket = spr < 1
         ? 'spr_low'
         : spr < 2
-            ? 'spr_mid'
-            : 'spr_high';
+        ? 'spr_mid'
+        : 'spr_high';
     sprHistogram[sprBucket] = (sprHistogram[sprBucket] ?? 0) + 1;
 
     // Канонические ключи текстур

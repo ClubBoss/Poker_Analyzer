@@ -91,7 +91,8 @@ class _ChipMovingWidgetState extends State<ChipMovingWidget>
           );
         }
 
-        final control = widget.control ??
+        final control =
+            widget.control ??
             Offset(
               (widget.start.dx + widget.end.dx) / 2,
               (widget.start.dy + widget.end.dy) / 2 -

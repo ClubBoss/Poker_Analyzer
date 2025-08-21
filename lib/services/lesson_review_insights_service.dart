@@ -22,7 +22,8 @@ class LessonReviewInsightsService {
         final data = jsonDecode(raw);
         if (data is Map) {
           _history = data.map((key, value) {
-            final list = (value as List?)
+            final list =
+                (value as List?)
                     ?.whereType<Map>()
                     .map(
                       (e) => _LessonReviewEntry.fromJson(
@@ -106,9 +107,9 @@ class _LessonReviewEntry {
   _LessonReviewEntry({required this.timestamp, required this.success});
 
   Map<String, dynamic> toJson() => {
-        'timestamp': timestamp.toIso8601String(),
-        'success': success,
-      };
+    'timestamp': timestamp.toIso8601String(),
+    'success': success,
+  };
 
   factory _LessonReviewEntry.fromJson(Map<String, dynamic> json) {
     return _LessonReviewEntry(

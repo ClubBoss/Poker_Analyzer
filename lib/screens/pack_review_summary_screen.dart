@@ -25,8 +25,9 @@ class PackReviewSummaryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accuracy =
-        result.total == 0 ? 0.0 : result.correct * 100 / result.total;
+    final accuracy = result.total == 0
+        ? 0.0
+        : result.correct * 100 / result.total;
     return Scaffold(
       appBar: AppBar(title: Text(template.name)),
       backgroundColor: AppColors.background,

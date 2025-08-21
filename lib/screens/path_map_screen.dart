@@ -167,7 +167,8 @@ class _PathMapScreenState extends State<PathMapScreen> {
                   final info = _tags[index];
                   final value = info.progress.clamp(0.0, 1.0);
                   final pct = (value * 100).round();
-                  final title = BoosterThematicDescriptions.get(info.tag) ??
+                  final title =
+                      BoosterThematicDescriptions.get(info.tag) ??
                       info.tag.replaceAll('_', ' ');
                   return Card(
                     child: Padding(

@@ -15,13 +15,13 @@ class GraphTemplateLibrary {
   static final GraphTemplateLibrary instance = GraphTemplateLibrary._();
 
   final Map<String, String> _templates = {
-    'cash_vs_mtt':
-        const GraphPathTemplateGenerator().generateCashVsMttTemplate(),
-    'live_vs_online':
-        const GraphPathTemplateGenerator().generateLiveVsOnlineTemplate(),
+    'cash_vs_mtt': const GraphPathTemplateGenerator()
+        .generateCashVsMttTemplate(),
+    'live_vs_online': const GraphPathTemplateGenerator()
+        .generateLiveVsOnlineTemplate(),
     'icm_intro': const GraphPathTemplateGenerator().generateIcmIntroTemplate(),
-    'heads_up_intro':
-        const GraphPathTemplateGenerator().generateHeadsUpIntroTemplate(),
+    'heads_up_intro': const GraphPathTemplateGenerator()
+        .generateHeadsUpIntroTemplate(),
   };
 
   /// IDs of available templates.

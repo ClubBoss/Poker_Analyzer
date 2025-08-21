@@ -204,11 +204,12 @@ class ActionHistoryOverlay extends StatelessWidget {
                                 if (newIndex >= visibleList.length) {
                                   newGlobal =
                                       actionHistory.indexOf(visibleList.last) +
-                                          1;
+                                      1;
                                 } else {
-                                  final target = visibleList[newIndex > oldIndex
-                                      ? newIndex - 1
-                                      : newIndex];
+                                  final target =
+                                      visibleList[newIndex > oldIndex
+                                          ? newIndex - 1
+                                          : newIndex];
                                   newGlobal = actionHistory.indexOf(target);
                                   if (newIndex > oldIndex) newGlobal += 1;
                                 }

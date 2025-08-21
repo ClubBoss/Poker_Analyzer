@@ -9,7 +9,7 @@ class CurrentBetLabel extends StatelessWidget {
   final double scale;
 
   const CurrentBetLabel({Key? key, required this.bet, this.scale = 1.0})
-      : super(key: key);
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {

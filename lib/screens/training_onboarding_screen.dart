@@ -104,9 +104,9 @@ class _TrainingOnboardingScreenState extends State<TrainingOnboardingScreen> {
               onPressed: _index == pages.length - 1
                   ? _finish
                   : () => _controller.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      ),
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    ),
               child: Text(_index == pages.length - 1 ? 'Понял!' : 'Далее'),
             ),
           ),

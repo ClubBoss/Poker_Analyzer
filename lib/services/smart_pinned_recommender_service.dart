@@ -18,10 +18,10 @@ class SmartPinnedRecommenderService {
     DecayTagRetentionTrackerService? retention,
     TrainingProgressService? training,
     LessonProgressService? lessons,
-  })  : _pinned = pinned ?? PinnedLearningService.instance,
-        _retention = retention ?? const DecayTagRetentionTrackerService(),
-        _training = training ?? TrainingProgressService.instance,
-        _lessons = lessons ?? LessonProgressService.instance;
+  }) : _pinned = pinned ?? PinnedLearningService.instance,
+       _retention = retention ?? const DecayTagRetentionTrackerService(),
+       _training = training ?? TrainingProgressService.instance,
+       _lessons = lessons ?? LessonProgressService.instance;
 
   final PinnedLearningService _pinned;
   final DecayTagRetentionTrackerService _retention;
@@ -43,8 +43,8 @@ class SmartPinnedRecommenderService {
       final tags = <String>[];
 
       if (item.type == 'pack') {
-        final TrainingPackTemplateV2? tpl =
-            await PackLibraryService.instance.getById(item.id);
+        final TrainingPackTemplateV2? tpl = await PackLibraryService.instance
+            .getById(item.id);
         if (tpl != null) {
           tags.addAll(tpl.tags.map((e) => e.trim().toLowerCase()));
           final prog = await _training.getProgress(item.id);
@@ -52,8 +52,8 @@ class SmartPinnedRecommenderService {
         }
       } else if (item.type == 'lesson') {
         await MiniLessonLibraryService.instance.loadAll();
-        final TheoryMiniLessonNode? lesson =
-            MiniLessonLibraryService.instance.getById(item.id);
+        final TheoryMiniLessonNode? lesson = MiniLessonLibraryService.instance
+            .getById(item.id);
         if (lesson != null) {
           tags.addAll(lesson.tags.map((e) => e.trim().toLowerCase()));
           final completed = await _lessons.isCompleted(item.id);

@@ -74,8 +74,9 @@ class _RecallHotspotOverlayPanelState extends State<RecallHotspotOverlayPanel> {
           ],
           onPressed: (index) {
             setState(() {
-              _mode =
-                  index == 0 ? RecallHotspotMode.tag : RecallHotspotMode.spot;
+              _mode = index == 0
+                  ? RecallHotspotMode.tag
+                  : RecallHotspotMode.spot;
               _refresh();
             });
           },

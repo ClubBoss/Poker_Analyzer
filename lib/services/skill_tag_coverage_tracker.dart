@@ -83,8 +83,9 @@ class SkillTagCoverageTracker {
       }
     }
     _totalTags += total;
-    final unused =
-        allTags.where((t) => (counts[_normalize(t)] ?? 0) == 0).toList();
+    final unused = allTags
+        .where((t) => (counts[_normalize(t)] ?? 0) == 0)
+        .toList();
     final overloaded = counts.entries
         .where((e) => e.value > overloadThreshold)
         .map((e) => e.key)
@@ -92,8 +93,9 @@ class SkillTagCoverageTracker {
     final localCoverage = <String, double>{};
     localSeenByCategory.forEach((cat, set) {
       final totalKnown = _allTagsByCategory[cat]?.length ?? 0;
-      localCoverage[cat] =
-          totalKnown == 0 ? 1.0 : set.length / totalKnown.toDouble();
+      localCoverage[cat] = totalKnown == 0
+          ? 1.0
+          : set.length / totalKnown.toDouble();
     });
     return SkillTagStats(
       tagCounts: Map<String, int>.from(counts),

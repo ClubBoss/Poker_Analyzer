@@ -14,9 +14,9 @@ class TheoryLessonReviewQueue {
     MiniLessonLibraryService? library,
     MiniLessonProgressTracker? progress,
     SessionLogService? logs,
-  })  : library = library ?? MiniLessonLibraryService.instance,
-        progress = progress ?? MiniLessonProgressTracker.instance,
-        logs = logs ?? SessionLogService(sessions: TrainingSessionService());
+  }) : library = library ?? MiniLessonLibraryService.instance,
+       progress = progress ?? MiniLessonProgressTracker.instance,
+       logs = logs ?? SessionLogService(sessions: TrainingSessionService());
 
   static final TheoryLessonReviewQueue instance = TheoryLessonReviewQueue();
 

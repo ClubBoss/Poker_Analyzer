@@ -7,7 +7,7 @@ import '../screens/theory_lesson_viewer_screen.dart';
 /// Shows a notification when new theory lessons become unlocked.
 class TheoryLessonUnlockNotificationService {
   TheoryLessonUnlockNotificationService({MiniLessonLibraryService? library})
-      : _library = library ?? MiniLessonLibraryService.instance;
+    : _library = library ?? MiniLessonLibraryService.instance;
 
   final MiniLessonLibraryService _library;
 

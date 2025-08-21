@@ -17,12 +17,12 @@ class TbDTO {
   });
 
   Map<String, dynamic> toJson() => {
-        'hand': hand,
-        'heroPos': heroPos,
-        'vsPos': vsPos,
-        'stack': stack,
-        'action': action,
-      };
+    'hand': hand,
+    'heroPos': heroPos,
+    'vsPos': vsPos,
+    'stack': stack,
+    'action': action,
+  };
 }
 
 class TbPack {
@@ -40,22 +40,18 @@ class TbPack {
   });
 
   Map<String, dynamic> toJson() => {
-        'version': version,
-        'seed': seed,
-        'count': count,
-        'mix': {
-          'heroPosPct': {
-            for (final e in mix.heroPosPct.entries) e.key.name: e.value,
-          },
-          'vsPosPct': {
-            for (final e in mix.vsPosPct.entries) e.key.name: e.value
-          },
-          'stackPct': {
-            for (final e in mix.stackPct.entries) e.key.name: e.value
-          },
-        },
-        'items': [for (final i in items) i.toJson()],
-      };
+    'version': version,
+    'seed': seed,
+    'count': count,
+    'mix': {
+      'heroPosPct': {
+        for (final e in mix.heroPosPct.entries) e.key.name: e.value,
+      },
+      'vsPosPct': {for (final e in mix.vsPosPct.entries) e.key.name: e.value},
+      'stackPct': {for (final e in mix.stackPct.entries) e.key.name: e.value},
+    },
+    'items': [for (final i in items) i.toJson()],
+  };
 }
 
 TbPack buildThreebetPack({

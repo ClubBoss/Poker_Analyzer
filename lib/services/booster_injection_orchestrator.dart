@@ -27,10 +27,10 @@ class BoosterInjectionOrchestrator {
     SmartBoosterRecallEngine? recall,
     BoosterRecallScheduler? recallScheduler,
     BoosterCompletionTracker? completion,
-  })  : gaps = gaps ?? SkillGapDetectorService(),
-        recall = recall ?? SmartBoosterRecallEngine.instance,
-        recallScheduler = recallScheduler ?? BoosterRecallScheduler.instance,
-        completion = completion ?? BoosterCompletionTracker.instance;
+  }) : gaps = gaps ?? SkillGapDetectorService(),
+       recall = recall ?? SmartBoosterRecallEngine.instance,
+       recallScheduler = recallScheduler ?? BoosterRecallScheduler.instance,
+       completion = completion ?? BoosterCompletionTracker.instance;
 
   /// Returns booster blocks relevant to [stage].
   Future<List<LearningPathBlock>> getInjectableBoosters(StageNode stage) async {

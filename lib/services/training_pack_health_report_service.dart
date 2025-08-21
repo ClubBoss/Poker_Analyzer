@@ -100,7 +100,8 @@ class TrainingPackHealthReportService {
           issues.add((f.path, 'no_evaluation'));
           warnings++;
         }
-        final empty = s.hand.heroCards.isEmpty &&
+        final empty =
+            s.hand.heroCards.isEmpty &&
             s.hand.board.isEmpty &&
             s.hand.actions.values.every((l) => l.isEmpty);
         if (empty) {

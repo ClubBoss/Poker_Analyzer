@@ -44,13 +44,14 @@ class _SessionResultScreenState extends State<SessionResultScreen> {
     if (ids.isEmpty) return;
     final spots = service.spots.where((s) => ids.contains(s.id)).toList();
     if (spots.isEmpty) return;
-    final tpl = (service.template ??
-            TrainingPackTemplate(id: const Uuid().v4(), name: ''))
-        .copyWith(
-      id: const Uuid().v4(),
-      name: 'Retry mistakes',
-      spots: spots,
-    );
+    final tpl =
+        (service.template ??
+                TrainingPackTemplate(id: const Uuid().v4(), name: ''))
+            .copyWith(
+              id: const Uuid().v4(),
+              name: 'Retry mistakes',
+              spots: spots,
+            );
     if (!mounted) return;
     Navigator.pushReplacement(
       context,

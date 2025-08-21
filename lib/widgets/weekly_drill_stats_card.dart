@@ -14,8 +14,8 @@ class WeeklyDrillStatsCard extends StatelessWidget {
     final color = diff > 0
         ? Colors.green
         : diff < 0
-            ? Colors.red
-            : Colors.grey;
+        ? Colors.red
+        : Colors.grey;
     final icon = diff >= 0 ? Icons.trending_up : Icons.trending_down;
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),

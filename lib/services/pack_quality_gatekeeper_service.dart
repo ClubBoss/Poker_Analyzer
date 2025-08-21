@@ -9,7 +9,7 @@ class PackQualityGatekeeperService {
   const PackQualityGatekeeperService({
     PackQualityScoreCalculatorService? scoreCalculator,
   }) : _scoreCalculator =
-            scoreCalculator ?? const PackQualityScoreCalculatorService();
+           scoreCalculator ?? const PackQualityScoreCalculatorService();
 
   final PackQualityScoreCalculatorService _scoreCalculator;
 
