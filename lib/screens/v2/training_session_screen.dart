@@ -53,9 +53,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       for (final c in hand.board) CardModel(rank: c[0], suit: c.substring(1)),
     ];
     // Flatten actions; ActionEntry is immutable so no per-item copy needed
-    final List<ActionEntry> actions = hand.actions.values
-        .expand((list) => list)
-        .toList();
+    final List<ActionEntry> actions =
+        hand.actions.values.expand((list) => list).toList();
     final stacks = [
       for (var i = 0; i < hand.playerCount; i++)
         hand.stacks['$i']?.round() ?? 0,
@@ -145,9 +144,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         for (final s in _packSpots)
           if (s.tags.contains('Mistake')) s.id,
       };
-      final fixed = _initialMistakes
-          .where((id) => !remaining.contains(id))
-          .length;
+      final fixed =
+          _initialMistakes.where((id) => !remaining.contains(id)).length;
       final review = await Navigator.push<bool>(
         context,
         MaterialPageRoute(

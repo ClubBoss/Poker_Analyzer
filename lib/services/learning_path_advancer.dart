@@ -73,8 +73,7 @@ class LearningPathAdvancer {
         reason = 'confidence decay';
       }
 
-      final recentMistake =
-          attemptsByPack[stage.packId]?.any(
+      final recentMistake = attemptsByPack[stage.packId]?.any(
             (a) =>
                 a.accuracy < 0.7 && current.difference(a.timestamp).inDays <= 7,
           ) ??

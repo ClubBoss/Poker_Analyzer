@@ -25,16 +25,22 @@ dependencies:
   flutter:
     sdk: flutter
 ''');
-      final pub = await Process.run('dart', [
-        'pub',
-        'get',
-      ], workingDirectory: dir.path);
+      final pub = await Process.run(
+          'dart',
+          [
+            'pub',
+            'get',
+          ],
+          workingDirectory: dir.path);
       expect(pub.exitCode, 0);
-      final res1 = await Process.run('dart', [
-        'run',
-        'plugin_scaffold.dart',
-        pluginName,
-      ], workingDirectory: dir.path);
+      final res1 = await Process.run(
+          'dart',
+          [
+            'run',
+            'plugin_scaffold.dart',
+            pluginName,
+          ],
+          workingDirectory: dir.path);
       expect(res1.exitCode, 0);
       final output1 = '${res1.stdout}\n${res1.stderr}';
       expect(output1, contains('Created plugin'));
@@ -44,11 +50,14 @@ dependencies:
         pluginFile.readAsStringSync(),
         contains('class $pluginName implements Plugin'),
       );
-      final res2 = await Process.run('dart', [
-        'run',
-        'plugin_scaffold.dart',
-        pluginName,
-      ], workingDirectory: dir.path);
+      final res2 = await Process.run(
+          'dart',
+          [
+            'run',
+            'plugin_scaffold.dart',
+            pluginName,
+          ],
+          workingDirectory: dir.path);
       expect(res2.exitCode, 0);
       final output = '${res2.stdout}\n${res2.stderr}';
       expect(output, contains('Plugin already exists'));

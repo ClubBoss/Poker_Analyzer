@@ -10,8 +10,8 @@ class PackLaunchHistorySyncService {
   final String? _uid;
 
   PackLaunchHistorySyncService({FirebaseFirestore? firestore, String? uid})
-    : _db = firestore ?? FirebaseFirestore.instance,
-      _uid = uid ?? FirebaseAuth.instance.currentUser?.uid;
+      : _db = firestore ?? FirebaseFirestore.instance,
+        _uid = uid ?? FirebaseAuth.instance.currentUser?.uid;
 
   Future<void> uploadHistory(List<TrainingHistoryEntryV2> history) async {
     if (_uid == null) return;

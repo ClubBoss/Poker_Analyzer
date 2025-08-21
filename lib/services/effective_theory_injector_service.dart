@@ -19,9 +19,9 @@ class EffectiveTheoryInjectorService {
     TheoryLessonEffectivenessAnalyzerService? analyzer,
     DecayTagRetentionTrackerService? retention,
     MiniLessonLibraryService? library,
-  }) : analyzer = analyzer ?? TheoryLessonEffectivenessAnalyzerService(),
-       retention = retention ?? DecayTagRetentionTrackerService(),
-       library = library ?? MiniLessonLibraryService.instance;
+  })  : analyzer = analyzer ?? TheoryLessonEffectivenessAnalyzerService(),
+        retention = retention ?? DecayTagRetentionTrackerService(),
+        library = library ?? MiniLessonLibraryService.instance;
 
   /// Returns up to two [TheoryLessonNode]s for [tag] that have high historical
   /// effectiveness. The lessons are ordered by their average gain in descending

@@ -24,14 +24,14 @@ class L3RunHistoryEntry {
   });
 
   Map<String, dynamic> toJson() => {
-    'ts': timestamp.toIso8601String(),
-    'args': argsSummary,
-    'out': outPath,
-    'log': logPath,
-    'warnings': warnings,
-    if (weights != null) 'weights': weights,
-    if (preset != null) 'preset': preset,
-  };
+        'ts': timestamp.toIso8601String(),
+        'args': argsSummary,
+        'out': outPath,
+        'log': logPath,
+        'warnings': warnings,
+        if (weights != null) 'weights': weights,
+        if (preset != null) 'preset': preset,
+      };
 
   static L3RunHistoryEntry fromJson(Map<String, dynamic> json) =>
       L3RunHistoryEntry(

@@ -119,8 +119,8 @@ class PlayerInfoWidget extends StatelessWidget {
     final borderColor = isActive
         ? AppColors.accent
         : isHero
-        ? Colors.purpleAccent
-        : null;
+            ? Colors.purpleAccent
+            : null;
 
     Color? actionColor;
     String? actionIcon;
@@ -285,12 +285,12 @@ class PlayerInfoWidget extends StatelessWidget {
                     alignment: Alignment.center,
                     child: card == null
                         ? (isHero
-                              ? const Icon(
-                                  Icons.add,
-                                  size: 14,
-                                  color: Colors.grey,
-                                )
-                              : Image.asset('assets/cards/card_back.png'))
+                            ? const Icon(
+                                Icons.add,
+                                size: 14,
+                                color: Colors.grey,
+                              )
+                            : Image.asset('assets/cards/card_back.png'))
                         : FlipCard(
                             width: 22,
                             height: 30,

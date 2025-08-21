@@ -41,8 +41,8 @@ class MiniLessonLibraryBuilder {
   const MiniLessonLibraryBuilder({
     MiniLessonNodeBuilder? nodeBuilder,
     YamlWriter? yamlWriter,
-  }) : nodeBuilder = nodeBuilder ?? const MiniLessonNodeBuilder(),
-       writer = yamlWriter ?? const YamlWriter();
+  })  : nodeBuilder = nodeBuilder ?? const MiniLessonNodeBuilder(),
+        writer = yamlWriter ?? const YamlWriter();
 
   /// Builds a list of YAML compatible lesson maps.
   List<Map<String, dynamic>> _buildList(

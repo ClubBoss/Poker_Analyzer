@@ -16,11 +16,11 @@ import 'package:poker_analyzer/models/theory_lesson_cluster.dart';
 class _FakeRecommender extends TheoryGoalRecommender {
   final List<TheoryGoal> goals;
   _FakeRecommender(this.goals)
-    : super(
-        mastery: TagMasteryService(
-          logs: SessionLogService(sessions: TrainingSessionService()),
-        ),
-      );
+      : super(
+          mastery: TagMasteryService(
+            logs: SessionLogService(sessions: TrainingSessionService()),
+          ),
+        );
 
   @override
   Future<List<TheoryGoal>> recommend({

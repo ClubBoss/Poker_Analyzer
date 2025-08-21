@@ -37,8 +37,7 @@ class BrokenExporter extends TrainingPackLibraryExporter {
   Map<String, String> exportToMap(List<TrainingPackModel> packs) {
     final map = <String, String>{};
     for (final p in packs) {
-      map['${p.id}.yaml'] =
-          'id: ${p.id}\n'
+      map['${p.id}.yaml'] = 'id: ${p.id}\n'
           'title: ${p.title}\n'
           'spots:\n'
           '  - 123\n';

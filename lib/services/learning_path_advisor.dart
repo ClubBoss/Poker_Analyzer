@@ -35,7 +35,7 @@ class LearningPathAdvisor {
         if (started && !finished) score += 2;
         final tags =
             (step.meta['tags'] as List?)?.map((e) => e.toString()).toSet() ??
-            const <String>{};
+                const <String>{};
         for (final tag in tags) {
           if (profile.weakTags.contains(tag)) score += 1;
         }

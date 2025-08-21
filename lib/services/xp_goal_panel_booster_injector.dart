@@ -9,8 +9,8 @@ class XpGoalPanelBoosterInjector {
   XpGoalPanelBoosterInjector({
     BoosterGoalService? booster,
     XpGoalPanelController? panel,
-  }) : booster = booster ?? BoosterGoalService.instance,
-       panel = panel ?? XpGoalPanelController.instance;
+  })  : booster = booster ?? BoosterGoalService.instance,
+        panel = panel ?? XpGoalPanelController.instance;
 
   static final XpGoalPanelBoosterInjector instance =
       XpGoalPanelBoosterInjector();

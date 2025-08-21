@@ -8,8 +8,8 @@ class TrainingPackLibraryLoaderService {
   TrainingPackLibraryLoaderService._({
     TrainingPackTemplateStorage? storage,
     FirebaseFirestore? firestore,
-  }) : _db = firestore ?? FirebaseFirestore.instance,
-       _storage = storage ?? TrainingPackTemplateStorage(firestore: firestore);
+  })  : _db = firestore ?? FirebaseFirestore.instance,
+        _storage = storage ?? TrainingPackTemplateStorage(firestore: firestore);
 
   static final instance = TrainingPackLibraryLoaderService._();
 

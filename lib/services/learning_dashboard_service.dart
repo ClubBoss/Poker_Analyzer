@@ -43,11 +43,12 @@ class LearningDashboardService {
     final dates = {
       for (final h in completed)
         DateTime(h.completedAt!.year, h.completedAt!.month, h.completedAt!.day),
-    }.toList()..sort();
+    }.toList()
+      ..sort();
     int streak = 0;
     if (dates.isNotEmpty) {
       final today = DateTime.now();
-      for (int i = 0; ; i++) {
+      for (int i = 0;; i++) {
         final day = DateTime(
           today.year,
           today.month,

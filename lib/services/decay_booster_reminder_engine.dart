@@ -18,9 +18,9 @@ class DecayBoosterReminderEngine {
     UserActionLogger? logger,
     this.unusedThreshold = const Duration(days: 7),
     this.decayThreshold = 50.0,
-  }) : queue = queue ?? BoosterQueueService.instance,
-       decay = decay ?? TheoryTagDecayTracker(),
-       logger = logger ?? UserActionLogger.instance;
+  })  : queue = queue ?? BoosterQueueService.instance,
+        decay = decay ?? TheoryTagDecayTracker(),
+        logger = logger ?? UserActionLogger.instance;
 
   static const _lastKey = 'decay_booster_reminder_last';
 
@@ -52,9 +52,10 @@ class DecayBoosterReminderEngine {
   Future<String?> getTopDecayTag({DateTime? now}) async {
     final current = now ?? DateTime.now();
     final scores = await decay.computeDecayScores(now: current);
-    final entries =
-        scores.entries.where((e) => e.value > decayThreshold).toList()
-          ..sort((a, b) => b.value.compareTo(a.value));
+    final entries = scores.entries
+        .where((e) => e.value > decayThreshold)
+        .toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
     if (entries.isEmpty) return null;
     return entries.first.key;
   }

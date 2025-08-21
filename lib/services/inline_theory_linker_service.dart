@@ -14,10 +14,10 @@ class InlineTheoryLinkerService {
     TheoryMiniLessonNavigator? navigator,
     TheoryEngagementAnalyticsService? analytics,
     TheorySuggestionEngagementTrackerService? tracker,
-  }) : _library = library ?? MiniLessonLibraryService.instance,
-       _navigator = navigator ?? TheoryMiniLessonNavigator.instance,
-       _analytics = analytics ?? const TheoryEngagementAnalyticsService(),
-       _tracker = tracker ?? TheorySuggestionEngagementTrackerService.instance;
+  })  : _library = library ?? MiniLessonLibraryService.instance,
+        _navigator = navigator ?? TheoryMiniLessonNavigator.instance,
+        _analytics = analytics ?? const TheoryEngagementAnalyticsService(),
+        _tracker = tracker ?? TheorySuggestionEngagementTrackerService.instance;
 
   final MiniLessonLibraryService _library;
   final TheoryMiniLessonNavigator _navigator;

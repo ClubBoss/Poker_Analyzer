@@ -16,9 +16,8 @@ class TagManagementScreen extends StatelessWidget {
     String? initialColor,
   }) {
     final controller = TextEditingController(text: initialName ?? '');
-    Color pickerColor = initialColor != null
-        ? colorFromHex(initialColor)
-        : Colors.blue;
+    Color pickerColor =
+        initialColor != null ? colorFromHex(initialColor) : Colors.blue;
     return showDialog<MapEntry<String, String>>(
       context: context,
       builder: (context) => AlertDialog(
@@ -80,10 +79,10 @@ class TagManagementScreen extends StatelessWidget {
     );
     if (result != null && result.key.isNotEmpty) {
       await context.read<TagService>().renameTag(
-        index,
-        result.key,
-        color: result.value,
-      );
+            index,
+            result.key,
+            color: result.value,
+          );
     }
   }
 

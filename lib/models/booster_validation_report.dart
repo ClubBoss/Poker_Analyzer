@@ -10,10 +10,10 @@ class BoosterValidationReport {
   });
 
   Map<String, dynamic> toJson() => {
-    'errors': errors,
-    'warnings': warnings,
-    'isValid': isValid,
-  };
+        'errors': errors,
+        'warnings': warnings,
+        'isValid': isValid,
+      };
 
   factory BoosterValidationReport.fromJson(Map<String, dynamic> j) =>
       BoosterValidationReport(

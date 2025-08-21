@@ -98,8 +98,7 @@ class _RefundChipStackMovingWidgetState
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        final control =
-            widget.control ??
+        final control = widget.control ??
             Offset(
               (widget.start.dx + widget.end.dx) / 2,
               (widget.start.dy + widget.end.dy) / 2 -

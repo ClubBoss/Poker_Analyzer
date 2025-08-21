@@ -31,16 +31,16 @@ class TrainingSession {
       _$TrainingSessionFromJson(json);
 
   TrainingResult toTrainingResult() => TrainingResult(
-    date: date,
-    total: total,
-    correct: correct,
-    accuracy: accuracy,
-    tags: tags,
-    notes: notes,
-    comment: comment,
-    evDiff: evDiff,
-    icmDiff: icmDiff,
-  );
+        date: date,
+        total: total,
+        correct: correct,
+        accuracy: accuracy,
+        tags: tags,
+        notes: notes,
+        comment: comment,
+        evDiff: evDiff,
+        icmDiff: icmDiff,
+      );
 
   Map<String, dynamic> toJson() => _$TrainingSessionToJson(this);
 }

@@ -50,17 +50,16 @@ class _NextUpWidgetState extends State<NextUpWidget>
     for (final t in tracks) {
       reasons[t.id] = await engine.getRecommendationReason(t);
     }
-    final progress = await LessonPathProgressService.instance
-        .computeTrackProgress();
+    final progress =
+        await LessonPathProgressService.instance.computeTrackProgress();
     return {'tracks': tracks, 'reasons': reasons, 'progress': progress};
   }
 
   Future<void> _startTrack(LessonTrack track) async {
     final steps = await LessonLoaderService.instance.loadAllLessons();
     final stepId = track.stepIds.isNotEmpty ? track.stepIds.first : null;
-    final step = stepId == null
-        ? null
-        : steps.firstWhereOrNull((s) => s.id == stepId);
+    final step =
+        stepId == null ? null : steps.firstWhereOrNull((s) => s.id == stepId);
     if (!mounted || step == null) return;
     await Navigator.push(
       context,
@@ -133,8 +132,8 @@ class _NextUpWidgetState extends State<NextUpWidget>
                         ElevatedButton(
                           onPressed:
                               progress[t.id] != null && progress[t.id]! > 0
-                              ? null
-                              : () => _startTrack(t),
+                                  ? null
+                                  : () => _startTrack(t),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: accent,
                           ),

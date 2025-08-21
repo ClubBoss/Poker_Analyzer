@@ -14,7 +14,7 @@ class PotDisplayWidget extends StatefulWidget {
   final double scale;
 
   const PotDisplayWidget({Key? key, required this.amount, this.scale = 1.0})
-    : super(key: key);
+      : super(key: key);
 
   @override
   State<PotDisplayWidget> createState() => _PotDisplayWidgetState();
@@ -32,14 +32,13 @@ class _PotDisplayWidgetState extends State<PotDisplayWidget>
       vsync: this,
       duration: const Duration(milliseconds: 200),
     );
-    _scaleAnim =
-        Tween<double>(begin: 1.0, end: 1.1).animate(
-          CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-        )..addStatusListener((status) {
-          if (status == AnimationStatus.completed) {
-            _controller.reverse();
-          }
-        });
+    _scaleAnim = Tween<double>(begin: 1.0, end: 1.1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    )..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          _controller.reverse();
+        }
+      });
   }
 
   @override

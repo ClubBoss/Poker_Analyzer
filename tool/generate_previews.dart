@@ -42,9 +42,8 @@ Future<void> main(List<String> args) async {
             final tplFile = archive.files.firstWhere(
               (e) => e.name == 'template.json',
             );
-            final jsonMap =
-                jsonDecode(utf8.decode(tplFile.content))
-                    as Map<String, dynamic>;
+            final jsonMap = jsonDecode(utf8.decode(tplFile.content))
+                as Map<String, dynamic>;
             tpl = TrainingPackTemplate.fromJson(jsonMap);
           }
           final bytes = await PngExporter.exportTemplatePreview(tpl);

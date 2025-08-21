@@ -110,14 +110,12 @@ class _LearningPathHorizontalViewScreenState
                       (n) => n.id == currentId,
                     );
                     final nodeIndex = _nodes.indexOf(node);
-                    final isBlocked =
-                        !isCompleted &&
+                    final isBlocked = !isCompleted &&
                         !isCurrent &&
                         nodeIndex > currentIndex &&
                         currentIndex >= 0;
-                    final pack =
-                        _packs[node.trainingPackTemplateId ??
-                            node.dynamicPackId];
+                    final pack = _packs[
+                        node.trainingPackTemplateId ?? node.dynamicPackId];
                     final key = GlobalKey();
                     return Padding(
                       padding: const EdgeInsets.only(right: 12),

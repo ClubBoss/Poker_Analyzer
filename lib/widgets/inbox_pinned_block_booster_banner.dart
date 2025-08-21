@@ -38,9 +38,8 @@ class InboxPinnedBlockBoosterBanner extends StatelessWidget {
     await TheoryBlockLibraryService.instance.loadAll();
     await MiniLessonLibraryService.instance.loadAll();
     final block = TheoryBlockLibraryService.instance.getById(s.blockId);
-    final firstId = block?.nodeIds.isNotEmpty == true
-        ? block!.nodeIds.first
-        : null;
+    final firstId =
+        block?.nodeIds.isNotEmpty == true ? block!.nodeIds.first : null;
     if (firstId == null) return;
     final lesson = MiniLessonLibraryService.instance.getById(firstId);
     if (lesson == null) return;
@@ -91,8 +90,8 @@ class InboxPinnedBlockBoosterBanner extends StatelessWidget {
                     s.action == 'resumePack'
                         ? '🎯 Drill'
                         : s.action == 'decayBooster'
-                        ? '⚡ Boost'
-                        : '📘 Review',
+                            ? '⚡ Boost'
+                            : '📘 Review',
                     style: const TextStyle(color: Colors.white),
                   ),
                   backgroundColor: accent,

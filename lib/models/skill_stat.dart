@@ -12,18 +12,18 @@ class SkillStat {
     required this.lastUpdated,
   });
   Map<String, dynamic> toJson() => {
-    'category': category,
-    'hands': handsPlayed,
-    'ev': evAvg,
-    'mistakes': mistakes,
-    'updated': lastUpdated.toIso8601String(),
-  };
+        'category': category,
+        'hands': handsPlayed,
+        'ev': evAvg,
+        'mistakes': mistakes,
+        'updated': lastUpdated.toIso8601String(),
+      };
   factory SkillStat.fromJson(Map<String, dynamic> json) => SkillStat(
-    category: json['category'] as String? ?? '',
-    handsPlayed: json['hands'] as int? ?? 0,
-    evAvg: (json['ev'] as num?)?.toDouble() ?? 0,
-    mistakes: json['mistakes'] as int? ?? 0,
-    lastUpdated:
-        DateTime.tryParse(json['updated'] as String? ?? '') ?? DateTime.now(),
-  );
+        category: json['category'] as String? ?? '',
+        handsPlayed: json['hands'] as int? ?? 0,
+        evAvg: (json['ev'] as num?)?.toDouble() ?? 0,
+        mistakes: json['mistakes'] as int? ?? 0,
+        lastUpdated: DateTime.tryParse(json['updated'] as String? ?? '') ??
+            DateTime.now(),
+      );
 }

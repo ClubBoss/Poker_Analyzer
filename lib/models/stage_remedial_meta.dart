@@ -17,9 +17,9 @@ class StageRemedialMeta {
     DateTime? createdAt,
     this.accuracyAfter = 0.0,
     this.completed = false,
-  }) : missTags = missTags ?? const {},
-       missTextures = missTextures ?? const {},
-       createdAt = createdAt ?? DateTime.now();
+  })  : missTags = missTags ?? const {},
+        missTextures = missTextures ?? const {},
+        createdAt = createdAt ?? DateTime.now();
 
   factory StageRemedialMeta.fromJson(Map<String, dynamic> json) {
     return StageRemedialMeta(
@@ -48,14 +48,14 @@ class StageRemedialMeta {
   }
 
   Map<String, dynamic> toJson() => {
-    'remedialPackId': remedialPackId,
-    'sourceAttempts': sourceAttempts,
-    if (missTags.isNotEmpty) 'missTags': missTags,
-    if (missTextures.isNotEmpty) 'missTextures': missTextures,
-    'createdAt': createdAt.toIso8601String(),
-    if (accuracyAfter > 0) 'accuracyAfter': accuracyAfter,
-    if (completed) 'completed': true,
-  };
+        'remedialPackId': remedialPackId,
+        'sourceAttempts': sourceAttempts,
+        if (missTags.isNotEmpty) 'missTags': missTags,
+        if (missTextures.isNotEmpty) 'missTextures': missTextures,
+        'createdAt': createdAt.toIso8601String(),
+        if (accuracyAfter > 0) 'accuracyAfter': accuracyAfter,
+        if (completed) 'completed': true,
+      };
 
   StageRemedialMeta copyWith({bool? completed, double? accuracyAfter}) {
     return StageRemedialMeta(

@@ -25,12 +25,11 @@ class TagCoverageTile extends StatelessWidget {
       t,
     )!;
     return GestureDetector(
-      onTap:
-          onTap ??
+      onTap: onTap ??
           () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => TagInsightScreen(tag: tag)),
-          ),
+                context,
+                MaterialPageRoute(builder: (_) => TagInsightScreen(tag: tag)),
+              ),
       child: Container(
         decoration: BoxDecoration(
           color: color,

@@ -14,7 +14,7 @@ class TrainingPackTemplateSetExpander {
   final ConstraintResolverEngine _engine;
 
   const TrainingPackTemplateSetExpander({ConstraintResolverEngine? engine})
-    : _engine = engine ?? const ConstraintResolverEngine();
+      : _engine = engine ?? const ConstraintResolverEngine();
 
   /// Generates pack templates defined by [set].
   List<TrainingPackTemplateV2> expand(TrainingPackTemplateSet set) {

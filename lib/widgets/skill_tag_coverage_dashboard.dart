@@ -50,13 +50,11 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    final stream =
-        widget.statsStream ??
+    final stream = widget.statsStream ??
         Stream.periodic(const Duration(seconds: 10), (_) {
           return SkillTagCoverageTrackerService.instance.getCoverageStats();
         });
-    final tagCategoryMap =
-        widget.tagCategoryMap ??
+    final tagCategoryMap = widget.tagCategoryMap ??
         SkillTagCoverageTrackerService.instance.tagCategoryMap;
     final allTagsInput =
         widget.allTags ?? SkillTagCoverageTrackerService.instance.allSkillTags;
@@ -68,9 +66,8 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
         if (stats == null) {
           return const Center(child: CircularProgressIndicator());
         }
-        final allTags = allTagsInput.isEmpty
-            ? stats.tagCounts.keys.toSet()
-            : allTagsInput;
+        final allTags =
+            allTagsInput.isEmpty ? stats.tagCounts.keys.toSet() : allTagsInput;
         _rows = _buildRows(stats, allTags, tagCategoryMap);
         _applySort();
         final categorySummary = computeCategorySummary(
@@ -159,8 +156,7 @@ class _SkillTagCoverageDashboardState extends State<SkillTagCoverageDashboard> {
                           ],
                           color: WidgetStatePropertyAll(
                             Color.alphaBlend(
-                              Colors
-                                  .primaries[r.category.hashCode %
+                              Colors.primaries[r.category.hashCode %
                                       Colors.primaries.length]
                                   .withValues(alpha: 0.08),
                               baseColor,

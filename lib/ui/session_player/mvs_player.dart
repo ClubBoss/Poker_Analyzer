@@ -1059,8 +1059,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           ),
         ),
       );
-      final start =
-          await showDialog<bool>(
+      final start = await showDialog<bool>(
             context: context,
             barrierDismissible: true,
             builder: (_) => AlertDialog(
@@ -1115,14 +1114,13 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
         'icm:l4:bubble:v1',
       }.contains(widget.packId);
       final isLadder = widget.packId == 'icm:l4:ladder:v1';
-      final ladderVariant = isLadder
-          ? 'retry'
-          : (isIcmL4Pack ? 'next' : 'start');
+      final ladderVariant =
+          isLadder ? 'retry' : (isIcmL4Pack ? 'next' : 'start');
       final ladderLabel = ladderVariant == 'retry'
           ? 'Retry ICM L4 Ladder'
           : (ladderVariant == 'next'
-                ? 'Next: ICM L4 Ladder'
-                : 'Start ICM L4 Ladder');
+              ? 'Next: ICM L4 Ladder'
+              : 'Start ICM L4 Ladder');
       final wrongCount = _answers.where((a) => !a.correct).length;
       const passAccPct = 80;
       const passAvgMs = 1800;
@@ -1133,10 +1131,10 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       final avgMs = total == 0
           ? 0
           : (_answers
-                    .map((a) => a.elapsed)
-                    .fold(Duration.zero, (a, b) => a + b)
-                    .inMilliseconds ~/
-                total);
+                  .map((a) => a.elapsed)
+                  .fold(Duration.zero, (a, b) => a + b)
+                  .inMilliseconds ~/
+              total);
       final passed = accPct >= passAccPct && avgMs <= passAvgMs;
 
       if (isLadder && !_ladderOutcomeLogged) {
@@ -1205,9 +1203,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                   label: Text(
                     'Quick Replay L3 errors (${l3Candidates.length})',
                   ),
-                  onPressed: l3Candidates.isEmpty
-                      ? null
-                      : _quickReplayL3JamErrors,
+                  onPressed:
+                      l3Candidates.isEmpty ? null : _quickReplayL3JamErrors,
                 ),
                 if (isLadder && wrongCount > 0)
                   ActionChip(
@@ -1221,11 +1218,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                       );
                       final picks = <UiSpot>[];
                       // Align answers to spots by index; safe on Summary where we finished the run.
-                      for (
-                        var i = 0;
-                        i < _spots.length && i < _answers.length;
-                        i++
-                      ) {
+                      for (var i = 0;
+                          i < _spots.length && i < _answers.length;
+                          i++) {
                         if (!_answers[i].correct) picks.add(_spots[i]);
                       }
                       if (picks.isEmpty) {
@@ -1326,9 +1321,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
             IconButton(
               icon: const Icon(Icons.skip_next),
               tooltip: 'Skip',
-              onPressed: (_index >= _spots.length || _chosen != null)
-                  ? null
-                  : _skip,
+              onPressed:
+                  (_index >= _spots.length || _chosen != null) ? null : _skip,
             ),
             if (kDebugMode) ...[
               IconButton(
@@ -1416,8 +1410,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
                     double fontScale = _prefs.fontScale;
                     final ctrl = TextEditingController(text: limit.toString());
                     return Padding(
-                      padding:
-                          MediaQuery.of(ctx).viewInsets +
+                      padding: MediaQuery.of(ctx).viewInsets +
                           const EdgeInsets.all(16),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,

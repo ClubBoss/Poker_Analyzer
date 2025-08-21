@@ -29,8 +29,7 @@ class SavedHandTile extends StatelessWidget {
     final action = hand.expectedAction;
     if (action == null || action.isEmpty) return null;
     final gto = hand.gtoAction;
-    final isMistake =
-        gto != null &&
+    final isMistake = gto != null &&
         gto.isNotEmpty &&
         action.trim().toLowerCase() != gto.trim().toLowerCase();
 

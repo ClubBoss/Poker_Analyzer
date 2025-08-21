@@ -11,29 +11,29 @@ void main() {
   const uiEngine = LearningPathStageUIStatusEngine(unlockEngine: unlockEngine);
 
   LearningPathTemplateV2 path0() => const LearningPathTemplateV2(
-    id: 'p',
-    title: 'Path',
-    description: '',
-    stages: [
-      LearningPathStageModel(
-        id: 'a',
-        title: 'A',
+        id: 'p',
+        title: 'Path',
         description: '',
-        packId: 'pack1',
-        requiredAccuracy: 80,
-        minHands: 1,
-        unlocks: ['b'],
-      ),
-      LearningPathStageModel(
-        id: 'b',
-        title: 'B',
-        description: '',
-        packId: 'pack2',
-        requiredAccuracy: 70,
-        minHands: 1,
-      ),
-    ],
-  );
+        stages: [
+          LearningPathStageModel(
+            id: 'a',
+            title: 'A',
+            description: '',
+            packId: 'pack1',
+            requiredAccuracy: 80,
+            minHands: 1,
+            unlocks: ['b'],
+          ),
+          LearningPathStageModel(
+            id: 'b',
+            title: 'B',
+            description: '',
+            packId: 'pack2',
+            requiredAccuracy: 70,
+            minHands: 1,
+          ),
+        ],
+      );
 
   test('computeStageUIStates returns locked, active, done', () {
     final path = path0();

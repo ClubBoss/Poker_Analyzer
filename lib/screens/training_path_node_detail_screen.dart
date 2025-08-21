@@ -123,17 +123,17 @@ class _TrainingPathNodeDetailScreenState
                 ),
           bottomNavigationBar:
               snapshot.connectionState != ConnectionState.done ||
-                  !(data?.isUnlocked ?? false)
-              ? null
-              : SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: ElevatedButton(
-                      onPressed: _startTraining,
-                      child: const Text('Start Training'),
+                      !(data?.isUnlocked ?? false)
+                  ? null
+                  : SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: ElevatedButton(
+                          onPressed: _startTraining,
+                          child: const Text('Start Training'),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
         );
       },
     );
@@ -172,16 +172,15 @@ class _TrainingPathNodeDetailScreenState
                             ? const TextStyle(fontWeight: FontWeight.bold)
                             : null,
                       ),
-                onPressed:
-                    node.id == widget.node.id ||
+                onPressed: node.id == widget.node.id ||
                         !data.unlockedNodeIds.contains(node.id)
                     ? null
                     : () => _openNode(node),
                 backgroundColor: node.id == widget.node.id
                     ? Colors.blue.shade300
                     : data.unlockedNodeIds.contains(node.id)
-                    ? null
-                    : Colors.grey.shade300,
+                        ? null
+                        : Colors.grey.shade300,
                 shape: node.id == widget.node.id
                     ? RoundedRectangleBorder(
                         side: BorderSide(color: Colors.blue.shade700),

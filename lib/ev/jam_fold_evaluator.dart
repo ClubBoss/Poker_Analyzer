@@ -19,11 +19,11 @@ class JamFoldResult {
   });
 
   Map<String, dynamic> toJson() => {
-    'evJam': evJam,
-    'evFold': evFold,
-    'bestAction': bestAction,
-    'delta': delta,
-  };
+        'evJam': evJam,
+        'evFold': evFold,
+        'bestAction': bestAction,
+        'delta': delta,
+      };
 }
 
 class JamFoldEvaluator {

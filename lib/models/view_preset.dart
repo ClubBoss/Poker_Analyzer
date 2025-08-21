@@ -20,32 +20,32 @@ class ViewPreset {
   }) : id = id ?? const Uuid().v4();
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'name': name,
-    'sort': sort,
-    'tag': tagFilter,
-    'mistake': mistakeFilter,
-    'hero': heroPosFilter,
-    'search': search,
-  };
+        'id': id,
+        'name': name,
+        'sort': sort,
+        'tag': tagFilter,
+        'mistake': mistakeFilter,
+        'hero': heroPosFilter,
+        'search': search,
+      };
 
   factory ViewPreset.fromJson(Map<String, dynamic> json) => ViewPreset(
-    id: json['id'] as String?,
-    name: json['name'] as String? ?? '',
-    sort: (json['sort'] as num?)?.toInt() ?? 0,
-    tagFilter: json['tag'] as String?,
-    mistakeFilter: (json['mistake'] as num?)?.toInt() ?? 0,
-    heroPosFilter: json['hero'] as String?,
-    search: json['search'] as String? ?? '',
-  );
+        id: json['id'] as String?,
+        name: json['name'] as String? ?? '',
+        sort: (json['sort'] as num?)?.toInt() ?? 0,
+        tagFilter: json['tag'] as String?,
+        mistakeFilter: (json['mistake'] as num?)?.toInt() ?? 0,
+        heroPosFilter: json['hero'] as String?,
+        search: json['search'] as String? ?? '',
+      );
 
   ViewPreset copyWith({String? name}) => ViewPreset(
-    id: id,
-    name: name ?? this.name,
-    sort: sort,
-    tagFilter: tagFilter,
-    mistakeFilter: mistakeFilter,
-    heroPosFilter: heroPosFilter,
-    search: search,
-  );
+        id: id,
+        name: name ?? this.name,
+        sort: sort,
+        tagFilter: tagFilter,
+        mistakeFilter: mistakeFilter,
+        heroPosFilter: heroPosFilter,
+        search: search,
+      );
 }

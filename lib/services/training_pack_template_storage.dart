@@ -15,8 +15,8 @@ class TrainingPackTemplateStorage {
   TrainingPackTemplateStorage({
     TrainingPackYamlCodecV2? codec,
     FirebaseFirestore? firestore,
-  }) : codec = codec ?? const TrainingPackYamlCodecV2(),
-       _db = firestore ?? FirebaseFirestore.instance;
+  })  : codec = codec ?? const TrainingPackYamlCodecV2(),
+        _db = firestore ?? FirebaseFirestore.instance;
 
   Future<void> _openBox() async {
     if (_box != null) return;

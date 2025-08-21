@@ -9,8 +9,8 @@ class ContinueLearningCard extends StatelessWidget {
   const ContinueLearningCard({super.key});
 
   Future<_ResumeData?> _load() async {
-    final trackId = await TheoryTrackResumeService.instance
-        .getLastVisitedTrackId();
+    final trackId =
+        await TheoryTrackResumeService.instance.getLastVisitedTrackId();
     if (trackId == null) return null;
     final blockId = await TheoryTrackResumeService.instance.getLastVisitedBlock(
       trackId,

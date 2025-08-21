@@ -24,11 +24,11 @@ class SmartRecapBannerReinjectionService {
     RecapFatigueEvaluator? fatigue,
     TheoryRecapSuppressionEngine? suppression,
     SmartTheoryRecapDismissalMemory? dismissal,
-  }) : scheduler = scheduler ?? RecapAutoRepeatScheduler.instance,
-       library = library ?? MiniLessonLibraryService.instance,
-       fatigue = fatigue ?? RecapFatigueEvaluator.instance,
-       suppression = suppression ?? TheoryRecapSuppressionEngine.instance,
-       dismissal = dismissal ?? SmartTheoryRecapDismissalMemory.instance;
+  })  : scheduler = scheduler ?? RecapAutoRepeatScheduler.instance,
+        library = library ?? MiniLessonLibraryService.instance,
+        fatigue = fatigue ?? RecapFatigueEvaluator.instance,
+        suppression = suppression ?? TheoryRecapSuppressionEngine.instance,
+        dismissal = dismissal ?? SmartTheoryRecapDismissalMemory.instance;
 
   StreamSubscription<List<String>>? _sub;
 

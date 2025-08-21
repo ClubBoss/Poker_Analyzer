@@ -6,10 +6,10 @@ class Streak {
   final String last;
   const Streak(this.count, this.last);
   Map<String, dynamic> toJson() => {
-    'version': 'v1',
-    'count': count,
-    'last': last,
-  };
+        'version': 'v1',
+        'count': count,
+        'last': last,
+      };
   static Streak fromJson(Map m) {
     final c = m['count'] is int ? m['count'] as int : 0;
     final l = m['last'] is String ? m['last'] as String : '';

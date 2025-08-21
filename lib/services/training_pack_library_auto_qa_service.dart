@@ -8,7 +8,7 @@ class TrainingPackLibraryQAReport {
   final Map<String, List<String>> errors;
 
   TrainingPackLibraryQAReport({Map<String, List<String>>? errors})
-    : errors = errors ?? {};
+      : errors = errors ?? {};
 
   bool get hasErrors => errors.values.any((e) => e.isNotEmpty);
 }
@@ -17,7 +17,7 @@ class TrainingPackLibraryAutoQAService {
   final TrainingPackLibraryImporter importer;
 
   TrainingPackLibraryAutoQAService({TrainingPackLibraryImporter? importer})
-    : importer = importer ?? TrainingPackLibraryImporter();
+      : importer = importer ?? TrainingPackLibraryImporter();
 
   Future<TrainingPackLibraryQAReport> validateDirectory(String path) async {
     final dir = Directory(path);

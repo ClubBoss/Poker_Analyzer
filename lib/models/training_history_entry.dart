@@ -18,8 +18,7 @@ class TrainingHistoryEntry {
   factory TrainingHistoryEntry.fromJson(Map<String, dynamic> j) =>
       TrainingHistoryEntry(
         packId: j['packId'] as String? ?? '',
-        timestamp:
-            DateTime.tryParse(j['timestamp'] as String? ?? '') ??
+        timestamp: DateTime.tryParse(j['timestamp'] as String? ?? '') ??
             DateTime.now(),
         tags: [for (final t in (j['tags'] as List? ?? [])) t.toString()],
         audience: j['audience'] as String?,
@@ -28,11 +27,11 @@ class TrainingHistoryEntry {
       );
 
   Map<String, dynamic> toJson() => {
-    'packId': packId,
-    'timestamp': timestamp.toIso8601String(),
-    if (tags.isNotEmpty) 'tags': tags,
-    if (audience != null) 'audience': audience,
-    if (rating != null) 'rating': rating,
-    if (evScore != null) 'evScore': evScore,
-  };
+        'packId': packId,
+        'timestamp': timestamp.toIso8601String(),
+        if (tags.isNotEmpty) 'tags': tags,
+        if (audience != null) 'audience': audience,
+        if (rating != null) 'rating': rating,
+        if (evScore != null) 'evScore': evScore,
+      };
 }

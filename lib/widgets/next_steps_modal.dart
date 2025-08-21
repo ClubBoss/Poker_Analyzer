@@ -82,9 +82,9 @@ class _NextStepsModalState extends State<NextStepsModal> {
   Future<void> _startBooster(TrainingPackTemplate pack) async {
     Navigator.pop(context);
     await context.read<TrainingSessionService>().startSession(
-      pack,
-      persist: false,
-    );
+          pack,
+          persist: false,
+        );
     if (!mounted) return;
     Navigator.pushReplacement(
       context,

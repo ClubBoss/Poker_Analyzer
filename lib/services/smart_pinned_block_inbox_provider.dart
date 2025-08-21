@@ -8,8 +8,8 @@ class SmartPinnedBlockInboxProvider {
   SmartPinnedBlockInboxProvider({
     PinnedBlockTrackerService? tracker,
     TheoryBlockLibraryService? library,
-  }) : tracker = tracker ?? PinnedBlockTrackerService.instance,
-       library = library ?? TheoryBlockLibraryService.instance;
+  })  : tracker = tracker ?? PinnedBlockTrackerService.instance,
+        library = library ?? TheoryBlockLibraryService.instance;
 
   final PinnedBlockTrackerService tracker;
   final TheoryBlockLibraryService library;

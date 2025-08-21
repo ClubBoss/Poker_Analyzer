@@ -87,9 +87,8 @@ class WeakTheoryZoneHighlighter {
       final scores = c.sharedTags
           .map((t) => tagScores[t.trim().toLowerCase()] ?? 0.0)
           .toList();
-      final avg = scores.isEmpty
-          ? 0.0
-          : scores.reduce((a, b) => a + b) / scores.length;
+      final avg =
+          scores.isEmpty ? 0.0 : scores.reduce((a, b) => a + b) / scores.length;
       final score = (1 - coverage) + avg;
       result.add(
         WeakClusterInfo(

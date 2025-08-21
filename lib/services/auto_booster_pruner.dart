@@ -12,8 +12,8 @@ class AutoBoosterPruner {
   const AutoBoosterPruner({
     LearningPathEngine? engine,
     TheoryBoosterReinjectionPolicy? policy,
-  }) : engine = engine ?? LearningPathEngine.instance,
-       policy = policy ?? TheoryBoosterReinjectionPolicy.instance;
+  })  : engine = engine ?? LearningPathEngine.instance,
+        policy = policy ?? TheoryBoosterReinjectionPolicy.instance;
 
   /// Scans [boosterNodeIds] and removes those deemed ineffective.
   /// Returns the number of pruned nodes.

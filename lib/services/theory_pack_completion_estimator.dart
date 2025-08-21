@@ -28,9 +28,8 @@ class TheoryPackCompletionEstimator {
     );
     final minutes = words == 0 ? 0 : (words / 150).ceil();
     final totalSections = pack.sections.length;
-    final readCount = pack.sections
-        .where((s) => readSections.contains(s.title))
-        .length;
+    final readCount =
+        pack.sections.where((s) => readSections.contains(s.title)).length;
     final ratio = totalSections > 0 ? readCount / totalSections : 0.0;
 
     return TheoryPackCompletionData(

@@ -7,7 +7,7 @@ class TrainingPackLibraryService {
   final TrainingPackLibraryV2 _library;
 
   TrainingPackLibraryService({TrainingPackLibraryV2? library})
-    : _library = library ?? TrainingPackLibraryV2.instance;
+      : _library = library ?? TrainingPackLibraryV2.instance;
 
   /// Loads and returns all packs as [TrainingPackModel]s.
   Future<List<TrainingPackModel>> getAllPacks() async {

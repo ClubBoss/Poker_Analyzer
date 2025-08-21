@@ -67,8 +67,8 @@ Future<ActionEntry?> showEditActionDialog(
               onPressed: () {
                 final amount =
                     (action == 'bet' || action == 'raise' || action == 'call')
-                    ? double.tryParse(controller.text)
-                    : null;
+                        ? double.tryParse(controller.text)
+                        : null;
                 Navigator.pop(
                   ctx,
                   ActionEntry(entry.street, player, action, amount: amount),

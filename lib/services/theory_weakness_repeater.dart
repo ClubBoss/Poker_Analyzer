@@ -10,8 +10,8 @@ class TheoryWeaknessRepeater {
   const TheoryWeaknessRepeater({
     MiniLessonLibraryService? library,
     MiniLessonProgressTracker? progress,
-  }) : library = library ?? MiniLessonLibraryService.instance,
-       progress = progress ?? MiniLessonProgressTracker.instance;
+  })  : library = library ?? MiniLessonLibraryService.instance,
+        progress = progress ?? MiniLessonProgressTracker.instance;
 
   /// Returns lessons ranked by failure recency and EV loss.
   Future<List<TheoryMiniLessonNode>> recommend({

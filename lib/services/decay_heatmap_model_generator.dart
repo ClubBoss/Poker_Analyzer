@@ -20,8 +20,8 @@ class DecayHeatmapModelGenerator {
       final level = score > 60
           ? DecayLevel.critical
           : score > 30
-          ? DecayLevel.warning
-          : DecayLevel.ok;
+              ? DecayLevel.warning
+              : DecayLevel.ok;
       result.add(DecayHeatmapEntry(tag: entry.key, decay: score, level: level));
     }
     return result;

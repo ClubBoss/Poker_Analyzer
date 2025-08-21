@@ -17,26 +17,26 @@ class SummaryResult {
     Map<String, int>? streetBreakdown,
     Map<String, int>? positionMistakeFrequencies,
     Map<int, double>? accuracyPerSession,
-  }) : mistakeTagFrequencies = mistakeTagFrequencies ?? const {},
-       streetBreakdown = streetBreakdown ?? const {},
-       positionMistakeFrequencies = positionMistakeFrequencies ?? const {},
-       accuracyPerSession = accuracyPerSession ?? const {};
+  })  : mistakeTagFrequencies = mistakeTagFrequencies ?? const {},
+        streetBreakdown = streetBreakdown ?? const {},
+        positionMistakeFrequencies = positionMistakeFrequencies ?? const {},
+        accuracyPerSession = accuracyPerSession ?? const {};
 
   Map<String, dynamic> toJson() => {
-    'totalHands': totalHands,
-    'correct': correct,
-    'incorrect': incorrect,
-    'accuracy': accuracy,
-    if (mistakeTagFrequencies.isNotEmpty)
-      'mistakeTagFrequencies': mistakeTagFrequencies,
-    if (streetBreakdown.isNotEmpty) 'streetBreakdown': streetBreakdown,
-    if (positionMistakeFrequencies.isNotEmpty)
-      'positionMistakeFrequencies': positionMistakeFrequencies,
-    if (accuracyPerSession.isNotEmpty)
-      'accuracyPerSession': accuracyPerSession.map(
-        (k, v) => MapEntry(k.toString(), v),
-      ),
-  };
+        'totalHands': totalHands,
+        'correct': correct,
+        'incorrect': incorrect,
+        'accuracy': accuracy,
+        if (mistakeTagFrequencies.isNotEmpty)
+          'mistakeTagFrequencies': mistakeTagFrequencies,
+        if (streetBreakdown.isNotEmpty) 'streetBreakdown': streetBreakdown,
+        if (positionMistakeFrequencies.isNotEmpty)
+          'positionMistakeFrequencies': positionMistakeFrequencies,
+        if (accuracyPerSession.isNotEmpty)
+          'accuracyPerSession': accuracyPerSession.map(
+            (k, v) => MapEntry(k.toString(), v),
+          ),
+      };
 
   factory SummaryResult.fromJson(Map<String, dynamic> json) {
     final tagFreq = <String, int>{};

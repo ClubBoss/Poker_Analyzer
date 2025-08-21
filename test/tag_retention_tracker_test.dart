@@ -9,7 +9,7 @@ class FakeTagMasteryService extends TagMasteryService {
   final Map<String, DateTime> _last;
   final Map<String, double> _acc;
   FakeTagMasteryService(this._mastery, this._last, this._acc)
-    : super(logs: SessionLogService(sessions: TrainingSessionService()));
+      : super(logs: SessionLogService(sessions: TrainingSessionService()));
 
   @override
   Future<Map<String, double>> computeMastery({bool force = false}) async =>

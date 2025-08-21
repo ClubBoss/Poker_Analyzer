@@ -29,8 +29,7 @@ class MainMenuSuggestedBanner extends StatelessWidget {
         suggestedDismissed) {
       WidgetsBinding.instance.addPostFrameCallback((_) => onClearDismissed());
     }
-    final show =
-        !suggestedDismissed &&
+    final show = !suggestedDismissed &&
         tpl != null &&
         date != null &&
         DateTime.now().difference(date).inDays < 6;
@@ -59,8 +58,8 @@ class MainMenuSuggestedBanner extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () async {
                     await context.read<TrainingSessionService>().startSession(
-                      tpl,
-                    );
+                          tpl,
+                        );
                     if (!context.mounted) return;
                     await Navigator.push(
                       context,

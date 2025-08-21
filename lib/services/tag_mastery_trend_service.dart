@@ -5,7 +5,7 @@ enum TagTrend { rising, flat, falling }
 class TagMasteryTrendService {
   final TagMasteryHistoryService history;
   TagMasteryTrendService({TagMasteryHistoryService? history})
-    : history = history ?? TagMasteryHistoryService();
+      : history = history ?? TagMasteryHistoryService();
 
   static Map<String, TagTrend>? _cache;
   static int _cacheDays = 0;

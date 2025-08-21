@@ -20,9 +20,9 @@ class HandData {
     List<String>? board,
     Map<int, List<ActionEntry>>? actions,
     Map<String, double>? stacks,
-  }) : board = board ?? [],
-       actions = actions ?? {for (var s = 0; s < 4; s++) s: <ActionEntry>[]},
-       stacks = stacks ?? {};
+  })  : board = board ?? [],
+        actions = actions ?? {for (var s = 0; s < 4; s++) s: <ActionEntry>[]},
+        stacks = stacks ?? {};
 
   factory HandData.fromJson(Map<String, dynamic> j) {
     final acts = <int, List<ActionEntry>>{for (var s = 0; s < 4; s++) s: []};
@@ -58,19 +58,19 @@ class HandData {
   }
 
   Map<String, dynamic> toJson() => {
-    'heroCards': heroCards,
-    'position': position.name,
-    'heroIndex': heroIndex,
-    'playerCount': playerCount,
-    if (actions.values.any((l) => l.isNotEmpty))
-      'actions': {
-        for (final kv in actions.entries)
-          kv.key.toString(): [for (final a in kv.value) a.toJson()],
-      },
-    if (stacks.isNotEmpty) 'stacks': stacks,
-    if (board.isNotEmpty) 'board': board,
-    'anteBb': anteBb,
-  };
+        'heroCards': heroCards,
+        'position': position.name,
+        'heroIndex': heroIndex,
+        'playerCount': playerCount,
+        if (actions.values.any((l) => l.isNotEmpty))
+          'actions': {
+            for (final kv in actions.entries)
+              kv.key.toString(): [for (final a in kv.value) a.toJson()],
+          },
+        if (stacks.isNotEmpty) 'stacks': stacks,
+        if (board.isNotEmpty) 'board': board,
+        'anteBb': anteBb,
+      };
 
   factory HandData.fromSimpleInput(String cards, HeroPosition pos, int stack) {
     return HandData(

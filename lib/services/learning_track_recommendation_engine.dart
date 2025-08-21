@@ -16,9 +16,9 @@ class LearningTrackRecommendationEngine {
     LessonTrackMetaService? metaService,
     LearningTrackEngine trackEngine = const LearningTrackEngine(),
     YamlLessonTrackLoader? yamlLoader,
-  }) : metaService = metaService ?? LessonTrackMetaService.instance,
-       trackEngine = trackEngine,
-       yamlLoader = yamlLoader ?? YamlLessonTrackLoader.instance;
+  })  : metaService = metaService ?? LessonTrackMetaService.instance,
+        trackEngine = trackEngine,
+        yamlLoader = yamlLoader ?? YamlLessonTrackLoader.instance;
 
   /// Returns up to [limit] recommended tracks sorted by lowest mastery.
   Future<List<LessonTrack>> getRecommendedTracks({int limit = 3}) async {

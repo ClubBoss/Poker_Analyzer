@@ -12,16 +12,16 @@ class FormatMeta {
   });
 
   factory FormatMeta.fromJson(Map<String, dynamic> j) => FormatMeta(
-    spotsPerPack: j['spotsPerPack'] as int? ?? 0,
-    streets: j['streets'] as int? ?? 1,
-    theoryRatio: (j['theoryRatio'] as num?)?.toDouble() ?? 0,
-  );
+        spotsPerPack: j['spotsPerPack'] as int? ?? 0,
+        streets: j['streets'] as int? ?? 1,
+        theoryRatio: (j['theoryRatio'] as num?)?.toDouble() ?? 0,
+      );
 
   Map<String, dynamic> toJson() => {
-    'spotsPerPack': spotsPerPack,
-    'streets': streets,
-    'theoryRatio': theoryRatio,
-  };
+        'spotsPerPack': spotsPerPack,
+        'streets': streets,
+        'theoryRatio': theoryRatio,
+      };
 }
 
 class TrainingRunRecord {
@@ -63,16 +63,16 @@ class TrainingRunRecord {
       );
 
   Map<String, dynamic> toJson() => {
-    'armId': armId,
-    'packId': packId,
-    'accuracy': accuracy,
-    'dropoffRate': dropoffRate,
-    'timeToComplete': timeToComplete,
-    'novelty': novelty,
-    'retryRate': retryRate,
-    if (audience != null) 'audience': audience,
-    'format': format.toJson(),
-  };
+        'armId': armId,
+        'packId': packId,
+        'accuracy': accuracy,
+        'dropoffRate': dropoffRate,
+        'timeToComplete': timeToComplete,
+        'novelty': novelty,
+        'retryRate': retryRate,
+        if (audience != null) 'audience': audience,
+        'format': format.toJson(),
+      };
 
   @override
   String toString() => jsonEncode(toJson());

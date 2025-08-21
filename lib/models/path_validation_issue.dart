@@ -21,12 +21,12 @@ class PathValidationIssue {
   });
 
   Map<String, dynamic> toJson() => {
-    'pathId': pathId,
-    if (stageId != null) 'stageId': stageId,
-    if (subStageId != null) 'subStageId': subStageId,
-    'issueType': issueType.name,
-    'message': message,
-  };
+        'pathId': pathId,
+        if (stageId != null) 'stageId': stageId,
+        if (subStageId != null) 'subStageId': subStageId,
+        'issueType': issueType.name,
+        'message': message,
+      };
 
   factory PathValidationIssue.fromJson(Map<String, dynamic> json) =>
       PathValidationIssue(

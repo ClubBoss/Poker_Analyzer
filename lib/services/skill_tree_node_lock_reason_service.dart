@@ -16,14 +16,13 @@ class SkillTreeNodeLockReasonService {
     SkillTreeNodeProgressTracker? progress,
     SkillTreeStageGateEvaluator? stageEvaluator,
     SkillTreeUnlockEvaluator? unlockEvaluator,
-  }) : _library = library ?? SkillTreeLibraryService.instance,
-       _progress = progress ?? SkillTreeNodeProgressTracker.instance,
-       _stageEval = stageEvaluator ?? const SkillTreeStageGateEvaluator(),
-       _unlockEval =
-           unlockEvaluator ??
-           SkillTreeUnlockEvaluator(
-             progress: progress ?? SkillTreeNodeProgressTracker.instance,
-           );
+  })  : _library = library ?? SkillTreeLibraryService.instance,
+        _progress = progress ?? SkillTreeNodeProgressTracker.instance,
+        _stageEval = stageEvaluator ?? const SkillTreeStageGateEvaluator(),
+        _unlockEval = unlockEvaluator ??
+            SkillTreeUnlockEvaluator(
+              progress: progress ?? SkillTreeNodeProgressTracker.instance,
+            );
 
   Future<String?> getLockReason(SkillTreeNodeModel node) async {
     final res = _library.getTree(node.category);
@@ -33,10 +32,8 @@ class SkillTreeNodeLockReasonService {
     await _progress.isCompleted('');
     final completed = _progress.completedNodeIds.value;
 
-    final unlockedIds = _unlockEval
-        .getUnlockedNodes(tree)
-        .map((n) => n.id)
-        .toSet();
+    final unlockedIds =
+        _unlockEval.getUnlockedNodes(tree).map((n) => n.id).toSet();
     if (unlockedIds.contains(node.id)) return null;
 
     if (!_stageEval.isStageUnlocked(tree, node.level, completed)) {

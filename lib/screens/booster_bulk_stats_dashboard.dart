@@ -68,8 +68,9 @@ class _BoosterBulkStatsDashboardState extends State<BoosterBulkStatsDashboard> {
             color: q.$2 == 'fail'
                 ? WidgetStateProperty.all(AppColors.errorBg)
                 : q.$2 == 'warning'
-                ? WidgetStateProperty.all(Colors.orange.withValues(alpha: .2))
-                : null,
+                    ? WidgetStateProperty.all(
+                        Colors.orange.withValues(alpha: .2))
+                    : null,
             cells: [DataCell(Text(q.$1)), DataCell(Text(q.$2))],
           ),
       ],
@@ -169,9 +170,8 @@ Future<Map<String, dynamic>> _statsTask(String dir) async {
       evSum += report.evAvg * report.totalSpots;
       evCount += report.totalSpots;
       empty += report.emptyExplanations;
-      duplicates += report.issues
-          .where((i) => i.startsWith('duplicate_id'))
-          .length;
+      duplicates +=
+          report.issues.where((i) => i.startsWith('duplicate_id')).length;
       if (report.issues.contains('duplicate_ids')) {
         if (!report.issues.any((i) => i.startsWith('duplicate_id'))) {
           duplicates++;

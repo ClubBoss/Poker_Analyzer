@@ -25,8 +25,8 @@ class StreakRewardEngine {
   Future<void> checkAndTriggerRewards() async {
     final prefs = await SharedPreferences.getInstance();
     final unlocked = prefs.getStringList(_rewardKey) ?? <String>[];
-    final current = await TrainingStreakTrackerService.instance
-        .getCurrentStreak();
+    final current =
+        await TrainingStreakTrackerService.instance.getCurrentStreak();
     bool updated = false;
     for (final entry in _rewards.entries) {
       final level = entry.key;

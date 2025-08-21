@@ -22,9 +22,9 @@ class LearningPathStageLauncher {
     PackLibraryService? library,
     TheoryPackLibraryService? theoryLibrary,
     TrainingSessionLauncher launcher = const TrainingSessionLauncher(),
-  }) : _library = library ?? PackLibraryService.instance,
-       _theoryLibrary = theoryLibrary ?? TheoryPackLibraryService.instance,
-       _launcher = launcher;
+  })  : _library = library ?? PackLibraryService.instance,
+        _theoryLibrary = theoryLibrary ?? TheoryPackLibraryService.instance,
+        _launcher = launcher;
 
   Future<void> launch(
     BuildContext context,

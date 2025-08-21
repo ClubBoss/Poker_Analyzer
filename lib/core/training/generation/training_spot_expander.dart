@@ -10,8 +10,8 @@ class TrainingSpotExpander {
   final BoardSimilarityEngine _boardEngine;
 
   const TrainingSpotExpander({Uuid? uuid, BoardSimilarityEngine? boardEngine})
-    : _uuid = uuid ?? const Uuid(),
-      _boardEngine = boardEngine ?? const BoardSimilarityEngine();
+      : _uuid = uuid ?? const Uuid(),
+        _boardEngine = boardEngine ?? const BoardSimilarityEngine();
 
   List<TrainingPackSpot> expand(TrainingPackSpot spot) {
     final results = <TrainingPackSpot>[spot];

@@ -28,9 +28,9 @@ class InlineTheoryEntry {
     this.title,
     List<String>? textureBuckets,
     List<String>? clusterIds,
-  }) : tags = tags ?? const [],
-       textureBuckets = textureBuckets ?? const [],
-       clusterIds = clusterIds ?? const [];
+  })  : tags = tags ?? const [],
+        textureBuckets = textureBuckets ?? const [],
+        clusterIds = clusterIds ?? const [];
 
   /// Returns all tags associated with this entry.
   List<String> get allTags => tags.isNotEmpty ? tags : [tag];

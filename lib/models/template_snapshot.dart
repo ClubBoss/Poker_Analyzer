@@ -16,8 +16,8 @@ class TemplateSnapshot {
     required this.comment,
     DateTime? timestamp,
     required this.spots,
-  }) : id = id ?? const Uuid().v4(),
-       timestamp = timestamp ?? DateTime.now();
+  })  : id = id ?? const Uuid().v4(),
+        timestamp = timestamp ?? DateTime.now();
 
   factory TemplateSnapshot.fromJson(Map<String, dynamic> json) =>
       _$TemplateSnapshotFromJson(json);

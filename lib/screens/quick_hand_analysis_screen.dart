@@ -62,12 +62,12 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
     final stack = int.tryParse(_stackController.text) ?? 10;
     final level = context.read<XPTrackerService>().level;
     final record = context.read<HandAnalyzerService>().analyzePush(
-      cards: _cards,
-      stack: stack,
-      playerCount: _playerCount,
-      heroIndex: _heroIndex,
-      level: level,
-    );
+          cards: _cards,
+          stack: stack,
+          playerCount: _playerCount,
+          heroIndex: _heroIndex,
+          level: level,
+        );
     if (record == null) return;
     setState(() {
       _ev = record.ev;
@@ -86,12 +86,12 @@ class _QuickHandAnalysisScreenState extends State<QuickHandAnalysisScreen> {
     final stack = int.tryParse(_stackController.text) ?? 10;
     final level = context.read<XPTrackerService>().level;
     final record = context.read<HandAnalyzerService>().analyzePush(
-      cards: _cards,
-      stack: stack,
-      playerCount: _playerCount,
-      heroIndex: _heroIndex,
-      level: level,
-    );
+          cards: _cards,
+          stack: stack,
+          playerCount: _playerCount,
+          heroIndex: _heroIndex,
+          level: level,
+        );
     if (record == null) return;
     context.read<HandAnalysisHistoryService>().add(record);
     setState(() {

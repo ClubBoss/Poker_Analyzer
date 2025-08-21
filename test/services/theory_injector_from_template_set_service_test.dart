@@ -9,19 +9,19 @@ import 'package:poker_analyzer/services/theory_injector_from_template_set_servic
 
 void main() {
   TrainingPackSpot baseSpot() => TrainingPackSpot(
-    id: 'base',
-    title: 'Base',
-    tags: ['init'],
-    hand: HandData(
-      heroCards: 'Ah Kh',
-      position: HeroPosition.btn,
-      heroIndex: 0,
-      playerCount: 2,
-      board: [],
-    ),
-    board: [],
-    meta: {'foo': 'bar'},
-  );
+        id: 'base',
+        title: 'Base',
+        tags: ['init'],
+        hand: HandData(
+          heroCards: 'Ah Kh',
+          position: HeroPosition.btn,
+          heroIndex: 0,
+          playerCount: 2,
+          board: [],
+        ),
+        board: [],
+        meta: {'foo': 'bar'},
+      );
 
   test('creates mini lessons for each generated pack', () {
     final set = TrainingPackTemplateSet(

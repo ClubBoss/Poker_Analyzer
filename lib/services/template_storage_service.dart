@@ -338,8 +338,7 @@ class TemplateStorageService extends ChangeNotifier {
   ) async {
     if (template.isBuiltIn) return;
     try {
-      final dir =
-          await getDownloadsDirectory() ??
+      final dir = await getDownloadsDirectory() ??
           await getApplicationDocumentsDirectory();
       final safeName = template.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
       final file = File('${dir.path}/$safeName.json');

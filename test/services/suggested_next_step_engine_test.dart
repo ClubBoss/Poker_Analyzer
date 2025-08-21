@@ -11,7 +11,7 @@ import 'package:poker_analyzer/models/training_pack_template.dart';
 class _FakeTagMasteryService extends TagMasteryService {
   final Map<String, double> _data;
   _FakeTagMasteryService(this._data)
-    : super(logs: SessionLogService(sessions: TrainingSessionService()));
+      : super(logs: SessionLogService(sessions: TrainingSessionService()));
 
   @override
   Future<Map<String, double>> computeMastery({bool force = false}) async =>

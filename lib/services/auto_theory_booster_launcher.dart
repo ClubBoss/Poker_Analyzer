@@ -18,8 +18,8 @@ class AutoTheoryBoosterLauncher {
     RecapCompletionTracker? tracker,
     TheoryBoostTriggerService? trigger,
     this.cooldown = const Duration(minutes: 10),
-  }) : tracker = tracker ?? RecapCompletionTracker.instance,
-       trigger = trigger ?? TheoryBoostTriggerService.instance {
+  })  : tracker = tracker ?? RecapCompletionTracker.instance,
+        trigger = trigger ?? TheoryBoostTriggerService.instance {
     _sub = this.tracker.onCompletion.listen(_handle);
   }
 

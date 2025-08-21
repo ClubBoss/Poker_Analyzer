@@ -7,7 +7,7 @@ class BoosterEffectivenessAnalyzerService {
   final BoosterStatsTrackerService tracker;
 
   BoosterEffectivenessAnalyzerService({BoosterStatsTrackerService? tracker})
-    : tracker = tracker ?? BoosterStatsTrackerService();
+      : tracker = tracker ?? BoosterStatsTrackerService();
 
   static const String _boxName = 'booster_stats_box';
 

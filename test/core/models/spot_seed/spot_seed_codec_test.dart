@@ -6,18 +6,18 @@ void main() {
   final codec = const SpotSeedCodec();
 
   SpotSeed buildSeed() => SpotSeed(
-    id: 's1',
-    gameType: 'cash',
-    bb: 1,
-    stackBB: 20,
-    positions: const SpotPositions(hero: 'SB', villain: 'BB'),
-    ranges: const SpotRanges(hero: '22+', villain: '55+'),
-    board: const SpotBoard(flop: ['Ah', 'Kd', '9c']),
-    pot: 1.5,
-    tags: const ['test'],
-    difficulty: 'easy',
-    audience: 'public',
-  );
+        id: 's1',
+        gameType: 'cash',
+        bb: 1,
+        stackBB: 20,
+        positions: const SpotPositions(hero: 'SB', villain: 'BB'),
+        ranges: const SpotRanges(hero: '22+', villain: '55+'),
+        board: const SpotBoard(flop: ['Ah', 'Kd', '9c']),
+        pot: 1.5,
+        tags: const ['test'],
+        difficulty: 'easy',
+        audience: 'public',
+      );
 
   test('round trip json/yaml', () {
     final seed = buildSeed();

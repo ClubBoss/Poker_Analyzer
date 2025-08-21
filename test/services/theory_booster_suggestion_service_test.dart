@@ -35,7 +35,7 @@ class _FakeLibrary implements MiniLessonLibraryService {
 
 class _FakeLinker extends TheoryMiniLessonLinker {
   _FakeLinker({required MiniLessonLibraryService library})
-    : super(library: library, loader: _FakeLoader());
+      : super(library: library, loader: _FakeLoader());
 }
 
 class _FakeLoader implements PackLibraryLoaderService {

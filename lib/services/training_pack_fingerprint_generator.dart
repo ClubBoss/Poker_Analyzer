@@ -18,8 +18,8 @@ class TrainingPackFingerprintGenerator {
   const TrainingPackFingerprintGenerator({
     SpotFingerprintGenerator? spotFingerprint,
     AutogenStatsDashboardService? dashboard,
-  }) : _spotFingerprint = spotFingerprint ?? const SpotFingerprintGenerator(),
-       _dashboard = dashboard ?? AutogenStatsDashboardService();
+  })  : _spotFingerprint = spotFingerprint ?? const SpotFingerprintGenerator(),
+        _dashboard = dashboard ?? AutogenStatsDashboardService();
 
   final SpotFingerprintGenerator _spotFingerprint;
   final AutogenStatsDashboardService _dashboard;

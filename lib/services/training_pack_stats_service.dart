@@ -27,30 +27,30 @@ class TrainingPackStat {
   });
 
   Map<String, dynamic> toJson() => {
-    'accuracy': accuracy,
-    'last': last.millisecondsSinceEpoch,
-    if (lastIndex > 0) 'idx': lastIndex,
-    if (preEvPct > 0) 'preEv': preEvPct,
-    if (preIcmPct > 0) 'preIcm': preIcmPct,
-    if (postEvPct > 0) 'postEv': postEvPct,
-    if (postIcmPct > 0) 'postIcm': postIcmPct,
-    if (evSum != 0) 'evSum': evSum,
-    if (icmSum != 0) 'icmSum': icmSum,
-  };
+        'accuracy': accuracy,
+        'last': last.millisecondsSinceEpoch,
+        if (lastIndex > 0) 'idx': lastIndex,
+        if (preEvPct > 0) 'preEv': preEvPct,
+        if (preIcmPct > 0) 'preIcm': preIcmPct,
+        if (postEvPct > 0) 'postEv': postEvPct,
+        if (postIcmPct > 0) 'postIcm': postIcmPct,
+        if (evSum != 0) 'evSum': evSum,
+        if (icmSum != 0) 'icmSum': icmSum,
+      };
 
   factory TrainingPackStat.fromJson(Map<String, dynamic> j) => TrainingPackStat(
-    accuracy: (j['accuracy'] as num?)?.toDouble() ?? 0,
-    last: DateTime.fromMillisecondsSinceEpoch(
-      (j['last'] as num?)?.toInt() ?? 0,
-    ),
-    lastIndex: (j['idx'] as num?)?.toInt() ?? 0,
-    preEvPct: (j['preEv'] as num?)?.toDouble() ?? 0,
-    preIcmPct: (j['preIcm'] as num?)?.toDouble() ?? 0,
-    postEvPct: (j['postEv'] as num?)?.toDouble() ?? 0,
-    postIcmPct: (j['postIcm'] as num?)?.toDouble() ?? 0,
-    evSum: (j['evSum'] as num?)?.toDouble() ?? 0,
-    icmSum: (j['icmSum'] as num?)?.toDouble() ?? 0,
-  );
+        accuracy: (j['accuracy'] as num?)?.toDouble() ?? 0,
+        last: DateTime.fromMillisecondsSinceEpoch(
+          (j['last'] as num?)?.toInt() ?? 0,
+        ),
+        lastIndex: (j['idx'] as num?)?.toInt() ?? 0,
+        preEvPct: (j['preEv'] as num?)?.toDouble() ?? 0,
+        preIcmPct: (j['preIcm'] as num?)?.toDouble() ?? 0,
+        postEvPct: (j['postEv'] as num?)?.toDouble() ?? 0,
+        postIcmPct: (j['postIcm'] as num?)?.toDouble() ?? 0,
+        evSum: (j['evSum'] as num?)?.toDouble() ?? 0,
+        icmSum: (j['icmSum'] as num?)?.toDouble() ?? 0,
+      );
 }
 
 class GlobalPackStats {

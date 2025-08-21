@@ -6,7 +6,7 @@ import 'tag_mastery_adjustment_log_service.dart';
 /// Adjusts persisted tag mastery based on recent reinforcement history.
 class DecayRecallMasteryIntegrator {
   final Future<List<DecayTagReinforcementEvent>> Function(String tag)
-  _historyLoader;
+      _historyLoader;
   final MasteryPersistenceService _persistence;
   final TagMasteryAdjustmentLogService? _logger;
   final Duration staleThreshold;
@@ -16,18 +16,17 @@ class DecayRecallMasteryIntegrator {
 
   DecayRecallMasteryIntegrator({
     Future<List<DecayTagReinforcementEvent>> Function(String tag)?
-    historyLoader,
+        historyLoader,
     MasteryPersistenceService? persistence,
     TagMasteryAdjustmentLogService? logger,
     this.staleThreshold = const Duration(days: 30),
     this.negativeDelta = -0.02,
     this.positiveDelta = 0.01,
     this.maxDelta = 0.05,
-  }) : _historyLoader =
-           historyLoader ??
-           DecaySessionTagImpactRecorder.instance.getRecentReinforcements,
-       _persistence = persistence ?? MasteryPersistenceService(),
-       _logger = logger;
+  })  : _historyLoader = historyLoader ??
+            DecaySessionTagImpactRecorder.instance.getRecentReinforcements,
+        _persistence = persistence ?? MasteryPersistenceService(),
+        _logger = logger;
 
   /// Runs the integrator, adjusting stored mastery values.
   Future<void> integrate({DateTime? now}) async {

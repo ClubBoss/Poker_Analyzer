@@ -24,10 +24,10 @@ class RecentPack {
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'name': name,
-    'lastOpenedAt': lastOpenedAt.toIso8601String(),
-  };
+        'id': id,
+        'name': name,
+        'lastOpenedAt': lastOpenedAt.toIso8601String(),
+      };
 }
 
 class RecentPacksService {

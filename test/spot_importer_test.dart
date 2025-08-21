@@ -6,8 +6,7 @@ void main() {
   SpotImportReport r(String s, {String? format, String? kind}) =>
       SpotImporter.parse(s, format: format, kind: kind);
 
-  String dupJson({int count = 2}) =>
-      '''
+  String dupJson({int count = 2}) => '''
 [
   ${List.generate(count, (_) => '{"kind":"callVsJam","hand":"AKo","pos":"BTN","stack":"10bb","action":"push"}').join(',')}
 ]''';
@@ -45,8 +44,7 @@ void main() {
     });
 
     test('CSV: unescapes doubled quotes inside quoted fields', () {
-      const csv =
-          'kind,hand,pos,stack,action,explain\n'
+      const csv = 'kind,hand,pos,stack,action,explain\n'
           'callVsJam,AKo,BTN,10bb,push,"He said ""jam"""';
       final rep = r(csv, format: 'csv');
       expect(rep.added, 1);

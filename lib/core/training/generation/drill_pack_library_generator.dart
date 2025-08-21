@@ -4,7 +4,7 @@ import '../../../models/v2/training_pack_template.dart';
 class DrillPackLibraryGenerator {
   final YamlWriter writer;
   const DrillPackLibraryGenerator({YamlWriter? yamlWriter})
-    : writer = yamlWriter ?? const YamlWriter();
+      : writer = yamlWriter ?? const YamlWriter();
 
   Future<void> export(List<TrainingPackTemplate> packs, String path) async {
     final map = <String, List<Map<String, dynamic>>>{};

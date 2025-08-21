@@ -12,7 +12,7 @@ class PackLibraryGenerator {
   final Set<String> _slugs = {};
 
   PackLibraryGenerator({SpotTemplateEngine? engine})
-    : engine = engine ?? SpotTemplateEngine();
+      : engine = engine ?? SpotTemplateEngine();
 
   List<TrainingPackTemplate> get packs => List.unmodifiable(_packs);
 
@@ -27,8 +27,7 @@ class PackLibraryGenerator {
     _slugs.clear();
     final heroes = heroPositions ?? HeroPosition.values;
     final villains = villainPositions ?? HeroPosition.values;
-    final ranges =
-        stackRanges ??
+    final ranges = stackRanges ??
         const [
           [10],
           [15],
@@ -163,9 +162,8 @@ class PackLibraryGenerator {
       default:
         a = action;
     }
-    final avg = stacks.isEmpty
-        ? 0
-        : stacks.reduce((a, b) => a + b) ~/ stacks.length;
+    final avg =
+        stacks.isEmpty ? 0 : stacks.reduce((a, b) => a + b) ~/ stacks.length;
     final prefix = icm ? 'icm-' : '';
     return '$prefix$a-${hero.name}-${avg}bb-vs-${villain.name}';
   }

@@ -16,10 +16,10 @@ class TheoryRecallAutoLinkInjector {
     InlineTheoryLinkerService? linker,
     TheoryMiniLessonUsageTracker? usageTracker,
     TheoryAutoInjectionLoggerService? logger,
-  }) : retention = retention ?? const DecayTagRetentionTrackerService(),
-       linker = linker ?? InlineTheoryLinkerService(),
-       usageTracker = usageTracker ?? TheoryMiniLessonUsageTracker.instance,
-       logger = logger ?? TheoryAutoInjectionLoggerService.instance;
+  })  : retention = retention ?? const DecayTagRetentionTrackerService(),
+        linker = linker ?? InlineTheoryLinkerService(),
+        usageTracker = usageTracker ?? TheoryMiniLessonUsageTracker.instance,
+        logger = logger ?? TheoryAutoInjectionLoggerService.instance;
 
   /// Attaches a [`linkedTheoryId`] to [spot] when its tags are decayed and
   /// the corresponding lesson hasn't been opened manually before.

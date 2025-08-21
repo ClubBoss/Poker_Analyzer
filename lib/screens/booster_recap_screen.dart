@@ -63,12 +63,11 @@ class _BoosterRecapScreenState extends State<BoosterRecapScreen> {
         .map((t) => t.trim())
         .where((t) => t.isNotEmpty)
         .map((t) {
-          final delta = widget.tagDeltas[t.toLowerCase()] ?? 0.0;
-          final sign = delta >= 0 ? '+' : '';
-          final pct = (delta * 100).toStringAsFixed(1);
-          return '$t: $sign$pct%';
-        })
-        .toList();
+      final delta = widget.tagDeltas[t.toLowerCase()] ?? 0.0;
+      final sign = delta >= 0 ? '+' : '';
+      final pct = (delta * 100).toStringAsFixed(1);
+      return '$t: $sign$pct%';
+    }).toList();
     if (entries.isEmpty) return [];
     return [
       const Text(

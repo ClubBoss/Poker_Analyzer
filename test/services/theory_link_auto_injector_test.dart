@@ -92,9 +92,7 @@ void main() {
 
     expect(
       AutogenStatusDashboardService
-          .instance
-          .theoryClustersInjectedNotifier
-          .value,
+          .instance.theoryClustersInjectedNotifier.value,
       greaterThan(0),
     );
   });

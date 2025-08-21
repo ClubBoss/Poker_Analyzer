@@ -25,16 +25,15 @@ class TheoryGoalEngine with SingletonMixin<TheoryGoalEngine> {
     TheoryLessonTagClusterer? clusterer,
     TheoryClusterSummaryService? summaryService,
     MiniLessonLibraryService? library,
-  }) : recommender =
-           recommender ??
-           TheoryGoalRecommender(
-             mastery: TagMasteryService(
-               logs: SessionLogService(sessions: TrainingSessionService()),
-             ),
-           ),
-       clusterer = clusterer ?? TheoryLessonTagClusterer(),
-       summaryService = summaryService ?? TheoryClusterSummaryService(),
-       library = library ?? MiniLessonLibraryService.instance;
+  })  : recommender = recommender ??
+            TheoryGoalRecommender(
+              mastery: TagMasteryService(
+                logs: SessionLogService(sessions: TrainingSessionService()),
+              ),
+            ),
+        clusterer = clusterer ?? TheoryLessonTagClusterer(),
+        summaryService = summaryService ?? TheoryClusterSummaryService(),
+        library = library ?? MiniLessonLibraryService.instance;
 
   static TheoryGoalEngine get instance =>
       SingletonMixin.instance<TheoryGoalEngine>(() => TheoryGoalEngine());

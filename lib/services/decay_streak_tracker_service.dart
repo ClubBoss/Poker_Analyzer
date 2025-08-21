@@ -7,7 +7,7 @@ class DecayStreakTrackerService {
   final RecallTagDecaySummaryService summary;
 
   const DecayStreakTrackerService({RecallTagDecaySummaryService? summary})
-    : summary = summary ?? const RecallTagDecaySummaryService();
+      : summary = summary ?? const RecallTagDecaySummaryService();
 
   static const String _countKey = 'decay_streak_count';
   static const String _lastCheckKey = 'decay_streak_last_check';

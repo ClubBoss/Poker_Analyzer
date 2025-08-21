@@ -105,9 +105,8 @@ class AnalyzerTab extends StatelessWidget {
               Provider(
                 create: (_) => PlayerEditingService(
                   playerManager: context.read<PlayerManagerService>(),
-                  stackService: context
-                      .read<PlaybackManagerService>()
-                      .stackService,
+                  stackService:
+                      context.read<PlaybackManagerService>().stackService,
                   playbackManager: context.read<PlaybackManagerService>(),
                   profile: context.read<PlayerProfileService>(),
                 ),
@@ -128,21 +127,18 @@ class AnalyzerTab extends StatelessWidget {
                     allInPlayersService: context.read<AllInPlayersService>(),
                     handContext: CurrentHandContextService(),
                     playbackManager: context.read<PlaybackManagerService>(),
-                    stackService: context
-                        .read<PlaybackManagerService>()
-                        .stackService,
-                    potSyncService: context
-                        .read<PlaybackManagerService>()
-                        .potSync,
+                    stackService:
+                        context.read<PlaybackManagerService>().stackService,
+                    potSyncService:
+                        context.read<PlaybackManagerService>().potSync,
                     boardManager: context.read<BoardManagerService>(),
                     boardSync: context.read<BoardSyncService>(),
                     boardEditing: context.read<BoardEditingService>(),
                     playerEditing: context.read<PlayerEditingService>(),
                     playerManager: context.read<PlayerManagerService>(),
                     playerProfile: context.read<PlayerProfileService>(),
-                    actionTagService: context
-                        .read<PlayerProfileService>()
-                        .actionTagService,
+                    actionTagService:
+                        context.read<PlayerProfileService>().actionTagService,
                     boardReveal: boardReveal,
                     lockService: lockService,
                     actionHistory: context.read<ActionHistoryService>(),

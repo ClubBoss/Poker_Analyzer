@@ -47,7 +47,8 @@ class _FakeSuppression extends TheoryRecapSuppressionEngine {
   Future<bool> shouldSuppress({
     required String lessonId,
     required String trigger,
-  }) async => value;
+  }) async =>
+      value;
 }
 
 class _FakeDismissal extends SmartTheoryRecapDismissalMemory {

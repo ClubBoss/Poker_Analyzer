@@ -22,9 +22,12 @@ void main() {
     );
     final svc = SpacedReviewService(templates: storage);
     await svc.recordMistake('s1', 'p1');
-    final queue = buildSrQueue(svc, {
-      's2',
-    }, now: DateTime.now().add(const Duration(days: 1)));
+    final queue = buildSrQueue(
+        svc,
+        {
+          's2',
+        },
+        now: DateTime.now().add(const Duration(days: 1)));
     expect(queue.length, 1);
     expect(queue.first.spot.id, 's1');
     queue.removeAt(0);

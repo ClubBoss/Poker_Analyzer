@@ -170,16 +170,17 @@ class _ReviewSession {
   });
 
   Map<String, dynamic> toJson() => {
-    'tag': tag,
-    'lessonId': lessonId,
-    'time': time.toIso8601String(),
-    'pre': preDecay,
-  };
+        'tag': tag,
+        'lessonId': lessonId,
+        'time': time.toIso8601String(),
+        'pre': preDecay,
+      };
 
   factory _ReviewSession.fromJson(Map<String, dynamic> json) => _ReviewSession(
-    tag: json['tag'] as String? ?? '',
-    lessonId: json['lessonId'] as String? ?? '',
-    time: DateTime.tryParse(json['time'] as String? ?? '') ?? DateTime.now(),
-    preDecay: (json['pre'] as num?)?.toDouble() ?? 0.0,
-  );
+        tag: json['tag'] as String? ?? '',
+        lessonId: json['lessonId'] as String? ?? '',
+        time:
+            DateTime.tryParse(json['time'] as String? ?? '') ?? DateTime.now(),
+        preDecay: (json['pre'] as num?)?.toDouble() ?? 0.0,
+      );
 }

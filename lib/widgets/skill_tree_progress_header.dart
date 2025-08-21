@@ -17,8 +17,8 @@ class SkillTreeProgressHeader extends StatefulWidget {
     required this.trackId,
     SkillTreeLibraryService? library,
     SkillTreeTrackProgressService? progressService,
-  }) : library = library ?? SkillTreeLibraryService.instance,
-       progressService = progressService ?? SkillTreeTrackProgressService();
+  })  : library = library ?? SkillTreeLibraryService.instance,
+        progressService = progressService ?? SkillTreeTrackProgressService();
 
   @override
   State<SkillTreeProgressHeader> createState() =>

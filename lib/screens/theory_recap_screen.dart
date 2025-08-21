@@ -45,8 +45,8 @@ class _TheoryRecapScreenState extends State<TheoryRecapScreen> {
     final next = widget.navigator?.getNext(widget.lesson.id);
     final clusterLabel =
         widget.cluster != null && widget.cluster!.sharedTags.isNotEmpty
-        ? widget.cluster!.sharedTags.join(', ')
-        : null;
+            ? widget.cluster!.sharedTags.join(', ')
+            : null;
     return Scaffold(
       appBar: AppBar(title: const Text('Theory Recap')),
       backgroundColor: const Color(0xFF121212),

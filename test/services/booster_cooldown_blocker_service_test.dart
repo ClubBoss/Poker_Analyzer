@@ -21,9 +21,8 @@ void main() {
     final raw = prefs.getString('booster_cooldown_blocker');
     final map = jsonDecode(raw!) as Map;
     final rec = Map<String, dynamic>.from(map['recap'] as Map);
-    rec['d'] = DateTime.now()
-        .subtract(const Duration(hours: 4))
-        .toIso8601String();
+    rec['d'] =
+        DateTime.now().subtract(const Duration(hours: 4)).toIso8601String();
     map['recap'] = rec;
     await prefs.setString('booster_cooldown_blocker', jsonEncode(map));
     svc.resetForTest();

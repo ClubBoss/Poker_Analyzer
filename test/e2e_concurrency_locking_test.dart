@@ -54,17 +54,18 @@ class _PassGatekeeper extends PackQualityGatekeeperService {
     pack, {
     double minScore = 0.7,
     seedIssues = const {},
-  }) => true;
+  }) =>
+      true;
 }
 
 class _SlowExecutor extends AdaptivePlanExecutor {
   _SlowExecutor({required LearningPathStore store})
-    : super(
-        boosterEngine: _FakeBoosterEngine(),
-        formatSelector: _FakeFormatSelector(),
-        gatekeeper: const _PassGatekeeper(),
-        store: store,
-      );
+      : super(
+          boosterEngine: _FakeBoosterEngine(),
+          formatSelector: _FakeFormatSelector(),
+          gatekeeper: const _PassGatekeeper(),
+          store: store,
+        );
   @override
   Future<List<InjectedPathModule>> execute({
     required String userId,
@@ -92,9 +93,12 @@ void main() {
 
   test('one run injects, other locked-skip', () async {
     const user = 'u1';
-    await UserSkillModelService.instance.recordAttempt(user, [
-      'tag',
-    ], correct: false);
+    await UserSkillModelService.instance.recordAttempt(
+        user,
+        [
+          'tag',
+        ],
+        correct: false);
     final tempDir = await Directory.systemTemp.createTemp('lock');
     final store = LearningPathStore(rootDir: tempDir.path);
     final exec = AutogenPipelineExecutor();

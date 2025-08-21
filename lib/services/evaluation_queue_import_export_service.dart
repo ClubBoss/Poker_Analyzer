@@ -330,8 +330,7 @@ class EvaluationQueueImportExportService {
     queueService.failed.addAll(importedFailed);
     queueService.completed.addAll(importedCompleted);
     await _persist();
-    final total =
-        importedPending.length +
+    final total = importedPending.length +
         importedFailed.length +
         importedCompleted.length;
     final msg = skipped == 0

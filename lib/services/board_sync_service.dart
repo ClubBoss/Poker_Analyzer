@@ -7,8 +7,8 @@ class BoardSyncService {
   BoardSyncService({
     required PlayerManagerService playerManager,
     required ActionSyncService actionSync,
-  }) : _playerManager = playerManager,
-       _actionSync = actionSync;
+  })  : _playerManager = playerManager,
+        _actionSync = actionSync;
 
   final PlayerManagerService _playerManager;
   final ActionSyncService _actionSync;

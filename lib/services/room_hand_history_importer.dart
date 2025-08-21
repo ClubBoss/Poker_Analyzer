@@ -79,8 +79,7 @@ class RoomHandHistoryImporter {
         seatEntries.add({
           'seat': int.parse(sm.group(1)!),
           'name': sm.group(2)!.trim(),
-          'stack':
-              double.tryParse(
+          'stack': double.tryParse(
                 sm.group(3)!.replaceAll(RegExp(r'[^0-9.]'), ''),
               ) ??
               0,

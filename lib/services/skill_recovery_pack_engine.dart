@@ -94,15 +94,14 @@ class SkillRecoveryPackEngine {
         return p;
       }
     }
-    final sorted =
-        [
-          for (final p in library)
-            if (!exclude.contains(p.id)) p,
-        ]..sort((a, b) {
-          final pa = (a.meta['popularity'] as num?)?.toDouble() ?? 0;
-          final pb = (b.meta['popularity'] as num?)?.toDouble() ?? 0;
-          return pb.compareTo(pa);
-        });
+    final sorted = [
+      for (final p in library)
+        if (!exclude.contains(p.id)) p,
+    ]..sort((a, b) {
+        final pa = (a.meta['popularity'] as num?)?.toDouble() ?? 0;
+        final pb = (b.meta['popularity'] as num?)?.toDouble() ?? 0;
+        return pb.compareTo(pa);
+      });
     for (final p in sorted) {
       if (!await SuggestionCooldownManager.isUnderCooldown(p.id)) {
         await SuggestedTrainingPacksHistoryService.logSuggestion(

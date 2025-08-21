@@ -18,8 +18,8 @@ class SmartReSuggestionEngine {
     required this.logs,
     List<TrainingPackTemplateV2>? library,
     SuggestedWeakTagPackService? weakTagService,
-  }) : _libraryOverride = library,
-       _weakTagService = weakTagService ?? const SuggestedWeakTagPackService();
+  })  : _libraryOverride = library,
+        _weakTagService = weakTagService ?? const SuggestedWeakTagPackService();
 
   /// Returns the next suggested pack without logging or updating cooldowns.
   Future<TrainingPackTemplateV2?> previewNext() async {

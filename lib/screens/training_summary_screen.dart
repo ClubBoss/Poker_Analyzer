@@ -31,9 +31,8 @@ class TrainingSummaryScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final rate = total == 0 ? 0 : correct * 100 / total;
     final history = context.watch<ProgressForecastService>().history;
-    final data = history.length >= 2
-        ? history.sublist(history.length - 2)
-        : history;
+    final data =
+        history.length >= 2 ? history.sublist(history.length - 2) : history;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Center(

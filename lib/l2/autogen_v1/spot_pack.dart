@@ -15,11 +15,11 @@ class SpotDTO {
   });
 
   Map<String, dynamic> toJson() => {
-    'hand': hand,
-    'pos': pos,
-    'stack': stack,
-    'action': action,
-  };
+        'hand': hand,
+        'pos': pos,
+        'stack': stack,
+        'action': action,
+      };
 }
 
 class SpotPack {
@@ -37,15 +37,17 @@ class SpotPack {
   });
 
   Map<String, dynamic> toJson() => {
-    'version': version,
-    'seed': seed,
-    'count': count,
-    'mix': {
-      'posPct': {for (final e in mix.posPct.entries) e.key.name: e.value},
-      'stackPct': {for (final e in mix.stackPct.entries) e.key.name: e.value},
-    },
-    'items': [for (final i in items) i.toJson()],
-  };
+        'version': version,
+        'seed': seed,
+        'count': count,
+        'mix': {
+          'posPct': {for (final e in mix.posPct.entries) e.key.name: e.value},
+          'stackPct': {
+            for (final e in mix.stackPct.entries) e.key.name: e.value
+          },
+        },
+        'items': [for (final i in items) i.toJson()],
+      };
 }
 
 SpotPack buildOpenFoldPack({

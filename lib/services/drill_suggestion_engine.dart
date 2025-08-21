@@ -17,8 +17,8 @@ class DrillSuggestionEngine extends ChangeNotifier {
   DrillSuggestionEngine({
     required SavedHandManagerService hands,
     required TrainingPackStorageService packs,
-  }) : _hands = hands,
-       _packs = packs {
+  })  : _hands = hands,
+        _packs = packs {
     _update();
     _hands.addListener(_update);
   }

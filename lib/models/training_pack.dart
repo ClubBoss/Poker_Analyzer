@@ -62,11 +62,11 @@ class TrainingPack {
     this.difficulty = 1,
     List<TrainingSessionResult>? history,
     DateTime? createdAt,
-  }) : id = id ?? const Uuid().v4(),
-       tags = tags ?? const [],
-       spots = spots ?? const [],
-       history = history ?? [],
-       createdAt = createdAt ?? DateTime.now();
+  })  : id = id ?? const Uuid().v4(),
+        tags = tags ?? const [],
+        spots = spots ?? const [],
+        history = history ?? [],
+        createdAt = createdAt ?? DateTime.now();
 
   int get solved => history.isNotEmpty ? history.last.correct : 0;
   int get lastAttempted => history.isNotEmpty ? history.last.total : 0;

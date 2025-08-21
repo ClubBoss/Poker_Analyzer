@@ -32,8 +32,8 @@ class DifficultyChip extends StatelessWidget {
     final message = difficulty == 1
         ? 'Beginner: mostly straightforward push/fold spots.'
         : difficulty == 2
-        ? 'Intermediate: mixed decisions, some multi-street play.'
-        : 'Advanced: tricky, multi-way or solver-heavy spots.';
+            ? 'Intermediate: mixed decisions, some multi-street play.'
+            : 'Advanced: tricky, multi-way or solver-heavy spots.';
     return InfoTooltip(
       message: message,
       child: Container(

@@ -19,17 +19,16 @@ class PackCompletionData {
   });
 
   Map<String, dynamic> toJson() => {
-    'completedAt': completedAt.toIso8601String(),
-    'correct': correct,
-    'total': total,
-    'accuracy': accuracy,
-    'elapsed': elapsed.inSeconds,
-  };
+        'completedAt': completedAt.toIso8601String(),
+        'correct': correct,
+        'total': total,
+        'accuracy': accuracy,
+        'elapsed': elapsed.inSeconds,
+      };
 
   factory PackCompletionData.fromJson(Map<String, dynamic> json) =>
       PackCompletionData(
-        completedAt:
-            DateTime.tryParse(json['completedAt'] as String? ?? '') ??
+        completedAt: DateTime.tryParse(json['completedAt'] as String? ?? '') ??
             DateTime.fromMillisecondsSinceEpoch(0),
         correct: (json['correct'] as num?)?.toInt() ?? 0,
         total: (json['total'] as num?)?.toInt() ?? 0,

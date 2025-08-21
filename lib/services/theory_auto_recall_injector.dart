@@ -15,8 +15,8 @@ class TheoryAutoRecallInjector {
   const TheoryAutoRecallInjector({
     DecayTagRetentionTrackerService? retention,
     MiniLessonLibraryService? lessons,
-  }) : retention = retention ?? const DecayTagRetentionTrackerService(),
-       lessons = lessons ?? MiniLessonLibraryService.instance;
+  })  : retention = retention ?? const DecayTagRetentionTrackerService(),
+        lessons = lessons ?? MiniLessonLibraryService.instance;
 
   /// Builds a widget that conditionally injects a theory snippet below [entry].
   Widget build(BuildContext context, String nodeId, Object entry) {

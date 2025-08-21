@@ -17,9 +17,9 @@ class TheoryBoostTriggerService {
     RecapEffectivenessAnalyzer? analyzer,
     MiniLessonLibraryService? library,
     this.cooldown = const Duration(hours: 12),
-  }) : tracker = tracker ?? RecapCompletionTracker.instance,
-       analyzer = analyzer ?? RecapEffectivenessAnalyzer.instance,
-       library = library ?? MiniLessonLibraryService.instance;
+  })  : tracker = tracker ?? RecapCompletionTracker.instance,
+        analyzer = analyzer ?? RecapEffectivenessAnalyzer.instance,
+        library = library ?? MiniLessonLibraryService.instance;
 
   static final TheoryBoostTriggerService instance = TheoryBoostTriggerService();
 

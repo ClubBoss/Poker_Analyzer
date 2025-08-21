@@ -12,8 +12,8 @@ class BuiltInPackBootstrapService {
   const BuiltInPackBootstrapService({
     PackLibraryService? library,
     SharedPreferences? prefs,
-  }) : _library = library ?? PackLibraryService.instance,
-       _prefs = prefs;
+  })  : _library = library ?? PackLibraryService.instance,
+        _prefs = prefs;
 
   final PackLibraryService _library;
   final SharedPreferences? _prefs;

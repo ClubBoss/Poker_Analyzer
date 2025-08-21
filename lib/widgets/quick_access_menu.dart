@@ -30,9 +30,8 @@ class QuickAccessMenu extends StatelessWidget {
       ),
     );
     UserActionLogger.instance.logEvent({
-      'event': primary
-          ? 'quick_access.resume_click'
-          : 'quick_access.recent_click',
+      'event':
+          primary ? 'quick_access.resume_click' : 'quick_access.recent_click',
       'packId': pack.id,
     });
     await RecentPacksService.instance.record(template);

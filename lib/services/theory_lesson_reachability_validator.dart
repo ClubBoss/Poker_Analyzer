@@ -18,7 +18,7 @@ class TheoryLessonReachabilityValidator {
   final MiniLessonLibraryService library;
 
   const TheoryLessonReachabilityValidator({MiniLessonLibraryService? library})
-    : library = library ?? MiniLessonLibraryService.instance;
+      : library = library ?? MiniLessonLibraryService.instance;
 
   /// Analyzes the mini lesson graph and returns [TheoryLessonReachabilityResult].
   TheoryLessonReachabilityResult validate({List<String> rootIds = const []}) {

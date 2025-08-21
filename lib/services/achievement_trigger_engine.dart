@@ -53,8 +53,8 @@ class AchievementTriggerEngine {
 
   Future<void> _checkThreeStages() async {
     if (await _isUnlocked('learning_path_3')) return;
-    final stages = await LearningPathProgressService.instance
-        .getCurrentStageState();
+    final stages =
+        await LearningPathProgressService.instance.getCurrentStageState();
     final completedCount = stages
         .where(
           (s) => LearningPathProgressService.instance.isStageCompleted(s.items),
@@ -67,8 +67,8 @@ class AchievementTriggerEngine {
 
   Future<void> _checkBeginnerStage() async {
     if (await _isUnlocked('beginner_master')) return;
-    final stages = await LearningPathProgressService.instance
-        .getCurrentStageState();
+    final stages =
+        await LearningPathProgressService.instance.getCurrentStageState();
     final stage = stages.firstWhereOrNull(
       (s) => s.title.toLowerCase() == 'beginner',
     );
@@ -80,8 +80,8 @@ class AchievementTriggerEngine {
 
   Future<void> _checkPathCompleted() async {
     if (await _isUnlocked('path_completed')) return;
-    final done = await LearningPathProgressService.instance
-        .isAllStagesCompleted();
+    final done =
+        await LearningPathProgressService.instance.isAllStagesCompleted();
     if (done) {
       await LearningPathCompletionService.instance.markPathCompleted();
       await _markUnlocked('path_completed');

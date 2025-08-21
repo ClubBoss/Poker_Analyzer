@@ -9,8 +9,8 @@ class SkillTreePathProgressEstimator {
   SkillTreePathProgressEstimator({
     SkillTreeLibraryService? library,
     SkillTreeNodeProgressTracker? progress,
-  }) : library = library ?? SkillTreeLibraryService.instance,
-       progress = progress ?? SkillTreeNodeProgressTracker.instance;
+  })  : library = library ?? SkillTreeLibraryService.instance,
+        progress = progress ?? SkillTreeNodeProgressTracker.instance;
 
   /// Returns progress for [trackId] as a value from 0 to 100.
   ///
@@ -26,9 +26,8 @@ class SkillTreePathProgressEstimator {
     final tree = library.getTrack(trackId)?.tree;
     if (tree == null) return 0;
 
-    final completed = progress.completedNodeIds.value
-        .where(tree.nodes.containsKey)
-        .toSet();
+    final completed =
+        progress.completedNodeIds.value.where(tree.nodes.containsKey).toSet();
 
     final unlocked = <String>{};
     for (final node in tree.nodes.values) {

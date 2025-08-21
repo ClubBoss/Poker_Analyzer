@@ -120,7 +120,7 @@ class _LearningStageTileState extends State<LearningStageTile> {
       final avgProg = _progress.isEmpty
           ? 0.0
           : _progress.values.fold(0.0, (a, b) => a + b) /
-                stage.subStages.length;
+              stage.subStages.length;
       final children = _loading
           ? const [
               Padding(

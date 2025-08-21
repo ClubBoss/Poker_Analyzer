@@ -16,7 +16,7 @@ class TrainingPackTemplateCompiler {
   final TrainingPackGeneratorEngineV2 _engine;
 
   const TrainingPackTemplateCompiler({TrainingPackGeneratorEngineV2? engine})
-    : _engine = engine ?? const TrainingPackGeneratorEngineV2();
+      : _engine = engine ?? const TrainingPackGeneratorEngineV2();
 
   /// Compiles template sets from YAML [sources].
   ///

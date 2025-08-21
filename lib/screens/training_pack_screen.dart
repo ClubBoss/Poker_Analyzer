@@ -15,11 +15,11 @@ class TrainingPackScreen extends TrainingPackCore {
     bool persistResults = true,
     int? initialPosition,
   }) : super(
-         pack: pack,
-         hands: hands,
-         mistakeReviewMode: mistakeReviewMode,
-         onComplete: onComplete,
-         persistResults: persistResults,
-         initialPosition: initialPosition,
-       );
+          pack: pack,
+          hands: hands,
+          mistakeReviewMode: mistakeReviewMode,
+          onComplete: onComplete,
+          persistResults: persistResults,
+          initialPosition: initialPosition,
+        );
 }

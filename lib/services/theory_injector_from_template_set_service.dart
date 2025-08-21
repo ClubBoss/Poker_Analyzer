@@ -39,8 +39,7 @@ class TheoryInjectorFromTemplateSetService {
     final lessons = <TheoryMiniLessonNode>[];
     for (final pack in packs) {
       final stage = pack.metadata['stage']?.toString();
-      final street =
-          pack.metadata['targetStreet']?.toString() ??
+      final street = pack.metadata['targetStreet']?.toString() ??
           pack.metadata['street']?.toString();
       lessons.add(
         TheoryMiniLessonNode(

@@ -41,22 +41,21 @@ class AutoTheoryReviewEngine {
     TheoryBoosterReinjectionPolicy? reinjectionPolicy,
     TheoryPackLibraryService? library,
     SmartBoosterSummaryEngine? summaryEngine,
-  }) : engine = engine ?? LearningPathEngine.instance,
-       planner = planner ?? SmartWeakReviewPlanner.instance,
-       injector = injector ?? TheoryBoosterInjector.instance,
-       miniPlanner = miniPlanner ?? SmartMiniBoosterPlanner.instance,
-       miniInjector = miniInjector ?? const MiniLessonBoosterEngine(),
-       scheduler = scheduler ?? const MiniLessonScheduler(),
-       clusterEngine = clusterEngine ?? const WeaknessClusterEngine(),
-       masteryService =
-           masteryService ??
-           TagMasteryService(
-             logs: SessionLogService(sessions: TrainingSessionService()),
-           ),
-       reinjectionPolicy =
-           reinjectionPolicy ?? TheoryBoosterReinjectionPolicy.instance,
-       library = library ?? TheoryPackLibraryService.instance,
-       summaryEngine = summaryEngine ?? const SmartBoosterSummaryEngine();
+  })  : engine = engine ?? LearningPathEngine.instance,
+        planner = planner ?? SmartWeakReviewPlanner.instance,
+        injector = injector ?? TheoryBoosterInjector.instance,
+        miniPlanner = miniPlanner ?? SmartMiniBoosterPlanner.instance,
+        miniInjector = miniInjector ?? const MiniLessonBoosterEngine(),
+        scheduler = scheduler ?? const MiniLessonScheduler(),
+        clusterEngine = clusterEngine ?? const WeaknessClusterEngine(),
+        masteryService = masteryService ??
+            TagMasteryService(
+              logs: SessionLogService(sessions: TrainingSessionService()),
+            ),
+        reinjectionPolicy =
+            reinjectionPolicy ?? TheoryBoosterReinjectionPolicy.instance,
+        library = library ?? TheoryPackLibraryService.instance,
+        summaryEngine = summaryEngine ?? const SmartBoosterSummaryEngine();
 
   static final AutoTheoryReviewEngine instance = AutoTheoryReviewEngine();
 

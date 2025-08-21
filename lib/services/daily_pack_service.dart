@@ -52,8 +52,7 @@ class DailyPackService extends ChangeNotifier {
       final completed =
           stat != null && stat.accuracy >= .9 && ev >= 80 && icm >= 80;
       if (completed || (ev >= 90 && icm >= 90)) continue;
-      final target =
-          (t.recommended ||
+      final target = (t.recommended ||
               t.tags.contains('starter') ||
               now.difference(t.created).inDays < 7)
           ? preferred

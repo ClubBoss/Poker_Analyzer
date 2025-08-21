@@ -15,8 +15,8 @@ class ScheduledTrainingLauncher {
     ScheduledTrainingQueueService? queue,
     PackLibraryService? library,
     this.launcher = const TrainingSessionLauncher(),
-  }) : queue = queue ?? ScheduledTrainingQueueService.instance,
-       library = library ?? PackLibraryService.instance;
+  })  : queue = queue ?? ScheduledTrainingQueueService.instance,
+        library = library ?? PackLibraryService.instance;
 
   /// Launches the next scheduled pack if one is queued.
   Future<void> launchNext() async {

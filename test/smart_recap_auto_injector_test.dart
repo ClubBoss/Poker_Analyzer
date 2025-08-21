@@ -23,11 +23,11 @@ class _FakeDetector implements RecapOpportunityDetector {
 
 class FakeRetentionTracker extends TagRetentionTracker {
   FakeRetentionTracker(List<String> tags)
-    : super(
-        mastery: TagMasteryService(
-          logs: SessionLogService(sessions: TrainingSessionService()),
-        ),
-      ) {
+      : super(
+          mastery: TagMasteryService(
+            logs: SessionLogService(sessions: TrainingSessionService()),
+          ),
+        ) {
     _tags = tags;
   }
 
@@ -37,7 +37,8 @@ class FakeRetentionTracker extends TagRetentionTracker {
   Future<List<String>> getDecayedTags({
     double threshold = 0.75,
     DateTime? now,
-  }) async => _tags;
+  }) async =>
+      _tags;
 }
 
 class _FakeEngine extends SmartTheoryRecapEngine {
@@ -54,7 +55,8 @@ class _FakeSuppression extends TheoryRecapSuppressionEngine {
   Future<bool> shouldSuppress({
     required String lessonId,
     required String trigger,
-  }) async => value;
+  }) async =>
+      value;
 }
 
 class _FakeDismissal extends SmartTheoryRecapDismissalMemory {

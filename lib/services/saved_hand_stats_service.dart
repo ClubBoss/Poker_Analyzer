@@ -31,7 +31,7 @@ class SavedHandSessionStats {
 
 class SavedHandStatsService extends ChangeNotifier {
   SavedHandStatsService({required SavedHandManagerService manager})
-    : _manager = manager {
+      : _manager = manager {
     _manager.addListener(notifyListeners);
   }
 

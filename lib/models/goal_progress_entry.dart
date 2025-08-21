@@ -5,9 +5,9 @@ class GoalProgressEntry {
   GoalProgressEntry({required this.date, required this.progress});
 
   Map<String, dynamic> toJson() => {
-    'date': date.toIso8601String(),
-    'progress': progress,
-  };
+        'date': date.toIso8601String(),
+        'progress': progress,
+      };
 
   factory GoalProgressEntry.fromJson(Map<String, dynamic> json) =>
       GoalProgressEntry(

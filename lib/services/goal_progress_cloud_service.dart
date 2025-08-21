@@ -9,11 +9,8 @@ class GoalProgressCloudService {
 
   Future<List<Map<String, dynamic>>> loadGoals() async {
     if (_uid == null) return [];
-    final snap = await _db
-        .collection('progress')
-        .doc(_uid)
-        .collection('goals')
-        .get();
+    final snap =
+        await _db.collection('progress').doc(_uid).collection('goals').get();
     return [for (final d in snap.docs) d.data()];
   }
 

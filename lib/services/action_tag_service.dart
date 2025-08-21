@@ -63,8 +63,8 @@ class ActionTagService {
 
   /// Serializes tags to a JSON-friendly map.
   Map<String, String?> toJson() => {
-    for (final e in _tags.entries) e.key.toString(): e.value,
-  };
+        for (final e in _tags.entries) e.key.toString(): e.value,
+      };
 
   /// Restores tags from a JSON map produced by [toJson].
   void restoreFromJson(Map<String, dynamic>? json) {

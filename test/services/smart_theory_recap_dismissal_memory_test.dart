@@ -24,9 +24,8 @@ void main() {
 
     // Simulate old timestamp beyond decay
     final entry = Map<String, dynamic>.from(map['lesson:l1'] as Map);
-    entry['ts'] = DateTime.now()
-        .subtract(const Duration(days: 4))
-        .toIso8601String();
+    entry['ts'] =
+        DateTime.now().subtract(const Duration(days: 4)).toIso8601String();
     map['lesson:l1'] = entry;
     await prefs.setString('smart_theory_recap_dismissals_v2', jsonEncode(map));
     mem.resetForTest();

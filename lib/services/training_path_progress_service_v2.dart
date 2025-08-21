@@ -122,8 +122,7 @@ class TrainingPathProgressServiceV2 {
       bool done = false;
       if (prog != null) {
         if (stage.subStages.isEmpty) {
-          done =
-              prog.hands >= stage.minHands &&
+          done = prog.hands >= stage.minHands &&
               prog.accuracy >= stage.requiredAccuracy;
         } else {
           done = true;

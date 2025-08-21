@@ -15,15 +15,14 @@ class TheoryLessonFeedback {
     return TheoryLessonFeedback(
       lessonId: json['lessonId'] as String? ?? '',
       choice: TheoryLessonFeedbackChoice.values[json['choice'] as int? ?? 0],
-      timestamp:
-          DateTime.tryParse(json['timestamp'] as String? ?? '') ??
+      timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ??
           DateTime.now(),
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'lessonId': lessonId,
-    'choice': choice.index,
-    'timestamp': timestamp.toIso8601String(),
-  };
+        'lessonId': lessonId,
+        'choice': choice.index,
+        'timestamp': timestamp.toIso8601String(),
+      };
 }

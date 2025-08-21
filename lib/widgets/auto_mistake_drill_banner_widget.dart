@@ -76,11 +76,11 @@ class _AutoMistakeDrillBannerWidgetState
 class _MistakePackHistory extends MistakeHistoryQueryService {
   final MistakeReviewPackService _source;
   _MistakePackHistory(this._source)
-    : super(
-        loadSpottings: () async => [],
-        resolveTags: (_) async => [],
-        resolveStreet: (_) async => null,
-      );
+      : super(
+          loadSpottings: () async => [],
+          resolveTags: (_) async => [],
+          resolveStreet: (_) async => null,
+        );
 
   @override
   Future<List<MistakeHistoryEntry>> queryMistakes({

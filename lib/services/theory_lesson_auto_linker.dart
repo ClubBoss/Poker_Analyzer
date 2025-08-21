@@ -9,7 +9,7 @@ class TheoryLessonAutoLinker {
   /// Creates a new auto linker using [MiniLessonLibraryService.instance] by
   /// default.
   const TheoryLessonAutoLinker({MiniLessonLibraryService? library})
-    : library = library ?? MiniLessonLibraryService.instance;
+      : library = library ?? MiniLessonLibraryService.instance;
 
   /// Automatically links all loaded lessons in [library].
   ///

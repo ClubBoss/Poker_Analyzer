@@ -56,8 +56,8 @@ class _CommunityTemplateScreenState extends State<CommunityTemplateScreen> {
           r >= 1
               ? Icons.star
               : r >= 0.5
-              ? Icons.star_half
-              : Icons.star_border,
+                  ? Icons.star_half
+                  : Icons.star_border,
           size: 16,
           color: Colors.amber,
         );

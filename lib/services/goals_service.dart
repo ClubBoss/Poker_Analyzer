@@ -42,15 +42,16 @@ class Goal {
     DateTime? createdAt,
     DateTime? completedAt,
     bool Function(SavedHand hand)? rule,
-  }) => Goal(
-    title: title,
-    progress: progress ?? this.progress,
-    target: target ?? this.target,
-    createdAt: createdAt ?? this.createdAt,
-    icon: icon,
-    completedAt: completedAt ?? this.completedAt,
-    rule: rule ?? this.rule,
-  );
+  }) =>
+      Goal(
+        title: title,
+        progress: progress ?? this.progress,
+        target: target ?? this.target,
+        createdAt: createdAt ?? this.createdAt,
+        icon: icon,
+        completedAt: completedAt ?? this.completedAt,
+        rule: rule ?? this.rule,
+      );
 }
 
 class GoalsService extends ChangeNotifier {
@@ -91,8 +92,7 @@ class GoalsService extends ChangeNotifier {
     return null;
   }
 
-  Goal? get dailyGoal =>
-      _dailyGoalIndex != null &&
+  Goal? get dailyGoal => _dailyGoalIndex != null &&
           _dailyGoalIndex! >= 0 &&
           _dailyGoalIndex! < _goals.length
       ? _goals[_dailyGoalIndex!]

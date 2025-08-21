@@ -17,9 +17,9 @@ class SkillDecayTagFilter {
     RecapBoosterQueue? recapQueue,
     GoalQueue? goalQueue,
     this.recent = const Duration(days: 3),
-  }) : lessons = lessons ?? MiniLessonLibraryService.instance,
-       recapQueue = recapQueue ?? RecapBoosterQueue.instance,
-       goalQueue = goalQueue ?? GoalQueue.instance;
+  })  : lessons = lessons ?? MiniLessonLibraryService.instance,
+        recapQueue = recapQueue ?? RecapBoosterQueue.instance,
+        goalQueue = goalQueue ?? GoalQueue.instance;
 
   /// Returns [tags] excluding those recently reinforced or already queued.
   Future<List<String>> filter(List<String> tags, {DateTime? now}) async {
@@ -44,9 +44,8 @@ class SkillDecayTagFilter {
     for (final t in tags) {
       final tag = t.toLowerCase();
       final entries = hist[tag];
-      final last = entries == null || entries.isEmpty
-          ? null
-          : entries.last.date;
+      final last =
+          entries == null || entries.isEmpty ? null : entries.last.date;
       final recentlyReinforced =
           last != null && current.difference(last) < recent;
       if (recentlyReinforced || queued.contains(tag)) continue;

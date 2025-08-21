@@ -88,9 +88,8 @@ class _SpotViewerDialogState extends State<SpotViewerDialog> {
       lines.add('${names[s]}:');
       for (final a in acts) {
         final posName = map[a.playerIndex] ?? 'P${a.playerIndex + 1}';
-        final label = a.action == 'custom'
-            ? (a.customLabel ?? 'custom')
-            : a.action;
+        final label =
+            a.action == 'custom' ? (a.customLabel ?? 'custom') : a.action;
         final amount = a.amount != null ? ' ${a.amount}' : '';
         lines.add('  $posName $label$amount');
       }

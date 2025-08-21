@@ -13,16 +13,16 @@ class LearningPathSessionState {
     required this.currentNodeId,
     Map<String, String>? branchChoices,
     Set<String>? completedStageIds,
-  }) : branchChoices = branchChoices ?? const {},
-       completedStageIds = completedStageIds ?? const {};
+  })  : branchChoices = branchChoices ?? const {},
+        completedStageIds = completedStageIds ?? const {};
 
   /// Converts this state to a JSON map for persistence.
   Map<String, dynamic> toJson() => {
-    'currentNodeId': currentNodeId,
-    if (branchChoices.isNotEmpty) 'branchChoices': branchChoices,
-    if (completedStageIds.isNotEmpty)
-      'completedStageIds': completedStageIds.toList(),
-  };
+        'currentNodeId': currentNodeId,
+        if (branchChoices.isNotEmpty) 'branchChoices': branchChoices,
+        if (completedStageIds.isNotEmpty)
+          'completedStageIds': completedStageIds.toList(),
+      };
 
   /// Restores a [LearningPathSessionState] from [json].
   factory LearningPathSessionState.fromJson(Map<String, dynamic> json) {

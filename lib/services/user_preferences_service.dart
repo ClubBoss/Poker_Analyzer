@@ -90,24 +90,25 @@ class UserPreferencesService extends ChangeNotifier {
   }
 
   Map<String, dynamic> _toMap() => {
-    'showPotAnimation': _showPotAnimation,
-    'showCardReveal': _showCardReveal,
-    'showWinnerCelebration': _showWinnerCelebration,
-    'showActionHints': _showActionHints,
-    'coachMode': _coachMode,
-    'demoMode': _demoMode,
-    'tutorialCompleted': _tutorialCompleted,
-    'simpleNavigation': _simpleNavigation,
-    'showTagGoalBanner': _showTagGoalBanner,
-    'showQuickAccess': _showQuickAccess,
-    if (_weakRange != null)
-      'weakRangeStart': _weakRange!.start.toIso8601String(),
-    if (_weakRange != null) 'weakRangeEnd': _weakRange!.end.toIso8601String(),
-    'evRangeStart': _evRange.start,
-    'evRangeEnd': _evRange.end,
-    'weakCatCount': _weakCatCount,
-    'updatedAt': DateTime.now().toIso8601String(),
-  };
+        'showPotAnimation': _showPotAnimation,
+        'showCardReveal': _showCardReveal,
+        'showWinnerCelebration': _showWinnerCelebration,
+        'showActionHints': _showActionHints,
+        'coachMode': _coachMode,
+        'demoMode': _demoMode,
+        'tutorialCompleted': _tutorialCompleted,
+        'simpleNavigation': _simpleNavigation,
+        'showTagGoalBanner': _showTagGoalBanner,
+        'showQuickAccess': _showQuickAccess,
+        if (_weakRange != null)
+          'weakRangeStart': _weakRange!.start.toIso8601String(),
+        if (_weakRange != null)
+          'weakRangeEnd': _weakRange!.end.toIso8601String(),
+        'evRangeStart': _evRange.start,
+        'evRangeEnd': _evRange.end,
+        'weakCatCount': _weakCatCount,
+        'updatedAt': DateTime.now().toIso8601String(),
+      };
 
   Future<void> _save(String key, bool value) async {
     final prefs = await SharedPreferences.getInstance();
@@ -132,32 +133,32 @@ class UserPreferencesService extends ChangeNotifier {
   }
 
   Future<void> setShowPotAnimation(bool value) => _setBool(
-    _potAnimationKey,
-    _showPotAnimation,
-    value,
-    (v) => _showPotAnimation = v,
-  );
+        _potAnimationKey,
+        _showPotAnimation,
+        value,
+        (v) => _showPotAnimation = v,
+      );
 
   Future<void> setShowCardReveal(bool value) => _setBool(
-    _cardRevealKey,
-    _showCardReveal,
-    value,
-    (v) => _showCardReveal = v,
-  );
+        _cardRevealKey,
+        _showCardReveal,
+        value,
+        (v) => _showCardReveal = v,
+      );
 
   Future<void> setShowWinnerCelebration(bool value) => _setBool(
-    _winnerCelebrationKey,
-    _showWinnerCelebration,
-    value,
-    (v) => _showWinnerCelebration = v,
-  );
+        _winnerCelebrationKey,
+        _showWinnerCelebration,
+        value,
+        (v) => _showWinnerCelebration = v,
+      );
 
   Future<void> setShowActionHints(bool value) => _setBool(
-    _actionHintsKey,
-    _showActionHints,
-    value,
-    (v) => _showActionHints = v,
-  );
+        _actionHintsKey,
+        _showActionHints,
+        value,
+        (v) => _showActionHints = v,
+      );
 
   Future<void> setCoachMode(bool value) =>
       _setBool(_coachModeKey, _coachMode, value, (v) => _coachMode = v);
@@ -166,18 +167,18 @@ class UserPreferencesService extends ChangeNotifier {
       _setBool(_demoModeKey, _demoMode, value, (v) => _demoMode = v);
 
   Future<void> setSimpleNavigation(bool value) => _setBool(
-    _simpleNavKey,
-    _simpleNavigation,
-    value,
-    (v) => _simpleNavigation = v,
-  );
+        _simpleNavKey,
+        _simpleNavigation,
+        value,
+        (v) => _simpleNavigation = v,
+      );
 
   Future<void> setTutorialCompleted(bool value) => _setBool(
-    _tutorialCompletedKey,
-    _tutorialCompleted,
-    value,
-    (v) => _tutorialCompleted = v,
-  );
+        _tutorialCompletedKey,
+        _tutorialCompleted,
+        value,
+        (v) => _tutorialCompleted = v,
+      );
 
   Future<void> setWeaknessRange(DateTimeRange? value) async {
     _weakRange = value;
@@ -223,18 +224,18 @@ class UserPreferencesService extends ChangeNotifier {
   }
 
   Future<void> setShowTagGoalBanner(bool value) => _setBool(
-    _tagGoalBannerKey,
-    _showTagGoalBanner,
-    value,
-    (v) => _showTagGoalBanner = v,
-  );
+        _tagGoalBannerKey,
+        _showTagGoalBanner,
+        value,
+        (v) => _showTagGoalBanner = v,
+      );
 
   Future<void> setShowQuickAccess(bool value) => _setBool(
-    _quickAccessKey,
-    _showQuickAccess,
-    value,
-    (v) => _showQuickAccess = v,
-  );
+        _quickAccessKey,
+        _showQuickAccess,
+        value,
+        (v) => _showQuickAccess = v,
+      );
 
   Future<void> setAccentColor(Color value) => theme.setAccentColor(value);
 }

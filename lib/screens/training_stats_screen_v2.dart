@@ -72,7 +72,8 @@ class _TrainingStatsScreenV2State extends State<TrainingStatsScreenV2> {
     _allTags = {
       for (final t in library)
         for (final tag in t.tags) tag.toLowerCase(),
-    }.toList()..sort();
+    }.toList()
+      ..sort();
     final stats = TrainingStatsV2Model.compute(
       logs: logService.logs,
       library: library,

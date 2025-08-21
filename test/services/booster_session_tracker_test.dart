@@ -10,17 +10,17 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   TrainingPackTemplateV2 tpl(String id, String tag) => TrainingPackTemplateV2(
-    id: id,
-    name: id,
-    trainingType: TrainingType.theory,
-    tags: [tag],
-    spots: const [],
-    spotCount: 0,
-    created: DateTime.now(),
-    gameType: GameType.tournament,
-    positions: const [],
-    meta: const {},
-  );
+        id: id,
+        name: id,
+        trainingType: TrainingType.theory,
+        tags: [tag],
+        spots: const [],
+        spotCount: 0,
+        created: DateTime.now(),
+        gameType: GameType.tournament,
+        positions: const [],
+        meta: const {},
+      );
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});

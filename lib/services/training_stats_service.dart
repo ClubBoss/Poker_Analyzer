@@ -68,8 +68,8 @@ class TrainingStatsService extends ChangeNotifier {
   Map<String, int> _mistakeCounts = {};
 
   Map<DateTime, int> get handsPerDay => {
-    for (final e in _handsPerDay.entries) DateTime.parse(e.key): e.value,
-  };
+        for (final e in _handsPerDay.entries) DateTime.parse(e.key): e.value,
+      };
 
   final _sessionController = StreamController<int>.broadcast();
   final _handsController = StreamController<int>.broadcast();
@@ -486,7 +486,7 @@ class TrainingStatsService extends ChangeNotifier {
   int _calcCurrentStreak() {
     final today = DateTime.now();
     int streak = 0;
-    for (int i = 0; ; i++) {
+    for (int i = 0;; i++) {
       final day = DateTime(
         today.year,
         today.month,
@@ -571,9 +571,8 @@ class TrainingStatsService extends ChangeNotifier {
       if (remote != null) {
         final remoteAt =
             DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
-            DateTime.fromMillisecondsSinceEpoch(0);
-        final localAt =
-            DateTime.tryParse(prefs.getString(_timeKey) ?? '') ??
+                DateTime.fromMillisecondsSinceEpoch(0);
+        final localAt = DateTime.tryParse(prefs.getString(_timeKey) ?? '') ??
             DateTime.fromMillisecondsSinceEpoch(0);
         if (remoteAt.isAfter(localAt)) {
           _sessions = (remote['sessions'] as num?)?.toInt() ?? _sessions;
@@ -631,21 +630,23 @@ class TrainingStatsService extends ChangeNotifier {
   }
 
   Map<String, dynamic> _toMap() => {
-    'sessions': _sessions,
-    'hands': _hands,
-    'mistakes': _mistakes,
-    'sessionsPerDay': _sessionsPerDay,
-    'handsPerDay': _handsPerDay,
-    'mistakesPerDay': _mistakesPerDay,
-    'currentStreak': _currentStreak,
-    'bestStreak': _bestStreak,
-    'evalTotal': _evalTotal,
-    'evalCorrect': _evalCorrect,
-    'evalHistory': _evalHistory,
-    'skills': {for (final e in _skillStats.entries) e.key: e.value.toJson()},
-    'mistakeCounts': _mistakeCounts,
-    'updatedAt': DateTime.now().toIso8601String(),
-  };
+        'sessions': _sessions,
+        'hands': _hands,
+        'mistakes': _mistakes,
+        'sessionsPerDay': _sessionsPerDay,
+        'handsPerDay': _handsPerDay,
+        'mistakesPerDay': _mistakesPerDay,
+        'currentStreak': _currentStreak,
+        'bestStreak': _bestStreak,
+        'evalTotal': _evalTotal,
+        'evalCorrect': _evalCorrect,
+        'evalHistory': _evalHistory,
+        'skills': {
+          for (final e in _skillStats.entries) e.key: e.value.toJson()
+        },
+        'mistakeCounts': _mistakeCounts,
+        'updatedAt': DateTime.now().toIso8601String(),
+      };
 
   Future<void> _persist(DateTime ts) async {
     final prefs = await SharedPreferences.getInstance();

@@ -11,11 +11,10 @@ class BoosterTheoryPreviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!kDebugMode) return const SizedBox.shrink();
-    final stages =
-        LearningPathStageLibrary.instance.stages
-            .where((s) => s.type == StageType.theory)
-            .toList()
-          ..sort((a, b) => a.order.compareTo(b.order));
+    final stages = LearningPathStageLibrary.instance.stages
+        .where((s) => s.type == StageType.theory)
+        .toList()
+      ..sort((a, b) => a.order.compareTo(b.order));
 
     return Scaffold(
       appBar: AppBar(title: const Text('Theory Stages Preview')),

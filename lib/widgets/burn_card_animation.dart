@@ -72,8 +72,7 @@ class _BurnCardAnimationState extends State<BurnCardAnimation>
   Widget build(BuildContext context) {
     final width = 36 * widget.scale;
     final height = 52 * widget.scale;
-    final control =
-        Offset.lerp(widget.start, widget.end, 0.3)! -
+    final control = Offset.lerp(widget.start, widget.end, 0.3)! -
         Offset(0, 40 * widget.scale);
     return AnimatedBuilder(
       animation: _controller,

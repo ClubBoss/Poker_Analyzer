@@ -17,12 +17,12 @@ class LimpDTO {
   });
 
   Map<String, dynamic> toJson() => {
-    'hand': hand,
-    'pos': pos,
-    'stack': stack,
-    'limpers': limpers,
-    'action': action,
-  };
+        'hand': hand,
+        'pos': pos,
+        'stack': stack,
+        'limpers': limpers,
+        'action': action,
+      };
 }
 
 class LimpPack {
@@ -40,18 +40,20 @@ class LimpPack {
   });
 
   Map<String, dynamic> toJson() => {
-    'version': version,
-    'seed': seed,
-    'count': count,
-    'mix': {
-      'posPct': {for (final e in mix.posPct.entries) e.key.name: e.value},
-      'stackPct': {for (final e in mix.stackPct.entries) e.key.name: e.value},
-      'limpersPct': {
-        for (final e in mix.limpersPct.entries) e.key.name: e.value,
-      },
-    },
-    'items': [for (final i in items) i.toJson()],
-  };
+        'version': version,
+        'seed': seed,
+        'count': count,
+        'mix': {
+          'posPct': {for (final e in mix.posPct.entries) e.key.name: e.value},
+          'stackPct': {
+            for (final e in mix.stackPct.entries) e.key.name: e.value
+          },
+          'limpersPct': {
+            for (final e in mix.limpersPct.entries) e.key.name: e.value,
+          },
+        },
+        'items': [for (final i in items) i.toJson()],
+      };
 }
 
 LimpPack buildLimpPack({

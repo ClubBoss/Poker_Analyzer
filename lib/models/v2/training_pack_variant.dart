@@ -27,9 +27,9 @@ class TrainingPackVariant {
       );
 
   Map<String, dynamic> toJson() => {
-    'position': position.name,
-    'gameType': gameType.name,
-    if (tag != null) 'tag': tag,
-    if (rangeId != null) 'rangeId': rangeId,
-  };
+        'position': position.name,
+        'gameType': gameType.name,
+        if (tag != null) 'tag': tag,
+        if (rangeId != null) 'rangeId': rangeId,
+      };
 }

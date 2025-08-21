@@ -36,8 +36,7 @@ class TrainingSessionFingerprintService {
     final summary = SpotAttemptSummary(
       spotId: attempt.spot.id,
       userAction: attempt.userAction,
-      isCorrect:
-          attempt.userAction.toLowerCase() ==
+      isCorrect: attempt.userAction.toLowerCase() ==
           attempt.correctAction.toLowerCase(),
       evDiff: attempt.evDiff,
       shownTheoryTags: shownTheoryTags,

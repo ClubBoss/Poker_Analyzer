@@ -10,8 +10,8 @@ class MasteryLevelEngine {
   MasteryLevelEngine({
     LessonProgressTrackerService? progress,
     LessonTrackMetaService? trackMeta,
-  }) : _progress = progress ?? LessonProgressTrackerService.instance,
-       _trackMeta = trackMeta ?? LessonTrackMetaService.instance;
+  })  : _progress = progress ?? LessonProgressTrackerService.instance,
+        _trackMeta = trackMeta ?? LessonTrackMetaService.instance;
 
   Future<MasteryLevel> computeUserLevel() async {
     final completedSteps = await _progress.getCompletedStepsFlat();

@@ -11,11 +11,11 @@ class SpotIssue {
 typedef SpotRule = String? Function(TrainingPackSpot s, int idx);
 
 List<String> _extractBoard(TrainingPackSpot s) => [
-  for (final street in [1, 2, 3])
-    for (final a in s.hand.actions[street] ?? [])
-      if (a.action == 'board' && a.customLabel?.isNotEmpty == true)
-        ...(a.customLabel?.split(' ') ?? []),
-];
+      for (final street in [1, 2, 3])
+        for (final a in s.hand.actions[street] ?? [])
+          if (a.action == 'board' && a.customLabel?.isNotEmpty == true)
+            ...(a.customLabel?.split(' ') ?? []),
+    ];
 
 final List<SpotRule> spotRules = [
   (s, i) => s.hand.heroCards.trim().isEmpty ? 'no hero cards' : null,
@@ -57,6 +57,6 @@ List<SpotIssue> validateSpot(TrainingPackSpot s, int idx) {
 }
 
 List<String> validateTrainingPackTemplate(TrainingPackTemplate tpl) => [
-  for (int i = 0; i < tpl.spots.length; i++)
-    for (final e in validateSpot(tpl.spots[i], i)) e.message,
-];
+      for (int i = 0; i < tpl.spots.length; i++)
+        for (final e in validateSpot(tpl.spots[i], i)) e.message,
+    ];

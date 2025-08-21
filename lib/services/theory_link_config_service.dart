@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class TheoryLinkConfigService {
   TheoryLinkConfigService._()
-    : notifier = ValueNotifier(TheoryLinkConfig.defaults);
+      : notifier = ValueNotifier(TheoryLinkConfig.defaults);
   static final TheoryLinkConfigService instance = TheoryLinkConfigService._();
 
   final ValueNotifier<TheoryLinkConfig> notifier;

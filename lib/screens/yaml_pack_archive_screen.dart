@@ -42,16 +42,14 @@ class _YamlPackArchiveScreenState extends State<YamlPackArchiveScreen> {
       for (final dir in root.listSync()) {
         if (dir is Directory) {
           final id = p.basename(dir.path);
-          final files =
-              dir
-                  .listSync()
-                  .whereType<File>()
-                  .where((f) => f.path.endsWith('.bak.yaml'))
-                  .toList()
-                ..sort(
-                  (a, b) =>
-                      b.statSync().modified.compareTo(a.statSync().modified),
-                );
+          final files = dir
+              .listSync()
+              .whereType<File>()
+              .where((f) => f.path.endsWith('.bak.yaml'))
+              .toList()
+            ..sort(
+              (a, b) => b.statSync().modified.compareTo(a.statSync().modified),
+            );
           if (files.isNotEmpty) map[id] = files;
         }
       }

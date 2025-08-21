@@ -12,7 +12,7 @@ class ConstraintResolverEngine {
   final ActionPatternMatcher _actionMatcher;
 
   const ConstraintResolverEngine({ActionPatternMatcher? actionMatcher})
-    : _actionMatcher = actionMatcher ?? const ActionPatternMatcher();
+      : _actionMatcher = actionMatcher ?? const ActionPatternMatcher();
 
   bool isValid(SpotSeedFormat candidate, ConstraintSet constraints) {
     final posReq = constraints.position?.toLowerCase();
@@ -46,9 +46,8 @@ class ConstraintResolverEngine {
       candidate.board,
     ).map((t) => t.toLowerCase()).toSet();
     if (constraints.boardTags.isNotEmpty) {
-      final required = constraints.boardTags
-          .map((t) => t.toLowerCase())
-          .toList();
+      final required =
+          constraints.boardTags.map((t) => t.toLowerCase()).toList();
       if (!required.every(boardTags.contains)) {
         return false;
       }
@@ -69,9 +68,8 @@ class ConstraintResolverEngine {
     }
     if (constraints.excludedTags.isNotEmpty) {
       final tags = candidate.tags.map((t) => t.toLowerCase()).toSet();
-      final excl = constraints.excludedTags
-          .map((t) => t.toLowerCase())
-          .toList();
+      final excl =
+          constraints.excludedTags.map((t) => t.toLowerCase()).toList();
       if (excl.any(tags.contains)) return false;
     }
 

@@ -16,10 +16,11 @@ class AutogenStatsModel {
     int? totalSpots,
     int? skippedSpots,
     int? fingerprintCount,
-  }) => AutogenStatsModel(
-    totalPacks: totalPacks ?? this.totalPacks,
-    totalSpots: totalSpots ?? this.totalSpots,
-    skippedSpots: skippedSpots ?? this.skippedSpots,
-    fingerprintCount: fingerprintCount ?? this.fingerprintCount,
-  );
+  }) =>
+      AutogenStatsModel(
+        totalPacks: totalPacks ?? this.totalPacks,
+        totalSpots: totalSpots ?? this.totalSpots,
+        skippedSpots: skippedSpots ?? this.skippedSpots,
+        fingerprintCount: fingerprintCount ?? this.fingerprintCount,
+      );
 }

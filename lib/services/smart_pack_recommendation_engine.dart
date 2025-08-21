@@ -44,8 +44,7 @@ class SmartPackRecommendationEngine {
       if (selected.length >= limit) break;
       final pack = e.key;
       final pos = pack.positions.isEmpty ? '' : pack.positions.first;
-      final skip =
-          types.contains(pack.trainingType) &&
+      final skip = types.contains(pack.trainingType) &&
           stacks.contains(pack.bb) &&
           positions.contains(pos);
       if (skip) continue;

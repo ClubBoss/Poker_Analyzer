@@ -12,7 +12,7 @@ class TrackCompletionCelebrationService {
   final SkillTreeNodeProgressTracker progress;
 
   TrackCompletionCelebrationService({SkillTreeNodeProgressTracker? progress})
-    : progress = progress ?? SkillTreeNodeProgressTracker.instance;
+      : progress = progress ?? SkillTreeNodeProgressTracker.instance;
 
   static TrackCompletionCelebrationService instance =
       TrackCompletionCelebrationService();

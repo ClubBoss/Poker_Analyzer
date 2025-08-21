@@ -6,7 +6,7 @@ class TheoryGraphNavigationEngine {
   final MiniLessonLibraryService library;
 
   TheoryGraphNavigationEngine({MiniLessonLibraryService? library})
-    : library = library ?? MiniLessonLibraryService.instance;
+      : library = library ?? MiniLessonLibraryService.instance;
 
   final Map<String, TheoryMiniLessonNode> _byId = {};
   final Map<String, String?> _nextIndex = {};

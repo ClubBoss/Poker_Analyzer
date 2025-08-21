@@ -14,8 +14,8 @@ class DecayReminderSchedulerService with WidgetsBindingObserver {
   DecayReminderSchedulerService({
     BoosterInboxDeliveryService? inbox,
     DecayTagRetentionTrackerService? retention,
-  }) : inbox = inbox ?? BoosterInboxDeliveryService.instance,
-       retention = retention ?? const DecayTagRetentionTrackerService();
+  })  : inbox = inbox ?? BoosterInboxDeliveryService.instance,
+        retention = retention ?? const DecayTagRetentionTrackerService();
 
   static const _prefsKey = 'decay_reminder_last';
   static const _id = 425;

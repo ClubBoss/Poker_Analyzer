@@ -7,7 +7,7 @@ class AuditLogStorageService {
   final File _file;
 
   AuditLogStorageService({String? filePath})
-    : _file = File(filePath ?? 'training_pack_audit_log.json');
+      : _file = File(filePath ?? 'training_pack_audit_log.json');
 
   Future<List<TrainingPackAuditEntry>> _readAll() async {
     if (!await _file.exists()) {

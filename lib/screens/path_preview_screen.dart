@@ -43,31 +43,31 @@ class _PathPreviewScreenState extends State<PathPreviewScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : tpl == null
-          ? const Center(child: Text('Path not found'))
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                if (tpl.description.isNotEmpty)
-                  Text(
-                    tpl.description,
-                    style: const TextStyle(color: Colors.white70),
-                  ),
-                const SizedBox(height: 12),
-                Text(
-                  '${tpl.stages.length} стадий',
-                  style: const TextStyle(color: Colors.white70),
+              ? const Center(child: Text('Path not found'))
+              : ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    if (tpl.description.isNotEmpty)
+                      Text(
+                        tpl.description,
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                    const SizedBox(height: 12),
+                    Text(
+                      '${tpl.stages.length} стадий',
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                    const SizedBox(height: 12),
+                    for (final stage in tpl.stages)
+                      LearningPathStageWidget(
+                        stage: stage,
+                        progress: 0.0,
+                        handsPlayed: 0,
+                        unlocked: true,
+                        onPressed: () {},
+                      ),
+                  ],
                 ),
-                const SizedBox(height: 12),
-                for (final stage in tpl.stages)
-                  LearningPathStageWidget(
-                    stage: stage,
-                    progress: 0.0,
-                    handsPlayed: 0,
-                    unlocked: true,
-                    onPressed: () {},
-                  ),
-              ],
-            ),
     );
   }
 }

@@ -21,11 +21,11 @@ class DecayStreakOverlayPromptService {
     DecayTagRetentionTrackerService? retention,
     DecaySpotBoosterEngine? boosterEngine,
     DecayBoosterTrainingLauncher? launcher,
-  }) : streaks = streaks ?? const DecayStreakTrackerService(),
-       inbox = inbox ?? BoosterInboxDeliveryService.instance,
-       retention = retention ?? const DecayTagRetentionTrackerService(),
-       boosterEngine = boosterEngine ?? DecaySpotBoosterEngine(),
-       launcher = launcher ?? const DecayBoosterTrainingLauncher();
+  })  : streaks = streaks ?? const DecayStreakTrackerService(),
+        inbox = inbox ?? BoosterInboxDeliveryService.instance,
+        retention = retention ?? const DecayTagRetentionTrackerService(),
+        boosterEngine = boosterEngine ?? DecaySpotBoosterEngine(),
+        launcher = launcher ?? const DecayBoosterTrainingLauncher();
 
   OverlayEntry? _entry;
 

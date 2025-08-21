@@ -24,19 +24,18 @@ class StageFlowInjectionRunner {
     MiniLessonLibraryService? miniLessons,
     BoosterInventoryService? boosters,
     TrainingSessionLauncher launcher = const TrainingSessionLauncher(),
-  }) : composer =
-           composer ??
-           TheoryAndBoosterFlowComposer(
-             boosterOrchestrator: BoosterInjectionOrchestrator(
-               mastery: TagMasteryService(
-                 logs: SessionLogService(sessions: TrainingSessionService()),
-               ),
-               inventory: boosters ?? BoosterInventoryService(),
-             ),
-           ),
-       miniLessons = miniLessons ?? MiniLessonLibraryService.instance,
-       boosters = boosters ?? BoosterInventoryService(),
-       launcher = launcher;
+  })  : composer = composer ??
+            TheoryAndBoosterFlowComposer(
+              boosterOrchestrator: BoosterInjectionOrchestrator(
+                mastery: TagMasteryService(
+                  logs: SessionLogService(sessions: TrainingSessionService()),
+                ),
+                inventory: boosters ?? BoosterInventoryService(),
+              ),
+            ),
+        miniLessons = miniLessons ?? MiniLessonLibraryService.instance,
+        boosters = boosters ?? BoosterInventoryService(),
+        launcher = launcher;
 
   /// Returns widgets to inject for [stage].
   Future<List<Widget>> injectBlocks(StageNode stage) async {

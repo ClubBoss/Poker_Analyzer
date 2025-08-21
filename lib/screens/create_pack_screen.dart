@@ -81,9 +81,8 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
       for (final c in hand.board) CardModel(rank: c[0], suit: c.substring(1)),
     ];
     // Flatten actions; ActionEntry is immutable so no per-item copy needed
-    final List<ActionEntry> actions = hand.actions.values
-        .expand((list) => list)
-        .toList();
+    final List<ActionEntry> actions =
+        hand.actions.values.expand((list) => list).toList();
     final stacks = [
       for (var i = 0; i < hand.playerCount; i++)
         hand.stacks['$i']?.round() ?? 0,
@@ -229,16 +228,14 @@ class _CreatePackScreenState extends State<CreatePackScreen> {
                       final pos = s.positions.isNotEmpty
                           ? s.positions[s.heroIndex]
                           : '';
-                      final stack = s.stacks.isNotEmpty
-                          ? s.stacks[s.heroIndex]
-                          : 0;
+                      final stack =
+                          s.stacks.isNotEmpty ? s.stacks[s.heroIndex] : 0;
                       return CheckboxListTile(
                         value: _selected.contains(s),
                         onChanged: (_) => _toggle(s),
                         title: Text('$pos ${stack}bb'),
-                        subtitle: s.tags.isNotEmpty
-                            ? Text(s.tags.join(', '))
-                            : null,
+                        subtitle:
+                            s.tags.isNotEmpty ? Text(s.tags.join(', ')) : null,
                       );
                     },
                   ),

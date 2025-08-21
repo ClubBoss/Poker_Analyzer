@@ -40,9 +40,8 @@ class _SmartGoalSummaryScreenState extends State<SmartGoalSummaryScreen> {
     final map = <String, List<_GoalItem>>{};
     for (final a in assignments) {
       final lesson = MiniLessonLibraryService.instance.getById(a.goal.id);
-      final tag = lesson != null && lesson.tags.isNotEmpty
-          ? lesson.tags.first
-          : '';
+      final tag =
+          lesson != null && lesson.tags.isNotEmpty ? lesson.tags.first : '';
       final completed = (history[tag.toLowerCase()]?.completedCount ?? 0) > 0;
       final item = _GoalItem(goal: a.goal, tag: tag, completed: completed);
       map.putIfAbsent(a.slot, () => []).add(item);

@@ -14,9 +14,9 @@ class TheoryBoosterSuggestionService {
     TheoryMiniLessonLinker? linker,
     MiniLessonLibraryService? library,
     MiniLessonProgressTracker? progress,
-  }) : linker = linker ?? const TheoryMiniLessonLinker(),
-       library = library ?? MiniLessonLibraryService.instance,
-       progress = progress ?? MiniLessonProgressTracker.instance;
+  })  : linker = linker ?? const TheoryMiniLessonLinker(),
+        library = library ?? MiniLessonLibraryService.instance,
+        progress = progress ?? MiniLessonProgressTracker.instance;
 
   static final TheoryBoosterSuggestionService instance =
       TheoryBoosterSuggestionService();

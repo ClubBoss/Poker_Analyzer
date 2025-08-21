@@ -43,8 +43,8 @@ class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
 
     final prefs = await SharedPreferences.getInstance();
     final selected = prefs.getString('lesson_selected_track');
-    final progress = await LessonPathProgressService.instance
-        .computeTrackProgress();
+    final progress =
+        await LessonPathProgressService.instance.computeTrackProgress();
     final unlocked = <String, bool>{};
     final reasons = <String, String?>{};
     for (final t in tracks) {
@@ -82,8 +82,7 @@ class _LessonTrackLibraryScreenState extends State<LessonTrackLibraryScreen> {
     }
     bool ok = true;
     if (currentId != null && currentId != track.id) {
-      ok =
-          await showDialog<bool>(
+      ok = await showDialog<bool>(
             context: context,
             builder: (ctx) => AlertDialog(
               backgroundColor: Colors.grey[900],

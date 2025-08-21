@@ -14,7 +14,8 @@ class _FakeTracker extends RecapCompletionTracker {
   @override
   Future<Map<String, int>> tagFrequency({
     Duration window = const Duration(days: 7),
-  }) async => freq;
+  }) async =>
+      freq;
 }
 
 class _FakeAnalyzer extends RecapEffectivenessAnalyzer {
@@ -26,7 +27,8 @@ class _FakeAnalyzer extends RecapEffectivenessAnalyzer {
     int minCompletions = 3,
     Duration minAvgDuration = const Duration(seconds: 5),
     double minRepeatRate = 0.25,
-  }) => under;
+  }) =>
+      under;
 }
 
 class _FakeLibrary extends MiniLessonLibraryService {

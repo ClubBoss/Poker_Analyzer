@@ -26,7 +26,7 @@ class TheoryMilestoneUnlocker {
       StreamController<TheoryMilestoneEvent>.broadcast();
 
   TheoryMilestoneUnlocker({TheoryLessonProgressTracker? tracker})
-    : tracker = tracker ?? const TheoryLessonProgressTracker();
+      : tracker = tracker ?? const TheoryLessonProgressTracker();
 
   Stream<TheoryMilestoneEvent> get stream => _ctrl.stream;
 

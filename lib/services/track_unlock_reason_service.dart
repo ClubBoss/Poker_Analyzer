@@ -9,15 +9,14 @@ class TrackUnlockReasonService {
   TrackUnlockReasonService({
     TrackLockEvaluator? lockEvaluator,
     LearningTrackEngine trackEngine = const LearningTrackEngine(),
-  }) : lockEvaluator =
-           lockEvaluator ??
-           TrackLockEvaluator(
-             prerequisites: const {
-               'live_exploit': 'mtt_pro',
-               'leak_fixer': 'live_exploit',
-             },
-           ),
-       trackEngine = trackEngine;
+  })  : lockEvaluator = lockEvaluator ??
+            TrackLockEvaluator(
+              prerequisites: const {
+                'live_exploit': 'mtt_pro',
+                'leak_fixer': 'live_exploit',
+              },
+            ),
+        trackEngine = trackEngine;
 
   static final TrackUnlockReasonService instance = TrackUnlockReasonService();
 

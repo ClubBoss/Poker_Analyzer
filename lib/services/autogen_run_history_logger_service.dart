@@ -30,12 +30,12 @@ class RunMetricsEntry {
       );
 
   Map<String, dynamic> toJson() => {
-    'timestamp': timestamp.toUtc().toIso8601String(),
-    'generated': generated,
-    'rejected': rejected,
-    'avgQualityScore': avgQualityScore,
-    if (format != null) 'format': format!.toJson(),
-  };
+        'timestamp': timestamp.toUtc().toIso8601String(),
+        'generated': generated,
+        'rejected': rejected,
+        'avgQualityScore': avgQualityScore,
+        if (format != null) 'format': format!.toJson(),
+      };
 
   double get acceptanceRate {
     final total = generated + rejected;

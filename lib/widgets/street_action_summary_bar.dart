@@ -18,9 +18,8 @@ class StreetActionSummaryBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final streetActions = actions
-        .where((a) => a.street == street)
-        .toList(growable: false);
+    final streetActions =
+        actions.where((a) => a.street == street).toList(growable: false);
     if (streetActions.isEmpty) {
       return const SizedBox.shrink();
     }
