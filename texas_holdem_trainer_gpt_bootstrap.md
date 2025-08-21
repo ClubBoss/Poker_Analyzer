@@ -1,20 +1,22 @@
-# Project Status — Poker Analyzer
+# Texas Hold'em Trainer — GPT Bootstrap
 
-## Phase
-CONTENT (skeleton complete, content batches in progress)
+## Purpose
+Bootstrap document to align Codex + Research + UX streams.  
+SSOT for scope, cadence, and roadmap.
 
-## Active Docs
-- [PROMPT_RULES.md] — Codex discipline, skeleton phase rules
-- [RESEARCH_BATCH_TEMPLATE.md] — Research batch structure (theory/demos/drills)
-- [PR_TEMPLATE.md] — PR hygiene
-- [NEXT_RUNBOOK.md] — Codex loop (NEXT detector, loaders, status updates)
-- [CONTENT_SCHEMAS.md] — schema contract for content
-- [BUG_TEMPLATES.md] — bug classification
-- [PROJECT_INSTRUCTIONS.txt] — project ops
-- [CURRICULUM_ROADMAP.md] — human-readable full list (append-only mirror of SSOT)
+## Scope
+- Skeleton → Content → UX polish
+- Cash first, then MTT, then specializations
+- Research batches drive content
+- Codex drives loaders/status/tests
 
-## Curriculum Roadmap (Full)
-Append-only. If mismatch with tooling/curriculum_ids.dart, code wins.
+## Cadence
+Loop = Prompt → Codex → PR → merge → Research content batch → PR → merge.  
+One-at-a-time for Codex; batched for Research.
+
+## Learning roadmap
+Full human-readable list, append-only mirror of curriculum_ids.dart.  
+Append-only. If mismatch with code, code wins.
 
 1. core_rules_and_setup
 2. core_pot_odds_equity
@@ -85,3 +87,8 @@ Append-only. If mismatch with tooling/curriculum_ids.dart, code wins.
 67. online_economics_rakeback_promos (B)
 68. hudless_strategy_and_note_coding (B)
 69. hand_review_and_annotation_standards (B)
+
+## Verification
+- Run `dart test test/content_schema_test.dart` after every content PR.
+- Run `dart format . && dart analyze` before commit.
+- Roadmap consistency checked manually via diff with curriculum_ids.dart.
