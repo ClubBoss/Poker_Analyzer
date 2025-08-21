@@ -65,6 +65,7 @@
     "mtt_pko_advanced_bounty_routing",
     "mtt_day2_bagging_and_reentry_ev",
     "database_leakfinder_playbook",
-    "solver_node_locking_basics"
+    "solver_node_locking_basics",
+    "live_special_formats_straddle_bomb_ante"
   ]
 }
