@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
+import '../infra/telemetry.dart';
 
 /// A simple logging utility that centralizes log output.
 ///
@@ -11,7 +13,7 @@ class AppLogger {
     if (kDebugMode) {
       debugPrint(message);
     } else {
-      // TODO: Add release logging implementation, e.g., send to Crashlytics.
+      unawaited(Telemetry.logEvent('log', {'message': message}));
     }
   }
 
@@ -19,7 +21,7 @@ class AppLogger {
     if (kDebugMode) {
       debugPrint('⚠️ $message');
     } else {
-      // TODO: Add release logging implementation, e.g., send to Crashlytics.
+      unawaited(Telemetry.logEvent('warn', {'message': message}));
     }
   }
 
@@ -33,7 +35,14 @@ class AppLogger {
         debugPrint(stack.toString());
       }
     } else {
-      // TODO: Add release logging implementation, e.g., send to Crashlytics.
+      unawaited(Telemetry.logEvent('error', {
+        'message': message,
+        if (error != null) 'error': error.toString(),
+        if (stack != null) 'stack': stack.toString(),
+      }));
+      if (error != null && stack != null) {
+        unawaited(Telemetry.logError(error, stack));
+      }
     }
   }
 }
