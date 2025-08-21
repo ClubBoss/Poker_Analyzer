@@ -59,6 +59,7 @@
     "donk_bets_and_leads",
     "cash_squeeze_strategy",
     "icm_bubble_blind_vs_blind",
-    "live_full_ring_adjustments"
+    "live_full_ring_adjustments",
+    "online_fastfold_pool_dynamics"
   ]
 }
