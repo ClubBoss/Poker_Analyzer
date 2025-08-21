@@ -24,9 +24,9 @@ class SmartPackRecommender {
     WeaknessClusterEngine? clusterEngine,
     LearningPathAdvancer? advancer,
     TrainingPathUnlockService? unlockService,
-  })  : _clusterEngine = clusterEngine ?? const WeaknessClusterEngine(),
-        _advancer = advancer ?? const LearningPathAdvancer(),
-        _unlockService = unlockService ?? const TrainingPathUnlockService();
+  }) : _clusterEngine = clusterEngine ?? const WeaknessClusterEngine(),
+       _advancer = advancer ?? const LearningPathAdvancer(),
+       _unlockService = unlockService ?? const TrainingPathUnlockService();
 
   List<RecommendedPack> getTopRecommendations({
     required List<TrainingPackTemplateV2> allPacks,
@@ -96,7 +96,8 @@ class SmartPackRecommender {
         }
       }
 
-      final recentMistake = attemptsByPack[p.id]?.any(
+      final recentMistake =
+          attemptsByPack[p.id]?.any(
             (a) =>
                 a.accuracy < 0.7 && current.difference(a.timestamp).inDays <= 7,
           ) ??

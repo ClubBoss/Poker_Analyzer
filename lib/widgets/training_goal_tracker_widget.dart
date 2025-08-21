@@ -79,8 +79,9 @@ class _TrainingGoalTrackerWidgetState extends State<TrainingGoalTrackerWidget> {
       return const Center(child: CircularProgressIndicator());
     }
     final goal = _goal;
-    final progressFraction =
-        goal == null || goal == 0 ? 0.0 : (_progress / goal).clamp(0.0, 1.0);
+    final progressFraction = goal == null || goal == 0
+        ? 0.0
+        : (_progress / goal).clamp(0.0, 1.0);
     final periodText = _period == 'weekly' ? 'this week' : 'this month';
     final unitText = _unit == 'hands' ? 'hands' : 'sessions';
     return Column(

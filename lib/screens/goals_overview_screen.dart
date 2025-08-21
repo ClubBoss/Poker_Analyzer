@@ -81,10 +81,12 @@ class GoalsOverviewScreen extends StatelessWidget {
     final pText = percent
         ? '${progress.toStringAsFixed(1)}%'
         : progress.round().toString();
-    final tText =
-        percent ? '${target.toStringAsFixed(1)}%' : target.round().toString();
-    final prevText =
-        percent ? '${prev.toStringAsFixed(1)}%' : prev.round().toString();
+    final tText = percent
+        ? '${target.toStringAsFixed(1)}%'
+        : target.round().toString();
+    final prevText = percent
+        ? '${prev.toStringAsFixed(1)}%'
+        : prev.round().toString();
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),

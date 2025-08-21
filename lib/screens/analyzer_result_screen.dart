@@ -40,8 +40,9 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
   }
 
   TrainingPackSpot _spotFromHand(SavedHand h) {
-    final hero =
-        h.playerCards[h.heroIndex].map((c) => '${c.rank}${c.suit}').join(' ');
+    final hero = h.playerCards[h.heroIndex]
+        .map((c) => '${c.rank}${c.suit}')
+        .join(' ');
     final actionsByStreet = <int, List<ActionEntry>>{
       for (var s = 0; s < 4; s++) s: [],
     };
@@ -70,11 +71,11 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
   Future<void> _evaluate() async {
     final spot = _spotFromHand(_hand);
     await context.read<EvaluationExecutorService>().evaluateSingle(
-          context,
-          spot,
-          hand: _hand,
-          anteBb: _hand.anteBb,
-        );
+      context,
+      spot,
+      hand: _hand,
+      anteBb: _hand.anteBb,
+    );
     final actions = spot.hand.actions.values.expand((l) => l).toList();
     final updated = _hand.copyWith(
       actions: actions,
@@ -245,8 +246,8 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
                         _hand,
                       );
                       await context.read<TrainingSessionService>().startSession(
-                            tpl,
-                          );
+                        tpl,
+                      );
                       if (context.mounted) {
                         await Navigator.push(
                           context,
@@ -265,13 +266,13 @@ class _AnalyzerResultScreenState extends State<AnalyzerResultScreen> {
                     onPressed: () async {
                       final tpl =
                           await TrainingPackService.createDrillFromSimilarHands(
-                        context,
-                        _hand,
-                      );
+                            context,
+                            _hand,
+                          );
                       if (tpl == null) return;
                       await context.read<TrainingSessionService>().startSession(
-                            tpl,
-                          );
+                        tpl,
+                      );
                       if (context.mounted) {
                         await Navigator.push(
                           context,

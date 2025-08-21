@@ -21,11 +21,12 @@ class TagProgressChip extends StatelessWidget {
     final color = Color.lerp(Colors.red, Colors.green, value) ?? Colors.red;
     final pct = (value * 100).round();
     return GestureDetector(
-      onTap: onTap ??
+      onTap:
+          onTap ??
           () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => TagInsightScreen(tag: tag)),
-              ),
+            context,
+            MaterialPageRoute(builder: (_) => TagInsightScreen(tag: tag)),
+          ),
       child: Chip(
         label: Text(
           '$tag $pct%',

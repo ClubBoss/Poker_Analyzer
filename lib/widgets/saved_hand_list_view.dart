@@ -155,8 +155,9 @@ class _SavedHandListViewState extends State<SavedHandListView> {
   Widget _buildSummaryCard(BuildContext context, int mistakes) {
     final service = context.read<EvaluationExecutorService>();
     final severity = service.classifySeverity(mistakes);
-    final advice =
-        widget.filterKey != null ? kMistakeAdvice[widget.filterKey!] : null;
+    final advice = widget.filterKey != null
+        ? kMistakeAdvice[widget.filterKey!]
+        : null;
 
     return Container(
       margin: const EdgeInsets.symmetric(

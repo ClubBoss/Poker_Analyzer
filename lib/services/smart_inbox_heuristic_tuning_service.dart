@@ -7,7 +7,7 @@ class SmartInboxHeuristicTuningService {
   SmartInboxHeuristicTuningService({
     BoosterExclusionAnalyticsDashboardService? analytics,
   }) : analytics =
-            analytics ?? const BoosterExclusionAnalyticsDashboardService();
+           analytics ?? const BoosterExclusionAnalyticsDashboardService();
 
   final BoosterExclusionAnalyticsDashboardService analytics;
 

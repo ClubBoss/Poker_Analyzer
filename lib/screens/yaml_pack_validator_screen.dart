@@ -169,10 +169,11 @@ Future<List<Map<String, dynamic>>> _validateTask(String _) async {
   const validator = TrainingPackTemplateValidator();
   final list = <Map<String, dynamic>>[];
   if (dir.existsSync()) {
-    for (final f in dir
-        .listSync(recursive: true)
-        .whereType<File>()
-        .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
+    for (final f
+        in dir
+            .listSync(recursive: true)
+            .whereType<File>()
+            .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
       final issues = <ValidationIssue>[];
       String id = '';
       try {

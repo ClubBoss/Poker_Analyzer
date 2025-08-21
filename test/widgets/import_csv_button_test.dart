@@ -30,8 +30,7 @@ class _FakeFilePicker extends FilePicker {
     String? initialDirectory,
     FileType type = FileType.any,
     List<String>? allowedExtensions,
-  }) async =>
-      null;
+  }) async => null;
 
   @override
   Future<bool?> clearTemporaryFiles() async => true;
@@ -41,8 +40,7 @@ class _FakeFilePicker extends FilePicker {
     String? dialogTitle,
     bool lockParentWindow = false,
     String? initialDirectory,
-  }) async =>
-      null;
+  }) async => null;
 
   @override
   Future<String?> saveFile({
@@ -53,8 +51,7 @@ class _FakeFilePicker extends FilePicker {
     List<String>? allowedExtensions,
     Uint8List? bytes,
     bool lockParentWindow = false,
-  }) async =>
-      null;
+  }) async => null;
 }
 
 void main() {

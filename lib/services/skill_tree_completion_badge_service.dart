@@ -10,8 +10,8 @@ class SkillTreeCompletionBadgeService {
   const SkillTreeCompletionBadgeService({
     SkillTreeTrackProgressService? progressService,
     SkillTreeLibraryService? libraryService,
-  })  : progressService = progressService ?? SkillTreeTrackProgressService(),
-        libraryService = libraryService ?? SkillTreeLibraryService.instance;
+  }) : progressService = progressService ?? SkillTreeTrackProgressService(),
+       libraryService = libraryService ?? SkillTreeLibraryService.instance;
 
   /// Returns completion badges for all skill tree tracks.
   Future<List<SkillTreeCompletionBadge>> getBadges() async {

@@ -25,9 +25,9 @@ class RecallBoostInteractionLogger {
         if (data is List) {
           _logs.addAll(
             data.whereType<Map>().map(
-                  (e) => RecallBoostViewEntry.fromJson(
-                      Map<String, dynamic>.from(e)),
-                ),
+              (e) =>
+                  RecallBoostViewEntry.fromJson(Map<String, dynamic>.from(e)),
+            ),
           );
           _logs.sort((a, b) => b.timestamp.compareTo(a.timestamp));
         }

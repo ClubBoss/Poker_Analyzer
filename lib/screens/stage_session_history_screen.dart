@@ -19,12 +19,13 @@ class _StageSessionHistoryScreenState extends State<StageSessionHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final logs = context
-        .watch<SessionLogService>()
-        .logs
-        .where((l) => l.templateId == widget.stageId)
-        .toList()
-      ..sort((a, b) => b.completedAt.compareTo(a.completedAt));
+    final logs =
+        context
+            .watch<SessionLogService>()
+            .logs
+            .where((l) => l.templateId == widget.stageId)
+            .toList()
+          ..sort((a, b) => b.completedAt.compareTo(a.completedAt));
 
     final tags = <String>{for (final l in logs) ...l.categories.keys};
     var visibleLogs = logs;

@@ -31,8 +31,10 @@ class SkillTreeNodeDetailUnlockHintService {
     final completed = progress.completedNodeIds.value;
 
     final unlockedEval = SkillTreeUnlockEvaluator(progress: progress);
-    final unlocked =
-        unlockedEval.getUnlockedNodes(track).map((n) => n.id).toSet();
+    final unlocked = unlockedEval
+        .getUnlockedNodes(track)
+        .map((n) => n.id)
+        .toSet();
 
     final node = track.nodes[nodeId];
     if (node == null) return null;

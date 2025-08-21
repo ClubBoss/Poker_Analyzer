@@ -14,12 +14,12 @@ class BoosterEffectLog {
   });
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'type': type,
-        'deltaEV': deltaEV,
-        'spotsTracked': spotsTracked,
-        'timestamp': timestamp.toIso8601String(),
-      };
+    'id': id,
+    'type': type,
+    'deltaEV': deltaEV,
+    'spotsTracked': spotsTracked,
+    'timestamp': timestamp.toIso8601String(),
+  };
 
   factory BoosterEffectLog.fromJson(Map<String, dynamic> json) =>
       BoosterEffectLog(
@@ -27,7 +27,8 @@ class BoosterEffectLog {
         type: json['type'] as String? ?? '',
         deltaEV: (json['deltaEV'] as num?)?.toDouble() ?? 0.0,
         spotsTracked: json['spotsTracked'] as int? ?? 0,
-        timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ??
+        timestamp:
+            DateTime.tryParse(json['timestamp'] as String? ?? '') ??
             DateTime.now(),
       );
 }

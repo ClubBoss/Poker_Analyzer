@@ -135,17 +135,15 @@ class _ClusterMistakeDashboardScreenState
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _clusters.isEmpty
-              ? const Center(
-                  child: Text(
-                    'Нет данных',
-                    style: TextStyle(color: Colors.white70),
-                  ),
-                )
-              : ListView(
-                  children: [
-                    for (final c in _clusters) _clusterCard(c, maxLoss)
-                  ],
-                ),
+          ? const Center(
+              child: Text(
+                'Нет данных',
+                style: TextStyle(color: Colors.white70),
+              ),
+            )
+          : ListView(
+              children: [for (final c in _clusters) _clusterCard(c, maxLoss)],
+            ),
     );
   }
 }

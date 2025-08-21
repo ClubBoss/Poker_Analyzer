@@ -11,10 +11,10 @@ import '../services/last_viewed_theory_store.dart';
 import '../services/user_error_rate_service.dart';
 import '../screens/theory_lesson_viewer_screen.dart';
 
-typedef LessonMatchProvider = Future<List<TheoryMiniLessonNode>> Function(
-    List<String> tags);
-typedef AnalyticsLogger = Future<void> Function(
-    String event, Map<String, dynamic> params);
+typedef LessonMatchProvider =
+    Future<List<TheoryMiniLessonNode>> Function(List<String> tags);
+typedef AnalyticsLogger =
+    Future<void> Function(String event, Map<String, dynamic> params);
 
 Future<List<TheoryMiniLessonNode>> _defaultMatchProvider(
   List<String> tags,
@@ -35,7 +35,7 @@ class MistakeInlineTheoryPrompt extends StatefulWidget {
   final LessonMatchProvider matchProvider;
   final AnalyticsLogger log;
   final void Function(String spotId, String packId, String? lessonId)?
-      onTheoryViewed;
+  onTheoryViewed;
 
   const MistakeInlineTheoryPrompt({
     super.key,
@@ -45,8 +45,8 @@ class MistakeInlineTheoryPrompt extends StatefulWidget {
     LessonMatchProvider? matchProvider,
     AnalyticsLogger? log,
     this.onTheoryViewed,
-  })  : matchProvider = matchProvider ?? _defaultMatchProvider,
-        log = log ?? _defaultLog;
+  }) : matchProvider = matchProvider ?? _defaultMatchProvider,
+       log = log ?? _defaultLog;
 
   @override
   State<MistakeInlineTheoryPrompt> createState() =>

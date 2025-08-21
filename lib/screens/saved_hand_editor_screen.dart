@@ -71,8 +71,9 @@ class _SavedHandEditorScreenState extends State<SavedHandEditorScreen> {
   }
 
   TrainingPackSpot _spotFromHand(SavedHand h) {
-    final hero =
-        h.playerCards[h.heroIndex].map((c) => '${c.rank}${c.suit}').join(' ');
+    final hero = h.playerCards[h.heroIndex]
+        .map((c) => '${c.rank}${c.suit}')
+        .join(' ');
     final actionsByStreet = <int, List<ActionEntry>>{
       for (var s = 0; s < 4; s++) s: [],
     };
@@ -121,23 +122,25 @@ class _SavedHandEditorScreenState extends State<SavedHandEditorScreen> {
       heroPosition: _position.label,
       stackSizes: stacks,
       playerCards: cards,
-      expectedAction:
-          _expected.text.trim().isEmpty ? null : _expected.text.trim(),
+      expectedAction: _expected.text.trim().isEmpty
+          ? null
+          : _expected.text.trim(),
     );
     final heroCards = hand.playerCards.length > hand.heroIndex
         ? hand.playerCards[hand.heroIndex]
         : <dynamic>[];
-    final complete = heroCards.length >= 2 &&
+    final complete =
+        heroCards.length >= 2 &&
         hand.boardCards.isNotEmpty &&
         actions.isNotEmpty;
     if (complete) {
       final spot = _spotFromHand(hand);
       await context.read<EvaluationExecutorService>().evaluateSingle(
-            context,
-            spot,
-            hand: hand,
-            anteBb: hand.anteBb,
-          );
+        context,
+        spot,
+        hand: hand,
+        anteBb: hand.anteBb,
+      );
       actions = spot.hand.actions.values.expand((l) => l).toList();
       hand = hand.copyWith(actions: actions, gtoAction: spot.correctAction);
       await context.read<SavedHandManagerService>().save(hand);

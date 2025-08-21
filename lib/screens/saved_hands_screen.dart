@@ -241,8 +241,8 @@ class _SavedHandsScreenState extends State<SavedHandsScreen> {
               initialAccuracy: _accuracyFilter == 'Только верные'
                   ? 'correct'
                   : _accuracyFilter == 'Только ошибки'
-                      ? 'errors'
-                      : null,
+                  ? 'errors'
+                  : null,
               showAccuracyToggle: false,
               onTap: (hand) {
                 showSavedHandViewerDialog(context, hand);

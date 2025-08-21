@@ -21,10 +21,11 @@ class PackLibraryMergeService {
     final libDir = Directory('${docs.path}/training_packs/library');
     await libDir.create(recursive: true);
     if (clean) {
-      for (final f in libDir
-          .listSync(recursive: true)
-          .whereType<File>()
-          .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
+      for (final f
+          in libDir
+              .listSync(recursive: true)
+              .whereType<File>()
+              .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
         try {
           f.deleteSync();
         } catch (_) {}
@@ -33,10 +34,11 @@ class PackLibraryMergeService {
     final hashes = <String>{};
     final ids = <String>{};
     const reader = YamlReader();
-    for (final f in libDir
-        .listSync(recursive: true)
-        .whereType<File>()
-        .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
+    for (final f
+        in libDir
+            .listSync(recursive: true)
+            .whereType<File>()
+            .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
       try {
         final bytes = await f.readAsBytes();
         hashes.add(sha1.convert(bytes).toString());
@@ -50,10 +52,11 @@ class PackLibraryMergeService {
     for (final path in paths) {
       final dir = Directory(path);
       if (!dir.existsSync()) continue;
-      for (final f in dir
-          .listSync(recursive: true)
-          .whereType<File>()
-          .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
+      for (final f
+          in dir
+              .listSync(recursive: true)
+              .whereType<File>()
+              .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
         try {
           final bytes = await f.readAsBytes();
           final hash = sha1.convert(bytes).toString();

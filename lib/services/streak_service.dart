@@ -44,10 +44,11 @@ class StreakService extends ChangeNotifier {
   bool get increased => _increased;
   int get errorFreeStreak => _errorFreeStreak;
   List<MapEntry<DateTime, int>> get history {
-    final list = _history.entries
-        .map((e) => MapEntry(DateTime.parse(e.key), e.value))
-        .toList()
-      ..sort((a, b) => a.key.compareTo(b.key));
+    final list =
+        _history.entries
+            .map((e) => MapEntry(DateTime.parse(e.key), e.value))
+            .toList()
+          ..sort((a, b) => a.key.compareTo(b.key));
     return list;
   }
 

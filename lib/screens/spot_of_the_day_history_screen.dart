@@ -65,13 +65,13 @@ class _SpotOfTheDayHistoryScreenState extends State<SpotOfTheDayHistoryScreen> {
               final icon = entry.correct == true
                   ? Icons.check_circle
                   : entry.correct == false
-                      ? Icons.cancel
-                      : Icons.remove;
+                  ? Icons.cancel
+                  : Icons.remove;
               final color = entry.correct == true
                   ? Colors.green
                   : entry.correct == false
-                      ? Colors.red
-                      : Colors.grey;
+                  ? Colors.red
+                  : Colors.grey;
               return ListTile(
                 leading: Icon(icon, color: color),
                 title: Text(

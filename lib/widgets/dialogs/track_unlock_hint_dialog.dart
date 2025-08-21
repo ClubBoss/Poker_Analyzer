@@ -32,8 +32,9 @@ class TrackUnlockHintDialog extends StatelessWidget {
       "завершите трек '(.+)'",
       caseSensitive: false,
     ).firstMatch(reason);
-    final cta =
-        match != null ? "Завершите '${match.group(1)}', чтобы открыть" : null;
+    final cta = match != null
+        ? "Завершите '${match.group(1)}', чтобы открыть"
+        : null;
     final message = cta == null ? reason : "$reason\n\n$cta";
     await showDialog<void>(
       context: context,

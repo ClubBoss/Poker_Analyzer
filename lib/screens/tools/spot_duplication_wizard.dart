@@ -117,8 +117,9 @@ class _SpotDuplicationWizardState extends State<SpotDuplicationWizard> {
         final idx = _pack!.spots.indexOf(spot);
         _pack!.spots[idx] = spot.copyWith(
           tags: tags,
-          explanation:
-              explCtrl.text.trim().isEmpty ? null : explCtrl.text.trim(),
+          explanation: explCtrl.text.trim().isEmpty
+              ? null
+              : explCtrl.text.trim(),
           hand: hand,
         );
       });
@@ -199,8 +200,9 @@ class _SpotDuplicationWizardState extends State<SpotDuplicationWizard> {
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: ElevatedButton(
-                    onPressed:
-                        _selected.values.any((e) => e) ? _duplicate : null,
+                    onPressed: _selected.values.any((e) => e)
+                        ? _duplicate
+                        : null,
                     child: const Text('Duplicate Selected'),
                   ),
                 ),

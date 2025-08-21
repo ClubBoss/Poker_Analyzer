@@ -8,159 +8,159 @@ import '../services/pack_generator_service.dart';
 
 final TrainingPackTemplate autoPushFold10bb =
     PackGeneratorService.generatePushFoldPackSync(
-  id: 'auto_10bb_sb',
-  name: 'Auto SB 10bb push/fold',
-  heroBbStack: 10,
-  playerStacksBb: [10, 10],
-  heroPos: HeroPosition.sb,
-  heroRange: [
-    '22',
-    '33',
-    'A2s',
-    'A3s',
-    'K9s',
-    'Q9s',
-    'J9s',
-    'T9s',
-    '98s',
-    'AJo',
-    'KQo',
-    'A2o',
-    'A3o',
-    'A4o',
-    'A5o',
-    'A6o',
-    'A7o',
-    'A8o',
-    'A9o',
-    'ATo',
-  ],
-  createdAt: DateTime.now(),
-);
+      id: 'auto_10bb_sb',
+      name: 'Auto SB 10bb push/fold',
+      heroBbStack: 10,
+      playerStacksBb: [10, 10],
+      heroPos: HeroPosition.sb,
+      heroRange: [
+        '22',
+        '33',
+        'A2s',
+        'A3s',
+        'K9s',
+        'Q9s',
+        'J9s',
+        'T9s',
+        '98s',
+        'AJo',
+        'KQo',
+        'A2o',
+        'A3o',
+        'A4o',
+        'A5o',
+        'A6o',
+        'A7o',
+        'A8o',
+        'A9o',
+        'ATo',
+      ],
+      createdAt: DateTime.now(),
+    );
 
 final TrainingPackTemplate autoPushFold12bbSb =
     PackGeneratorService.generatePushFoldPackSync(
-  id: 'auto_12bb_sb',
-  name: 'Auto SB 12bb push/fold',
-  heroBbStack: 12,
-  playerStacksBb: [12, 12],
-  heroPos: HeroPosition.sb,
-  heroRange: PackGeneratorService.topNHands(15).toList(),
-  createdAt: DateTime.now(),
-);
+      id: 'auto_12bb_sb',
+      name: 'Auto SB 12bb push/fold',
+      heroBbStack: 12,
+      playerStacksBb: [12, 12],
+      heroPos: HeroPosition.sb,
+      heroRange: PackGeneratorService.topNHands(15).toList(),
+      createdAt: DateTime.now(),
+    );
 
 final TrainingPackTemplate autoPushFold15bbSb =
     PackGeneratorService.generatePushFoldPackSync(
-  id: 'auto_15bb_sb',
-  name: 'Auto SB 15bb push/fold',
-  heroBbStack: 15,
-  playerStacksBb: [15, 15],
-  heroPos: HeroPosition.sb,
-  heroRange: PackGeneratorService.topNHands(18).toList(),
-  createdAt: DateTime.now(),
-);
+      id: 'auto_15bb_sb',
+      name: 'Auto SB 15bb push/fold',
+      heroBbStack: 15,
+      playerStacksBb: [15, 15],
+      heroPos: HeroPosition.sb,
+      heroRange: PackGeneratorService.topNHands(18).toList(),
+      createdAt: DateTime.now(),
+    );
 
 final TrainingPackTemplate autoPushFold10bbBtn =
     PackGeneratorService.generatePushFoldPackSync(
-  id: 'auto_10bb_btn',
-  name: 'Auto BTN 10bb push/fold',
-  heroBbStack: 10,
-  playerStacksBb: [10, 10, 10],
-  heroPos: HeroPosition.btn,
-  heroRange: PackGeneratorService.topNHands(12).toList(),
-  createdAt: DateTime.now(),
-);
+      id: 'auto_10bb_btn',
+      name: 'Auto BTN 10bb push/fold',
+      heroBbStack: 10,
+      playerStacksBb: [10, 10, 10],
+      heroPos: HeroPosition.btn,
+      heroRange: PackGeneratorService.topNHands(12).toList(),
+      createdAt: DateTime.now(),
+    );
 
 final TrainingPackTemplate autoPushFold12bbBtn =
     PackGeneratorService.generatePushFoldPackSync(
-  id: 'auto_12bb_btn',
-  name: 'Auto BTN 12bb push/fold',
-  heroBbStack: 12,
-  playerStacksBb: [12, 12, 12],
-  heroPos: HeroPosition.btn,
-  heroRange: PackGeneratorService.topNHands(15).toList(),
-  createdAt: DateTime.now(),
-);
+      id: 'auto_12bb_btn',
+      name: 'Auto BTN 12bb push/fold',
+      heroBbStack: 12,
+      playerStacksBb: [12, 12, 12],
+      heroPos: HeroPosition.btn,
+      heroRange: PackGeneratorService.topNHands(15).toList(),
+      createdAt: DateTime.now(),
+    );
 
 final TrainingPackTemplate autoPushFold15bbBtn =
     PackGeneratorService.generatePushFoldPackSync(
-  id: 'auto_15bb_btn',
-  name: 'Auto BTN 15bb push/fold',
-  heroBbStack: 15,
-  playerStacksBb: [15, 15, 15],
-  heroPos: HeroPosition.btn,
-  heroRange: PackGeneratorService.topNHands(18).toList(),
-  createdAt: DateTime.now(),
-);
+      id: 'auto_15bb_btn',
+      name: 'Auto BTN 15bb push/fold',
+      heroBbStack: 15,
+      playerStacksBb: [15, 15, 15],
+      heroPos: HeroPosition.btn,
+      heroRange: PackGeneratorService.topNHands(18).toList(),
+      createdAt: DateTime.now(),
+    );
 
 final TrainingPackTemplate btnPushFold12bb =
     PackGeneratorService.generatePushFoldPackSync(
-  id: 'btn_pushfold_12bb',
-  name: 'BTN 12bb push/fold',
-  heroBbStack: 12,
-  playerStacksBb: [12, 12, 12],
-  heroPos: HeroPosition.btn,
-  heroRange: PackGeneratorService.topNHands(15).toList(),
-  createdAt: DateTime.now(),
-);
+      id: 'btn_pushfold_12bb',
+      name: 'BTN 12bb push/fold',
+      heroBbStack: 12,
+      playerStacksBb: [12, 12, 12],
+      heroPos: HeroPosition.btn,
+      heroRange: PackGeneratorService.topNHands(15).toList(),
+      createdAt: DateTime.now(),
+    );
 
 final TrainingPackTemplate coPushFold10bb =
     PackGeneratorService.generatePushFoldPackSync(
-  id: 'co_pushfold_10bb',
-  name: 'CO 10bb push/fold',
-  heroBbStack: 10,
-  playerStacksBb: [10, 10, 10, 10],
-  heroPos: HeroPosition.co,
-  heroRange: PackGeneratorService.topNHands(10).toList(),
-  createdAt: DateTime.now(),
-);
+      id: 'co_pushfold_10bb',
+      name: 'CO 10bb push/fold',
+      heroBbStack: 10,
+      playerStacksBb: [10, 10, 10, 10],
+      heroPos: HeroPosition.co,
+      heroRange: PackGeneratorService.topNHands(10).toList(),
+      createdAt: DateTime.now(),
+    );
 
 final TrainingPackTemplate hjPushFold15bb =
     PackGeneratorService.generatePushFoldPackSync(
-  id: 'hj_pushfold_15bb',
-  name: 'HJ 15bb push/fold',
-  heroBbStack: 15,
-  playerStacksBb: [15, 15, 15, 15, 15, 15],
-  heroPos: HeroPosition.mp,
-  heroRange: PackGeneratorService.topNHands(12).toList(),
-  createdAt: DateTime.now(),
-);
+      id: 'hj_pushfold_15bb',
+      name: 'HJ 15bb push/fold',
+      heroBbStack: 15,
+      playerStacksBb: [15, 15, 15, 15, 15, 15],
+      heroPos: HeroPosition.mp,
+      heroRange: PackGeneratorService.topNHands(12).toList(),
+      createdAt: DateTime.now(),
+    );
 
 final TrainingPackTemplate coPushFold20_25bb =
     PackGeneratorService.generatePushFoldRangePack(
-  id: 'co_pushfold_20_25bb',
-  name: 'CO 20-25bb push/fold',
-  minBb: 20,
-  maxBb: 25,
-  playerStacksBb: [20, 20, 20, 20],
-  heroPos: HeroPosition.co,
-  heroRange: PackGeneratorService.topNHands(25).toList(),
-  createdAt: DateTime.now(),
-);
+      id: 'co_pushfold_20_25bb',
+      name: 'CO 20-25bb push/fold',
+      minBb: 20,
+      maxBb: 25,
+      playerStacksBb: [20, 20, 20, 20],
+      heroPos: HeroPosition.co,
+      heroRange: PackGeneratorService.topNHands(25).toList(),
+      createdAt: DateTime.now(),
+    );
 
 final TrainingPackTemplate hjPushFold20_25bb =
     PackGeneratorService.generatePushFoldRangePack(
-  id: 'hj_pushfold_20_25bb',
-  name: 'HJ 20-25bb push/fold',
-  minBb: 20,
-  maxBb: 25,
-  playerStacksBb: [20, 20, 20, 20, 20, 20],
-  heroPos: HeroPosition.mp,
-  heroRange: PackGeneratorService.topNHands(25).toList(),
-  createdAt: DateTime.now(),
-);
+      id: 'hj_pushfold_20_25bb',
+      name: 'HJ 20-25bb push/fold',
+      minBb: 20,
+      maxBb: 25,
+      playerStacksBb: [20, 20, 20, 20, 20, 20],
+      heroPos: HeroPosition.mp,
+      heroRange: PackGeneratorService.topNHands(25).toList(),
+      createdAt: DateTime.now(),
+    );
 
 final TrainingPackTemplate utgPushFold20_25bb =
     PackGeneratorService.generatePushFoldRangePack(
-  id: 'utg_pushfold_20_25bb',
-  name: 'UTG 20-25bb push/fold',
-  minBb: 20,
-  maxBb: 25,
-  playerStacksBb: [20, 20, 20, 20, 20, 20],
-  heroPos: HeroPosition.utg,
-  heroRange: PackGeneratorService.topNHands(25).toList(),
-  createdAt: DateTime.now(),
-);
+      id: 'utg_pushfold_20_25bb',
+      name: 'UTG 20-25bb push/fold',
+      minBb: 20,
+      maxBb: 25,
+      playerStacksBb: [20, 20, 20, 20, 20, 20],
+      heroPos: HeroPosition.utg,
+      heroRange: PackGeneratorService.topNHands(25).toList(),
+      createdAt: DateTime.now(),
+    );
 
 final List<TrainingPackTemplate> seedPacks = [
   autoPushFold10bb,

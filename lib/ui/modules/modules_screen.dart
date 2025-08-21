@@ -220,8 +220,9 @@ class _ModulesScreenState extends State<ModulesScreen> {
                 return ListTile(
                   title: Text(title),
                   subtitle: Text(moduleId),
-                  trailing:
-                      ready ? null : const Chip(label: Text('Coming soon')),
+                  trailing: ready
+                      ? null
+                      : const Chip(label: Text('Coming soon')),
                   enabled: ready,
                   onTap: ready
                       ? () {

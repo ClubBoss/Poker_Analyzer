@@ -75,7 +75,8 @@ class _DealCardAnimationState extends State<DealCardAnimation>
     final width = 36 * widget.scale;
     final height = 52 * widget.scale;
     final isRed = widget.card.suit == '♥' || widget.card.suit == '♦';
-    final control = Offset.lerp(widget.start, widget.end, 0.3)! -
+    final control =
+        Offset.lerp(widget.start, widget.end, 0.3)! -
         Offset(0, 60 * widget.scale);
     return AnimatedBuilder(
       animation: _controller,

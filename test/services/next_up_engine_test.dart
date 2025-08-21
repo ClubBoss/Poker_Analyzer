@@ -12,9 +12,9 @@ import 'package:poker_analyzer/services/tag_mastery_service.dart';
 class _FakeUnlockEngine extends LearningPathUnlockEngine {
   final List<LessonTrack> tracks;
   _FakeUnlockEngine(this.tracks)
-      : super(
-          masteryService: TrackMasteryService(mastery: _DummyMasteryService()),
-        );
+    : super(
+        masteryService: TrackMasteryService(mastery: _DummyMasteryService()),
+      );
 
   @override
   Future<List<LessonTrack>> getUnlockableTracks() async => tracks;
@@ -22,7 +22,7 @@ class _FakeUnlockEngine extends LearningPathUnlockEngine {
 
 class _DummyMasteryService extends TagMasteryService {
   _DummyMasteryService()
-      : super(logs: SessionLogService(sessions: TrainingSessionService()));
+    : super(logs: SessionLogService(sessions: TrainingSessionService()));
 
   @override
   Future<Map<String, double>> computeMastery({bool force = false}) async => {};

@@ -34,8 +34,8 @@ class SpotQuizWidget extends StatelessWidget {
     final String? heroLabel = heroAct == null
         ? null
         : (heroAct.customLabel?.isNotEmpty == true
-            ? heroAct.customLabel!
-            : '${heroAct.action}${heroAct.amount != null && heroAct.amount! > 0 ? ' ${heroAct.amount!.toStringAsFixed(1)} BB' : ''}');
+              ? heroAct.customLabel!
+              : '${heroAct.action}${heroAct.amount != null && heroAct.amount! > 0 ? ' ${heroAct.amount!.toStringAsFixed(1)} BB' : ''}');
     final legacy = hero.isEmpty && spot.note.trim().isNotEmpty;
     final actions = spot.hand.actions;
     final board = [
@@ -126,8 +126,9 @@ class SpotQuizWidget extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color:
-                          heroEv >= 0 ? Colors.greenAccent : Colors.redAccent,
+                      color: heroEv >= 0
+                          ? Colors.greenAccent
+                          : Colors.redAccent,
                     ),
                   ),
                 ),

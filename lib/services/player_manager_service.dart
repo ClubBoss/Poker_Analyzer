@@ -10,9 +10,9 @@ import 'stack_manager_service.dart';
 
 class PlayerManagerService extends ChangeNotifier {
   PlayerManagerService(this.profileService)
-      : profileImportExportService = PlayerProfileImportExportService(
-          profileService,
-        );
+    : profileImportExportService = PlayerProfileImportExportService(
+        profileService,
+      );
 
   final PlayerProfileService profileService;
   final PlayerProfileImportExportService profileImportExportService;

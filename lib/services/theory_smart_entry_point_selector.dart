@@ -15,9 +15,9 @@ class TheorySmartEntryPointSelector {
     MiniLessonLibraryService? library,
     MiniLessonProgressTracker? progress,
     TheoryLessonReviewQueue? review,
-  })  : library = library ?? MiniLessonLibraryService.instance,
-        progress = progress ?? MiniLessonProgressTracker.instance,
-        review = review ?? TheoryLessonReviewQueue.instance;
+  }) : library = library ?? MiniLessonLibraryService.instance,
+       progress = progress ?? MiniLessonProgressTracker.instance,
+       review = review ?? TheoryLessonReviewQueue.instance;
 
   static final TheorySmartEntryPointSelector instance =
       TheorySmartEntryPointSelector();

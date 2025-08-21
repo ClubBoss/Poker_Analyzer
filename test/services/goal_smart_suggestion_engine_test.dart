@@ -15,8 +15,7 @@ class _FakeInsights extends MistakeTagInsightsService {
   @override
   Future<List<MistakeInsight>> buildInsights({
     bool sortByEvLoss = false,
-  }) async =>
-      list;
+  }) async => list;
 }
 
 class _FakeLibrary implements MiniLessonLibraryService {
@@ -48,10 +47,10 @@ class _FakeLibrary implements MiniLessonLibraryService {
 class _FakeStatus extends BoosterLessonStatusService {
   final Map<String, BoosterLessonStatus> map;
   _FakeStatus(this.map)
-      : super(
-          tracker: InboxBoosterTrackerService.instance,
-          history: BoosterPathHistoryService.instance,
-        );
+    : super(
+        tracker: InboxBoosterTrackerService.instance,
+        history: BoosterPathHistoryService.instance,
+      );
   @override
   Future<BoosterLessonStatus> getStatus(TheoryMiniLessonNode lesson) async =>
       map[lesson.id] ?? BoosterLessonStatus.newLesson;
@@ -60,16 +59,15 @@ class _FakeStatus extends BoosterLessonStatusService {
 class _FakeTuner extends InboxBoosterTunerService {
   final Map<String, double> scores;
   _FakeTuner(this.scores)
-      : super(
-          tracker: InboxBoosterTrackerService.instance,
-          library: MiniLessonLibraryService.instance,
-        );
+    : super(
+        tracker: InboxBoosterTrackerService.instance,
+        library: MiniLessonLibraryService.instance,
+      );
   @override
   Future<Map<String, double>> computeTagBoostScores({
     DateTime? now,
     int recencyDays = 3,
-  }) async =>
-      scores;
+  }) async => scores;
 }
 
 void main() {

@@ -288,7 +288,8 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
 
   Future<void> _exportReport() async {
     final markdown = _generateReport();
-    final dir = await getDownloadsDirectory() ??
+    final dir =
+        await getDownloadsDirectory() ??
         await getApplicationDocumentsDirectory();
     final safeName = widget.pack.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
     final fileName = '${safeName}_${DateTime.now().millisecondsSinceEpoch}.md';
@@ -354,7 +355,8 @@ class _TrainingPackReviewScreenState extends State<TrainingPackReviewScreen> {
 
     final bytes = await pdf.save();
 
-    final dir = await getDownloadsDirectory() ??
+    final dir =
+        await getDownloadsDirectory() ??
         await getApplicationDocumentsDirectory();
     final safeName = widget.pack.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
     final fileName = '${safeName}_${DateTime.now().millisecondsSinceEpoch}.pdf';

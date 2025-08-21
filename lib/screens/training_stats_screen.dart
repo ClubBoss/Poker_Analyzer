@@ -92,8 +92,8 @@ class _TrainingStatsScreenState extends State<TrainingStatsScreen> {
           const SizedBox(height: 16),
           EvIcmTrendChart(
             sessionDates: context.watch<TrainingStatsService>().sessionHistory(
-                  context.watch<SavedHandManagerService>().hands,
-                ),
+              context.watch<SavedHandManagerService>().hands,
+            ),
           ),
           const SizedBox(height: 16),
           const StreakHistoryCalendar(),

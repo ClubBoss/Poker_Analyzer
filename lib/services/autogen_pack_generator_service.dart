@@ -28,11 +28,11 @@ class AutogenPackGeneratorService {
     PackQualityGatekeeperService? gatekeeper,
     PackGenerationMetricsTrackerService? metrics,
     AutogenMetricsHistoryService? history,
-  })  : _dedup = dedup ?? AutoDeduplicationEngine(),
-        _exporter = exporter ?? const YamlPackExporter(),
-        _gatekeeper = gatekeeper ?? const PackQualityGatekeeperService(),
-        _metrics = metrics ?? const PackGenerationMetricsTrackerService(),
-        _history = history ?? const AutogenMetricsHistoryService() {
+  }) : _dedup = dedup ?? AutoDeduplicationEngine(),
+       _exporter = exporter ?? const YamlPackExporter(),
+       _gatekeeper = gatekeeper ?? const PackQualityGatekeeperService(),
+       _metrics = metrics ?? const PackGenerationMetricsTrackerService(),
+       _history = history ?? const AutogenMetricsHistoryService() {
     _generator = generator ?? TrainingPackAutoGenerator(dedup: _dedup);
   }
 

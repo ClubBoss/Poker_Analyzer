@@ -157,12 +157,12 @@ class _Event {
   _Event(this.kind, this.timestamp);
 
   Map<String, dynamic> toJson() => {
-        'k': kind,
-        't': timestamp.toIso8601String(),
-      };
+    'k': kind,
+    't': timestamp.toIso8601String(),
+  };
 
   factory _Event.fromJson(Map<String, dynamic> json) => _Event(
-        json['k'] as String? ?? '',
-        DateTime.tryParse(json['t'] as String? ?? '') ?? DateTime.now(),
-      );
+    json['k'] as String? ?? '',
+    DateTime.tryParse(json['t'] as String? ?? '') ?? DateTime.now(),
+  );
 }

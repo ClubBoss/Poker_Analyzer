@@ -162,11 +162,9 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
                 if (index == 0) {
                   final manager = context.watch<SavedHandManagerService>();
                   final tags = manager.allTags.toList()..sort();
-                  final templates = _sessions
-                      .map((e) => e.templateId)
-                      .toSet()
-                      .toList()
-                    ..sort();
+                  final templates =
+                      _sessions.map((e) => e.templateId).toSet().toList()
+                        ..sort();
                   return Padding(
                     padding: const EdgeInsets.all(8),
                     child: Wrap(
@@ -280,12 +278,14 @@ class _SessionHistoryScreenState extends State<SessionHistoryScreen> {
                     ),
                   ),
                   onTap: () {
-                    final allHands =
-                        context.read<SavedHandManagerService>().hands;
+                    final allHands = context
+                        .read<SavedHandManagerService>()
+                        .hands;
                     final List<SavedHand> sessionHands = [];
                     for (final h in allHands) {
                       final afterStart = !h.savedAt.isBefore(s.startedAt);
-                      final beforeEnd = s.completedAt == null ||
+                      final beforeEnd =
+                          s.completedAt == null ||
                           !h.savedAt.isAfter(s.completedAt!);
                       if (afterStart && beforeEnd) sessionHands.add(h);
                     }

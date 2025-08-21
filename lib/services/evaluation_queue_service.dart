@@ -455,9 +455,11 @@ class EvaluationQueueService {
     await _initFuture;
     final remote = await cloud!.downloadQueue();
     if (remote == null) return;
-    final remoteAt = DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
+    final remoteAt =
+        DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
         DateTime.fromMillisecondsSinceEpoch(0);
-    final localAt = DateTime.tryParse(_sharedPrefs.getString(_timeKey) ?? '') ??
+    final localAt =
+        DateTime.tryParse(_sharedPrefs.getString(_timeKey) ?? '') ??
         DateTime.fromMillisecondsSinceEpoch(0);
     if (remoteAt.isAfter(localAt)) {
       final queues = _decodeQueues(remote);

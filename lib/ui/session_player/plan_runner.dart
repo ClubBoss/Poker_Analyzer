@@ -147,11 +147,13 @@ class _PlayFromPlanPageState extends State<PlayFromPlanPage> {
           final slices = snap.data ?? [];
           final q = _searchCtrl.text.trim().toLowerCase();
           bool matches(PlanSlice s) {
-            final inText = q.isEmpty ||
+            final inText =
+                q.isEmpty ||
                 s.id.toLowerCase().contains(q) ||
                 s.kind.toLowerCase().contains(q);
             final done = _progress.done[s.id] == true;
-            final inStatus = _statusFilter == 'all' ||
+            final inStatus =
+                _statusFilter == 'all' ||
                 (_statusFilter == 'done' && done) ||
                 (_statusFilter == 'undone' && !done);
             return inText && inStatus;

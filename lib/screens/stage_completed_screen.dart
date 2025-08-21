@@ -60,9 +60,9 @@ class _StageCompletedScreenState extends State<StageCompletedScreen> {
       tags: weak,
       onStart: () async {
         await context.read<TrainingSessionService>().startSession(
-              pack,
-              persist: false,
-            );
+          pack,
+          persist: false,
+        );
         if (!context.mounted) return;
         Navigator.pushReplacement(
           context,

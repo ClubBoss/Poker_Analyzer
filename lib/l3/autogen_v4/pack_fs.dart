@@ -10,8 +10,7 @@ String packFileName({
   required int count,
   required String preset,
   required String version,
-}) =>
-    'l3_pack_\${version}_seed\${seed}*c\${count}*\${preset}.json';
+}) => 'l3_pack_\${version}_seed\${seed}*c\${count}*\${preset}.json';
 
 String h32Hex(Uint8List bytes) {
   const offset = 0x811c9dc5;
@@ -43,8 +42,9 @@ File writePackFile(
     version: p.version,
   );
   final file = File('${outDir.path}/$filename');
-  final content =
-      format == 'pretty' ? encodeSpotPackPretty(p) : encodeSpotPackCompact(p);
+  final content = format == 'pretty'
+      ? encodeSpotPackPretty(p)
+      : encodeSpotPackCompact(p);
   file.writeAsStringSync(content);
   return file;
 }
@@ -73,28 +73,28 @@ class PackIndexEntry {
   });
 
   Map<String, dynamic> toJson() => {
-        'filename': filename,
-        'seed': seed,
-        'count': count,
-        'preset': preset,
-        'format': format,
-        'version': version,
-        'bytes': bytes,
-        'h32': h32,
-        'itemsHash10': itemsHash10,
-      };
+    'filename': filename,
+    'seed': seed,
+    'count': count,
+    'preset': preset,
+    'format': format,
+    'version': version,
+    'bytes': bytes,
+    'h32': h32,
+    'itemsHash10': itemsHash10,
+  };
 
   factory PackIndexEntry.fromJson(Map<String, dynamic> j) => PackIndexEntry(
-        filename: j['filename'] as String,
-        seed: j['seed'] as int,
-        count: j['count'] as int,
-        preset: j['preset'] as String,
-        format: j['format'] as String,
-        version: j['version'] as String,
-        bytes: j['bytes'] as int,
-        h32: j['h32'] as String,
-        itemsHash10: j['itemsHash10'] as String,
-      );
+    filename: j['filename'] as String,
+    seed: j['seed'] as int,
+    count: j['count'] as int,
+    preset: j['preset'] as String,
+    format: j['format'] as String,
+    version: j['version'] as String,
+    bytes: j['bytes'] as int,
+    h32: j['h32'] as String,
+    itemsHash10: j['itemsHash10'] as String,
+  );
 }
 
 class PackIndex {
@@ -103,8 +103,8 @@ class PackIndex {
   PackIndex({required this.entries});
 
   Map<String, dynamic> toJson() => {
-        'entries': entries.map((e) => e.toJson()).toList(),
-      };
+    'entries': entries.map((e) => e.toJson()).toList(),
+  };
 
   static PackIndex loadIndex(File f) {
     if (!f.existsSync()) {

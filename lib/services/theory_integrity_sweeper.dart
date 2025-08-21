@@ -35,13 +35,13 @@ class SweepEntry {
   });
 
   Map<String, dynamic> toJson() => {
-        'file': file,
-        'action': action,
-        'oldHash': oldHash,
-        'newHash': newHash,
-        'headerVersion': headerVersion,
-        'pruned': pruned,
-      };
+    'file': file,
+    'action': action,
+    'oldHash': oldHash,
+    'newHash': newHash,
+    'headerVersion': headerVersion,
+    'pruned': pruned,
+  };
 }
 
 class SweepReport {
@@ -49,21 +49,22 @@ class SweepReport {
   final Map<String, int> counters;
 
   SweepReport({List<SweepEntry>? entries, Map<String, int>? counters})
-      : entries = entries ?? [],
-        counters = counters ??
-            {
-              'ok': 0,
-              'upgraded': 0,
-              'healed': 0,
-              'failed': 0,
-              'needs_upgrade': 0,
-              'needs_heal': 0,
-            };
+    : entries = entries ?? [],
+      counters =
+          counters ??
+          {
+            'ok': 0,
+            'upgraded': 0,
+            'healed': 0,
+            'failed': 0,
+            'needs_upgrade': 0,
+            'needs_heal': 0,
+          };
 
   Map<String, dynamic> toJson() => {
-        'entries': entries.map((e) => e.toJson()).toList(),
-        'counters': counters,
-      };
+    'entries': entries.map((e) => e.toJson()).toList(),
+    'counters': counters,
+  };
 }
 
 class TheoryIntegritySweeper {
@@ -71,10 +72,11 @@ class TheoryIntegritySweeper {
     AutogenStatusDashboardService? dashboard,
     TheoryYamlSafeReader? reader,
     ConfigSource? config,
-  })  : _dashboard = dashboard ?? AutogenStatusDashboardService.instance,
-        _config = config ?? ConfigSource.empty(),
-        _reader = reader ??
-            TheoryYamlSafeReader(config: config ?? ConfigSource.empty());
+  }) : _dashboard = dashboard ?? AutogenStatusDashboardService.instance,
+       _config = config ?? ConfigSource.empty(),
+       _reader =
+           reader ??
+           TheoryYamlSafeReader(config: config ?? ConfigSource.empty());
 
   final AutogenStatusDashboardService _dashboard;
   final TheoryYamlSafeReader _reader;
@@ -308,12 +310,13 @@ class TheoryIntegritySweeper {
     final base = p.basename(rel);
     final dir = Directory(p.join('theory_backups', p.dirname(rel)));
     if (!dir.existsSync()) return 0;
-    final backups = dir
-        .listSync()
-        .whereType<File>()
-        .where((f) => p.basename(f.path).startsWith('$base.'))
-        .toList()
-      ..sort((a, b) => a.path.compareTo(b.path));
+    final backups =
+        dir
+            .listSync()
+            .whereType<File>()
+            .where((f) => p.basename(f.path).startsWith('$base.'))
+            .toList()
+          ..sort((a, b) => a.path.compareTo(b.path));
     final over = backups.length - keep;
     if (over > 0) {
       for (final f in backups.take(over)) {

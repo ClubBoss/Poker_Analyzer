@@ -166,8 +166,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
       themes: _selectedThemes.isEmpty ? null : _selectedThemes,
       tags: _selectedTags.isEmpty ? null : _selectedTags,
       types: _selectedTypes.isEmpty ? null : _selectedTypes,
-      difficulties:
-          _selectedDifficulties.isEmpty ? null : _selectedDifficulties,
+      difficulties: _selectedDifficulties.isEmpty
+          ? null
+          : _selectedDifficulties,
       audiences: _selectedAudiences.isEmpty ? null : _selectedAudiences,
       level: _levelFilter,
       goal: _selectedGoal.isEmpty ? null : _selectedGoal,

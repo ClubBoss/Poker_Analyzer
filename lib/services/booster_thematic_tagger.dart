@@ -45,7 +45,8 @@ class BoosterThematicTagger {
       if (board.isNotEmpty) addTag('Postflop Spot');
     }
 
-    final isIcm = pack.tags.any((t) => t.toLowerCase().contains('icm')) ||
+    final isIcm =
+        pack.tags.any((t) => t.toLowerCase().contains('icm')) ||
         pack.name.toLowerCase().contains('icm') ||
         pack.description.toLowerCase().contains('icm');
     final players = {for (final s in pack.spots) s.hand.playerCount};

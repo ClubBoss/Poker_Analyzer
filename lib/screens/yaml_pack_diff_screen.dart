@@ -83,12 +83,14 @@ class YamlPackDiffScreen extends StatelessWidget {
                   DataColumn(label: Text('Hand B')),
                 ],
                 rows: [
-                  for (var i = 0;
-                      i <
-                          (packA.spots.length > packB.spots.length
-                              ? packA.spots.length
-                              : packB.spots.length);
-                      i++)
+                  for (
+                    var i = 0;
+                    i <
+                        (packA.spots.length > packB.spots.length
+                            ? packA.spots.length
+                            : packB.spots.length);
+                    i++
+                  )
                     _buildRow(i, diffColor),
                 ],
               ),

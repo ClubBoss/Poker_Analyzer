@@ -26,8 +26,9 @@ class MistakeHistoryQueryService {
   }) async {
     if (limit <= 0) return [];
     final spottings = await loadSpottings();
-    final successes =
-        loadSuccesses != null ? await loadSuccesses!() : <RecallSuccessEntry>[];
+    final successes = loadSuccesses != null
+        ? await loadSuccesses!()
+        : <RecallSuccessEntry>[];
 
     final successMap = <String, List<DateTime>>{};
     for (final s in successes) {
@@ -46,10 +47,7 @@ class MistakeHistoryQueryService {
       if (entries.length >= limit) break;
       final spotTags = (await resolveTags(
         s.spotId,
-      ))
-          .map((e) => e.trim().toLowerCase())
-          .where((e) => e.isNotEmpty)
-          .toList();
+      )).map((e) => e.trim().toLowerCase()).where((e) => e.isNotEmpty).toList();
       if (spotTags.isEmpty) continue;
 
       String? spotStreet;

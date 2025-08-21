@@ -8,5 +8,4 @@ double computeIcmPushEV({
   int? heroIndex,
   String? heroHand,
   double? chipPushEv,
-}) =>
-    0;
+}) => 0;

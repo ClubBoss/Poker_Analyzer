@@ -27,12 +27,12 @@ class PackLibraryGenerator {
     TrainingPackSourceTagger? sourceTagger,
     TrainingPackTagsEngine? tagsEngine,
     LevelTagAutoAssigner? levelAssigner,
-  })  : parser = yamlParser ?? const PackYamlConfigParser(),
-        generator = pushFoldGenerator ?? const PushFoldPackGenerator(),
-        engine = packEngine ?? const TrainingPackGeneratorEngine(),
-        tagger = sourceTagger ?? const TrainingPackSourceTagger(),
-        tagsEngine = tagsEngine ?? const TrainingPackTagsEngine(),
-        levelAssigner = levelAssigner ?? const LevelTagAutoAssigner();
+  }) : parser = yamlParser ?? const PackYamlConfigParser(),
+       generator = pushFoldGenerator ?? const PushFoldPackGenerator(),
+       engine = packEngine ?? const TrainingPackGeneratorEngine(),
+       tagger = sourceTagger ?? const TrainingPackSourceTagger(),
+       tagsEngine = tagsEngine ?? const TrainingPackTagsEngine(),
+       levelAssigner = levelAssigner ?? const LevelTagAutoAssigner();
 
   List<String> autoTags(TrainingPackTemplate template) {
     final set = <String>{};
@@ -46,8 +46,9 @@ class PackLibraryGenerator {
     var river = false;
     for (final s in template.spots) {
       positions.add(s.hand.position);
-      maxPlayers =
-          s.hand.playerCount > maxPlayers ? s.hand.playerCount : maxPlayers;
+      maxPlayers = s.hand.playerCount > maxPlayers
+          ? s.hand.playerCount
+          : maxPlayers;
       final st = s.hand.stacks['${s.hand.heroIndex}']?.round();
       if (st != null) {
         stacks.add(st);
@@ -137,15 +138,15 @@ class PackLibraryGenerator {
     final playerText = players <= 2
         ? 'heads-up'
         : players == 3
-            ? '3 players'
-            : '3+ players';
+        ? '3 players'
+        : '3+ players';
     final streetText = street >= 5
         ? 'river'
         : street == 4
-            ? 'turn'
-            : street == 3
-                ? 'flop'
-                : 'preflop';
+        ? 'turn'
+        : street == 3
+        ? 'flop'
+        : 'preflop';
     final push = t.tags.any((e) => e.toLowerCase().contains('push'));
     final base = push
         ? 'Push/Fold training from $pos with $stackLabel'

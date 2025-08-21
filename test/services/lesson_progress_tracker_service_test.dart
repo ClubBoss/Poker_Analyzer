@@ -18,8 +18,8 @@ void main() {
       'lessonA',
     );
     expect(steps.contains('step1'), true);
-    final lessons =
-        await LessonProgressTrackerService.instance.getCompletedLessons();
+    final lessons = await LessonProgressTrackerService.instance
+        .getCompletedLessons();
     expect(lessons.contains('lessonA'), true);
     final xp = await XPRewardEngine.instance.getTotalXp();
     expect(xp, 10);
@@ -33,8 +33,8 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     await LessonProgressTrackerService.instance.load();
     await LessonProgressTrackerService.instance.markStepCompletedFlat('step2');
-    final map =
-        await LessonProgressTrackerService.instance.getCompletedStepsFlat();
+    final map = await LessonProgressTrackerService.instance
+        .getCompletedStepsFlat();
     expect(map['step2'], true);
   });
 
@@ -46,8 +46,8 @@ void main() {
       's1',
     );
     await LessonProgressTrackerService.instance.reset();
-    final lessons =
-        await LessonProgressTrackerService.instance.getCompletedLessons();
+    final lessons = await LessonProgressTrackerService.instance
+        .getCompletedLessons();
     final steps = await LessonProgressTrackerService.instance.getCompletedSteps(
       'lessonX',
     );

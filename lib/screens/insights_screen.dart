@@ -67,7 +67,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
                 showTitles: true,
                 interval:
                     data.map((e) => e.value).reduce((a, b) => a > b ? a : b) /
-                        4,
+                    4,
                 reservedSize: 30,
                 getTitlesWidget: (v, meta) => Text(
                   v.toInt().toString(),

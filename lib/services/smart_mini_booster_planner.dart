@@ -14,9 +14,9 @@ class SmartMiniBoosterPlanner {
     LearningPathEngine? engine,
     MiniLessonLibraryService? library,
     LearningPathStageLibrary? stageLibrary,
-  })  : engine = engine ?? LearningPathEngine.instance,
-        library = library ?? MiniLessonLibraryService.instance,
-        stageLibrary = stageLibrary ?? LearningPathStageLibrary.instance;
+  }) : engine = engine ?? LearningPathEngine.instance,
+       library = library ?? MiniLessonLibraryService.instance,
+       stageLibrary = stageLibrary ?? LearningPathStageLibrary.instance;
 
   static final SmartMiniBoosterPlanner instance = SmartMiniBoosterPlanner();
 

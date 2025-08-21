@@ -22,7 +22,7 @@ class _FakeOrchestrator extends LearningPathGraphOrchestrator {
 class _FakeProgress extends TrainingPathProgressServiceV2 {
   final Set<String> completed;
   _FakeProgress(this.completed)
-      : super(logs: SessionLogService(sessions: TrainingSessionService()));
+    : super(logs: SessionLogService(sessions: TrainingSessionService()));
   @override
   Future<void> loadProgress(String pathId) async {}
   @override

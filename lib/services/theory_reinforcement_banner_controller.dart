@@ -22,9 +22,9 @@ class TheoryReinforcementBannerController extends ChangeNotifier {
     TheoryBoostTriggerService? trigger,
     MiniLessonLibraryService? library,
     this.cooldown = const Duration(hours: 6),
-  })  : tracker = tracker ?? RecapCompletionTracker.instance,
-        trigger = trigger ?? TheoryBoostTriggerService.instance,
-        library = library ?? MiniLessonLibraryService.instance {
+  }) : tracker = tracker ?? RecapCompletionTracker.instance,
+       trigger = trigger ?? TheoryBoostTriggerService.instance,
+       library = library ?? MiniLessonLibraryService.instance {
     _sub = this.tracker.onCompletion.listen(_handle);
   }
 

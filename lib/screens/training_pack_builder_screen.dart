@@ -32,8 +32,9 @@ class _TrainingPackBuilderScreenState extends State<TrainingPackBuilderScreen> {
   }
 
   Future<void> _create() async {
-    final name =
-        _nameCtrl.text.trim().isEmpty ? 'New Pack' : _nameCtrl.text.trim();
+    final name = _nameCtrl.text.trim().isEmpty
+        ? 'New Pack'
+        : _nameCtrl.text.trim();
     final minBb = int.tryParse(_minStackCtrl.text) ?? 10;
     final maxBb = int.tryParse(_maxStackCtrl.text) ?? minBb;
     final players = [

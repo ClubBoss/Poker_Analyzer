@@ -5,7 +5,7 @@ class TagCoverageService {
   final LessonStepTagProvider _provider;
 
   TagCoverageService({LessonStepTagProvider? provider})
-      : _provider = provider ?? LessonStepTagService.instance;
+    : _provider = provider ?? LessonStepTagService.instance;
 
   Future<Map<String, int>> computeTagCoverage() async {
     final tagsByStep = await _provider.getTagsByStepId();

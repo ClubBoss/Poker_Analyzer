@@ -19,9 +19,9 @@ class SkillTagCoverageTrackerService {
     Set<String>? allSkillTags,
     this.underrepresentedThreshold = 5,
     SkillTagCoverageTracker? tracker,
-  })  : library = library ?? TrainingPackLibraryService(),
-        allSkillTags = allSkillTags ?? const {},
-        _tracker = tracker ?? SkillTagCoverageTracker();
+  }) : library = library ?? TrainingPackLibraryService(),
+       allSkillTags = allSkillTags ?? const {},
+       _tracker = tracker ?? SkillTagCoverageTracker();
 
   /// Returns current tag usage statistics.
   Map<String, int> getTagStats() =>

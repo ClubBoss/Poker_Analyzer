@@ -12,9 +12,9 @@ class PackLibraryAutoCuratorService {
     AutoDeduplicationEngine? dedup,
     SkillTagCoverageTracker? tagTracker,
     dynamic clusterAnalyzer,
-  })  : _dedup = dedup ?? AutoDeduplicationEngine(),
-        _tagTracker = tagTracker,
-        _clusterAnalyzer = clusterAnalyzer;
+  }) : _dedup = dedup ?? AutoDeduplicationEngine(),
+       _tagTracker = tagTracker,
+       _clusterAnalyzer = clusterAnalyzer;
 
   /// Filters and ranks [input], returning at most [limit] packs.
   List<TrainingPackModel> curate(
@@ -66,7 +66,8 @@ class PackLibraryAutoCuratorService {
         if (cid is String && cid.isNotEmpty) return cid;
       } catch (_) {}
     }
-    final metaCluster = pack.metadata['clusterId'] ??
+    final metaCluster =
+        pack.metadata['clusterId'] ??
         pack.metadata['theoryClusterId'] ??
         pack.metadata['cluster'];
     if (metaCluster is String && metaCluster.trim().isNotEmpty) {
@@ -74,7 +75,8 @@ class PackLibraryAutoCuratorService {
     }
     for (final spot in pack.spots) {
       final m = spot.meta;
-      final c = m['cluster'] ??
+      final c =
+          m['cluster'] ??
           m['theoryCluster'] ??
           m['clusterId'] ??
           m['theoryClusterId'];

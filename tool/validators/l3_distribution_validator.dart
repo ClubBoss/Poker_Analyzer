@@ -45,10 +45,11 @@ void main(List<String> args) {
   }
 
   var hasError = false;
-  for (final file in dir
-      .listSync(recursive: true)
-      .whereType<File>()
-      .where((f) => f.path.endsWith('.yaml'))) {
+  for (final file
+      in dir
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where((f) => f.path.endsWith('.yaml'))) {
     final preset = p.basename(p.dirname(file.path));
     final presetDef = l3Presets[preset];
     if (presetDef == null) continue;

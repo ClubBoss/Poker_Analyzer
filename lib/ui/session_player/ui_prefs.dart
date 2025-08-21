@@ -23,15 +23,15 @@ class UiPrefs {
   });
 
   Map<String, dynamic> toJson() => {
-        "version": "v1",
-        "autoNext": autoNext,
-        "timeEnabled": timeEnabled,
-        "timeLimitMs": timeLimitMs,
-        "sound": sound,
-        "haptics": haptics,
-        "autoWhyOnWrong": autoWhyOnWrong,
-        "fontScale": fontScale,
-      };
+    "version": "v1",
+    "autoNext": autoNext,
+    "timeEnabled": timeEnabled,
+    "timeLimitMs": timeLimitMs,
+    "sound": sound,
+    "haptics": haptics,
+    "autoWhyOnWrong": autoWhyOnWrong,
+    "fontScale": fontScale,
+  };
 
   static UiPrefs fromJson(Map m, {required int autoNextDelayMs}) {
     bool b(Object? x, bool d) => x is bool ? x : d;

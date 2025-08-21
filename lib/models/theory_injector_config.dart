@@ -30,12 +30,12 @@ class TheoryInjectorConfig {
   }
 
   Map<String, dynamic> toJson() => {
-        'enabled': enabled,
-        'maxLinksPerSpot': maxLinksPerSpot,
-        'minScore': minScore,
-        'wTag': wTag,
-        'wTex': wTex,
-        'wCluster': wCluster,
-        'preferNovelty': preferNovelty,
-      };
+    'enabled': enabled,
+    'maxLinksPerSpot': maxLinksPerSpot,
+    'minScore': minScore,
+    'wTag': wTag,
+    'wTex': wTex,
+    'wCluster': wCluster,
+    'preferNovelty': preferNovelty,
+  };
 }

@@ -11,11 +11,12 @@ class TagBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap ??
+      onTap:
+          onTap ??
           () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => TagInsightScreen(tag: tag)),
-              ),
+            context,
+            MaterialPageRoute(builder: (_) => TagInsightScreen(tag: tag)),
+          ),
       child: Chip(
         label: Text(
           tag,

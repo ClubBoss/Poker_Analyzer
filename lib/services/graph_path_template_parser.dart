@@ -162,8 +162,8 @@ class GraphPathTemplateParser {
         final nextIds = node is StageNode
             ? node.nextIds
             : (node is TheoryLessonNode
-                ? node.nextIds
-                : (node as TheoryMiniLessonNode).nextIds);
+                  ? node.nextIds
+                  : (node as TheoryMiniLessonNode).nextIds);
         if (node is StageNode) {
           for (final d in node.dependsOn) {
             if (!ids.contains(d)) {

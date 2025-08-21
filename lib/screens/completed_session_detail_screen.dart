@@ -44,8 +44,8 @@ class _CompletedSessionDetailScreenState
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _data == null
-              ? const Center(child: Text('Session not found'))
-              : _buildContent(context),
+          ? const Center(child: Text('Session not found'))
+          : _buildContent(context),
     );
   }
 
@@ -82,8 +82,9 @@ class _CompletedSessionDetailScreenState
         ? DateFormat.yMMMd(Intl.getCurrentLocale()).add_Hm().format(ts)
         : 'Unknown';
 
-    final accuracyStr =
-        accuracy != null ? '${(accuracy * 100).toStringAsFixed(0)}%' : 'N/A';
+    final accuracyStr = accuracy != null
+        ? '${(accuracy * 100).toStringAsFixed(0)}%'
+        : 'N/A';
 
     return Padding(
       padding: const EdgeInsets.all(16),

@@ -10,7 +10,7 @@ class CentralPotChips extends StatelessWidget {
   final double scale;
 
   const CentralPotChips({Key? key, required this.amount, this.scale = 1.0})
-      : super(key: key);
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {

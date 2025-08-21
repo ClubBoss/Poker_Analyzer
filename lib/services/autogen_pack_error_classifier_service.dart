@@ -72,7 +72,7 @@ class AutogenPackErrorClassifierService {
 
   /// Returns a listenable of recent classified errors.
   static ValueListenable<List<AutogenPackErrorEntry>>
-      recentErrorsListenable() => _recentErrors;
+  recentErrorsListenable() => _recentErrors;
 
   /// Returns the current recent error list.
   static List<AutogenPackErrorEntry> getRecentErrors() =>

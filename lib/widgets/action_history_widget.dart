@@ -29,8 +29,9 @@ class ActionHistoryWidget extends StatelessWidget {
   }
 
   Widget _buildStreetTile(BuildContext context, int street, String title) {
-    final streetActions =
-        actions.where((a) => a.street == street && !a.generated).toList();
+    final streetActions = actions
+        .where((a) => a.street == street && !a.generated)
+        .toList();
     if (streetActions.isEmpty) return const SizedBox.shrink();
 
     final last = streetActions.last;

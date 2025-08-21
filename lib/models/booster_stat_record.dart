@@ -21,11 +21,11 @@ class BoosterStatRecord {
   }
 
   Map<String, dynamic> toJson() => {
-        'type': type,
-        'suggested': suggested,
-        'accepted': accepted,
-        'dismissed': dismissed,
-      };
+    'type': type,
+    'suggested': suggested,
+    'accepted': accepted,
+    'dismissed': dismissed,
+  };
 
   factory BoosterStatRecord.fromJson(Map<String, dynamic> json) =>
       BoosterStatRecord(

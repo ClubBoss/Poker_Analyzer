@@ -9,7 +9,7 @@ class DecayBadgeBannerController with WidgetsBindingObserver {
   final DecayStreakBadgeNotifier notifier;
 
   DecayBadgeBannerController({DecayStreakBadgeNotifier? notifier})
-      : notifier = notifier ?? DecayStreakBadgeNotifier();
+    : notifier = notifier ?? DecayStreakBadgeNotifier();
 
   bool _shown = false;
 

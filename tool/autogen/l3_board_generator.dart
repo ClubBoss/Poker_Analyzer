@@ -141,8 +141,9 @@ void main(List<String> args) {
       stderr.writeln('Unknown preset $name');
       exit(1);
     }
-    final mix =
-        targetMixArg != null ? _parseTargetMix(targetMixArg) : preset.targetMix;
+    final mix = targetMixArg != null
+        ? _parseTargetMix(targetMixArg)
+        : preset.targetMix;
     _generateForPreset(
       outDir,
       name,

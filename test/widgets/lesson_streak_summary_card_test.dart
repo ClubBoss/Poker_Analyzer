@@ -8,8 +8,10 @@ void main() {
   testWidgets('shows when hitting new milestone', (tester) async {
     SharedPreferences.setMockInitialValues({
       'lesson_streak_count': 3,
-      'lesson_streak_last_day':
-          DateTime.now().toIso8601String().split('T').first,
+      'lesson_streak_last_day': DateTime.now()
+          .toIso8601String()
+          .split('T')
+          .first,
     });
     await tester.pumpWidget(const MaterialApp(home: LessonStreakSummaryCard()));
     await tester.pumpAndSettle();
@@ -19,8 +21,10 @@ void main() {
   testWidgets('does not show when milestone already shown', (tester) async {
     SharedPreferences.setMockInitialValues({
       'lesson_streak_count': 3,
-      'lesson_streak_last_day':
-          DateTime.now().toIso8601String().split('T').first,
+      'lesson_streak_last_day': DateTime.now()
+          .toIso8601String()
+          .split('T')
+          .first,
       'lesson_streak_summary_shown': ['3'],
     });
     await tester.pumpWidget(const MaterialApp(home: LessonStreakSummaryCard()));

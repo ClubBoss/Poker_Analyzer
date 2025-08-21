@@ -18,12 +18,12 @@ void main() {
   );
 
   LessonTrack track(TrackUnlockCondition? cond) => LessonTrack(
-        id: 't',
-        title: 'Track',
-        description: '',
-        stepIds: const ['lesson1'],
-        unlockCondition: cond,
-      );
+    id: 't',
+    title: 'Track',
+    description: '',
+    stepIds: const ['lesson1'],
+    unlockCondition: cond,
+  );
 
   test('unlocked by minXp', () {
     final t = track(TrackUnlockCondition(minXp: 1000));

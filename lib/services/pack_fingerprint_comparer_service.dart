@@ -34,8 +34,8 @@ class PackFingerprintComparerService {
   const PackFingerprintComparerService({
     SpotFingerprintGenerator? fingerprint,
     bool debug = false,
-  })  : _fingerprint = fingerprint ?? const SpotFingerprintGenerator(),
-        _debug = debug;
+  }) : _fingerprint = fingerprint ?? const SpotFingerprintGenerator(),
+       _debug = debug;
 
   /// Returns a similarity score between [a] and [b] from 0.0 (no overlap) to
   /// 1.0 (identical) based on weighted heuristics.
@@ -53,7 +53,8 @@ class PackFingerprintComparerService {
     final templateScore = _templateScore(a, b);
     final countScore = _countScore(a, b);
 
-    final result = spotScore * 0.5 +
+    final result =
+        spotScore * 0.5 +
         tagScore * 0.2 +
         clusterScore * 0.1 +
         templateScore * 0.1 +
@@ -75,8 +76,7 @@ class PackFingerprintComparerService {
     TrainingPackModel a,
     TrainingPackModel b, {
     double threshold = 0.9,
-  }) =>
-      compare(a, b) >= threshold;
+  }) => compare(a, b) >= threshold;
 
   /// Finds packs from [all] that are similar to [target] above [threshold].
   List<SimilarPackMatch> findSimilarPacks(
@@ -129,7 +129,8 @@ class PackFingerprintComparerService {
     final result = <String>{};
     for (final TrainingPackSpot s in pack.spots) {
       final meta = s.meta;
-      final c = meta['cluster'] ??
+      final c =
+          meta['cluster'] ??
           meta['theoryCluster'] ??
           meta['clusterId'] ??
           meta['theoryClusterId'];

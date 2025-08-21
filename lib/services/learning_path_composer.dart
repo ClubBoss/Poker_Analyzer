@@ -50,7 +50,7 @@ class DifficultyWeights {
 class DifficultyScorer {
   final DifficultyWeights weights;
   const DifficultyScorer({DifficultyWeights? weights})
-      : weights = weights ?? const DifficultyWeights();
+    : weights = weights ?? const DifficultyWeights();
 
   double score(PackMeta meta) {
     final w = weights;
@@ -135,8 +135,8 @@ class LearningPathComposer {
   final Map<int, LevelQuota> quotas;
   final DifficultyScorer scorer;
   LearningPathComposer({Map<int, LevelQuota>? quotas, DifficultyScorer? scorer})
-      : quotas = quotas ?? defaultQuotas,
-        scorer = scorer ?? const DifficultyScorer();
+    : quotas = quotas ?? defaultQuotas,
+      scorer = scorer ?? const DifficultyScorer();
 
   CompositionResult compose(List<PackMeta> packs) {
     final difficulties = {for (final p in packs) p.id: scorer.score(p)};
@@ -169,7 +169,8 @@ class LearningPathComposer {
         if (mono > quota.maxMonotone!) return false;
       }
       if (quota.minDecisionDensity != null &&
-          p.decisionDensity < quota.minDecisionDensity!) return false;
+          p.decisionDensity < quota.minDecisionDensity!)
+        return false;
       if (quota.requireTheoryHeavy && !p.theoryHeavy) return false;
       return true;
     }).toList();

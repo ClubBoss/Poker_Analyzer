@@ -15,9 +15,9 @@ class TheoryLessonClusterLinkerService {
     MiniLessonLibraryService? library,
     TheorySuggestionEngagementTrackerService? tracker,
     TheoryClusterCacheService? cache,
-  })  : library = library ?? MiniLessonLibraryService.instance,
-        tracker = tracker ?? TheorySuggestionEngagementTrackerService.instance,
-        cache = cache ?? TheoryClusterCacheService.instance;
+  }) : library = library ?? MiniLessonLibraryService.instance,
+       tracker = tracker ?? TheorySuggestionEngagementTrackerService.instance,
+       cache = cache ?? TheoryClusterCacheService.instance;
 
   List<TheoryLessonCluster>? _clustersCache;
 

@@ -24,10 +24,10 @@ class SmartRecapAutoInjector {
     SmartTheoryRecapEngine? engine,
     TheoryRecapSuppressionEngine? suppression,
     SmartTheoryRecapDismissalMemory? dismissal,
-  })  : detector = detector ?? RecapOpportunityDetector.instance,
-        engine = engine ?? SmartTheoryRecapEngine.instance,
-        suppression = suppression ?? TheoryRecapSuppressionEngine.instance,
-        dismissal = dismissal ?? SmartTheoryRecapDismissalMemory.instance;
+  }) : detector = detector ?? RecapOpportunityDetector.instance,
+       engine = engine ?? SmartTheoryRecapEngine.instance,
+       suppression = suppression ?? TheoryRecapSuppressionEngine.instance,
+       dismissal = dismissal ?? SmartTheoryRecapDismissalMemory.instance;
 
   static final SmartRecapAutoInjector instance = SmartRecapAutoInjector();
 

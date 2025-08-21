@@ -171,8 +171,8 @@ class _CloudTrainingSessionDetailsScreenState
     );
     if (confirm == true) {
       await context.read<CloudTrainingHistoryService>().deleteSession(
-            widget.session.path,
-          );
+        widget.session.path,
+      );
       if (context.mounted) {
         Navigator.pop(context);
       }
@@ -579,12 +579,11 @@ class _CloudTrainingSessionDetailsScreenState
                                 }
                                 final gto = hand.gtoAction ?? r.expected;
                                 final group = hand.rangeGroup ?? '-';
-                                final verdict =
-                                    r.correct ? 'верное' : 'ошибочное';
+                                final verdict = r.correct
+                                    ? 'верное'
+                                    : 'ошибочное';
                                 return 'GTO предлагает $gto, ваша рука из группы $group. Это действие $verdict.';
-                              }(),
-                                  style:
-                                      const TextStyle(color: Colors.white70)),
+                              }(), style: const TextStyle(color: Colors.white70)),
                             ),
                             Padding(
                               padding: const EdgeInsets.all(12.0),

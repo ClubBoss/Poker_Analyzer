@@ -20,9 +20,9 @@ class PackRunController {
     TheoryIndexService? theoryIndex,
     PackRunSessionState? state,
     LearningPathTelemetry? telemetry,
-  })  : _theoryIndex = theoryIndex ?? TheoryIndexService(),
-        _state = state ?? PackRunSessionState(),
-        _telemetry = telemetry ?? LearningPathTelemetry.instance;
+  }) : _theoryIndex = theoryIndex ?? TheoryIndexService(),
+       _state = state ?? PackRunSessionState(),
+       _telemetry = telemetry ?? LearningPathTelemetry.instance;
 
   Future<RecallSnippetResult?> onResult(
     String spotId,
@@ -36,7 +36,8 @@ class PackRunController {
       final attempt = (_state.attemptsBySpot[spotId] ?? 0) + 1;
       _state.attemptsBySpot[spotId] = attempt;
 
-      final canShow = attempt == 1 &&
+      final canShow =
+          attempt == 1 &&
           _state.recallShownBySpot[spotId] != true &&
           _state.handCounter - _state.lastShownAt >= _globalCooldown &&
           tags.isNotEmpty;

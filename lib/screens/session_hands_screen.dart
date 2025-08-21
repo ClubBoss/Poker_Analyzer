@@ -231,10 +231,9 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
   Widget build(BuildContext context) {
     final manager = context.watch<SavedHandManagerService>();
     final stats = context.watch<SavedHandStatsService>();
-    final hands = manager.hands
-        .where((h) => h.sessionId == widget.sessionId)
-        .toList()
-      ..sort((a, b) => b.savedAt.compareTo(a.savedAt));
+    final hands =
+        manager.hands.where((h) => h.sessionId == widget.sessionId).toList()
+          ..sort((a, b) => b.savedAt.compareTo(a.savedAt));
 
     final sessionIds = stats.handsBySession().keys.toList()..sort();
     final currentIndex = sessionIds.indexOf(widget.sessionId);
@@ -340,8 +339,8 @@ class _SessionHandsScreenState extends State<SessionHandsScreen> {
                           child: ElevatedButton(
                             onPressed: () async {
                               await context.read<SessionManager>().reset(
-                                    widget.sessionId,
-                                  );
+                                widget.sessionId,
+                              );
                               if (context.mounted) Navigator.pop(context);
                             },
                             child: const Text('Reset Session'),

@@ -39,8 +39,8 @@ class SpotLineNode {
     required this.heroPosition,
     List<String>? actionHistory,
     List<SpotLineEdge>? edges,
-  })  : actionHistory = actionHistory ?? [],
-        edges = edges ?? [];
+  }) : actionHistory = actionHistory ?? [],
+       edges = edges ?? [];
 }
 
 class SpotLineEdge {

@@ -53,8 +53,8 @@ class TrainingPackAuthorService {
   };
 
   static Map<String, String> get presets => {
-        for (final e in _presets.entries) e.key: e.value.name,
-      };
+    for (final e in _presets.entries) e.key: e.value.name,
+  };
 
   static Map<String, PresetConfig> get presetConfigs => _presets;
 
@@ -155,8 +155,9 @@ class TrainingPackAuthorService {
       gameType: config.gameType,
       spots: spots,
       heroBbStack: isIcm ? 12 : stackValue,
-      playerStacksBb:
-          isIcm ? const [25, 20, 12, 18, 9, 6] : [stackValue, stackValue],
+      playerStacksBb: isIcm
+          ? const [25, 20, 12, 18, 9, 6]
+          : [stackValue, stackValue],
       heroPos: config.pos,
       spotCount: spots.length,
       bbCallPct: 0,

@@ -61,15 +61,15 @@ class _ReadyToTrainScreenState extends State<ReadyToTrainScreen> {
         .hands
         .reversed
         .firstWhereOrNull((h) {
-      final exp = h.expectedAction?.trim().toLowerCase();
-      final gto = h.gtoAction?.trim().toLowerCase();
-      final ev = h.evLoss ?? 0.0;
-      return ev.abs() >= 1.0 &&
-          !h.corrected &&
-          exp != null &&
-          gto != null &&
-          exp != gto;
-    });
+          final exp = h.expectedAction?.trim().toLowerCase();
+          final gto = h.gtoAction?.trim().toLowerCase();
+          final ev = h.evLoss ?? 0.0;
+          return ev.abs() >= 1.0 &&
+              !h.corrected &&
+              exp != null &&
+              gto != null &&
+              exp != gto;
+        });
     final similar = last != null
         ? await TrainingPackService.createSimilarMistakeDrill(last)
         : null;

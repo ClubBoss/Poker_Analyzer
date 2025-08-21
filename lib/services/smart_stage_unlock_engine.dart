@@ -42,8 +42,8 @@ class SmartStageUnlockEngine {
   }
 
   Future<void> checkAndUnlockNextStage({bool force = false}) async {
-    final stages =
-        await LearningPathProgressService.instance.getCurrentStageState();
+    final stages = await LearningPathProgressService.instance
+        .getCurrentStageState();
     final unlocked = await _loadUnlocked();
     for (var i = 0; i < stages.length - 1; i++) {
       final stage = stages[i];

@@ -34,9 +34,11 @@ class ActionTimelineWidget extends StatelessWidget {
         itemBuilder: (context, index) {
           final action = actions[index];
           final isSelected = index == playbackIndex;
-          final pos = playerPositions?[action.playerIndex] ??
+          final pos =
+              playerPositions?[action.playerIndex] ??
               'P${action.playerIndex + 1}';
-          final dim = focusPlayerIndex != null &&
+          final dim =
+              focusPlayerIndex != null &&
               action.playerIndex != focusPlayerIndex;
 
           return GestureDetector(

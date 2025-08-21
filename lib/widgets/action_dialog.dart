@@ -50,8 +50,9 @@ class _ActionDialogState extends State<ActionDialog> {
   Widget _actionButton(PokerAction action) {
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
-        backgroundColor:
-            _selected == action.value ? Colors.blueGrey : Colors.black87,
+        backgroundColor: _selected == action.value
+            ? Colors.blueGrey
+            : Colors.black87,
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 16),
       ),

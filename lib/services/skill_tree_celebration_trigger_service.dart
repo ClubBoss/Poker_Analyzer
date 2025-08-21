@@ -17,18 +17,19 @@ class SkillTreeCelebrationTriggerService {
     SkillTreeFinalNodeCompletionDetector? detector,
     SkillTreeProgressAnalyticsService? analytics,
     SkillTreeMilestoneOverlayService? overlay,
-  })  : detector = detector ?? SkillTreeFinalNodeCompletionDetector(),
-        analytics = analytics ?? SkillTreeProgressAnalyticsService(),
-        overlay = overlay ??
-            SkillTreeMilestoneOverlayService(
-                engine: _CompletionMessageEngine());
+  }) : detector = detector ?? SkillTreeFinalNodeCompletionDetector(),
+       analytics = analytics ?? SkillTreeProgressAnalyticsService(),
+       overlay =
+           overlay ??
+           SkillTreeMilestoneOverlayService(engine: _CompletionMessageEngine());
 
   static const _prefix = 'celebration_done_';
 
   /// Checks [tree] completion and shows celebration once per tree.
   Future<void> maybeCelebrate(BuildContext context, SkillTree tree) async {
-    final id =
-        tree.nodes.values.isNotEmpty ? tree.nodes.values.first.category : '';
+    final id = tree.nodes.values.isNotEmpty
+        ? tree.nodes.values.first.category
+        : '';
     final key = '$_prefix$id';
     final prefs = await SharedPreferences.getInstance();
     if (prefs.getBool(key) ?? false) return;

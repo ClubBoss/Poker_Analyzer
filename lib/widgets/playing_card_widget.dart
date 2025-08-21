@@ -5,7 +5,7 @@ class PlayingCardWidget extends StatelessWidget {
   final CardModel card;
   final double scale;
   const PlayingCardWidget({Key? key, required this.card, this.scale = 1.0})
-      : super(key: key);
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {

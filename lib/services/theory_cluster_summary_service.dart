@@ -35,8 +35,10 @@ class TheoryClusterSummaryService {
         tagCounts[trimmed] = (tagCounts[trimmed] ?? 0) + 1;
       }
     }
-    final sharedTags =
-        tagCounts.entries.where((e) => e.value >= 2).map((e) => e.key).toSet();
+    final sharedTags = tagCounts.entries
+        .where((e) => e.value >= 2)
+        .map((e) => e.key)
+        .toSet();
 
     return TheoryClusterSummary(
       size: lessons.length,

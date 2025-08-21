@@ -55,11 +55,10 @@ CachedTrainingTrack _$CachedTrainingTrackFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$CachedTrainingTrackToJson(
   CachedTrainingTrack instance,
-) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'title': instance.title,
-      'goalId': instance.goalId,
-      'spots': instance.spots.map((e) => e.toJson()).toList(),
-      'tags': instance.tags,
-    };
+) => <String, dynamic>{
+  'id': instance.id,
+  'title': instance.title,
+  'goalId': instance.goalId,
+  'spots': instance.spots.map((e) => e.toJson()).toList(),
+  'tags': instance.tags,
+};

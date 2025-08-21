@@ -66,12 +66,12 @@ class CloudTrainingSession {
   }
 
   Map<String, dynamic> toJson() => {
-        'date': date.toIso8601String(),
-        'results': [for (final r in results) r.toJson()],
-        if (comment != null && comment!.isNotEmpty) 'comment': comment,
-        if (handNotes != null && handNotes!.isNotEmpty) 'handNotes': handNotes,
-        if (handTags != null && handTags!.isNotEmpty) 'handTags': handTags,
-      };
+    'date': date.toIso8601String(),
+    'results': [for (final r in results) r.toJson()],
+    if (comment != null && comment!.isNotEmpty) 'comment': comment,
+    if (handNotes != null && handNotes!.isNotEmpty) 'handNotes': handNotes,
+    if (handTags != null && handTags!.isNotEmpty) 'handTags': handTags,
+  };
 
   int get total => results.length;
   int get correct => results.where((r) => r.correct).length;

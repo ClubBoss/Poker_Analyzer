@@ -21,7 +21,8 @@ class SkillTreeTrackHeaderBuilder {
   }) {
     final visual = bannerService.getVisual(root.category);
     final accent = visual.color;
-    final iconWidget = iconMap?[root.category] ??
+    final iconWidget =
+        iconMap?[root.category] ??
         Text(visual.emoji, style: const TextStyle(fontSize: 20));
     final pct = (progress.completionRate.clamp(0.0, 1.0) * 100).round();
 

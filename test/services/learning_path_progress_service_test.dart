@@ -13,15 +13,15 @@ void main() {
   });
 
   test('first item available when nothing completed', () async {
-    final stages =
-        await LearningPathProgressService.instance.getCurrentStageState();
+    final stages = await LearningPathProgressService.instance
+        .getCurrentStageState();
     expect(stages.first.items.first.status, LearningItemStatus.available);
     expect(stages.first.items[1].status, LearningItemStatus.locked);
   });
 
   test('next stage locked until previous completed', () async {
-    final stages =
-        await LearningPathProgressService.instance.getCurrentStageState();
+    final stages = await LearningPathProgressService.instance
+        .getCurrentStageState();
     expect(stages[1].items.first.status, LearningItemStatus.locked);
   });
 
@@ -29,8 +29,8 @@ void main() {
     await LearningPathProgressService.instance.markCompleted(
       'starter_pushfold_10bb',
     );
-    final stages =
-        await LearningPathProgressService.instance.getCurrentStageState();
+    final stages = await LearningPathProgressService.instance
+        .getCurrentStageState();
     expect(stages.first.items.first.status, LearningItemStatus.completed);
     expect(stages.first.items[1].status, LearningItemStatus.completed);
     expect(stages.first.items[2].status, LearningItemStatus.available);
@@ -43,14 +43,14 @@ void main() {
     await LearningPathProgressService.instance.markCompleted(
       'starter_pushfold_15bb',
     );
-    final stages =
-        await LearningPathProgressService.instance.getCurrentStageState();
+    final stages = await LearningPathProgressService.instance
+        .getCurrentStageState();
     expect(stages[1].items.first.status, isNot(LearningItemStatus.locked));
   });
 
   test('isAllStagesCompleted works correctly', () async {
-    var done =
-        await LearningPathProgressService.instance.isAllStagesCompleted();
+    var done = await LearningPathProgressService.instance
+        .isAllStagesCompleted();
     expect(done, isFalse);
 
     await LearningPathProgressService.instance.markCompleted(
@@ -86,15 +86,15 @@ void main() {
       'starter_pushfold_10bb',
     );
     await LearningPathProgressService.instance.resetStage('Beginner');
-    final stages =
-        await LearningPathProgressService.instance.getCurrentStageState();
+    final stages = await LearningPathProgressService.instance
+        .getCurrentStageState();
     expect(stages.first.items.first.status, LearningItemStatus.available);
     expect(stages.first.items[1].status, LearningItemStatus.locked);
   });
 
   test('custom path flag persists', () async {
-    var started =
-        await LearningPathProgressService.instance.isCustomPathStarted();
+    var started = await LearningPathProgressService.instance
+        .isCustomPathStarted();
     expect(started, isFalse);
     await LearningPathProgressService.instance.markCustomPathStarted();
     started = await LearningPathProgressService.instance.isCustomPathStarted();
@@ -102,8 +102,8 @@ void main() {
   });
 
   test('custom path completion flag persists', () async {
-    var done =
-        await LearningPathProgressService.instance.isCustomPathCompleted();
+    var done = await LearningPathProgressService.instance
+        .isCustomPathCompleted();
     expect(done, isFalse);
     await LearningPathProgressService.instance.markCustomPathCompleted();
     done = await LearningPathProgressService.instance.isCustomPathCompleted();

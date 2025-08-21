@@ -49,8 +49,9 @@ class GoalSuggestionRow extends StatelessWidget {
           final rec = recommendations[index];
           final isDecay = rec.type == GoalRecommendationType.decay;
           final icon = isDecay ? '🧠' : '⚠️';
-          final buttonLabel =
-              isDecay ? 'Восстановить навык' : 'Исправить ошибку';
+          final buttonLabel = isDecay
+              ? 'Восстановить навык'
+              : 'Исправить ошибку';
           return Container(
             width: 200,
             padding: const EdgeInsets.all(12),

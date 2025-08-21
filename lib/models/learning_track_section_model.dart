@@ -23,11 +23,11 @@ class LearningTrackSectionModel {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'title': title,
-        'description': description,
-        if (stageIds.isNotEmpty) 'stageIds': stageIds,
-      };
+    'id': id,
+    'title': title,
+    'description': description,
+    if (stageIds.isNotEmpty) 'stageIds': stageIds,
+  };
 
   factory LearningTrackSectionModel.fromYaml(Map yaml) {
     final map = <String, dynamic>{};

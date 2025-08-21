@@ -8,15 +8,17 @@ class MissingPackResolver {
     required Future<TrainingPackTemplateV2> Function(
       String packId, {
       String? presetId,
-    }) generator,
+    })
+    generator,
     PackRegistryService? registry,
-  })  : _generator = generator,
-        _registry = registry ?? PackRegistryService.instance;
+  }) : _generator = generator,
+       _registry = registry ?? PackRegistryService.instance;
 
   final Future<TrainingPackTemplateV2> Function(
     String packId, {
     String? presetId,
-  }) _generator;
+  })
+  _generator;
   final PackRegistryService _registry;
 
   /// Attempts to generate [stage.packId] using an optional [presetId].

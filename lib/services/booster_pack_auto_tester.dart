@@ -10,8 +10,8 @@ class BoosterAutoTestReport {
   BoosterAutoTestReport({
     List<String>? passed,
     Map<String, List<String>>? failed,
-  })  : passed = passed ?? <String>[],
-        failed = failed ?? <String, List<String>>{};
+  }) : passed = passed ?? <String>[],
+       failed = failed ?? <String, List<String>>{};
 
   Map<String, dynamic> toJson() => {'passed': passed, 'failed': failed};
 }

@@ -27,8 +27,9 @@ class _RemoteSessionsScreenState extends State<RemoteSessionsScreen> {
   }
 
   Future<void> _load() async {
-    final remote =
-        await context.read<CloudTrainingHistoryService>().loadSessions();
+    final remote = await context
+        .read<CloudTrainingHistoryService>()
+        .loadSessions();
     final local = context.read<SessionLogService>().logs;
     setState(() {
       _remote = remote;
@@ -78,51 +79,50 @@ class _RemoteSessionsScreenState extends State<RemoteSessionsScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _remote.isEmpty
-              ? const Center(child: Text('No sessions'))
-              : ListView.separated(
-                  itemCount: _remote.length,
-                  separatorBuilder: (_, __) => const Divider(height: 1),
-                  itemBuilder: (context, index) {
-                    final s = _remote[index];
-                    final local = _match(s);
-                    return ListTile(
-                      title: Text(
-                        formatDateTime(s.date),
-                        style: const TextStyle(color: Colors.white),
+          ? const Center(child: Text('No sessions'))
+          : ListView.separated(
+              itemCount: _remote.length,
+              separatorBuilder: (_, __) => const Divider(height: 1),
+              itemBuilder: (context, index) {
+                final s = _remote[index];
+                final local = _match(s);
+                return ListTile(
+                  title: Text(
+                    formatDateTime(s.date),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  subtitle: Text(
+                    '${s.correct}/${s.total} • ${s.accuracy.toStringAsFixed(1)}%${local == null ? ' • new' : ''}',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.file_download,
+                          color: Colors.white70,
+                        ),
+                        onPressed: local == null ? () => _import(s) : null,
                       ),
-                      subtitle: Text(
-                        '${s.correct}/${s.total} • ${s.accuracy.toStringAsFixed(1)}%${local == null ? ' • new' : ''}',
-                        style: const TextStyle(color: Colors.white70),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.white70),
+                        onPressed: () => _delete(s),
                       ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(
-                              Icons.file_download,
-                              color: Colors.white70,
-                            ),
-                            onPressed: local == null ? () => _import(s) : null,
-                          ),
-                          IconButton(
-                            icon:
-                                const Icon(Icons.delete, color: Colors.white70),
-                            onPressed: () => _delete(s),
-                          ),
-                        ],
+                    ],
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            CloudTrainingSessionDetailsScreen(session: s),
                       ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                CloudTrainingSessionDetailsScreen(session: s),
-                          ),
-                        );
-                      },
                     );
                   },
-                ),
+                );
+              },
+            ),
     );
   }
 }

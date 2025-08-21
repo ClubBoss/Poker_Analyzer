@@ -8,19 +8,19 @@ import 'package:poker_analyzer/services/training_pack_template_instance_expander
 
 void main() {
   TrainingPackSpot baseSpot() => TrainingPackSpot(
-        id: 'base',
-        title: 'Base',
-        tags: ['init'],
-        hand: HandData(
-          heroCards: 'Ah Kh',
-          position: HeroPosition.btn,
-          heroIndex: 0,
-          playerCount: 2,
-          board: [],
-        ),
-        board: [],
-        meta: {'foo': 'bar'},
-      );
+    id: 'base',
+    title: 'Base',
+    tags: ['init'],
+    hand: HandData(
+      heroCards: 'Ah Kh',
+      position: HeroPosition.btn,
+      heroIndex: 0,
+      playerCount: 2,
+      board: [],
+    ),
+    board: [],
+    meta: {'foo': 'bar'},
+  );
 
   test('expands set into one-pack-per-spot', () {
     final set = TrainingPackTemplateSet(

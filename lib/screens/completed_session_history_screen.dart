@@ -25,8 +25,8 @@ class _CompletedSessionHistoryScreenState
   }
 
   Future<void> _load() async {
-    final summaries =
-        await const CompletedSessionSummaryService().loadSummaries();
+    final summaries = await const CompletedSessionSummaryService()
+        .loadSummaries();
     final items = _presenter.present(summaries);
     if (!mounted) return;
     setState(() {
@@ -42,31 +42,31 @@ class _CompletedSessionHistoryScreenState
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _items.isEmpty
-              ? const Center(child: Text('No completed sessions yet.'))
-              : ListView.builder(
-                  itemCount: _items.length,
-                  itemBuilder: (context, index) {
-                    final item = _items[index];
-                    return ListTile(
-                      title: Text(
-                        item.title,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+          ? const Center(child: Text('No completed sessions yet.'))
+          : ListView.builder(
+              itemCount: _items.length,
+              itemBuilder: (context, index) {
+                final item = _items[index];
+                return ListTile(
+                  title: Text(
+                    item.title,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(item.subtitle),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => CompletedSessionDetailScreen(
+                          fingerprint: item.fingerprint,
+                        ),
                       ),
-                      subtitle: Text(item.subtitle),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => CompletedSessionDetailScreen(
-                              fingerprint: item.fingerprint,
-                            ),
-                          ),
-                        );
-                      },
                     );
                   },
-                ),
+                );
+              },
+            ),
     );
   }
 }

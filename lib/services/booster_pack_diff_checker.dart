@@ -15,18 +15,18 @@ class BoosterSpotDiff {
   });
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'fields': fields,
-        'oldIndex': oldIndex,
-        'newIndex': newIndex,
-      };
+    'id': id,
+    'fields': fields,
+    'oldIndex': oldIndex,
+    'newIndex': newIndex,
+  };
 
   factory BoosterSpotDiff.fromJson(Map<String, dynamic> j) => BoosterSpotDiff(
-        id: j['id'] as String? ?? '',
-        fields: [for (final f in j['fields'] as List? ?? []) f.toString()],
-        oldIndex: (j['oldIndex'] as num?)?.toInt() ?? 0,
-        newIndex: (j['newIndex'] as num?)?.toInt() ?? 0,
-      );
+    id: j['id'] as String? ?? '',
+    fields: [for (final f in j['fields'] as List? ?? []) f.toString()],
+    oldIndex: (j['oldIndex'] as num?)?.toInt() ?? 0,
+    newIndex: (j['newIndex'] as num?)?.toInt() ?? 0,
+  );
 }
 
 class BoosterDiffReport {
@@ -40,15 +40,15 @@ class BoosterDiffReport {
   });
 
   bool get breaking => modified.any(
-        (d) => d.fields.contains('actions') || d.fields.contains('heroCards'),
-      );
+    (d) => d.fields.contains('actions') || d.fields.contains('heroCards'),
+  );
 
   Map<String, dynamic> toJson() => {
-        'added': added,
-        'removed': removed,
-        'modified': [for (final d in modified) d.toJson()],
-        'breaking': breaking,
-      };
+    'added': added,
+    'removed': removed,
+    'modified': [for (final d in modified) d.toJson()],
+    'breaking': breaking,
+  };
 
   factory BoosterDiffReport.fromJson(Map<String, dynamic> j) =>
       BoosterDiffReport(

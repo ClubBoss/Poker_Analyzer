@@ -26,8 +26,9 @@ void main(List<String> args) {
   final seed = int.parse(res['seed'] as String);
 
   final source = _resolveSource(sourceArg);
-  final presets =
-      presetArg == 'all' ? ['paired', 'unpaired', 'ace-high'] : [presetArg];
+  final presets = presetArg == 'all'
+      ? ['paired', 'unpaired', 'ace-high']
+      : [presetArg];
 
   final out = Directory(outDir);
   out.createSync(recursive: true);

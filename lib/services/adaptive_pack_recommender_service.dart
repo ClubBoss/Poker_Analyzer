@@ -40,8 +40,9 @@ class AdaptivePackRecommenderService {
     final mistakeFreq = mistakeHistory == null
         ? <MistakeTag, int>{}
         : await mistakeHistory!.getTagsByFrequency();
-    final maxMistakes =
-        mistakeFreq.values.isEmpty ? 0 : mistakeFreq.values.reduce(max);
+    final maxMistakes = mistakeFreq.values.isEmpty
+        ? 0
+        : mistakeFreq.values.reduce(max);
 
     final recommendations = <AdaptivePackRecommendation>[];
 

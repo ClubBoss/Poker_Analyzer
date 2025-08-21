@@ -5,16 +5,16 @@ import 'package:poker_analyzer/services/adaptive_outcome_tracker.dart';
 import 'package:poker_analyzer/models/injected_path_module.dart';
 
 InjectedPathModule _module(String id, List<String> tags) => InjectedPathModule(
-      moduleId: id,
-      clusterId: 'c$id',
-      themeName: 't',
-      theoryIds: const [],
-      boosterPackIds: const [],
-      assessmentPackId: 'a$id',
-      createdAt: DateTime.now(),
-      triggerReason: 'test',
-      metrics: {'clusterTags': tags},
-    );
+  moduleId: id,
+  clusterId: 'c$id',
+  themeName: 't',
+  theoryIds: const [],
+  boosterPackIds: const [],
+  assessmentPackId: 'a$id',
+  createdAt: DateTime.now(),
+  triggerReason: 'test',
+  metrics: {'clusterTags': tags},
+);
 
 void main() {
   setUp(() async {

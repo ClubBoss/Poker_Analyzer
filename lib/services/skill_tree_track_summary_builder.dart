@@ -30,8 +30,9 @@ class SkillTreeTrackSummaryBuilder {
       }
     }
 
-    final category =
-        tree.nodes.values.isNotEmpty ? tree.nodes.values.first.category : '';
+    final category = tree.nodes.values.isNotEmpty
+        ? tree.nodes.values.first.category
+        : '';
 
     double? avgEvLoss;
     final svc = stats ?? TrainingStatsService.instance;

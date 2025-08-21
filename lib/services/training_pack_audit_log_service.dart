@@ -8,7 +8,7 @@ class TrainingPackAuditLogService {
   final AuditLogStorageService _storage;
 
   TrainingPackAuditLogService({AuditLogStorageService? storage})
-      : _storage = storage ?? AuditLogStorageService();
+    : _storage = storage ?? AuditLogStorageService();
 
   Future<void> recordChange(
     TrainingPackModel oldPack,

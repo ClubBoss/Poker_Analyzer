@@ -239,7 +239,8 @@ class BackupSnapshotService {
     _completed.addAll(importedCompleted);
     await queueService.persist();
     debugPanelCallback?.call();
-    final total = importedPending.length +
+    final total =
+        importedPending.length +
         importedFailed.length +
         importedCompleted.length;
     final msg = skipped == 0

@@ -24,10 +24,11 @@ class SkillTreeLibraryService {
     _trees.clear();
     _nodes.clear();
     final manifest = await AssetManifest.instance;
-    final paths = manifest.keys
-        .where((p) => p.startsWith(_dir) && p.endsWith('.yaml'))
-        .toList()
-      ..sort();
+    final paths =
+        manifest.keys
+            .where((p) => p.startsWith(_dir) && p.endsWith('.yaml'))
+            .toList()
+          ..sort();
     for (final path in paths) {
       try {
         final raw = await rootBundle.loadString(path);

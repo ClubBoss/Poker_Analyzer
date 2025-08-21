@@ -69,7 +69,8 @@ class PotAnimationService {
     final tableWidth = screen.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screen.width / 2 + 10;
-    final centerY = screen.height / 2 -
+    final centerY =
+        screen.height / 2 -
         TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
     final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
@@ -144,7 +145,8 @@ class PotAnimationService {
     final tableWidth = screen.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screen.width / 2 + 10;
-    final centerY = screen.height / 2 -
+    final centerY =
+        screen.height / 2 -
         TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
     final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;
@@ -162,8 +164,8 @@ class PotAnimationService {
       Future.delayed(Duration(milliseconds: delay), () {
         if (!mounted) return;
         payouts.forEach((player, value) {
-          final amount =
-              (potAmount * (value / (totalWin == 0 ? 1 : totalWin))).round();
+          final amount = (potAmount * (value / (totalWin == 0 ? 1 : totalWin)))
+              .round();
           if (amount <= 0) return;
           final i = (player - viewIndex() + numberOfPlayers) % numberOfPlayers;
           final angle = 2 * pi * i / numberOfPlayers + pi / 2;
@@ -225,7 +227,8 @@ class PotAnimationService {
     final tableWidth = screen.width * 0.9;
     final tableHeight = tableWidth * 0.55;
     final centerX = screen.width / 2 + 10;
-    final centerY = screen.height / 2 -
+    final centerY =
+        screen.height / 2 -
         TableGeometryHelper.centerYOffset(numberOfPlayers, scale);
     final radiusMod = TableGeometryHelper.radiusModifier(numberOfPlayers);
     final radiusX = (tableWidth / 2 - 60) * scale * radiusMod;

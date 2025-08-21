@@ -202,7 +202,8 @@ class _SavedHandHistoryScreenState extends State<SavedHandHistoryScreen>
                         initialDateRange: _fromDate == null && _toDate == null
                             ? null
                             : DateTimeRange(
-                                start: _fromDate ??
+                                start:
+                                    _fromDate ??
                                     DateTime.now().subtract(
                                       const Duration(days: 30),
                                     ),

@@ -25,9 +25,9 @@ class TrainingPackTemplateSet {
     List<Map<String, dynamic>>? variants,
     List<TemplateSetEntry>? entries,
     List<LinePattern>? linePatterns,
-  })  : variants = variants ?? [],
-        entries = entries ?? [],
-        linePatterns = linePatterns ?? [];
+  }) : variants = variants ?? [],
+       entries = entries ?? [],
+       linePatterns = linePatterns ?? [];
 
   factory TrainingPackTemplateSet.fromJson(Map<String, dynamic> json) {
     // Support multiple input structures:
@@ -62,7 +62,8 @@ class TrainingPackTemplateSet {
         final acts = <String>[
           for (final a in (v['villainActions'] as List? ?? [])) a.toString(),
         ];
-        final suffix = v['titleSuffix']?.toString() ??
+        final suffix =
+            v['titleSuffix']?.toString() ??
             (tags.isNotEmpty ? tags.join(' ') : 'var${i + 1}');
         final name = suffix.isNotEmpty ? '$baseName - $suffix' : baseName;
         entries.add(

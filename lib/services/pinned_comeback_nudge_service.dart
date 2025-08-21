@@ -19,9 +19,9 @@ class PinnedComebackNudgeService with WidgetsBindingObserver {
     SmartPinnedRecommenderService? recommender,
     DecayTagRetentionTrackerService? retention,
     NudgeFatigueDetectorService? fatigue,
-  })  : _recommender = recommender ?? SmartPinnedRecommenderService(),
-        _retention = retention ?? const DecayTagRetentionTrackerService(),
-        _fatigue = fatigue ?? NudgeFatigueDetectorService.instance;
+  }) : _recommender = recommender ?? SmartPinnedRecommenderService(),
+       _retention = retention ?? const DecayTagRetentionTrackerService(),
+       _fatigue = fatigue ?? NudgeFatigueDetectorService.instance;
 
   static final PinnedComebackNudgeService instance =
       PinnedComebackNudgeService();

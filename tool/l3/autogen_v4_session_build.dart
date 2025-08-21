@@ -39,8 +39,8 @@ void main(List<String> args) {
   final mode = modeStr == 'inline'
       ? RefMode.inline
       : modeStr == 'refs'
-          ? RefMode.refs
-          : null;
+      ? RefMode.refs
+      : null;
   if (indexPath == null ||
       preset == null ||
       perPack == null ||
@@ -56,14 +56,15 @@ void main(List<String> args) {
 
   final indexFile = File(indexPath);
   final index = PackIndex.loadIndex(indexFile);
-  final entries = index.entries
-      .where(
-        (e) =>
-            e.preset == preset &&
-            (e.format == 'compact' || e.format == 'pretty'),
-      )
-      .toList()
-    ..sort((a, b) => a.filename.compareTo(b.filename));
+  final entries =
+      index.entries
+          .where(
+            (e) =>
+                e.preset == preset &&
+                (e.format == 'compact' || e.format == 'pretty'),
+          )
+          .toList()
+        ..sort((a, b) => a.filename.compareTo(b.filename));
 
   final files = <String>[];
   final itemRefs = <SessionItemRef>[];

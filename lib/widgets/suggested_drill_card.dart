@@ -47,8 +47,8 @@ class SuggestedDrillCard extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               final pack = context.read<DrillSuggestionEngine>().startDrill(
-                    drill,
-                  );
+                drill,
+              );
               Navigator.push(
                 context,
                 MaterialPageRoute(

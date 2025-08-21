@@ -28,8 +28,9 @@ class UnlockTrackerWidget extends StatelessWidget {
     if (!hasAccReq && !hasHandsReq) return const SizedBox.shrink();
 
     final accPct = (accuracy ?? 0) * 100;
-    final accRatio =
-        hasAccReq && requiredAccuracy! > 0 ? accPct / requiredAccuracy! : 1;
+    final accRatio = hasAccReq && requiredAccuracy! > 0
+        ? accPct / requiredAccuracy!
+        : 1;
     final handsRatio = hasHandsReq && minHands! > 0
         ? handsCompleted / minHands!.toDouble()
         : 1;

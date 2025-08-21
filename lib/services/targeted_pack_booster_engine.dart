@@ -63,12 +63,12 @@ class TargetedPackBoosterEngine {
     SkillTagCoverageTracker? coverage,
     PackNoveltyGuardService? noveltyGuard,
     Duration decayDebounce = const Duration(seconds: 2),
-  })  : library = library ?? PackLibraryService.instance,
-        exporter = exporter ?? const YamlPackExporter(),
-        dashboard = dashboard ?? AutogenStatsDashboardService.instance,
-        coverage = coverage ?? SkillTagCoverageTracker(),
-        noveltyGuard = noveltyGuard ?? PackNoveltyGuardService(),
-        decayDebounce = decayDebounce {
+  }) : library = library ?? PackLibraryService.instance,
+       exporter = exporter ?? const YamlPackExporter(),
+       dashboard = dashboard ?? AutogenStatsDashboardService.instance,
+       coverage = coverage ?? SkillTagCoverageTracker(),
+       noveltyGuard = noveltyGuard ?? PackNoveltyGuardService(),
+       decayDebounce = decayDebounce {
     if (decayTracker != null) {
       decayTracker!.onDecayStateChanged.listen(_handleDecayEvent);
     }

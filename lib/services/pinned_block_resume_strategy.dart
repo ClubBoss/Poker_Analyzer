@@ -11,12 +11,13 @@ class PinnedBlockResumeStrategy implements ResumeStrategy {
     PinnedBlockTrackerService? tracker,
     TheoryBlockLibraryService? library,
     TheoryPathCompletionEvaluatorService? evaluator,
-  })  : tracker = tracker ?? PinnedBlockTrackerService.instance,
-        library = library ?? TheoryBlockLibraryService.instance,
-        evaluator = evaluator ??
-            TheoryPathCompletionEvaluatorService(
-              userProgress: UserProgressService.instance,
-            );
+  }) : tracker = tracker ?? PinnedBlockTrackerService.instance,
+       library = library ?? TheoryBlockLibraryService.instance,
+       evaluator =
+           evaluator ??
+           TheoryPathCompletionEvaluatorService(
+             userProgress: UserProgressService.instance,
+           );
 
   final PinnedBlockTrackerService tracker;
   final TheoryBlockLibraryService library;

@@ -74,7 +74,8 @@ class LearningPathSummaryCache {
       LearningPathStageModel? nextStage;
       for (final s in t.stages) {
         final p = progressMap[s.id];
-        final done = p != null &&
+        final done =
+            p != null &&
             p.hands >= s.minHands &&
             p.accuracy >= s.requiredAccuracy;
         if (done) {
@@ -119,7 +120,8 @@ class LearningPathSummaryCache {
       unlocked.add(id);
       final stage = template.stages.firstWhere((e) => e.id == id);
       final p = progress[id];
-      final done = p != null &&
+      final done =
+          p != null &&
           p.hands >= stage.minHands &&
           p.accuracy >= stage.requiredAccuracy;
       if (done) {

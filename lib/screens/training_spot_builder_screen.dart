@@ -67,8 +67,8 @@ class _TrainingSpotBuilderScreenState extends State<TrainingSpotBuilderScreen> {
   }
 
   Set<String> _usedCards() => {
-        for (final c in _boardCards) '${c.rank}${c.suit}',
-      };
+    for (final c in _boardCards) '${c.rank}${c.suit}',
+  };
 
   void _selectCard(int index, CardModel card) {
     setState(() {

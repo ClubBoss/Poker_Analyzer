@@ -37,14 +37,16 @@ class TrainingPathUnlockService {
       }
 
       if (allow && rules.minEV != null) {
-        final ev =
-            stat?.postEvPct > 0 ? stat!.postEvPct : stat?.preEvPct ?? 0.0;
+        final ev = stat?.postEvPct > 0
+            ? stat!.postEvPct
+            : stat?.preEvPct ?? 0.0;
         if (ev < rules.minEV!) allow = false;
       }
 
       if (allow && rules.minIcm != null) {
-        final icm =
-            stat?.postIcmPct > 0 ? stat!.postIcmPct : stat?.preIcmPct ?? 0.0;
+        final icm = stat?.postIcmPct > 0
+            ? stat!.postIcmPct
+            : stat?.preIcmPct ?? 0.0;
         if (icm < rules.minIcm!) allow = false;
       }
 

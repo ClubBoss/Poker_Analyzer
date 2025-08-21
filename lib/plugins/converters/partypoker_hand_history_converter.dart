@@ -9,16 +9,16 @@ import 'package:poker_analyzer/models/player_model.dart';
 
 class PartypokerHandHistoryConverter extends ConverterPlugin {
   PartypokerHandHistoryConverter()
-      : super(
-          formatId: 'partypoker_hand_history',
-          description: 'PartyPoker hand history format',
-          capabilities: const ConverterFormatCapabilities(
-            supportsImport: true,
-            supportsExport: false,
-            requiresBoard: false,
-            supportsMultiStreet: false,
-          ),
-        );
+    : super(
+        formatId: 'partypoker_hand_history',
+        description: 'PartyPoker hand history format',
+        capabilities: const ConverterFormatCapabilities(
+          supportsImport: true,
+          supportsExport: false,
+          requiresBoard: false,
+          supportsMultiStreet: false,
+        ),
+      );
 
   double _amount(String s) => double.tryParse(s.replaceAll(',', '.')) ?? 0;
 

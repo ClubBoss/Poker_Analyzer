@@ -301,7 +301,8 @@ class LearningPathProgressService {
     var prevCompleted = true;
     for (final stage in stages) {
       final items = <LearningStageItem>[];
-      final stageUnlocked = unlockAllStages ||
+      final stageUnlocked =
+          unlockAllStages ||
           prevCompleted ||
           await SmartStageUnlockEngine.instance.isStageUnlocked(stage.title);
       var itemUnlock = stageUnlocked;
@@ -373,8 +374,8 @@ class LearningPathProgressService {
         for (final e in _mockCompleted.entries)
           if (e.value) e.key,
       ];
-      final unlockedStages =
-          await SmartStageUnlockEngine.instance.getUnlockedStages();
+      final unlockedStages = await SmartStageUnlockEngine.instance
+          .getUnlockedStages();
       return {
         'completedPackIds': completed,
         'introSeen': _mockIntroSeen,
@@ -407,8 +408,8 @@ class LearningPathProgressService {
     if (last != null) data['lastCompletedAt'] = last;
     final unlocked = prefs.getStringList(_unlockedKey);
     if (unlocked != null) data['unlockedPackIds'] = unlocked;
-    final unlockedStages =
-        await SmartStageUnlockEngine.instance.getUnlockedStages();
+    final unlockedStages = await SmartStageUnlockEngine.instance
+        .getUnlockedStages();
     if (unlockedStages.isNotEmpty) data['unlockedStages'] = unlockedStages;
     if (current != null) data['currentStageId'] = current.title;
     return data;
@@ -427,7 +428,7 @@ class LearningPathProgressService {
       _mockCustomPathCompleted = data['customPathCompleted'] == true;
       final stages =
           (data['unlockedStages'] as List?)?.whereType<String>().toList() ??
-              const [];
+          const [];
       await SmartStageUnlockEngine.instance.setUnlockedStages(stages);
       return;
     }
@@ -475,15 +476,17 @@ class LearningPathProgressService {
       }
     }
     if (data.containsKey('unlockedPackIds')) {
-      final list =
-          (data['unlockedPackIds'] as List?)?.whereType<String>().toList();
+      final list = (data['unlockedPackIds'] as List?)
+          ?.whereType<String>()
+          .toList();
       if (list != null) {
         await prefs.setStringList(_unlockedKey, list);
       }
     }
     if (data.containsKey('unlockedStages')) {
-      final stages =
-          (data['unlockedStages'] as List?)?.whereType<String>().toList();
+      final stages = (data['unlockedStages'] as List?)
+          ?.whereType<String>()
+          .toList();
       if (stages != null) {
         await SmartStageUnlockEngine.instance.setUnlockedStages(stages);
       }
