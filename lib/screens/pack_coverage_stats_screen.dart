@@ -83,15 +83,16 @@ class _PackCoverageStatsScreenState extends State<PackCoverageStatsScreen> {
 
   Widget _filterButtons() {
     Widget btn(String id, String label) => TextButton(
-      onPressed: () {
-        setState(() => _filter = id);
-        _load();
-      },
-      child: Text(
-        label,
-        style: TextStyle(color: _filter == id ? Colors.amber : Colors.white),
-      ),
-    );
+          onPressed: () {
+            setState(() => _filter = id);
+            _load();
+          },
+          child: Text(
+            label,
+            style:
+                TextStyle(color: _filter == id ? Colors.amber : Colors.white),
+          ),
+        );
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
@@ -158,12 +159,12 @@ Future<Map<String, dynamic>> _statsTask(String filter) async {
         final r = bb >= 21
             ? '21+'
             : bb >= 13
-            ? '13-20'
-            : bb >= 8
-            ? '8-12'
-            : bb >= 5
-            ? '5-7'
-            : '<5';
+                ? '13-20'
+                : bb >= 8
+                    ? '8-12'
+                    : bb >= 5
+                        ? '5-7'
+                        : '<5';
         if (r != '<5') stack[r] = (stack[r] ?? 0) + 1;
       }
     } catch (_) {}

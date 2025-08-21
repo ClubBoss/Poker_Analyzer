@@ -61,8 +61,7 @@ class PlayerZoneOverlayController {
         _state._stackKey.currentContext?.findRenderObject() as RenderBox?;
     if (stackBox == null) return;
     final media = MediaQuery.of(_state.context).size;
-    final start =
-        startPosition ??
+    final start = startPosition ??
         Offset(media.width / 2, media.height / 2 - 60 * _state.widget.scale);
     final end = stackBox.localToGlobal(
       Offset(stackBox.size.width / 2, stackBox.size.height / 2),

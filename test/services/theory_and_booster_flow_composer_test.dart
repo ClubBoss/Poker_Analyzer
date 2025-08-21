@@ -26,17 +26,18 @@ class _FakeTheory extends SmartTheoryInjectionEngine {
 class _FakeOrch extends BoosterInjectionOrchestrator {
   final List<LearningPathBlock> blocks;
   _FakeOrch(this.blocks)
-    : super(
-        mastery: TagMasteryService(
-          logs: SessionLogService(sessions: TrainingSessionService()),
-        ),
-        inventory: BoosterInventoryService(),
-      );
+      : super(
+          mastery: TagMasteryService(
+            logs: SessionLogService(sessions: TrainingSessionService()),
+          ),
+          inventory: BoosterInventoryService(),
+        );
 
   @override
   Future<List<LearningPathBlock>> getInjectableBoosters(
     StageNode stage,
-  ) async => blocks;
+  ) async =>
+      blocks;
 }
 
 LearningPathBlock _booster(String id) {

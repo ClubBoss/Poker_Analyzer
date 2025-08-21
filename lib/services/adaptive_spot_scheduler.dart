@@ -9,8 +9,8 @@ import 'user_error_rate_service.dart';
 /// exploration and safety guards.
 class AdaptiveSpotScheduler {
   AdaptiveSpotScheduler({int? seed, Set<String>? packTags})
-    : _rng = Random(seed),
-      _packTags = packTags?.map((e) => e.toLowerCase()).toSet() ?? <String>{};
+      : _rng = Random(seed),
+        _packTags = packTags?.map((e) => e.toLowerCase()).toSet() ?? <String>{};
 
   final Random _rng;
   final Set<String> _packTags;
@@ -42,9 +42,8 @@ class AdaptiveSpotScheduler {
 
     // Coverage guard: every M picks ensure all tags surfaced at least once.
     if (_sinceCoverageReset >= _coverageWindow && _packTags.isNotEmpty) {
-      final starved = _packTags
-          .where((t) => (_tagCounts[t] ?? 0) == 0)
-          .toList();
+      final starved =
+          _packTags.where((t) => (_tagCounts[t] ?? 0) == 0).toList();
       if (starved.isNotEmpty) {
         final forced = pool
             .where(
@@ -67,9 +66,8 @@ class AdaptiveSpotScheduler {
     }
 
     // Anti-repeat window.
-    List<TrainingPackSpot> candidates = pool
-        .where((s) => !recentSpotIds.contains(s.id))
-        .toList();
+    List<TrainingPackSpot> candidates =
+        pool.where((s) => !recentSpotIds.contains(s.id)).toList();
     if (candidates.length < 3) {
       candidates = List<TrainingPackSpot>.from(pool);
     }
@@ -105,10 +103,8 @@ class AdaptiveSpotScheduler {
 
     final sorted = weights.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    final top3 = sorted
-        .take(3)
-        .map((e) => {'spotId': e.key.id, 'w': e.value})
-        .toList();
+    final top3 =
+        sorted.take(3).map((e) => {'spotId': e.key.id, 'w': e.value}).toList();
 
     final exps = weights.values.map((w) => exp(w)).toList();
     final sumExp = exps.fold<double>(0, (p, e) => p + e);

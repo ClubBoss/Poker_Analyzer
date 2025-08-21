@@ -9,8 +9,8 @@ class TheoryRecallEfficiencyEvaluatorService {
   const TheoryRecallEfficiencyEvaluatorService({
     RecallBoostInteractionLogger? viewLogger,
     RecallSuccessLoggerService? successLogger,
-  }) : viewLogger = viewLogger ?? RecallBoostInteractionLogger.instance,
-       successLogger = successLogger ?? RecallSuccessLoggerService.instance;
+  })  : viewLogger = viewLogger ?? RecallBoostInteractionLogger.instance,
+        successLogger = successLogger ?? RecallSuccessLoggerService.instance;
 
   /// Returns efficiency scores per tag (successful recalls / theory views).
   Future<Map<String, double>> getEfficiencyScoresByTag() async {

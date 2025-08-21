@@ -25,8 +25,8 @@ class PlayerZoneLabelAnimations {
     );
     finalStackOffset =
         Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
-          CurvedAnimation(parent: finalStackController, curve: Curves.easeOut),
-        );
+      CurvedAnimation(parent: finalStackController, curve: Curves.easeOut),
+    );
 
     winnerLabelController = AnimationController(
       vsync: vsync,

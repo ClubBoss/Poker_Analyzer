@@ -21,7 +21,7 @@ class OpenLimpedSpotTemplateGeneratorService {
   final Random _random;
 
   OpenLimpedSpotTemplateGeneratorService({Random? random})
-    : _random = random ?? Random();
+      : _random = random ?? Random();
 
   /// Generates a list of [TrainingPackTemplateSet] objects representing
   /// SB limp spots vs BB.

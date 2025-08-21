@@ -7,7 +7,7 @@ class SkillTreeUnlockEvaluator {
   final SkillTreeNodeProgressTracker progress;
 
   const SkillTreeUnlockEvaluator({SkillTreeNodeProgressTracker? progress})
-    : progress = progress ?? SkillTreeNodeProgressTracker.instance;
+      : progress = progress ?? SkillTreeNodeProgressTracker.instance;
 
   /// Returns nodes that are unlocked and not yet completed in [tree].
   List<SkillTreeNodeModel> getUnlockedNodes(SkillTree tree) {

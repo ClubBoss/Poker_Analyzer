@@ -18,8 +18,8 @@ class TheoryLessonProgressTrackerService {
   TheoryLessonProgressTrackerService._({
     MiniLessonLibraryService? library,
     MiniLessonProgressTracker? progress,
-  }) : _library = library ?? MiniLessonLibraryService.instance,
-       _progress = progress ?? MiniLessonProgressTracker.instance {
+  })  : _library = library ?? MiniLessonLibraryService.instance,
+        _progress = progress ?? MiniLessonProgressTracker.instance {
     _progress.onLessonCompleted.listen((_) => refresh());
     refresh();
   }

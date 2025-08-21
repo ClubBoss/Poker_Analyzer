@@ -27,15 +27,12 @@ class TrainingPackService {
   const TrainingPackService._();
 
   static TrainingPackSpot _spotFromHand(SavedHand h) {
-    final hero = h.playerCards[h.heroIndex]
-        .map((c) => '${c.rank}${c.suit}')
-        .join(' ');
+    final hero =
+        h.playerCards[h.heroIndex].map((c) => '${c.rank}${c.suit}').join(' ');
     final board = [for (final c in h.boardCards) '${c.rank}${c.suit}'];
     final actions = <int, List<ActionEntry>>{};
     for (final a in h.actions) {
-      actions
-          .putIfAbsent(a.street, () => [])
-          .add(
+      actions.putIfAbsent(a.street, () => []).add(
             ActionEntry(
               a.street,
               a.playerIndex,
@@ -585,9 +582,8 @@ class TrainingPackService {
   }) async {
     final storage = SavedHandStorageService(cloud: cloud);
     await storage.load();
-    final hands = storage.hands
-        .where((h) => (h.evLoss?.abs() ?? 0) >= 1.0)
-        .toList();
+    final hands =
+        storage.hands.where((h) => (h.evLoss?.abs() ?? 0) >= 1.0).toList();
     if (hands.isEmpty) return null;
     hands.sort((a, b) => (b.evLoss ?? 0).compareTo(a.evLoss ?? 0));
     final spots = [for (final h in hands.take(20)) _spotFromHand(h)];
@@ -640,12 +636,10 @@ class TrainingPackService {
     final spots = <TrainingPackSpot>[];
     bool bad(TrainingPackStat? s) {
       final acc = s?.accuracy ?? 1.0;
-      final ev = s == null
-          ? 100.0
-          : (s.postEvPct > 0 ? s.postEvPct : s.preEvPct);
-      final icm = s == null
-          ? 100.0
-          : (s.postIcmPct > 0 ? s.postIcmPct : s.preIcmPct);
+      final ev =
+          s == null ? 100.0 : (s.postEvPct > 0 ? s.postEvPct : s.preEvPct);
+      final icm =
+          s == null ? 100.0 : (s.postIcmPct > 0 ? s.postIcmPct : s.preIcmPct);
       return acc < .6 || ev < 60 || icm < 60;
     }
 

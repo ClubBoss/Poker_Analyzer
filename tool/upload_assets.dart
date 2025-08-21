@@ -35,9 +35,8 @@ Future<void> main(List<String> args) async {
     stderr.writeln('Bucket not specified');
     exit(1);
   }
-  bucket = bucket
-      .replaceAll(RegExp(r'^gs://'), '')
-      .replaceAll(RegExp(r'/$'), '');
+  bucket =
+      bucket.replaceAll(RegExp(r'^gs://'), '').replaceAll(RegExp(r'/$'), '');
   final storage = FirebaseStorage.instanceFor(bucket: bucket);
   final manifestFile = File(p.join(dir.path, 'manifest.json'));
   if (!manifestFile.existsSync()) {

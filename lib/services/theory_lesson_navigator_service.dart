@@ -6,7 +6,7 @@ class TheoryLessonNavigatorService {
   final TheoryLessonClusterLinkerService _linker;
 
   TheoryLessonNavigatorService({TheoryLessonClusterLinkerService? linker})
-    : _linker = linker ?? TheoryLessonClusterLinkerService();
+      : _linker = linker ?? TheoryLessonClusterLinkerService();
 
   Future<String?> getNextLessonId(String currentLessonId) async {
     final cluster = await _linker.getCluster(currentLessonId);

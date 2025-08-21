@@ -12,10 +12,10 @@ class FullBoardGeneratorV2 {
     BoardTextureFilterService? textureFilter,
     BoardFilteringServiceV2? boardFilter,
     BoardTextureClassifier? classifier,
-  }) : _deckService = deckService ?? const CardDeckService(),
-       _textureFilter = textureFilter ?? const BoardTextureFilterService(),
-       _boardFilter = boardFilter ?? const BoardFilteringServiceV2(),
-       _classifier = classifier ?? const BoardTextureClassifier();
+  })  : _deckService = deckService ?? const CardDeckService(),
+        _textureFilter = textureFilter ?? const BoardTextureFilterService(),
+        _boardFilter = boardFilter ?? const BoardFilteringServiceV2(),
+        _classifier = classifier ?? const BoardTextureClassifier();
 
   final CardDeckService _deckService;
   final BoardTextureFilterService _textureFilter;

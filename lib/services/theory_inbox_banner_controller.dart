@@ -10,7 +10,7 @@ class TheoryInboxBannerController extends ChangeNotifier {
   final TheoryInboxBannerEngine engine;
 
   TheoryInboxBannerController({TheoryInboxBannerEngine? engine})
-    : engine = engine ?? TheoryInboxBannerEngine.instance;
+      : engine = engine ?? TheoryInboxBannerEngine.instance;
 
   TheoryMiniLessonNode? _lesson;
   Timer? _timer;

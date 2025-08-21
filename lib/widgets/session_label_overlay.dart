@@ -6,7 +6,7 @@ class SessionLabelOverlay extends StatefulWidget {
   final VoidCallback? onCompleted;
 
   const SessionLabelOverlay({Key? key, required this.text, this.onCompleted})
-    : super(key: key);
+      : super(key: key);
 
   @override
   State<SessionLabelOverlay> createState() => _SessionLabelOverlayState();

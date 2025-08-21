@@ -25,7 +25,7 @@ class _FakeOrchestrator extends LearningPathGraphOrchestrator {
 class _FakeProgress extends TrainingPathProgressServiceV2 {
   final Set<String> completed;
   _FakeProgress(this.completed)
-    : super(logs: SessionLogService(sessions: TrainingSessionService()));
+      : super(logs: SessionLogService(sessions: TrainingSessionService()));
   @override
   Future<void> loadProgress(String pathId) async {}
   @override
@@ -74,7 +74,7 @@ class _FakeLibrary implements MiniLessonLibraryService {
 class _FakeMasteryService extends TagMasteryService {
   final Map<String, double> _map;
   _FakeMasteryService(this._map)
-    : super(logs: SessionLogService(sessions: TrainingSessionService()));
+      : super(logs: SessionLogService(sessions: TrainingSessionService()));
 
   @override
   Future<Map<String, double>> computeMastery({bool force = false}) async =>

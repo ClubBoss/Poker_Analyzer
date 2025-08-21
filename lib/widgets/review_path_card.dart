@@ -76,9 +76,8 @@ class _ReviewPathCardState extends State<ReviewPathCard> {
         if (data == null) return const SizedBox.shrink();
         final loss = data.loss;
         final score = loss?.drop;
-        final reason = loss != null
-            ? 'Skill drop, ${loss.trend}'
-            : 'Scheduled review';
+        final reason =
+            loss != null ? 'Skill drop, ${loss.trend}' : 'Scheduled review';
         return Container(
           margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           padding: const EdgeInsets.all(12),

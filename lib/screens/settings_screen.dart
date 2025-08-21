@@ -54,8 +54,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final stService = SkillTreeSettingsService.instance;
     _hideCompletedPrereqs = stService.hideCompletedPrereqs.value;
     _hideCompletedListener = () => setState(
-      () => _hideCompletedPrereqs = stService.hideCompletedPrereqs.value,
-    );
+          () => _hideCompletedPrereqs = stService.hideCompletedPrereqs.value,
+        );
     stService.hideCompletedPrereqs.addListener(_hideCompletedListener);
     stService.load();
     _accentColor = prefs.accentColor;
@@ -80,8 +80,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _toggleWinnerCelebration(bool value) async {
     setState(() => _showWinnerCelebration = value);
     await context.read<UserPreferencesService>().setShowWinnerCelebration(
-      value,
-    );
+          value,
+        );
   }
 
   Future<void> _toggleActionHints(bool value) async {

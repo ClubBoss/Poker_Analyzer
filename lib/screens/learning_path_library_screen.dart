@@ -21,7 +21,7 @@ class LearningPathLibraryScreen extends StatefulWidget {
 
 class _LearningPathLibraryScreenState extends State<LearningPathLibraryScreen> {
   late Future<Map<LearningPathTrackModel, List<LearningPathTemplateV2>>>
-  _future;
+      _future;
   final _repo = LearningPathRepository();
   late SessionLogService _logs;
   late LearningPathStageProgressEngine _progressEngine;
@@ -47,7 +47,7 @@ class _LearningPathLibraryScreenState extends State<LearningPathLibraryScreen> {
   }
 
   Future<Map<LearningPathTrackModel, List<LearningPathTemplateV2>>>
-  _load() async {
+      _load() async {
     final map = await _repo.loadAllTracksWithPaths();
     await _computeProgress(map.values.expand((e) => e));
     return map;
@@ -120,8 +120,7 @@ class _LearningPathLibraryScreenState extends State<LearningPathLibraryScreen> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<
-      Map<LearningPathTrackModel, List<LearningPathTemplateV2>>
-    >(
+        Map<LearningPathTrackModel, List<LearningPathTemplateV2>>>(
       future: _future,
       builder: (context, snapshot) {
         final data = snapshot.data ?? const {};
@@ -130,21 +129,21 @@ class _LearningPathLibraryScreenState extends State<LearningPathLibraryScreen> {
           body: snapshot.connectionState != ConnectionState.done
               ? const Center(child: CircularProgressIndicator())
               : data.isEmpty
-              ? const Center(child: Text('Нет доступных треков'))
-              : RefreshIndicator(
-                  onRefresh: _reload,
-                  child: ListView(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    children: [
-                      for (final entry in data.entries)
-                        TrackSectionWidget(
-                          track: entry.key,
-                          paths: entry.value,
-                          progress: _progress,
-                        ),
-                    ],
-                  ),
-                ),
+                  ? const Center(child: Text('Нет доступных треков'))
+                  : RefreshIndicator(
+                      onRefresh: _reload,
+                      child: ListView(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        children: [
+                          for (final entry in data.entries)
+                            TrackSectionWidget(
+                              track: entry.key,
+                              paths: entry.value,
+                              progress: _progress,
+                            ),
+                        ],
+                      ),
+                    ),
         );
       },
     );

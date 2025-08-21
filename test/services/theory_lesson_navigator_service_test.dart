@@ -50,7 +50,8 @@ class _FakeTracker implements TheorySuggestionEngagementTrackerService {
   @override
   Future<List<TheorySuggestionEngagementEvent>> eventsByAction(
     String action,
-  ) async => const [];
+  ) async =>
+      const [];
 }
 
 void main() {

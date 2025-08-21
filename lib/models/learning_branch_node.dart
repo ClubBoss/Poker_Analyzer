@@ -41,11 +41,11 @@ class LearningBranchNode implements LearningPathNode {
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'prompt': prompt,
-    if (branches.isNotEmpty) 'branches': branches,
-    if (recoveredFromMistake) 'recoveredFromMistake': true,
-  };
+        'id': id,
+        'prompt': prompt,
+        if (branches.isNotEmpty) 'branches': branches,
+        if (recoveredFromMistake) 'recoveredFromMistake': true,
+      };
 
   factory LearningBranchNode.fromYaml(Map yaml) {
     final map = <String, dynamic>{};

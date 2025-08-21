@@ -17,15 +17,11 @@ class PackLibraryGenerationEngine {
     const reader = YamlReader();
     final reqTags = tags?.map((e) => e.trim().toLowerCase()).toSet() ?? {};
     final list = <Map<String, dynamic>>[];
-    for (final f
-        in dir
-            .listSync(recursive: true)
-            .whereType<File>()
-            .where(
-              (e) =>
-                  e.path.toLowerCase().endsWith('.yaml') ||
-                  e.path.toLowerCase().endsWith('.yml'),
-            )) {
+    for (final f in dir.listSync(recursive: true).whereType<File>().where(
+          (e) =>
+              e.path.toLowerCase().endsWith('.yaml') ||
+              e.path.toLowerCase().endsWith('.yml'),
+        )) {
       try {
         final templates = await reader.loadTemplates(f.path);
         for (final tpl in templates) {

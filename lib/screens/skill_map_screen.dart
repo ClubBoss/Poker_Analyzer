@@ -59,9 +59,8 @@ class _SkillMapScreenState extends State<SkillMapScreen> {
       byCluster.putIfAbsent(c, () => []).add(i);
     }
     clusters.sort((a, b) => b.avgEvLoss.compareTo(a.avgEvLoss));
-    final maxLoss = clusters.isEmpty
-        ? 0.0
-        : clusters.map((e) => e.avgEvLoss).reduce(max);
+    final maxLoss =
+        clusters.isEmpty ? 0.0 : clusters.map((e) => e.avgEvLoss).reduce(max);
     final map = await masteryService.computeMastery(force: true);
     final xpMap = await xpService.getTotalXpPerTag();
     final entries = map.entries.toList();

@@ -14,9 +14,9 @@ class DailyHandHistory {
   DailyHandHistory({required this.date, required this.correct});
 
   Map<String, dynamic> toJson() => {
-    'date': date.toIso8601String(),
-    'correct': correct,
-  };
+        'date': date.toIso8601String(),
+        'correct': correct,
+      };
 
   factory DailyHandHistory.fromJson(Map<String, dynamic> json) =>
       DailyHandHistory(

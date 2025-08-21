@@ -33,9 +33,8 @@ class StageProgressBar extends StatelessWidget {
     if (tree.nodes.isEmpty) return const SizedBox.shrink();
     final level = _activeStage();
     final nodes = tree.nodes.values.where((n) => n.level == level);
-    final filtered = nodes
-        .where((n) => (n as dynamic).isOptional != true)
-        .toList();
+    final filtered =
+        nodes.where((n) => (n as dynamic).isOptional != true).toList();
     final total = filtered.length;
     final done = filtered.where((n) => completedNodeIds.contains(n.id)).length;
     final progress = total > 0 ? done / total : 0.0;

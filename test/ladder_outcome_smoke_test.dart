@@ -3,17 +3,17 @@ import 'package:poker_analyzer/ui/session_player/models.dart';
 import 'package:poker_analyzer/ui/session_player/spot_specs.dart';
 
 UiAnswer ok(int ms) => UiAnswer(
-  correct: true,
-  expected: 'jam',
-  chosen: 'jam',
-  elapsed: Duration(milliseconds: ms),
-);
+      correct: true,
+      expected: 'jam',
+      chosen: 'jam',
+      elapsed: Duration(milliseconds: ms),
+    );
 UiAnswer ng(int ms) => UiAnswer(
-  correct: false,
-  expected: 'jam',
-  chosen: 'fold',
-  elapsed: Duration(milliseconds: ms),
-);
+      correct: false,
+      expected: 'jam',
+      chosen: 'fold',
+      elapsed: Duration(milliseconds: ms),
+    );
 
 void main() {
   group('LadderOutcome SSOT', () {

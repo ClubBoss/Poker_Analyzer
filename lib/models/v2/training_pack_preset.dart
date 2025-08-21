@@ -33,9 +33,9 @@ class TrainingPackPreset {
     this.heroRange,
     DateTime? createdAt,
     List<TrainingSpot>? spots,
-  }) : playerStacksBb = playerStacksBb ?? const [10, 10],
-       createdAt = createdAt ?? DateTime.now(),
-       spots = spots ?? const [];
+  })  : playerStacksBb = playerStacksBb ?? const [10, 10],
+        createdAt = createdAt ?? DateTime.now(),
+        spots = spots ?? const [];
 
   factory TrainingPackPreset.fromJson(Map<String, dynamic> j) =>
       TrainingPackPreset(
@@ -59,8 +59,7 @@ class TrainingPackPreset {
         bbCallPct: j['bbCallPct'] as int? ?? 20,
         anteBb: j['anteBb'] as int? ?? 0,
         heroRange: (j['heroRange'] as List?)?.map((e) => e as String).toList(),
-        createdAt:
-            DateTime.tryParse(j['createdAt'] as String? ?? '') ??
+        createdAt: DateTime.tryParse(j['createdAt'] as String? ?? '') ??
             DateTime.now(),
         category: j['category'] as String? ?? '',
         spots: [
@@ -70,19 +69,19 @@ class TrainingPackPreset {
       );
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'name': name,
-    'description': description,
-    'category': category,
-    'gameType': gameType.name,
-    'heroBbStack': heroBbStack,
-    'playerStacksBb': playerStacksBb,
-    'heroPos': heroPos.name,
-    'spotCount': spotCount,
-    'bbCallPct': bbCallPct,
-    'anteBb': anteBb,
-    if (heroRange != null) 'heroRange': heroRange,
-    'createdAt': createdAt.toIso8601String(),
-    if (spots.isNotEmpty) 'spots': [for (final s in spots) s.toJson()],
-  };
+        'id': id,
+        'name': name,
+        'description': description,
+        'category': category,
+        'gameType': gameType.name,
+        'heroBbStack': heroBbStack,
+        'playerStacksBb': playerStacksBb,
+        'heroPos': heroPos.name,
+        'spotCount': spotCount,
+        'bbCallPct': bbCallPct,
+        'anteBb': anteBb,
+        if (heroRange != null) 'heroRange': heroRange,
+        'createdAt': createdAt.toIso8601String(),
+        if (spots.isNotEmpty) 'spots': [for (final s in spots) s.toJson()],
+      };
 }

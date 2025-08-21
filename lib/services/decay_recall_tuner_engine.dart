@@ -15,10 +15,10 @@ class DecayRecallTunerEngine {
     ReviewStreakEvaluatorService? streak,
     DecayTagRetentionTrackerService? retention,
     BoosterAdaptationTuner? tuner,
-  }) : logger = logger ?? RecallSuccessLoggerService.instance,
-       streak = streak ?? const ReviewStreakEvaluatorService(),
-       retention = retention ?? const DecayTagRetentionTrackerService(),
-       tuner = tuner ?? BoosterAdaptationTuner.instance;
+  })  : logger = logger ?? RecallSuccessLoggerService.instance,
+        streak = streak ?? const ReviewStreakEvaluatorService(),
+        retention = retention ?? const DecayTagRetentionTrackerService(),
+        tuner = tuner ?? BoosterAdaptationTuner.instance;
 
   /// Minimum gap considered over-review.
   static const Duration _frequentGap = Duration(days: 2);

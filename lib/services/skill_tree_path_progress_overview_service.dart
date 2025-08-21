@@ -18,7 +18,7 @@ class SkillTreePathProgressOverviewService {
   final SkillTreeTrackProgressService tracks;
 
   SkillTreePathProgressOverviewService({SkillTreeTrackProgressService? tracks})
-    : tracks = tracks ?? SkillTreeTrackProgressService();
+      : tracks = tracks ?? SkillTreeTrackProgressService();
 
   /// Returns global progress overview for the skill tree learning path.
   Future<PathProgressOverview> computeOverview() async {

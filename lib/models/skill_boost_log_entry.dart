@@ -16,20 +16,19 @@ class SkillBoostLogEntry {
   });
 
   Map<String, dynamic> toJson() => {
-    'tag': tag,
-    'packId': packId,
-    'timestamp': timestamp.toIso8601String(),
-    'accuracyBefore': accuracyBefore,
-    'accuracyAfter': accuracyAfter,
-    'handsPlayed': handsPlayed,
-  };
+        'tag': tag,
+        'packId': packId,
+        'timestamp': timestamp.toIso8601String(),
+        'accuracyBefore': accuracyBefore,
+        'accuracyAfter': accuracyAfter,
+        'handsPlayed': handsPlayed,
+      };
 
   factory SkillBoostLogEntry.fromJson(Map<String, dynamic> j) =>
       SkillBoostLogEntry(
         tag: j['tag'] as String? ?? '',
         packId: j['packId'] as String? ?? '',
-        timestamp:
-            DateTime.tryParse(j['timestamp'] as String? ?? '') ??
+        timestamp: DateTime.tryParse(j['timestamp'] as String? ?? '') ??
             DateTime.now(),
         accuracyBefore: (j['accuracyBefore'] as num?)?.toDouble() ?? 0.0,
         accuracyAfter: (j['accuracyAfter'] as num?)?.toDouble() ?? 0.0,

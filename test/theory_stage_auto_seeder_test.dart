@@ -13,17 +13,18 @@ class _FakeImporter extends TheoryYamlImporter {
   @override
   Future<List<TrainingPackTemplateV2>> importFromDirectory(
     String dirPath,
-  ) async => list;
+  ) async =>
+      list;
 }
 
 TrainingPackTemplateV2 _tpl(String id, String tag) => TrainingPackTemplateV2(
-  id: id,
-  name: id,
-  trainingType: TrainingType.theory,
-  tags: [tag],
-  spots: [TrainingPackSpot(id: 's', type: 'theory', hand: HandData())],
-  spotCount: 1,
-);
+      id: id,
+      name: id,
+      trainingType: TrainingType.theory,
+      tags: [tag],
+      spots: [TrainingPackSpot(id: 's', type: 'theory', hand: HandData())],
+      spotCount: 1,
+    );
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

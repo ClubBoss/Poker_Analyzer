@@ -37,8 +37,7 @@ class BoosterSuggestionStatsService {
       final type = parts[1];
       final metric = parts[2];
       final count = prefs.getInt(key) ?? 0;
-      final record =
-          result[type] ??
+      final record = result[type] ??
           BoosterStatRecord(
             type: type,
             suggested: 0,

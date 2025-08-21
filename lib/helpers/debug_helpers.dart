@@ -11,9 +11,8 @@ Widget debugDiag(String label, Object? value) {
 
 /// Shows a check mark or mismatch details based on [ok].
 Widget debugCheck(String label, bool ok, String a, String b) {
-  final String text = ok
-      ? '$label: ✅'
-      : '$label: ❌ ${a.toString()} vs ${b.toString()}';
+  final String text =
+      ok ? '$label: ✅' : '$label: ❌ ${a.toString()} vs ${b.toString()}';
   return Text(text);
 }
 

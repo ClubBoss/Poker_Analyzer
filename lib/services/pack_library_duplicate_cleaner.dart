@@ -16,11 +16,10 @@ class PackLibraryDuplicateCleaner {
     final ids = <String, File>{};
     final hashes = <String, File>{};
     var removed = 0;
-    for (final f
-        in dir
-            .listSync(recursive: true)
-            .whereType<File>()
-            .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
+    for (final f in dir
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
       try {
         final yaml = await f.readAsString();
         final tpl = TrainingPackTemplateV2.fromYamlAuto(yaml);
@@ -45,11 +44,10 @@ class PackLibraryDuplicateCleaner {
     if (!dir.existsSync()) return 0;
     final hashes = <String, File>{};
     var removed = 0;
-    for (final f
-        in dir
-            .listSync(recursive: true)
-            .whereType<File>()
-            .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
+    for (final f in dir
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
       final bytes = await f.readAsBytes();
       final hash = sha1.convert(bytes).toString();
       final exist = hashes[hash];

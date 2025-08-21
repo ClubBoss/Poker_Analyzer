@@ -13,8 +13,8 @@ class TheoryLessonCluster {
     required this.lessons,
     required Set<String> tags,
     List<String>? autoTags,
-  }) : sharedTags = tags,
-       autoTags = autoTags ?? [];
+  })  : sharedTags = tags,
+        autoTags = autoTags ?? [];
 
   @Deprecated('Use sharedTags')
   Set<String> get tags => sharedTags;

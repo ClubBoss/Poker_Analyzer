@@ -19,7 +19,7 @@ class TrainingPackLibraryDiffer {
   final TrainingPackLibraryImporter importer;
 
   TrainingPackLibraryDiffer({TrainingPackLibraryImporter? importer})
-    : importer = importer ?? TrainingPackLibraryImporter();
+      : importer = importer ?? TrainingPackLibraryImporter();
 
   Future<PackLibraryDiffResult> diff(String oldDir, String newDir) async {
     final oldPacks = await importer.loadFromDirectory(oldDir);
@@ -66,10 +66,10 @@ class TrainingPackLibraryDiffer {
   }
 
   Map<String, dynamic> _packToMap(TrainingPackModel pack) => {
-    'id': pack.id,
-    'title': pack.title,
-    if (pack.tags.isNotEmpty) 'tags': List.of(pack.tags),
-    if (pack.metadata.isNotEmpty) 'metadata': Map.of(pack.metadata),
-    'spots': [for (final s in pack.spots) s.toYaml()],
-  };
+        'id': pack.id,
+        'title': pack.title,
+        if (pack.tags.isNotEmpty) 'tags': List.of(pack.tags),
+        if (pack.metadata.isNotEmpty) 'metadata': Map.of(pack.metadata),
+        'spots': [for (final s in pack.spots) s.toYaml()],
+      };
 }

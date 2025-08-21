@@ -34,16 +34,13 @@ class TrainingPackTemplateUiService {
               Future.microtask(() async {
                 final isHu = template.playerStacksBb.length == 2;
                 const idxBB = 1;
-                final callCutoff =
-                    (PackGeneratorService.handRanking.length *
-                            template.bbCallPct /
-                            100)
-                        .round();
-                for (
-                  var i = 0;
-                  i < range.length && generated.length < total;
-                  i++
-                ) {
+                final callCutoff = (PackGeneratorService.handRanking.length *
+                        template.bbCallPct /
+                        100)
+                    .round();
+                for (var i = 0;
+                    i < range.length && generated.length < total;
+                    i++) {
                   if (cancel) break;
                   final hand = range[i];
                   final heroCards = _firstCombo(hand);
@@ -157,16 +154,13 @@ class TrainingPackTemplateUiService {
               Future.microtask(() async {
                 final isHu = template.playerStacksBb.length == 2;
                 const idxBB = 1;
-                final callCutoff =
-                    (PackGeneratorService.handRanking.length *
-                            template.bbCallPct /
-                            100)
-                        .round();
-                for (
-                  var i = 0;
-                  i < range.length && generated.length < total;
-                  i++
-                ) {
+                final callCutoff = (PackGeneratorService.handRanking.length *
+                        template.bbCallPct /
+                        100)
+                    .round();
+                for (var i = 0;
+                    i < range.length && generated.length < total;
+                    i++) {
                   if (cancel) break;
                   final hand = range[i];
                   final heroCards = _firstCombo(hand);

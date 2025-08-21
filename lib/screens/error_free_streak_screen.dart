@@ -14,9 +14,8 @@ class ErrorFreeStreakScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<SavedHand> hands = context
-        .watch<SavedHandStatsService>()
-        .currentErrorFreeStreak();
+    final List<SavedHand> hands =
+        context.watch<SavedHandStatsService>().currentErrorFreeStreak();
 
     return Scaffold(
       appBar: AppBar(

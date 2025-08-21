@@ -20,12 +20,12 @@ class SkillTreeDependencyLinkService {
     SkillTreeNodeDetailUnlockHintService? hintService,
     SkillTreeNodeProgressTracker? progress,
     SkillTreeTrackResolver? resolver,
-  }) : _library = library ?? SkillTreeLibraryService.instance,
-       _graph = graph ?? const SkillTreeGraphService(),
-       _hintService =
-           hintService ?? const SkillTreeNodeDetailUnlockHintService(),
-       _progress = progress ?? SkillTreeNodeProgressTracker.instance,
-       _resolver = resolver ?? SkillTreeTrackResolver.instance;
+  })  : _library = library ?? SkillTreeLibraryService.instance,
+        _graph = graph ?? const SkillTreeGraphService(),
+        _hintService =
+            hintService ?? const SkillTreeNodeDetailUnlockHintService(),
+        _progress = progress ?? SkillTreeNodeProgressTracker.instance,
+        _resolver = resolver ?? SkillTreeTrackResolver.instance;
 
   /// Returns locked dependency links for [nodeId].
   Future<List<SkillTreeDependencyLink>> getDependencies(String nodeId) async {
@@ -39,10 +39,8 @@ class SkillTreeDependencyLinkService {
     final completed = _progress.completedNodeIds.value;
 
     final unlockedEval = SkillTreeUnlockEvaluator(progress: _progress);
-    final unlocked = unlockedEval
-        .getUnlockedNodes(tree)
-        .map((n) => n.id)
-        .toSet();
+    final unlocked =
+        unlockedEval.getUnlockedNodes(tree).map((n) => n.id).toSet();
 
     final result = <SkillTreeDependencyLink>[];
     final visited = <String>{};
@@ -55,8 +53,7 @@ class SkillTreeDependencyLinkService {
       final isUnlocked = unlocked.contains(id);
       if (!isCompleted && !isUnlocked) {
         final prereqs = _graph.getPrerequisiteChain(tree, id);
-        final hint =
-            _hintService.getUnlockHint(
+        final hint = _hintService.getUnlockHint(
               node: node,
               unlocked: unlocked,
               completed: completed,

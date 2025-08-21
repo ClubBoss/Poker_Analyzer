@@ -28,8 +28,8 @@ class LearningPathOverviewHeader extends StatelessWidget {
     final barColor = progress >= 1.0
         ? Colors.green
         : progress > 0.0
-        ? Colors.yellow
-        : Colors.grey;
+            ? Colors.yellow
+            : Colors.grey;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),

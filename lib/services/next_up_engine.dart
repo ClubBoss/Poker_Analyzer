@@ -25,12 +25,12 @@ class NextUpEngine {
     LessonTrackMetaService? metaService,
     LearningTrackEngine trackEngine = const LearningTrackEngine(),
     YamlLessonTrackLoader? yamlLoader,
-  }) : unlockEngine = unlockEngine ?? LearningPathUnlockEngine.instance,
-       progressService =
-           progressService ?? LessonProgressTrackerService.instance,
-       metaService = metaService ?? LessonTrackMetaService.instance,
-       trackEngine = trackEngine,
-       yamlLoader = yamlLoader ?? YamlLessonTrackLoader.instance;
+  })  : unlockEngine = unlockEngine ?? LearningPathUnlockEngine.instance,
+        progressService =
+            progressService ?? LessonProgressTrackerService.instance,
+        metaService = metaService ?? LessonTrackMetaService.instance,
+        trackEngine = trackEngine,
+        yamlLoader = yamlLoader ?? YamlLessonTrackLoader.instance;
 
   Future<List<LessonTrack>> _loadTracks() async {
     final builtIn = trackEngine.getTracks();

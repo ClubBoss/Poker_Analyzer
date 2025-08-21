@@ -60,16 +60,14 @@ class PersonalRecommendationService extends ChangeNotifier {
     _tasks
       ..clear()
       ..addAll(
-        achievements.achievements
-            .map((a) {
-              final remain = a.nextTarget - a.progress;
-              return RecommendationTask(
-                title: a.title,
-                icon: a.icon,
-                remaining: remain,
-              );
-            })
-            .where((t) => t.remaining > 0),
+        achievements.achievements.map((a) {
+          final remain = a.nextTarget - a.progress;
+          return RecommendationTask(
+            title: a.title,
+            icon: a.icon,
+            remaining: remain,
+          );
+        }).where((t) => t.remaining > 0),
       );
     switch (forecast.forecast) {
       case PlayerStyle.aggressive:

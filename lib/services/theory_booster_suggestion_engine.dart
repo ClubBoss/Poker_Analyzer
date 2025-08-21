@@ -10,8 +10,8 @@ class TheoryBoosterSuggestionEngine {
   TheoryBoosterSuggestionEngine({
     RecapEffectivenessAnalyzer? recap,
     MiniLessonLibraryService? library,
-  }) : recap = recap ?? RecapEffectivenessAnalyzer.instance,
-       library = library ?? MiniLessonLibraryService.instance;
+  })  : recap = recap ?? RecapEffectivenessAnalyzer.instance,
+        library = library ?? MiniLessonLibraryService.instance;
 
   static final TheoryBoosterSuggestionEngine instance =
       TheoryBoosterSuggestionEngine();

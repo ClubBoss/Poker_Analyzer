@@ -31,12 +31,12 @@ class SmartRecapBannerController extends ChangeNotifier {
     RecapFatigueEvaluator? fatigue,
     TheoryBoosterSuggestionEngine? boosterEngine,
     required this.sessions,
-  }) : detector = detector ?? RecapOpportunityDetector.instance,
-       engine = engine ?? SmartTheoryRecapEngine.instance,
-       suppression = suppression ?? TheoryRecapSuppressionEngine.instance,
-       dismissal = dismissal ?? SmartTheoryRecapDismissalMemory.instance,
-       fatigue = fatigue ?? RecapFatigueEvaluator.instance,
-       boosterEngine = boosterEngine ?? TheoryBoosterSuggestionEngine.instance;
+  })  : detector = detector ?? RecapOpportunityDetector.instance,
+        engine = engine ?? SmartTheoryRecapEngine.instance,
+        suppression = suppression ?? TheoryRecapSuppressionEngine.instance,
+        dismissal = dismissal ?? SmartTheoryRecapDismissalMemory.instance,
+        fatigue = fatigue ?? RecapFatigueEvaluator.instance,
+        boosterEngine = boosterEngine ?? TheoryBoosterSuggestionEngine.instance;
 
   static const _lastKey = 'smart_recap_banner_last';
   TheoryMiniLessonNode? _lesson;

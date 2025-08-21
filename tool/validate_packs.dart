@@ -107,7 +107,7 @@ void main(List<String> args) {
   } else {
     final nameWidth =
         results.fold<int>(0, (p, e) => e.name.length > p ? e.name.length : p) +
-        2;
+            2;
     for (final r in results) {
       final name = r.name.padRight(nameWidth);
       final status = '${r.icon} ${r.status}'.padRight(10);

@@ -9,7 +9,7 @@ class TheoryBoosterReinjectionPolicy {
   TheoryBoosterReinjectionPolicy({
     TheoryBoosterEffectivenessService? effectiveness,
   }) : _effectiveness =
-           effectiveness ?? TheoryBoosterEffectivenessService.instance;
+            effectiveness ?? TheoryBoosterEffectivenessService.instance;
 
   static final TheoryBoosterReinjectionPolicy instance =
       TheoryBoosterReinjectionPolicy();

@@ -81,9 +81,8 @@ class _DecayRecallInsightPanelState extends State<DecayRecallInsightPanel> {
             ),
           );
         }
-        final maxVal = data.deltas
-            .map((e) => e.abs())
-            .fold<double>(0, math.max);
+        final maxVal =
+            data.deltas.map((e) => e.abs()).fold<double>(0, math.max);
         final groups = <BarChartGroupData>[];
         for (var i = 0; i < data.deltas.length; i++) {
           final v = data.deltas[i];
@@ -160,10 +159,10 @@ class _InsightData {
     required this.deltas,
   });
   const _InsightData.empty()
-    : last = DateTime(1970),
-      count7 = 0,
-      count30 = 0,
-      count90 = 0,
-      deltas = const [];
+      : last = DateTime(1970),
+        count7 = 0,
+        count30 = 0,
+        count90 = 0,
+        deltas = const [];
   bool get isEmpty => last.year == 1970;
 }

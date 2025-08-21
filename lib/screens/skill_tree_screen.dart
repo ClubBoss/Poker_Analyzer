@@ -65,9 +65,8 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
     const gateEval = SkillTreeStageGateEvaluator();
     const compEval = SkillTreeStageCompletionEvaluator();
     final unlockedStages = gateEval.getUnlockedStages(tree, completed).toSet();
-    final completedStages = compEval
-        .getCompletedStages(tree, completed)
-        .toSet();
+    final completedStages =
+        compEval.getCompletedStages(tree, completed).toSet();
 
     final hadPrev = _previousUnlockedStages.isNotEmpty;
     final shouldCelebrate =
@@ -226,9 +225,8 @@ class _SkillTreeScreenState extends State<SkillTreeScreen> {
     final unlocked = gateEval.getUnlockedStages(tree, _completed);
     final totalStages = {for (final n in tree.nodes.values) n.level}.length;
     if (unlocked.length >= totalStages) {
-      final remaining = tree.nodes.values
-          .where((n) => !_completed.contains(n.id))
-          .length;
+      final remaining =
+          tree.nodes.values.where((n) => !_completed.contains(n.id)).length;
       if (remaining <= 0) return 'All stages completed';
       return remaining == 1
           ? '1 node to complete all stages'

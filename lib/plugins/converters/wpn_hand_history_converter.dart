@@ -9,16 +9,16 @@ import 'package:poker_analyzer/models/player_model.dart';
 
 class WpnHandHistoryConverter extends ConverterPlugin {
   WpnHandHistoryConverter()
-    : super(
-        formatId: 'wpn_hand_history',
-        description: 'Winning Poker Network hand history format',
-        capabilities: const ConverterFormatCapabilities(
-          supportsImport: true,
-          supportsExport: false,
-          requiresBoard: false,
-          supportsMultiStreet: false,
-        ),
-      );
+      : super(
+          formatId: 'wpn_hand_history',
+          description: 'Winning Poker Network hand history format',
+          capabilities: const ConverterFormatCapabilities(
+            supportsImport: true,
+            supportsExport: false,
+            requiresBoard: false,
+            supportsMultiStreet: false,
+          ),
+        );
 
   double _amount(String s) => double.tryParse(s.replaceAll(',', '.')) ?? 0;
 

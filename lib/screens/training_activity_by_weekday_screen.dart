@@ -15,8 +15,8 @@ class TrainingActivityByWeekdayScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final packs = context.watch<TrainingPackStorageService>().packs.where(
-      (p) => !p.isBuiltIn,
-    );
+          (p) => !p.isBuiltIn,
+        );
     final counts = List<int>.filled(7, 0);
     for (final p in packs) {
       for (final r in p.history) {

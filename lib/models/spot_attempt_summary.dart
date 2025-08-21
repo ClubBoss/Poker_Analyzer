@@ -14,12 +14,12 @@ class SpotAttemptSummary {
   }) : shownTheoryTags = shownTheoryTags ?? const [];
 
   Map<String, dynamic> toJson() => {
-    'spotId': spotId,
-    'userAction': userAction,
-    'isCorrect': isCorrect,
-    'evDiff': evDiff,
-    if (shownTheoryTags.isNotEmpty) 'shownTheoryTags': shownTheoryTags,
-  };
+        'spotId': spotId,
+        'userAction': userAction,
+        'isCorrect': isCorrect,
+        'evDiff': evDiff,
+        if (shownTheoryTags.isNotEmpty) 'shownTheoryTags': shownTheoryTags,
+      };
 
   factory SpotAttemptSummary.fromJson(Map<String, dynamic> json) {
     return SpotAttemptSummary(

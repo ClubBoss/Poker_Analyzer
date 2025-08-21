@@ -10,8 +10,8 @@ class BoosterContentPipelineController {
   const BoosterContentPipelineController({
     BoosterPackLibraryBuilder? builder,
     TheoryYamlImporter? importer,
-  }) : _builder = builder ?? const BoosterPackLibraryBuilder(),
-       _importer = importer ?? const TheoryYamlImporter();
+  })  : _builder = builder ?? const BoosterPackLibraryBuilder(),
+        _importer = importer ?? const TheoryYamlImporter();
 
   final BoosterPackLibraryBuilder _builder;
   final TheoryYamlImporter _importer;

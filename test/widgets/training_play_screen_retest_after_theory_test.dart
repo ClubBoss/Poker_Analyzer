@@ -41,13 +41,14 @@ class _FakePackRunController extends PackRunController {
     String spotId,
     bool correct,
     List<String> tags,
-  ) async => null;
+  ) async =>
+      null;
 }
 
 class _FakeTrainingSessionController extends TrainingSessionController {
   final Queue<EvaluationResult> _queue;
   _FakeTrainingSessionController(this._queue)
-    : super(registry: ServiceRegistry(), packId: 'p1');
+      : super(registry: ServiceRegistry(), packId: 'p1');
 
   void setSpot(TrainingSpot spot) => replaySpot(spot);
 
@@ -63,16 +64,16 @@ class _FakeTrainingSessionController extends TrainingSessionController {
 }
 
 TrainingSpot _spot() => TrainingSpot(
-  playerCards: const [[], []],
-  boardCards: const [],
-  actions: const <ActionEntry>[],
-  heroIndex: 0,
-  numberOfPlayers: 2,
-  playerTypes: const [PlayerType.unknown, PlayerType.unknown],
-  positions: const ['SB', 'BB'],
-  stacks: const [10, 10],
-  tags: const ['a'],
-);
+      playerCards: const [[], []],
+      boardCards: const [],
+      actions: const <ActionEntry>[],
+      heroIndex: 0,
+      numberOfPlayers: 2,
+      playerTypes: const [PlayerType.unknown, PlayerType.unknown],
+      positions: const ['SB', 'BB'],
+      stacks: const [10, 10],
+      tags: const ['a'],
+    );
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

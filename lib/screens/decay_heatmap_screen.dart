@@ -28,8 +28,8 @@ class _DecayHeatmapScreenState extends State<DecayHeatmapScreen> {
 
   Future<void> _load() async {
     setState(() => _loading = true);
-    final scores = await const DecayTagRetentionTrackerService()
-        .getAllDecayScores();
+    final scores =
+        await const DecayTagRetentionTrackerService().getAllDecayScores();
     final boosterStats = await BoosterPathHistoryService.instance.getTagStats();
     final list = <TagDecayEntry>[];
     scores.forEach((tag, score) {
@@ -137,15 +137,15 @@ class _DecayHeatmapScreenState extends State<DecayHeatmapScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _entries.isEmpty
-          ? const Center(child: Text('No tags'))
-          : GridView.count(
-              padding: const EdgeInsets.all(16),
-              crossAxisCount: count,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
-              childAspectRatio: 1,
-              children: _entries.map(_buildTile).toList(),
-            ),
+              ? const Center(child: Text('No tags'))
+              : GridView.count(
+                  padding: const EdgeInsets.all(16),
+                  crossAxisCount: count,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                  childAspectRatio: 1,
+                  children: _entries.map(_buildTile).toList(),
+                ),
     );
   }
 }

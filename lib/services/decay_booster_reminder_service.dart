@@ -23,10 +23,10 @@ class DecayBoosterReminderService {
     this.threshold = 45,
     this.recency = const Duration(days: 7),
     this.rotation = const Duration(days: 7),
-  }) : decay = decay ?? TheoryTagDecayTracker(),
-       lessons = lessons ?? MiniLessonLibraryService.instance,
-       progress = progress ?? MiniLessonProgressTracker.instance,
-       inbox = inbox ?? InboxBoosterService.instance;
+  })  : decay = decay ?? TheoryTagDecayTracker(),
+        lessons = lessons ?? MiniLessonLibraryService.instance,
+        progress = progress ?? MiniLessonProgressTracker.instance,
+        inbox = inbox ?? InboxBoosterService.instance;
 
   static const String _lastKey = 'decay_booster_reminder_last';
 

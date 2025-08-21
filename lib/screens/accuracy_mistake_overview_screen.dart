@@ -19,8 +19,8 @@ class AccuracyMistakeOverviewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final hands = context.watch<SavedHandManagerService>().hands;
     final summary = context.read<EvaluationExecutorService>().summarizeHands(
-      hands,
-    );
+          hands,
+        );
 
     final Map<String, int> tagTotals = {};
     final Map<String, int> streetTotals = {for (final s in kStreetNames) s: 0};

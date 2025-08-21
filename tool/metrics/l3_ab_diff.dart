@@ -24,7 +24,8 @@ void _renderSection(
   final keys = {
     ...base.keys.cast<String>(),
     ...challenger.keys.cast<String>(),
-  }.toList()..sort();
+  }.toList()
+    ..sort();
   for (final k in keys) {
     final b = (base[k] as num? ?? 0).toInt();
     final c = (challenger[k] as num? ?? 0).toInt();
@@ -43,12 +44,10 @@ void main(List<String> args) async {
   try {
     buffer.writeln('# L3 A/B diff');
     buffer.writeln();
-    final baseJson =
-        jsonDecode(await File(basePath ?? '').readAsString())
-            as Map<String, dynamic>;
-    final challJson =
-        jsonDecode(await File(challPath ?? '').readAsString())
-            as Map<String, dynamic>;
+    final baseJson = jsonDecode(await File(basePath ?? '').readAsString())
+        as Map<String, dynamic>;
+    final challJson = jsonDecode(await File(challPath ?? '').readAsString())
+        as Map<String, dynamic>;
     final baseSummary =
         (baseJson['summary'] as Map<String, dynamic>?) ?? <String, dynamic>{};
     final challSummary =

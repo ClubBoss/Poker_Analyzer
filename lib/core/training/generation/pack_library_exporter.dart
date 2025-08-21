@@ -6,7 +6,7 @@ import '../../../models/v2/training_pack_template.dart';
 class PackLibraryExporter {
   final YamlWriter writer;
   const PackLibraryExporter({YamlWriter? yamlWriter})
-    : writer = yamlWriter ?? const YamlWriter();
+      : writer = yamlWriter ?? const YamlWriter();
 
   Future<List<String>> export(
     List<TrainingPackTemplate> templates,

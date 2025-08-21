@@ -45,26 +45,26 @@ void main() {
         history[tag] ?? <DecayTagReinforcementEvent>[];
 
     Future<Map<String, double>> masteryLoader() async => {
-      'tag1': 0.5,
-      'tag2': 0.4,
-    };
+          'tag1': 0.5,
+          'tag2': 0.4,
+        };
 
     Future<Map<String, TagPerformance>> statsLoader() async => {
-      'tag1': TagPerformance(
-        tag: 'tag1',
-        totalAttempts: 10,
-        correct: 5,
-        accuracy: 0.5,
-        lastTrained: now.subtract(const Duration(days: 40)),
-      ),
-      'tag2': TagPerformance(
-        tag: 'tag2',
-        totalAttempts: 10,
-        correct: 8,
-        accuracy: 0.8,
-        lastTrained: now.subtract(const Duration(days: 10)),
-      ),
-    };
+          'tag1': TagPerformance(
+            tag: 'tag1',
+            totalAttempts: 10,
+            correct: 5,
+            accuracy: 0.5,
+            lastTrained: now.subtract(const Duration(days: 40)),
+          ),
+          'tag2': TagPerformance(
+            tag: 'tag2',
+            totalAttempts: 10,
+            correct: 8,
+            accuracy: 0.8,
+            lastTrained: now.subtract(const Duration(days: 10)),
+          ),
+        };
 
     final gen = AutoDecaySpotGenerator(
       historyLoader: historyLoader,

@@ -14,9 +14,9 @@ class TheoryAndBoosterFlowComposer {
     SmartTheoryInjectionEngine? theoryEngine,
     required BoosterInjectionOrchestrator boosterOrchestrator,
     InjectionBlockAssembler? assembler,
-  }) : theoryEngine = theoryEngine ?? const SmartTheoryInjectionEngine(),
-       boosterOrchestrator = boosterOrchestrator,
-       assembler = assembler ?? const InjectionBlockAssembler();
+  })  : theoryEngine = theoryEngine ?? const SmartTheoryInjectionEngine(),
+        boosterOrchestrator = boosterOrchestrator,
+        assembler = assembler ?? const InjectionBlockAssembler();
 
   /// Returns ordered blocks for [stage] with theory first and boosters after.
   Future<List<LearningPathBlock>> buildStageFlow(StageNode stage) async {

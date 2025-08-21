@@ -67,7 +67,8 @@ void main() {
       required String presetId,
       Map<String, dynamic>? extras,
       int? spotsPerPack,
-    }) async => 'pack123';
+    }) async =>
+        'pack123';
 
     final controller = RemedialGenerationController(autogenRunner: runAutogen);
     final uri = await controller.createRemedialPack(

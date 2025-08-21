@@ -11,7 +11,7 @@ import 'package:poker_analyzer/services/training_session_service.dart';
 class _FakeMasteryService extends TagMasteryService {
   final Map<String, double> _map;
   _FakeMasteryService(this._map)
-    : super(logs: SessionLogService(sessions: TrainingSessionService()));
+      : super(logs: SessionLogService(sessions: TrainingSessionService()));
 
   @override
   Future<Map<String, double>> computeMastery({bool force = false}) async =>
@@ -30,11 +30,11 @@ class _FakeSummary extends SmartBoosterSummaryEngine {
   const _FakeSummary(this.impact);
   @override
   Future<BoosterSummary> summarize(String boosterId) async => BoosterSummary(
-    id: boosterId,
-    avgDeltaEV: impact[boosterId] ?? 0.0,
-    totalSpots: 0,
-    injections: 1,
-  );
+        id: boosterId,
+        avgDeltaEV: impact[boosterId] ?? 0.0,
+        totalSpots: 0,
+        injections: 1,
+      );
 }
 
 class _FakeLibrary implements TheoryPackLibraryService {

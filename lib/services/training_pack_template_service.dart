@@ -37,15 +37,16 @@ class TrainingPackTemplateService {
 
   static Future<TrainingPackTemplate> generateFromPreset(
     TrainingPackPreset preset,
-  ) => PackGeneratorService.generatePackFromPreset(preset);
+  ) =>
+      PackGeneratorService.generatePackFromPreset(preset);
 
   static List<TrainingPackTemplate> getAllTemplates([BuildContext? ctx]) => [
-    starterPushfold10bb(ctx),
-    starterPushfold12bb(ctx),
-    starterPushfold15bb(ctx),
-    starterPushfold20bb(ctx),
-    ...TrainingPackAssetLoader.instance.getAll(),
-  ].where((t) => t.id.isNotEmpty).toList();
+        starterPushfold10bb(ctx),
+        starterPushfold12bb(ctx),
+        starterPushfold15bb(ctx),
+        starterPushfold20bb(ctx),
+        ...TrainingPackAssetLoader.instance.getAll(),
+      ].where((t) => t.id.isNotEmpty).toList();
 
   static bool hasTemplate(String id) =>
       getAllTemplates().any((t) => t.id == id);

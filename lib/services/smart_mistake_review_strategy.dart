@@ -29,9 +29,8 @@ class SmartMistakeReviewStrategy {
     this.insightsService = const MistakeTagInsightsService(),
     this.skillLossEngine = const SkillLossFeedEngine(),
     TagInsightReminderEngine? reminder,
-  }) : reminder =
-           reminder ??
-           TagInsightReminderEngine(history: TagMasteryHistoryService());
+  }) : reminder = reminder ??
+            TagInsightReminderEngine(history: TagMasteryHistoryService());
 
   Future<List<SkillLossFeedItem>> _loadFeed() async {
     final losses = await reminder.loadLosses();

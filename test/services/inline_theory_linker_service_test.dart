@@ -57,14 +57,14 @@ class _FakeAnalytics extends TheoryEngagementAnalyticsService {
 
   @override
   Future<List<TheoryLessonEngagementStats>> getAllStats() async => [
-    for (final e in rates.entries)
-      TheoryLessonEngagementStats(
-        lessonId: e.key,
-        manualOpens: 0,
-        reviewViews: 0,
-        successRate: e.value,
-      ),
-  ];
+        for (final e in rates.entries)
+          TheoryLessonEngagementStats(
+            lessonId: e.key,
+            manualOpens: 0,
+            reviewViews: 0,
+            successRate: e.value,
+          ),
+      ];
 }
 
 class _FakeTracker implements TheorySuggestionEngagementTrackerService {

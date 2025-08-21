@@ -5,7 +5,7 @@ import '../utils/template_coverage_utils.dart';
 
 class BulkEvaluatorService {
   BulkEvaluatorService({OfflineEvaluatorService? evaluator})
-    : evaluator = evaluator ?? OfflineEvaluatorService();
+      : evaluator = evaluator ?? OfflineEvaluatorService();
 
   final OfflineEvaluatorService evaluator;
 

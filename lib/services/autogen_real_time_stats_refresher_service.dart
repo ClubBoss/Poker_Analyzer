@@ -21,10 +21,10 @@ class AutogenRealTimeStatsRefresherService {
     AutogenRunHistoryLoggerService? historyService,
     AutogenStatusDashboardService? statusService,
     this.interval = const Duration(seconds: 10),
-  }) : _historyService =
-           historyService ?? const AutogenRunHistoryLoggerService(),
-       _statusService =
-           statusService ?? AutogenStatusDashboardService.instance {
+  })  : _historyService =
+            historyService ?? const AutogenRunHistoryLoggerService(),
+        _statusService =
+            statusService ?? AutogenStatusDashboardService.instance {
     _statusService.notifier.addListener(_statusListener);
     _statusListener();
     // Load initial history asynchronously.

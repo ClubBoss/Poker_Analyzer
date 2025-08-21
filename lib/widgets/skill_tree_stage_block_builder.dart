@@ -51,19 +51,18 @@ class SkillTreeStageBlockBuilder {
       overlay: overlay,
     );
 
-    final grid =
-        SkillTreeGridBlockBuilder(
-          positioner: gridBuilder.positioner,
-          connectorBuilder: gridBuilder.connectorBuilder,
-          headerBuilder: const _EmptyHeaderBuilder(),
-        ).build(
-          level: level,
-          nodes: isStageUnlocked ? nodes : const [],
-          unlockedNodeIds: unlockedNodeIds,
-          completedNodeIds: completedNodeIds,
-          justUnlockedNodeIds: justUnlockedNodeIds,
-          onNodeTap: onNodeTap,
-        );
+    final grid = SkillTreeGridBlockBuilder(
+      positioner: gridBuilder.positioner,
+      connectorBuilder: gridBuilder.connectorBuilder,
+      headerBuilder: const _EmptyHeaderBuilder(),
+    ).build(
+      level: level,
+      nodes: isStageUnlocked ? nodes : const [],
+      unlockedNodeIds: unlockedNodeIds,
+      completedNodeIds: completedNodeIds,
+      justUnlockedNodeIds: justUnlockedNodeIds,
+      onNodeTap: onNodeTap,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

@@ -83,8 +83,8 @@ class ICMScenarioLibraryInjector {
     List<ICMScenario>? scenarios,
     String libraryPath = 'assets/icm_scenarios',
     PackNoveltyGuardService? noveltyGuard,
-  }) : _library = scenarios ?? _loadLibrary(libraryPath),
-       _noveltyGuard = noveltyGuard;
+  })  : _library = scenarios ?? _loadLibrary(libraryPath),
+        _noveltyGuard = noveltyGuard;
 
   /// Loads scenario files from [path]. Supports JSON and YAML formats.
   static List<ICMScenario> _loadLibrary(String path) {

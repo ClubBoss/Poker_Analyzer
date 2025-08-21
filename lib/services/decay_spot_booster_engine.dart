@@ -16,10 +16,10 @@ class DecaySpotBoosterEngine {
     DecayTopicSuppressorService? suppressor,
     TrainingSpotLibrary? library,
     BoosterQueueService? queue,
-  }) : decay = decay ?? TheoryTagDecayTracker(),
-       suppressor = suppressor ?? DecayTopicSuppressorService.instance,
-       library = library ?? TrainingSpotLibrary(),
-       queue = queue ?? BoosterQueueService.instance;
+  })  : decay = decay ?? TheoryTagDecayTracker(),
+        suppressor = suppressor ?? DecayTopicSuppressorService.instance,
+        library = library ?? TrainingSpotLibrary(),
+        queue = queue ?? BoosterQueueService.instance;
 
   /// Queues practical drills for decayed tags.
   Future<void> enqueueDecayBoosters() async {

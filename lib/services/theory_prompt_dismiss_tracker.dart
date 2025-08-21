@@ -25,10 +25,10 @@ class TheoryPromptDismissTracker {
         if (data is List) {
           _history.addAll(
             data.whereType<Map>().map(
-              (e) => TheoryPromptDismissEntry.fromJson(
-                Map<String, dynamic>.from(e),
-              ),
-            ),
+                  (e) => TheoryPromptDismissEntry.fromJson(
+                    Map<String, dynamic>.from(e),
+                  ),
+                ),
           );
         }
       } catch (_) {}

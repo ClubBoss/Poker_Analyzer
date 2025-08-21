@@ -146,8 +146,8 @@ class _PositionMistakeOverviewScreenState
           h,
     ];
     final summary = context.read<EvaluationExecutorService>().summarizeHands(
-      hands,
-    );
+          hands,
+        );
     final ignored = context.watch<IgnoredMistakeService>().ignored;
     final service = context.read<EvaluationExecutorService>();
     final entries = summary.positionMistakeFrequencies.entries

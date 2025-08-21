@@ -13,6 +13,6 @@ class TrainingPackModel {
     required this.spots,
     List<String>? tags,
     Map<String, dynamic>? metadata,
-  }) : tags = tags ?? const [],
-       metadata = metadata ?? const {};
+  })  : tags = tags ?? const [],
+        metadata = metadata ?? const {};
 }

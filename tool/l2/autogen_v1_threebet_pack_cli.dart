@@ -36,9 +36,8 @@ void main(List<String> args) {
 
   final mix = L2TbMix.mvsDefault();
   final pack = buildThreebetPack(seed: seed, count: count, mix: mix);
-  final json = format == 'pretty'
-      ? encodeTbPackPretty(pack)
-      : encodeTbPackCompact(pack);
+  final json =
+      format == 'pretty' ? encodeTbPackPretty(pack) : encodeTbPackCompact(pack);
   stdout.write(json);
 }
 

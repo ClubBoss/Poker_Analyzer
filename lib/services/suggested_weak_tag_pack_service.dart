@@ -22,8 +22,8 @@ class SuggestedWeakTagPackService {
   const SuggestedWeakTagPackService({
     List<TrainingPackTemplateV2>? library,
     Future<List<TagPerformance>> Function()? detectWeakTags,
-  }) : _libraryOverride = library,
-       _detectWeakTags = detectWeakTags;
+  })  : _libraryOverride = library,
+        _detectWeakTags = detectWeakTags;
 
   Future<SuggestedWeakTagPackResult> suggestPack() async {
     final weak = _detectWeakTags != null
@@ -72,8 +72,7 @@ class SuggestedWeakTagPackService {
         return p;
       }
     }
-    final sorted = [...library]
-      ..sort((a, b) {
+    final sorted = [...library]..sort((a, b) {
         final pa = (a.meta['popularity'] as num?)?.toDouble() ?? 0;
         final pb = (b.meta['popularity'] as num?)?.toDouble() ?? 0;
         return pb.compareTo(pa);

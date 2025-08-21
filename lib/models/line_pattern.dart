@@ -28,9 +28,9 @@ class LinePattern {
   }
 
   Map<String, dynamic> toJson() => {
-    'streets': streets,
-    if (startingPosition != null) 'startingPosition': startingPosition,
-    if (boardTexture != null) 'boardTexture': boardTexture,
-    if (potType != null) 'potType': potType,
-  };
+        'streets': streets,
+        if (startingPosition != null) 'startingPosition': startingPosition,
+        if (boardTexture != null) 'boardTexture': boardTexture,
+        if (potType != null) 'potType': potType,
+      };
 }

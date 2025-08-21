@@ -8,7 +8,7 @@ class TrainingPackLibraryExporter {
   final YamlEncoder _encoder;
 
   const TrainingPackLibraryExporter({YamlEncoder? encoder})
-    : _encoder = encoder ?? const YamlEncoder();
+      : _encoder = encoder ?? const YamlEncoder();
 
   Future<List<String>> saveToDirectory(
     List<TrainingPackModel> packs,
@@ -35,10 +35,10 @@ class TrainingPackLibraryExporter {
   }
 
   Map<String, dynamic> _packToMap(TrainingPackModel pack) => {
-    'id': pack.id,
-    'title': pack.title,
-    if (pack.tags.isNotEmpty) 'tags': pack.tags,
-    if (pack.metadata.isNotEmpty) 'metadata': pack.metadata,
-    'spots': [for (final s in pack.spots) s.toYaml()],
-  };
+        'id': pack.id,
+        'title': pack.title,
+        if (pack.tags.isNotEmpty) 'tags': pack.tags,
+        if (pack.metadata.isNotEmpty) 'metadata': pack.metadata,
+        'spots': [for (final s in pack.spots) s.toYaml()],
+      };
 }

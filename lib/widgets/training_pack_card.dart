@@ -160,8 +160,7 @@ class _TrainingPackCardState extends State<TrainingPackCard>
       setState(() {
         if (ts != null) _completedAt = formatLongDate(ts);
         if (acc != null) _accuracy = acc;
-        _passed =
-            a0 != null &&
+        _passed = a0 != null &&
             a1 != null &&
             a2 != null &&
             a0 >= 80 &&
@@ -188,8 +187,8 @@ class _TrainingPackCardState extends State<TrainingPackCard>
     Color c(double v) => v >= 90
         ? Colors.green
         : v >= 60
-        ? Colors.yellow
-        : Colors.red;
+            ? Colors.yellow
+            : Colors.red;
     return Text.rich(
       TextSpan(
         children: [

@@ -29,9 +29,8 @@ class TrainingPackTemplateSetGenerator {
       final playerTypes = set.playerTypeVariations.isNotEmpty
           ? set.playerTypeVariations
           : <String?>[null];
-      final stackMods = set.stackDepthMods.isNotEmpty
-          ? set.stackDepthMods
-          : <int>[0];
+      final stackMods =
+          set.stackDepthMods.isNotEmpty ? set.stackDepthMods : <int>[0];
       final suitFlags = set.suitAlternation ? [false, true] : [false];
 
       for (final pt in playerTypes) {

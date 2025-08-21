@@ -149,18 +149,18 @@ class _MiniProgress {
   _MiniProgress({this.viewCount = 0, this.lastViewed, this.completed = false});
 
   factory _MiniProgress.fromMap(Map<String, dynamic> map) => _MiniProgress(
-    viewCount: map['viewCount'] is int
-        ? map['viewCount'] as int
-        : int.tryParse(map['viewCount']?.toString() ?? '') ?? 0,
-    lastViewed: map['lastViewed'] != null
-        ? DateTime.tryParse(map['lastViewed'].toString())
-        : null,
-    completed: map['completed'] == true,
-  );
+        viewCount: map['viewCount'] is int
+            ? map['viewCount'] as int
+            : int.tryParse(map['viewCount']?.toString() ?? '') ?? 0,
+        lastViewed: map['lastViewed'] != null
+            ? DateTime.tryParse(map['lastViewed'].toString())
+            : null,
+        completed: map['completed'] == true,
+      );
 
   Map<String, dynamic> toMap() => {
-    'viewCount': viewCount,
-    if (lastViewed != null) 'lastViewed': lastViewed!.toIso8601String(),
-    'completed': completed,
-  };
+        'viewCount': viewCount,
+        if (lastViewed != null) 'lastViewed': lastViewed!.toIso8601String(),
+        'completed': completed,
+      };
 }

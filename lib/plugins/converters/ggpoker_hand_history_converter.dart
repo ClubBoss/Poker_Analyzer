@@ -10,16 +10,16 @@ import 'package:poker_analyzer/helpers/poker_position_helper.dart';
 
 class GGPokerHandHistoryConverter extends ConverterPlugin {
   GGPokerHandHistoryConverter()
-    : super(
-        formatId: 'ggpoker_hand_history',
-        description: 'GGPoker hand history format',
-        capabilities: const ConverterFormatCapabilities(
-          supportsImport: true,
-          supportsExport: false,
-          requiresBoard: false,
-          supportsMultiStreet: true,
-        ),
-      );
+      : super(
+          formatId: 'ggpoker_hand_history',
+          description: 'GGPoker hand history format',
+          capabilities: const ConverterFormatCapabilities(
+            supportsImport: true,
+            supportsExport: false,
+            requiresBoard: false,
+            supportsMultiStreet: true,
+          ),
+        );
 
   double _amount(String s) => double.tryParse(s.replaceAll(',', '')) ?? 0;
 

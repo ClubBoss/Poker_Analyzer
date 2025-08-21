@@ -11,7 +11,7 @@ class TheoryBoosterRecallEngine {
   final MiniLessonLibraryService library;
 
   TheoryBoosterRecallEngine({MiniLessonLibraryService? library})
-    : library = library ?? MiniLessonLibraryService.instance;
+      : library = library ?? MiniLessonLibraryService.instance;
 
   static final TheoryBoosterRecallEngine instance = TheoryBoosterRecallEngine();
 

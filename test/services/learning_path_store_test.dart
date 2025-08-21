@@ -22,15 +22,15 @@ void main() {
     });
 
     InjectedPathModule buildModule(String id) => InjectedPathModule(
-      moduleId: id,
-      clusterId: 'c',
-      themeName: 't',
-      theoryIds: const [],
-      boosterPackIds: const [],
-      assessmentPackId: 'a',
-      createdAt: DateTime.now(),
-      triggerReason: 'test',
-    );
+          moduleId: id,
+          clusterId: 'c',
+          themeName: 't',
+          theoryIds: const [],
+          boosterPackIds: const [],
+          assessmentPackId: 'a',
+          createdAt: DateTime.now(),
+          triggerReason: 'test',
+        );
 
     test('persist and load', () async {
       final m = buildModule('m1');

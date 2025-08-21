@@ -9,7 +9,7 @@ class LessonStreakCelebrationService {
   bool _shown = false;
 
   LessonStreakCelebrationService({LessonStreakTrackerService? tracker})
-    : tracker = tracker ?? LessonStreakTrackerService.instance;
+      : tracker = tracker ?? LessonStreakTrackerService.instance;
 
   /// Checks for a new streak record and shows [LessonStreakCelebrationOverlay]
   /// once per app session.

@@ -36,10 +36,10 @@ void main() {
       ]),
     });
 
-    final current = await LessonStreakTrackerService.instance
-        .getCurrentStreak();
-    final longest = await LessonStreakTrackerService.instance
-        .getLongestStreak();
+    final current =
+        await LessonStreakTrackerService.instance.getCurrentStreak();
+    final longest =
+        await LessonStreakTrackerService.instance.getLongestStreak();
     expect(current, 2);
     expect(longest, 3);
   });
@@ -55,10 +55,10 @@ void main() {
       ]),
     });
 
-    final current = await LessonStreakTrackerService.instance
-        .getCurrentStreak();
-    final longest = await LessonStreakTrackerService.instance
-        .getLongestStreak();
+    final current =
+        await LessonStreakTrackerService.instance.getCurrentStreak();
+    final longest =
+        await LessonStreakTrackerService.instance.getLongestStreak();
     expect(current, 0);
     expect(longest, 1);
   });

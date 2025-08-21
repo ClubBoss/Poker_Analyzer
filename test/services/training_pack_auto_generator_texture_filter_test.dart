@@ -16,7 +16,8 @@ class _FakeEngine extends TrainingPackGeneratorEngineV2 {
     TrainingPackTemplateSet set, {
     Map<String, InlineTheoryEntry> theoryIndex = const {},
     int? seed,
-  }) => List.from(out);
+  }) =>
+      List.from(out);
 }
 
 TrainingPackSpot _spot(String id, String board) {

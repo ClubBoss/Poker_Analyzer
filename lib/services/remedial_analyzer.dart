@@ -7,7 +7,7 @@ class RemedialAnalyzer {
   final BoardTextureClassifier _classifier;
 
   RemedialAnalyzer({BoardTextureClassifier? classifier})
-    : _classifier = classifier ?? const BoardTextureClassifier();
+      : _classifier = classifier ?? const BoardTextureClassifier();
 
   RemedialSpec analyze(
     Iterable<TrainingSpotAttempt> attempts, {
@@ -47,8 +47,8 @@ class RemedialAnalyzer {
       streetBias: streetMisses.isEmpty
           ? 0
           : streetMisses.entries
-                .reduce((a, b) => a.value >= b.value ? a : b)
-                .key,
+              .reduce((a, b) => a.value >= b.value ? a : b)
+              .key,
       minAccuracyTarget: targetAccuracy > 0 ? targetAccuracy : accuracy,
     );
 

@@ -114,11 +114,11 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     if (pack == null) return;
     final tpl = _fromPack(pack);
     context.read<TrainingSessionService>().startSession(
-      tpl,
-      persist: false,
-      startIndex: 0,
-      source: widget.source ?? 'manual',
-    );
+          tpl,
+          persist: false,
+          startIndex: 0,
+          source: widget.source ?? 'manual',
+        );
     if (widget.onSessionEnd != null) _endlessStats.reset();
     setState(() {
       _selected = null;
@@ -130,20 +130,20 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
   }
 
   TrainingPackTemplate _fromPack(TrainingPackV2 p) => TrainingPackTemplate(
-    id: p.id,
-    name: p.name,
-    description: p.description,
-    gameType: p.gameType,
-    spots: List<TrainingPackSpot>.from(p.spots),
-    tags: List<String>.from(p.tags),
-    heroBbStack: p.bb,
-    heroPos: p.positions.isNotEmpty
-        ? parseHeroPosition(p.positions.first)
-        : HeroPosition.sb,
-    spotCount: p.spotCount,
-    meta: Map<String, dynamic>.from(p.meta),
-    isBuiltIn: true,
-  );
+        id: p.id,
+        name: p.name,
+        description: p.description,
+        gameType: p.gameType,
+        spots: List<TrainingPackSpot>.from(p.spots),
+        tags: List<String>.from(p.tags),
+        heroBbStack: p.bb,
+        heroPos: p.positions.isNotEmpty
+            ? parseHeroPosition(p.positions.first)
+            : HeroPosition.sb,
+        spotCount: p.spotCount,
+        meta: Map<String, dynamic>.from(p.meta),
+        isBuiltIn: true,
+      );
 
   @override
   void initState() {
@@ -153,11 +153,11 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       final tpl = _fromPack(widget.pack!);
       Future.microtask(
         () => context.read<TrainingSessionService>().startSession(
-          tpl,
-          persist: false,
-          startIndex: widget.startIndex,
-          source: widget.source ?? 'manual',
-        ),
+              tpl,
+              persist: false,
+              startIndex: widget.startIndex,
+              source: widget.source ?? 'manual',
+            ),
       );
     }
     if (widget.onSessionEnd != null &&
@@ -223,9 +223,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     return ConstrainedBox(
       constraints: const BoxConstraints(maxHeight: 80),
       child: SingleChildScrollView(
-        child: _linker
-            .link(text, contextTags: tags)
-            .toRichText(
+        child: _linker.link(text, contextTags: tags).toRichText(
               style: const TextStyle(color: Colors.white, fontSize: 12),
               linkStyle: const TextStyle(color: Colors.lightBlueAccent),
             ),
@@ -338,8 +336,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       double? accBefore;
       String? boosterTag;
       if (isBooster) {
-        boosterTag =
-            tpl.meta['tag']?.toString() ??
+        boosterTag = tpl.meta['tag']?.toString() ??
             (tpl.tags.isNotEmpty ? tpl.tags.first : null);
         if (boosterTag != null) {
           final mastery = context.read<TagMasteryService>();
@@ -351,9 +348,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       final total = service.totalCount;
       final totalSpots = tpl.totalWeight;
       final evAfter = totalSpots == 0 ? 0.0 : tpl.evCovered * 100 / totalSpots;
-      final icmAfter = totalSpots == 0
-          ? 0.0
-          : tpl.icmCovered * 100 / totalSpots;
+      final icmAfter =
+          totalSpots == 0 ? 0.0 : tpl.icmCovered * 100 / totalSpots;
       unawaited(
         TrainingPackStatsService.recordSession(
           tpl.id,
@@ -457,10 +453,10 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       double? boosterAccuracy;
       if (isBooster) {
         deltas = await context.read<TagMasteryService>().updateWithSession(
-          template: tpl,
-          results: service.session?.results ?? const {},
-          dryRun: true,
-        );
+              template: tpl,
+              results: service.session?.results ?? const {},
+              dryRun: true,
+            );
         final tmp = TrainingPackTemplateV2.fromTemplate(
           tpl,
           type: TrainingType.pushFold,
@@ -585,9 +581,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         final current = (mastery[g.tag] ?? 0.0) * 100;
         final base = g.base.toDouble();
         final target = g.targetAccuracy!;
-        pct = target <= base
-            ? 100.0
-            : ((current - base) / (target - base)) * 100;
+        pct =
+            target <= base ? 100.0 : ((current - base) / (target - base)) * 100;
       } else {
         final prog = engine.progress(g);
         pct = g.target > 0 ? prog * 100 / g.target : 0.0;
@@ -676,8 +671,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
             orElse: () => '',
           );
           final categoryName = tag.isNotEmpty ? tag.substring(4) : null;
-          final showCategory =
-              service.template?.id == 'suggested_weekly' &&
+          final showCategory = service.template?.id == 'suggested_weekly' &&
               categoryName != null;
           final tpl = service.template;
           final isBooster =
@@ -790,22 +784,21 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
                                     children: [
                                       Expanded(
                                         child: LinearProgressIndicator(
-                                          value:
-                                              service.handGoalTotal[g.label] !=
+                                          value: service.handGoalTotal[
+                                                          g.label] !=
                                                       null &&
-                                                  service.handGoalTotal[g
-                                                          .label]! >
+                                                  service.handGoalTotal[
+                                                          g.label]! >
                                                       0
                                               ? (service.handGoalCount[g.label]
-                                                            ?.clamp(
-                                                              0,
-                                                              service
-                                                                  .handGoalTotal[g
-                                                                  .label]!,
-                                                            ) ??
-                                                        0) /
-                                                    service.handGoalTotal[g
-                                                        .label]!
+                                                          ?.clamp(
+                                                        0,
+                                                        service.handGoalTotal[
+                                                            g.label]!,
+                                                      ) ??
+                                                      0) /
+                                                  service
+                                                      .handGoalTotal[g.label]!
                                               : 0,
                                           color: Colors.purpleAccent,
                                           backgroundColor: Colors.purpleAccent

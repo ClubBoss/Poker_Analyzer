@@ -20,7 +20,7 @@ import 'package:poker_analyzer/services/path_map_engine.dart';
 class _FakeMastery extends TagMasteryService {
   final Map<String, double> map;
   _FakeMastery(this.map)
-    : super(logs: SessionLogService(sessions: TrainingSessionService()));
+      : super(logs: SessionLogService(sessions: TrainingSessionService()));
   @override
   Future<Map<String, double>> computeMastery({bool force = false}) async => map;
 }
@@ -34,9 +34,9 @@ class _FakeInventory extends BoosterInventoryService {
 
   @override
   List<TrainingPackTemplateV2> findByTag(String tag) => [
-    for (final b in items)
-      if (b.tags.contains(tag)) b,
-  ];
+        for (final b in items)
+          if (b.tags.contains(tag)) b,
+      ];
 
   @override
   TrainingPackTemplateV2? getById(String id) =>

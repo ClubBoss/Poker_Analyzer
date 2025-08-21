@@ -26,9 +26,7 @@ class TrainingPackTheoryScreen extends StatelessWidget {
                 ),
           if (template.goal.isNotEmpty) ...[
             const SizedBox(height: 8),
-            _linker
-                .link(template.goal, contextTags: template.tags)
-                .toRichText(
+            _linker.link(template.goal, contextTags: template.tags).toRichText(
                   style: const TextStyle(color: Colors.white, fontSize: 12),
                   linkStyle: const TextStyle(color: Colors.lightBlueAccent),
                 ),

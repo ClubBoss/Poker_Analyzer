@@ -647,9 +647,8 @@ class _AutogenDebugScreenState extends State<AutogenDebugScreen> {
                   child: const Text('Start Autogen'),
                 ),
                 OutlinedButton(
-                  onPressed: _status == _AutogenStatus.running
-                      ? _stopAutogen
-                      : null,
+                  onPressed:
+                      _status == _AutogenStatus.running ? _stopAutogen : null,
                   child: const Text('Stop'),
                 ),
                 ElevatedButton(

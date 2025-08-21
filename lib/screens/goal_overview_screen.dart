@@ -47,9 +47,8 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
     final categories = tipService.categories;
     final streak = streakService.count;
     final history = streakService.history;
-    final maxStreak = history.isEmpty
-        ? streak
-        : history.map((e) => e.value).reduce(math.max);
+    final maxStreak =
+        history.isEmpty ? streak : history.map((e) => e.value).reduce(math.max);
     final target = targetService.target;
     final now = DateTime.now();
     final start = DateTime(

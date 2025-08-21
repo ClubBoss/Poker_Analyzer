@@ -27,9 +27,9 @@ class TrainingPackAutoEnricherBatchService {
     TrainingPackLibraryImporter? importer,
     TrainingPackMetadataEnricherService? enricher,
     TrainingPackLibraryExporter? exporter,
-  }) : importer = importer ?? TrainingPackLibraryImporter(),
-       enricher = enricher ?? TrainingPackMetadataEnricherService(),
-       exporter = exporter ?? const TrainingPackLibraryExporter();
+  })  : importer = importer ?? TrainingPackLibraryImporter(),
+        enricher = enricher ?? TrainingPackMetadataEnricherService(),
+        exporter = exporter ?? const TrainingPackLibraryExporter();
 
   Future<TrainingPackEnrichmentReport> enrichDirectory(
     String path, {

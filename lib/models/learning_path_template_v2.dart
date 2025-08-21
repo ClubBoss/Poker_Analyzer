@@ -27,10 +27,10 @@ class LearningPathTemplateV2 {
     this.coverAsset,
     this.difficulty,
     this.composerMeta,
-  }) : stages = stages ?? const [],
-       sections = sections ?? const [],
-       tags = tags ?? const [],
-       prerequisitePathIds = prerequisitePathIds ?? const [];
+  })  : stages = stages ?? const [],
+        sections = sections ?? const [],
+        tags = tags ?? const [],
+        prerequisitePathIds = prerequisitePathIds ?? const [];
 
   List<LearningPathStageModel> get entryStages {
     final unlockedIds = <String>{};
@@ -86,19 +86,20 @@ class LearningPathTemplateV2 {
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'title': title,
-    'description': description,
-    if (stages.isNotEmpty) 'stages': [for (final s in stages) s.toJson()],
-    if (sections.isNotEmpty) 'sections': [for (final s in sections) s.toJson()],
-    if (tags.isNotEmpty) 'tags': tags,
-    if (recommendedFor != null) 'recommendedFor': recommendedFor,
-    if (coverAsset != null) 'cover': coverAsset,
-    if (difficulty != null) 'difficulty': difficulty!.name,
-    if (composerMeta != null) 'composerMeta': composerMeta,
-    if (prerequisitePathIds.isNotEmpty)
-      'prerequisitePathIds': prerequisitePathIds,
-  };
+        'id': id,
+        'title': title,
+        'description': description,
+        if (stages.isNotEmpty) 'stages': [for (final s in stages) s.toJson()],
+        if (sections.isNotEmpty)
+          'sections': [for (final s in sections) s.toJson()],
+        if (tags.isNotEmpty) 'tags': tags,
+        if (recommendedFor != null) 'recommendedFor': recommendedFor,
+        if (coverAsset != null) 'cover': coverAsset,
+        if (difficulty != null) 'difficulty': difficulty!.name,
+        if (composerMeta != null) 'composerMeta': composerMeta,
+        if (prerequisitePathIds.isNotEmpty)
+          'prerequisitePathIds': prerequisitePathIds,
+      };
 
   factory LearningPathTemplateV2.fromYaml(Map yaml) {
     final map = <String, dynamic>{};

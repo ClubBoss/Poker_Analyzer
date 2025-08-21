@@ -56,7 +56,8 @@ class ProgressExportService {
       for (final e in ev) e.key,
       for (final e in icm) e.key,
       for (final e in mistakes) e.key,
-    }.toList()..sort();
+    }.toList()
+      ..sort();
     final evMap = {for (final e in ev) e.key: e.value};
     final icmMap = {for (final e in icm) e.key: e.value};
     final mMap = {for (final e in mistakes) e.key: e.value};

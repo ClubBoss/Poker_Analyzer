@@ -16,8 +16,8 @@ class SmartRecapScheduler with WidgetsBindingObserver {
     required this.controller,
     TheoryBoostRecapLinker? theoryLinker,
     MiniLessonLibraryService? library,
-  }) : theoryLinker = theoryLinker ?? const TheoryBoostRecapLinker(),
-       library = library ?? MiniLessonLibraryService.instance;
+  })  : theoryLinker = theoryLinker ?? const TheoryBoostRecapLinker(),
+        library = library ?? MiniLessonLibraryService.instance;
 
   final SkillTagDecayTracker decay;
   final RecapTagAnalyticsService analytics;

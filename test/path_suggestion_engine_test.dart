@@ -7,7 +7,7 @@ class _Path extends LearningPathTemplateV2 {
   final bool recommendedFlag;
 
   _Path({required String id, List<String>? tags, this.meta = const {}})
-    : super(id: id, title: id, description: '', tags: tags);
+      : super(id: id, title: id, description: '', tags: tags);
 
   @override
   dynamic noSuchMethod(Invocation invocation) {

@@ -217,9 +217,8 @@ class _SkillTreeNodeDetailScreenState extends State<SkillTreeNodeDetailScreen> {
                       ),
                     const Spacer(),
                     Tooltip(
-                      message: widget.unlocked
-                          ? ''
-                          : 'Этап ещё не разблокирован',
+                      message:
+                          widget.unlocked ? '' : 'Этап ещё не разблокирован',
                       child: SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(

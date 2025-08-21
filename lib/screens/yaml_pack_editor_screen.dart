@@ -291,9 +291,8 @@ class _YamlPackEditorScreenState extends State<YamlPackEditorScreen> {
                     separatorBuilder: (_, __) => const SizedBox(height: 8),
                     itemBuilder: (_, i) {
                       final s = pack.spots[i];
-                      final title = s.title.isNotEmpty
-                          ? s.title
-                          : s.hand.heroCards;
+                      final title =
+                          s.title.isNotEmpty ? s.title : s.hand.heroCards;
                       final sub =
                           '${s.hand.position.label} ${s.hand.board.join(' ')}';
                       return Card(

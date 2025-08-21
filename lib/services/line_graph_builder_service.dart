@@ -7,7 +7,7 @@ class LineGraphBuilderService {
   final LineGraphEngine _engine;
 
   LineGraphBuilderService({LineGraphEngine? engine})
-    : _engine = engine ?? LineGraphEngine();
+      : _engine = engine ?? LineGraphEngine();
 
   LineGraphEngine build({
     List<TheoryMiniLessonNode> lessons = const [],

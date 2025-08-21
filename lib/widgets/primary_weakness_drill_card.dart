@@ -13,8 +13,8 @@ class PrimaryWeaknessDrillCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final list = context.watch<SavedHandStatsService>().getTopMistakeCategories(
-      limit: 1,
-    );
+          limit: 1,
+        );
     if (list.isEmpty) return const SizedBox.shrink();
     final entry = list.first;
     final accent = Theme.of(context).colorScheme.secondary;

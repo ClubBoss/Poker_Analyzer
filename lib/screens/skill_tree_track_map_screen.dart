@@ -56,74 +56,74 @@ class _SkillTreeTrackMapScreenState extends State<SkillTreeTrackMapScreen> {
           body: snapshot.connectionState != ConnectionState.done
               ? const Center(child: CircularProgressIndicator())
               : list.isEmpty
-              ? const Center(child: Text('Нет треков'))
-              : GridView.builder(
-                  padding: const EdgeInsets.all(12),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: _columns,
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: 1.1,
-                  ),
-                  itemCount: list.length,
-                  itemBuilder: (context, index) {
-                    final entry = list[index];
-                    final title = entry.tree.roots.isNotEmpty
-                        ? entry.tree.roots.first.title
-                        : entry.tree.nodes.values.first.title;
-                    final pct = entry.completionRate.clamp(0.0, 1.0);
-                    return GestureDetector(
-                      onTap: () => _openTrack(entry),
-                      child: Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                title,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(4),
-                                child: LinearProgressIndicator(
-                                  value: pct,
-                                  backgroundColor: Colors.white24,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    accent,
-                                  ),
-                                  minHeight: 6,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
+                  ? const Center(child: Text('Нет треков'))
+                  : GridView.builder(
+                      padding: const EdgeInsets.all(12),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: _columns,
+                        mainAxisSpacing: 12,
+                        crossAxisSpacing: 12,
+                        childAspectRatio: 1.1,
+                      ),
+                      itemCount: list.length,
+                      itemBuilder: (context, index) {
+                        final entry = list[index];
+                        final title = entry.tree.roots.isNotEmpty
+                            ? entry.tree.roots.first.title
+                            : entry.tree.nodes.values.first.title;
+                        final pct = entry.completionRate.clamp(0.0, 1.0);
+                        return GestureDetector(
+                          onTap: () => _openTrack(entry),
+                          child: Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    '${(pct * 100).round()}%',
-                                    style: const TextStyle(fontSize: 12),
-                                  ),
-                                  if (entry.isCompleted)
-                                    const Padding(
-                                      padding: EdgeInsets.only(left: 4),
-                                      child: Icon(
-                                        Icons.check,
-                                        color: Colors.green,
-                                        size: 16,
-                                      ),
+                                    title,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
                                     ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(4),
+                                    child: LinearProgressIndicator(
+                                      value: pct,
+                                      backgroundColor: Colors.white24,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        accent,
+                                      ),
+                                      minHeight: 6,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        '${(pct * 100).round()}%',
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                      if (entry.isCompleted)
+                                        const Padding(
+                                          padding: EdgeInsets.only(left: 4),
+                                          child: Icon(
+                                            Icons.check,
+                                            color: Colors.green,
+                                            size: 16,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
                                 ],
                               ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                        );
+                      },
+                    ),
         );
       },
     );

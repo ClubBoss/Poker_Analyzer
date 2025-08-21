@@ -35,13 +35,13 @@ class AutogenPipelineDebugStatsService {
 
   static final ValueNotifier<AutogenPipelineStats> _statsNotifier =
       ValueNotifier(
-        const AutogenPipelineStats(
-          generated: 0,
-          deduplicated: 0,
-          curated: 0,
-          published: 0,
-        ),
-      );
+    const AutogenPipelineStats(
+      generated: 0,
+      deduplicated: 0,
+      curated: 0,
+      published: 0,
+    ),
+  );
 
   /// Exposes live stats updates.
   static ValueListenable<AutogenPipelineStats> getLiveStats() => _statsNotifier;

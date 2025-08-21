@@ -1,25 +1,26 @@
 import 'analytics_service.dart';
 
 Map<String, Object?> starterImportPayload(String packId, int version) => {
-  'packId': packId,
-  'version': version,
-};
+      'packId': packId,
+      'version': version,
+    };
 
 Map<String, Object?> starterBannerPayload(String packId, int spotCount) => {
-  'packId': packId,
-  'spotCount': spotCount,
-};
+      'packId': packId,
+      'spotCount': spotCount,
+    };
 
 Map<String, Object?> starterPickerOpenedPayload() => {};
 
 Map<String, Object?> starterPickerSelectedPayload(
   String packId,
   int spotCount,
-) => {'packId': packId, 'spotCount': spotCount};
+) =>
+    {'packId': packId, 'spotCount': spotCount};
 
 class StarterPackTelemetry {
   const StarterPackTelemetry({AnalyticsService? analytics})
-    : _analytics = analytics ?? AnalyticsService.instance;
+      : _analytics = analytics ?? AnalyticsService.instance;
 
   final AnalyticsService _analytics;
 

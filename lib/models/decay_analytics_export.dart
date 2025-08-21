@@ -16,13 +16,13 @@ class DecayAnalyticsExport {
   });
 
   Map<String, dynamic> toJson() => {
-    'tag': tag,
-    'decay': decay,
-    'adaptation': adaptation.name,
-    if (lastInteraction != null)
-      'lastInteraction': lastInteraction!.toIso8601String(),
-    'recommendedDaysUntilReview': recommendedDaysUntilReview,
-  };
+        'tag': tag,
+        'decay': decay,
+        'adaptation': adaptation.name,
+        if (lastInteraction != null)
+          'lastInteraction': lastInteraction!.toIso8601String(),
+        'recommendedDaysUntilReview': recommendedDaysUntilReview,
+      };
 
   factory DecayAnalyticsExport.fromJson(Map<String, dynamic> json) =>
       DecayAnalyticsExport(

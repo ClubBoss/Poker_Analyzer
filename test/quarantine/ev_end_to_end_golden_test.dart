@@ -106,9 +106,8 @@ Future<Map<String, dynamic>> _expectedSummary(Directory dir) async {
 
       final sprVal = (spot['spr'] as num?)?.toDouble();
       if (sprVal != null) {
-        final bucket = sprVal < 1
-            ? 'spr_low'
-            : (sprVal < 2 ? 'spr_mid' : 'spr_high');
+        final bucket =
+            sprVal < 1 ? 'spr_low' : (sprVal < 2 ? 'spr_mid' : 'spr_high');
         final sprEntry = bySpr[bucket]!;
         sprEntry[1]++; // total
         if (isJam) sprEntry[0]++; // jam

@@ -20,7 +20,7 @@ class PackQualityIssue {
 /// Analyzes training packs for common structural or content problems.
 class PackQualityInspectorService {
   PackQualityInspectorService._({SpotFingerprintGenerator? fingerprint})
-    : _fingerprint = fingerprint ?? const SpotFingerprintGenerator();
+      : _fingerprint = fingerprint ?? const SpotFingerprintGenerator();
 
   static final PackQualityInspectorService instance =
       PackQualityInspectorService._();

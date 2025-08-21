@@ -69,9 +69,8 @@ class _SessionReplayScreenState extends State<SessionReplayScreen> {
   }
 
   TrainingPackSpot _packSpot(SavedHand h) {
-    final heroCards = h.playerCards[h.heroIndex]
-        .map((c) => '${c.rank}${c.suit}')
-        .join(' ');
+    final heroCards =
+        h.playerCards[h.heroIndex].map((c) => '${c.rank}${c.suit}').join(' ');
     final actions = <ActionEntry>[
       for (final a in h.actions)
         if (a.street == 0) a,
@@ -230,9 +229,8 @@ class _SessionReplayScreenState extends State<SessionReplayScreen> {
               Provider(
                 create: (_) => PlayerEditingService(
                   playerManager: context.read<PlayerManagerService>(),
-                  stackService: context
-                      .read<PlaybackManagerService>()
-                      .stackService,
+                  stackService:
+                      context.read<PlaybackManagerService>().stackService,
                   playbackManager: context.read<PlaybackManagerService>(),
                   profile: context.read<PlayerProfileService>(),
                 ),
@@ -257,19 +255,18 @@ class _SessionReplayScreenState extends State<SessionReplayScreen> {
                         child: PokerAnalyzerScreen(
                           key: _key,
                           actionSync: context.read<ActionSyncService>(),
-                          foldedPlayersService: context
-                              .read<FoldedPlayersService>(),
-                          allInPlayersService: context
-                              .read<AllInPlayersService>(),
+                          foldedPlayersService:
+                              context.read<FoldedPlayersService>(),
+                          allInPlayersService:
+                              context.read<AllInPlayersService>(),
                           handContext: CurrentHandContextService(),
-                          playbackManager: context
-                              .read<PlaybackManagerService>(),
+                          playbackManager:
+                              context.read<PlaybackManagerService>(),
                           stackService: context
                               .read<PlaybackManagerService>()
                               .stackService,
-                          potSyncService: context
-                              .read<PlaybackManagerService>()
-                              .potSync,
+                          potSyncService:
+                              context.read<PlaybackManagerService>().potSync,
                           boardManager: context.read<BoardManagerService>(),
                           boardSync: context.read<BoardSyncService>(),
                           boardEditing: context.read<BoardEditingService>(),

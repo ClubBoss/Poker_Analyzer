@@ -18,8 +18,8 @@ class TheoryContentBlock {
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'title': title,
-    'content': content,
-  };
+        'id': id,
+        'title': title,
+        'content': content,
+      };
 }

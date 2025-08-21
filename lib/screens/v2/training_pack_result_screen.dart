@@ -121,16 +121,16 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
   }
 
   List<double> get _evs => [
-    for (final s in widget.template.spots)
-      if (s.heroEv != null && widget.results.containsKey(s.id))
-        s.heroEv! * s.priority,
-  ];
+        for (final s in widget.template.spots)
+          if (s.heroEv != null && widget.results.containsKey(s.id))
+            s.heroEv! * s.priority,
+      ];
 
   List<double> get _icmEvs => [
-    for (final s in widget.template.spots)
-      if (s.heroIcmEv != null && widget.results.containsKey(s.id))
-        s.heroIcmEv! * s.priority,
-  ];
+        for (final s in widget.template.spots)
+          if (s.heroIcmEv != null && widget.results.containsKey(s.id))
+            s.heroIcmEv! * s.priority,
+      ];
 
   double get _evSum => _evs.fold(0.0, (a, b) => a + b);
   double get _icmSum => _icmEvs.fold(0.0, (a, b) => a + b);
@@ -183,13 +183,13 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
   double get _icmDeltaSum => _icmDeltas.fold(0.0, (a, b) => a + b);
 
   List<TrainingPackSpot> get _mistakeSpots => widget.template.spots.where((s) {
-    final exp = _expected(s);
-    final ans = widget.results[s.id];
-    return exp != null &&
-        ans != null &&
-        ans != 'false' &&
-        exp.toLowerCase() != ans.toLowerCase();
-  }).toList();
+        final exp = _expected(s);
+        final ans = widget.results[s.id];
+        return exp != null &&
+            ans != null &&
+            ans != 'false' &&
+            exp.toLowerCase() != ans.toLowerCase();
+      }).toList();
 
   List<String> get _mistakeIds => [for (final s in _mistakeSpots) s.id];
 
@@ -209,9 +209,9 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
       MistakeReviewPackService.setLatestTemplate(template);
       unawaited(
         context.read<MistakeReviewPackService>().addPack(
-          ids,
-          templateId: widget.template.id,
-        ),
+              ids,
+              templateId: widget.template.id,
+            ),
       );
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         final start = await showDialog<bool>(
@@ -543,9 +543,9 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
                   );
                   MistakeReviewPackService.setLatestTemplate(template);
                   await context.read<MistakeReviewPackService>().addPack(
-                    _mistakeIds,
-                    templateId: widget.template.id,
-                  );
+                        _mistakeIds,
+                        templateId: widget.template.id,
+                      );
                   if (!mounted) return;
                   Navigator.push(
                     context,
@@ -663,9 +663,9 @@ class _TrainingPackResultScreenState extends State<TrainingPackResultScreen> {
           label: 'Train',
           onPressed: () async {
             await context.read<TrainingSessionService>().startSession(
-              tpl,
-              persist: false,
-            );
+                  tpl,
+                  persist: false,
+                );
             if (!context.mounted) return;
             Navigator.pushReplacement(
               context,

@@ -29,7 +29,8 @@ class _TestPathProvider extends PathProviderPlatform {
   @override
   Future<List<String>?> getExternalStoragePaths({
     StorageDirectory? type,
-  }) async => [path];
+  }) async =>
+      [path];
   @override
   Future<String?> getDownloadsPath() async => path;
 }
@@ -66,9 +67,9 @@ class _MockRemoteEvService extends RemoteEvService {
 }
 
 TrainingPackSpot _spot(String id) => TrainingPackSpot(
-  id: id,
-  hand: HandData.fromSimpleInput('AA', HeroPosition.sb, 10),
-);
+      id: id,
+      hand: HandData.fromSimpleInput('AA', HeroPosition.sb, 10),
+    );
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

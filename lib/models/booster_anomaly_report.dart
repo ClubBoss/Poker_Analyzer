@@ -12,11 +12,11 @@ class BoosterAnomalyReport {
   });
 
   Map<String, dynamic> toJson() => {
-    'duplicatedHands': duplicatedHands,
-    'repeatedBoards': repeatedBoards,
-    'evOutliers': evOutliers,
-    'weakExplanations': weakExplanations,
-  };
+        'duplicatedHands': duplicatedHands,
+        'repeatedBoards': repeatedBoards,
+        'evOutliers': evOutliers,
+        'weakExplanations': weakExplanations,
+      };
 
   factory BoosterAnomalyReport.fromJson(Map<String, dynamic> j) =>
       BoosterAnomalyReport(

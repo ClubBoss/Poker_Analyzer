@@ -16,10 +16,10 @@ class _PathRegistryEntry {
   });
 
   Map<String, dynamic> toJson() => {
-    'userId': userId,
-    'clusterHash': clusterHash,
-    'ts': ts.toIso8601String(),
-  };
+        'userId': userId,
+        'clusterHash': clusterHash,
+        'ts': ts.toIso8601String(),
+      };
 
   static _PathRegistryEntry fromJson(Map<String, dynamic> json) =>
       _PathRegistryEntry(

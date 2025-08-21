@@ -21,13 +21,13 @@ class BoosterPackDiffReport {
   });
 
   Map<String, dynamic> toJson() => {
-    'unchangedCount': unchangedCount,
-    'addedCount': addedCount,
-    'removedCount': removedCount,
-    'variationCount': variationCount,
-    'uniqueHandCount': uniqueHandCount,
-    'uniqueBoardCount': uniqueBoardCount,
-  };
+        'unchangedCount': unchangedCount,
+        'addedCount': addedCount,
+        'removedCount': removedCount,
+        'variationCount': variationCount,
+        'uniqueHandCount': uniqueHandCount,
+        'uniqueBoardCount': uniqueBoardCount,
+      };
 
   factory BoosterPackDiffReport.fromJson(Map<String, dynamic> j) =>
       BoosterPackDiffReport(

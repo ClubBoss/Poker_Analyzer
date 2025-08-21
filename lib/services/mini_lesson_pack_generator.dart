@@ -16,9 +16,9 @@ class MiniLessonPackGenerator {
     MiniLessonLibraryBuilder? builder,
     YamlReader? reader,
     YamlWriter? writer,
-  }) : builder = builder ?? const MiniLessonLibraryBuilder(),
-       reader = reader ?? const YamlReader(),
-       writer = writer ?? const YamlWriter();
+  })  : builder = builder ?? const MiniLessonLibraryBuilder(),
+        reader = reader ?? const YamlReader(),
+        writer = writer ?? const YamlWriter();
 
   String _groupKey(String tag) {
     final match = RegExp(r'^[^:_]+').firstMatch(tag);
@@ -59,8 +59,7 @@ class MiniLessonPackGenerator {
                 final tag = (l['tags'] as List?)?.first ?? key;
                 final title = l['title']?.toString() ?? '';
                 final content = l['content']?.toString() ?? '';
-                final examples =
-                    (l['examples'] as List?)
+                final examples = (l['examples'] as List?)
                         ?.map((e) => e.toString())
                         .toList() ??
                     const <String>[];

@@ -20,8 +20,8 @@ class SessionSummary {
   }
 
   Map<String, dynamic> toJson() => {
-    'date': date.toIso8601String(),
-    'total': total,
-    'correct': correct,
-  };
+        'date': date.toIso8601String(),
+        'total': total,
+        'correct': correct,
+      };
 }

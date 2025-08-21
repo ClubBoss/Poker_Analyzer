@@ -27,9 +27,8 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
   int _totalAnswered = 0;
 
   Future<void> _saveResult() async {
-    final accuracy = _totalAnswered > 0
-        ? _correctCount * 100 / _totalAnswered
-        : 0.0;
+    final accuracy =
+        _totalAnswered > 0 ? _correctCount * 100 / _totalAnswered : 0.0;
     final result = TrainingResult(
       date: DateTime.now(),
       total: _totalAnswered,
@@ -69,14 +68,13 @@ class _RetryTrainingScreenState extends State<RetryTrainingScreen> {
 
     Widget body;
     if (completed) {
-      final accuracy = _totalAnswered > 0
-          ? _correctCount * 100 / _totalAnswered
-          : 0.0;
+      final accuracy =
+          _totalAnswered > 0 ? _correctCount * 100 / _totalAnswered : 0.0;
       final message = _correctCount == _totalAnswered
           ? 'Perfect!'
           : accuracy >= 80
-          ? 'Great effort!'
-          : 'Keep training!';
+              ? 'Great effort!'
+              : 'Keep training!';
 
       body = Column(
         children: [

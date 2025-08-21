@@ -307,9 +307,8 @@ class _CreateCustomPackScreenState extends State<CreateCustomPackScreen> {
                   child: ListTile(
                     leading: const Icon(Icons.drag_handle),
                     title: Text(title),
-                    subtitle: hand.tags.isEmpty
-                        ? null
-                        : Text(hand.tags.join(', ')),
+                    subtitle:
+                        hand.tags.isEmpty ? null : Text(hand.tags.join(', ')),
                   ),
                 );
               },

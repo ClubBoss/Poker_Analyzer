@@ -13,8 +13,7 @@ class TextureFilterConfig {
     return TextureFilterConfig(
       include: (json['include'] as List?)?.cast<String>().toSet() ?? {},
       exclude: (json['exclude'] as List?)?.cast<String>().toSet() ?? {},
-      targetMix:
-          (json['targetMix'] as Map?)?.map(
+      targetMix: (json['targetMix'] as Map?)?.map(
             (key, value) => MapEntry(key as String, (value as num).toDouble()),
           ) ??
           {},
@@ -22,8 +21,8 @@ class TextureFilterConfig {
   }
 
   Map<String, dynamic> toJson() => {
-    if (include.isNotEmpty) 'include': include.toList(),
-    if (exclude.isNotEmpty) 'exclude': exclude.toList(),
-    if (targetMix.isNotEmpty) 'targetMix': targetMix,
-  };
+        if (include.isNotEmpty) 'include': include.toList(),
+        if (exclude.isNotEmpty) 'exclude': exclude.toList(),
+        if (targetMix.isNotEmpty) 'targetMix': targetMix,
+      };
 }

@@ -132,8 +132,8 @@ class _PackBundleViewerScreenState extends State<PackBundleViewerScreen> {
         Color color(int v) => v < 70
             ? Colors.red
             : v < 90
-            ? Colors.yellow[700]!
-            : Colors.green;
+                ? Colors.yellow[700]!
+                : Colors.green;
         return Padding(
           padding: const EdgeInsets.all(16),
           child: Column(

@@ -12,7 +12,8 @@ class _FakeEngine extends SmartTheorySuggestionEngine {
   @override
   Future<List<TheorySuggestion>> suggestMissingTheoryStages({
     double threshold = 0.3,
-  }) async => list;
+  }) async =>
+      list;
 }
 
 void main() {

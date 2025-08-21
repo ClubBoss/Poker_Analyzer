@@ -12,7 +12,7 @@ class BoosterAdaptationTuner {
   final BoosterEffectivenessAnalyzer analyzer;
 
   BoosterAdaptationTuner({BoosterEffectivenessAnalyzer? analyzer})
-    : analyzer = analyzer ?? BoosterEffectivenessAnalyzer();
+      : analyzer = analyzer ?? BoosterEffectivenessAnalyzer();
 
   static final BoosterAdaptationTuner instance = BoosterAdaptationTuner();
 

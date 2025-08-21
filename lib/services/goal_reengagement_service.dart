@@ -76,8 +76,7 @@ class GoalReengagementService {
       if ((_dismissed[tag] ?? 0) >= 3) continue;
       final progress = allGoals.firstWhere((g) => g.tag == tag);
       if (GoalCompletionEngine.instance.isGoalCompleted(progress)) continue;
-      final score =
-          (3 - progress.stagesCompleted).toDouble() +
+      final score = (3 - progress.stagesCompleted).toDouble() +
           (100 - progress.averageAccuracy) / 100;
       if (score > bestScore) {
         bestScore = score;

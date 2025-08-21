@@ -12,8 +12,8 @@ class SkillTreeTheoryLessonResolver {
   SkillTreeTheoryLessonResolver({
     MiniLessonLibraryService? library,
     SkillTreeUnlockEvaluator? unlockEvaluator,
-  }) : _library = library ?? MiniLessonLibraryService.instance,
-       _unlockEvaluator = unlockEvaluator ?? SkillTreeUnlockEvaluator();
+  })  : _library = library ?? MiniLessonLibraryService.instance,
+        _unlockEvaluator = unlockEvaluator ?? SkillTreeUnlockEvaluator();
 
   /// Returns the theory lesson linked to [node] or `null` if none found.
   TheoryMiniLessonNode? getLessonForNode(SkillTreeNodeModel node) {
@@ -24,7 +24,7 @@ class SkillTreeTheoryLessonResolver {
 
   /// Returns a mapping of unlocked nodes in [tree] to their theory lessons.
   Future<Map<SkillTreeNodeModel, TheoryMiniLessonNode?>>
-  getLessonsForUnlockedNodes(SkillTree tree) async {
+      getLessonsForUnlockedNodes(SkillTree tree) async {
     await _library.loadAll();
     final nodes = _unlockEvaluator.getUnlockedNodes(tree);
     final result = <SkillTreeNodeModel, TheoryMiniLessonNode?>{};

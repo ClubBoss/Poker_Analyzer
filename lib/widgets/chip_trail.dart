@@ -4,7 +4,7 @@ class MiniChip extends StatelessWidget {
   final Color color;
   final double size;
   const MiniChip({Key? key, required this.color, this.size = 12})
-    : super(key: key);
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {

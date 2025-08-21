@@ -17,14 +17,14 @@ class _FakeGenerator extends MistakeDrivenDrillPackGenerator {
   TrainingPackTemplateV2? result;
   int count = 0;
   _FakeGenerator(this.result)
-    : super(
-        history: MistakeHistoryQueryService(
-          loadSpottings: () async => [],
-          resolveTags: (id) async => [],
-          resolveStreet: (id) async => null,
-        ),
-        loadSpot: (id) async => null,
-      );
+      : super(
+          history: MistakeHistoryQueryService(
+            loadSpottings: () async => [],
+            resolveTags: (id) async => [],
+            resolveStreet: (id) async => null,
+          ),
+          loadSpot: (id) async => null,
+        );
 
   @override
   Future<TrainingPackTemplateV2?> generate({int limit = 10}) async {

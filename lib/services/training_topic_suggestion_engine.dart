@@ -18,9 +18,8 @@ class TrainingTopicSuggestionEngine {
 
     // Recent mistakes and session history, used for weighting
     final mistakesDaily = stats.mistakesDaily(3);
-    final recentMistakes = mistakesDaily.isNotEmpty
-        ? mistakesDaily.last.value
-        : 0;
+    final recentMistakes =
+        mistakesDaily.isNotEmpty ? mistakesDaily.last.value : 0;
 
     final history = await TrainingHistoryServiceV2.getHistory(limit: 50);
     final cutoff = DateTime.now().subtract(recent);

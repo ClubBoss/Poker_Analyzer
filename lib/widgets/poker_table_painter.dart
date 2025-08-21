@@ -23,28 +23,26 @@ class PokerTablePainter extends CustomPainter {
           (HSLColor.fromColor(base).lightness + 0.10).clamp(0.0, 1.0),
         )
         .toColor();
-    final radial =
-        RadialGradient(
-          colors: [center, base],
-          stops: const [0.0, 1.0],
-        ).createShader(
-          Rect.fromCircle(
-            center: size.center(Offset.zero),
-            radius: size.shortestSide * 0.65,
-          ),
-        );
+    final radial = RadialGradient(
+      colors: [center, base],
+      stops: const [0.0, 1.0],
+    ).createShader(
+      Rect.fromCircle(
+        center: size.center(Offset.zero),
+        radius: size.shortestSide * 0.65,
+      ),
+    );
     canvas.drawRRect(rrect, Paint()..shader = radial);
 
-    final vignette =
-        RadialGradient(
-          colors: [Colors.transparent, Colors.black.withOpacity(0.18)],
-          stops: const [0.7, 1.0],
-        ).createShader(
-          Rect.fromCircle(
-            center: size.center(Offset.zero),
-            radius: size.shortestSide * 0.75,
-          ),
-        );
+    final vignette = RadialGradient(
+      colors: [Colors.transparent, Colors.black.withOpacity(0.18)],
+      stops: const [0.7, 1.0],
+    ).createShader(
+      Rect.fromCircle(
+        center: size.center(Offset.zero),
+        radius: size.shortestSide * 0.75,
+      ),
+    );
     canvas.drawRRect(
       rrect,
       Paint()

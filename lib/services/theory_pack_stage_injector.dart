@@ -31,9 +31,8 @@ class TheoryPackStageInjector {
         ? <String>[]
         : boosterSuggester.suggestBoosters(pack, boosterLibrary);
 
-    final description = pack.sections.isNotEmpty
-        ? pack.sections.first.text
-        : '';
+    final description =
+        pack.sections.isNotEmpty ? pack.sections.first.text : '';
     final stageId = pack.id.endsWith('_stage') ? pack.id : '${pack.id}_stage';
 
     return LearningPathStageModel(

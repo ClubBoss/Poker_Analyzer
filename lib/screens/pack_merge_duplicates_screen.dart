@@ -103,11 +103,10 @@ Future<List<YamlPackConflict>> _conflictTask(String _) async {
   if (!dir.existsSync()) return [];
   const reader = YamlReader();
   final packs = <TrainingPackTemplateV2>[];
-  for (final f
-      in dir
-          .listSync(recursive: true)
-          .whereType<File>()
-          .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
+  for (final f in dir
+      .listSync(recursive: true)
+      .whereType<File>()
+      .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
     try {
       final yaml = await f.readAsString();
       packs.add(TrainingPackTemplateV2.fromYamlAuto(yaml));

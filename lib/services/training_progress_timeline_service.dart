@@ -29,19 +29,18 @@ class TrainingProgressTimelineService {
       }
     }
 
-    final dates =
-        history
-            .where((h) => h.completedAt != null)
-            .map(
-              (h) => DateTime(
-                h.completedAt!.year,
-                h.completedAt!.month,
-                h.completedAt!.day,
-              ),
-            )
-            .toSet()
-            .toList()
-          ..sort();
+    final dates = history
+        .where((h) => h.completedAt != null)
+        .map(
+          (h) => DateTime(
+            h.completedAt!.year,
+            h.completedAt!.month,
+            h.completedAt!.day,
+          ),
+        )
+        .toSet()
+        .toList()
+      ..sort();
     var streak = 1;
     for (var i = 1; i < dates.length; i++) {
       final diff = dates[i].difference(dates[i - 1]).inDays;

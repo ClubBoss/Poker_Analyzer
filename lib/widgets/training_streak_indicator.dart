@@ -34,8 +34,8 @@ class _TrainingStreakIndicatorState extends State<TrainingStreakIndicator>
   }
 
   Future<void> _load() async {
-    final current = await TrainingStreakTrackerService.instance
-        .getCurrentStreak();
+    final current =
+        await TrainingStreakTrackerService.instance.getCurrentStreak();
     final max = await TrainingStreakTrackerService.instance.getMaxStreak();
     if (!mounted) return;
     setState(() {

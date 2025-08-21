@@ -105,9 +105,9 @@ class _DismissInfo {
   const _DismissInfo({required this.count, required this.timestamp});
 
   Map<String, dynamic> toJson() => {
-    'count': count,
-    'ts': timestamp.toIso8601String(),
-  };
+        'count': count,
+        'ts': timestamp.toIso8601String(),
+      };
 
   factory _DismissInfo.fromJson(Map<String, dynamic> json) {
     final ts = DateTime.tryParse(json['ts'] as String? ?? '') ?? DateTime.now();

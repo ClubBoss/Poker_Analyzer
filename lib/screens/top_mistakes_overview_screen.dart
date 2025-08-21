@@ -14,8 +14,8 @@ class TopMistakesOverviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final packs = context.read<TrainingPackStorageService>().packs.where(
-      (p) => !p.isBuiltIn,
-    );
+          (p) => !p.isBuiltIn,
+        );
     final Map<String, int> counts = {};
     for (final p in packs) {
       for (final h in p.hands) {

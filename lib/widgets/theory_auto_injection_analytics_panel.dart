@@ -61,7 +61,7 @@ class _TheoryAutoInjectionAnalyticsPanelState
           count: e.value,
           title:
               MiniLessonLibraryService.instance.getById(e.key)?.resolvedTitle ??
-              e.key,
+                  e.key,
         ),
     ];
 
@@ -84,9 +84,8 @@ class _TheoryAutoInjectionAnalyticsPanelState
   }
 
   Widget _buildDailyChart(BuildContext context) {
-    final maxY = _daily
-        .map((e) => e.count)
-        .fold<int>(0, (a, b) => a > b ? a : b);
+    final maxY =
+        _daily.map((e) => e.count).fold<int>(0, (a, b) => a > b ? a : b);
     final spots = [
       for (int i = 0; i < _daily.length; i++)
         FlSpot(i.toDouble(), _daily[i].count.toDouble()),
@@ -194,9 +193,8 @@ class _TheoryAutoInjectionAnalyticsPanelState
   }
 
   Widget _buildTopLessonsChart(BuildContext context) {
-    final maxY = _topLessons
-        .map((e) => e.count)
-        .fold<int>(0, (a, b) => a > b ? a : b);
+    final maxY =
+        _topLessons.map((e) => e.count).fold<int>(0, (a, b) => a > b ? a : b);
     final groups = <BarChartGroupData>[];
     for (var i = 0; i < _topLessons.length; i++) {
       groups.add(
@@ -251,8 +249,8 @@ class _TheoryAutoInjectionAnalyticsPanelState
                           MaterialPageRoute(
                             builder: (_) =>
                                 DrillDownAutoInjectionLogScreen.lesson(
-                                  lessonId,
-                                ),
+                              lessonId,
+                            ),
                           ),
                         );
                       }

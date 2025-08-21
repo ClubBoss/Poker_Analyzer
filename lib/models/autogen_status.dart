@@ -84,16 +84,16 @@ class AutogenStatus {
   }
 
   Map<String, dynamic> toJson() => {
-    'state': state.name,
-    'currentStep': currentStep,
-    'queueDepth': queueDepth,
-    'processed': processed,
-    'errorsCount': errorsCount,
-    'startedAt': startedAt?.toIso8601String(),
-    'updatedAt': updatedAt?.toIso8601String(),
-    'eta': eta?.inMilliseconds,
-    'lastErrorMsg': lastErrorMsg,
-  };
+        'state': state.name,
+        'currentStep': currentStep,
+        'queueDepth': queueDepth,
+        'processed': processed,
+        'errorsCount': errorsCount,
+        'startedAt': startedAt?.toIso8601String(),
+        'updatedAt': updatedAt?.toIso8601String(),
+        'eta': eta?.inMilliseconds,
+        'lastErrorMsg': lastErrorMsg,
+      };
 
   factory AutogenStatus.fromJson(Map<String, dynamic> json) {
     return AutogenStatus(
@@ -105,12 +105,10 @@ class AutogenStatus {
       queueDepth: json['queueDepth'] ?? 0,
       processed: json['processed'] ?? 0,
       errorsCount: json['errorsCount'] ?? 0,
-      startedAt: json['startedAt'] != null
-          ? DateTime.parse(json['startedAt'])
-          : null,
-      updatedAt: json['updatedAt'] != null
-          ? DateTime.parse(json['updatedAt'])
-          : null,
+      startedAt:
+          json['startedAt'] != null ? DateTime.parse(json['startedAt']) : null,
+      updatedAt:
+          json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
       eta: json['eta'] != null
           ? Duration(milliseconds: json['eta'] as int)
           : null,

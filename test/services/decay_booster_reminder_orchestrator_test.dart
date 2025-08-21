@@ -28,7 +28,8 @@ class _FakeStats extends PackRecallStatsService {
   @override
   Future<List<String>> upcomingReviewPacks({
     Duration leadTime = const Duration(days: 3),
-  }) async => upcoming;
+  }) async =>
+      upcoming;
 }
 
 void main() {

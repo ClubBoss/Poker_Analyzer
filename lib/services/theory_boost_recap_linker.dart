@@ -8,7 +8,7 @@ class TheoryBoostRecapLinker {
 
   /// Creates a linker with an optional [tagMap]. Defaults to [_defaultMap].
   const TheoryBoostRecapLinker({Map<String, String>? tagMap})
-    : tagMap = tagMap ?? _defaultMap;
+      : tagMap = tagMap ?? _defaultMap;
 
   static const Map<String, String> _defaultMap = {
     'bubble_fold': 'bubble_fold',

@@ -74,8 +74,8 @@ class _RecapFatigueCooldownVisualizerState
       }
     }
 
-    final dropoff = await SmartBoosterDropoffDetector.instance
-        .isInDropoffState();
+    final dropoff =
+        await SmartBoosterDropoffDetector.instance.isInDropoffState();
 
     final suppressed = await TheoryRecapSuppressionEngine.instance
         .shouldSuppress(lessonId: widget.lessonId, trigger: widget.trigger);

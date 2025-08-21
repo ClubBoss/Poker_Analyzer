@@ -17,8 +17,8 @@ class RecapToDrillLauncher {
     RecapHistoryTracker? history,
     required this.banner,
     required this.sessions,
-  }) : launcher = launcher ?? const TrainingSessionLauncher(),
-       history = history ?? RecapHistoryTracker.instance;
+  })  : launcher = launcher ?? const TrainingSessionLauncher(),
+        history = history ?? RecapHistoryTracker.instance;
 
   bool get _inSession =>
       sessions.currentSession != null && !sessions.isCompleted;

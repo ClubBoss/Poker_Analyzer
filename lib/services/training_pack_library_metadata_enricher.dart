@@ -8,7 +8,7 @@ class TrainingPackLibraryMetadataEnricher {
   final TrainingPackLibraryV2 library;
 
   TrainingPackLibraryMetadataEnricher({TrainingPackLibraryV2? library})
-    : library = library ?? TrainingPackLibraryV2.instance;
+      : library = library ?? TrainingPackLibraryV2.instance;
 
   /// Iterates over all packs and enriches each with UX metadata.
   void enrichAll() {

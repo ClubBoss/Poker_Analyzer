@@ -41,53 +41,49 @@ class LearningPathService {
   }
 
   List<TrainingPackTemplateV2> buildStarterPath() {
-    final pack1 =
-        TrainingPackTemplateV2.fromTemplate(
-            TrainingPackTemplateService.starterPushfold10bb(),
-            type: TrainingType.pushFold,
-          )
-          ..name = 'Простейшие ситуации'
-          ..description = 'BTN push/fold 10bb, без ICM'
-          ..tags.addAll(['starterPath', 'step1'])
-          ..gameType = GameType.tournament
-          ..bb = 10
-          ..positions = ['btn'];
+    final pack1 = TrainingPackTemplateV2.fromTemplate(
+      TrainingPackTemplateService.starterPushfold10bb(),
+      type: TrainingType.pushFold,
+    )
+      ..name = 'Простейшие ситуации'
+      ..description = 'BTN push/fold 10bb, без ICM'
+      ..tags.addAll(['starterPath', 'step1'])
+      ..gameType = GameType.tournament
+      ..bb = 10
+      ..positions = ['btn'];
 
-    final pack2 =
-        TrainingPackTemplateV2.fromTemplate(
-            TrainingPackTemplateService.starterPushfold15bb(),
-            type: TrainingType.pushFold,
-          )
-          ..name = 'Сложные решения'
-          ..description = 'SB push/fold 15bb, edge-case споты'
-          ..tags.addAll(['starterPath', 'step2'])
-          ..gameType = GameType.tournament
-          ..bb = 15
-          ..positions = ['sb'];
+    final pack2 = TrainingPackTemplateV2.fromTemplate(
+      TrainingPackTemplateService.starterPushfold15bb(),
+      type: TrainingType.pushFold,
+    )
+      ..name = 'Сложные решения'
+      ..description = 'SB push/fold 15bb, edge-case споты'
+      ..tags.addAll(['starterPath', 'step2'])
+      ..gameType = GameType.tournament
+      ..bb = 15
+      ..positions = ['sb'];
 
-    final pack3 =
-        TrainingPackTemplateV2.fromTemplate(
-            TrainingPackTemplateService.starterPushfold12bb(),
-            type: TrainingType.pushFold,
-          )
-          ..name = 'ICM под давлением'
-          ..description = '8-10bb SB/BTN vs BB, разные стеки'
-          ..tags.addAll(['starterPath', 'step3'])
-          ..gameType = GameType.tournament
-          ..bb = 10
-          ..positions = ['sb', 'btn'];
+    final pack3 = TrainingPackTemplateV2.fromTemplate(
+      TrainingPackTemplateService.starterPushfold12bb(),
+      type: TrainingType.pushFold,
+    )
+      ..name = 'ICM под давлением'
+      ..description = '8-10bb SB/BTN vs BB, разные стеки'
+      ..tags.addAll(['starterPath', 'step3'])
+      ..gameType = GameType.tournament
+      ..bb = 10
+      ..positions = ['sb', 'btn'];
 
-    final pack4 =
-        TrainingPackTemplateV2.fromTemplate(
-            TrainingPackTemplateService.starterPushfold20bb(),
-            type: TrainingType.pushFold,
-          )
-          ..name = 'Ошибки новичков'
-          ..description = 'Часто ошибаемые споты'
-          ..tags.addAll(['starterPath', 'step4'])
-          ..gameType = GameType.tournament
-          ..bb = 20
-          ..positions = ['sb'];
+    final pack4 = TrainingPackTemplateV2.fromTemplate(
+      TrainingPackTemplateService.starterPushfold20bb(),
+      type: TrainingType.pushFold,
+    )
+      ..name = 'Ошибки новичков'
+      ..description = 'Часто ошибаемые споты'
+      ..tags.addAll(['starterPath', 'step4'])
+      ..gameType = GameType.tournament
+      ..bb = 20
+      ..positions = ['sb'];
 
     final mixSpots = [
       ...pack1.spots,

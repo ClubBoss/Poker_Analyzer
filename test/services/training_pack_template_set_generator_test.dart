@@ -52,15 +52,13 @@ void main() {
     expect(bbValues, {21, 19});
 
     // Player type variations
-    final pTypes = templates
-        .map((t) => t.spots.first.meta['playerType'])
-        .toSet();
+    final pTypes =
+        templates.map((t) => t.spots.first.meta['playerType']).toSet();
     expect(pTypes, {'reg', 'fish'});
 
     // Suit alternation
-    final heroCards = templates
-        .map((t) => t.spots.first.hand.heroCards)
-        .toSet();
+    final heroCards =
+        templates.map((t) => t.spots.first.hand.heroCards).toSet();
     expect(heroCards, {'As Ks', 'As Kh'});
   });
 }

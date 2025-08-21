@@ -16,10 +16,10 @@ class TheoryLessonResumeEngine {
     MiniLessonProgressTracker? progress,
     TheoryLessonTrailTracker? trail,
     TheoryLessonTagClusterer? clusterer,
-  }) : library = library ?? MiniLessonLibraryService.instance,
-       progress = progress ?? MiniLessonProgressTracker.instance,
-       trail = trail ?? TheoryLessonTrailTracker.instance,
-       clusterer = clusterer ?? TheoryLessonTagClusterer();
+  })  : library = library ?? MiniLessonLibraryService.instance,
+        progress = progress ?? MiniLessonProgressTracker.instance,
+        trail = trail ?? TheoryLessonTrailTracker.instance,
+        clusterer = clusterer ?? TheoryLessonTagClusterer();
 
   static final TheoryLessonResumeEngine instance = TheoryLessonResumeEngine();
 

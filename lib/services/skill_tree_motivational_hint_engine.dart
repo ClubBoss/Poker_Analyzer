@@ -7,7 +7,7 @@ import 'skill_tree_progress_analytics_service.dart';
 class SkillTreeMotivationalHintEngine {
   /// Creates an engine with optional [cooldown].
   SkillTreeMotivationalHintEngine({Duration? cooldown})
-    : cooldown = cooldown ?? defaultCooldown;
+      : cooldown = cooldown ?? defaultCooldown;
 
   /// Singleton instance with default cooldown.
   static final SkillTreeMotivationalHintEngine instance =

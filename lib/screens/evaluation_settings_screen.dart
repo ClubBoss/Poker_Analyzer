@@ -26,8 +26,7 @@ class _EvaluationSettingsScreenState extends State<EvaluationSettingsScreen> {
   }
 
   Future<void> _save() async {
-    final threshold =
-        double.tryParse(_threshold.text) ??
+    final threshold = double.tryParse(_threshold.text) ??
         EvaluationSettingsService.instance.evThreshold;
     await EvaluationSettingsService.instance.update(
       threshold: threshold,

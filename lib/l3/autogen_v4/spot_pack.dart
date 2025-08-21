@@ -17,18 +17,18 @@ class SpotDTO {
   });
 
   factory SpotDTO.fromSpot(Spot s) => SpotDTO(
-    board: s.board,
-    street: s.street.name,
-    spr: s.sprBin.name,
-    pos: s.pos.name,
-  );
+        board: s.board,
+        street: s.street.name,
+        spr: s.sprBin.name,
+        pos: s.pos.name,
+      );
 
   Map<String, String> toJson() => {
-    'board': board,
-    'street': street,
-    'spr': spr,
-    'pos': pos,
-  };
+        'board': board,
+        'street': street,
+        'spr': spr,
+        'pos': pos,
+      };
 }
 
 class SpotPack {
@@ -47,16 +47,16 @@ class SpotPack {
   });
 
   Map<String, dynamic> toJson() => {
-    'version': version,
-    'seed': seed,
-    'count': count,
-    'mix': {
-      'streetPct': _enumMapToJson(Street.values, mix.streetPct),
-      'sprPct': _enumMapToJson(SprBin.values, mix.sprPct),
-      'posPct': _enumMapToJson(Position.values, mix.posPct),
-    },
-    'items': items.map((e) => e.toJson()).toList(),
-  };
+        'version': version,
+        'seed': seed,
+        'count': count,
+        'mix': {
+          'streetPct': _enumMapToJson(Street.values, mix.streetPct),
+          'sprPct': _enumMapToJson(SprBin.values, mix.sprPct),
+          'posPct': _enumMapToJson(Position.values, mix.posPct),
+        },
+        'items': items.map((e) => e.toJson()).toList(),
+      };
 }
 
 Map<String, double> _enumMapToJson<E>(List<E> order, Map<E, double> src) {

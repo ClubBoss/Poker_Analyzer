@@ -20,9 +20,8 @@ class ActionHistoryService {
     for (final list in _actionsByStreet.values) {
       list.clear();
     }
-    final source = visibleCount != null
-        ? actions.take(visibleCount).toList()
-        : actions;
+    final source =
+        visibleCount != null ? actions.take(visibleCount).toList() : actions;
     for (final a in source) {
       _actionsByStreet[a.street]?.add(a);
     }

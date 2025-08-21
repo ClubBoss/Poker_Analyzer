@@ -14,20 +14,16 @@ class TheoryPackAutoBoosterSuggester {
   }) {
     const tagger = TheoryPackAutoTagger();
     const reviewEngine = TheoryPackReviewStatusEngine();
-    final baseTags = tagger
-        .autoTag(pack)
-        .map((e) => e.toLowerCase().trim())
-        .toSet();
+    final baseTags =
+        tagger.autoTag(pack).map((e) => e.toLowerCase().trim()).toSet();
     final baseWords = _keywords(pack);
 
     final scored = <(String, double)>[];
     for (final other in all) {
       if (other.id == pack.id) continue;
       if (reviewEngine.getStatus(other) != ReviewStatus.approved) continue;
-      final tags = tagger
-          .autoTag(other)
-          .map((e) => e.toLowerCase().trim())
-          .toSet();
+      final tags =
+          tagger.autoTag(other).map((e) => e.toLowerCase().trim()).toSet();
       final words = _keywords(other);
 
       final tagInter = tags.intersection(baseTags).length.toDouble();

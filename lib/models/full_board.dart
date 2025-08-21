@@ -14,10 +14,10 @@ class FullBoard {
   });
 
   List<CardModel> get cards => [
-    ...flop,
-    if (turn != null) turn!,
-    if (river != null) river!,
-  ];
+        ...flop,
+        if (turn != null) turn!,
+        if (river != null) river!,
+      ];
 
   @override
   String toString() => cards.map((c) => c.toString()).join(' ');

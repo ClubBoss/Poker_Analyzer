@@ -13,8 +13,8 @@ class ReviewSchedulerService {
 
   /// Returns true if [lessonId] was completed and is due for review.
   Future<bool> isDueForReview(String lessonId) async {
-    final completedLessons = await TheoryLessonCompletionLogger.instance
-        .getCompletedLessons();
+    final completedLessons =
+        await TheoryLessonCompletionLogger.instance.getCompletedLessons();
     final completedAt = completedLessons[lessonId];
     if (completedAt == null) return false;
 

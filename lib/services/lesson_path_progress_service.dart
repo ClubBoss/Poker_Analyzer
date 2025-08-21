@@ -34,8 +34,8 @@ class LessonPathProgressService {
   /// Returns map of lessonId -> completed step ids.
   Future<Map<String, Set<String>>> getCompletedStepMap() async {
     await LessonProgressTrackerService.instance.load();
-    final flat = await LessonProgressTrackerService.instance
-        .getCompletedStepsFlat();
+    final flat =
+        await LessonProgressTrackerService.instance.getCompletedStepsFlat();
     return {'default': flat.keys.toSet()};
   }
 
@@ -53,10 +53,10 @@ class LessonPathProgressService {
     }
 
     final track = const LearningTrackEngine().getTracks().firstWhere(
-      (t) => t.id == trackId,
-      orElse: () =>
-          const LessonTrack(id: '', title: '', description: '', stepIds: []),
-    );
+          (t) => t.id == trackId,
+          orElse: () => const LessonTrack(
+              id: '', title: '', description: '', stepIds: []),
+        );
 
     final stepIds = track.stepIds;
     final completed = await LessonProgressService.instance.getCompletedSteps();
@@ -87,8 +87,8 @@ class LessonPathProgressService {
     final builtIn = const LearningTrackEngine().getTracks();
     final yaml = await YamlLessonTrackLoader.instance.loadTracksFromAssets();
     final tracks = [...builtIn, ...yaml];
-    final completed = await LessonProgressTrackerService.instance
-        .getCompletedStepsFlat();
+    final completed =
+        await LessonProgressTrackerService.instance.getCompletedStepsFlat();
 
     final Map<String, double> progress = {};
     for (final track in tracks) {

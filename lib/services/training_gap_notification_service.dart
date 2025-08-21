@@ -13,8 +13,8 @@ class TrainingGapNotificationService {
     final library = PackLibraryLoaderService.instance.library;
 
     // Try weak category first
-    final weakCategory = await const TrainingGapDetectorService()
-        .detectWeakCategory();
+    final weakCategory =
+        await const TrainingGapDetectorService().detectWeakCategory();
     if (weakCategory != null) {
       final tpl = library.firstWhereOrNull(
         (t) => t.category == weakCategory && t.id != excludeId,

@@ -11,8 +11,8 @@ class TheoryBoosterGenerator {
   const TheoryBoosterGenerator({
     TheoryInjectionEngine engine = const TheoryInjectionEngine(),
     Uuid uuid = const Uuid(),
-  }) : _engine = engine,
-       _uuid = uuid;
+  })  : _engine = engine,
+        _uuid = uuid;
 
   /// Returns a new training pack with theory inserted from the most relevant
   /// theory pack in [allTheoryPacks]. Relevance is determined by tag overlap

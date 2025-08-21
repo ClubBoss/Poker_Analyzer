@@ -32,8 +32,8 @@ class TagDecayForecastService {
     this.retention = const DecayTagRetentionTrackerService(),
     RecallSuccessLoggerService? logger,
     InboxBoosterTunerService? tuner,
-  }) : logger = logger ?? RecallSuccessLoggerService.instance,
-       tuner = tuner ?? InboxBoosterTunerService.instance;
+  })  : logger = logger ?? RecallSuccessLoggerService.instance,
+        tuner = tuner ?? InboxBoosterTunerService.instance;
 
   Future<Map<String, TagDecayStats>> summarize({DateTime? now}) async {
     final events = await DecaySessionTagImpactRecorder.instance.loadAllEvents();

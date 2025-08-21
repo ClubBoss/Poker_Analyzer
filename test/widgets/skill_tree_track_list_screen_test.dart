@@ -11,7 +11,7 @@ import 'package:poker_analyzer/services/skill_tree_completion_badge_service.dart
 class _FakeEvaluator extends SkillTreeTrackStateEvaluator {
   final List<TrackStateEntry> entries;
   _FakeEvaluator(this.entries)
-    : super(progressService: SkillTreeTrackProgressService());
+      : super(progressService: SkillTreeTrackProgressService());
 
   @override
   Future<List<TrackStateEntry>> evaluateStates() async => entries;

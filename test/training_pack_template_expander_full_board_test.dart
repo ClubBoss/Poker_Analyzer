@@ -67,9 +67,8 @@ void main() {
     final spots = svc.expand(set);
     expect(spots, isNotEmpty);
     for (final s in spots) {
-      final cards = s.board
-          .map((c) => CardModel(rank: c[0], suit: c[1]))
-          .toList();
+      final cards =
+          s.board.map((c) => CardModel(rank: c[0], suit: c[1])).toList();
       final clusters = BoardClusterLibrary.getClusters(
         cards,
       ).map((c) => c.toLowerCase()).toSet();

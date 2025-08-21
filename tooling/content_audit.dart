@@ -8,7 +8,7 @@ class CheckResult {
   final String status;
   final List<String> reasons;
   CheckResult(this.status, [List<String>? reasons])
-    : reasons = reasons ?? const [];
+      : reasons = reasons ?? const [];
 }
 
 class LineValidation {

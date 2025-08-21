@@ -23,7 +23,7 @@ class SpotSeedValidator {
   final SpotSeedValidatorPreferences prefs;
 
   const SpotSeedValidator({SpotSeedValidatorPreferences? preferences})
-    : prefs = preferences ?? const SpotSeedValidatorPreferences();
+      : prefs = preferences ?? const SpotSeedValidatorPreferences();
 
   /// Returns a list of issues found within [seed].
   List<SeedIssue> validate(SpotSeed seed) {
@@ -80,11 +80,9 @@ class SpotSeedValidator {
 
     // Range requirement based on board presence
     if (prefs.requireRangesForStreets.isNotEmpty) {
-      final streets = prefs.requireRangesForStreets
-          .map((s) => s.toLowerCase())
-          .toSet();
-      final needsRanges =
-          (streets.contains('flop') &&
+      final streets =
+          prefs.requireRangesForStreets.map((s) => s.toLowerCase()).toSet();
+      final needsRanges = (streets.contains('flop') &&
               (seed.board.flop?.isNotEmpty ?? false)) ||
           (streets.contains('turn') &&
               (seed.board.turn?.isNotEmpty ?? false)) ||

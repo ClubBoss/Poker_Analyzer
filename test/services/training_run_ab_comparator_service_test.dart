@@ -8,7 +8,7 @@ import 'package:poker_analyzer/services/training_session_service.dart';
 class _FakeLogRepository extends TrainingSessionLogRepository {
   final List<SessionLog> entries;
   _FakeLogRepository(this.entries)
-    : super(logs: SessionLogService(sessions: TrainingSessionService()));
+      : super(logs: SessionLogService(sessions: TrainingSessionService()));
 
   @override
   List<SessionLog> getLogs({required String packId, String? variant}) {

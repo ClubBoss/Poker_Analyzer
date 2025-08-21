@@ -777,9 +777,8 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
                                       child: Text(loc.folder),
                                     ),
                                   TextButton(
-                                    onPressed: _running
-                                        ? null
-                                        : () => _reRun(e),
+                                    onPressed:
+                                        _running ? null : () => _reRun(e),
                                     child: Text(loc.reRun),
                                   ),
                                 ],

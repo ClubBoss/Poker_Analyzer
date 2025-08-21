@@ -26,8 +26,8 @@ class LessonResumeEngine {
     LessonTrack? track;
     if (trackId != null) {
       track = const LearningTrackEngine().getTracks().firstWhereOrNull(
-        (t) => t.id == trackId,
-      );
+            (t) => t.id == trackId,
+          );
     }
 
     if (track != null) {

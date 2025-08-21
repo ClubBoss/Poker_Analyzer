@@ -29,11 +29,11 @@ class BoosterRecapHook {
     TheoryRecapAnalyticsReporter? analytics,
     SmartBoosterDropoffDetector? dropoff,
     SmartTheoryRecapDismissalMemory? memory,
-  }) : engine = engine ?? SmartTheoryRecapEngine.instance,
-       suppression = suppression ?? TheoryRecapSuppressionEngine.instance,
-       analytics = analytics ?? TheoryRecapAnalyticsReporter.instance,
-       dropoff = dropoff ?? SmartBoosterDropoffDetector.instance,
-       memory = memory ?? SmartTheoryRecapDismissalMemory.instance;
+  })  : engine = engine ?? SmartTheoryRecapEngine.instance,
+        suppression = suppression ?? TheoryRecapSuppressionEngine.instance,
+        analytics = analytics ?? TheoryRecapAnalyticsReporter.instance,
+        dropoff = dropoff ?? SmartBoosterDropoffDetector.instance,
+        memory = memory ?? SmartTheoryRecapDismissalMemory.instance;
 
   static final BoosterRecapHook instance = BoosterRecapHook();
 

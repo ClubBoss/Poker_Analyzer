@@ -6,10 +6,11 @@ import 'package:poker_analyzer/models/v2/training_pack_template_v2.dart';
 import 'package:poker_analyzer/core/training/engine/training_type_engine.dart';
 
 WeakClusterInfo _cluster(String id, Set<String> tags) => WeakClusterInfo(
-  cluster: TheoryClusterSummary(size: 1, entryPointIds: [id], sharedTags: tags),
-  coverage: 1.0,
-  score: 1.0,
-);
+      cluster:
+          TheoryClusterSummary(size: 1, entryPointIds: [id], sharedTags: tags),
+      coverage: 1.0,
+      score: 1.0,
+    );
 
 TrainingPackTemplateV2 _booster(String tag, {String? clusterId}) =>
     TrainingPackTemplateV2(

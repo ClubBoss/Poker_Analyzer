@@ -63,9 +63,9 @@ class _TrainingSpotAnalysisScreenState
   }
 
   Map<int, String> _posMap() => {
-    for (int i = 0; i < widget.spot.numberOfPlayers; i++)
-      i: widget.spot.positions[i],
-  };
+        for (int i = 0; i < widget.spot.numberOfPlayers; i++)
+          i: widget.spot.positions[i],
+      };
 
   String _overrideQuality(ActionEntry entry) {
     return entry.manualEvaluation ?? _evaluateActionQuality(entry);
@@ -119,12 +119,10 @@ class _TrainingSpotAnalysisScreenState
                 onInsert: (_, __) {},
                 onDuplicate: (_) {},
                 visibleCount: widget.spot.actions.length,
-                evaluateActionQuality: prefs.coachMode
-                    ? _overrideQuality
-                    : null,
-                onManualEvaluationChanged: prefs.coachMode
-                    ? _setManualEvaluation
-                    : null,
+                evaluateActionQuality:
+                    prefs.coachMode ? _overrideQuality : null,
+                onManualEvaluationChanged:
+                    prefs.coachMode ? _setManualEvaluation : null,
               ),
             ),
           ],

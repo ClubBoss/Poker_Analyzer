@@ -10,10 +10,10 @@ class SmartValidationResult {
     this.fixed = const [],
   });
   Map<String, dynamic> toJson() => {
-    'before': before.toJson(),
-    'after': after.toJson(),
-    'fixed': fixed,
-  };
+        'before': before.toJson(),
+        'after': after.toJson(),
+        'fixed': fixed,
+      };
   factory SmartValidationResult.fromJson(Map<String, dynamic> j) =>
       SmartValidationResult(
         before: YamlPackValidationReport.fromJson(

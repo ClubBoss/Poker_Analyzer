@@ -23,15 +23,16 @@ class SubStageTemplateInput {
   });
 
   Map<String, dynamic> toMap() => {
-    'id': id,
-    'packId': packId,
-    'title': title,
-    if (description.isNotEmpty) 'description': description,
-    if (minHands > 0) 'minHands': minHands,
-    if (requiredAccuracy > 0) 'requiredAccuracy': requiredAccuracy,
-    if (objectives.isNotEmpty) 'objectives': objectives,
-    if (unlockCondition != null) 'unlockCondition': unlockCondition!.toMap(),
-  };
+        'id': id,
+        'packId': packId,
+        'title': title,
+        if (description.isNotEmpty) 'description': description,
+        if (minHands > 0) 'minHands': minHands,
+        if (requiredAccuracy > 0) 'requiredAccuracy': requiredAccuracy,
+        if (objectives.isNotEmpty) 'objectives': objectives,
+        if (unlockCondition != null)
+          'unlockCondition': unlockCondition!.toMap(),
+      };
 }
 
 /// Input model for unlock conditions.
@@ -42,9 +43,9 @@ class UnlockConditionInput {
   const UnlockConditionInput({this.dependsOn, this.minAccuracy});
 
   Map<String, dynamic> toMap() => {
-    if (dependsOn != null) 'dependsOn': dependsOn,
-    if (minAccuracy != null) 'minAccuracy': minAccuracy,
-  };
+        if (dependsOn != null) 'dependsOn': dependsOn,
+        if (minAccuracy != null) 'minAccuracy': minAccuracy,
+      };
 }
 
 /// Generates YAML for [LearningPathStageModel] templates.

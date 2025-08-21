@@ -21,7 +21,7 @@ class TheoryClusterProgressService {
   final MiniLessonProgressTracker progress;
 
   const TheoryClusterProgressService({MiniLessonProgressTracker? progress})
-    : progress = progress ?? MiniLessonProgressTracker.instance;
+      : progress = progress ?? MiniLessonProgressTracker.instance;
 
   Future<List<ClusterProgress>> computeProgress(
     List<TheoryLessonCluster> clusters,

@@ -20,12 +20,12 @@ class PlayPlanItem {
   });
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'kind': kind,
-    'file': file,
-    'start': start,
-    'count': count,
-  };
+        'id': id,
+        'kind': kind,
+        'file': file,
+        'start': start,
+        'count': count,
+      };
 }
 
 class PlayPlan {
@@ -35,9 +35,9 @@ class PlayPlan {
   const PlayPlan({this.version = 'v1', required this.items});
 
   Map<String, dynamic> toJson() => {
-    'version': version,
-    'items': items.map((e) => e.toJson()).toList(),
-  };
+        'version': version,
+        'items': items.map((e) => e.toJson()).toList(),
+      };
 }
 
 String encodePlayPlanCompact(PlayPlan p) => jsonEncode(p.toJson());

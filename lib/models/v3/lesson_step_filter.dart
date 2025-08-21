@@ -15,8 +15,8 @@ class LessonStepFilter {
     Set<String>? completedLessonIds,
     this.gameType,
     this.skillLevel,
-  }) : tags = tags?.toSet() ?? <String>{},
-       completedLessonIds = completedLessonIds?.toSet() ?? <String>{};
+  })  : tags = tags?.toSet() ?? <String>{},
+        completedLessonIds = completedLessonIds?.toSet() ?? <String>{};
 
   factory LessonStepFilter.fromYaml(Map yaml) {
     final tagsField = yaml['tag'] ?? yaml['tags'];
@@ -33,9 +33,8 @@ class LessonStepFilter {
         for (final id in (yaml['completedLessonIds'] as List? ?? []))
           id.toString(),
       },
-      gameType: yaml['gameType'] != null
-          ? parseGameType(yaml['gameType'])
-          : null,
+      gameType:
+          yaml['gameType'] != null ? parseGameType(yaml['gameType']) : null,
       skillLevel: yaml['skillLevel'] != null
           ? SkillLevel.values.firstWhere(
               (e) => e.name == yaml['skillLevel'].toString(),
@@ -46,11 +45,12 @@ class LessonStepFilter {
   }
 
   Map<String, dynamic> toYaml() => {
-    if (minXp != null) 'minXp': minXp,
-    if (tags.isNotEmpty) 'tag': tags.length == 1 ? tags.first : tags.toList(),
-    if (completedLessonIds.isNotEmpty)
-      'completedLessonIds': completedLessonIds.toList(),
-    if (gameType != null) 'gameType': gameType!.name,
-    if (skillLevel != null) 'skillLevel': skillLevel!.name,
-  };
+        if (minXp != null) 'minXp': minXp,
+        if (tags.isNotEmpty)
+          'tag': tags.length == 1 ? tags.first : tags.toList(),
+        if (completedLessonIds.isNotEmpty)
+          'completedLessonIds': completedLessonIds.toList(),
+        if (gameType != null) 'gameType': gameType!.name,
+        if (skillLevel != null) 'skillLevel': skillLevel!.name,
+      };
 }

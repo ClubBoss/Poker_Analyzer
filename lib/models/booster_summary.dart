@@ -14,16 +14,16 @@ class BoosterSummary {
   bool get isEffective => avgDeltaEV > 0.01;
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'avgDeltaEV': avgDeltaEV,
-    'totalSpots': totalSpots,
-    'injections': injections,
-  };
+        'id': id,
+        'avgDeltaEV': avgDeltaEV,
+        'totalSpots': totalSpots,
+        'injections': injections,
+      };
 
   factory BoosterSummary.fromJson(Map<String, dynamic> json) => BoosterSummary(
-    id: json['id'] as String? ?? '',
-    avgDeltaEV: (json['avgDeltaEV'] as num?)?.toDouble() ?? 0.0,
-    totalSpots: json['totalSpots'] as int? ?? 0,
-    injections: json['injections'] as int? ?? 0,
-  );
+        id: json['id'] as String? ?? '',
+        avgDeltaEV: (json['avgDeltaEV'] as num?)?.toDouble() ?? 0.0,
+        totalSpots: json['totalSpots'] as int? ?? 0,
+        injections: json['injections'] as int? ?? 0,
+      );
 }

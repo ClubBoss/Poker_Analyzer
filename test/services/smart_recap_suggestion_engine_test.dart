@@ -40,7 +40,8 @@ class _FakeRepeater extends TheoryWeaknessRepeater {
   Future<List<TheoryMiniLessonNode>> recommend({
     int limit = 5,
     int minDays = 3,
-  }) async => lessons;
+  }) async =>
+      lessons;
 }
 
 void main() {

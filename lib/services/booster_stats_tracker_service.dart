@@ -29,9 +29,8 @@ class BoosterStatsTrackerService {
   ) async {
     final box = await _openBox();
     final tags = tpl.tags.map((e) => e.trim().toLowerCase()).toList();
-    final totalAccuracy = result.total > 0
-        ? result.correct / result.total
-        : 0.0;
+    final totalAccuracy =
+        result.total > 0 ? result.correct / result.total : 0.0;
     final accuracyPerTag = {for (final t in tags) t: totalAccuracy};
     await box.add({
       'date': result.date.millisecondsSinceEpoch,

@@ -7,8 +7,8 @@ class TheoryIntegritySweepSchedulerService {
   TheoryIntegritySweepSchedulerService._({
     TheoryIntegritySweeper? sweeper,
     ConfigSource? config,
-  }) : _sweeper = sweeper ?? TheoryIntegritySweeper(config: config),
-       _config = config ?? ConfigSource.empty();
+  })  : _sweeper = sweeper ?? TheoryIntegritySweeper(config: config),
+        _config = config ?? ConfigSource.empty();
 
   static final TheoryIntegritySweepSchedulerService instance =
       TheoryIntegritySweepSchedulerService._();

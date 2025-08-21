@@ -10,8 +10,8 @@ class DecayBoostedPracticeQueue {
   DecayBoostedPracticeQueue({
     AutoDecaySpotGenerator? generator,
     RecentSpotHistoryService? history,
-  }) : generator = generator ?? const AutoDecaySpotGenerator(),
-       history = history ?? RecentSpotHistoryService.instance;
+  })  : generator = generator ?? const AutoDecaySpotGenerator(),
+        history = history ?? RecentSpotHistoryService.instance;
 
   /// Generates up to 5 spots prioritized by decay and filtered against
   /// the most recent session.

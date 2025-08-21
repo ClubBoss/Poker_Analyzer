@@ -28,9 +28,9 @@ class OutputVariant {
   }
 
   Map<String, dynamic> toJson() => {
-    ...constraints.toJson(),
-    if (seed != null) 'seed': seed,
-  };
+        ...constraints.toJson(),
+        if (seed != null) 'seed': seed,
+      };
 }
 
 class TrainingPackTemplateSet {
@@ -123,15 +123,15 @@ class TrainingPackTemplateSet {
     this.expandAllLines = false,
     this.postflopLineSeed,
     this.seed,
-  }) : variations = variations ?? const [],
-       outputVariants = outputVariants ?? const {},
-       playerTypeVariations = playerTypeVariations ?? const [],
-       stackDepthMods = stackDepthMods ?? const [],
-       linePatterns = linePatterns ?? const [],
-       postflopLines = postflopLines ?? const [],
-       excludeBoardTexturePresets = excludeBoardTexturePresets ?? const [],
-       requiredBoardClusters = requiredBoardClusters ?? const [],
-       excludedBoardClusters = excludedBoardClusters ?? const [];
+  })  : variations = variations ?? const [],
+        outputVariants = outputVariants ?? const {},
+        playerTypeVariations = playerTypeVariations ?? const [],
+        stackDepthMods = stackDepthMods ?? const [],
+        linePatterns = linePatterns ?? const [],
+        postflopLines = postflopLines ?? const [],
+        excludeBoardTexturePresets = excludeBoardTexturePresets ?? const [],
+        requiredBoardClusters = requiredBoardClusters ?? const [],
+        excludedBoardClusters = excludedBoardClusters ?? const [];
 
   factory TrainingPackTemplateSet.fromJson(
     Map<String, dynamic> json, {
@@ -227,36 +227,36 @@ class TrainingPackTemplateSet {
   }
 
   Map<String, dynamic> toJson() => {
-    'baseSpot': baseSpot.toJson(),
-    if (variations.isNotEmpty)
-      'variations': [for (final v in variations) v.toJson()],
-    if (outputVariants.isNotEmpty)
-      'outputVariants': {
-        for (final k in outputVariants.keys.toList()..sort())
-          k: outputVariants[k]!.toJson(),
-      },
-    if (playerTypeVariations.isNotEmpty)
-      'playerTypeVariations': playerTypeVariations,
-    if (suitAlternation) 'suitAlternation': true,
-    if (stackDepthMods.isNotEmpty) 'stackDepthMods': stackDepthMods,
-    if (linePatterns.isNotEmpty)
-      'linePatterns': [for (final p in linePatterns) p.toJson()],
-    if (postflopLines.length == 1 && postflopLines.first.weight == 1)
-      'postflopLine': postflopLines.first.line
-    else if (postflopLines.isNotEmpty)
-      'postflopLines': [
-        for (final l in postflopLines) l.weight == 1 ? l.line : l.toJson(),
-      ],
-    if (boardTexturePreset != null && boardTexturePreset!.isNotEmpty)
-      'boardTexturePreset': boardTexturePreset,
-    if (excludeBoardTexturePresets.isNotEmpty)
-      'excludeBoardTexturePresets': excludeBoardTexturePresets,
-    if (requiredBoardClusters.isNotEmpty)
-      'requiredBoardClusters': requiredBoardClusters,
-    if (excludedBoardClusters.isNotEmpty)
-      'excludedBoardClusters': excludedBoardClusters,
-    if (expandAllLines) 'expandAllLines': true,
-    if (postflopLineSeed != null) 'postflopLineSeed': postflopLineSeed,
-    if (seed != null) 'seed': seed,
-  };
+        'baseSpot': baseSpot.toJson(),
+        if (variations.isNotEmpty)
+          'variations': [for (final v in variations) v.toJson()],
+        if (outputVariants.isNotEmpty)
+          'outputVariants': {
+            for (final k in outputVariants.keys.toList()..sort())
+              k: outputVariants[k]!.toJson(),
+          },
+        if (playerTypeVariations.isNotEmpty)
+          'playerTypeVariations': playerTypeVariations,
+        if (suitAlternation) 'suitAlternation': true,
+        if (stackDepthMods.isNotEmpty) 'stackDepthMods': stackDepthMods,
+        if (linePatterns.isNotEmpty)
+          'linePatterns': [for (final p in linePatterns) p.toJson()],
+        if (postflopLines.length == 1 && postflopLines.first.weight == 1)
+          'postflopLine': postflopLines.first.line
+        else if (postflopLines.isNotEmpty)
+          'postflopLines': [
+            for (final l in postflopLines) l.weight == 1 ? l.line : l.toJson(),
+          ],
+        if (boardTexturePreset != null && boardTexturePreset!.isNotEmpty)
+          'boardTexturePreset': boardTexturePreset,
+        if (excludeBoardTexturePresets.isNotEmpty)
+          'excludeBoardTexturePresets': excludeBoardTexturePresets,
+        if (requiredBoardClusters.isNotEmpty)
+          'requiredBoardClusters': requiredBoardClusters,
+        if (excludedBoardClusters.isNotEmpty)
+          'excludedBoardClusters': excludedBoardClusters,
+        if (expandAllLines) 'expandAllLines': true,
+        if (postflopLineSeed != null) 'postflopLineSeed': postflopLineSeed,
+        if (seed != null) 'seed': seed,
+      };
 }

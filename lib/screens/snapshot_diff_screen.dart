@@ -73,8 +73,7 @@ class _SnapshotDiffScreenState extends State<SnapshotDiffScreen>
         final a = pMap[key]!;
         final b = sMap[key]!;
         final n = a.name != b.name;
-        final t =
-            !Set.from(a.tags).containsAll(b.tags) ||
+        final t = !Set.from(a.tags).containsAll(b.tags) ||
             !Set.from(b.tags).containsAll(a.tags);
         final ac = a.actions.length != b.actions.length;
         if (n || t || ac) _modified.add(_Mod(b, a, n, t, ac));

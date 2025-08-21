@@ -20,8 +20,8 @@ class WeeklyPlannerBoosterFeed {
   WeeklyPlannerBoosterFeed({
     WeeklyPlannerBoosterEngine? engine,
     PackLibraryService? library,
-  }) : _engine = engine ?? const WeeklyPlannerBoosterEngine(),
-       _library = library ?? PackLibraryService.instance;
+  })  : _engine = engine ?? const WeeklyPlannerBoosterEngine(),
+        _library = library ?? PackLibraryService.instance;
 
   Future<void> refresh() async {
     final raw = await _engine.suggestBoostersForPlannedStages();

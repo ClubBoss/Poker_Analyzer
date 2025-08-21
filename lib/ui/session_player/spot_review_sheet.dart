@@ -22,19 +22,20 @@ class SpotReviewSheet extends StatelessWidget {
     final color = ok ? Colors.green : Colors.red;
 
     Widget row(String k, String v) => Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 110,
-            child: Text(k, style: const TextStyle(fontWeight: FontWeight.w600)),
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 110,
+                child: Text(k,
+                    style: const TextStyle(fontWeight: FontWeight.w600)),
+              ),
+              const SizedBox(width: 8),
+              Expanded(child: Text(v)),
+            ],
           ),
-          const SizedBox(width: 8),
-          Expanded(child: Text(v)),
-        ],
-      ),
-    );
+        );
 
     return SafeArea(
       child: Padding(

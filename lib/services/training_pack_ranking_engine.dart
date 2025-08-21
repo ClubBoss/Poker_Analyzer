@@ -74,9 +74,8 @@ class TrainingPackRankingEngine {
     for (var i = 0; i < templates.length; i++) {
       final t = templates[i];
       final evNorm = maxEv == minEv ? 0 : (evs[i] - minEv) / (maxEv - minEv);
-      final icmNorm = maxIcm == minIcm
-          ? 0
-          : (icms[i] - minIcm) / (maxIcm - minIcm);
+      final icmNorm =
+          maxIcm == minIcm ? 0 : (icms[i] - minIcm) / (maxIcm - minIcm);
       final covNorm = maxCov == 0 ? 0 : covs[i] / maxCov;
       final tags = <String>{for (final x in t.tags) x.trim().toLowerCase()}
         ..removeWhere((e) => e.isEmpty);
@@ -90,8 +89,7 @@ class TrainingPackRankingEngine {
       final key = tags.isEmpty ? '' : (tags.toList()..sort()).join('|');
       final uniqNorm = 1 / (tagSets[key] ?? 1);
       final lenNorm = maxSpots == 0 ? 0 : t.spotCount / maxSpots;
-      final rank =
-          _w1 * evNorm +
+      final rank = _w1 * evNorm +
           _w2 * icmNorm +
           _w3 * covNorm +
           _w4 * uniqNorm +

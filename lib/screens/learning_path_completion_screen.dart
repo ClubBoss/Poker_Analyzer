@@ -39,8 +39,8 @@ class _LearningPathCompletionScreenState
   }
 
   Future<_Stats> _loadStats() async {
-    final stages = await LearningPathProgressService.instance
-        .getCurrentStageState();
+    final stages =
+        await LearningPathProgressService.instance.getCurrentStageState();
     final int stageCount = stages.length;
     int total = 0;
     double sum = 0.0;
