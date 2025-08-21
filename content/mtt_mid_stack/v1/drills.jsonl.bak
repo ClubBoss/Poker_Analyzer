@@ -1,3 +1,0 @@
-{"id": "v1:drill:01","spotKind":"l1_core_call_vs_price","params":{"price":"4bb","potBefore":"12bb"},"target":["call","fold"],"rationale":"Half-pot at 30bb stack"} 
-{"id": "v1:drill:02","spotKind":"l1_core_call_vs_price","params":{"price":"6bb","potBefore":"9bb"},"target":["call","fold"],"rationale":"Two-thirds call threshold"} 
-{"id": "v1:drill:03","spotKind":"l1_core_call_vs_price","params":{"price":"10bb","potBefore":"20bb"},"target":["call","fold"],"rationale":"Half-pot deep in tourney"} 

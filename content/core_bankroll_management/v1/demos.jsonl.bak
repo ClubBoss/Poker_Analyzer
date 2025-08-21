@@ -1,3 +1,0 @@
-{ "id": "v1:demo:01", "title": "Set BRM ranges", "steps": ["Choose stake and format", "Pick buy-in count (cash 20-40, MTT 100-300)", "Define floor, ceiling, and shot rules"], "hints": ["Deeper when pool is tough"] }
-{ "id": "v1:demo:02", "title": "Move-down trigger", "steps": ["Track roll daily", "If under floor, drop a stake", "Return only after roll recovers"], "hints": ["Rules beat ego"] }
-{ "id": "v1:demo:03", "title": "Stop-loss setup", "steps": ["Pick daily risk %", "Set sit-out rule on hit", "Log result and reason"], "hints": ["Protect decision quality"] }

@@ -1,3 +1,0 @@
-{ "id": "v1:demo:01", "title": "Risk premium check", "steps": ["Ask who covers you", "Identify pay jump size", "Tighten calls first"], "hints": ["Covered = cautious calls"] }
-{ "id": "v1:demo:02", "title": "Pressure the middle", "steps": ["Find mid stacks that you cover", "Open smaller, 3-bet more", "Fold to jams from micro stacks less"], "hints": ["They fear busting"] }
-{ "id": "v1:demo:03", "title": "Shove vs call", "steps": ["Prefer shoves to create FE", "Avoid thin call-offs", "Use blockers to jam"], "hints": ["Calls bear full risk premium"] }

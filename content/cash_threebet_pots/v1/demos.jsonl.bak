@@ -1,3 +1,0 @@
-{ "id": "v1:demo:01", "title": "IP 3-bet plan", "steps": ["List value and blocker bluffs", "Small c-bet on dry highs", "Size up on wet boards"], "hints": ["SPR low, keep it tidy"] }
-{ "id": "v1:demo:02", "title": "OOP defense", "steps": ["Note bet size and price", "Keep pairs/strong draws", "Fold dominated Broadways"], "hints": ["Realization matters"] }
-{ "id": "v1:demo:03", "title": "Turn/river polarization", "steps": ["Pick value and bluffs", "Favor blocker bluffs", "Use larger sizes when polarized"], "hints": ["Block calls, not folds"] }

@@ -1,3 +1,0 @@
-{"id": "v1:demo:01","title":"Switch on antes","steps":["Detect ante level","Cut open size slightly","Widen late-position steals"],"hints":["Dead money improves EV"]}
-{"id": "v1:demo:02","title":"BB defend with BBA","steps":["Compute price","Keep suited/connected adds","Fold vs large sizes"],"hints":["Bigger pot, same discipline"]}
-{"id": "v1:demo:03","title":"Short-stack plan","steps":["Pick jam-or-fold ranges","Respect ICM near bubble","Shrink speculative opens"],"hints":["Antes help, ICM still rules"]}

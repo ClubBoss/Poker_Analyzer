@@ -1,2 +1,0 @@
-{"id": "v1:drill:01","spotKind":"l1_core_call_vs_price","params":{"price":"2bb","potBefore":"6bb"},"target":["call","fold"],"rationale":"Third-pot defense in wider ranges"}
-{"id": "v1:drill:02","spotKind":"l1_core_call_vs_price","params":{"price":"3bb","potBefore":"6bb"},"target":["call","fold"],"rationale":"Half-pot threshold clarity"}
