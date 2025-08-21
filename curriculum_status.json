@@ -1,3 +1,10 @@
 {
-  "modules_done": ["core_rules_and_setup", "core_positions_and_initiative", "core_pot_odds_equity", "core_starting_hands", "core_flop_fundamentals"]
+  "modules_done": [
+    "core_rules_and_setup",
+    "core_positions_and_initiative",
+    "core_pot_odds_equity",
+    "core_starting_hands",
+    "core_flop_fundamentals",
+    "core_turn_fundamentals"
+  ]
 }
