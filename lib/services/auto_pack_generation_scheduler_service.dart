@@ -27,10 +27,10 @@ class ScheduledAutogenJob {
       );
 
   Map<String, dynamic> toJson() => {
-        'templateId': templateId,
-        'target': target,
-        'lastRun': lastRun?.toUtc().toIso8601String(),
-      };
+    'templateId': templateId,
+    'target': target,
+    'lastRun': lastRun?.toUtc().toIso8601String(),
+  };
 }
 
 /// Service that schedules automatic training pack generation jobs.
@@ -43,9 +43,9 @@ class AutoPackGenerationSchedulerService {
     String filePath = 'scheduledJobs.json',
     TrainingPackAutoGenerator? generator,
     TrainingPackTemplateRegistryService? registry,
-  })  : _filePath = filePath,
-        _generator = generator ?? TrainingPackAutoGenerator(),
-        _registry = registry ?? TrainingPackTemplateRegistryService();
+  }) : _filePath = filePath,
+       _generator = generator ?? TrainingPackAutoGenerator(),
+       _registry = registry ?? TrainingPackTemplateRegistryService();
 
   Future<List<ScheduledAutogenJob>> _loadJobs() async {
     final file = File(_filePath);

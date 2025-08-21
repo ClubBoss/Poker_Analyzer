@@ -6,7 +6,7 @@ class TheoryPathPreviewBuilder {
   final MiniLessonLibraryService library;
 
   const TheoryPathPreviewBuilder({MiniLessonLibraryService? library})
-      : library = library ?? MiniLessonLibraryService.instance;
+    : library = library ?? MiniLessonLibraryService.instance;
 
   /// Returns up to [maxDepth] lessons starting from [rootId].
   /// Traversal follows the first `nextId` of each lesson and stops if a cycle

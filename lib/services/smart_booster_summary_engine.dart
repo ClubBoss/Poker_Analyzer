@@ -7,7 +7,7 @@ class SmartBoosterSummaryEngine {
   const SmartBoosterSummaryEngine({
     TheoryBoosterEffectivenessService? effectiveness,
   }) : _effectiveness =
-            effectiveness ?? TheoryBoosterEffectivenessService.instance;
+           effectiveness ?? TheoryBoosterEffectivenessService.instance;
 
   Future<BoosterSummary> summarize(String boosterId) async {
     final logs = await _effectiveness.getImpactStats(boosterId);

@@ -13,9 +13,9 @@ class CompletedTrainingPackRegistry {
   CompletedTrainingPackRegistry({
     SharedPreferences? prefs,
     TrainingPackFingerprintGenerator? fingerprintGenerator,
-  })  : _prefs = prefs,
-        _fingerprintGenerator =
-            fingerprintGenerator ?? const TrainingPackFingerprintGenerator();
+  }) : _prefs = prefs,
+       _fingerprintGenerator =
+           fingerprintGenerator ?? const TrainingPackFingerprintGenerator();
 
   SharedPreferences? _prefs;
   final TrainingPackFingerprintGenerator _fingerprintGenerator;

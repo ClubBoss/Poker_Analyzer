@@ -37,10 +37,10 @@ class BackupImportExportService {
   List<ActionEvaluationRequest> get _completed => queueService.completed;
 
   Map<String, dynamic> _currentState() => serializer.encodeQueues(
-        pending: _pending,
-        failed: _failed,
-        completed: _completed,
-      );
+    pending: _pending,
+    failed: _failed,
+    completed: _completed,
+  );
 
   String _timestamp() =>
       DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now());
@@ -287,7 +287,8 @@ class BackupImportExportService {
       _completed.addAll(importedCompleted);
       await queueService.persist();
       debugPanelCallback?.call();
-      final total = importedPending.length +
+      final total =
+          importedPending.length +
           importedFailed.length +
           importedCompleted.length;
       final msg = skipped == 0
@@ -491,7 +492,8 @@ class BackupImportExportService {
     _completed.addAll(importedCompleted);
     await queueService.persist();
     debugPanelCallback?.call();
-    final total = importedPending.length +
+    final total =
+        importedPending.length +
         importedFailed.length +
         importedCompleted.length;
     final msg = skipped == 0

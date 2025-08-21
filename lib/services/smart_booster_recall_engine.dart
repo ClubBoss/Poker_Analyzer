@@ -10,7 +10,7 @@ class SmartBoosterRecallEngine {
   final BoosterContextEvaluator evaluator;
 
   SmartBoosterRecallEngine({BoosterContextEvaluator? evaluator})
-      : evaluator = evaluator ?? const BoosterContextEvaluator();
+    : evaluator = evaluator ?? const BoosterContextEvaluator();
 
   static final SmartBoosterRecallEngine instance = SmartBoosterRecallEngine();
 

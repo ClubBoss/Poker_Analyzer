@@ -21,7 +21,7 @@ class PackYamlConfig {
 class PackYamlConfigParser {
   final YamlReader reader;
   const PackYamlConfigParser({YamlReader? yamlReader})
-      : reader = yamlReader ?? const YamlReader();
+    : reader = yamlReader ?? const YamlReader();
 
   List<String> _readTags(dynamic source) {
     if (source is String) {

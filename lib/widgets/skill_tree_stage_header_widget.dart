@@ -22,8 +22,9 @@ class SkillTreeStageHeaderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final filtered =
-        nodes.where((n) => (n as dynamic).isOptional != true).toList();
+    final filtered = nodes
+        .where((n) => (n as dynamic).isOptional != true)
+        .toList();
     final total = filtered.length;
     final done = filtered.where((n) => completedNodeIds.contains(n.id)).length;
     final pct = total > 0 ? ((done / total) * 100).round() : 0;

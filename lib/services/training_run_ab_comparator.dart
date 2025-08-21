@@ -27,15 +27,15 @@ class ABArmResult {
   });
 
   Map<String, dynamic> toJson() => {
-        'armId': armId,
-        'n': n,
-        'accuracy': accuracy,
-        'dropoffRate': dropoffRate,
-        'timeToComplete': timeToComplete,
-        'novelty': novelty,
-        'compositeScore': compositeScore,
-        'confidence': confidence,
-      };
+    'armId': armId,
+    'n': n,
+    'accuracy': accuracy,
+    'dropoffRate': dropoffRate,
+    'timeToComplete': timeToComplete,
+    'novelty': novelty,
+    'compositeScore': compositeScore,
+    'confidence': confidence,
+  };
 }
 
 class TrainingRunABComparator {
@@ -79,7 +79,8 @@ class TrainingRunABComparator {
       final dropZ = -_zScore(s.dropoff, means.dropoff, stds.dropoff);
       final timeZ = -_zScore(s.time, means.time, stds.time);
       final noveltyZ = _zScore(s.novelty, means.novelty, stds.novelty);
-      final composite = weights['accuracy']! * accZ +
+      final composite =
+          weights['accuracy']! * accZ +
           weights['dropoff']! * dropZ +
           weights['time']! * timeZ +
           weights['novelty']! * noveltyZ;

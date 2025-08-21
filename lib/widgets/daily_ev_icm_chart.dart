@@ -21,8 +21,7 @@ class DailyEvIcmChart extends StatelessWidget {
     final dates = {
       for (final e in ev) e.key,
       for (final e in icm) e.key,
-    }.toList()
-      ..sort();
+    }.toList()..sort();
     if (dates.length < 2) return SizedBox(height: responsiveSize(context, 200));
     final evMap = {for (final e in ev) e.key: e.value};
     final icmMap = {for (final e in icm) e.key: e.value};

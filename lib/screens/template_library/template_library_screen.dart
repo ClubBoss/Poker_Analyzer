@@ -47,10 +47,10 @@ class _TemplateLibraryScreenState extends State<TemplateLibraryScreen> {
     final list = _filter.isEmpty
         ? _templates
         : _templates
-            .where(
-              (t) => t.name.toLowerCase().contains(_filter.toLowerCase()),
-            )
-            .toList();
+              .where(
+                (t) => t.name.toLowerCase().contains(_filter.toLowerCase()),
+              )
+              .toList();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Template Library')),

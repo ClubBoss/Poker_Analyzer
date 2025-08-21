@@ -22,7 +22,7 @@ class RecommendationFeedEngine {
   final SmartPackRecommender _recommender;
 
   const RecommendationFeedEngine({SmartPackRecommender? recommender})
-      : _recommender = recommender ?? const SmartPackRecommender();
+    : _recommender = recommender ?? const SmartPackRecommender();
 
   List<FeedRecommendationCard> build({
     required List<TrainingPackTemplateV2> allPacks,
@@ -57,8 +57,9 @@ class RecommendationFeedEngine {
       final accPct = (acc * 100).round();
       final subtitleParts = <String>[];
       if (acc > 0) {
-        final label =
-            accPct < 70 ? 'Low accuracy: $accPct%' : 'Accuracy: $accPct%';
+        final label = accPct < 70
+            ? 'Low accuracy: $accPct%'
+            : 'Accuracy: $accPct%';
         subtitleParts.add(label);
       }
       if (last != null) {

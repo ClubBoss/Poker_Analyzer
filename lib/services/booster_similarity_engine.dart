@@ -35,8 +35,7 @@ class BoosterSimilarityEngine {
   List<SpotSimilarityResult> analyzePack(
     TrainingPackTemplateV2 pack, {
     double threshold = 0.85,
-  }) =>
-      analyzeSpots(pack.spots, threshold: threshold);
+  }) => analyzeSpots(pack.spots, threshold: threshold);
 
   double _similarity(TrainingPackSpot a, TrainingPackSpot b) {
     final cardsA = _heroMask(a);

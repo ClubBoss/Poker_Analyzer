@@ -94,8 +94,8 @@ class _DailySpotHistoryScreenState extends State<DailySpotHistoryScreen> {
                       _selectedDay!.day,
                     ),
                   )
-                    ? '✅ Выполнено'
-                    : '-',
+                ? '✅ Выполнено'
+                : '-',
             style: const TextStyle(color: Colors.white),
           ),
         ],

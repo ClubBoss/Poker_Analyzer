@@ -86,7 +86,8 @@ class _BoosterArchiveScreenState extends State<BoosterArchiveScreen> {
     final list = _entries.where((e) {
       final tagOk = _tagFilter.isEmpty || e.tags.contains(_tagFilter);
       final originOk = _originFilter.isEmpty || e.origin == _originFilter;
-      final dateOk = _dateRange == null ||
+      final dateOk =
+          _dateRange == null ||
           (!e.date.isBefore(_dateRange!.start) &&
               !e.date.isAfter(_dateRange!.end));
       return tagOk && originOk && dateOk;
@@ -120,7 +121,8 @@ class _BoosterArchiveScreenState extends State<BoosterArchiveScreen> {
 
   Future<void> _pickDateRange() async {
     final now = DateTime.now();
-    final initial = _dateRange ??
+    final initial =
+        _dateRange ??
         DateTimeRange(start: now.subtract(const Duration(days: 7)), end: now);
     final picked = await showDateRangePicker(
       context: context,
@@ -177,7 +179,7 @@ class _BoosterArchiveScreenState extends State<BoosterArchiveScreen> {
                               _dateRange == null
                                   ? 'Any Date'
                                   : '${_dateRange!.start.year}-${_dateRange!.start.month}-${_dateRange!.start.day} '
-                                      'to ${_dateRange!.end.year}-${_dateRange!.end.month}-${_dateRange!.end.day}',
+                                        'to ${_dateRange!.end.year}-${_dateRange!.end.month}-${_dateRange!.end.day}',
                             ),
                           ),
                           const SizedBox(width: 16),

@@ -43,8 +43,8 @@ Future<void> main(List<String> args) async {
     } else {
       final data =
           jsonDecode(await reportFile.readAsString()) as Map<String, dynamic>;
-      final entries =
-          (data['entries'] as List? ?? const []).cast<Map<String, dynamic>>();
+      final entries = (data['entries'] as List? ?? const [])
+          .cast<Map<String, dynamic>>();
       if (entries.isEmpty) {
         if (mode == 'soft') {
           stdout.writeln('\x1B[33mSOFT OK: no YAML to verify\x1B[0m');

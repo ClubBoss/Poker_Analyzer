@@ -72,8 +72,9 @@ class InlineReportViewerWidget extends StatelessWidget {
                 initialData: const [],
                 builder: (context, stepSnap) {
                   final steps = stepSnap.data ?? [];
-                  final errors =
-                      steps.where((e) => e.status == 'error').toList();
+                  final errors = steps
+                      .where((e) => e.status == 'error')
+                      .toList();
 
                   final children = <Widget>[
                     ExpansionTile(

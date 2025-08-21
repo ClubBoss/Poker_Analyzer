@@ -25,7 +25,7 @@ class _FakeLogService extends SessionLogService {
 class _FakeCache extends LearningPathSummaryCache {
   final LearningPathSummary? summary;
   _FakeCache(this.summary)
-      : super(progress: TrainingPathProgressServiceV2(logs: _FakeLogService()));
+    : super(progress: TrainingPathProgressServiceV2(logs: _FakeLogService()));
   @override
   Future<void> refresh() async {}
   @override

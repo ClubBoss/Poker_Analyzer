@@ -14,8 +14,8 @@ class TheoryRecallInboxReinjectionService {
     TheoryBoosterRecallEngine? recall,
     InboxBoosterService? inbox,
     this.cooldown = const Duration(days: 3),
-  })  : recall = recall ?? TheoryBoosterRecallEngine.instance,
-        inbox = inbox ?? InboxBoosterService.instance;
+  }) : recall = recall ?? TheoryBoosterRecallEngine.instance,
+       inbox = inbox ?? InboxBoosterService.instance;
 
   static const String _prefsKey = 'theory_recall_inbox_reinjection_last';
 

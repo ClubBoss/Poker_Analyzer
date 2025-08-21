@@ -34,15 +34,14 @@ void main() {
     List<String>? prereqs,
     List<String>? unlocks,
     int level = 0,
-  }) =>
-      SkillTreeNodeModel(
-        id: id,
-        title: id,
-        category: 'Push/Fold',
-        prerequisites: prereqs,
-        unlockedNodeIds: unlocks,
-        level: level,
-      );
+  }) => SkillTreeNodeModel(
+    id: id,
+    title: id,
+    category: 'Push/Fold',
+    prerequisites: prereqs,
+    unlockedNodeIds: unlocks,
+    level: level,
+  );
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});

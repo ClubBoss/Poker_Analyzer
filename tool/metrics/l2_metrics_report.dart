@@ -111,8 +111,9 @@ void main(List<String> args) async {
   }
 
   final covered = snippetKeys.intersection(tagUniverse);
-  final coveragePct =
-      snippetKeys.isEmpty ? 0 : (covered.length / snippetKeys.length * 100);
+  final coveragePct = snippetKeys.isEmpty
+      ? 0
+      : (covered.length / snippetKeys.length * 100);
 
   final report = StringBuffer();
   report.writeln('# L2 Metrics');

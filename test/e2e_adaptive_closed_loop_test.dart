@@ -7,16 +7,16 @@ import 'package:poker_analyzer/services/learning_path_store.dart';
 import 'package:poker_analyzer/services/adaptive_training_planner.dart';
 
 InjectedPathModule _module(String id, List<String> tags) => InjectedPathModule(
-      moduleId: id,
-      clusterId: 'c$id',
-      themeName: 't',
-      theoryIds: const [],
-      boosterPackIds: const [],
-      assessmentPackId: 'a$id',
-      createdAt: DateTime.now(),
-      triggerReason: 'test',
-      metrics: {'clusterTags': tags},
-    );
+  moduleId: id,
+  clusterId: 'c$id',
+  themeName: 't',
+  theoryIds: const [],
+  boosterPackIds: const [],
+  assessmentPackId: 'a$id',
+  createdAt: DateTime.now(),
+  triggerReason: 'test',
+  metrics: {'clusterTags': tags},
+);
 
 Map<String, dynamic> _skillJson(double mastery) {
   final now = DateTime.now().toIso8601String();

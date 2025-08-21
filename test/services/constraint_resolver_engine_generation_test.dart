@@ -10,11 +10,11 @@ void main() {
   final engine = ConstraintResolverEngine();
 
   TrainingPackSpot baseSpot() => TrainingPackSpot(
-        id: 'base',
-        hand: HandData.fromSimpleInput('Ah Kh', HeroPosition.btn, 30),
-        tags: ['base'],
-        meta: {'a': 1},
-      )..theoryLink = InlineTheoryLink(title: 't1', onTap: () {});
+    id: 'base',
+    hand: HandData.fromSimpleInput('Ah Kh', HeroPosition.btn, 30),
+    tags: ['base'],
+    meta: {'a': 1},
+  )..theoryLink = InlineTheoryLink(title: 't1', onTap: () {});
 
   test('merges tags and meta by default', () {
     final base = baseSpot();

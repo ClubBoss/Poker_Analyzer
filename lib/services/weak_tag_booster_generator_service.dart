@@ -17,9 +17,9 @@ class WeakTagBoosterGeneratorService {
     TagWeaknessDetectorService? weaknessDetector,
     TrainingPackRepository? spotLibrary,
     Random? random,
-  })  : weaknessDetector = weaknessDetector ?? TagWeaknessDetectorService(),
-        spotLibrary = spotLibrary ?? const TrainingPackRepository(),
-        _rng = random ?? Random();
+  }) : weaknessDetector = weaknessDetector ?? TagWeaknessDetectorService(),
+       spotLibrary = spotLibrary ?? const TrainingPackRepository(),
+       _rng = random ?? Random();
 
   /// Builds a [TrainingPackTemplateV2] by sampling spots from the weakest tags.
   Future<TrainingPackTemplateV2> generateWeakTagBooster() async {

@@ -9,8 +9,8 @@ class TheoryMiniLessonNavigator {
   TheoryMiniLessonNavigator({
     MiniLessonLibraryService? library,
     NavigationService navigation = const NavigationService(),
-  })  : _library = library ?? MiniLessonLibraryService.instance,
-        _navigation = navigation;
+  }) : _library = library ?? MiniLessonLibraryService.instance,
+       _navigation = navigation;
 
   final MiniLessonLibraryService _library;
   final NavigationService _navigation;

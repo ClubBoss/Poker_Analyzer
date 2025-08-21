@@ -10,7 +10,7 @@ import '../models/game_type.dart';
 class IntroTheoryPackGenerator {
   final YamlReader reader;
   const IntroTheoryPackGenerator({YamlReader? yamlReader})
-      : reader = yamlReader ?? const YamlReader();
+    : reader = yamlReader ?? const YamlReader();
 
   Future<int> generate({
     String src = 'assets/packs/v2',

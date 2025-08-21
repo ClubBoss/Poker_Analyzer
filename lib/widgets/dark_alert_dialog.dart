@@ -26,7 +26,8 @@ class DarkAlertDialog extends StatelessWidget {
       backgroundColor: backgroundColor ?? Colors.grey[900],
       titleTextStyle: const TextStyle(color: Colors.white),
       contentTextStyle: const TextStyle(color: Colors.white70),
-      shape: shape ??
+      shape:
+          shape ??
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       contentPadding:
           contentPadding ?? const EdgeInsets.fromLTRB(24, 20, 24, 24),

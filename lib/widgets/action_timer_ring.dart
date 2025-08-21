@@ -88,8 +88,8 @@ class _ActionTimerRingState extends State<ActionTimerRing>
           child: child,
         );
         if (widget.showCountdownText && widget.isActive) {
-          final remainingSeconds =
-              (widget.duration.inSeconds * progress).ceil();
+          final remainingSeconds = (widget.duration.inSeconds * progress)
+              .ceil();
           return Stack(
             alignment: Alignment.center,
             children: [

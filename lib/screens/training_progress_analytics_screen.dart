@@ -15,8 +15,9 @@ class TrainingProgressAnalyticsScreen extends StatelessWidget {
   const TrainingProgressAnalyticsScreen({super.key});
 
   Future<void> _exportCsv(BuildContext context) async {
-    final file =
-        await context.read<ProgressForecastService>().exportForecastCsv();
+    final file = await context
+        .read<ProgressForecastService>()
+        .exportForecastCsv();
     context.ifMounted(() {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Файл сохранён: ${file.path.split('/').last}')),
@@ -60,7 +61,7 @@ class TrainingProgressAnalyticsScreen extends StatelessWidget {
                 showTitles: true,
                 interval:
                     data.map((e) => e.value).reduce((a, b) => a > b ? a : b) /
-                        4,
+                    4,
                 reservedSize: 30,
                 getTitlesWidget: (v, meta) => Text(
                   v.toInt().toString(),

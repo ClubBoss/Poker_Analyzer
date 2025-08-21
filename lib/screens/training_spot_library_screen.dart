@@ -38,8 +38,9 @@ class _TrainingSpotLibraryScreenState extends State<TrainingSpotLibraryScreen> {
     }
     final pos = f['positions'];
     if (pos is List && pos.isNotEmpty) {
-      final hero =
-          spot.positions.isNotEmpty ? spot.positions[spot.heroIndex] : '';
+      final hero = spot.positions.isNotEmpty
+          ? spot.positions[spot.heroIndex]
+          : '';
       if (!pos.contains(hero)) return false;
     }
     final minDiff = f['minDifficulty'];

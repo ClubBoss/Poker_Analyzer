@@ -43,12 +43,12 @@ class _TrainingRecommendationScreenState
     final suggestions = service.getExtendedSuggestions(goals, mistakes);
 
     final global = await TrainingPackStatsService.getGlobalStats();
-    final pathDone =
-        await LearningPathProgressService.instance.isAllStagesCompleted();
-    final customStarted =
-        await LearningPathProgressService.instance.isCustomPathStarted();
-    final customCompleted =
-        await LearningPathProgressService.instance.isCustomPathCompleted();
+    final pathDone = await LearningPathProgressService.instance
+        .isAllStagesCompleted();
+    final customStarted = await LearningPathProgressService.instance
+        .isCustomPathStarted();
+    final customCompleted = await LearningPathProgressService.instance
+        .isCustomPathCompleted();
     final weakTags = await context.read<TagMasteryService>().topWeakTags(1);
     final hasWeak = weakTags.isNotEmpty;
     final hasMistakes = SmartReviewService.instance.hasMistakes();
@@ -88,15 +88,15 @@ class _TrainingRecommendationScreenState
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _data.values.every((e) => e.isEmpty)
-              ? const Center(child: Text('Нет рекомендаций'))
-              : ListView(
-                  children: [
-                    if (_advice != null) _AdviceCard(advice: _advice!),
-                    for (final key in sections.keys)
-                      if (_data[key]?.isNotEmpty ?? false)
-                        _Section(title: sections[key]!, packs: _data[key]!),
-                  ],
-                ),
+          ? const Center(child: Text('Нет рекомендаций'))
+          : ListView(
+              children: [
+                if (_advice != null) _AdviceCard(advice: _advice!),
+                for (final key in sections.keys)
+                  if (_data[key]?.isNotEmpty ?? false)
+                    _Section(title: sections[key]!, packs: _data[key]!),
+              ],
+            ),
     );
   }
 }

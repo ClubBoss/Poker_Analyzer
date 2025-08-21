@@ -17,9 +17,9 @@ class ClusterReviewBoosterBuilder {
     Uuid uuid = const Uuid(),
     TrainingPackSourceTagger tagger = const TrainingPackSourceTagger(),
     TrainingTypeEngine typeEngine = const TrainingTypeEngine(),
-  })  : _uuid = uuid,
-        _tagger = tagger,
-        _typeEngine = typeEngine;
+  }) : _uuid = uuid,
+       _tagger = tagger,
+       _typeEngine = typeEngine;
 
   /// Generates a [TrainingPackTemplateV2] containing lessons from [weakCluster].
   ///
@@ -36,18 +36,22 @@ class ClusterReviewBoosterBuilder {
         .where((t) => t.isNotEmpty)
         .toSet();
 
-    final relevant = allLessons.values.where((l) {
-      final lessonTags =
-          l.tags.map((t) => t.trim().toLowerCase()).where((t) => t.isNotEmpty);
-      return lessonTags.any(tags.contains);
-    }).where((l) {
-      if (!completedLessons.contains(l.id)) return true;
-      for (final t in l.tags) {
-        final acc = tagAccuracy[t.trim().toLowerCase()] ?? 1.0;
-        if (acc < 0.7) return true;
-      }
-      return false;
-    }).toList();
+    final relevant = allLessons.values
+        .where((l) {
+          final lessonTags = l.tags
+              .map((t) => t.trim().toLowerCase())
+              .where((t) => t.isNotEmpty);
+          return lessonTags.any(tags.contains);
+        })
+        .where((l) {
+          if (!completedLessons.contains(l.id)) return true;
+          for (final t in l.tags) {
+            final acc = tagAccuracy[t.trim().toLowerCase()] ?? 1.0;
+            if (acc < 0.7) return true;
+          }
+          return false;
+        })
+        .toList();
 
     final spots = <TrainingPackSpot>[
       for (final l in relevant)

@@ -14,12 +14,12 @@ class SpotOfDayHistoryEntry {
   });
 
   Map<String, dynamic> toJson() => {
-        'date': date.toIso8601String(),
-        'spotIndex': spotIndex,
-        if (userAction != null) 'userAction': userAction,
-        if (recommendedAction != null) 'recommendedAction': recommendedAction,
-        if (correct != null) 'correct': correct,
-      };
+    'date': date.toIso8601String(),
+    'spotIndex': spotIndex,
+    if (userAction != null) 'userAction': userAction,
+    if (recommendedAction != null) 'recommendedAction': recommendedAction,
+    if (correct != null) 'correct': correct,
+  };
 
   factory SpotOfDayHistoryEntry.fromJson(Map<String, dynamic> json) =>
       SpotOfDayHistoryEntry(
@@ -35,12 +35,11 @@ class SpotOfDayHistoryEntry {
     String? userAction,
     String? recommendedAction,
     bool? correct,
-  }) =>
-      SpotOfDayHistoryEntry(
-        date: date,
-        spotIndex: spotIndex,
-        userAction: userAction ?? this.userAction,
-        recommendedAction: recommendedAction ?? this.recommendedAction,
-        correct: correct ?? this.correct,
-      );
+  }) => SpotOfDayHistoryEntry(
+    date: date,
+    spotIndex: spotIndex,
+    userAction: userAction ?? this.userAction,
+    recommendedAction: recommendedAction ?? this.recommendedAction,
+    correct: correct ?? this.correct,
+  );
 }

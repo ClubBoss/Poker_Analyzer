@@ -14,12 +14,12 @@ class _FakeService extends ProgressForecastService {
   final List<MapEntry<DateTime, double>> _icm;
   final List<MapEntry<DateTime, double>> _acc;
   _FakeService(this._ev, this._icm, this._acc)
-      : super(
+    : super(
+        hands: SavedHandManagerService(storage: SavedHandStorageService()),
+        style: PlayerStyleService(
           hands: SavedHandManagerService(storage: SavedHandStorageService()),
-          style: PlayerStyleService(
-            hands: SavedHandManagerService(storage: SavedHandStorageService()),
-          ),
-        );
+        ),
+      );
   @override
   List<MapEntry<DateTime, double>> get evSeries => _ev;
   @override

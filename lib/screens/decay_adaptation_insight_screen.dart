@@ -48,11 +48,11 @@ class _DecayAdaptationInsightScreenState
     setState(() => _loading = true);
     final tuner = BoosterAdaptationTuner.instance;
     final adaptations = await tuner.loadAdaptations();
-    final successLogs =
-        await RecallSuccessLoggerService.instance.getSuccesses();
+    final successLogs = await RecallSuccessLoggerService.instance
+        .getSuccesses();
     final tagStats = await const ReviewStreakEvaluatorService().getTagStats();
-    final decayScores =
-        await const DecayTagRetentionTrackerService().getAllDecayScores();
+    final decayScores = await const DecayTagRetentionTrackerService()
+        .getAllDecayScores();
 
     final successMap = <String, int>{};
     for (final e in successLogs) {

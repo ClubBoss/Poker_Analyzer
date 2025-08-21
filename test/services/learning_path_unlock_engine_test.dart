@@ -12,7 +12,7 @@ import 'package:poker_analyzer/services/training_session_service.dart';
 class FakeTagMasteryService extends TagMasteryService {
   final Map<String, double> _map;
   FakeTagMasteryService(this._map)
-      : super(logs: SessionLogService(sessions: TrainingSessionService()));
+    : super(logs: SessionLogService(sessions: TrainingSessionService()));
 
   @override
   Future<Map<String, double>> computeMastery({bool force = false}) async =>
@@ -22,7 +22,7 @@ class FakeTagMasteryService extends TagMasteryService {
 class FakeTrackMasteryService extends TrackMasteryService {
   final Map<String, double> _map;
   FakeTrackMasteryService(this._map)
-      : super(mastery: FakeTagMasteryService(const {}));
+    : super(mastery: FakeTagMasteryService(const {}));
 
   @override
   Future<Map<String, double>> computeTrackMastery({bool force = false}) async =>

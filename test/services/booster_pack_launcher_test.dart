@@ -16,7 +16,7 @@ import 'package:collection/collection.dart';
 class _FakeMasteryService extends TagMasteryService {
   final Map<String, double> _map;
   _FakeMasteryService(this._map)
-      : super(logs: SessionLogService(sessions: TrainingSessionService()));
+    : super(logs: SessionLogService(sessions: TrainingSessionService()));
 
   @override
   Future<Map<String, double>> computeMastery({bool force = false}) async =>

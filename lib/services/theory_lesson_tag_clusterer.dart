@@ -6,7 +6,7 @@ class TheoryLessonTagClusterer {
   final MiniLessonLibraryService library;
 
   TheoryLessonTagClusterer({MiniLessonLibraryService? library})
-      : library = library ?? MiniLessonLibraryService.instance;
+    : library = library ?? MiniLessonLibraryService.instance;
 
   /// Returns clusters of lessons connected by tag overlap or next links.
   Future<List<TheoryLessonCluster>> clusterLessons() async {

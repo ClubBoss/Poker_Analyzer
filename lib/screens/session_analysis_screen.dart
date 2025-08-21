@@ -127,8 +127,9 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
   }
 
   TrainingPackSpot _spotFromHand(SavedHand h) {
-    final heroCards =
-        h.playerCards[h.heroIndex].map((c) => '${c.rank}${c.suit}').join(' ');
+    final heroCards = h.playerCards[h.heroIndex]
+        .map((c) => '${c.rank}${c.suit}')
+        .join(' ');
     final actions = <ActionEntry>[
       for (final a in h.actions)
         if (a.street == 0) a,
@@ -328,8 +329,9 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
         }
       }
     }
-    final accuracy =
-        correct + mistakes > 0 ? correct * 100 / (correct + mistakes) : 0.0;
+    final accuracy = correct + mistakes > 0
+        ? correct * 100 / (correct + mistakes)
+        : 0.0;
     final preEv = _evs.isNotEmpty ? _evs.first : 0.0;
     final postEv = _evs.isNotEmpty ? _evs.last : 0.0;
     final preIcm = _icms.isNotEmpty ? _icms.first : 0.0;
@@ -389,9 +391,9 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
                       );
                       if (tpl == null) return;
                       await context.read<TrainingSessionService>().startSession(
-                            tpl,
-                            persist: false,
-                          );
+                        tpl,
+                        persist: false,
+                      );
                       if (!context.mounted) return;
                       Navigator.push(
                         context,
@@ -463,9 +465,9 @@ class _SessionAnalysisScreenState extends State<SessionAnalysisScreen> {
                       );
                       if (tpl == null) return;
                       await context.read<TrainingSessionService>().startSession(
-                            tpl,
-                            persist: false,
-                          );
+                        tpl,
+                        persist: false,
+                      );
                       if (!context.mounted) return;
                       Navigator.push(
                         context,

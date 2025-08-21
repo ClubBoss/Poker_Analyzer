@@ -42,20 +42,20 @@ class AdaptivePlanExecutor {
     LearningPathStore? store,
     AssessmentPackSynthesizer? synthesizer,
     AutogenStatusDashboardService? dashboard,
-  })  : boosterEngine = boosterEngine ?? TargetedPackBoosterEngine(),
-        formatSelector = formatSelector ?? AutoFormatSelector(),
-        gatekeeper = gatekeeper ?? const PackQualityGatekeeperService(),
-        store = store ?? const LearningPathStore(),
-        synthesizer = synthesizer ?? const AssessmentPackSynthesizer(),
-        dashboard = dashboard ?? AutogenStatusDashboardService.instance;
+  }) : boosterEngine = boosterEngine ?? TargetedPackBoosterEngine(),
+       formatSelector = formatSelector ?? AutoFormatSelector(),
+       gatekeeper = gatekeeper ?? const PackQualityGatekeeperService(),
+       store = store ?? const LearningPathStore(),
+       synthesizer = synthesizer ?? const AssessmentPackSynthesizer(),
+       dashboard = dashboard ?? AutogenStatusDashboardService.instance;
 
   TrainingPackModel _toModel(TrainingPackTemplateV2 t) => TrainingPackModel(
-        id: t.id,
-        title: t.name,
-        spots: t.spots,
-        tags: t.tags,
-        metadata: t.meta,
-      );
+    id: t.id,
+    title: t.name,
+    spots: t.spots,
+    tags: t.tags,
+    metadata: t.meta,
+  );
 
   Future<List<InjectedPathModule>> execute({
     required String userId,

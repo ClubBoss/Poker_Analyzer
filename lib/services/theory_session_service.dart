@@ -13,8 +13,8 @@ class TheorySessionService extends ChangeNotifier {
   TheorySessionService({
     MiniLessonProgressTracker? progress,
     TheoryBoosterRecommender? recommender,
-  })  : progress = progress ?? MiniLessonProgressTracker.instance,
-        recommender = recommender ?? const TheoryBoosterRecommender();
+  }) : progress = progress ?? MiniLessonProgressTracker.instance,
+       recommender = recommender ?? const TheoryBoosterRecommender();
 
   Future<BoosterRecommendationResult?> onComplete(
     TheoryMiniLessonNode lesson,

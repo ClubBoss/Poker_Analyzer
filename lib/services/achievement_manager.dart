@@ -24,12 +24,12 @@ class Achievement {
   bool get completed => progress >= target;
 
   Achievement copyWith({int? progress, DateTime? completedAt}) => Achievement(
-        title: title,
-        icon: icon,
-        progress: progress ?? this.progress,
-        target: target,
-        completedAt: completedAt ?? this.completedAt,
-      );
+    title: title,
+    icon: icon,
+    progress: progress ?? this.progress,
+    target: target,
+    completedAt: completedAt ?? this.completedAt,
+  );
 }
 
 /// Handles achievement progress and notifications.
@@ -125,16 +125,18 @@ class AchievementManager {
   }
 
   void checkAchievements(BuildContext context) {
-    for (var i = 0;
-        i < _achievements.length && i < _achievementShown.length;
-        i++) {
+    for (
+      var i = 0;
+      i < _achievements.length && i < _achievementShown.length;
+      i++
+    ) {
       if (!_achievementShown[i] && _achievements[i].completed) {
         _achievementShown[i] = true;
         persistence.saveAchievementShown(i);
         context.read<XPTrackerService>().add(
-              xp: XPTrackerService.achievementXp,
-              source: 'achievement',
-            );
+          xp: XPTrackerService.achievementXp,
+          source: 'achievement',
+        );
         if (context.mounted) {
           showAchievementUnlockedOverlay(
             context,

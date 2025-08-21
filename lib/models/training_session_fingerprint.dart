@@ -17,18 +17,18 @@ class TrainingSessionFingerprint {
     List<String>? includedTags,
     List<String>? involvedLines,
     this.source = '',
-  })  : includedTags = includedTags ?? const [],
-        involvedLines = involvedLines ?? const [];
+  }) : includedTags = includedTags ?? const [],
+       involvedLines = involvedLines ?? const [];
 
   Map<String, dynamic> toJson() => {
-        'sessionId': sessionId,
-        'startedAt': startedAt.toIso8601String(),
-        'packId': packId,
-        'trainingType': trainingType,
-        'includedTags': includedTags,
-        'involvedLines': involvedLines,
-        'source': source,
-      };
+    'sessionId': sessionId,
+    'startedAt': startedAt.toIso8601String(),
+    'packId': packId,
+    'trainingType': trainingType,
+    'includedTags': includedTags,
+    'involvedLines': involvedLines,
+    'source': source,
+  };
 
   @override
   String toString() => jsonEncode(toJson());

@@ -52,8 +52,7 @@ class _PassGatekeeper extends PackQualityGatekeeperService {
     pack, {
     double minScore = 0.7,
     seedIssues = const {},
-  }) =>
-      true;
+  }) => true;
 }
 
 void main() {
@@ -63,12 +62,9 @@ void main() {
 
   test('second identical plan within window is idempotent-skip', () async {
     const user = 'u2';
-    await UserSkillModelService.instance.recordAttempt(
-        user,
-        [
-          'tag',
-        ],
-        correct: false);
+    await UserSkillModelService.instance.recordAttempt(user, [
+      'tag',
+    ], correct: false);
     final tempDir = await Directory.systemTemp.createTemp('idem');
     final store = LearningPathStore(rootDir: tempDir.path);
     final planExec = AdaptivePlanExecutor(

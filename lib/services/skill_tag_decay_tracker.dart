@@ -52,8 +52,11 @@ class SkillTagDecayTracker {
       }
 
       tagLogs.sort((a, b) => a.completedAt.compareTo(b.completedAt));
-      final recent =
-          tagLogs.reversed.take(recentSessions).toList().reversed.toList();
+      final recent = tagLogs.reversed
+          .take(recentSessions)
+          .toList()
+          .reversed
+          .toList();
       final acc = <double>[];
       for (final l in recent) {
         final total = l.correctCount + l.mistakeCount;

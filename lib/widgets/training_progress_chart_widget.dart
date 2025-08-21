@@ -83,8 +83,9 @@ class _TrainingProgressChartWidgetState
         final maxX = allSpots.last.x;
 
         final volumeInterval = (maxVolume / 4).ceil();
-        final volumeIntervalScaled =
-            maxVolume == 0 ? 0 : volumeInterval / maxVolume * 100;
+        final volumeIntervalScaled = maxVolume == 0
+            ? 0
+            : volumeInterval / maxVolume * 100;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,

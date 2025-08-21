@@ -27,11 +27,11 @@ class _SRItem {
   Map<String, dynamic> toJson() => {'p': packId, 'b': box, 'd': due, 'l': last};
 
   static _SRItem fromJson(Map<String, dynamic> json) => _SRItem(
-        packId: json['p'] as String,
-        box: json['b'] as int,
-        due: json['d'] as int,
-        last: json['l'] as int,
-      );
+    packId: json['p'] as String,
+    box: json['b'] as int,
+    due: json['d'] as int,
+    last: json['l'] as int,
+  );
 }
 
 class SpacedReviewService extends ChangeNotifier {

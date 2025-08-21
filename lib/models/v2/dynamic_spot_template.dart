@@ -38,14 +38,14 @@ class DynamicSpotTemplate {
   }
 
   Map<String, dynamic> toJson() => {
-        'handPool': handPool,
-        'villainAction': villainAction,
-        if (heroOptions.isNotEmpty) 'heroOptions': heroOptions,
-        'position': position.name,
-        'playerCount': playerCount,
-        'stack': stack,
-        'sampleSize': sampleSize,
-      };
+    'handPool': handPool,
+    'villainAction': villainAction,
+    if (heroOptions.isNotEmpty) 'heroOptions': heroOptions,
+    'position': position.name,
+    'playerCount': playerCount,
+    'stack': stack,
+    'sampleSize': sampleSize,
+  };
 
   List<TrainingPackSpot> generateSpots() {
     final rng = Random();

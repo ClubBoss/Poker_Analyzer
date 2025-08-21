@@ -16,12 +16,12 @@ class MistakeTagHistoryEntry {
   });
 
   Map<String, dynamic> toJson() => {
-        'timestamp': timestamp.toIso8601String(),
-        'packId': packId,
-        'spotId': spotId,
-        'tags': [for (final t in tags) t.name],
-        'evDiff': evDiff,
-      };
+    'timestamp': timestamp.toIso8601String(),
+    'packId': packId,
+    'spotId': spotId,
+    'tags': [for (final t in tags) t.name],
+    'evDiff': evDiff,
+  };
 
   factory MistakeTagHistoryEntry.fromJson(Map<String, dynamic> j) {
     return MistakeTagHistoryEntry(

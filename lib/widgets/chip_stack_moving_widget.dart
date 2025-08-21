@@ -121,7 +121,8 @@ class _ChipStackMovingWidgetState extends State<ChipStackMovingWidget>
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
-        final control = widget.control ??
+        final control =
+            widget.control ??
             Offset(
               (widget.start.dx + widget.end.dx) / 2,
               (widget.start.dy + widget.end.dy) / 2 -
@@ -165,7 +166,8 @@ class _ChipStackMovingWidgetState extends State<ChipStackMovingWidget>
             top: -16 * widget.scale,
             child: Text(
               '${widget.amount}',
-              style: widget.labelStyle ??
+              style:
+                  widget.labelStyle ??
                   TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,

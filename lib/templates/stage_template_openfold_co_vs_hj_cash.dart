@@ -1,8 +1,8 @@
 import '../models/learning_path_stage_model.dart';
 
 /// Stage template for CO open/fold decisions facing a HJ 3bb raise in 6-max cash games.
-const LearningPathStageModel openFoldCoVsHjCashStageTemplate =
-    LearningPathStageModel(
+const LearningPathStageModel
+openFoldCoVsHjCashStageTemplate = LearningPathStageModel(
   id: 'openfold_co_vs_hj_cash',
   title: 'CO vs HJ Open/Fold (Cash)',
   description:

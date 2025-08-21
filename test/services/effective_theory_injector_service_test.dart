@@ -36,12 +36,11 @@ class _FakeLibrary implements MiniLessonLibraryService {
 class _FakeAnalyzer extends TheoryLessonEffectivenessAnalyzerService {
   final Map<String, double> gains;
   _FakeAnalyzer(this.gains)
-      : super(retention: DecayTagRetentionTrackerService());
+    : super(retention: DecayTagRetentionTrackerService());
   @override
   Future<Map<String, double>> getTopEffectiveLessons({
     int minSessions = 3,
-  }) async =>
-      gains;
+  }) async => gains;
 }
 
 class _FakeRetention extends DecayTagRetentionTrackerService {

@@ -183,16 +183,16 @@ class _BoosterStats {
   }
 
   Map<String, dynamic> toJson() => {
-        'shows': shows,
-        'clicks': clicks,
-        if (lastShown != null) 'lastShown': lastShown!.toIso8601String(),
-        if (lastClicked != null) 'lastClicked': lastClicked!.toIso8601String(),
-      };
+    'shows': shows,
+    'clicks': clicks,
+    if (lastShown != null) 'lastShown': lastShown!.toIso8601String(),
+    if (lastClicked != null) 'lastClicked': lastClicked!.toIso8601String(),
+  };
 
   factory _BoosterStats.fromJson(Map<String, dynamic> json) => _BoosterStats(
-        shows: (json['shows'] as num?)?.toInt() ?? 0,
-        clicks: (json['clicks'] as num?)?.toInt() ?? 0,
-        lastShown: DateTime.tryParse(json['lastShown'] as String? ?? ''),
-        lastClicked: DateTime.tryParse(json['lastClicked'] as String? ?? ''),
-      );
+    shows: (json['shows'] as num?)?.toInt() ?? 0,
+    clicks: (json['clicks'] as num?)?.toInt() ?? 0,
+    lastShown: DateTime.tryParse(json['lastShown'] as String? ?? ''),
+    lastClicked: DateTime.tryParse(json['lastClicked'] as String? ?? ''),
+  );
 }

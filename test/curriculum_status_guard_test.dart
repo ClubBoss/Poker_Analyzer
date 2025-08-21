@@ -27,8 +27,9 @@ void main() {
     );
 
     // 2) Every done id exists in curriculumIds
-    final unknown =
-        done.where((id) => !ids.contains(id)).toList(growable: false);
+    final unknown = done
+        .where((id) => !ids.contains(id))
+        .toList(growable: false);
     expect(
       unknown,
       isEmpty,
@@ -56,8 +57,9 @@ void main() {
     // If NEXT exists, all previous ids before it must be done.
     if (next.isNotEmpty) {
       final prev = ids.takeWhile((id) => id != next);
-      final missedBeforeNext =
-          prev.where((id) => !done.contains(id)).toList(growable: false);
+      final missedBeforeNext = prev
+          .where((id) => !done.contains(id))
+          .toList(growable: false);
       expect(
         missedBeforeNext,
         isEmpty,

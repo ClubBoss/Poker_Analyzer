@@ -9,7 +9,7 @@ class SkillTreeStageGateEvaluator {
   const SkillTreeStageGateEvaluator({
     SkillTreeStageCompletionEvaluator? completionEvaluator,
   }) : completionEvaluator =
-            completionEvaluator ?? const SkillTreeStageCompletionEvaluator();
+           completionEvaluator ?? const SkillTreeStageCompletionEvaluator();
 
   /// Returns `true` if [level] is unlocked based on [completedNodeIds].
   bool isStageUnlocked(

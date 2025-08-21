@@ -32,11 +32,11 @@ class SmartBoosterUnlocker {
     this.mistakeLimit = 10,
     this.lessonsPerTag = 2,
     this.decayThreshold = 30.0,
-  })  : lessons = lessons ?? MiniLessonLibraryService.instance,
-        recapQueue = recapQueue ?? RecapBoosterQueue.instance,
-        goalQueue = goalQueue ?? GoalQueue.instance,
-        decayTracker = decayTracker ?? TheoryTagDecayTracker(),
-        _history = historyLoader ?? MistakeTagHistoryService.getRecentHistory;
+  }) : lessons = lessons ?? MiniLessonLibraryService.instance,
+       recapQueue = recapQueue ?? RecapBoosterQueue.instance,
+       goalQueue = goalQueue ?? GoalQueue.instance,
+       decayTracker = decayTracker ?? TheoryTagDecayTracker(),
+       _history = historyLoader ?? MistakeTagHistoryService.getRecentHistory;
 
   /// Analyzes recent mistakes and mastery to enqueue targeted boosters.
   Future<void> schedule() async {

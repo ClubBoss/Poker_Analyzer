@@ -333,7 +333,9 @@ class PackGeneratorService {
     final board = [for (final c in spot.boardCards) '${c.rank}${c.suit}'];
     final actions = <int, List<ActionEntry>>{};
     for (final a in spot.actions) {
-      actions.putIfAbsent(a.street, () => []).add(
+      actions
+          .putIfAbsent(a.street, () => [])
+          .add(
             ActionEntry(
               a.street,
               a.playerIndex,

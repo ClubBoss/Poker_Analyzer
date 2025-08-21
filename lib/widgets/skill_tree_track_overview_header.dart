@@ -16,7 +16,8 @@ class SkillTreeTrackOverviewHeader extends StatefulWidget {
 }
 
 class _SkillTreeTrackOverviewHeaderState
-    extends State<SkillTreeTrackOverviewHeader> with RouteAware {
+    extends State<SkillTreeTrackOverviewHeader>
+    with RouteAware {
   String _title = '';
   int _percent = 0;
 

@@ -28,13 +28,19 @@ void main() {
   // Проверка префикса: filtered должен быть строгим префиксом ids
   for (var i = 0; i < filtered.length; i++) {
     if (filtered[i] != ids[i]) {
-      stderr.writeln('Order mismatch at $i: expected ${ids[i]}, got ${filtered[i]}');
+      stderr.writeln(
+        'Order mismatch at $i: expected ${ids[i]}, got ${filtered[i]}',
+      );
       exit(3);
     }
   }
 
   // Перезаписываем curriculum_status.json
   final out = {'modules_done': filtered};
-  File('curriculum_status.json').writeAsStringSync(JsonEncoder.withIndent('  ').convert(out));
-  stdout.writeln('Rewrote curriculum_status.json with ${filtered.length} modules_done.');
+  File(
+    'curriculum_status.json',
+  ).writeAsStringSync(JsonEncoder.withIndent('  ').convert(out));
+  stdout.writeln(
+    'Rewrote curriculum_status.json with ${filtered.length} modules_done.',
+  );
 }

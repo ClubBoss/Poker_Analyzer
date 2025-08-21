@@ -9,7 +9,7 @@ import '../models/theory_lesson_node.dart';
 class GraphPathTemplateValidator {
   final GraphPathTemplateParser parser;
   const GraphPathTemplateValidator({GraphPathTemplateParser? parser})
-      : parser = parser ?? GraphPathTemplateParser();
+    : parser = parser ?? GraphPathTemplateParser();
 
   /// Parses [yamlText] and validates the resulting nodes.
   Future<List<ValidationIssue>> validateYaml(String yamlText) async {

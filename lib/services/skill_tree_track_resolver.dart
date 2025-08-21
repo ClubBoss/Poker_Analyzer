@@ -3,7 +3,7 @@ import 'skill_tree_library_service.dart';
 /// Resolves the track id for a given skill tree node.
 class SkillTreeTrackResolver {
   SkillTreeTrackResolver({SkillTreeLibraryService? library})
-      : _library = library ?? SkillTreeLibraryService.instance;
+    : _library = library ?? SkillTreeLibraryService.instance;
 
   final SkillTreeLibraryService _library;
 

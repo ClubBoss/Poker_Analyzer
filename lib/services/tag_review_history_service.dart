@@ -8,14 +8,15 @@ class TagReviewRecord {
   const TagReviewRecord({required this.accuracy, required this.timestamp});
 
   Map<String, dynamic> toJson() => {
-        'accuracy': accuracy,
-        'timestamp': timestamp.toIso8601String(),
-      };
+    'accuracy': accuracy,
+    'timestamp': timestamp.toIso8601String(),
+  };
 
   factory TagReviewRecord.fromJson(Map<String, dynamic> json) =>
       TagReviewRecord(
         accuracy: (json['accuracy'] as num?)?.toDouble() ?? 0.0,
-        timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ??
+        timestamp:
+            DateTime.tryParse(json['timestamp'] as String? ?? '') ??
             DateTime.fromMillisecondsSinceEpoch(0),
       );
 }

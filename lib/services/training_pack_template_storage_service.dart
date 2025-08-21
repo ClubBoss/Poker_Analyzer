@@ -20,8 +20,8 @@ class TrainingPackTemplateStorageService extends ChangeNotifier {
 
   final Map<String, Map<String, dynamic>> _goalProgress = {};
   Map<String, Map<String, dynamic>> get goalProgress => {
-        for (final e in _goalProgress.entries) e.key: Map.unmodifiable(e.value),
-      };
+    for (final e in _goalProgress.entries) e.key: Map.unmodifiable(e.value),
+  };
 
   final List<TrainingPackTemplateModel> _templates = [];
   List<TrainingPackTemplateModel> get templates =>
@@ -126,9 +126,11 @@ class TrainingPackTemplateStorageService extends ChangeNotifier {
   }
 
   Future<v2.TrainingPackTemplate> loadBuiltinTemplate(String id) async {
-    final data = jsonDecode(
-      await rootBundle.loadString('assets/training_packs/$id.json'),
-    ) as Map<String, dynamic>;
+    final data =
+        jsonDecode(
+              await rootBundle.loadString('assets/training_packs/$id.json'),
+            )
+            as Map<String, dynamic>;
     return v2.TrainingPackTemplate.fromJson(data);
   }
 

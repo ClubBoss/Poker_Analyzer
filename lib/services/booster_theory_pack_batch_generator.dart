@@ -7,7 +7,7 @@ class BoosterTheoryPackBatchGenerator {
   final TheoryPackGenerator _generator;
 
   const BoosterTheoryPackBatchGenerator({TheoryPackGenerator? generator})
-      : _generator = generator ?? const TheoryPackGenerator();
+    : _generator = generator ?? const TheoryPackGenerator();
 
   /// Returns [library] extended with theory packs for every tag in [tags]
   /// that doesn't already exist. Newly created pack ids are prefixed with

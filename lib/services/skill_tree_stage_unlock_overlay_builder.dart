@@ -19,8 +19,9 @@ class SkillTreeStageUnlockOverlayBuilder {
     }
 
     if (!isUnlocked) {
-      final tooltip =
-          level <= 0 ? 'Stage locked' : 'Complete level ${level - 1} to unlock';
+      final tooltip = level <= 0
+          ? 'Stage locked'
+          : 'Complete level ${level - 1} to unlock';
       return Positioned.fill(
         child: Tooltip(
           message: tooltip,

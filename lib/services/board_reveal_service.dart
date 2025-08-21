@@ -91,7 +91,8 @@ class BoardRevealService {
       targetVisible - boardSync.revealedBoardCards.length,
     );
     final duration = Duration(
-      milliseconds: revealDuration.inMilliseconds +
+      milliseconds:
+          revealDuration.inMilliseconds +
           revealStagger.inMilliseconds *
               (revealCount > 1 ? revealCount - 1 : 0),
     );
@@ -166,9 +167,9 @@ class BoardRevealService {
 
   /// Serializes the current reveal state to a JSON-compatible map.
   Map<String, dynamic> toJson() => {
-        'showFullBoard': _showFullBoard,
-        'revealStreet': revealStreet,
-      };
+    'showFullBoard': _showFullBoard,
+    'revealStreet': revealStreet,
+  };
 
   /// Returns a copy of the current reveal state map, or `null` when
   /// using the default values.

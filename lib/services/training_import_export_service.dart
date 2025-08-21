@@ -478,7 +478,8 @@ class TrainingImportExportService {
     TrainingSpot spot, {
     String? fileName,
   }) async {
-    final name = fileName ??
+    final name =
+        fileName ??
         'training_spot_${DateTime.now().millisecondsSinceEpoch}.json';
     final savePath = await FilePicker.platform.saveFile(
       dialogTitle: 'Сохранить спот',

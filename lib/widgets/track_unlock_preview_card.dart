@@ -41,8 +41,8 @@ class _TrackUnlockPreviewCardState extends State<TrackUnlockPreviewCard> {
     final mastery = await engine.masteryService.computeTrackMastery();
     final streak = await engine.streakEngine.getCurrentStreak();
     final goalStreak = await LessonGoalStreakEngine.instance.getCurrentStreak();
-    final progress =
-        await LessonPathProgressService.instance.computeTrackProgress();
+    final progress = await LessonPathProgressService.instance
+        .computeTrackProgress();
 
     final titles = {for (var t in tracks) t.id: t.title};
 

@@ -34,7 +34,8 @@ class TheoryTrackLibraryService {
       try {
         final raw = await rootBundle.loadString(path);
         final map = const YamlReader().read(raw);
-        final id = map['id']?.toString() ??
+        final id =
+            map['id']?.toString() ??
             path.split('/').last.replaceAll('.yaml', '');
         final title = map['title']?.toString() ?? '';
         final blockYaml = map['blocks'];

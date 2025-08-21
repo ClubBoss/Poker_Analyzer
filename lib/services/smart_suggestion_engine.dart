@@ -31,8 +31,9 @@ class SmartSuggestionEngine {
     final prefs = await SharedPreferences.getInstance();
 
     final recentMistakes = logs.getRecentMistakes();
-    final mistakeTags =
-        recentMistakes.keys.map((e) => e.trim().toLowerCase()).toSet();
+    final mistakeTags = recentMistakes.keys
+        .map((e) => e.trim().toLowerCase())
+        .toSet();
 
     final audienceCount = <String, int>{};
     for (final log in logs.logs.take(20)) {

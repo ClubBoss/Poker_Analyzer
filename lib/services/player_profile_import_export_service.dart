@@ -17,25 +17,24 @@ class PlayerProfileImportExportService {
 
   /// Convert the current player profile to a serializable map.
   Map<String, dynamic> toMap() => {
-        'heroIndex': profile.heroIndex,
-        'heroPosition': profile.heroPosition,
-        'numberOfPlayers': profile.numberOfPlayers,
-        if (profile.opponentIndex != null)
-          'opponentIndex': profile.opponentIndex,
-        'playerPositions': [
-          for (int i = 0; i < profile.numberOfPlayers; i++)
-            profile.playerPositions[i],
-        ],
-        'playerTypes': [
-          for (int i = 0; i < profile.numberOfPlayers; i++)
-            profile.playerTypes[i]?.name ?? PlayerType.unknown.name,
-        ],
-        'playerNames': [for (final p in profile.players) p.name],
-        'playerNotes': [
-          for (int i = 0; i < profile.numberOfPlayers; i++)
-            profile.playerNotes[i] ?? '',
-        ],
-      };
+    'heroIndex': profile.heroIndex,
+    'heroPosition': profile.heroPosition,
+    'numberOfPlayers': profile.numberOfPlayers,
+    if (profile.opponentIndex != null) 'opponentIndex': profile.opponentIndex,
+    'playerPositions': [
+      for (int i = 0; i < profile.numberOfPlayers; i++)
+        profile.playerPositions[i],
+    ],
+    'playerTypes': [
+      for (int i = 0; i < profile.numberOfPlayers; i++)
+        profile.playerTypes[i]?.name ?? PlayerType.unknown.name,
+    ],
+    'playerNames': [for (final p in profile.players) p.name],
+    'playerNotes': [
+      for (int i = 0; i < profile.numberOfPlayers; i++)
+        profile.playerNotes[i] ?? '',
+    ],
+  };
 
   /// Load player profile information from a previously serialized map.
   void loadFromMap(Map<String, dynamic> data) {
@@ -54,8 +53,8 @@ class PlayerProfileImportExportService {
     profile.heroPosition = heroPosition;
     profile.opponentIndex =
         opponent != null && opponent < profile.numberOfPlayers
-            ? opponent
-            : null;
+        ? opponent
+        : null;
 
     profile.playerPositions.clear();
     for (int i = 0; i < posList.length && i < profile.numberOfPlayers; i++) {

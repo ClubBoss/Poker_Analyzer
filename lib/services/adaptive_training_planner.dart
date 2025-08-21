@@ -35,10 +35,10 @@ class AdaptiveTrainingPlanner {
     DecayTagRetentionTrackerService? retention,
     AutoSkillGapClusterer? clusterer,
     LearningPathStore? store,
-  })  : skillService = skillService ?? UserSkillModelService.instance,
-        retention = retention ?? const DecayTagRetentionTrackerService(),
-        clusterer = clusterer ?? const AutoSkillGapClusterer(),
-        store = store ?? const LearningPathStore();
+  }) : skillService = skillService ?? UserSkillModelService.instance,
+       retention = retention ?? const DecayTagRetentionTrackerService(),
+       clusterer = clusterer ?? const AutoSkillGapClusterer(),
+       store = store ?? const LearningPathStore();
 
   Future<AdaptivePlan> plan({
     required String userId,
@@ -73,10 +73,11 @@ class AdaptiveTrainingPlanner {
         userId,
         tag,
       );
-      final impact = (rawImpact.isNaN
-              ? (prefs.getDouble('planner.impact.$tag') ?? 1.0)
-              : rawImpact)
-          .clamp(0.0, 2.0);
+      final impact =
+          (rawImpact.isNaN
+                  ? (prefs.getDouble('planner.impact.$tag') ?? 1.0)
+                  : rawImpact)
+              .clamp(0.0, 2.0);
       tagScores[tag] = wErr * (1 - mastery) + wDecay * decay + wImpact * impact;
     }
     final sorted = tagScores.entries.toList()
@@ -108,8 +109,9 @@ class AdaptiveTrainingPlanner {
         }
       }
     }
-    final boosterAvg =
-        boosterCount > 0 ? (boosterSum / boosterCount).round() : 10;
+    final boosterAvg = boosterCount > 0
+        ? (boosterSum / boosterCount).round()
+        : 10;
     final assessAvg = assessCount > 0 ? (assessSum / assessCount).round() : 8;
     final theoryAvg = theoryCount > 0
         ? (theorySum / theoryCount).round()
@@ -125,13 +127,15 @@ class AdaptiveTrainingPlanner {
     }
 
     Map<String, int> mix = mixFor(selected.length, audience, format);
-    int estMins = mix['theory']! * theoryAvg +
+    int estMins =
+        mix['theory']! * theoryAvg +
         mix['booster']! * boosterAvg +
         mix['assessment']! * assessAvg;
     while (estMins > budget && selected.isNotEmpty) {
       selected.removeLast();
       mix = mixFor(selected.length, audience, format);
-      estMins = mix['theory']! * theoryAvg +
+      estMins =
+          mix['theory']! * theoryAvg +
           mix['booster']! * boosterAvg +
           mix['assessment']! * assessAvg;
     }

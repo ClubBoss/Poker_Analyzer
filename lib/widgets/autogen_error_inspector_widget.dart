@@ -35,7 +35,8 @@ class _AutogenErrorInspectorWidgetState
       if (kIsWeb || !(Platform.isAndroid || Platform.isIOS)) {
         await FileSaverService.instance.saveCsv('autogen_recent_errors', csv);
       } else {
-        final dir = await getDownloadsDirectory() ??
+        final dir =
+            await getDownloadsDirectory() ??
             await getApplicationDocumentsDirectory();
         final file = File(p.join(dir.path, 'autogen_recent_errors.csv'));
         await file.writeAsString(csv);
@@ -92,8 +93,9 @@ class _AutogenErrorInspectorWidgetState
                     IconButton(
                       tooltip: 'Export to CSV',
                       icon: const Icon(Icons.download),
-                      onPressed:
-                          filtered.isEmpty ? null : () => _exportCsv(filtered),
+                      onPressed: filtered.isEmpty
+                          ? null
+                          : () => _exportCsv(filtered),
                     ),
                   ],
                 ),
@@ -106,8 +108,10 @@ class _AutogenErrorInspectorWidgetState
                     child: ListView.builder(
                       itemCount: filtered.length,
                       itemBuilder: (context, index) {
-                        final e = filtered[
-                            filtered.length - 1 - index]; // latest first
+                        final e =
+                            filtered[filtered.length -
+                                1 -
+                                index]; // latest first
                         final ts = DateFormat('HH:mm:ss').format(e.timestamp);
                         return ListTile(
                           dense: true,

@@ -24,8 +24,8 @@ class TargetMixConfig {
     required this.tolerance, // alias for defaultTol
     Map<String, double>? byKeyTol,
     int minTotal = 0,
-  })  : _byKeyTol = byKeyTol ?? const {},
-        _minTotal = minTotal;
+  }) : _byKeyTol = byKeyTol ?? const {},
+       _minTotal = minTotal;
 }
 
 /// Tries inline JSON first, then treats [weights] as a file path.

@@ -8,7 +8,7 @@ class GoalSuggestionService {
   final TagMasteryService mastery;
 
   GoalSuggestionService({SmartRecommenderEngine? engine, required this.mastery})
-      : engine = engine ?? SmartRecommenderEngine(masteryService: mastery);
+    : engine = engine ?? SmartRecommenderEngine(masteryService: mastery);
 
   /// Returns a list of up to three high-impact goals sorted by weakness severity.
   Future<List<TrainingGoal>> suggestGoals({

@@ -15,9 +15,9 @@ class TheoryBoosterInjectionService {
     DecayBoosterReminderEngine? engine,
     MiniLessonLibraryService? library,
     DecayTagRetentionTrackerService? retention,
-  })  : engine = engine ?? DecayBoosterReminderEngine(),
-        library = library ?? MiniLessonLibraryService.instance,
-        retention = retention ?? const DecayTagRetentionTrackerService();
+  }) : engine = engine ?? DecayBoosterReminderEngine(),
+       library = library ?? MiniLessonLibraryService.instance,
+       retention = retention ?? const DecayTagRetentionTrackerService();
 
   TheoryMiniLessonNode? _cached;
   String? _tag;

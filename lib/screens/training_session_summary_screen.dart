@@ -229,9 +229,9 @@ class _TrainingSessionSummaryScreenState
             label: 'Train',
             onPressed: () async {
               await context.read<TrainingSessionService>().startSession(
-                    _weakPack!,
-                    persist: false,
-                  );
+                _weakPack!,
+                persist: false,
+              );
               if (!context.mounted) return;
               Navigator.pushReplacement(
                 context,
@@ -300,8 +300,9 @@ class _TrainingSessionSummaryScreenState
   }
 
   Future<void> _share(BuildContext context) async {
-    final boundary = _shareBoundaryKey.currentContext?.findRenderObject()
-        as RenderRepaintBoundary?;
+    final boundary =
+        _shareBoundaryKey.currentContext?.findRenderObject()
+            as RenderRepaintBoundary?;
     if (boundary == null) return;
     final bytes = await PngExporter.captureBoundary(boundary);
     if (bytes == null) return;
@@ -322,8 +323,9 @@ class _TrainingSessionSummaryScreenState
     final accuracy = total == 0 ? 0.0 : correct * 100 / total;
     final tTotal = widget.template.spots.length;
     final evPct = tTotal == 0 ? 0.0 : widget.template.evCovered * 100 / tTotal;
-    final icmPct =
-        tTotal == 0 ? 0.0 : widget.template.icmCovered * 100 / tTotal;
+    final icmPct = tTotal == 0
+        ? 0.0
+        : widget.template.icmCovered * 100 / tTotal;
     final mistakes = [
       for (final id in widget.session.results.keys)
         if (widget.session.results[id] == false)
@@ -458,7 +460,8 @@ class _TrainingSessionSummaryScreenState
                       street = 3;
                     } else if (b == 4)
                       street = 2;
-                    else if (b == 3) street = 1;
+                    else if (b == 3)
+                      street = 1;
                     final sAdv = kMistakeAdvice[streetName(street)];
                     if (sAdv != null) adv.add(sAdv);
                   }
@@ -467,8 +470,9 @@ class _TrainingSessionSummaryScreenState
                   adv.add(
                     'Прогресс EV ${deltaEv >= 0 ? '+' : ''}${deltaEv.toStringAsFixed(1)}%, ICM ${deltaIcm >= 0 ? '+' : ''}${deltaIcm.toStringAsFixed(1)}%',
                   );
-                  final packs =
-                      context.watch<AdaptiveTrainingService>().recommended;
+                  final packs = context
+                      .watch<AdaptiveTrainingService>()
+                      .recommended;
                   final list = <TrainingPackTemplate>[];
                   if (_weakPack != null) list.add(_weakPack!);
                   for (final p in packs) {
@@ -651,8 +655,8 @@ class _TrainingSessionSummaryScreenState
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () async {
-                        final reviewService =
-                            context.read<MistakeReviewPackService>();
+                        final reviewService = context
+                            .read<MistakeReviewPackService>();
                         if (_autoReview && reviewService.hasMistakes()) {
                           final tpl = await reviewService.buildPack(context);
                           if (tpl != null) {

@@ -51,8 +51,7 @@ class _PassGatekeeper extends PackQualityGatekeeperService {
     pack, {
     double minScore = 0.7,
     seedIssues = const {},
-  }) =>
-      true;
+  }) => true;
 }
 
 void main() {
@@ -64,18 +63,12 @@ void main() {
     'planAndInjectForUser creates modules with artifacts and is idempotent',
     () async {
       const user = 'u3';
-      await UserSkillModelService.instance.recordAttempt(
-          user,
-          [
-            'tag',
-          ],
-          correct: false);
-      await UserSkillModelService.instance.recordAttempt(
-          user,
-          [
-            'tag',
-          ],
-          correct: false);
+      await UserSkillModelService.instance.recordAttempt(user, [
+        'tag',
+      ], correct: false);
+      await UserSkillModelService.instance.recordAttempt(user, [
+        'tag',
+      ], correct: false);
 
       final tempDir = await Directory.systemTemp.createTemp('e2e');
       final store = LearningPathStore(rootDir: tempDir.path);

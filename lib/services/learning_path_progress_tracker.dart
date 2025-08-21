@@ -16,12 +16,13 @@ class LearningPathProgressTracker {
     Future<double> Function(String stageId)? getStageProgress,
     Future<TrainingPackTemplateV2?> Function(String id)? getPack,
     Future<double> Function(String tag)? getTagProgress,
-  })  : _getPath = getPath ?? LearningPathOrchestrator.instance.resolve,
-        _stageProgress = getStageProgress ??
-            TrainingProgressService.instance.getStageProgress,
-        _getPack = getPack ?? PackLibraryService.instance.getById,
-        _tagProgress =
-            getTagProgress ?? TrainingProgressService.instance.getTagProgress;
+  }) : _getPath = getPath ?? LearningPathOrchestrator.instance.resolve,
+       _stageProgress =
+           getStageProgress ??
+           TrainingProgressService.instance.getStageProgress,
+       _getPack = getPack ?? PackLibraryService.instance.getById,
+       _tagProgress =
+           getTagProgress ?? TrainingProgressService.instance.getTagProgress;
 
   Map<String, double>? _cache;
   DateTime _cacheTime = DateTime.fromMillisecondsSinceEpoch(0);

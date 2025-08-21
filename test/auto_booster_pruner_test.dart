@@ -21,7 +21,7 @@ class _FakeOrchestrator extends LearningPathGraphOrchestrator {
 class _FakeProgress extends TrainingPathProgressServiceV2 {
   final Set<String> completed;
   _FakeProgress(this.completed)
-      : super(logs: SessionLogService(sessions: TrainingSessionService()));
+    : super(logs: SessionLogService(sessions: TrainingSessionService()));
   @override
   Future<void> loadProgress(String pathId) async {}
   @override
@@ -77,8 +77,8 @@ void main() {
     final nodes = engine.engine!.allNodes;
     expect(nodes.any((n) => n.id == 'b1'), isFalse);
     final startNode = nodes.whereType<StageNode>().firstWhere(
-          (n) => n.id == 'start',
-        );
+      (n) => n.id == 'start',
+    );
     expect(startNode.nextIds.first, 'end');
   });
 

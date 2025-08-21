@@ -10,11 +10,11 @@ class YamlCoverageReport {
     required this.positions,
   });
   Map<String, dynamic> toJson() => {
-        'tags': tags,
-        'categories': categories,
-        'audiences': audiences,
-        'positions': positions,
-      };
+    'tags': tags,
+    'categories': categories,
+    'audiences': audiences,
+    'positions': positions,
+  };
   factory YamlCoverageReport.fromJson(Map<String, dynamic> j) =>
       YamlCoverageReport(
         tags: {

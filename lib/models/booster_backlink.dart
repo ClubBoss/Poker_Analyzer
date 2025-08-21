@@ -10,6 +10,6 @@ class BoosterBacklink {
     this.sourceCluster,
     Set<String>? matchingTags,
     List<String>? relatedLessonIds,
-  })  : matchingTags = matchingTags ?? const {},
-        relatedLessonIds = relatedLessonIds ?? const [];
+  }) : matchingTags = matchingTags ?? const {},
+       relatedLessonIds = relatedLessonIds ?? const [];
 }

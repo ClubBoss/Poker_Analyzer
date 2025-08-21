@@ -45,12 +45,12 @@ class _FakeLibrary implements MiniLessonLibraryService {
       lessons.firstWhere((l) => l.id == id, orElse: () => null);
   @override
   List<TheoryMiniLessonNode> findByTags(List<String> tags) => [
-        for (final t in tags) ...lessons.where((l) => l.tags.contains(t)),
-      ];
+    for (final t in tags) ...lessons.where((l) => l.tags.contains(t)),
+  ];
   @override
   List<TheoryMiniLessonNode> getByTags(Set<String> tags) => [
-        for (final t in tags) ...lessons.where((l) => l.tags.contains(t)),
-      ];
+    for (final t in tags) ...lessons.where((l) => l.tags.contains(t)),
+  ];
 }
 
 TrainingSpotAttempt _attempt(String id) {

@@ -276,8 +276,8 @@ class _CardRevealBackdropState extends State<CardRevealBackdrop>
     Future.delayed(const Duration(milliseconds: 2500), () {
       if (mounted) {
         _fadeOutController.reverse().whenComplete(
-              () => widget.onCompleted?.call(),
-            );
+          () => widget.onCompleted?.call(),
+        );
       }
     });
   }

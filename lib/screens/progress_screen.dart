@@ -99,7 +99,8 @@ class _ProgressScreenState extends State<ProgressScreen>
     };
     for (var i = 0; i < sorted.length; i++) {
       final h = sorted[i];
-      final correct = h.expectedAction.trim().toLowerCase() ==
+      final correct =
+          h.expectedAction.trim().toLowerCase() ==
           h.gtoAction.trim().toLowerCase();
       streak = correct ? streak + 1 : 0;
       if (!correct) {
@@ -153,8 +154,11 @@ class _ProgressScreenState extends State<ProgressScreen>
       }
     }
 
-    final xpHistory =
-        context.read<XPTrackerService>().history.reversed.toList();
+    final xpHistory = context
+        .read<XPTrackerService>()
+        .history
+        .reversed
+        .toList();
     spots
       ..clear()
       ..addAll([
@@ -525,10 +529,10 @@ class _ProgressScreenState extends State<ProgressScreen>
                 show: true,
                 getDotPainter: (spot, percent, bar, index) =>
                     FlDotCirclePainter(
-                  radius: 3,
-                  color: Colors.redAccent,
-                  strokeWidth: 0,
-                ),
+                      radius: 3,
+                      color: Colors.redAccent,
+                      strokeWidth: 0,
+                    ),
               ),
             ),
           ],
@@ -864,8 +868,9 @@ class _ProgressScreenState extends State<ProgressScreen>
   @override
   Widget build(BuildContext context) {
     final goals = context.watch<GoalsService>();
-    final completedGoals =
-        goals.goals.where((g) => g.progress >= g.target).length;
+    final completedGoals = goals.goals
+        .where((g) => g.progress >= g.target)
+        .length;
     final totalHands = _summary?.totalHands ?? 0;
 
     return Scaffold(
@@ -1020,8 +1025,9 @@ class _ProgressScreenState extends State<ProgressScreen>
                 ? null
                 : () async {
                     final service = context.read<GoalsService>();
-                    final packs =
-                        context.read<TrainingPackStorageService>().packs;
+                    final packs = context
+                        .read<TrainingPackStorageService>()
+                        .packs;
                     final hand = await service.getDailySpot(packs);
                     if (hand == null) return;
                     await Navigator.push(

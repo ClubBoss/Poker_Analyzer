@@ -67,7 +67,7 @@ class WeeklyDrillStatsService extends ChangeNotifier {
     }
     final pAcc = pTotal > 0 ? pCorrect * 100 / pTotal : 0.0;
     int streak = 0;
-    for (int i = 0;; i++) {
+    for (int i = 0; ; i++) {
       final d = DateTime(
         now.year,
         now.month,

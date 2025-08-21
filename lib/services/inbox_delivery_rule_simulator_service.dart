@@ -21,8 +21,8 @@ class InboxDeliveryRuleSimulatorService {
   InboxDeliveryRuleSimulatorService({
     SmartInboxHeuristicTuningService? tuning,
     SmartBoosterExclusionTrackerService? tracker,
-  })  : tuning = tuning ?? SmartInboxHeuristicTuningService(),
-        tracker = tracker ?? SmartBoosterExclusionTrackerService();
+  }) : tuning = tuning ?? SmartInboxHeuristicTuningService(),
+       tracker = tracker ?? SmartBoosterExclusionTrackerService();
 
   final SmartInboxHeuristicTuningService tuning;
   final SmartBoosterExclusionTrackerService tracker;
@@ -36,9 +36,11 @@ class InboxDeliveryRuleSimulatorService {
 
     final results = <InboxSimulationResult>[];
     for (final tag in tags) {
-      final cooldown = tuning.cooldownOverrides[tag] ??
+      final cooldown =
+          tuning.cooldownOverrides[tag] ??
           SmartBoosterInboxLimiterService.tagCooldown;
-      final dailyLimit = SmartBoosterInboxLimiterService.maxPerDay +
+      final dailyLimit =
+          SmartBoosterInboxLimiterService.maxPerDay +
           (tuning.dailyLimitAdjustments[tag] ?? 0);
 
       DateTime? lastRateLimited;

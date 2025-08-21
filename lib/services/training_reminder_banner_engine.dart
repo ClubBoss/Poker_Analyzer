@@ -144,7 +144,7 @@ class AutoMistakeDrillReminder implements ReminderSource {
 
 class DecayBoosterReminder implements ReminderSource {
   DecayBoosterReminder({DecayBoosterReminderEngine? engine})
-      : engine = engine ?? DecayBoosterReminderEngine();
+    : engine = engine ?? DecayBoosterReminderEngine();
 
   final DecayBoosterReminderEngine engine;
 
@@ -166,7 +166,7 @@ class DecayBoosterReminder implements ReminderSource {
 
 class StreakBrokenReminder implements ReminderSource {
   StreakBrokenReminder({ReviewStreakEvaluatorService? evaluator})
-      : evaluator = evaluator ?? const ReviewStreakEvaluatorService();
+    : evaluator = evaluator ?? const ReviewStreakEvaluatorService();
 
   final ReviewStreakEvaluatorService evaluator;
 
@@ -191,11 +191,11 @@ class StreakBrokenReminder implements ReminderSource {
 
 class _MistakePackHistory extends MistakeHistoryQueryService {
   _MistakePackHistory(this._source)
-      : super(
-          loadSpottings: () async => [],
-          resolveTags: (_) async => [],
-          resolveStreet: (_) async => null,
-        );
+    : super(
+        loadSpottings: () async => [],
+        resolveTags: (_) async => [],
+        resolveStreet: (_) async => null,
+      );
 
   final MistakeReviewPackService _source;
 

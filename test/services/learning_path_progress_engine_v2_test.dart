@@ -9,28 +9,28 @@ void main() {
   const engine = LearningPathProgressEngine();
 
   LearningPathTemplateV2 path0() => const LearningPathTemplateV2(
-        id: 'p1',
-        title: 'Path',
+    id: 'p1',
+    title: 'Path',
+    description: '',
+    stages: [
+      LearningPathStageModel(
+        id: 's1',
+        title: 'Stage 1',
         description: '',
-        stages: [
-          LearningPathStageModel(
-            id: 's1',
-            title: 'Stage 1',
-            description: '',
-            packId: 'pack1',
-            requiredAccuracy: 80,
-            minHands: 10,
-          ),
-          LearningPathStageModel(
-            id: 's2',
-            title: 'Stage 2',
-            description: '',
-            packId: 'pack2',
-            requiredAccuracy: 80,
-            minHands: 10,
-          ),
-        ],
-      );
+        packId: 'pack1',
+        requiredAccuracy: 80,
+        minHands: 10,
+      ),
+      LearningPathStageModel(
+        id: 's2',
+        title: 'Stage 2',
+        description: '',
+        packId: 'pack2',
+        requiredAccuracy: 80,
+        minHands: 10,
+      ),
+    ],
+  );
 
   test('computeProgress 0 percent', () {
     final path = path0();

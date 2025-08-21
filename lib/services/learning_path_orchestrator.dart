@@ -12,8 +12,8 @@ class LearningPathOrchestrator {
   LearningPathOrchestrator._({
     StarterLearningPathBuilder? starterBuilder,
     FirebaseFirestore? firestore,
-  })  : _builder = starterBuilder ?? const StarterLearningPathBuilder(),
-        _db = firestore ?? FirebaseFirestore.instance;
+  }) : _builder = starterBuilder ?? const StarterLearningPathBuilder(),
+       _db = firestore ?? FirebaseFirestore.instance;
 
   static final LearningPathOrchestrator instance = LearningPathOrchestrator._();
 

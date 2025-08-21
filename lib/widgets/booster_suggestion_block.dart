@@ -16,7 +16,7 @@ import '../screens/training_session_screen.dart';
 class BoosterSuggestionBlock extends StatefulWidget {
   final BoosterSuggestionCache cache;
   const BoosterSuggestionBlock({super.key, BoosterSuggestionCache? cache})
-      : cache = cache ?? const BoosterSuggestionCache();
+    : cache = cache ?? const BoosterSuggestionCache();
 
   @override
   State<BoosterSuggestionBlock> createState() =>
@@ -138,8 +138,9 @@ class _BoosterSuggestionBlockState extends State<BoosterSuggestionBlock> {
     Color accent,
   ) {
     final tag = pack.meta['tag'] as String?;
-    final mastery =
-        tag != null ? (_clusterMastery(tag, masteryMap) * 100).round() : null;
+    final mastery = tag != null
+        ? (_clusterMastery(tag, masteryMap) * 100).round()
+        : null;
     return Container(
       width: 180,
       padding: kCardPadding,

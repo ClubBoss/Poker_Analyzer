@@ -23,7 +23,7 @@ class PlayerProfileService extends ChangeNotifier {
   final ActionTagService actionTagService;
 
   PlayerProfileService({ActionTagService? actionTagService})
-      : actionTagService = actionTagService ?? ActionTagService() {
+    : actionTagService = actionTagService ?? ActionTagService() {
     playerPositions = Map.fromIterables(
       List.generate(numberOfPlayers, (i) => i),
       getPositionList(numberOfPlayers),

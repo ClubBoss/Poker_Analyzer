@@ -24,7 +24,7 @@ abstract class TrainingPackBuilder {
 class PushFoldPackBuilder implements TrainingPackBuilder {
   final PushFoldPackGenerator _generator;
   const PushFoldPackBuilder({PushFoldPackGenerator? generator})
-      : _generator = generator ?? const PushFoldPackGenerator();
+    : _generator = generator ?? const PushFoldPackGenerator();
 
   @override
   Future<TrainingPackTemplateV2> build(PackGenerationRequest request) async {
@@ -55,8 +55,8 @@ class PushFoldPackBuilder implements TrainingPackBuilder {
 class TrainingTypeEngine {
   final Map<TrainingType, TrainingPackBuilder> _builders;
   TrainingTypeEngine({Map<TrainingType, TrainingPackBuilder>? builders})
-      : _builders =
-            builders ?? const {TrainingType.pushFold: PushFoldPackBuilder()};
+    : _builders =
+          builders ?? const {TrainingType.pushFold: PushFoldPackBuilder()};
 
   Future<TrainingPackTemplateV2> build(
     TrainingType type,
@@ -86,7 +86,8 @@ class TrainingTypeEngine {
       return s.hand.actions.entries.any((e) => e.key > 0 && e.value.isNotEmpty);
     });
     if (hasPostflop) return TrainingType.postflop;
-    final allPfNoActions = pack.spots.isNotEmpty &&
+    final allPfNoActions =
+        pack.spots.isNotEmpty &&
         pack.spots.every((s) {
           final noActions = s.hand.actions.values.every((l) => l.isEmpty);
           final preflopOnly =

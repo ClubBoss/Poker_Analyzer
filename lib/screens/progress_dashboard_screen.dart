@@ -34,8 +34,9 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
   final _boundaryKey = GlobalKey();
 
   Future<void> _share() async {
-    final boundary = _boundaryKey.currentContext?.findRenderObject()
-        as RenderRepaintBoundary?;
+    final boundary =
+        _boundaryKey.currentContext?.findRenderObject()
+            as RenderRepaintBoundary?;
     if (boundary == null) return;
     final bytes = await PngExporter.captureBoundary(boundary);
     if (bytes == null) return;
@@ -70,7 +71,8 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
       ]);
     }
     final csvStr = const ListToCsvConverter().convert(rows, eol: '\r\n');
-    final dir = await getDownloadsDirectory() ??
+    final dir =
+        await getDownloadsDirectory() ??
         await getApplicationDocumentsDirectory();
     final fileName = 'daily_stats_${DateTime.now().millisecondsSinceEpoch}.csv';
     final file = File('${dir.path}/$fileName');
@@ -85,11 +87,13 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
   Future<void> _exportPdf() async {
     final stats = context.read<TrainingStatsService>();
     final handsService = context.read<SavedHandManagerService>();
-    final sessionsTotal =
-        stats.sessionsDaily(30).fold<int>(0, (a, e) => a + e.value);
+    final sessionsTotal = stats
+        .sessionsDaily(30)
+        .fold<int>(0, (a, e) => a + e.value);
     final handsTotal = stats.handsDaily(30).fold<int>(0, (a, e) => a + e.value);
-    final mistakesTotal =
-        stats.mistakesDaily(30).fold<int>(0, (a, e) => a + e.value);
+    final mistakesTotal = stats
+        .mistakesDaily(30)
+        .fold<int>(0, (a, e) => a + e.value);
 
     final chartBytes = await PngExporter.exportWidget(
       MultiProvider(

@@ -7,16 +7,16 @@ import 'package:poker_analyzer/models/v2/hero_position.dart';
 import 'package:poker_analyzer/services/training_pack_template_multi_set_expander_service.dart';
 
 TrainingPackSpot _base({required String id}) => TrainingPackSpot(
-      id: id,
-      hand: HandData(
-        heroCards: 'Ah Kh',
-        position: HeroPosition.btn,
-        heroIndex: 0,
-        playerCount: 2,
-        board: [],
-      ),
-      board: [],
-    );
+  id: id,
+  hand: HandData(
+    heroCards: 'Ah Kh',
+    position: HeroPosition.btn,
+    heroIndex: 0,
+    playerCount: 2,
+    board: [],
+  ),
+  board: [],
+);
 
 void main() {
   test('returns empty list when no sets provided', () {

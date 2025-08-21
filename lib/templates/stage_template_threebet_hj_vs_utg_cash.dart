@@ -1,8 +1,8 @@
 import '../models/learning_path_stage_model.dart';
 
 /// Stage template for HJ 3-bet or fold decisions facing an UTG 3bb open in 6-max cash games.
-const LearningPathStageModel threeBetHjVsUtgCashStageTemplate =
-    LearningPathStageModel(
+const LearningPathStageModel
+threeBetHjVsUtgCashStageTemplate = LearningPathStageModel(
   id: 'threebet_hj_vs_utg_cash',
   title: 'HJ vs UTG 3-bet (Cash)',
   description:

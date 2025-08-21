@@ -11,6 +11,6 @@ class TrainingPackTemplateSetGroup {
     required this.title,
     List<TrainingPackTemplateSet>? sets,
     List<String>? tags,
-  })  : sets = sets ?? const [],
-        tags = tags ?? const [];
+  }) : sets = sets ?? const [],
+       tags = tags ?? const [];
 }
