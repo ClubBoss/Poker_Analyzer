@@ -8,6 +8,7 @@ Define how to compute NEXT module for skeleton or content.
    Skeleton source (Codex)  = tooling/curriculum_ids.dart.
 2. Status file = curriculum_status.json (tracks completed modules).  
 3. NEXT = first module in RESEARCH_QUEUE.md that is not present at same index in curriculum_status.json.  
+4. Dispatcher must check allowlists and short_scope before prompt. Absence = block.
 
 ## Flow
 - Codex: adds skeleton loader + updates curriculum_status.json.  

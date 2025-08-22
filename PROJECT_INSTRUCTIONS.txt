@@ -17,6 +17,7 @@
        - drills.jsonl (12–16 items)
      * Style override must be tailored per module.
      * Validate with `dart run tooling/content_audit.dart`.
+     * Require allowlists (SpotKind + target tokens) and short_scope entry.
 
 3. Integration Phase
    - Driven by ZIP chat.
@@ -41,3 +42,4 @@
 - All tests pure-Dart unless Flutter is required.
 - Content files must pass audit and smoke tests.
 - Batching is NOT allowed. One module = one prompt = one set of files.
+- Dispatcher injects allowlists + short_scope; their absence = block.
