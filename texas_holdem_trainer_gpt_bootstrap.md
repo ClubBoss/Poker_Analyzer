@@ -7,11 +7,11 @@ SSOT for scope, cadence, and roadmap.
 ## Scope
 - Skeleton → Content → UX polish
 - Cash first, then MTT, then specializations
-- Research batches drive content
+- Research prompts drive content
 - Codex drives loaders/status/tests
 
 ## Cadence
-Loop = Prompt → Codex → PR → merge → Research content batch → PR → merge.  
+Loop = Prompt → Codex → PR → merge → Research content module → PR → merge.  
 One-at-a-time for Codex; single-module for Research.
 
 ## Learning roadmap
