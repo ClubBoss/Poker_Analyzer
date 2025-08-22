@@ -1,0 +1,55 @@
+name: Codex Autoformat (safe push to PR branch)
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: codex-autoformat-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  autoformat:
+    if: ${{ startsWith(github.head_ref, 'codex/') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR head branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Setup Flutter (Dart toolchain)
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.27.0'
+          cache: true
+
+      - name: Run formatter (write changes)
+        id: formatter
+        shell: bash
+        run: |
+          set -euo pipefail
+          dart format -o write bin lib/l3 tool/l3 test/ev
+          if git diff --quiet; then
+            echo "no_changes=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "no_changes=0" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit & push formatted files (if changed)
+        if: steps.formatter.outputs.no_changes != '1'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "style(codex): autoformat (CI scoped)"
+          git push

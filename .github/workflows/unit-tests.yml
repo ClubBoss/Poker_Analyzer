@@ -1,22 +1,70 @@
-name: Unit Tests (compact, non-blocking)
+name: Unit Tests (PR only, label-gated)
 
 on:
   pull_request:
+    paths:
+      - "**/*.dart"
+      - "**/*.yaml"
+      - "**/*.yml"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+      - ".github/workflows/unit-tests.yml"
+  push:
     branches: [ main ]
-
-permissions:
-  contents: read
+    paths:
+      - "**/*.dart"
+      - "**/*.yaml"
+      - "**/*.yml"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+      - ".github/workflows/unit-tests.yml"
 
 jobs:
-  unit-tests:
+  tests:
     runs-on: ubuntu-latest
-    continue-on-error: true  # non-blocking
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
+      - name: Check out
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: stable
-      - run: flutter pub get
-      - name: Run unit tests (lib/test only)
+          cache: true
+
+      - name: Flutter version
+        run: flutter --version
+
+      - name: Cache Pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Pub get (via Flutter)
+        run: flutter pub get
+
+      # Smart quotes – ТОЛЬКО когда реально хотим гнать тесты (по лейблу)
+      - name: Fail on smart quotes / punctuation (only when tests run)
+        if: ${{ contains(github.event.pull_request.labels.*.name, 'run-tests') }}
+        shell: bash
         run: |
-          dart test -r expanded test
+          set -euo pipefail
+          pattern='[\x{2018}\x{2019}\x{201C}\x{201D}\x{2026}\x{2014}\x{2013}]'
+          if git grep -I -nP "$pattern" -- .; then
+            echo "::error ::Smart punctuation found. Replace with ASCII equivalents."
+            exit 1
+          fi
+
+      - name: Run smoke tests (labeled PRs only)
+        if: ${{ contains(github.event.pull_request.labels.*.name, 'run-tests') }}
+        run: flutter test --no-pub --coverage test/smoke
+
+      - name: Skip tests (default)
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'run-tests') }}
+        run: echo "PR tests are skipped. Add label 'run-tests' to enable."

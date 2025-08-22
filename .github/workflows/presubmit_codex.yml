@@ -1,7 +1,7 @@
 name: Codex Presubmit (format+analyze)
 
 on:
-  pull_request: {}   # all PRs; filter below by branch
+  pull_request: {}   # все PR; фильтруем по head-ветке ниже
 
 permissions:
   contents: read
@@ -12,9 +12,9 @@ concurrency:
 
 jobs:
   presubmit:
+    # Только PR из веток codex/*
     if: ${{ startsWith(github.head_ref, 'codex/') }}
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,27 +22,18 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Set up Flutter
+      - name: Setup Flutter (Dart toolchain)
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          channel: 'stable'
+          flutter-version: '3.27.0'
           cache: true
 
-      - name: Cache Pub dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
-
-      - name: Pub get
-        run: flutter pub get
-
-      # Format check (scoped; skip lib/l10n/**)
+      # Формат — ТОЛЬКО проверка и ТОЛЬКО нужные пути (без lib/l10n/**)
       - name: Format check (scoped)
         run: dart format --output=none --set-exit-if-changed bin lib/l3 tool/l3 test/ev
 
+      # Анализируем релевантные файлы и не "красним" PR
       - name: Collect relevant Dart files
         id: collect
         shell: bash
@@ -61,12 +52,12 @@ jobs:
             echo "has_files=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Analyze (limited scope)
+      - name: Dart analyze (limited scope)
         if: steps.collect.outputs.has_files == 'true'
         continue-on-error: true
         shell: bash
         run: |
-          xargs -a dart_files.txt flutter analyze --no-fatal-warnings --no-fatal-infos || true
+          xargs -a dart_files.txt dart analyze --no-fatal-warnings --no-fatal-infos || true
 
       - name: Skip analyze (no relevant files)
         if: steps.collect.outputs.has_files != 'true'
