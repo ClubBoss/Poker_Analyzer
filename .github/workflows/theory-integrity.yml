@@ -2,63 +2,20 @@ name: Theory Integrity
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
-
-concurrency:
-  group: theory-integrity-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
-
-permissions:
-  contents: read
 
 jobs:
   verify:
-    name: verify
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
         with:
-          fetch-depth: 0
-
-      # Гейтим дальнейшие шаги: срабатываем только если менялась "теория"
-      - name: Detect theory changes
-        id: filter
-        uses: dorny/paths-filter@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          filters: |
-            theory:
-              # корень/legacy
-              - 'theory/**'
-              - 'content/theory/**'
-              - 'theory_index.json'
-              - 'packs/**/*.yaml'
-              - 'training_packs/**/*.yaml'
-              # наши актуальные пути под assets/*
-              - 'assets/**/theory/**'
-              - 'assets/theory_index.json'
-              - 'assets/packs/**/*.yaml'
-
-      - name: Set up Flutter
-        if: steps.filter.outputs.theory == 'true'
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
+          channel: stable
           cache: true
-
-      - name: Install dependencies
-        if: steps.filter.outputs.theory == 'true'
-        run: dart pub get
-
-      - name: Strict verify
-        if: steps.filter.outputs.theory == 'true'
-        env:
-          MODE: strict
-        run: |
-          echo "mode=$MODE"
-          bash tool/theory_verify.sh
+      - run: flutter --version
+      - run: flutter pub get
+      - run: dart --version
+      - run: dart run tooling/theory_integrity.dart --mode=verify
