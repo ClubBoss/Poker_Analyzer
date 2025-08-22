@@ -1,0 +1,16 @@
+name: Theory Manifest – Generate baseline
+on:
+  pull_request:
+  push: { branches: [main] }
+  workflow_dispatch:
+jobs:
+  generate-baseline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with: { channel: stable, cache: true }
+      - run: flutter --version
+      - run: flutter pub get
+      - run: dart --version
+      - run: dart run tooling/theory_manifest.dart --mode=baseline
