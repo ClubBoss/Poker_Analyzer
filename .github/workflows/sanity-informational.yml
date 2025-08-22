@@ -33,5 +33,5 @@ jobs:
           if [ -f pubspec.yaml ]; then flutter pub get; fi
 
       - name: Analyze (informational)
-        run: dart analyze
+        run: flutter analyze
         continue-on-error: true

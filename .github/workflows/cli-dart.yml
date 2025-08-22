@@ -45,13 +45,13 @@ jobs:
           restore-keys: ${{ runner.os }}-pub-
 
       - name: Pub get
-        run: dart pub get
+        run: flutter pub get
 
       - name: Format check (CLI only)
         run: dart format --output=none --set-exit-if-changed bin test/ev tooling
 
       - name: Analyze (CLI only)
-        run: dart analyze bin test/ev tooling
+        run: flutter analyze bin test/ev tooling
 
       # Только pure-Dart тесты, исключаем quarantine и Flutter smoke
       - name: Unit tests (CLI only)
