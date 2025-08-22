@@ -11,9 +11,7 @@ class SkillTreeLessonStateOverlayBuilder {
   List<Widget> build(NodeGateStatus gate, NodeCompletionStatus completion) {
     final widgets = <Widget>[];
     if (completion.isCompleted) {
-      widgets.add(
-        Icon(Icons.check_circle, color: Colors.green, size: 18),
-      );
+      widgets.add(Icon(Icons.check_circle, color: Colors.green, size: 18));
     } else if (!gate.isEnabled) {
       widgets.add(const Icon(Icons.lock, color: Colors.grey, size: 18));
     } else if (completion == NodeCompletionStatus.inProgress) {

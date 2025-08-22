@@ -8,10 +8,7 @@ class SmartGoalRecommenderService {
   final TagMasteryService mastery;
   final SessionLogService logs;
 
-  SmartGoalRecommenderService({
-    required this.mastery,
-    required this.logs,
-  });
+  SmartGoalRecommenderService({required this.mastery, required this.logs});
 
   Future<List<UserGoal>> recommendGoals(UserProfile profile) async {
     await PackLibraryIndexLoader.instance.load();

@@ -71,11 +71,7 @@ class InlineTheoryLinkAutoInjector {
       }
       status.update(
         'InlineTheoryLinkAutoInjector',
-        AutogenStatus(
-          isRunning: false,
-          currentStage: 'complete',
-          progress: 1,
-        ),
+        AutogenStatus(isRunning: false, currentStage: 'complete', progress: 1),
       );
       return result;
     } catch (e) {
@@ -112,11 +108,7 @@ class InlineTheoryLinkAutoInjector {
       }
       status.update(
         'InlineTheoryLinkAutoInjector',
-        AutogenStatus(
-          isRunning: false,
-          currentStage: 'complete',
-          progress: 1,
-        ),
+        AutogenStatus(isRunning: false, currentStage: 'complete', progress: 1),
       );
       return result;
     } catch (e) {

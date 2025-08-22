@@ -68,9 +68,9 @@ class GraphTemplateExporter {
     } catch (_) {
       final ctx = navigatorKey.currentContext;
       if (ctx != null) {
-        ScaffoldMessenger.of(ctx).showSnackBar(
-          SnackBar(content: Text('Failed to export template')),
-        );
+        ScaffoldMessenger.of(
+          ctx,
+        ).showSnackBar(SnackBar(content: Text('Failed to export template')));
       }
     }
     return yaml;

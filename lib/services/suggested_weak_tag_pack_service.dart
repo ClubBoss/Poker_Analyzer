@@ -10,10 +10,7 @@ import 'suggested_training_packs_history_service.dart';
 class SuggestedWeakTagPackResult {
   final TrainingPackTemplateV2? pack;
   final bool isFallback;
-  SuggestedWeakTagPackResult({
-    required this.pack,
-    required this.isFallback,
-  });
+  SuggestedWeakTagPackResult({required this.pack, required this.isFallback});
 }
 
 class SuggestedWeakTagPackService {

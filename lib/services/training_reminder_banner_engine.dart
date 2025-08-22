@@ -117,8 +117,7 @@ class AutoMistakeDrillReminder implements ReminderSource {
   Duration get cooldown => const Duration(days: 1);
 
   @override
-  ReminderBanner build() =>
-      ReminderBanner(AutoMistakeDrillBannerWidget());
+  ReminderBanner build() => ReminderBanner(AutoMistakeDrillBannerWidget());
 
   @override
   Future<bool> canShow() async {

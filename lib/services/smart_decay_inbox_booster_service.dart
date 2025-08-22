@@ -5,9 +5,8 @@ import 'decay_tag_retention_tracker_service.dart';
 class SmartDecayInboxBoosterService {
   final DecayTagRetentionTrackerService retention;
 
-  SmartDecayInboxBoosterService({
-    DecayTagRetentionTrackerService? retention,
-  }) : retention = retention ?? const DecayTagRetentionTrackerService();
+  SmartDecayInboxBoosterService({DecayTagRetentionTrackerService? retention})
+    : retention = retention ?? const DecayTagRetentionTrackerService();
 
   /// Returns [limit] top decayed tags as inbox booster items ordered by severity.
   Future<List<SmartInboxItem>> getItems({int limit = 5}) async {

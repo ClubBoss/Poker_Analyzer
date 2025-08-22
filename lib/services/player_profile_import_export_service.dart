@@ -101,9 +101,9 @@ class PlayerProfileImportExportService {
   Future<void> exportToClipboard(BuildContext context) async {
     await Clipboard.setData(ClipboardData(text: serialize()));
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Profile copied to clipboard')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Profile copied to clipboard')));
     }
   }
 
@@ -112,9 +112,9 @@ class PlayerProfileImportExportService {
       final data = await Clipboard.getData('text/plain');
       if (data == null || data.text == null || !deserialize(data.text!)) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Invalid clipboard data')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Invalid clipboard data')));
         }
         return;
       }
@@ -125,9 +125,9 @@ class PlayerProfileImportExportService {
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to read clipboard')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to read clipboard')));
       }
     }
   }

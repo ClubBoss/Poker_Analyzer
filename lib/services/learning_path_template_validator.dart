@@ -16,9 +16,7 @@ class LearningPathTemplateValidator {
     for (final stage in path.stages) {
       final sid = stage.id.trim();
       if (sid.isEmpty) {
-        issues.add(
-          ValidationIssue(type: 'error', message: 'empty_stage_id'),
-        );
+        issues.add(ValidationIssue(type: 'error', message: 'empty_stage_id'));
         continue;
       }
       if (!ids.add(sid)) {

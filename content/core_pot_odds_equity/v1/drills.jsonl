@@ -1,0 +1,16 @@
+{"id":"core_pot_odds_equity:drill:01","params":{"pot":120,"call":30},"target":["pot_odds","breakeven_equity"],"rationale":"30/(120+30)=0.20 so breakeven_equity is 20 percent"}
+{"id":"core_pot_odds_equity:drill:02","params":{"outs":9,"street":"flop"},"target":["rule_of_2_and_4","equity"],"rationale":"9 outs on flop -> ~36 percent by rule_of_2_and_4"}
+{"id":"core_pot_odds_equity:drill:03","params":{"outs":9,"tainted":2},"target":["clean_outs","outs"],"rationale":"Reduce 9 to ~7 clean_outs when 2 outs are dirty"}
+{"id":"core_pot_odds_equity:drill:04","params":{"pot":200,"call":40,"equity_est":0.18},"target":["call_vs_raise","pot_odds"],"rationale":"40/(200+40)=0.167; equity 0.18 beats price so call is OK"}
+{"id":"core_pot_odds_equity:drill:05","params":{"pot":90,"call":30,"equity_est":0.22},"target":["call_vs_raise","breakeven_equity"],"rationale":"30/(90+30)=0.25; 0.22<0.25 so fold is better than call"}
+{"id":"core_pot_odds_equity:drill:06","params":{"stacks":"shallow","future_bets":"unlikely"},"target":["direct_odds"],"rationale":"Use direct_odds when little money can go in later"}
+{"id":"core_pot_odds_equity:drill:07","params":{"stacks":"deep","position":"in_position"},"target":["implied_odds"],"rationale":"In_position and deep stacks improve implied_odds"}
+{"id":"core_pot_odds_equity:drill:08","params":{"draw":"weak_pair_draw","villain_range":"overpairs"},"target":["reverse_implied_odds"],"rationale":"Hitting can still be second best when dominated"}
+{"id":"core_pot_odds_equity:drill:09","params":{"outs":15,"street":"flop"},"target":["outs","rule_of_2_and_4"],"rationale":"Many outs on flop ~ 60 percent by quick rule"}
+{"id":"core_pot_odds_equity:drill:10","params":{"outs":4,"street":"turn"},"target":["outs","equity"],"rationale":"Turn backdoor-type outs give very small equity"}
+{"id":"core_pot_odds_equity:drill:11","params":{"hit":"turn_flush","board_pairs_on_river":"yes"},"target":["outs","reverse_implied_odds"],"rationale":"You can be outdrawn or counterfeited on the river"}
+{"id":"core_pot_odds_equity:drill:12","params":{"blocker_card":"A_spades","villain_flushes":"fewer"},"target":["blocker","card_removal"],"rationale":"Blockers reduce villain combos via card_removal"}
+{"id":"core_pot_odds_equity:drill:13","params":{"players":3,"pot":150,"call":30},"target":["multiway","pot_odds"],"rationale":"Equity is diluted multiway; price alone is not enough"}
+{"id":"core_pot_odds_equity:drill:14","params":{"note":"rake_applies_low_stakes","effective_rake":"small"},"target":["breakeven_equity"],"rationale":"Rake slightly raises breakeven_equity at small stakes"}
+{"id":"core_pot_odds_equity:drill:15","params":{"outs":6,"street":"turn","equity_est":0.12},"target":["rule_of_2_and_4","equity"],"rationale":"6*2 ~ 12 percent is a rough estimate; verify with context"}
+{"id":"core_pot_odds_equity:drill:16","params":{"option":"raise_with_fold_equity"},"target":["call_vs_raise","equity"],"rationale":"Raising adds fold equity; compare to calling line"}

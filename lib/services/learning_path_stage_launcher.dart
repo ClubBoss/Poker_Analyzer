@@ -44,17 +44,17 @@ class LearningPathStageLauncher {
       case StageType.theory:
         final id = stage.theoryPackId;
         if (id == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Theory pack not found')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Theory pack not found')));
           return;
         }
         await _theoryLibrary.loadAll();
         final pack = _theoryLibrary.getById(id);
         if (pack == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Theory pack not found')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Theory pack not found')));
           return;
         }
         await Navigator.push(
@@ -69,9 +69,9 @@ class LearningPathStageLauncher {
       case StageType.practice:
         final tpl = await _library.getById(stage.packId);
         if (tpl == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Training pack not found')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Training pack not found')));
           return;
         }
         await _launcher.launch(tpl);

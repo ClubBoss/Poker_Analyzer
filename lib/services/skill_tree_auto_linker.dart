@@ -39,11 +39,7 @@ class SkillTreeAutoLinker {
       }
       status.update(
         'SkillTreeAutoLinker',
-        AutogenStatus(
-          isRunning: false,
-          currentStage: 'complete',
-          progress: 1,
-        ),
+        AutogenStatus(isRunning: false, currentStage: 'complete', progress: 1),
       );
     } catch (e) {
       status.update(

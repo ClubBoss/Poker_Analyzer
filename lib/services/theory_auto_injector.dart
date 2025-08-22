@@ -129,11 +129,7 @@ class TheoryAutoInjector {
 
     _dashboard.update(
       'TheoryAutoInjector',
-      AutogenStatus(
-        isRunning: false,
-        currentStage: 'complete',
-        progress: 1,
-      ),
+      AutogenStatus(isRunning: false, currentStage: 'complete', progress: 1),
     );
 
     final report = TheoryInjectReport(

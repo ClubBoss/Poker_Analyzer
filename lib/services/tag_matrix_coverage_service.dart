@@ -45,11 +45,7 @@ class TagMatrixResult {
   final Map<String, Map<String, TagMatrixCell>> cells;
   final int max;
 
-  TagMatrixResult({
-    required this.axes,
-    required this.cells,
-    required this.max,
-  });
+  TagMatrixResult({required this.axes, required this.cells, required this.max});
 
   factory TagMatrixResult.fromJson(Map<String, dynamic> json) {
     final axes = TagMatrixAxes.fromJson(json['axes'] as List);

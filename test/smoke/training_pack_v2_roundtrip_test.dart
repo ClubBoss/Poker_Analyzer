@@ -10,7 +10,7 @@ void main() {
       name: 'Smoke Pack',
       level: TrainingPackLevel.beginner,
       type: TrainingType.theory,
-      tags: const ['preflop','icm'],
+      tags: const ['preflop', 'icm'],
       spots: const [],
     );
 

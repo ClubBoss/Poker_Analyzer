@@ -389,25 +389,25 @@ class TrainingImportExportService {
       final data = await Clipboard.getData('text/plain');
       if (data == null || data.text == null) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Неверный формат данных')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Неверный формат данных')));
         }
         return null;
       }
       final spot = deserializeSpot(data.text!);
       if (spot == null) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Неверный формат данных')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Неверный формат данных')));
         }
         return null;
       }
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Спот загружен из буфера')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Спот загружен из буфера')));
       }
       return spot;
     } catch (_) {
@@ -447,9 +447,9 @@ class TrainingImportExportService {
       final spot = deserializeSpot(content);
       if (spot == null) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Неверный формат файла')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Неверный формат файла')));
         }
         return null;
       }
@@ -505,9 +505,9 @@ class TrainingImportExportService {
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка сохранения файла')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Ошибка сохранения файла')));
       }
     }
   }
@@ -518,9 +518,9 @@ class TrainingImportExportService {
   ) async {
     if (spots.isEmpty) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Нет спотов для экспорта')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Нет спотов для экспорта')));
       }
       return;
     }
@@ -551,9 +551,9 @@ class TrainingImportExportService {
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка сохранения архива')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Ошибка сохранения архива')));
       }
     }
   }

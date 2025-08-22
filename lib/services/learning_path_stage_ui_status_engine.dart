@@ -6,9 +6,8 @@ enum LearningStageUIState { locked, active, done }
 class LearningPathStageUIStatusEngine {
   final LearningPathStageUnlockEngine unlockEngine;
 
-  LearningPathStageUIStatusEngine({
-    LearningPathStageUnlockEngine? unlockEngine,
-  }) : unlockEngine = unlockEngine ?? const LearningPathStageUnlockEngine();
+  LearningPathStageUIStatusEngine({LearningPathStageUnlockEngine? unlockEngine})
+    : unlockEngine = unlockEngine ?? const LearningPathStageUnlockEngine();
 
   Map<String, LearningStageUIState> computeStageUIStates(
     LearningPathTemplateV2 path,

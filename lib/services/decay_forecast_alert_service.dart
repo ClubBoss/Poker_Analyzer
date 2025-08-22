@@ -6,10 +6,8 @@ class DecayForecastAlertService {
   final DecayForecastEngine engine;
   final double threshold;
 
-  DecayForecastAlertService({
-    DecayForecastEngine? engine,
-    this.threshold = 60,
-  }) : engine = engine ?? const DecayForecastEngine();
+  DecayForecastAlertService({DecayForecastEngine? engine, this.threshold = 60})
+    : engine = engine ?? const DecayForecastEngine();
 
   /// Returns tags predicted to exceed [threshold] decay soon.
   Future<List<DecayForecastAlert>> getUpcomingCriticalTags(

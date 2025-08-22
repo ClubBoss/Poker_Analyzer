@@ -21,9 +21,8 @@ class CompletedSessionSummary {
 class CompletedSessionSummaryService {
   final CompletedTrainingPackRegistry registry;
 
-  CompletedSessionSummaryService({
-    CompletedTrainingPackRegistry? registry,
-  }) : registry = registry ?? CompletedTrainingPackRegistry();
+  CompletedSessionSummaryService({CompletedTrainingPackRegistry? registry})
+    : registry = registry ?? CompletedTrainingPackRegistry();
 
   /// Returns summaries for all completed sessions sorted by most recent.
   Future<List<CompletedSessionSummary>> loadSummaries() async {

@@ -6,9 +6,8 @@ import 'training_pack_index_service.dart';
 class TrainingPackLibrarySearchService {
   final TrainingPackIndexService _indexService;
 
-  TrainingPackLibrarySearchService({
-    TrainingPackIndexService? indexService,
-  }) : _indexService = indexService ?? TrainingPackIndexService.instance;
+  TrainingPackLibrarySearchService({TrainingPackIndexService? indexService})
+    : _indexService = indexService ?? TrainingPackIndexService.instance;
 
   /// Returns all training packs that match the provided filters.
   ///

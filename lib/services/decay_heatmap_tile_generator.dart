@@ -17,9 +17,7 @@ class DecayHeatmapTile {
 class DecayHeatmapTileGenerator {
   final TagDecayForecastService service;
 
-  DecayHeatmapTileGenerator({
-    this.service = const TagDecayForecastService(),
-  });
+  DecayHeatmapTileGenerator({this.service = const TagDecayForecastService()});
 
   Color _colorForUrgency(double u) {
     if (u <= 0.5) {

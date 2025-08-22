@@ -19,11 +19,7 @@ class PackPlayStats {
   final int launches;
   final int totalTrained;
   final int mistakes;
-  PackPlayStats({
-    this.launches = 0,
-    this.totalTrained = 0,
-    this.mistakes = 0,
-  });
+  PackPlayStats({this.launches = 0, this.totalTrained = 0, this.mistakes = 0});
 }
 
 class TrainingStatsService extends ChangeNotifier {

@@ -13,17 +13,17 @@ class DailyReviewBoosterLauncher {
     final plan = await DecaySmartSchedulerService().generateTodayPlan();
     final tags = plan.tags;
     if (tags.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Сегодня ничего не забыто!')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Сегодня ничего не забыто!')));
       return;
     }
 
     final pack = await BoosterPackFactory.buildFromTags(tags);
     if (pack == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Сегодня ничего не забыто!')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Сегодня ничего не забыто!')));
       return;
     }
 

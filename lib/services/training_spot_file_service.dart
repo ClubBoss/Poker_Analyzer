@@ -135,9 +135,9 @@ class TrainingSpotFileService {
       final data = jsonDecode(content);
       if (data is! List) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Неверный формат файла')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Неверный формат файла')));
         }
         return [];
       }
@@ -151,9 +151,9 @@ class TrainingSpotFileService {
       }
       if (spots.isEmpty) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Неверный формат файла')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Неверный формат файла')));
         }
         return [];
       }

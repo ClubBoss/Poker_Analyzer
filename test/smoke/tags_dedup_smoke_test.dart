@@ -4,7 +4,12 @@ import 'package:poker_analyzer/utils/tag_utils.dart'; // утилита без F
 
 void main() {
   test('Dedup tags keeps order (smoke)', () {
-    final out = dedupTags(['icm','preflop','icm','pushfold']); // замените на вашу функцию
-    expect(out, ['icm','preflop','pushfold']);
+    final out = dedupTags([
+      'icm',
+      'preflop',
+      'icm',
+      'pushfold',
+    ]); // замените на вашу функцию
+    expect(out, ['icm', 'preflop', 'pushfold']);
   });
 }

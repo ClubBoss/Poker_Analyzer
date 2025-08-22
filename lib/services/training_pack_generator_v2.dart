@@ -12,11 +12,9 @@ class TrainingPackGeneratorV2 {
   final TrainingPackRepository repository;
   final Uuid _uuid;
 
-  TrainingPackGeneratorV2({
-    TrainingPackRepository? repository,
-    Uuid? uuid,
-  }) : repository = repository ?? const TrainingPackRepository(),
-       _uuid = uuid ?? const Uuid();
+  TrainingPackGeneratorV2({TrainingPackRepository? repository, Uuid? uuid})
+    : repository = repository ?? const TrainingPackRepository(),
+      _uuid = uuid ?? const Uuid();
 
   /// Builds a training pack template from [cluster] using weakest tags
   /// from [mastery]. At most [spotCount] spots are included.

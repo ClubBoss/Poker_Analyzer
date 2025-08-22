@@ -4,11 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   testWidgets('win overlays render and settle animations', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(
-          body: _FakeWinOverlay(),
-        ),
-      ),
+      const MaterialApp(home: Scaffold(body: _FakeWinOverlay())),
     );
 
     expect(find.byKey(const ValueKey('win-overlay')), findsOneWidget);

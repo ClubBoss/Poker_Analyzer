@@ -87,9 +87,7 @@ class BoardEditingService {
   void showDuplicateCardMessage(BuildContext context) {
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
-      ..showSnackBar(
-        SnackBar(content: Text('This card is already in use')),
-      );
+      ..showSnackBar(SnackBar(content: Text('This card is already in use')));
   }
 
   void _showBoardSkipWarning(

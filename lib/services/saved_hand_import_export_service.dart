@@ -198,9 +198,9 @@ class SavedHandImportExportService {
     final data = await Clipboard.getData('text/plain');
     if (data == null || data.text == null) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Неверный формат данных.')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Неверный формат данных.')));
       }
       return null;
     }
@@ -325,9 +325,9 @@ class SavedHandImportExportService {
     final hands = manager.hands;
     if (hands.isEmpty) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No saved hands to export')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('No saved hands to export')));
       }
       return;
     }

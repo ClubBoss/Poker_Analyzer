@@ -10,9 +10,8 @@ class TheoryMiniLessonContentTemplateService {
   /// `'BTN vs BB, Flop CBet'`.
   final Map<String, String> templateMap;
 
-  TheoryMiniLessonContentTemplateService({
-    Map<String, String>? templateMap,
-  }) : templateMap = templateMap ?? theoryLessonTemplateMap;
+  TheoryMiniLessonContentTemplateService({Map<String, String>? templateMap})
+    : templateMap = templateMap ?? theoryLessonTemplateMap;
 
   /// Returns a new [TheoryMiniLessonNode] with its `content` field populated
   /// using a matching template. If no template is found or [node.content] is

@@ -77,11 +77,7 @@ class TrainingPackAutoGenerator {
     if (_shouldAbort) {
       status.update(
         'TrainingPackAutoGenerator',
-        AutogenStatus(
-          isRunning: false,
-          currentStage: 'aborted',
-          progress: 0,
-        ),
+        AutogenStatus(isRunning: false, currentStage: 'aborted', progress: 0),
       );
       return [];
     }
@@ -96,11 +92,7 @@ class TrainingPackAutoGenerator {
     }
     status.update(
       'TrainingPackAutoGenerator',
-      AutogenStatus(
-        isRunning: true,
-        currentStage: 'generating',
-        progress: 0,
-      ),
+      AutogenStatus(isRunning: true, currentStage: 'generating', progress: 0),
     );
     try {
       if (deduplicate) {
@@ -143,11 +135,7 @@ class TrainingPackAutoGenerator {
       }
       status.update(
         'TrainingPackAutoGenerator',
-        AutogenStatus(
-          isRunning: false,
-          currentStage: 'complete',
-          progress: 1,
-        ),
+        AutogenStatus(isRunning: false, currentStage: 'complete', progress: 1),
       );
       return deduped;
     } catch (e) {
@@ -181,21 +169,13 @@ class TrainingPackAutoGenerator {
     if (_shouldAbort) {
       status.update(
         'TrainingPackAutoGenerator',
-        AutogenStatus(
-          isRunning: false,
-          currentStage: 'aborted',
-          progress: 0,
-        ),
+        AutogenStatus(isRunning: false, currentStage: 'aborted', progress: 0),
       );
       return [];
     }
     status.update(
       'TrainingPackAutoGenerator',
-      AutogenStatus(
-        isRunning: true,
-        currentStage: 'generating',
-        progress: 0,
-      ),
+      AutogenStatus(isRunning: true, currentStage: 'generating', progress: 0),
     );
     try {
       if (deduplicate) {
@@ -256,11 +236,7 @@ class TrainingPackAutoGenerator {
       }
       status.update(
         'TrainingPackAutoGenerator',
-        AutogenStatus(
-          isRunning: false,
-          currentStage: 'complete',
-          progress: 1,
-        ),
+        AutogenStatus(isRunning: false, currentStage: 'complete', progress: 1),
       );
       return results;
     } catch (e) {

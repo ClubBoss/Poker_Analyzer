@@ -4,9 +4,8 @@ import '../models/training_pack_model.dart';
 import 'spot_fingerprint_generator.dart';
 
 class PackQualityScoreCalculatorService {
-  PackQualityScoreCalculatorService({
-    SpotFingerprintGenerator? fingerprint,
-  }) : _fingerprint = fingerprint ?? const SpotFingerprintGenerator();
+  PackQualityScoreCalculatorService({SpotFingerprintGenerator? fingerprint})
+    : _fingerprint = fingerprint ?? const SpotFingerprintGenerator();
 
   final SpotFingerprintGenerator _fingerprint;
 

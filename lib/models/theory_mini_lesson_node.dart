@@ -41,7 +41,7 @@ class TheoryMiniLessonNode implements LearningPathNode {
   /// requested.
   final bool autoContent;
 
-TheoryMiniLessonNode({
+  TheoryMiniLessonNode({
     required this.id,
     this.refId,
     required this.title,

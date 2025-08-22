@@ -39,13 +39,9 @@ class GraphPathTemplateValidator {
 
     final startCount = idCounts['start'] ?? 0;
     if (startCount == 0) {
-      issues.add(
-        ValidationIssue(type: 'error', message: 'missing_start'),
-      );
+      issues.add(ValidationIssue(type: 'error', message: 'missing_start'));
     } else if (startCount > 1) {
-      issues.add(
-        ValidationIssue(type: 'error', message: 'multiple_start'),
-      );
+      issues.add(ValidationIssue(type: 'error', message: 'multiple_start'));
     }
 
     for (final node in nodes) {

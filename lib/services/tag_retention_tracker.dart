@@ -23,10 +23,8 @@ class RetentionEvaluator {
 class TagRetentionTracker {
   final TagMasteryService mastery;
   final RetentionEvaluator evaluator;
-  TagRetentionTracker({
-    required this.mastery,
-    RetentionEvaluator? evaluator,
-  }) : evaluator = evaluator ?? const RetentionEvaluator();
+  TagRetentionTracker({required this.mastery, RetentionEvaluator? evaluator})
+    : evaluator = evaluator ?? const RetentionEvaluator();
 
   Future<List<String>> getDecayedTags({
     double threshold = 0.75,

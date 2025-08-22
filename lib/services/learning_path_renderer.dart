@@ -5,10 +5,9 @@ import 'mistake_booster_path_node_decorator.dart';
 class LearningPathRenderer {
   final MistakeBoosterPathNodeDecorator boosterDecorator;
 
-  LearningPathRenderer({
-    MistakeBoosterPathNodeDecorator? boosterDecorator,
-  }) : boosterDecorator =
-           boosterDecorator ?? const MistakeBoosterPathNodeDecorator();
+  LearningPathRenderer({MistakeBoosterPathNodeDecorator? boosterDecorator})
+    : boosterDecorator =
+          boosterDecorator ?? const MistakeBoosterPathNodeDecorator();
 
   /// Applies decorators to [nodes] and returns the updated list.
   Future<List<LearningPathNode>> render(List<LearningPathNode> nodes) async {

@@ -49,8 +49,7 @@ class GoalSlotAllocator {
       } else {
         final h = hist[tag];
         if (h != null &&
-            DateTime.now().difference(h.lastInteraction) <
-                Duration(hours: 1)) {
+            DateTime.now().difference(h.lastInteraction) < Duration(hours: 1)) {
           slot = 'postrecap';
         }
       }

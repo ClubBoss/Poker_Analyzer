@@ -47,9 +47,8 @@ class RunMetricsEntry {
 class AutogenRunHistoryLoggerService {
   final String _filePath;
 
-  AutogenRunHistoryLoggerService({
-    String filePath = 'autogen_run_history.json',
-  }) : _filePath = filePath;
+  AutogenRunHistoryLoggerService({String filePath = 'autogen_run_history.json'})
+    : _filePath = filePath;
 
   Future<void> logRun({
     required int generated,

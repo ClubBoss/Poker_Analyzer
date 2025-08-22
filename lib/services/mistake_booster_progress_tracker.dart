@@ -19,10 +19,7 @@ class MistakeRecoverySummary {
   final int reinforced;
   final int recovered;
 
-  MistakeRecoverySummary({
-    required this.reinforced,
-    required this.recovered,
-  });
+  MistakeRecoverySummary({required this.reinforced, required this.recovered});
 }
 
 /// Tracks booster repetition progress for mistake-related tags.

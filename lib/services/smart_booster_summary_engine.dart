@@ -4,10 +4,9 @@ import 'theory_booster_effectiveness_service.dart';
 class SmartBoosterSummaryEngine {
   final TheoryBoosterEffectivenessService _effectiveness;
 
-  SmartBoosterSummaryEngine({
-    TheoryBoosterEffectivenessService? effectiveness,
-  }) : _effectiveness =
-           effectiveness ?? TheoryBoosterEffectivenessService.instance;
+  SmartBoosterSummaryEngine({TheoryBoosterEffectivenessService? effectiveness})
+    : _effectiveness =
+          effectiveness ?? TheoryBoosterEffectivenessService.instance;
 
   Future<BoosterSummary> summarize(String boosterId) async {
     final logs = await _effectiveness.getImpactStats(boosterId);

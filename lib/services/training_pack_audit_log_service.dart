@@ -58,8 +58,7 @@ class TrainingPackAuditLogService {
     return _storage.query(packId: packId, from: from, to: to);
   }
 
-  bool _listEquals(List a, List b) =>
-      DeepCollectionEquality().equals(a, b);
+  bool _listEquals(List a, List b) => DeepCollectionEquality().equals(a, b);
 
   bool _mapEquals(Map a, Map b) => const DeepCollectionEquality().equals(a, b);
 

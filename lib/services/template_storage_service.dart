@@ -158,9 +158,7 @@ class TemplateStorageService extends ChangeNotifier {
       if (data is! Map<String, dynamic>) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Неверный формат шаблона: неверный JSON'),
-            ),
+            SnackBar(content: Text('Неверный формат шаблона: неверный JSON')),
           );
         }
         return null;
@@ -220,9 +218,9 @@ class TemplateStorageService extends ChangeNotifier {
           return null;
         } else if (template.revision == existing.revision) {
           if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Такой шаблон уже есть')),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text('Такой шаблон уже есть')));
           }
           return null;
         } else {

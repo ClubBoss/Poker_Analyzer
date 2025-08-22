@@ -83,6 +83,5 @@ class BoardTexturePresetLibrary {
 
   static final BoardTextureFilterService _textureFilter =
       BoardTextureFilterService();
-  static final BoardFilteringServiceV2 _boardFilter =
-      BoardFilteringServiceV2();
+  static final BoardFilteringServiceV2 _boardFilter = BoardFilteringServiceV2();
 }

@@ -20,9 +20,7 @@ class LearningDashboardData {
 class LearningDashboardService {
   final MasteryForecastEngine forecast;
 
-  LearningDashboardService({
-    this.forecast = const MasteryForecastEngine(),
-  });
+  LearningDashboardService({this.forecast = const MasteryForecastEngine()});
 
   LearningDashboardData getDashboardData({
     required List<TrackPlayHistory> trackHistory,

@@ -62,8 +62,7 @@ class BoosterSlotAllocator {
 
       final hist = histMap[tag];
       if (hist != null &&
-          DateTime.now().difference(hist.lastInteraction) <
-              Duration(days: 1)) {
+          DateTime.now().difference(hist.lastInteraction) < Duration(days: 1)) {
         continue; // recently repeated
       }
 

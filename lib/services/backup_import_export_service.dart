@@ -108,9 +108,9 @@ class BackupImportExportService {
       final dir = await fileManager.getBackupDirectory(exportsFolder);
       if (!await dir.exists()) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('No export files found')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('No export files found')));
         }
         return;
       }
@@ -146,9 +146,9 @@ class BackupImportExportService {
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to import queue state')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to import queue state')));
       }
     }
   }
@@ -210,9 +210,9 @@ class BackupImportExportService {
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Не удалось создать бэкап')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Не удалось создать бэкап')));
       }
     }
   }
@@ -351,7 +351,11 @@ class BackupImportExportService {
         }
         return;
       }
-      final files = await dir.list(recursive: true).where((e) => e is File).cast<File>().toList();
+      final files = await dir
+          .list(recursive: true)
+          .where((e) => e is File)
+          .cast<File>()
+          .toList();
       if (files.isEmpty) {
         if (context.mounted) {
           ScaffoldMessenger.of(
@@ -405,9 +409,9 @@ class BackupImportExportService {
       final dir = await fileManager.getBackupDirectory(autoBackupsFolder);
       if (!await dir.exists()) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('No auto-backup files found')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('No auto-backup files found')));
         }
         return;
       }
@@ -525,9 +529,9 @@ class BackupImportExportService {
     final dir = await fileManager.getBackupDirectory(autoBackupsFolder);
     if (!await dir.exists()) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No auto-backup files found')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('No auto-backup files found')));
       }
       return;
     }

@@ -56,9 +56,9 @@ class GraphTemplateLibrary {
     } catch (_) {
       final ctx = navigatorKey.currentContext;
       if (ctx != null) {
-        ScaffoldMessenger.of(ctx).showSnackBar(
-          SnackBar(content: Text('Failed to import YAML file')),
-        );
+        ScaffoldMessenger.of(
+          ctx,
+        ).showSnackBar(SnackBar(content: Text('Failed to import YAML file')));
       }
     }
   }

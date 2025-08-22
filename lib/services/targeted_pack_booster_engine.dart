@@ -182,11 +182,7 @@ class TargetedPackBoosterEngine {
     final status = AutogenStatusDashboardService.instance;
     status.update(
       'booster',
-      AutogenStatus(
-        isRunning: true,
-        currentStage: 'decaySync',
-        progress: 0,
-      ),
+      AutogenStatus(isRunning: true, currentStage: 'decaySync', progress: 0),
     );
     await generateBoosterPacks(
       count: unique.length,
@@ -195,11 +191,7 @@ class TargetedPackBoosterEngine {
     );
     status.update(
       'booster',
-      AutogenStatus(
-        isRunning: false,
-        currentStage: 'decaySync',
-        progress: 1,
-      ),
+      AutogenStatus(isRunning: false, currentStage: 'decaySync', progress: 1),
     );
   }
 
@@ -243,11 +235,7 @@ class TargetedPackBoosterEngine {
     final status = AutogenStatusDashboardService.instance;
     status.update(
       'booster',
-      AutogenStatus(
-        isRunning: true,
-        currentStage: 'booster',
-        progress: 0,
-      ),
+      AutogenStatus(isRunning: true, currentStage: 'booster', progress: 0),
     );
     final boostedPacks = <TrainingPackTemplateV2>[];
     for (var i = 0; i < requests.length; i++) {
@@ -346,11 +334,7 @@ class TargetedPackBoosterEngine {
     }
     status.update(
       'booster',
-      AutogenStatus(
-        isRunning: false,
-        currentStage: 'booster',
-        progress: 1,
-      ),
+      AutogenStatus(isRunning: false, currentStage: 'booster', progress: 1),
     );
     return boostedPacks;
   }

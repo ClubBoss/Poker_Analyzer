@@ -90,10 +90,7 @@ class TrainingSessionService extends ChangeNotifier {
 
   void _startTicker() {
     _timer?.cancel();
-    _timer = Timer.periodic(
-      Duration(seconds: 1),
-      (_) => notifyListeners(),
-    );
+    _timer = Timer.periodic(Duration(seconds: 1), (_) => notifyListeners());
   }
 
   TrainingSession? get session => _session;

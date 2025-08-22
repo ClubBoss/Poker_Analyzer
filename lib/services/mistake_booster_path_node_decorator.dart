@@ -9,9 +9,8 @@ import 'mistake_booster_progress_tracker.dart';
 class MistakeBoosterPathNodeDecorator {
   final MistakeBoosterProgressTracker tracker;
 
-  MistakeBoosterPathNodeDecorator({
-    MistakeBoosterProgressTracker? tracker,
-  }) : tracker = tracker ?? MistakeBoosterProgressTracker.instance;
+  MistakeBoosterPathNodeDecorator({MistakeBoosterProgressTracker? tracker})
+    : tracker = tracker ?? MistakeBoosterProgressTracker.instance;
 
   /// Returns a copy of [nodes] with recovered status applied.
   Future<List<LearningPathNode>> decorate(List<LearningPathNode> nodes) async {

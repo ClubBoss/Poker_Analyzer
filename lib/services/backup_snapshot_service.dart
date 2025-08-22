@@ -100,18 +100,22 @@ class BackupSnapshotService {
       final dir = await fileManager.getBackupDirectory(snapshotsFolder);
       if (!await dir.exists()) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('No snapshot files found')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('No snapshot files found')));
         }
         return;
       }
-      final files = await dir.list(recursive: true).where((e) => e is File).cast<File>().toList();
+      final files = await dir
+          .list(recursive: true)
+          .where((e) => e is File)
+          .cast<File>()
+          .toList();
       if (files.isEmpty) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('No snapshot files found')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('No snapshot files found')));
         }
         return;
       }
@@ -140,9 +144,9 @@ class BackupSnapshotService {
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to export snapshots')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to export snapshots')));
       }
     }
   }
@@ -152,9 +156,9 @@ class BackupSnapshotService {
       final dir = await fileManager.getBackupDirectory(snapshotsFolder);
       if (!await dir.exists()) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('No snapshot files found')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('No snapshot files found')));
         }
         return;
       }
@@ -190,9 +194,9 @@ class BackupSnapshotService {
       }
     } catch (_) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to import snapshot')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to import snapshot')));
       }
     }
   }
@@ -255,9 +259,9 @@ class BackupSnapshotService {
     final dir = await fileManager.getBackupDirectory(snapshotsFolder);
     if (!await dir.exists()) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No snapshot files found')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('No snapshot files found')));
       }
       return;
     }
