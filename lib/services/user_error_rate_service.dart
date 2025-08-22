@@ -70,7 +70,7 @@ class UserErrorRateService {
       final nowSec = ts.millisecondsSinceEpoch ~/ 1000;
       final entry = _data[key];
       double ewma = entry?.ewma ?? 0.0;
-      int lastTs = entry?.lastTs ?? nowSec;
+      final int lastTs = entry?.lastTs ?? nowSec;
       int n = entry?.n ?? 0;
       final dtDays = (nowSec - lastTs) / 86400.0;
       if (dtDays > 0) {

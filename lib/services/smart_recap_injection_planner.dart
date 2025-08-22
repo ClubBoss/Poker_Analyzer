@@ -87,9 +87,7 @@ class SmartRecapInjectionPlanner {
           (1 - eff.repeatRate) +
           1 / (eff.count + 1) +
           1 / (eff.averageDuration.inSeconds + 1);
-      final recency = hist == null
-          ? 1000.0
-          : now.difference(hist.lastInteraction).inHours.toDouble();
+      final recency = now.difference(hist.lastInteraction).inHours.toDouble();
       final score = urgency * 2 + recency / 24.0;
       candidates.add(_Candidate(tag, score));
     });

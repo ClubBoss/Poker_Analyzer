@@ -44,7 +44,7 @@ TargetMixConfig? extractTargetMix(String weights) {
 
   Map<String, double>? mix;
   double defaultTol = 0.10; // back-compat default
-  Map<String, double> byKeyTol = {};
+  final Map<String, double> byKeyTol = {};
   int minTotal = 0;
 
   if (weightsJson is Map) {
@@ -89,7 +89,7 @@ TargetMixConfig? extractTargetMix(String weights) {
 
   return mix != null
       ? TargetMixConfig(
-          mix: mix!,
+          mix: mix,
           tolerance: defaultTol,
           byKeyTol: byKeyTol,
           minTotal: minTotal,

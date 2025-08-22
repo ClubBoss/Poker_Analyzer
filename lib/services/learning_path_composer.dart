@@ -214,7 +214,7 @@ class LearningPathComposer {
             packId: p.id,
             requiredAccuracy: 0.7,
             requiredHands: 20,
-            unlockAfter: prevId == null ? const [] : [prevId!],
+            unlockAfter: prevId == null ? const [] : [prevId],
             order: order++,
             tags: ['L$level'],
           ),

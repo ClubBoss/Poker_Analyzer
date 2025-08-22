@@ -94,7 +94,7 @@ void main(List<String> args) {
   final manifest = L4IcmSessionManifest(
     preset: 'mvs',
     total: items.length,
-    seeds: seeds!,
+    seeds: seeds,
     perSeed: perSeed,
     items: items,
   );
