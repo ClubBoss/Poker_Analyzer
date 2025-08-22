@@ -4,7 +4,8 @@
 Define how to compute NEXT batch/module for skeleton or content.
 
 ## Rules
-1. Curriculum source = CURRICULUM_STRUCTURE.md v3.1.  
+1. Content source (Research) = RESEARCH_QUEUE.md.
+   Skeleton source (Codex)  = tooling/curriculum_ids.dart.
 2. Status file = curriculum_status.json (tracks completed modules).  
 3. NEXT = first module in CURRICULUM_STRUCTURE.md that is not present at same index in curriculum_status.json.  
 

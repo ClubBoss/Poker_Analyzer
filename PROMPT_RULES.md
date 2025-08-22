@@ -2,7 +2,9 @@
 
 ## Core Principles
 - Tiny reversible diffs (Codex).  
-- One source of truth for modules: CURRICULUM_STRUCTURE.md.  
+- One source of truth for modules:
+- Research phase: RESEARCH_QUEUE.md
+- Codex/skeleton: tooling/curriculum_ids.dart
 - Content only generated via Research chat.  
 
 ## Research Prompts

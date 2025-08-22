@@ -45,7 +45,7 @@ RULES AND FORMULAS
 - Min-raise rule: new_total - current_bet >= last_raise_size.
 - Showdown defaults:
   - If there was a river bet and call: bettor_shows_first, then caller.
-  - If no river bet: first_active_left_of_btn_shows first.
+  - If no river bet: first_active_left_of_btn_shows.
 - Opensize guidance: write "typical online open size is 2-3bb at 100bb", not a universal rule.
 
 SPOTKIND DISCIPLINE

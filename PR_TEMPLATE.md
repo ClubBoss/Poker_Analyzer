@@ -4,6 +4,8 @@
 - [ ] Module ID: <!-- e.g., core_rules_and_setup -->
 
 ## Checklist
+- [ ] `dart format . && dart analyze` run clean locally.
+- [ ] No non-ASCII punctuation (smart quotes / long dashes) in content files.
 - [ ] Exactly three files added/updated:
   - [ ] content/<module_id>/v1/theory.md
   - [ ] content/<module_id>/v1/demos.jsonl

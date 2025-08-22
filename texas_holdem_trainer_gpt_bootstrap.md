@@ -105,6 +105,8 @@ review_workflow_and_study_routines
 database_leakfinder_playbook  
 
 ## Verification
-- Run `dart test test/content_schema_test.dart` after every content PR.
+- Run `dart test test/content_audit_smoke_test.dart` after every content PR.
 - Run `dart format . && dart analyze` before commit.
 - Roadmap consistency checked manually via diff with curriculum_ids.dart.
+
+- Run `dart run tooling/content_audit.dart <module_id>` before merge.
