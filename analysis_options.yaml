@@ -1,61 +1,18 @@
+# Poker Analyzer analysis options
 analyzer:
   exclude:
-    - build/**
-    - .dart_tool/**
-    - ios/**
-    - android/**
-    - macos/**
-    - windows/**
-    - linux/**
-    - web/**
-    - coverage/**
-    - test/**
-    - integration_test/**
-    - tool/**
-    - scripts/**
-    - assets/**
-    - lib/**.g.dart
-    - lib/**.freezed.dart
-    # временно глушим легаси-службы:
-    - lib/services/**
-
-  errors:
-    # оставляем ошибками только критичные импорты/URI
-    uri_does_not_exist: error
-
-    # всё «красное» из legacy временно уводим в ignore
-    undefined_identifier: ignore
-    undefined_method: ignore
-    undefined_class: ignore
-    undefined_getter: ignore
-    undefined_named_parameter: ignore
-    invalid_assignment: ignore
-    not_enough_required_arguments: ignore
-    return_of_invalid_type_from_closure: ignore
-    non_bool_condition: ignore
-    ambiguous_import: ignore
-    const_constructor_with_field_initialized_by_non_const: ignore
-    argument_type_not_assignable: ignore
-    invalid_constant: ignore
-    expected_token: ignore
-    unexpected_token: ignore
-    expected_executable: ignore
-    creation_with_non_type: ignore
-    non_type_as_type_argument: ignore
-    unchecked_use_of_nullable_value: ignore
-    list_element_type_not_assignable: ignore
-    directive_after_declaration: ignore
-    undefined_prefixed_name: ignore
-    # и типовой «линт-шум»
-    dead_code: ignore
-    avoid_mutable_fields: error
-    unnecessary_mutable_fields: error
-    prefer_final_fields: error
+    - lib/screens/**
+    - lib/widgets/**
+    - lib/ui/**
+    - lib/plugins/**
+    - lib/providers/**
+    - lib/models/v2/**
+  language:
+    strict-inference: false
+    strict-raw-types: false
 
 linter:
   rules:
-    # без строгих правил до момента, когда вернёмся к сервисам
-    - avoid_unused_constructor_parameters
-    - unnecessary_import
-    - unused_local_variable
-    - prefer_const_constructors
+    - avoid_print
+    - prefer_final_locals
+    - unawaited_futures
