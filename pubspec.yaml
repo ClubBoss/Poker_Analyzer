@@ -75,6 +75,10 @@ dependencies:
   json2yaml: ^3.0.0
   sentry_flutter: ^9.6.0
 
+  http: any
+  collection: any
+  meta: any
+  characters: any
 dev_dependencies:
   flutter_test:
     sdk: flutter
