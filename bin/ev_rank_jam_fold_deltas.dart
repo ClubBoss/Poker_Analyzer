@@ -1,3 +1,6 @@
+Полный файл для `bin/ev_rank_jam_fold_deltas.dart` с корректным `--help` и пустыми аргументами (stdout + exitCode = 0):
+
+```dart
 import 'dart:convert';
 import 'dart:io';
 
@@ -59,6 +62,13 @@ Examples:
 ''';
 
 Future<void> main(List<String> args) async {
+  // Early help / no-args path: print usage to STDOUT and exitCode=0
+  if (args.isEmpty || args.contains('--help') || args.contains('-h')) {
+    stdout.writeln(_USAGE);
+    exitCode = 0;
+    return;
+  }
+
   String? inPath;
   String? dirPath;
   String? glob;
@@ -81,11 +91,7 @@ Future<void> main(List<String> args) async {
 
   for (var i = 0; i < args.length; i++) {
     final arg = args[i];
-    if (arg == '--help' || arg == '-h') {
-      stdout.writeln(_USAGE);
-      exitCode = 0;
-      return;
-    } else if (arg == '--in' && i + 1 < args.length) {
+    if (arg == '--in' && i + 1 < args.length) {
       inPath = args[++i];
     } else if (arg == '--dir' && i + 1 < args.length) {
       dirPath = args[++i];
@@ -610,3 +616,4 @@ String _csvCell(Object? value) {
   }
   return s;
 }
+```
