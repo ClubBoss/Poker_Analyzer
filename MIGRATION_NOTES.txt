@@ -1,0 +1,11 @@
+Docs update (v3):
+- Added VICTORY CONDITIONS block.
+- Core modules require a one‑sentence contrast line.
+- Mini‑glossary added when new terms appear.
+- Math modules: require a one‑line sanity check of the formula.
+- HU/Live modules: require one population‑exploit hook line in drills.
+
+Apply:
+  git add RESEARCH_BATCH_TEMPLATE.md STYLE_GUIDE_CONTENT.md
+  git commit -m "Docs: v3 single-module prompts (victory conditions, contrast line, glossary, sanity checks, hooks)"
+  git push
