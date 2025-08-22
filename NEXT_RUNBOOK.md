@@ -1,7 +1,7 @@
 # NEXT Runbook — Poker Analyzer
 
 ## Purpose
-Define how to compute NEXT batch/module for skeleton or content.
+Define how to compute NEXT module for skeleton or content.
 
 ## Rules
 1. Content source (Research) = RESEARCH_QUEUE.md.
@@ -11,7 +11,7 @@ Define how to compute NEXT batch/module for skeleton or content.
 
 ## Flow
 - Codex: adds skeleton loader + updates curriculum_status.json.  
-- Research: generates batch content using STYLE OVERRIDE.  
+- Research: generates module content using STYLE OVERRIDE.  
 - Zip: packages, audits, commits.  
 
 ## Notes
