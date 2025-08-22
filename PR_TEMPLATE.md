@@ -6,8 +6,8 @@
 - [ ] SpotKind allowlist present
 - [ ] Target tokens allowlist present
 - [ ] short_scope entry exists
-- [ ] ASCII-only (no " " ' •)
-- [ ] Theory.md has required 7 sections, 450–550 words
+- [ ] ASCII-only: no “ ” ’ • — normalize to " ' - .
+- [ ] Theory.md has required 7 sections AND 450–550 words
 - [ ] Core modules include 1-sentence contrast line
 - [ ] If open sizes mentioned → phrase "typical online" present
 - [ ] Mini example legal (action order, pots, showdown)

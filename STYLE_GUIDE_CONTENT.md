@@ -1,5 +1,6 @@
 # Style Guide
-- ASCII-only
+- ASCII-only; normalize any “ ” ’ • to " ' - .
+- Theory.md must be 450–550 words
 - Use poker positions (UTG, MP, CO, BTN, SB, BB), never seat numbers
 - Sequential IDs; unique
 - Allowlists mandatory
