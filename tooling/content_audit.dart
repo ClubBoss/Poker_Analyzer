@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'dart:io';
 
 final asciiOk = RegExp(r'^[\x00-\x7F]+$');
-final idDemo = RegExp(r'^[a-zdrills.jsonl must have 12–16_]+:demo:\d{2}$');
-final idDrill = RegExp(r'^[a-zdrills.jsonl must have 12–16_]+:drill:\d{2}$');
-final snakeToken = RegExp(r'^[a-zdrills.jsonl must have 12–16_]+$');
+final idDemo = RegExp(r'^[a-z0-9_]+:demo:\d{2}$');
+final idDrill = RegExp(r'^[a-z0-9_]+:drill:\d{2}$');
+final snakeToken = RegExp(r'^[a-z0-9_]+$');
 final sectionHeaders = <String>[
   'What it is',
   'Why it matters',
@@ -52,7 +52,8 @@ Future<List<String>> _discoverModules(String? only) async {
   return result..sort();
 }
 
-List<String> _readLines(String path) => File(path).readAsLinesSync();
+List<String> _readLines(String path) =>
+    File(path).readAsLinesSync();
 
 String _readAll(String path) => File(path).readAsStringSync();
 
@@ -68,9 +69,11 @@ Future<List<String>> _checkTheory(String moduleId) async {
   final txt = _readAll(p);
   final errs = <String>[];
   errs.addAll(_asciiErrors(txt, 'theory.md'));
-  final words = txt.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length;
+  if (txt.contains('•')) errs.add('theory.md contains bullet symbol "•" - use "-"');
+  if (txt.contains('Seat ')) errs.add('theory.md must use positions, not seat numbers');
+  final words = txt.split(RegExp(r'\s+')).where((w)=>w.isNotEmpty).length;
   if (words < 450 || words > 550) {
-    errs.add('theory.md word count $words out of drills.jsonl must have 12–16');
+    errs.add('theory.md word count $words out of 450-550');
   }
   for (final h in sectionHeaders) {
     if (!txt.contains('\n$h\n')) {
@@ -81,57 +84,54 @@ Future<List<String>> _checkTheory(String moduleId) async {
   if (isCore && !txt.contains('\nContrast line\n')) {
     errs.add('Core module missing "Contrast line" section');
   }
-  // Ban long dashes and smart quotes explicitly
-  if (txt.contains('—') ||
-      txt.contains('–') ||
-      txt.contains('“') ||
-      txt.contains('”') ||
-      txt.contains('’')) {
-    errs.add(
-      'theory.md contains forbidden punctuation (smart quotes or long dashes)',
-    );
+  // Glossary obligations
+  if (RegExp(r'\bEV\b').hasMatch(txt) && !RegExp(r'(?m)^-?\s*EV:\s').hasMatch(txt)) {
+    errs.add('EV mentioned but Mini-glossary missing "EV:" line');
   }
+  if (RegExp(r'angle', caseSensitive: false).hasMatch(txt) && !RegExp(r'(?m)^-?\s*Angle shooting:\s').hasMatch(txt)) {
+    errs.add('Angle shooting mentioned but Mini-glossary missing "Angle shooting:" line');
+  }
+  // Typical online label if sizing is discussed
+  if (moduleId == 'core_rules_and_setup'):
+    final mentionsOpen = RegExp(r'\bopen( size)?\b', caseSensitive: false).hasMatch(txt);
+    final mentionsBb = RegExp(r'\bbb\b', caseSensitive: false).hasMatch(txt);
+    if ((mentionsOpen or mentionsBb) and 'typical online' not in txt.lower()):
+      errs.add('Sizing mentioned but missing "typical online" label');
   return errs;
 }
 
 Future<List<String>> _checkDemos(String moduleId) async {
   final p = 'content/$moduleId/v1/demos.jsonl';
   if (!File(p).existsSync()) return ['Missing $p'];
-  final lines = _readLines(p).where((l) => l.trim().isNotEmpty).toList();
+  final lines = _readLines(p).where((l)=>l.trim().isNotEmpty).toList();
   final errs = <String>[];
   if (lines.length < 2 || lines.length > 3) {
-    errs.add(
-      'demos.jsonl must have drills.jsonl must have 12–16 lines, found ${lines.length}',
-    );
+    errs.add('demos.jsonl must have 2-3 lines, found ${lines.length}');
   }
   final ids = <String>{};
   for (var i = 0; i < lines.length; i++) {
     final line = lines[i];
-    errs.addAll(_asciiErrors(line, 'demos.jsonl line ${i + 1}'));
+    errs.addAll(_asciiErrors(line, 'demos.jsonl line ${i+1}'));
+    if (line.contains('•')) errs.add('demos.jsonl line ${i+1} contains "•" - use "-"');
+    if (line.contains('Seat ')) errs.add('demos.jsonl line ${i+1} uses seat numbers - use positions');
     Map<String, dynamic> obj;
-    try {
-      obj = jsonDecode(line);
-    } catch (_) {
-      errs.add('Invalid JSON on demos line ${i + 1}');
+    try { obj = jsonDecode(line); } catch (_) {
+      errs.add('Invalid JSON on demos line ${i+1}');
       continue;
     }
     final id = obj['id'] as String?;
     if (id == null || !idDemo.hasMatch(id)) {
-      errs.add('Invalid demo id on line ${i + 1}: "$id"');
+      errs.add('Invalid demo id on line ${i+1}: "$id"');
     }
-    if (!ids.add(id ?? '')) errs.add('Duplicate id on demos line ${i + 1}');
+    if (!ids.add(id ?? '')) errs.add('Duplicate id on demos line ${i+1}');
     final steps = obj['steps'];
     if (steps is! List) {
-      errs.add('Missing steps[] on demos line ${i + 1}');
+      errs.add('Missing steps[] on demos line ${i+1}');
     } else {
       for (final s in steps) {
-        if (s is! String) {
-          errs.add('Non-string step on demos line ${i + 1}');
-          continue;
-        }
-        if (s.contains('\n')) errs.add('Multiline step on demos line ${i + 1}');
-        if (!asciiOk.hasMatch(s))
-          errs.add('Non-ASCII step on demos line ${i + 1}');
+        if (s is! String) { errs.add('Non-string step on demos line ${i+1}'); continue; }
+        if (s.contains('\n')) errs.add('Multiline step on demos line ${i+1}');
+        if (!asciiOk.hasMatch(s)) errs.add('Non-ASCII step on demos line ${i+1}');
       }
     }
   }
@@ -141,66 +141,65 @@ Future<List<String>> _checkDemos(String moduleId) async {
 Future<List<String>> _checkDrills(String moduleId) async {
   final p = 'content/$moduleId/v1/drills.jsonl';
   if (!File(p).existsSync()) return ['Missing $p'];
-  final lines = _readLines(p).where((l) => l.trim().isNotEmpty).toList();
+  final lines = _readLines(p).where((l)=>l.trim().isNotEmpty).toList();
   final errs = <String>[];
   if (lines.length < 12 || lines.length > 16) {
-    errs.add('drills.jsonl must have 12–16 lines, found ${lines.length}');
+    errs.add('drills.jsonl must have 12-16 lines, found ${lines.length}');
   }
   final ids = <String>{};
   final targetsAll = <String>{};
   for (var i = 0; i < lines.length; i++) {
     final line = lines[i];
-    errs.addAll(_asciiErrors(line, 'drills.jsonl line ${i + 1}'));
+    errs.addAll(_asciiErrors(line, 'drills.jsonl line ${i+1}'));
+    if (line.contains('•')) errs.add('drills.jsonl line ${i+1} contains "•" - use "-"');
+    if (line.contains('Seat ')) errs.add('drills.jsonl line ${i+1} uses seat numbers - use positions');
     Map<String, dynamic> obj;
-    try {
-      obj = jsonDecode(line);
-    } catch (_) {
-      errs.add('Invalid JSON on drills line ${i + 1}');
+    try { obj = jsonDecode(line); } catch (_) {
+      errs.add('Invalid JSON on drills line ${i+1}');
       continue;
     }
     final id = obj['id'] as String?;
     if (id == null || !idDrill.hasMatch(id)) {
-      errs.add('Invalid drill id on line ${i + 1}: "$id"');
+      errs.add('Invalid drill id on drills line ${i+1}: "$id"');
     }
-    if (!ids.add(id ?? '')) errs.add('Duplicate id on drills line ${i + 1}');
+    if (!ids.add(id ?? '')) errs.add('Duplicate id on drills line ${i+1}');
     final kind = obj['spotKind'];
-    if (kind is! String ||
-        !RegExp(r'^l\d+_[a-zdrills.jsonl must have 12–16_]+$').hasMatch(kind)) {
-      errs.add('Invalid spotKind format on drills line ${i + 1}: "$kind"');
+    if (kind is! String || !RegExp(r'^l\d+_[a-z0-9_]+$').hasMatch(kind)) {
+      errs.add('Invalid spotKind format on drills line ${i+1}: "$kind"');
     }
     final target = obj['target'];
     if (target is! List || target.isEmpty) {
-      errs.add('Missing target[] on drills line ${i + 1}');
+      errs.add('Missing target[] on drills line ${i+1}');
     } else {
       for (final t in target) {
         if (t is! String || !snakeToken.hasMatch(t)) {
-          errs.add(
-            'Target must be snake_case token on drills line ${i + 1}: "$t"',
-          );
+          errs.add('Target must be snake_case token on drills line ${i+1}: "$t"');
         } else {
           targetsAll.add(t);
         }
       }
     }
     final rationale = obj['rationale'];
-    if (rationale is! String ||
-        rationale.contains('\n') ||
-        !asciiOk.hasMatch(rationale)) {
-      errs.add('Invalid rationale on drills line ${i + 1}');
+    if (rationale is! String || rationale.contains('\n') || !asciiOk.hasMatch(rationale)) {
+      errs.add('Invalid rationale on drills line ${i+1}');
     }
   }
 
-  // Module-specific coverage checks
   if (moduleId == 'core_rules_and_setup') {
     final need = {
       'no_reopen',
       'reopen',
       'bettor_shows_first',
       'first_active_left_of_btn_shows',
+      'min_raise_legal',
+      'min_raise_illegal',
+      'string_bet_call_only',
+      'binding',
+      'returned',
     };
     for (final k in need) {
       if (!targetsAll.contains(k)) {
-        errs.add('Missing coverage token in targets: $k');
+        errs.add('Missing coverage token in targets: ' + k);
       }
     }
   }
