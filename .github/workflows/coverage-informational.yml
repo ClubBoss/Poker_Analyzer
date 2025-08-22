@@ -27,6 +27,11 @@ jobs:
     continue-on-error: true  # не блокирует merge
     steps:
       - uses: actions/checkout@v4
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
         with: { fetch-depth: 0 }
 
       - uses: subosito/flutter-action@v2
