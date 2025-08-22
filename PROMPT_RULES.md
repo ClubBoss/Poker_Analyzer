@@ -9,7 +9,7 @@
 
 ## Research Prompts
 - Always start with:  
-  `GO MODULES: <ids>`  
+  `GO MODULE: <id>`  
   `STYLE OVERRIDE: …`  
 
 - Style override **must** include:  

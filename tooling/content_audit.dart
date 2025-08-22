@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'dart:io';
 
 final asciiOk = RegExp(r'^[\x00-\x7F]+$');
-final idDemo = RegExp(r'^[a-z0-9_]+:demo:\d{2}$');
-final idDrill = RegExp(r'^[a-z0-9_]+:drill:\d{2}$');
-final snakeToken = RegExp(r'^[a-z0-9_]+$');
+final idDemo = RegExp(r'^[a-zdrills.jsonl must have 12–16_]+:demo:\d{2}$');
+final idDrill = RegExp(r'^[a-zdrills.jsonl must have 12–16_]+:drill:\d{2}$');
+final snakeToken = RegExp(r'^[a-zdrills.jsonl must have 12–16_]+$');
 final sectionHeaders = <String>[
   'What it is',
   'Why it matters',
@@ -70,7 +70,7 @@ Future<List<String>> _checkTheory(String moduleId) async {
   errs.addAll(_asciiErrors(txt, 'theory.md'));
   final words = txt.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length;
   if (words < 450 || words > 550) {
-    errs.add('theory.md word count $words out of 450–550');
+    errs.add('theory.md word count $words out of drills.jsonl must have 12–16');
   }
   for (final h in sectionHeaders) {
     if (!txt.contains('\n$h\n')) {
@@ -100,7 +100,9 @@ Future<List<String>> _checkDemos(String moduleId) async {
   final lines = _readLines(p).where((l) => l.trim().isNotEmpty).toList();
   final errs = <String>[];
   if (lines.length < 2 || lines.length > 3) {
-    errs.add('demos.jsonl must have 2–3 lines, found ${lines.length}');
+    errs.add(
+      'demos.jsonl must have drills.jsonl must have 12–16 lines, found ${lines.length}',
+    );
   }
   final ids = <String>{};
   for (var i = 0; i < lines.length; i++) {
@@ -162,7 +164,8 @@ Future<List<String>> _checkDrills(String moduleId) async {
     }
     if (!ids.add(id ?? '')) errs.add('Duplicate id on drills line ${i + 1}');
     final kind = obj['spotKind'];
-    if (kind is! String || !RegExp(r'^l\d+_[a-z0-9_]+$').hasMatch(kind)) {
+    if (kind is! String ||
+        !RegExp(r'^l\d+_[a-zdrills.jsonl must have 12–16_]+$').hasMatch(kind)) {
       errs.add('Invalid spotKind format on drills line ${i + 1}: "$kind"');
     }
     final target = obj['target'];

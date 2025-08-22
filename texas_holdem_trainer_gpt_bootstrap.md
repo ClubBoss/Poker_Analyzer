@@ -12,7 +12,7 @@ SSOT for scope, cadence, and roadmap.
 
 ## Cadence
 Loop = Prompt → Codex → PR → merge → Research content batch → PR → merge.  
-One-at-a-time for Codex; batched for Research.
+One-at-a-time for Codex; single-module for Research.
 
 ## Learning roadmap
 Full human-readable list, append-only mirror of curriculum_ids.dart (v3.1).  
