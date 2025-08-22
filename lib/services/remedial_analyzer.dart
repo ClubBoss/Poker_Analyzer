@@ -1,6 +1,5 @@
 import '../models/training_spot_attempt.dart';
 import '../models/remedial_spec.dart';
-import '../models/v2/training_pack_spot.dart';
 import 'board_texture_classifier.dart';
 
 class RemedialAnalyzer {

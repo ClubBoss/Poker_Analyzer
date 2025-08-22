@@ -38,7 +38,7 @@ class LearningPathTelemetry {
   }
 
   Future<Directory> get _logDir async {
-    if (_dirOverride != null) return _dirOverride!;
+    if (_dirOverride != null) return _dirOverride;
     return await getApplicationDocumentsDirectory();
   }
 

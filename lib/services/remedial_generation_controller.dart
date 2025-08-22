@@ -33,7 +33,7 @@ class RemedialGenerationController {
           required String presetId,
           Map<String, dynamic>? extras,
           int? spotsPerPack,
-        }) async {
+        }) {
           final exec = AutogenPipelineExecutor();
           final dyn = exec as dynamic;
           return await dyn.run(
