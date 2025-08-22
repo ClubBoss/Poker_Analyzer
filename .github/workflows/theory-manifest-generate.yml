@@ -27,7 +27,7 @@ jobs:
         run: flutter config --no-analytics
 
       - name: Install dependencies
-        run: flutter pub get
+        run: dart pub get
 
       - name: Build dir list from repo (*.yaml)
         id: dirs

@@ -45,7 +45,7 @@ jobs:
           restore-keys: ${{ runner.os }}-pub-
 
       - name: Pub get
-        run: flutter pub get
+        run: dart pub get
 
       - name: Format check (CLI only)
         run: dart format --output=none --set-exit-if-changed bin test/ev tooling
