@@ -18,7 +18,7 @@ class LearningPathStageLauncher {
   final TheoryPackLibraryService _theoryLibrary;
   final TrainingSessionLauncher _launcher;
 
-  const LearningPathStageLauncher({
+  LearningPathStageLauncher({
     PackLibraryService? library,
     TheoryPackLibraryService? theoryLibrary,
     TrainingSessionLauncher launcher = const TrainingSessionLauncher(),
@@ -45,7 +45,7 @@ class LearningPathStageLauncher {
         final id = stage.theoryPackId;
         if (id == null) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Theory pack not found')),
+            SnackBar(content: Text('Theory pack not found')),
           );
           return;
         }
@@ -53,7 +53,7 @@ class LearningPathStageLauncher {
         final pack = _theoryLibrary.getById(id);
         if (pack == null) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Theory pack not found')),
+            SnackBar(content: Text('Theory pack not found')),
           );
           return;
         }
@@ -70,7 +70,7 @@ class LearningPathStageLauncher {
         final tpl = await _library.getById(stage.packId);
         if (tpl == null) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Training pack not found')),
+            SnackBar(content: Text('Training pack not found')),
           );
           return;
         }

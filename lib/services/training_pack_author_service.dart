@@ -188,7 +188,7 @@ class PresetConfig {
   final String category;
   final String description;
   final GameType gameType;
-  const PresetConfig(
+  PresetConfig(
     this.name,
     this.pos,
     this.stack,

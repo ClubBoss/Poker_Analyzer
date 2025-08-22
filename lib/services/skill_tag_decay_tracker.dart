@@ -4,7 +4,7 @@ import 'tag_mastery_history_service.dart';
 class SkillTagDecayTracker {
   final SessionLogService logs;
   final TagMasteryHistoryService history;
-  const SkillTagDecayTracker({required this.logs, required this.history});
+  SkillTagDecayTracker({required this.logs, required this.history});
 
   double _computeSlope(List<double> values) {
     if (values.length < 2) return 0;

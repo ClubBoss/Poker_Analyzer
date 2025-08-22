@@ -10,7 +10,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import 'training_pack_index_writer.dart';
 
 class PackLibraryMergeService {
-  const PackLibraryMergeService();
+  PackLibraryMergeService();
 
   Future<(int success, int failed)> mergeAll(
     List<String> paths, {

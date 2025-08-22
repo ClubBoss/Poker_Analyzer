@@ -10,7 +10,7 @@ import 'weakness_cluster_engine_v2.dart';
 class AdaptiveTrainingPathEngine {
   final WeaknessClusterEngine clusterEngine;
 
-  const AdaptiveTrainingPathEngine({
+  AdaptiveTrainingPathEngine({
     this.clusterEngine = const WeaknessClusterEngine(),
   });
 

@@ -8,7 +8,7 @@ class NodeRecommendation {
   final TrainingPathNode node;
   final String reason;
 
-  const NodeRecommendation({required this.node, required this.reason});
+  NodeRecommendation({required this.node, required this.reason});
 }
 
 /// Provides training path node recommendations based on current progress
@@ -17,7 +17,7 @@ class NodeRecommendationService {
   final TrainingPathNodeDefinitionService definitions;
   final TrainingPathProgressTrackerService progress;
 
-  const NodeRecommendationService({
+  NodeRecommendationService({
     this.definitions = const TrainingPathNodeDefinitionService(),
     this.progress = const TrainingPathProgressTrackerService(),
   });

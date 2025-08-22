@@ -4,7 +4,7 @@ import '../models/skill_tree_build_result.dart';
 
 /// Builds a directed skill tree graph from a list of nodes with prerequisites.
 class SkillTreeBuilderService {
-  const SkillTreeBuilderService();
+  SkillTreeBuilderService();
 
   /// Constructs a [SkillTree] from [nodes].
   /// Optionally filters by [category].

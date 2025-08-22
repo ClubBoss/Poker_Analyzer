@@ -4,7 +4,7 @@ import 'goal_completion_engine.dart';
 
 /// Returns tags of goals that have not been interacted with for [staleDays].
 class SmartGoalReminderEngine {
-  const SmartGoalReminderEngine();
+  SmartGoalReminderEngine();
 
   Future<List<String>> getStaleGoalTags({
     int staleDays = 5,

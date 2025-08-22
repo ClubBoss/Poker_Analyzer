@@ -2,7 +2,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import 'user_profile_preference_service.dart';
 
 class PackRecommendationEngine {
-  const PackRecommendationEngine();
+  PackRecommendationEngine();
 
   List<TrainingPackTemplateV2> recommend({
     required List<TrainingPackTemplateV2> all,

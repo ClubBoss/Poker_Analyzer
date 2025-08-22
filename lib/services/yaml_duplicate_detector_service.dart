@@ -5,7 +5,7 @@ import '../models/duplicate_group.dart';
 import '../models/v2/training_pack_template_v2.dart';
 
 class YamlDuplicateDetectorService {
-  const YamlDuplicateDetectorService();
+  YamlDuplicateDetectorService();
 
   List<DuplicateGroup> detectDuplicates(List<TrainingPackTemplateV2> packs) {
     final nameMap = <String, List<TrainingPackTemplateV2>>{};

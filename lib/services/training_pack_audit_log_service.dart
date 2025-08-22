@@ -59,7 +59,7 @@ class TrainingPackAuditLogService {
   }
 
   bool _listEquals(List a, List b) =>
-      const DeepCollectionEquality().equals(a, b);
+      DeepCollectionEquality().equals(a, b);
 
   bool _mapEquals(Map a, Map b) => const DeepCollectionEquality().equals(a, b);
 

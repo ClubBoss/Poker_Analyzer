@@ -21,7 +21,7 @@ class WeakTheoryReviewLauncher {
 
   final TheoryRecapSuppressionEngine suppression;
 
-  const WeakTheoryReviewLauncher({
+  WeakTheoryReviewLauncher({
     this.threshold = 3,
     this.sessionLimit = 5,
     TheoryRecapSuppressionEngine? suppression,

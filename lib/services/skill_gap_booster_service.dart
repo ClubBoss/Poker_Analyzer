@@ -5,7 +5,7 @@ import 'pack_library_service.dart';
 
 class SkillGapBoosterService {
   final PackLibraryService _library;
-  const SkillGapBoosterService({PackLibraryService? library})
+  SkillGapBoosterService({PackLibraryService? library})
     : _library = library ?? PackLibraryService.instance;
 
   Future<List<TrainingPackTemplateV2>> suggestBoosters({

@@ -11,7 +11,7 @@ class MistakeHistoryQueryService {
   final SpotStreetResolver resolveStreet;
   final RecallSuccessLoader? loadSuccesses;
 
-  const MistakeHistoryQueryService({
+  MistakeHistoryQueryService({
     required this.loadSpottings,
     required this.resolveTags,
     required this.resolveStreet,

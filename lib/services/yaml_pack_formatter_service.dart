@@ -4,7 +4,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/training_pack_spot.dart';
 
 class YamlPackFormatterService {
-  const YamlPackFormatterService();
+  YamlPackFormatterService();
 
   String format(TrainingPackTemplateV2 pack) {
     final map = _packMap(pack);

@@ -91,7 +91,7 @@ class TrainingSessionService extends ChangeNotifier {
   void _startTicker() {
     _timer?.cancel();
     _timer = Timer.periodic(
-      const Duration(seconds: 1),
+      Duration(seconds: 1),
       (_) => notifyListeners(),
     );
   }

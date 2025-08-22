@@ -10,7 +10,7 @@ class AdaptiveTheoryScheduler {
   final MiniLessonLibraryService library;
   final TagMasteryService mastery;
 
-  const AdaptiveTheoryScheduler({
+  AdaptiveTheoryScheduler({
     MiniLessonLibraryService? library,
     required this.mastery,
   }) : library = library ?? MiniLessonLibraryService.instance;

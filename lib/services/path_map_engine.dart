@@ -24,7 +24,7 @@ abstract class StageNode implements LearningPathNode {
   /// IDs of prerequisite nodes that must be completed before this one.
   final List<String> dependsOn;
 
-  const StageNode({
+  StageNode({
     required this.id,
     List<String>? nextIds,
     List<String>? dependsOn,
@@ -35,7 +35,7 @@ abstract class StageNode implements LearningPathNode {
 
 /// Node representing a practice or training stage.
 class TrainingStageNode extends StageNode {
-  const TrainingStageNode({
+  TrainingStageNode({
     required super.id,
     List<String>? nextIds,
     List<String>? dependsOn,
@@ -49,7 +49,7 @@ class TrainingStageNode extends StageNode {
 
 /// Node representing a theory stage.
 class TheoryStageNode extends StageNode {
-  const TheoryStageNode({
+  TheoryStageNode({
     required super.id,
     List<String>? nextIds,
     List<String>? dependsOn,

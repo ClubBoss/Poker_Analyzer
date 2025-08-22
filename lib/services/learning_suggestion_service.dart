@@ -21,7 +21,7 @@ class LearningTip {
   final LearningTipAction action;
   final String targetId;
 
-  const LearningTip({
+  LearningTip({
     required this.title,
     required this.description,
     required this.action,
@@ -33,14 +33,14 @@ class LearningPackSuggestion {
   final String templateId;
   final String suggestionReason;
 
-  const LearningPackSuggestion({
+  LearningPackSuggestion({
     required this.templateId,
     required this.suggestionReason,
   });
 }
 
 class LearningSuggestionService {
-  const LearningSuggestionService();
+  LearningSuggestionService();
 
   /// Suggests the next best pack to train based on progress and weak spots.
   Future<LearningPackSuggestion?> nextSuggestedPack(

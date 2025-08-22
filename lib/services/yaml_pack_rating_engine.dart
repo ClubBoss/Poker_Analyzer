@@ -3,7 +3,7 @@ import '../models/v2/training_pack_spot.dart';
 import 'yaml_pack_balance_analyzer.dart';
 
 class YamlPackRatingEngine {
-  const YamlPackRatingEngine();
+  YamlPackRatingEngine();
 
   int rate(TrainingPackTemplateV2 pack) {
     final spots = pack.spots;

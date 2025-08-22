@@ -6,7 +6,7 @@ class MistakeCluster {
   final String tag;
   final int count;
 
-  const MistakeCluster({required this.tag, required this.count});
+  MistakeCluster({required this.tag, required this.count});
 }
 
 class RecoveryPath {
@@ -14,7 +14,7 @@ class RecoveryPath {
   final double urgencyScore;
   final String reason;
 
-  const RecoveryPath({
+  RecoveryPath({
     required this.tag,
     required this.urgencyScore,
     required this.reason,
@@ -22,7 +22,7 @@ class RecoveryPath {
 }
 
 class ReviewPathRecommender {
-  const ReviewPathRecommender();
+  ReviewPathRecommender();
 
   List<RecoveryPath> suggestRecoveryPath({
     required List<SkillLoss> losses,

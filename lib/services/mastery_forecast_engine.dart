@@ -2,7 +2,7 @@ import 'dart:math';
 
 /// Estimates potential EV gain from improving tag mastery.
 class MasteryForecastEngine {
-  const MasteryForecastEngine();
+  MasteryForecastEngine();
 
   static const double _targetMastery = 0.9;
   static const double _targetEv = 0.95;

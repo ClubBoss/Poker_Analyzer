@@ -1,7 +1,7 @@
 import '../models/learning_path_template_v2.dart';
 
 class PathSuggestionEngine {
-  const PathSuggestionEngine();
+  PathSuggestionEngine();
 
   Future<LearningPathTemplateV2?> suggestNextPath({
     required List<LearningPathTemplateV2> allPaths,

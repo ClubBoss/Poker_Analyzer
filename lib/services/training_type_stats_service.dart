@@ -4,7 +4,7 @@ import '../core/training/engine/training_type_engine.dart';
 import 'training_pack_stats_service.dart';
 
 class TrainingTypeStatsService {
-  const TrainingTypeStatsService();
+  TrainingTypeStatsService();
 
   Future<Map<TrainingType, double>> calculateCompletionPercent(
     List<TrainingPackTemplate> packs,

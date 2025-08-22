@@ -3,7 +3,7 @@ import '../models/v2/training_pack_spot.dart';
 import '../models/v2/hero_position.dart';
 
 class PackTemplateRefactorEngine {
-  const PackTemplateRefactorEngine();
+  PackTemplateRefactorEngine();
 
   TrainingPackTemplateV2 refactor(TrainingPackTemplateV2 pack) {
     final tagSet = <String>{};

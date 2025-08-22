@@ -11,7 +11,7 @@ class ScheduledTrainingLauncher {
   final PackLibraryService library;
   final TrainingSessionLauncher launcher;
 
-  const ScheduledTrainingLauncher({
+  ScheduledTrainingLauncher({
     ScheduledTrainingQueueService? queue,
     PackLibraryService? library,
     this.launcher = const TrainingSessionLauncher(),

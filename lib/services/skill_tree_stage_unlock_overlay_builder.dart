@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Builds overlay widgets indicating lock/unlock/completed state for skill tree stages.
 class SkillTreeStageUnlockOverlayBuilder {
-  const SkillTreeStageUnlockOverlayBuilder();
+  SkillTreeStageUnlockOverlayBuilder();
 
   /// Returns a positioned overlay to display above a stage header.
   Widget buildOverlay({

@@ -19,7 +19,7 @@ class TheoryLessonEffectivenessAnalyzerService {
   final DecayTagRetentionTrackerService retention;
   final RecallSuccessLoggerService logger;
 
-  const TheoryLessonEffectivenessAnalyzerService({
+  TheoryLessonEffectivenessAnalyzerService({
     this.retention = const DecayTagRetentionTrackerService(),
     RecallSuccessLoggerService? logger,
   }) : logger = logger ?? RecallSuccessLoggerService.instance;

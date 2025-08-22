@@ -10,7 +10,7 @@ class BoosterRecommendationResult {
   final double priority;
   final String origin;
 
-  const BoosterRecommendationResult({
+  BoosterRecommendationResult({
     required this.boosterId,
     required this.reasonTag,
     required this.priority,
@@ -21,7 +21,7 @@ class BoosterRecommendationResult {
 class TheoryBoosterRecommender {
   final BoosterLibraryService library;
 
-  const TheoryBoosterRecommender({
+  TheoryBoosterRecommender({
     this.library = BoosterLibraryService.instance,
   });
 

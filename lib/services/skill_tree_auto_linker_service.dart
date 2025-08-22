@@ -29,7 +29,7 @@ class SkillLinkResult {
 
 /// Service linking skill tree nodes to packs and theory lessons based on tags.
 class SkillTreeAutoLinkerService {
-  const SkillTreeAutoLinkerService();
+  SkillTreeAutoLinkerService();
 
   /// Returns mapping from node id to [SkillLinkResult].
   Map<String, SkillLinkResult> link(
@@ -40,7 +40,7 @@ class SkillTreeAutoLinkerService {
     final status = AutogenStatusDashboardService.instance;
     status.update(
       'SkillTreeAutoLinkerService',
-      const AutogenStatus(isRunning: true, currentStage: 'link', progress: 0),
+      AutogenStatus(isRunning: true, currentStage: 'link', progress: 0),
     );
     try {
       final res = <String, SkillLinkResult>{};
@@ -81,7 +81,7 @@ class SkillTreeAutoLinkerService {
       }
       status.update(
         'SkillTreeAutoLinkerService',
-        const AutogenStatus(
+        AutogenStatus(
           isRunning: false,
           currentStage: 'complete',
           progress: 1,

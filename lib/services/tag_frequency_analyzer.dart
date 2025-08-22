@@ -5,7 +5,7 @@ import '../core/training/generation/yaml_reader.dart';
 import '../models/v2/training_pack_template_v2.dart';
 
 class TagFrequencyAnalyzer {
-  const TagFrequencyAnalyzer();
+  TagFrequencyAnalyzer();
 
   Future<void> generate({
     String src = 'assets/packs/v2',

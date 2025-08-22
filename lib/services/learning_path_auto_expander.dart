@@ -15,7 +15,7 @@ class LearningPathAutoExpander {
   final MiniLessonLibraryService library;
   final LearningPathStageLibrary stageLibrary;
 
-  const LearningPathAutoExpander({
+  LearningPathAutoExpander({
     MiniLessonLibraryService? library,
     LearningPathStageLibrary? stageLibrary,
   }) : library = library ?? MiniLessonLibraryService.instance,

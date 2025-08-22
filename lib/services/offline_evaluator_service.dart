@@ -9,7 +9,7 @@ import 'icm_push_ev_service.dart';
 
 class OfflineEvaluatorService {
   OfflineEvaluatorService({PushFoldEvService? offline, RemoteEvService? remote})
-    : offline = offline ?? const PushFoldEvService(),
+    : offline = offline ?? PushFoldEvService(),
       remote = remote ?? RemoteEvService();
 
   final PushFoldEvService offline;

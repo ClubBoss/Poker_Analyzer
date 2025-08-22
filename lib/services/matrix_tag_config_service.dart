@@ -7,7 +7,7 @@ import 'package:path_provider/path_provider.dart';
 class MatrixAxis {
   final String name;
   final List<String> values;
-  const MatrixAxis(this.name, this.values);
+  MatrixAxis(this.name, this.values);
 
   Map<String, dynamic> toJson() => {'name': name, 'values': values};
   factory MatrixAxis.fromJson(Map<String, dynamic> j) => MatrixAxis(
@@ -17,7 +17,7 @@ class MatrixAxis {
 }
 
 class MatrixTagConfigService {
-  const MatrixTagConfigService();
+  MatrixTagConfigService();
 
   Future<List<MatrixAxis>> load() async {
     final file = await _getFile();

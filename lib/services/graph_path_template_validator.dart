@@ -8,7 +8,7 @@ import '../models/theory_lesson_node.dart';
 /// Validates graph-based learning path YAML files.
 class GraphPathTemplateValidator {
   final GraphPathTemplateParser parser;
-  const GraphPathTemplateValidator({GraphPathTemplateParser? parser})
+  GraphPathTemplateValidator({GraphPathTemplateParser? parser})
     : parser = parser ?? GraphPathTemplateParser();
 
   /// Parses [yamlText] and validates the resulting nodes.
@@ -40,11 +40,11 @@ class GraphPathTemplateValidator {
     final startCount = idCounts['start'] ?? 0;
     if (startCount == 0) {
       issues.add(
-        const ValidationIssue(type: 'error', message: 'missing_start'),
+        ValidationIssue(type: 'error', message: 'missing_start'),
       );
     } else if (startCount > 1) {
       issues.add(
-        const ValidationIssue(type: 'error', message: 'multiple_start'),
+        ValidationIssue(type: 'error', message: 'multiple_start'),
       );
     }
 

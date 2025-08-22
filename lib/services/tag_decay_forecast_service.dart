@@ -13,7 +13,7 @@ class TagDecayStats {
   final double intervalStd;
   final DateTime? nextReview;
 
-  const TagDecayStats({
+  TagDecayStats({
     required this.tag,
     this.lastTrained,
     this.timeSinceLast = Duration.zero,
@@ -28,7 +28,7 @@ class TagDecayForecastService {
   final RecallSuccessLoggerService logger;
   final InboxBoosterTunerService tuner;
 
-  const TagDecayForecastService({
+  TagDecayForecastService({
     this.retention = const DecayTagRetentionTrackerService(),
     RecallSuccessLoggerService? logger,
     InboxBoosterTunerService? tuner,

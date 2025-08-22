@@ -52,5 +52,5 @@ class LearningPathEntryGroup {
   final String title;
   final List<LearningPathEntry> entries;
 
-  const LearningPathEntryGroup({required this.title, required this.entries});
+  LearningPathEntryGroup({required this.title, required this.entries});
 }

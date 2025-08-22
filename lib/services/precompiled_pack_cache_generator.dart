@@ -9,7 +9,7 @@ import 'training_pack_template_service.dart';
 /// Generates precompiled training packs and stores them as YAML files
 /// under `assets/precompiled_packs/`.
 class PrecompiledPackCacheGenerator {
-  const PrecompiledPackCacheGenerator();
+  PrecompiledPackCacheGenerator();
 
   /// Generates YAML files for all available [TrainingPackTemplate]s.
   Future<void> generateAll() async {

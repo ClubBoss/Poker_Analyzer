@@ -3,7 +3,7 @@ import 'learning_path_template_validator.dart';
 
 /// Validates a [LearningPathLibrary] using [LearningPathTemplateValidator].
 class LearningPathLibraryValidator {
-  const LearningPathLibraryValidator();
+  LearningPathLibraryValidator();
 
   /// Returns a list of `(pathId, message)` tuples describing issues.
   List<(String, String)> validateAll(LearningPathLibrary library) {

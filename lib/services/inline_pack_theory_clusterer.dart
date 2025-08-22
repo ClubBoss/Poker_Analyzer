@@ -13,7 +13,7 @@ class TheoryResource {
   final String uri;
   final List<String> tags;
 
-  const TheoryResource({
+  TheoryResource({
     required this.id,
     required this.title,
     required this.uri,
@@ -24,7 +24,7 @@ class TheoryResource {
 /// Guard to avoid repeatedly linking the same theory cluster to packs with
 /// identical tag sets.
 class PackNoveltyGuardService {
-  const PackNoveltyGuardService();
+  PackNoveltyGuardService();
 
   /// Returns true if the combination of [tags] and [itemIds] is considered
   /// novel for the current export session.

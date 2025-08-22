@@ -11,7 +11,7 @@ class LearningPathGraphOrchestrator {
   final GraphPathTemplateParser parser;
   final GameModeProfileEngine profiles;
 
-  const LearningPathGraphOrchestrator({
+  LearningPathGraphOrchestrator({
     GraphPathTemplateParser? parser,
     GameModeProfileEngine? profiles,
   }) : parser = parser ?? GraphPathTemplateParser(),

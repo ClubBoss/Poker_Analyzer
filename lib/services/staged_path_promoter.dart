@@ -4,7 +4,7 @@ import 'learning_path_library.dart';
 /// Moves staged learning paths from [LearningPathLibrary.staging] into
 /// [LearningPathLibrary.main] so they are accessible in the app.
 class StagedPathPromoter {
-  const StagedPathPromoter();
+  StagedPathPromoter();
 
   /// Copies all templates from the staging library into the main library.
   ///

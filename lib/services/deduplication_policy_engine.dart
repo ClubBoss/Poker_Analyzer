@@ -14,7 +14,7 @@ class DeduplicationPolicy {
   final DeduplicationAction action;
   final double threshold; // similarity cutoff
 
-  const DeduplicationPolicy({
+  DeduplicationPolicy({
     required this.reason,
     required this.action,
     required this.threshold,

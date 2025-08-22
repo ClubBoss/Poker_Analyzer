@@ -4,7 +4,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/training_pack_spot.dart';
 
 class BoosterRefinerEngine {
-  const BoosterRefinerEngine();
+  BoosterRefinerEngine();
 
   /// Refines all booster packs in [dir].
   ///

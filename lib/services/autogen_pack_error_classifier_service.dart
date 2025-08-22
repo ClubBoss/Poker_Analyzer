@@ -29,7 +29,7 @@ class AutogenPackErrorEntry {
 
 /// Classifies rejected packs into [AutogenPackErrorType] categories.
 class AutogenPackErrorClassifierService {
-  const AutogenPackErrorClassifierService();
+  AutogenPackErrorClassifierService();
 
   static const int _maxErrors = 50;
   static final ValueNotifier<List<AutogenPackErrorEntry>> _recentErrors =

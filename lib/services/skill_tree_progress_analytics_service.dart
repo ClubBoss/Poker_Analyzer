@@ -8,7 +8,7 @@ class SkillTreeProgressStats {
   final double completionRate;
   final Map<int, double> completionRateByLevel;
 
-  const SkillTreeProgressStats({
+  SkillTreeProgressStats({
     required this.totalNodes,
     required this.completedNodes,
     required this.completionRate,

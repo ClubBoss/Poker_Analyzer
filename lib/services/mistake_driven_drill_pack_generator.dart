@@ -12,7 +12,7 @@ class MistakeDrivenDrillPackGenerator {
   final MistakeHistoryQueryService history;
   final Future<TrainingPackSpot?> Function(String spotId) loadSpot;
 
-  const MistakeDrivenDrillPackGenerator({
+  MistakeDrivenDrillPackGenerator({
     required this.history,
     required this.loadSpot,
   });

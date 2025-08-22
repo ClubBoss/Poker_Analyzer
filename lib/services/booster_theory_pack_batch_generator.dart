@@ -6,7 +6,7 @@ import 'theory_pack_generator.dart';
 class BoosterTheoryPackBatchGenerator {
   final TheoryPackGenerator _generator;
 
-  const BoosterTheoryPackBatchGenerator({TheoryPackGenerator? generator})
+  BoosterTheoryPackBatchGenerator({TheoryPackGenerator? generator})
     : _generator = generator ?? const TheoryPackGenerator();
 
   /// Returns [library] extended with theory packs for every tag in [tags]

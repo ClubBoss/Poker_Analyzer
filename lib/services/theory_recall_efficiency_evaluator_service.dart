@@ -6,7 +6,7 @@ class TheoryRecallEfficiencyEvaluatorService {
   final RecallBoostInteractionLogger viewLogger;
   final RecallSuccessLoggerService successLogger;
 
-  const TheoryRecallEfficiencyEvaluatorService({
+  TheoryRecallEfficiencyEvaluatorService({
     RecallBoostInteractionLogger? viewLogger,
     RecallSuccessLoggerService? successLogger,
   }) : viewLogger = viewLogger ?? RecallBoostInteractionLogger.instance,

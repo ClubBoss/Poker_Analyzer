@@ -12,7 +12,7 @@ class AdaptivePackRecommendation {
   final TrainingPackTemplateV2 pack;
   final double score;
 
-  const AdaptivePackRecommendation({required this.pack, required this.score});
+  AdaptivePackRecommendation({required this.pack, required this.score});
 }
 
 class AdaptivePackRecommenderService {
@@ -20,7 +20,7 @@ class AdaptivePackRecommenderService {
   final TagMasteryService masteryService;
   final MistakeTagHistoryService? mistakeHistory;
 
-  const AdaptivePackRecommenderService({
+  AdaptivePackRecommenderService({
     this.decayService = const TagDecayForecastService(),
     required this.masteryService,
     this.mistakeHistory,

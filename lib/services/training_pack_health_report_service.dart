@@ -5,7 +5,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import '../models/training_health_report.dart';
 
 class TrainingPackHealthReportService {
-  const TrainingPackHealthReportService();
+  TrainingPackHealthReportService();
 
   Future<TrainingHealthReport> generateReport({
     String path = 'training_packs/library',

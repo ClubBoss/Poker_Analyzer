@@ -16,7 +16,7 @@ class ProgressEntry {
   final double icm;
   final String position;
   final String? tag;
-  const ProgressEntry({
+  ProgressEntry({
     required this.date,
     required this.accuracy,
     required this.ev,
@@ -30,7 +30,7 @@ class ProgressForecast {
   final double accuracy;
   final double ev;
   final double icm;
-  const ProgressForecast({
+  ProgressForecast({
     required this.accuracy,
     required this.ev,
     required this.icm,

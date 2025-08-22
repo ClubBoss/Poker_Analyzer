@@ -5,7 +5,7 @@ enum ReviewStatus { draft, approved, rewrite }
 
 /// Provides heuristics for determining review status of a theory pack.
 class TheoryPackReviewStatusEngine {
-  const TheoryPackReviewStatusEngine();
+  TheoryPackReviewStatusEngine();
 
   /// Returns review status for [pack] based on simple heuristics.
   ReviewStatus getStatus(TheoryPackModel pack) {

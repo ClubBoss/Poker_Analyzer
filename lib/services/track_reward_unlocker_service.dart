@@ -43,8 +43,8 @@ class TrackRewardUnlockerService {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.card_giftcard, size: 48, color: Colors.orange),
-            const SizedBox(height: 12),
+            Icon(Icons.card_giftcard, size: 48, color: Colors.orange),
+            SizedBox(height: 12),
             Text(title),
           ],
         ),

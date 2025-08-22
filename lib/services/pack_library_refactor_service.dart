@@ -11,7 +11,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import 'pack_matrix_config.dart';
 
 class PackLibraryRefactorService {
-  const PackLibraryRefactorService();
+  PackLibraryRefactorService();
 
   Future<int> refactorAll({String path = 'training_packs/library'}) async {
     if (!kDebugMode) return 0;

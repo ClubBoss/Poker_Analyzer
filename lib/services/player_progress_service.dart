@@ -7,7 +7,7 @@ class PositionProgress {
   final int correct;
   final double ev;
   final double icm;
-  const PositionProgress({
+  PositionProgress({
     this.hands = 0,
     this.correct = 0,
     this.ev = 0,

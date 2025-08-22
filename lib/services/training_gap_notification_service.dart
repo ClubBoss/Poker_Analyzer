@@ -6,7 +6,7 @@ import 'weak_training_type_detector.dart';
 import 'training_type_stats_service.dart';
 
 class TrainingGapNotificationService {
-  const TrainingGapNotificationService();
+  TrainingGapNotificationService();
 
   Future<TrainingPackTemplate?> suggestNextPack({String? excludeId}) async {
     await PackLibraryLoaderService.instance.loadLibrary();

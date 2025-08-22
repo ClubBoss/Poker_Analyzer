@@ -7,7 +7,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import 'training_pack_rating_engine.dart';
 
 class PackLibraryRatingEngine {
-  const PackLibraryRatingEngine();
+  PackLibraryRatingEngine();
 
   Future<PackLibraryRatingReport> rateLibrary(
     List<TrainingPackTemplateV2> packs, {

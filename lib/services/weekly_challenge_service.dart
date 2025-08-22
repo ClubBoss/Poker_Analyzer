@@ -13,7 +13,7 @@ class WeeklyChallenge {
   final String title;
   final String type;
   final int target;
-  const WeeklyChallenge(this.title, this.type, this.target);
+  WeeklyChallenge(this.title, this.type, this.target);
 }
 
 class WeeklyChallengeService extends ChangeNotifier {
@@ -97,7 +97,7 @@ class WeeklyChallengeService extends ChangeNotifier {
       await xp.add(xp: _rewardXp, source: 'weekly_challenge');
       if (navigatorKey.currentState?.context.mounted ?? false) {
         ScaffoldMessenger.of(navigatorKey.currentState!.context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('🎉 Challenge completed!'),
             duration: Duration(seconds: 2),
             behavior: SnackBarBehavior.floating,

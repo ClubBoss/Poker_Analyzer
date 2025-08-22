@@ -2,7 +2,7 @@ import '../models/skill_tree.dart';
 
 /// Utility helpers for traversing [SkillTree] graphs.
 class SkillTreeGraphService {
-  const SkillTreeGraphService();
+  SkillTreeGraphService();
 
   /// Returns all prerequisites for [nodeId] in topological order.
   List<String> getPrerequisiteChain(SkillTree tree, String nodeId) {

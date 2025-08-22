@@ -15,20 +15,20 @@ import 'training_session_service.dart';
 class StageStats {
   final int handsPlayed;
   final double accuracy;
-  const StageStats({required this.handsPlayed, required this.accuracy});
+  StageStats({required this.handsPlayed, required this.accuracy});
 }
 
 /// Accuracy trend entry for a single session.
 class StageTrendPoint {
   final DateTime date;
   final double accuracy;
-  const StageTrendPoint({required this.date, required this.accuracy});
+  StageTrendPoint({required this.date, required this.accuracy});
 }
 
 /// Extended stats including recent session history.
 class StageStatsWithHistory extends StageStats {
   final List<StageTrendPoint> history;
-  const StageStatsWithHistory({
+  StageStatsWithHistory({
     required int handsPlayed,
     required double accuracy,
     required this.history,

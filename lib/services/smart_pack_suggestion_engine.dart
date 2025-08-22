@@ -7,7 +7,7 @@ class UserProfile {
   final String? audience;
   final List<String> recentTags;
   final List<String> weakTags;
-  const UserProfile({
+  UserProfile({
     this.audience,
     this.recentTags = const [],
     this.weakTags = const [],
@@ -15,7 +15,7 @@ class UserProfile {
 }
 
 class SmartPackSuggestionEngine {
-  const SmartPackSuggestionEngine();
+  SmartPackSuggestionEngine();
 
   Future<List<TrainingPackTemplateV2>> suggestTopPacks(
     UserProfile profile, {

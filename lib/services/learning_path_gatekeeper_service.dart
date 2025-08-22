@@ -17,7 +17,7 @@ class LearningPathGatekeeperService {
   final int minSessions;
 
   /// Creates a gatekeeper using [progress] and [mastery].
-  const LearningPathGatekeeperService({
+  LearningPathGatekeeperService({
     required this.progress,
     required this.mastery,
     this.clusterService = const MistakeTagClusterService(),

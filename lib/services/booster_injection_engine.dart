@@ -6,7 +6,7 @@ import 'xp_level_engine.dart';
 class BoosterInjectionEngine {
   final XPLevelEngine xpEngine;
 
-  const BoosterInjectionEngine({this.xpEngine = XPLevelEngine.instance});
+  BoosterInjectionEngine({this.xpEngine = XPLevelEngine.instance});
 
   List<TrainingPackTemplateV2> scheduleBoosters({
     required List<WeakClusterInfo> clusters,

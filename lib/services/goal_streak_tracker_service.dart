@@ -7,7 +7,7 @@ class GoalStreakInfo {
   final int longestStreak;
   final DateTime lastCompletedDay;
 
-  const GoalStreakInfo({
+  GoalStreakInfo({
     required this.currentStreak,
     required this.longestStreak,
     required this.lastCompletedDay,

@@ -10,7 +10,7 @@ class FeedRecommendationCard {
   final String packId;
   final String cta;
 
-  const FeedRecommendationCard({
+  FeedRecommendationCard({
     required this.title,
     required this.subtitle,
     required this.packId,
@@ -21,7 +21,7 @@ class FeedRecommendationCard {
 class RecommendationFeedEngine {
   final SmartPackRecommender _recommender;
 
-  const RecommendationFeedEngine({SmartPackRecommender? recommender})
+  RecommendationFeedEngine({SmartPackRecommender? recommender})
     : _recommender = recommender ?? const SmartPackRecommender();
 
   List<FeedRecommendationCard> build({

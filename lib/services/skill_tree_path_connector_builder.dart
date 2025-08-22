@@ -5,7 +5,7 @@ import '../models/skill_tree_node_model.dart';
 
 /// Builds connector lines between nodes within the same level.
 class SkillTreePathConnectorBuilder {
-  const SkillTreePathConnectorBuilder();
+  SkillTreePathConnectorBuilder();
 
   /// Returns positioned widgets drawing connectors between consecutive nodes.
   ///

@@ -355,7 +355,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
             ? const ResumeTrainingCard()
             : const SizedBox.shrink(),
         const ContinueTrainingButton(),
-        const DecayBoosterShortcutConsolidatorWidget(),
+        DecayBoosterShortcutConsolidatorWidget(),
         FutureBuilder<ReminderBanner?>(
           future: _bannerFuture,
           builder: (context, snapshot) {

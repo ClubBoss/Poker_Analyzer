@@ -5,7 +5,7 @@ import '../models/v2/hero_position.dart';
 /// Provides sampling of large training packs to create a smaller
 /// representative subset.
 class TrainingPackSampler {
-  const TrainingPackSampler();
+  TrainingPackSampler();
 
   /// Returns a new [TrainingPackTemplateV2] containing at most [maxSpots]
   /// spots sampled from [fullPack].

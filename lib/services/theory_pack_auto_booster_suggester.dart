@@ -4,7 +4,7 @@ import 'theory_pack_review_status_engine.dart';
 
 /// Suggests booster theory packs related to a given pack.
 class TheoryPackAutoBoosterSuggester {
-  const TheoryPackAutoBoosterSuggester();
+  TheoryPackAutoBoosterSuggester();
 
   /// Returns up to [max] booster pack ids ranked by relevance.
   List<String> suggestBoosters(

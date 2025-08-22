@@ -37,7 +37,7 @@ class StreakReminderService extends ChangeNotifier {
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
     await _plugin.initialize(
-      const InitializationSettings(android: android, iOS: ios),
+      InitializationSettings(android: android, iOS: ios),
     );
     tz.initializeTimeZones();
   }
@@ -84,7 +84,7 @@ class StreakReminderService extends ChangeNotifier {
       'Poker Analyzer',
       'Don\u2019t break your streak! Quick session to keep the momentum.',
       when,
-      const NotificationDetails(
+      NotificationDetails(
         android: AndroidNotificationDetails(
           'streak_reminder',
           'Streak Reminder',

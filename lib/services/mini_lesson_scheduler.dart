@@ -4,7 +4,7 @@ import 'mini_lesson_progress_tracker.dart';
 class MiniLessonScheduler {
   final MiniLessonProgressTracker tracker;
 
-  const MiniLessonScheduler({MiniLessonProgressTracker? tracker})
+  MiniLessonScheduler({MiniLessonProgressTracker? tracker})
     : tracker = tracker ?? MiniLessonProgressTracker.instance;
 
   /// Returns [max] lesson ids from [candidates] prioritized by usage data.

@@ -1,7 +1,7 @@
 import 'theory_yaml_importer.dart';
 
 class BoosterTagCoverageStats {
-  const BoosterTagCoverageStats();
+  BoosterTagCoverageStats();
 
   Future<Map<String, int>> loadCoverage({
     String dir = 'yaml_out/boosters',

@@ -2,7 +2,7 @@ import '../models/learning_event.dart';
 import '../models/track_play_history.dart';
 
 class TrainingProgressTimelineService {
-  const TrainingProgressTimelineService();
+  TrainingProgressTimelineService();
 
   List<LearningEvent> buildTimeline({
     required List<TrackPlayHistory> history,

@@ -7,7 +7,7 @@ class OutcomeStats {
   final int n;
   final double meanDelta;
   final double varDelta;
-  const OutcomeStats({
+  OutcomeStats({
     required this.n,
     required this.meanDelta,
     required this.varDelta,

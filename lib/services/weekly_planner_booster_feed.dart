@@ -7,7 +7,7 @@ class BoosterSuggestion {
   final String packId;
   final String tag;
 
-  const BoosterSuggestion({required this.packId, required this.tag});
+  BoosterSuggestion({required this.packId, required this.tag});
 }
 
 class WeeklyPlannerBoosterFeed {

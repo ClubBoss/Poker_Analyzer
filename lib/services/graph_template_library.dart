@@ -49,7 +49,7 @@ class GraphTemplateLibrary {
           ctx,
           MaterialPageRoute(
             builder: (_) =>
-                const GraphPathAuthoringWizardScreen(initialTemplateId: id),
+                GraphPathAuthoringWizardScreen(initialTemplateId: id),
           ),
         );
       }
@@ -57,7 +57,7 @@ class GraphTemplateLibrary {
       final ctx = navigatorKey.currentContext;
       if (ctx != null) {
         ScaffoldMessenger.of(ctx).showSnackBar(
-          const SnackBar(content: Text('Failed to import YAML file')),
+          SnackBar(content: Text('Failed to import YAML file')),
         );
       }
     }

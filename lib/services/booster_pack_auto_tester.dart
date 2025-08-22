@@ -17,7 +17,7 @@ class BoosterAutoTestReport {
 }
 
 class BoosterPackAutoTester {
-  const BoosterPackAutoTester();
+  BoosterPackAutoTester();
 
   Future<BoosterAutoTestReport> testAll({
     String dir = 'yaml_out/boosters',

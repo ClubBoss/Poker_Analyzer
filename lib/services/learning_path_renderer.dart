@@ -5,7 +5,7 @@ import 'mistake_booster_path_node_decorator.dart';
 class LearningPathRenderer {
   final MistakeBoosterPathNodeDecorator boosterDecorator;
 
-  const LearningPathRenderer({
+  LearningPathRenderer({
     MistakeBoosterPathNodeDecorator? boosterDecorator,
   }) : boosterDecorator =
            boosterDecorator ?? const MistakeBoosterPathNodeDecorator();

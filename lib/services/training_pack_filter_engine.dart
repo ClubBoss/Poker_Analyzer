@@ -6,7 +6,7 @@ import '../core/training/generation/yaml_reader.dart';
 import '../models/v2/training_pack_template_v2.dart';
 
 class TrainingPackFilterEngine {
-  const TrainingPackFilterEngine();
+  TrainingPackFilterEngine();
 
   Future<List<TrainingPackTemplateV2>> filter({
     double? minEv,

@@ -68,7 +68,7 @@ class BackupImportExportService {
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Не удалось экспортировать очередь')),
+          SnackBar(content: Text('Не удалось экспортировать очередь')),
         );
       }
     }
@@ -109,7 +109,7 @@ class BackupImportExportService {
       if (!await dir.exists()) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No export files found')),
+            SnackBar(content: Text('No export files found')),
           );
         }
         return;
@@ -147,7 +147,7 @@ class BackupImportExportService {
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to import queue state')),
+          SnackBar(content: Text('Failed to import queue state')),
         );
       }
     }
@@ -189,7 +189,7 @@ class BackupImportExportService {
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to restore full queue state')),
+          SnackBar(content: Text('Failed to restore full queue state')),
         );
       }
     }
@@ -211,7 +211,7 @@ class BackupImportExportService {
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Не удалось создать бэкап')),
+          SnackBar(content: Text('Не удалось создать бэкап')),
         );
       }
     }
@@ -233,7 +233,7 @@ class BackupImportExportService {
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to create quick backup')),
+          SnackBar(content: Text('Failed to create quick backup')),
         );
       }
     }
@@ -245,7 +245,7 @@ class BackupImportExportService {
       if (!await dir.exists()) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No quick backup files found')),
+            SnackBar(content: Text('No quick backup files found')),
           );
         }
         return;
@@ -302,7 +302,7 @@ class BackupImportExportService {
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to import quick backups')),
+          SnackBar(content: Text('Failed to import quick backups')),
         );
       }
     }
@@ -351,7 +351,7 @@ class BackupImportExportService {
         }
         return;
       }
-      final files = await dir.list(recursive: true).whereType<File>().toList();
+      final files = await dir.list(recursive: true).where((e) => e is File).cast<File>().toList();
       if (files.isEmpty) {
         if (context.mounted) {
           ScaffoldMessenger.of(
@@ -406,7 +406,7 @@ class BackupImportExportService {
       if (!await dir.exists()) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No auto-backup files found')),
+            SnackBar(content: Text('No auto-backup files found')),
           );
         }
         return;
@@ -444,7 +444,7 @@ class BackupImportExportService {
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to restore auto-backup')),
+          SnackBar(content: Text('Failed to restore auto-backup')),
         );
       }
     }
@@ -526,7 +526,7 @@ class BackupImportExportService {
     if (!await dir.exists()) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No auto-backup files found')),
+          SnackBar(content: Text('No auto-backup files found')),
         );
       }
       return;

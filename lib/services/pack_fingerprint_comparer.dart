@@ -11,7 +11,7 @@ class PackFingerprint {
   final Set<String> spots;
   final Map<String, dynamic> meta;
 
-  const PackFingerprint({
+  PackFingerprint({
     required this.id,
     required this.hash,
     required this.spots,
@@ -47,7 +47,7 @@ class PackDuplicateReport {
   final String reason;
   final double similarity;
 
-  const PackDuplicateReport({
+  PackDuplicateReport({
     required this.existingPackId,
     required this.reason,
     required this.similarity,
@@ -56,7 +56,7 @@ class PackDuplicateReport {
 
 /// Compares pack fingerprints to detect duplicates or highly similar packs.
 class PackFingerprintComparer {
-  const PackFingerprintComparer();
+  PackFingerprintComparer();
 
   /// Compares [newPack] against [existingPacks] and returns reports for any
   /// packs that are either duplicates (same hash) or have >=90% overlap in spot

@@ -7,7 +7,7 @@ import 'package:path/path.dart' as p;
 /// and snapshot file to allow rollback on failure.
 class PathTransactionManager {
   final String rootDir;
-  const PathTransactionManager({required this.rootDir});
+  PathTransactionManager({required this.rootDir});
 
   String _journalPath(String userId) => '$rootDir/.journal.$userId.jsonl';
   String _snapshotPath(String userId, String txId) =>

@@ -15,7 +15,7 @@ class CachedLearningPlan {
   final List<CachedTrainingTrack> tracks;
   final TrainingPackTemplateV2? mistakePack;
 
-  const CachedLearningPlan({
+  CachedLearningPlan({
     required this.goals,
     required this.tracks,
     this.mistakePack,
@@ -51,7 +51,7 @@ class CachedLearningGoal {
   final String tag;
   final double priority;
 
-  const CachedLearningGoal({
+  CachedLearningGoal({
     required this.id,
     required this.title,
     required this.description,
@@ -89,7 +89,7 @@ class CachedTrainingTrack {
   final List<TrainingPackSpot> spots;
   final List<String> tags;
 
-  const CachedTrainingTrack({
+  CachedTrainingTrack({
     required this.id,
     required this.title,
     required this.goalId,

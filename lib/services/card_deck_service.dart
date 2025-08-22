@@ -1,7 +1,7 @@
 import '../models/card_model.dart';
 
 class CardDeckService {
-  const CardDeckService();
+  CardDeckService();
 
   List<CardModel> buildDeck({
     List<CardModel> excludedCards = const [],

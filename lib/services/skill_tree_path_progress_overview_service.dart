@@ -6,7 +6,7 @@ class PathProgressOverview {
   final int completedTracks;
   final double averageCompletionRate; // 0.0 - 1.0
 
-  const PathProgressOverview({
+  PathProgressOverview({
     required this.totalTracks,
     required this.completedTracks,
     required this.averageCompletionRate,

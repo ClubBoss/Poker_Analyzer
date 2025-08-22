@@ -7,7 +7,7 @@ class MistakeTagRecoveryStatus {
   final int repetitions;
   final double totalDelta;
 
-  const MistakeTagRecoveryStatus({
+  MistakeTagRecoveryStatus({
     required this.tag,
     required this.repetitions,
     required this.totalDelta,
@@ -19,7 +19,7 @@ class MistakeRecoverySummary {
   final int reinforced;
   final int recovered;
 
-  const MistakeRecoverySummary({
+  MistakeRecoverySummary({
     required this.reinforced,
     required this.recovered,
   });

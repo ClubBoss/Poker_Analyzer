@@ -11,7 +11,7 @@ import 'learning_track_engine.dart';
 
 /// Suggests the most relevant unfinished lesson step to resume.
 class LessonResumeEngine {
-  const LessonResumeEngine();
+  LessonResumeEngine();
 
   Future<LessonStep?> getResumeStep(PlayerProfile profile) async {
     final steps = await LessonLoaderService.instance.loadAllLessons();

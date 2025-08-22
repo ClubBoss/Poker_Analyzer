@@ -13,7 +13,7 @@ class StreakRecoveryRecommender {
   final TrainingStatsService _stats;
   final BoosterSuggestionEngine _booster;
 
-  const StreakRecoveryRecommender({
+  StreakRecoveryRecommender({
     TrainingStatsService? stats,
     BoosterSuggestionEngine? booster,
   }) : _stats = stats ?? TrainingStatsService.instance!,
@@ -100,7 +100,7 @@ class StreakRecoveryRecommender {
 
     if (suggestions.isEmpty) {
       suggestions.add(
-        const StreakRecoverySuggestion(
+        StreakRecoverySuggestion(
           title: 'Spot of the Day',
           packId: 'spot_of_the_day',
           tagFocus: null,

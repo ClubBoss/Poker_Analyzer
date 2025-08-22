@@ -9,7 +9,7 @@ import 'package:collection/collection.dart';
 class UserProgress {
   final List<TrainingResult> history;
 
-  const UserProgress({required this.history});
+  UserProgress({required this.history});
 }
 
 /// Suggests the next best stage based on user's weaknesses and mastery.
@@ -18,7 +18,7 @@ class SmartRecommenderEngine {
   final TagMasteryService masteryService;
   final WeaknessTagResolver tagResolver;
 
-  const SmartRecommenderEngine({
+  SmartRecommenderEngine({
     this.clusterEngine = const WeaknessClusterEngine(),
     required this.masteryService,
     this.tagResolver = const WeaknessTagResolver(),

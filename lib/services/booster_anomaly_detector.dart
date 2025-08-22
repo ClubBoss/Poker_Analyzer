@@ -6,7 +6,7 @@ import '../models/booster_anomaly_report.dart';
 import '../models/v2/training_pack_template_v2.dart';
 
 class BoosterAnomalyDetector {
-  const BoosterAnomalyDetector();
+  BoosterAnomalyDetector();
 
   Future<BoosterAnomalyReport> analyzeYamlDir(String dir) async {
     final directory = Directory(dir);

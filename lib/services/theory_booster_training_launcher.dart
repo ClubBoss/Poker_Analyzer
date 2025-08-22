@@ -12,7 +12,7 @@ class TheoryBoosterTrainingLauncher {
   final MiniLessonLibraryService library;
   final TheoryTrainingLauncher launcher;
 
-  const TheoryBoosterTrainingLauncher({
+  TheoryBoosterTrainingLauncher({
     this.queue = TheoryBoosterQueueService.instance,
     this.library = MiniLessonLibraryService.instance,
     this.launcher = const TheoryTrainingLauncher(),

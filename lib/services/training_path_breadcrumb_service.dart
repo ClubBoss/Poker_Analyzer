@@ -6,7 +6,7 @@ import 'training_path_node_definition_service.dart';
 class TrainingPathBreadcrumbService {
   final TrainingPathNodeDefinitionService definitions;
 
-  const TrainingPathBreadcrumbService({
+  TrainingPathBreadcrumbService({
     this.definitions = const TrainingPathNodeDefinitionService(),
   });
 

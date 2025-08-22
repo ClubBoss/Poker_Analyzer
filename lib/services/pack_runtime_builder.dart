@@ -8,7 +8,7 @@ import 'pack_generator_service.dart';
 import 'range_library_service.dart';
 
 class PackRuntimeBuilder {
-  const PackRuntimeBuilder();
+  PackRuntimeBuilder();
 
   static final _cache = <String, List<TrainingPackSpot>>{};
   static final _pending = <String, Future<List<TrainingPackSpot>>>{};

@@ -158,7 +158,7 @@ class TemplateStorageService extends ChangeNotifier {
       if (data is! Map<String, dynamic>) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               content: Text('Неверный формат шаблона: неверный JSON'),
             ),
           );
@@ -221,7 +221,7 @@ class TemplateStorageService extends ChangeNotifier {
         } else if (template.revision == existing.revision) {
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Такой шаблон уже есть')),
+              SnackBar(content: Text('Такой шаблон уже есть')),
             );
           }
           return null;
@@ -358,7 +358,7 @@ class TemplateStorageService extends ChangeNotifier {
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Не удалось экспортировать файл')),
+          SnackBar(content: Text('Не удалось экспортировать файл')),
         );
       }
     }

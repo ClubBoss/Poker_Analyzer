@@ -1,5 +1,5 @@
 class RecapSessionTagInjector {
-  const RecapSessionTagInjector();
+  RecapSessionTagInjector();
 
   static final RecapSessionTagInjector instance = RecapSessionTagInjector();
 

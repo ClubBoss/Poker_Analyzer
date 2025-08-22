@@ -6,7 +6,7 @@ import 'skill_tree_stage_completion_evaluator.dart';
 class SkillTreeStageGateEvaluator {
   final SkillTreeStageCompletionEvaluator completionEvaluator;
 
-  const SkillTreeStageGateEvaluator({
+  SkillTreeStageGateEvaluator({
     SkillTreeStageCompletionEvaluator? completionEvaluator,
   }) : completionEvaluator =
            completionEvaluator ?? const SkillTreeStageCompletionEvaluator();

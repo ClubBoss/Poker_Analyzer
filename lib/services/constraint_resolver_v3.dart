@@ -14,7 +14,7 @@ class ConstraintResolverV3 {
   final LineGraphEngine _lineEngine;
   final Uuid _uuid;
 
-  const ConstraintResolverV3({
+  ConstraintResolverV3({
     FullBoardGeneratorV2? boardGenerator,
     LineGraphEngine? lineEngine,
     Uuid? uuid,

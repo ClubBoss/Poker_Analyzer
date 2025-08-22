@@ -5,7 +5,7 @@ class WeaknessCluster {
   final String reason;
   final double severity;
 
-  const WeaknessCluster({
+  WeaknessCluster({
     required this.tag,
     required this.reason,
     required this.severity,
@@ -13,7 +13,7 @@ class WeaknessCluster {
 }
 
 class WeaknessClusterEngine {
-  const WeaknessClusterEngine();
+  WeaknessClusterEngine();
 
   List<WeaknessCluster> detectWeaknesses({
     required List<TrainingResult> results,

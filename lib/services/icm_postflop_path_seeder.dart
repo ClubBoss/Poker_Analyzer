@@ -4,7 +4,7 @@ import '../core/training/generation/yaml_writer.dart';
 import '../models/v2/training_pack_template_v2.dart';
 
 class IcmPostflopPathSeeder {
-  const IcmPostflopPathSeeder();
+  IcmPostflopPathSeeder();
 
   Future<void> generateIcmPostflopPath() async {
     await PackLibraryIndexLoader.instance.load();

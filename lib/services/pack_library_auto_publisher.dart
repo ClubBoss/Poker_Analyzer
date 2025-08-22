@@ -32,7 +32,7 @@ class PublishReport {
 }
 
 class PackLibraryAutoPublisher {
-  const PackLibraryAutoPublisher();
+  PackLibraryAutoPublisher();
 
   Future<PublishReport> publish({
     String packsSrc = 'assets/packs',

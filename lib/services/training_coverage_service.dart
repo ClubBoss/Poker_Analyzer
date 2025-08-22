@@ -7,7 +7,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import 'pack_matrix_config.dart';
 
 class TrainingCoverageService {
-  const TrainingCoverageService();
+  TrainingCoverageService();
 
   Future<Map<String, dynamic>> analyzeCoverage(
     List<TrainingPackTemplateV2> all,

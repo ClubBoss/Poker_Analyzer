@@ -12,7 +12,7 @@ class TrainingPackGeneratorV2 {
   final TrainingPackRepository repository;
   final Uuid _uuid;
 
-  const TrainingPackGeneratorV2({
+  TrainingPackGeneratorV2({
     TrainingPackRepository? repository,
     Uuid? uuid,
   }) : repository = repository ?? const TrainingPackRepository(),

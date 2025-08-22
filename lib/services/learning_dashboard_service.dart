@@ -8,7 +8,7 @@ class LearningDashboardData {
   final int tagsImproved;
   final int? streakDays;
 
-  const LearningDashboardData({
+  LearningDashboardData({
     required this.goalsCompleted,
     required this.averageAccuracy,
     required this.evGainEstimate,
@@ -20,7 +20,7 @@ class LearningDashboardData {
 class LearningDashboardService {
   final MasteryForecastEngine forecast;
 
-  const LearningDashboardService({
+  LearningDashboardService({
     this.forecast = const MasteryForecastEngine(),
   });
 

@@ -6,12 +6,12 @@ import 'auto_mistake_tagger_engine.dart';
 class MistakeTagClassification {
   final MistakeTag tag;
   final double severity;
-  const MistakeTagClassification({required this.tag, required this.severity});
+  MistakeTagClassification({required this.tag, required this.severity});
 }
 
 /// Simple classifier for major mistakes.
 class MistakeTagClassifier {
-  const MistakeTagClassifier();
+  MistakeTagClassifier();
 
   /// Returns [MistakeTagClassification] if the attempt can be tagged.
   MistakeTagClassification? classify(TrainingSpotAttempt attempt) {

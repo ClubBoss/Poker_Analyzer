@@ -5,7 +5,7 @@ import '../core/training/engine/training_type_engine.dart';
 
 class YamlPackMergeEngine {
   final Uuid _uuid;
-  const YamlPackMergeEngine({Uuid? uuid}) : _uuid = uuid ?? const Uuid();
+  YamlPackMergeEngine({Uuid? uuid}) : _uuid = uuid ?? const Uuid();
 
   TrainingPackTemplateV2 merge(List<TrainingPackTemplateV2> packs) {
     final list = packs.where((p) => p.spots.isNotEmpty).toList();

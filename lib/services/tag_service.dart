@@ -127,7 +127,7 @@ class TagService extends ChangeNotifier {
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Не удалось сохранить файл')),
+          SnackBar(content: Text('Не удалось сохранить файл')),
         );
       }
     }

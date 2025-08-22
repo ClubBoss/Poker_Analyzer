@@ -102,7 +102,7 @@ class PlayerProfileImportExportService {
     await Clipboard.setData(ClipboardData(text: serialize()));
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile copied to clipboard')),
+        SnackBar(content: Text('Profile copied to clipboard')),
       );
     }
   }
@@ -113,20 +113,20 @@ class PlayerProfileImportExportService {
       if (data == null || data.text == null || !deserialize(data.text!)) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Invalid clipboard data')),
+            SnackBar(content: Text('Invalid clipboard data')),
           );
         }
         return;
       }
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile loaded from clipboard')),
+          SnackBar(content: Text('Profile loaded from clipboard')),
         );
       }
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to read clipboard')),
+          SnackBar(content: Text('Failed to read clipboard')),
         );
       }
     }

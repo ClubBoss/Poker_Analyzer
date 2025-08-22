@@ -17,7 +17,7 @@ import 'learning_path_events.dart';
 class PathInjectionDecision {
   final bool shouldInject;
   final String reason;
-  const PathInjectionDecision(this.shouldInject, this.reason);
+  PathInjectionDecision(this.shouldInject, this.reason);
 }
 
 /// Engine that injects theory, boosters and assessments for skill clusters

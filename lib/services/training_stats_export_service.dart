@@ -11,7 +11,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/hero_position.dart';
 
 class TrainingStatsExportService {
-  const TrainingStatsExportService();
+  TrainingStatsExportService();
 
   List<List<dynamic>> buildRows({
     required List<SessionLog> logs,

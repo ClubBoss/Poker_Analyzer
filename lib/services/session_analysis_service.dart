@@ -9,12 +9,12 @@ import 'evaluation_executor_service.dart';
 class SessionAnalysisResult {
   final List<SavedHand> hands;
   final SummaryResult summary;
-  const SessionAnalysisResult({required this.hands, required this.summary});
+  SessionAnalysisResult({required this.hands, required this.summary});
 }
 
 class SessionAnalysisService {
   final EvaluationExecutorService _exec;
-  const SessionAnalysisService(this._exec);
+  SessionAnalysisService(this._exec);
 
   Future<SessionAnalysisResult> analyze(List<SavedHand> hands) async {
     final evaluated = <SavedHand>[];

@@ -7,7 +7,7 @@ import 'dev_console_log_service.dart';
 import '../utils/app_logger.dart';
 
 class YamlPackArchiveAutoCleanerService {
-  const YamlPackArchiveAutoCleanerService();
+  YamlPackArchiveAutoCleanerService();
 
   Future<void> clean({int maxAgeDays = 60}) async {
     if (!kDebugMode && !appConfig.archiveAutoClean) return;

@@ -26,7 +26,7 @@ import 'review_streak_evaluator_service.dart';
 
 class ReminderBanner {
   final Widget widget;
-  const ReminderBanner(this.widget);
+  ReminderBanner(this.widget);
 }
 
 abstract class ReminderSource {
@@ -118,7 +118,7 @@ class AutoMistakeDrillReminder implements ReminderSource {
 
   @override
   ReminderBanner build() =>
-      const ReminderBanner(AutoMistakeDrillBannerWidget());
+      ReminderBanner(AutoMistakeDrillBannerWidget());
 
   @override
   Future<bool> canShow() async {

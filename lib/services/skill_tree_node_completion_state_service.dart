@@ -12,7 +12,7 @@ enum SkillTreeNodeState { locked, unlocked, completed, optional }
 /// - [SkillTreeNodeState.unlocked] if the node is unlocked but not completed.
 /// - [SkillTreeNodeState.locked] otherwise.
 class SkillTreeNodeCompletionStateService {
-  const SkillTreeNodeCompletionStateService();
+  SkillTreeNodeCompletionStateService();
 
   SkillTreeNodeState getNodeState({
     required SkillTreeNodeModel node,

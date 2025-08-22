@@ -19,7 +19,7 @@ class TargetMixConfig {
   Map<String, double> get byKeyTol => _byKeyTol;
   int get minTotal => _minTotal;
 
-  const TargetMixConfig({
+  TargetMixConfig({
     required this.mix,
     required this.tolerance, // alias for defaultTol
     Map<String, double>? byKeyTol,
@@ -116,7 +116,7 @@ class L3CliResult {
 }
 
 class L3CliRunner {
-  const L3CliRunner();
+  L3CliRunner();
 
   Future<L3CliResult> run({String? weights, String? weightsPreset}) async {
     final runDir = await Directory.systemTemp.createTemp('l3cli_run_');

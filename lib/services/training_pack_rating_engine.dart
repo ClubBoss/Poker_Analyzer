@@ -9,7 +9,7 @@ import '../models/v2/training_pack_spot.dart';
 import '../models/pack_rating_report.dart';
 
 class TrainingPackRatingEngine {
-  const TrainingPackRatingEngine();
+  TrainingPackRatingEngine();
 
   PackRatingReport rate(TrainingPackTemplateV2 pack) {
     final warnings = <String>[];

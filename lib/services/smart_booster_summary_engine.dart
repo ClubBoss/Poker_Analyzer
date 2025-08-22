@@ -4,7 +4,7 @@ import 'theory_booster_effectiveness_service.dart';
 class SmartBoosterSummaryEngine {
   final TheoryBoosterEffectivenessService _effectiveness;
 
-  const SmartBoosterSummaryEngine({
+  SmartBoosterSummaryEngine({
     TheoryBoosterEffectivenessService? effectiveness,
   }) : _effectiveness =
            effectiveness ?? TheoryBoosterEffectivenessService.instance;

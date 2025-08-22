@@ -4,7 +4,7 @@ import '../models/v2/hero_position.dart';
 import '../helpers/poker_position_helper.dart';
 
 class PackLibraryAutoFixEngine {
-  const PackLibraryAutoFixEngine();
+  PackLibraryAutoFixEngine();
 
   TrainingPackTemplateV2 autoFix(TrainingPackTemplateV2 pack) {
     final id = pack.id.trim().isEmpty ? const Uuid().v4() : pack.id;

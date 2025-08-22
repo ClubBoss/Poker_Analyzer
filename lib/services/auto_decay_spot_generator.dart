@@ -11,7 +11,7 @@ class AutoDecaySpotGenerator {
   final Future<Map<String, TagPerformance>> Function() _stats;
   final Future<List<TrainingSpotV2>> Function(String tag) _spotLoader;
 
-  const AutoDecaySpotGenerator({
+  AutoDecaySpotGenerator({
     Future<List<DecayTagReinforcementEvent>> Function(String tag)? historyLoader,
     Future<Map<String, double>> Function()? masteryLoader,
     Future<Map<String, TagPerformance>> Function()? statsLoader,

@@ -3,7 +3,7 @@ import 'dart:math';
 import '../models/v2/training_pack_template.dart';
 
 class AutoTagGeneratorService {
-  const AutoTagGeneratorService();
+  AutoTagGeneratorService();
 
   List<String> generateTags(TrainingPackTemplate tpl) {
     final tags = <String>{};

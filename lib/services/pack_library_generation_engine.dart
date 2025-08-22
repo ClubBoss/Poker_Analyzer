@@ -4,7 +4,7 @@ import '../core/training/generation/yaml_reader.dart';
 import 'pack_validation_engine.dart';
 
 class PackLibraryGenerationEngine {
-  const PackLibraryGenerationEngine();
+  PackLibraryGenerationEngine();
 
   Future<void> generate({
     required String inputDir,

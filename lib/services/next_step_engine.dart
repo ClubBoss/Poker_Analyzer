@@ -10,7 +10,7 @@ class NextStepSuggestion {
   final IconData icon;
   final String message;
   final String targetRoute;
-  const NextStepSuggestion({
+  NextStepSuggestion({
     required this.title,
     required this.icon,
     required this.message,

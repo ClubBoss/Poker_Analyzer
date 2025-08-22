@@ -7,7 +7,7 @@ class WeaknessReviewItem {
   final String tag;
   final String reason;
 
-  const WeaknessReviewItem({
+  WeaknessReviewItem({
     required this.packId,
     required this.tag,
     required this.reason,
@@ -15,7 +15,7 @@ class WeaknessReviewItem {
 }
 
 class WeaknessReviewEngine {
-  const WeaknessReviewEngine();
+  WeaknessReviewEngine();
 
   List<WeaknessReviewItem> analyze({
     required List<TrainingAttempt> attempts,

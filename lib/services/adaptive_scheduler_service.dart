@@ -5,7 +5,7 @@ import 'weakness_cluster_engine.dart';
 import '../models/training_result.dart';
 
 class AdaptiveSchedulerService {
-  const AdaptiveSchedulerService();
+  AdaptiveSchedulerService();
 
   List<TrainingRecommendation> getNextRecommendations({
     required List<WeaknessCluster> clusters,

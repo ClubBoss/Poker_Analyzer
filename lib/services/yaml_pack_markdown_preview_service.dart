@@ -2,7 +2,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import '../helpers/hand_utils.dart';
 
 class YamlPackMarkdownPreviewService {
-  const YamlPackMarkdownPreviewService();
+  YamlPackMarkdownPreviewService();
 
   String? generateMarkdownPreview(TrainingPackTemplateV2 pack) {
     try {

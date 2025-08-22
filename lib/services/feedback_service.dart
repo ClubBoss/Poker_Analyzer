@@ -6,7 +6,7 @@ import 'next_step_engine.dart';
 class FeedbackData {
   final IconData icon;
   final String text;
-  const FeedbackData({required this.icon, required this.text});
+  FeedbackData({required this.icon, required this.text});
 }
 
 class FeedbackService extends ChangeNotifier {

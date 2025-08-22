@@ -5,7 +5,7 @@ import '../screens/smart_path_preview_screen.dart';
 
 /// Launches a lightweight preview of the given [LearningPathTemplateV2].
 class SmartPathPreviewLauncher {
-  const SmartPathPreviewLauncher();
+  SmartPathPreviewLauncher();
 
   Future<void> launch(BuildContext context, LearningPathTemplateV2 path) async {
     await Navigator.push(

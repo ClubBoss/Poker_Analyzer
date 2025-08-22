@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// Tracks reinforcement events for decayed theory tags.
 class DecayTagRetentionTrackerService {
-  const DecayTagRetentionTrackerService();
+  DecayTagRetentionTrackerService();
 
   static final StreamController<String> _decayController =
       StreamController<String>.broadcast();

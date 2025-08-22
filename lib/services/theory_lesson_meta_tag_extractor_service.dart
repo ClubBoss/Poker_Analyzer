@@ -4,7 +4,7 @@ import '../models/theory_mini_lesson_node.dart';
 /// Extracts structured metadata such as positions and streets from
 /// [TheoryMiniLessonNode] titles and tags.
 class TheoryLessonMetaTagExtractorService {
-  const TheoryLessonMetaTagExtractorService();
+  TheoryLessonMetaTagExtractorService();
 
   static final RegExp _positionRegExp = RegExp(
     r'^(utg(?:\+\d)?|lj|mp|hj|co|btn|sb|bb)$',

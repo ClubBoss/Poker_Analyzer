@@ -9,7 +9,7 @@ class TheorySnippet {
   final String markdownContent;
   final List<String> mediaRefs;
 
-  const TheorySnippet({
+  TheorySnippet({
     required this.id,
     required this.title,
     required this.markdownContent,

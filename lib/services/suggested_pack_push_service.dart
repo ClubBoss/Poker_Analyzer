@@ -22,7 +22,7 @@ class SuggestedPackPushService {
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
     await _plugin.initialize(
-      const InitializationSettings(android: android, iOS: ios),
+      InitializationSettings(android: android, iOS: ios),
     );
     _initialized = true;
   }
@@ -57,7 +57,7 @@ class SuggestedPackPushService {
       104,
       'Poker Analyzer',
       body,
-      const NotificationDetails(
+      NotificationDetails(
         android: AndroidNotificationDetails('suggested_pack', 'Suggested Pack'),
         iOS: DarwinNotificationDetails(),
       ),

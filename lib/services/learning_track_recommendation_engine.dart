@@ -11,7 +11,7 @@ class LearningTrackRecommendationEngine {
   final LearningTrackEngine trackEngine;
   final YamlLessonTrackLoader yamlLoader;
 
-  const LearningTrackRecommendationEngine({
+  LearningTrackRecommendationEngine({
     required this.masteryService,
     LessonTrackMetaService? metaService,
     LearningTrackEngine trackEngine = const LearningTrackEngine(),

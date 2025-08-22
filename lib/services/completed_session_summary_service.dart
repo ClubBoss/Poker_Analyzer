@@ -8,7 +8,7 @@ class CompletedSessionSummary {
   final DateTime timestamp;
   final String yaml;
 
-  const CompletedSessionSummary({
+  CompletedSessionSummary({
     required this.fingerprint,
     required this.trainingType,
     this.accuracy,
@@ -21,7 +21,7 @@ class CompletedSessionSummary {
 class CompletedSessionSummaryService {
   final CompletedTrainingPackRegistry registry;
 
-  const CompletedSessionSummaryService({
+  CompletedSessionSummaryService({
     CompletedTrainingPackRegistry? registry,
   }) : registry = registry ?? CompletedTrainingPackRegistry();
 

@@ -43,7 +43,7 @@ class DecayBoosterReminderOrchestrator {
 
     if (await shouldShowDecayBoosterBanner()) {
       list.add(
-        const MemoryReminder(
+        MemoryReminder(
           type: MemoryReminderType.decayBooster,
           priority: 3,
         ),

@@ -5,7 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import '../models/v2/training_pack_template_v2.dart';
 
 class YamlPackChangelogService {
-  const YamlPackChangelogService();
+  YamlPackChangelogService();
 
   Future<void> appendChangeLog(
     TrainingPackTemplateV2 pack,

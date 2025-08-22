@@ -2,7 +2,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import '../models/yaml_coverage_report.dart';
 
 class YamlCoverageReportService {
-  const YamlCoverageReportService();
+  YamlCoverageReportService();
 
   YamlCoverageReport generate(List<TrainingPackTemplateV2> templates) {
     final tagCounts = <String, int>{};

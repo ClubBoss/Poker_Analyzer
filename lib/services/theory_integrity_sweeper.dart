@@ -25,7 +25,7 @@ class SweepEntry {
   final int? headerVersion;
   final int pruned;
 
-  const SweepEntry({
+  SweepEntry({
     required this.file,
     required this.action,
     this.oldHash,

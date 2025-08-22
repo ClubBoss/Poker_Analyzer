@@ -13,7 +13,7 @@ class TrainingProgress {
   final List<String> mostImprovedTags;
   final int streakDays;
 
-  const TrainingProgress({
+  TrainingProgress({
     required this.completionRate,
     required this.mostImprovedTags,
     required this.streakDays,

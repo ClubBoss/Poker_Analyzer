@@ -10,7 +10,7 @@ class PinnedBlockBoosterSuggestion {
   final String action; // 'resumePack' or 'reviewTheory'
   final String? packId;
 
-  const PinnedBlockBoosterSuggestion({
+  PinnedBlockBoosterSuggestion({
     required this.blockId,
     required this.blockTitle,
     required this.tag,

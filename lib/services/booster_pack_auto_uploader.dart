@@ -8,7 +8,7 @@ import 'theory_export_validator.dart';
 
 /// Automatically uploads validated theory packs into the staging library.
 class BoosterPackAutoUploader {
-  const BoosterPackAutoUploader();
+  BoosterPackAutoUploader();
 
   /// Loads all theory YAML files from [dir], validates them and imports
   /// valid packs into [PackLibrary.staging].

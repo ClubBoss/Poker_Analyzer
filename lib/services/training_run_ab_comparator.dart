@@ -15,7 +15,7 @@ class ABArmResult {
   final double compositeScore;
   final double confidence;
 
-  const ABArmResult({
+  ABArmResult({
     required this.armId,
     required this.n,
     required this.accuracy,

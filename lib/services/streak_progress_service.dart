@@ -6,7 +6,7 @@ class StreakData {
   final DateTime? lastActiveDate;
   final bool isTodayDone;
 
-  const StreakData({
+  StreakData({
     required this.currentStreak,
     required this.longestStreak,
     required this.lastActiveDate,

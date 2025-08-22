@@ -8,7 +8,7 @@ class WeaknessCluster {
   final List<String> spotIds;
   final double avgAccuracy;
 
-  const WeaknessCluster({
+  WeaknessCluster({
     required this.label,
     required this.spotIds,
     required this.avgAccuracy,
@@ -16,7 +16,7 @@ class WeaknessCluster {
 }
 
 class WeaknessClusterEngine {
-  const WeaknessClusterEngine();
+  WeaknessClusterEngine();
 
   List<WeaknessCluster> computeClusters({
     required List<TrainingAttempt> attempts,

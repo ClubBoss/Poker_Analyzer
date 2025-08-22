@@ -6,7 +6,7 @@ import 'adaptive_training_path_engine.dart';
 
 /// Computes learning path progress based on stored training pack stats.
 class LearningPathProgressService {
-  const LearningPathProgressService();
+  LearningPathProgressService();
 
   /// Computes progress for [path] using [stats] gathered from player's
   /// training sessions and list of all available packs [allPacks].

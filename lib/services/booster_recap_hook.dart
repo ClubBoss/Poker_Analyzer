@@ -190,7 +190,7 @@ class BoosterRecapHook {
     for (final k in keys) {
       if (await TheoryBoosterRecapDelayManager.isUnderCooldown(
         k,
-        const Duration(hours: 24),
+        Duration(hours: 24),
       )) {
         return;
       }

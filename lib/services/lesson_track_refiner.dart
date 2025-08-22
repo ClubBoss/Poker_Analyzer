@@ -2,7 +2,7 @@ import '../models/training_track.dart';
 import '../models/v2/training_pack_spot.dart';
 
 class LessonTrackRefiner {
-  const LessonTrackRefiner();
+  LessonTrackRefiner();
 
   TrainingTrack refineTrack(TrainingTrack original, {double minEvGap = 0.15}) {
     final refined = <TrainingPackSpot>[];

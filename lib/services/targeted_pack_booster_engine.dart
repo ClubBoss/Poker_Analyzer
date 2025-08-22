@@ -22,7 +22,7 @@ class PackBoosterRequest {
   final List<String> tags;
   final double ratio;
   final String triggerReason;
-  const PackBoosterRequest({
+  PackBoosterRequest({
     required this.packId,
     required this.tags,
     required this.ratio,
@@ -182,7 +182,7 @@ class TargetedPackBoosterEngine {
     final status = AutogenStatusDashboardService.instance;
     status.update(
       'booster',
-      const AutogenStatus(
+      AutogenStatus(
         isRunning: true,
         currentStage: 'decaySync',
         progress: 0,
@@ -195,7 +195,7 @@ class TargetedPackBoosterEngine {
     );
     status.update(
       'booster',
-      const AutogenStatus(
+      AutogenStatus(
         isRunning: false,
         currentStage: 'decaySync',
         progress: 1,
@@ -243,7 +243,7 @@ class TargetedPackBoosterEngine {
     final status = AutogenStatusDashboardService.instance;
     status.update(
       'booster',
-      const AutogenStatus(
+      AutogenStatus(
         isRunning: true,
         currentStage: 'booster',
         progress: 0,
@@ -346,7 +346,7 @@ class TargetedPackBoosterEngine {
     }
     status.update(
       'booster',
-      const AutogenStatus(
+      AutogenStatus(
         isRunning: false,
         currentStage: 'booster',
         progress: 1,

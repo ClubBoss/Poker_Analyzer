@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 /// Service that temporarily highlights a stage widget that was auto scrolled
 /// into view.
 class StageAutoHighlightService {
-  const StageAutoHighlightService();
+  StageAutoHighlightService();
 
   /// Applies a brief glow effect around the stage widget associated with
   /// [stageIndex]. The widget is located via [stageKeys] and highlighted using

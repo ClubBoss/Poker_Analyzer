@@ -14,7 +14,7 @@ class SmartTheoryBoosterBridge {
   final TheoryLessonTagClusterer clusterer;
   final TheoryClusterSummaryService summaryService;
 
-  const SmartTheoryBoosterBridge({
+  SmartTheoryBoosterBridge({
     this.library = BoosterLibraryService.instance,
     TheoryLessonTagClusterer? clusterer,
     TheoryClusterSummaryService? summaryService,

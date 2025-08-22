@@ -3,7 +3,7 @@ import '../models/learning_path_template_v2.dart';
 
 /// Determines completion status for learning path stages and entire paths.
 class LearningPathStageCompletionEngine {
-  const LearningPathStageCompletionEngine();
+  LearningPathStageCompletionEngine();
 
   /// Returns `true` if [handsPlayed] meets or exceeds [stage.minHands].
   bool isStageComplete(LearningPathStageModel stage, int handsPlayed) {

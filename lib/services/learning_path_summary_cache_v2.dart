@@ -17,7 +17,7 @@ class LearningPathSummary {
   final bool isFinished;
   final LearningPathStageModel? nextStageToTrain;
 
-  const LearningPathSummary({
+  LearningPathSummary({
     required this.id,
     required this.title,
     required this.completedStages,

@@ -58,7 +58,7 @@ class GlobalPackStats {
   final double averageEV;
   final int packsCompleted;
   final int dailyStreak;
-  const GlobalPackStats({
+  GlobalPackStats({
     this.averageAccuracy = 0,
     this.averageEV = 0,
     this.packsCompleted = 0,

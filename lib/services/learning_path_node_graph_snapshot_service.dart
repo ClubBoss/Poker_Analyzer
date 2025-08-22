@@ -9,7 +9,7 @@ import 'path_map_engine.dart';
 
 /// Dumps a formatted snapshot of the current PathMapEngine graph.
 class LearningPathNodeGraphSnapshotService {
-  const LearningPathNodeGraphSnapshotService({required this.engine});
+  LearningPathNodeGraphSnapshotService({required this.engine});
 
   final PathMapEngine engine;
 

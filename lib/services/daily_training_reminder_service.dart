@@ -20,7 +20,7 @@ class DailyTrainingReminderService {
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
     await _plugin.initialize(
-      const InitializationSettings(android: android, iOS: ios),
+      InitializationSettings(android: android, iOS: ios),
     );
     tz.initializeTimeZones();
     _initialized = true;
@@ -41,7 +41,7 @@ class DailyTrainingReminderService {
       'Poker Analyzer',
       body,
       when,
-      const NotificationDetails(
+      NotificationDetails(
         android: AndroidNotificationDetails(
           'goal_reengage',
           'Goal Reengagement',
@@ -86,8 +86,8 @@ class DailyTrainingReminderService {
         title: Row(
           children: [
             Icon(Icons.alarm, color: accent, size: 28),
-            const SizedBox(width: 8),
-            const Text('⏰ Не забудь потренироваться!'),
+            SizedBox(width: 8),
+            Text('⏰ Не забудь потренироваться!'),
           ],
         ),
         content: const Text(

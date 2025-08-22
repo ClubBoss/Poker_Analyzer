@@ -7,7 +7,7 @@ import '../models/training_pack_model.dart';
 class TrainingPackLibraryExporter {
   final YamlEncoder _encoder;
 
-  const TrainingPackLibraryExporter({YamlEncoder? encoder})
+  TrainingPackLibraryExporter({YamlEncoder? encoder})
     : _encoder = encoder ?? const YamlEncoder();
 
   Future<List<String>> saveToDirectory(

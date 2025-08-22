@@ -9,7 +9,7 @@ class TheoryMiniLessonFactoryService {
   final TheoryLessonMetaTagExtractorService _extractor;
   final TheoryMiniLessonContentTemplateService _templateService;
 
-  const TheoryMiniLessonFactoryService({
+  TheoryMiniLessonFactoryService({
     TheoryLessonMetaTagExtractorService? extractor,
     TheoryMiniLessonContentTemplateService? templateService,
   }) : _extractor = extractor ?? const TheoryLessonMetaTagExtractorService(),

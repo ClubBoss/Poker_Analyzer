@@ -10,7 +10,7 @@ class DecayAnalyticsExporterService {
   final ReviewStreakEvaluatorService streak;
   final DecayReviewFrequencyAdvisorService advisor;
 
-  const DecayAnalyticsExporterService({
+  DecayAnalyticsExporterService({
     this.retention = const DecayTagRetentionTrackerService(),
     BoosterAdaptationTuner? tuner,
     this.streak = const ReviewStreakEvaluatorService(),

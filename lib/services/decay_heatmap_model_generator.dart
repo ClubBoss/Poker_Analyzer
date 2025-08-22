@@ -5,7 +5,7 @@ class DecayHeatmapEntry {
   final double decay;
   final DecayLevel level;
 
-  const DecayHeatmapEntry({
+  DecayHeatmapEntry({
     required this.tag,
     required this.decay,
     required this.level,

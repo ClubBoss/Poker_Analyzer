@@ -6,7 +6,7 @@ import '../models/learning_path_stage_model.dart';
 class TrainingPathStorageService {
   static const _key = 'training_paths_v2';
 
-  const TrainingPathStorageService();
+  TrainingPathStorageService();
 
   Future<Map<String, List<LearningPathStageModel>>> _loadAll() async {
     final prefs = await SharedPreferences.getInstance();

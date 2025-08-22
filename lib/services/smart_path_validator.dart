@@ -2,7 +2,7 @@ import '../models/learning_path_template_v2.dart';
 import '../models/path_validation_issue.dart';
 
 class SmartPathValidator {
-  const SmartPathValidator();
+  SmartPathValidator();
 
   List<PathValidationIssue> validateAll(List<LearningPathTemplateV2> paths) {
     final issues = <PathValidationIssue>[];

@@ -19,7 +19,7 @@ class AutoTheoryStageSeeder {
   final String? outputDir;
   final DateTime Function() now;
 
-  const AutoTheoryStageSeeder({
+  AutoTheoryStageSeeder({
     required this.engine,
     this.writer = const YamlWriter(),
     this.outputDir,

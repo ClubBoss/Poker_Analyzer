@@ -17,7 +17,7 @@ class TheoryRecallEvaluator {
   final double cooldownPenalty;
   final double completionPenalty;
 
-  const TheoryRecallEvaluator({
+  TheoryRecallEvaluator({
     BoosterCooldownService? cooldown,
     MiniLessonProgressTracker? progress,
     this.tagWeight = 1.0,

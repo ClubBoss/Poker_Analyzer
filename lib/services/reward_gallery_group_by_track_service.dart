@@ -6,7 +6,7 @@ import 'skill_tree_library_service.dart';
 class RewardItem {
   final String id;
   final int? stageIndex;
-  const RewardItem({required this.id, this.stageIndex});
+  RewardItem({required this.id, this.stageIndex});
 }
 
 /// Group of rewards belonging to a single track.
@@ -14,7 +14,7 @@ class TrackRewardGroup {
   final String trackId;
   final String trackTitle;
   final List<RewardItem> rewards;
-  const TrackRewardGroup({
+  TrackRewardGroup({
     required this.trackId,
     required this.trackTitle,
     required this.rewards,

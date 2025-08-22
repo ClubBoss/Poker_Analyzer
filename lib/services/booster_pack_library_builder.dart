@@ -7,7 +7,7 @@ import 'theory_booster_generator.dart';
 class BoosterPackLibraryBuilder {
   final TheoryBoosterGenerator _generator;
 
-  const BoosterPackLibraryBuilder({TheoryBoosterGenerator? generator})
+  BoosterPackLibraryBuilder({TheoryBoosterGenerator? generator})
     : _generator = generator ?? const TheoryBoosterGenerator();
 
   /// Generates a booster pack for every item in [basePacks] using the

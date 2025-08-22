@@ -17,7 +17,7 @@ class TheoryInjectReport {
   final int linksAdded;
   final Map<String, String> errors;
 
-  const TheoryInjectReport({
+  TheoryInjectReport({
     this.packsUpdated = 0,
     this.linksAdded = 0,
     Map<String, String>? errors,
@@ -129,7 +129,7 @@ class TheoryAutoInjector {
 
     _dashboard.update(
       'TheoryAutoInjector',
-      const AutogenStatus(
+      AutogenStatus(
         isRunning: false,
         currentStage: 'complete',
         progress: 1,

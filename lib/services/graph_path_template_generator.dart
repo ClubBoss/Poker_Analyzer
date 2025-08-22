@@ -2,7 +2,7 @@ import 'package:yaml/yaml.dart';
 
 /// Generates starter YAML learning path templates.
 class GraphPathTemplateGenerator {
-  const GraphPathTemplateGenerator();
+  GraphPathTemplateGenerator();
 
   /// Returns a simple Cash vs MTT graph template.
   String generateCashVsMttTemplate() {

@@ -86,7 +86,7 @@ class SmartPinnedRecommenderService {
           DateTime.now().difference(
                 DateTime.fromMillisecondsSinceEpoch(item.lastSeen!),
               ) >
-              const Duration(days: 7)) {
+              Duration(days: 7)) {
         score += 3;
       }
 

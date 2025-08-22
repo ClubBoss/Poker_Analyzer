@@ -3,7 +3,7 @@ import 'dart:convert';
 
 /// Canonicalizes YAML data represented as a Map for deterministic hashing.
 class TheoryYamlCanonicalizer {
-  const TheoryYamlCanonicalizer();
+  TheoryYamlCanonicalizer();
 
   /// Returns a stable JSON string representation of [data].
   ///

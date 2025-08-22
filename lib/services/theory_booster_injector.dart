@@ -11,7 +11,7 @@ class TheoryBoosterInjector {
   final LearningPathEngine _engine;
   final LearningPathGraphOrchestrator _orchestrator;
 
-  const TheoryBoosterInjector({
+  TheoryBoosterInjector({
     LearningPathEngine? engine,
     LearningPathGraphOrchestrator? orchestrator,
   }) : _engine = engine ?? LearningPathEngine.instance,

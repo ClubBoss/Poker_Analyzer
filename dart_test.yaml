@@ -1,0 +1,7 @@
+# Run only smoke tests on pure Dart VM
+paths:
+  - test/smoke
+platforms:
+  - vm
+reporter: expanded
+concurrency: 1

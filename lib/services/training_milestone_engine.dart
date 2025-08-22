@@ -6,7 +6,7 @@ class MilestoneResult {
   final int? milestoneValue;
   final String message;
 
-  const MilestoneResult({
+  MilestoneResult({
     required this.triggered,
     this.milestoneValue,
     this.message = '',

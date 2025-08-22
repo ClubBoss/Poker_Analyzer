@@ -55,7 +55,7 @@ class RewardCardRendererService {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Icon(style.icon, size: 48, color: Colors.amber),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               Text(
                 title,
                 style: const TextStyle(
@@ -65,8 +65,8 @@ class RewardCardRendererService {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 24),
-              const Text(
+              SizedBox(height: 24),
+              Text(
                 'Poker Analyzer',
                 style: TextStyle(color: Colors.white70, fontSize: 12),
               ),

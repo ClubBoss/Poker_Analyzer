@@ -3,7 +3,7 @@ import 'package:uuid/uuid.dart';
 
 /// Handles encoding and decoding of evaluation queue requests.
 class EvaluationQueueSerializer {
-  const EvaluationQueueSerializer();
+  EvaluationQueueSerializer();
 
   /// Encodes lists of requests into a JSON-friendly map.
   Map<String, dynamic> encodeQueues({

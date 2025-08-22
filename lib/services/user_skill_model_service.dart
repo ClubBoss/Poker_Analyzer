@@ -11,7 +11,7 @@ class TagSkill {
   final DateTime lastSeen;
   final int seenCount;
 
-  const TagSkill({
+  TagSkill({
     required this.mastery,
     required this.confidence,
     required this.lastSeen,

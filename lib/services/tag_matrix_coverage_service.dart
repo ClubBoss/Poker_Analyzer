@@ -12,7 +12,7 @@ import 'matrix_tag_config_service.dart';
 class TagMatrixAxes {
   final List<MatrixAxis> axes;
 
-  const TagMatrixAxes(this.axes);
+  TagMatrixAxes(this.axes);
 
   int get length => axes.length;
 
@@ -45,7 +45,7 @@ class TagMatrixResult {
   final Map<String, Map<String, TagMatrixCell>> cells;
   final int max;
 
-  const TagMatrixResult({
+  TagMatrixResult({
     required this.axes,
     required this.cells,
     required this.max,
@@ -73,7 +73,7 @@ class TagMatrixResult {
 }
 
 class TagMatrixCoverageService {
-  const TagMatrixCoverageService();
+  TagMatrixCoverageService();
 
   Future<TagMatrixResult> load({
     TrainingType? type,

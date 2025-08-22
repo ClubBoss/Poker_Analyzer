@@ -9,7 +9,7 @@ class DecayRecallEvaluatorService {
   final double improvementThreshold;
   final Duration window;
 
-  const DecayRecallEvaluatorService({
+  DecayRecallEvaluatorService({
     this.history = const TagMasteryHistoryService(),
     this.retention = const DecayTagRetentionTrackerService(),
     this.improvementThreshold = 0.2,

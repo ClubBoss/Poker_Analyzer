@@ -4,7 +4,7 @@ import 'decay_streak_tracker_service.dart';
 class DecayBoosterStreakMultiplierService {
   final DecayStreakTrackerService tracker;
 
-  const DecayBoosterStreakMultiplierService({
+  DecayBoosterStreakMultiplierService({
     this.tracker = const DecayStreakTrackerService(),
   });
 

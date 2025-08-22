@@ -10,7 +10,7 @@ class ClusterAnalytics {
   final double avgEvLoss;
   final List<MistakeTag> tags;
 
-  const ClusterAnalytics({
+  ClusterAnalytics({
     required this.cluster,
     required this.totalMistakes,
     required this.totalEvLoss,
@@ -22,7 +22,7 @@ class ClusterAnalytics {
 class MistakeClusterAnalyticsService {
   final MistakeTagClusterService clusterService;
 
-  const MistakeClusterAnalyticsService({
+  MistakeClusterAnalyticsService({
     this.clusterService = const MistakeTagClusterService(),
   });
 

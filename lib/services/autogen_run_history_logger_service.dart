@@ -47,7 +47,7 @@ class RunMetricsEntry {
 class AutogenRunHistoryLoggerService {
   final String _filePath;
 
-  const AutogenRunHistoryLoggerService({
+  AutogenRunHistoryLoggerService({
     String filePath = 'autogen_run_history.json',
   }) : _filePath = filePath;
 

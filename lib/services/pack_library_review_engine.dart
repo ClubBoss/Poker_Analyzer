@@ -2,7 +2,7 @@ import '../models/yaml_pack_review_report.dart';
 import '../models/v2/training_pack_template_v2.dart';
 
 class PackLibraryReviewEngine {
-  const PackLibraryReviewEngine();
+  PackLibraryReviewEngine();
 
   YamlPackReviewReport review(TrainingPackTemplateV2 pack) {
     final warnings = <String>[];

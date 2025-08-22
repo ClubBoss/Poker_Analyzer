@@ -10,7 +10,7 @@ class PackCompletionData {
 
   bool get isPerfect => accuracy >= 1.0;
 
-  const PackCompletionData({
+  PackCompletionData({
     required this.completedAt,
     required this.correct,
     required this.total,

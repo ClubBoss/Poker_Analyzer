@@ -7,7 +7,7 @@ import 'constraint_resolver_engine_v2.dart';
 class SpotSeedFilterService {
   final ConstraintResolverEngine _engine;
 
-  const SpotSeedFilterService({ConstraintResolverEngine? engine})
+  SpotSeedFilterService({ConstraintResolverEngine? engine})
     : _engine = engine ?? const ConstraintResolverEngine();
 
   /// Filters [spots] returning only those that satisfy [constraints].

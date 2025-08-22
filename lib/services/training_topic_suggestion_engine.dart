@@ -3,7 +3,7 @@ import 'training_pack_tag_analytics_service.dart';
 import 'training_stats_service.dart';
 
 class TrainingTopicSuggestionEngine {
-  const TrainingTopicSuggestionEngine();
+  TrainingTopicSuggestionEngine();
 
   Future<String?> suggestNextTag({
     Duration recent = const Duration(days: 3),

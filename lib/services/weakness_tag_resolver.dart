@@ -2,7 +2,7 @@ import '../models/stage_id.dart';
 
 /// Maps weakness tags to relevant learning path stages.
 class WeaknessTagResolver {
-  const WeaknessTagResolver();
+  WeaknessTagResolver();
 
   static final Map<String, List<StageID>> _tagToStageMap = {
     'sbvsbb': [

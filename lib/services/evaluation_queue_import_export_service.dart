@@ -128,7 +128,7 @@ class EvaluationQueueImportExportService {
     await _exportToClipboard();
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Queue copied to clipboard')),
+        SnackBar(content: Text('Queue copied to clipboard')),
       );
     }
   }
@@ -137,7 +137,7 @@ class EvaluationQueueImportExportService {
     await _importFromClipboard();
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Queue imported from clipboard')),
+        SnackBar(content: Text('Queue imported from clipboard')),
       );
     }
     debugPanelCallback?.call();
@@ -245,7 +245,7 @@ class EvaluationQueueImportExportService {
     if (!await dir.exists()) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No snapshot files found')),
+          SnackBar(content: Text('No snapshot files found')),
         );
       }
       return;
@@ -290,7 +290,7 @@ class EvaluationQueueImportExportService {
     if (!await dir.exists()) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No snapshot files found')),
+          SnackBar(content: Text('No snapshot files found')),
         );
       }
       return;

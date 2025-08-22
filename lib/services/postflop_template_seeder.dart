@@ -16,7 +16,7 @@ class PostflopTemplateSeeder {
   final TrainingPackTemplateExpanderService _expander;
   final TrainingPackTemplateLibraryService _library;
 
-  const PostflopTemplateSeeder({
+  PostflopTemplateSeeder({
     TrainingPackTemplateExpanderService? expander,
     TrainingPackTemplateLibraryService? library,
   }) : _expander = expander ?? TrainingPackTemplateExpanderService(),

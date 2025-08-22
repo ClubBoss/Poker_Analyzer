@@ -1,7 +1,7 @@
 import '../models/v2/training_pack_template_v2.dart';
 
 class SmartTagSuggestor {
-  const SmartTagSuggestor();
+  SmartTagSuggestor();
 
   static const Map<String, List<String>> _keywords = {
     'sb vs bb': [

@@ -23,7 +23,7 @@ class LessonPathReminderScheduler {
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
     await _plugin.initialize(
-      const InitializationSettings(android: android, iOS: ios),
+      InitializationSettings(android: android, iOS: ios),
     );
     tz.initializeTimeZones();
     _initialized = true;
@@ -63,7 +63,7 @@ class LessonPathReminderScheduler {
       'Poker Analyzer',
       '🧠 Не забудьте пройти шаг обучения сегодня!',
       when,
-      const NotificationDetails(
+      NotificationDetails(
         android: AndroidNotificationDetails(
           'lesson_path_reminder',
           'Lesson Path Reminder',
@@ -83,7 +83,7 @@ class LessonPathReminderScheduler {
       _id,
       'Poker Analyzer',
       '🧠 Не забудьте пройти шаг обучения сегодня!',
-      const NotificationDetails(
+      NotificationDetails(
         android: AndroidNotificationDetails(
           'lesson_path_reminder',
           'Lesson Path Reminder',

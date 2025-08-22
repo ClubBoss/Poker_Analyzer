@@ -10,7 +10,7 @@ class TheoryPathStageSeeder {
   final TheoryPackGeneratorService generator;
   final TrainingPathStorageService storage;
 
-  const TheoryPathStageSeeder({
+  TheoryPathStageSeeder({
     this.tagger = const BoosterThematicTagger(),
     this.generator = const TheoryPackGeneratorService(),
     this.storage = const TrainingPathStorageService(),

@@ -14,7 +14,7 @@ class PackResultEntry {
   final String? tag;
   final String? cluster;
 
-  const PackResultEntry({
+  PackResultEntry({
     required this.packId,
     required this.completion,
     required this.evLoss,

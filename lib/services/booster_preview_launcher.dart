@@ -7,7 +7,7 @@ import '../screens/training_session_screen.dart';
 import 'training_session_service.dart';
 
 class BoosterPreviewLauncher {
-  const BoosterPreviewLauncher();
+  BoosterPreviewLauncher();
 
   Future<void> launch(BuildContext context, TrainingPackTemplateV2 pack) async {
     final template = TrainingPackTemplate.fromJson(pack.toJson());

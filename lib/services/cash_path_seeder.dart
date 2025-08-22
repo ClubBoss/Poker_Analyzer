@@ -4,7 +4,7 @@ import '../core/training/generation/yaml_writer.dart';
 import '../models/v2/training_pack_template_v2.dart';
 
 class CashPathSeeder {
-  const CashPathSeeder();
+  CashPathSeeder();
 
   Future<void> generateCashPath() async {
     await PackLibraryIndexLoader.instance.load();

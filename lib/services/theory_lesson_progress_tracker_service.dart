@@ -7,7 +7,7 @@ import 'mini_lesson_progress_tracker.dart';
 class TheoryLessonProgressState {
   final int completed;
   final int total;
-  const TheoryLessonProgressState({
+  TheoryLessonProgressState({
     required this.completed,
     required this.total,
   });

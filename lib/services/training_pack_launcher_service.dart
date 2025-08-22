@@ -6,7 +6,7 @@ import 'training_session_launcher.dart';
 class TrainingPackLauncherService {
   final TrainingSessionLauncher launcher;
 
-  const TrainingPackLauncherService({
+  TrainingPackLauncherService({
     this.launcher = const TrainingSessionLauncher(),
   });
 

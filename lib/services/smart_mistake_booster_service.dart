@@ -8,7 +8,7 @@ import '../screens/training_session_screen.dart';
 import 'package:provider/provider.dart';
 
 class SmartMistakeBoosterService {
-  const SmartMistakeBoosterService();
+  SmartMistakeBoosterService();
 
   Future<void> launchBoosterIfAvailable(
     MistakeTagHistoryEntry mistake,

@@ -18,7 +18,7 @@ Map<String, Object?> starterPickerSelectedPayload(
 ) => {'packId': packId, 'spotCount': spotCount};
 
 class StarterPackTelemetry {
-  const StarterPackTelemetry({AnalyticsService? analytics})
+  StarterPackTelemetry({AnalyticsService? analytics})
     : _analytics = analytics ?? AnalyticsService.instance;
 
   final AnalyticsService _analytics;

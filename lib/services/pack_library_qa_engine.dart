@@ -3,7 +3,7 @@ import '../models/v2/training_pack_spot.dart';
 import '../models/pack_warning.dart';
 
 class PackLibraryQAEngine {
-  const PackLibraryQAEngine();
+  PackLibraryQAEngine();
 
   List<PackWarning> run(List<TrainingPackTemplateV2> packs) {
     final warnings = <PackWarning>[];

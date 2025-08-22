@@ -3,7 +3,7 @@ import '../models/theory_cluster_summary.dart';
 
 /// Suggests a starting point into theory learning for a new player.
 class TheoryOnboardingPathRecommender {
-  const TheoryOnboardingPathRecommender();
+  TheoryOnboardingPathRecommender();
 
   /// Chooses the best [TheoryClusterSummary] from [clusters] for [profile].
   TheoryClusterSummary? recommendEntryCluster(

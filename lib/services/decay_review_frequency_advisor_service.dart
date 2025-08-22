@@ -5,7 +5,7 @@ class TagReviewAdvice {
   final double decay;
   final int recommendedDaysUntilReview;
 
-  const TagReviewAdvice({
+  TagReviewAdvice({
     required this.tag,
     required this.decay,
     required this.recommendedDaysUntilReview,
@@ -15,7 +15,7 @@ class TagReviewAdvice {
 class DecayReviewFrequencyAdvisorService {
   final TagDecayForecastService forecastService;
 
-  const DecayReviewFrequencyAdvisorService({
+  DecayReviewFrequencyAdvisorService({
     this.forecastService = const TagDecayForecastService(),
   });
 

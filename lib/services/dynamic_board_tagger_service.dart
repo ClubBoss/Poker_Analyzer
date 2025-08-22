@@ -1,7 +1,7 @@
 import '../models/card_model.dart';
 
 class DynamicBoardTaggerService {
-  const DynamicBoardTaggerService();
+  DynamicBoardTaggerService();
 
   /// Tags the given [board] based on common board texture heuristics.
   ///

@@ -54,7 +54,7 @@ class DailyReminderService extends ChangeNotifier {
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
     await _plugin.initialize(
-      const InitializationSettings(android: android, iOS: ios),
+      InitializationSettings(android: android, iOS: ios),
     );
     tz.initializeTimeZones();
   }
@@ -112,7 +112,7 @@ class DailyReminderService extends ChangeNotifier {
       'Poker Analyzer',
       needSpot ? "Don't forget today's Spot!" : 'Finish your daily goals!',
       when,
-      const NotificationDetails(
+      NotificationDetails(
         android: AndroidNotificationDetails(
           'daily_reminder',
           'Daily Reminder',

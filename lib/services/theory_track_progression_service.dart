@@ -6,7 +6,7 @@ import 'theory_path_completion_evaluator_service.dart';
 class TheoryTrackProgressionService {
   final TheoryPathCompletionEvaluatorService evaluator;
 
-  const TheoryTrackProgressionService({required this.evaluator});
+  TheoryTrackProgressionService({required this.evaluator});
 
   /// Returns blocks that are unlocked based on sequential completion.
   Future<List<TheoryBlockModel>> getUnlockedBlocks(

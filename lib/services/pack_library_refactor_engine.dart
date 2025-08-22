@@ -12,7 +12,7 @@ class PackLibraryRefactorEngine {
   final YamlReader reader;
   final YamlWriter writer;
   final YamlPackAutoTagger tagger;
-  const PackLibraryRefactorEngine({
+  PackLibraryRefactorEngine({
     YamlReader? yamlReader,
     YamlWriter? yamlWriter,
     YamlPackAutoTagger? autoTagger,

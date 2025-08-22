@@ -15,7 +15,7 @@ class BoosterPackLauncher {
   final SkillMapBoosterRecommender recommender;
   final TrainingSessionLauncher launcher;
 
-  const BoosterPackLauncher({
+  BoosterPackLauncher({
     required this.mastery,
     this.library = PackLibraryService.instance,
     SkillMapBoosterRecommender? recommender,

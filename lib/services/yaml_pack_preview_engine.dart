@@ -4,7 +4,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import '../theme/app_colors.dart';
 
 class YamlPackPreviewEngine {
-  const YamlPackPreviewEngine();
+  YamlPackPreviewEngine();
 
   double? _coverage(TrainingPackTemplateV2 p) {
     final total =

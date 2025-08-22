@@ -6,7 +6,7 @@ import '../core/training/generation/yaml_reader.dart';
 import '../models/v2/training_pack_template_v2.dart';
 
 class TrainingPackIndexWriter {
-  const TrainingPackIndexWriter();
+  TrainingPackIndexWriter();
 
   Future<void> writeIndex({
     String src = 'assets/packs/v2',

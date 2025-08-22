@@ -4,7 +4,7 @@ import '../main.dart';
 
 /// Simple wrapper around the global [navigatorKey].
 class NavigationService {
-  const NavigationService();
+  NavigationService();
 
   /// Current navigator context if available.
   BuildContext? get context => navigatorKey.currentContext;

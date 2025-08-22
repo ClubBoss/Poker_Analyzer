@@ -14,7 +14,7 @@ class WeeklyPlannerBoosterEngine {
   final Future<List<String>> Function() _getStageIds;
   final Future<LearningPathTemplateV2> Function() _getPath;
 
-  const WeeklyPlannerBoosterEngine({
+  WeeklyPlannerBoosterEngine({
     PackLibraryService? library,
     TheoryPackLibraryService? theoryLibrary,
     Future<List<String>> Function()? getStageIds,

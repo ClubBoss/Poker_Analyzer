@@ -16,7 +16,7 @@ import 'path_map_engine.dart';
 class GraphTemplateExporter {
   final GraphPathTemplateParser parser;
 
-  const GraphTemplateExporter({GraphPathTemplateParser? parser})
+  GraphTemplateExporter({GraphPathTemplateParser? parser})
     : parser = parser ?? GraphPathTemplateParser();
 
   /// Converts [nodes] into a YAML string.
@@ -69,7 +69,7 @@ class GraphTemplateExporter {
       final ctx = navigatorKey.currentContext;
       if (ctx != null) {
         ScaffoldMessenger.of(ctx).showSnackBar(
-          const SnackBar(content: Text('Failed to export template')),
+          SnackBar(content: Text('Failed to export template')),
         );
       }
     }

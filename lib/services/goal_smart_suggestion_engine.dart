@@ -15,7 +15,7 @@ class GoalSmartSuggestionEngine {
   final MiniLessonLibraryService library;
   final InboxBoosterTunerService tuner;
 
-  const GoalSmartSuggestionEngine({
+  GoalSmartSuggestionEngine({
     this.insights = const MistakeTagInsightsService(),
     this.status = BoosterLessonStatusService.instance,
     this.library = MiniLessonLibraryService.instance,

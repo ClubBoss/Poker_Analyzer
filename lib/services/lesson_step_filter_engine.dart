@@ -3,7 +3,7 @@ import '../models/player_profile.dart';
 import '../models/v3/lesson_step_filter.dart';
 
 class LessonStepFilterEngine {
-  const LessonStepFilterEngine();
+  LessonStepFilterEngine();
 
   List<LessonStep> applyFilters(
     List<LessonStep> allSteps, {

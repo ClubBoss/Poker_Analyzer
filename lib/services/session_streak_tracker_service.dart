@@ -54,7 +54,7 @@ class SessionStreakTrackerService {
       await CoinsService.instance.addCoins(10);
       if (ctx != null) {
         ScaffoldMessenger.of(ctx).showSnackBar(
-          const SnackBar(content: Text('+10 coins for 3-day streak!')),
+          SnackBar(content: Text('+10 coins for 3-day streak!')),
         );
       }
       await prefs.setBool('reward_3', true);
@@ -64,7 +64,7 @@ class SessionStreakTrackerService {
       await XPRewardEngine.instance.addXp(20);
       if (ctx != null) {
         ScaffoldMessenger.of(ctx).showSnackBar(
-          const SnackBar(content: Text('+20 XP for 5-day streak!')),
+          SnackBar(content: Text('+20 XP for 5-day streak!')),
         );
       }
       await prefs.setBool('reward_5', true);
@@ -75,7 +75,7 @@ class SessionStreakTrackerService {
       await prefs.setBool(_avatarBonusKey, true);
       if (ctx != null) {
         ScaffoldMessenger.of(ctx).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(
               '🔥 10-day streak! +50 coins and avatar bonus unlocked!',
             ),

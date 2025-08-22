@@ -8,7 +8,7 @@ class TrackStateEntry {
   final TrackProgressEntry progress;
   final SkillTreeTrackState state;
 
-  const TrackStateEntry({required this.progress, required this.state});
+  TrackStateEntry({required this.progress, required this.state});
 }
 
 /// Evaluates the state of each skill tree track based on progress

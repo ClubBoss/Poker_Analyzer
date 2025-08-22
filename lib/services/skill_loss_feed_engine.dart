@@ -9,7 +9,7 @@ class SkillLossFeedItem {
   final String trend;
   final String? suggestedPackId;
 
-  const SkillLossFeedItem({
+  SkillLossFeedItem({
     required this.tag,
     required this.urgencyScore,
     required this.trend,
@@ -22,7 +22,7 @@ class SkillLossFeedEngine {
   final PackLibraryService _library;
   final TagReviewHistoryService _reviews;
 
-  const SkillLossFeedEngine({
+  SkillLossFeedEngine({
     TagGoalTrackerService? goals,
     PackLibraryService? library,
     TagReviewHistoryService? reviews,

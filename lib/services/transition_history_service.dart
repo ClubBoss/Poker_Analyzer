@@ -4,7 +4,7 @@ import 'board_manager_service.dart';
 /// Snapshot of transition lock state.
 class TransitionLockSnapshot {
   final bool isTransitioning;
-  const TransitionLockSnapshot({required this.isTransitioning});
+  TransitionLockSnapshot({required this.isTransitioning});
 }
 
 /// Handles undo/redo history for transition locks and manages

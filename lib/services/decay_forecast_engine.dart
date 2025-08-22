@@ -5,7 +5,7 @@ import 'decay_tag_retention_tracker_service.dart';
 class DecayForecastEngine {
   final DecayTagRetentionTrackerService retention;
 
-  const DecayForecastEngine({
+  DecayForecastEngine({
     this.retention = const DecayTagRetentionTrackerService(),
   });
 

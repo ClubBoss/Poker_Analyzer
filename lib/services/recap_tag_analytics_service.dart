@@ -4,7 +4,7 @@ import 'session_log_service.dart';
 class RecapTagAnalyticsService {
   final SessionLogService logs;
 
-  const RecapTagAnalyticsService({required this.logs});
+  RecapTagAnalyticsService({required this.logs});
 
   Future<Map<String, RecapTagPerformance>> computeRecapTagImprovements() async {
     await logs.load();

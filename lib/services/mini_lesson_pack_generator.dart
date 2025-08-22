@@ -12,7 +12,7 @@ class MiniLessonPackGenerator {
   final YamlReader reader;
   final YamlWriter writer;
 
-  const MiniLessonPackGenerator({
+  MiniLessonPackGenerator({
     MiniLessonLibraryBuilder? builder,
     YamlReader? reader,
     YamlWriter? writer,

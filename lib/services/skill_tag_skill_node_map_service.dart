@@ -2,7 +2,7 @@
 class SkillTagSkillNodeMapService {
   final Map<String, String> _map;
 
-  const SkillTagSkillNodeMapService({Map<String, String>? map})
+  SkillTagSkillNodeMapService({Map<String, String>? map})
     : _map = map ?? const {};
 
   /// Returns the skill tree node ID for [tag], or null if not mapped.

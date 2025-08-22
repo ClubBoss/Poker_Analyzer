@@ -5,7 +5,7 @@ class TheoryPackCompletionData {
   final int estimatedMinutes;
   final double completionRatio;
 
-  const TheoryPackCompletionData({
+  TheoryPackCompletionData({
     required this.wordCount,
     required this.estimatedMinutes,
     required this.completionRatio,
@@ -13,7 +13,7 @@ class TheoryPackCompletionData {
 }
 
 class TheoryPackCompletionEstimator {
-  const TheoryPackCompletionEstimator();
+  TheoryPackCompletionEstimator();
 
   TheoryPackCompletionData estimate(
     TheoryPackModel pack, {

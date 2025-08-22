@@ -33,7 +33,7 @@ class DecayReminderScheduler {
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
     await _plugin.initialize(
-      const InitializationSettings(android: android, iOS: ios),
+      InitializationSettings(android: android, iOS: ios),
       onDidReceiveNotificationResponse: (r) async {
         final id = r.payload;
         if (id == null) return;
@@ -102,7 +102,7 @@ class DecayReminderScheduler {
           _streakNotificationId,
           '🔥 ${badge.milestone}-day decay streak!',
           'Keep up the momentum!',
-          const NotificationDetails(
+          NotificationDetails(
             android: AndroidNotificationDetails('decay_streak', 'Decay Streak'),
             iOS: DarwinNotificationDetails(),
           ),
@@ -135,7 +135,7 @@ class DecayReminderScheduler {
       _notificationId,
       '⏳ Skill slipping away: ${item.tag}',
       'Tap to train before it\'s lost',
-      const NotificationDetails(
+      NotificationDetails(
         android: AndroidNotificationDetails('decay_reminder', 'Decay Reminder'),
         iOS: DarwinNotificationDetails(),
       ),

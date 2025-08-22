@@ -3,7 +3,7 @@ abstract class AnalyticsAdapter {
 }
 
 class NullAnalyticsAdapter implements AnalyticsAdapter {
-  const NullAnalyticsAdapter();
+  NullAnalyticsAdapter();
   @override
   Future<void> send(String event, Map<String, Object?> data) async {}
 }

@@ -3,7 +3,7 @@ import '../models/spot_line_graph.dart';
 import '../models/action_entry.dart';
 
 class SpotLineGraphEngine {
-  const SpotLineGraphEngine();
+  SpotLineGraphEngine();
 
   SpotLineGraph build(TrainingPackSpot spot) {
     final heroIndex = spot.hand.heroIndex;

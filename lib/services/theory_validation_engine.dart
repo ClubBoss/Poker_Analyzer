@@ -6,7 +6,7 @@ import 'theory_pack_generator_service.dart';
 
 /// Validates theory YAML files generated in `yaml_out/`.
 class TheoryValidationEngine {
-  const TheoryValidationEngine();
+  TheoryValidationEngine();
 
   /// Returns a list of `(filePath, message)` tuples describing validation errors.
   Future<List<(String, String)>> validateAll({String dir = 'yaml_out'}) async {

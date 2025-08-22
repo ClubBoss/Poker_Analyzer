@@ -6,7 +6,7 @@ import '../screens/training_session_screen.dart';
 
 /// Starts a review session for decayed tags.
 class DailyReviewBoosterLauncher {
-  const DailyReviewBoosterLauncher();
+  DailyReviewBoosterLauncher();
 
   /// Builds today's booster pack and opens the training screen.
   Future<void> launch(BuildContext context) async {
@@ -14,7 +14,7 @@ class DailyReviewBoosterLauncher {
     final tags = plan.tags;
     if (tags.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Сегодня ничего не забыто!')),
+        SnackBar(content: Text('Сегодня ничего не забыто!')),
       );
       return;
     }
@@ -22,7 +22,7 @@ class DailyReviewBoosterLauncher {
     final pack = await BoosterPackFactory.buildFromTags(tags);
     if (pack == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Сегодня ничего не забыто!')),
+        SnackBar(content: Text('Сегодня ничего не забыто!')),
       );
       return;
     }

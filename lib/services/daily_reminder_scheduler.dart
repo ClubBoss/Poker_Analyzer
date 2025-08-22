@@ -20,7 +20,7 @@ class DailyReminderScheduler {
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
     await _plugin.initialize(
-      const InitializationSettings(android: android, iOS: ios),
+      InitializationSettings(android: android, iOS: ios),
     );
     tz.initializeTimeZones();
     _initialized = true;
@@ -52,7 +52,7 @@ class DailyReminderScheduler {
         'Poker Analyzer',
         body,
         when,
-        const NotificationDetails(
+        NotificationDetails(
           android: AndroidNotificationDetails(
             'daily_pack_reminder',
             'Daily Pack Reminder',

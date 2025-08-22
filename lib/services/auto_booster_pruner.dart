@@ -9,7 +9,7 @@ class AutoBoosterPruner {
   /// Global toggle for enabling pruning. Useful for tests.
   static bool enabled = true;
 
-  const AutoBoosterPruner({
+  AutoBoosterPruner({
     LearningPathEngine? engine,
     TheoryBoosterReinjectionPolicy? policy,
   }) : engine = engine ?? LearningPathEngine.instance,

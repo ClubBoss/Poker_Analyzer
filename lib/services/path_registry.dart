@@ -33,7 +33,7 @@ class _PathRegistryEntry {
 class PathRegistry {
   final String path;
 
-  const PathRegistry({this.path = 'autogen_cache/path_registry.json'});
+  PathRegistry({this.path = 'autogen_cache/path_registry.json'});
 
   Future<List<_PathRegistryEntry>> _load() async {
     final file = File(path);

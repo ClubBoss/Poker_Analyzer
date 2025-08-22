@@ -77,7 +77,7 @@ class TrainingPackAutoGenerator {
     if (_shouldAbort) {
       status.update(
         'TrainingPackAutoGenerator',
-        const AutogenStatus(
+        AutogenStatus(
           isRunning: false,
           currentStage: 'aborted',
           progress: 0,
@@ -96,7 +96,7 @@ class TrainingPackAutoGenerator {
     }
     status.update(
       'TrainingPackAutoGenerator',
-      const AutogenStatus(
+      AutogenStatus(
         isRunning: true,
         currentStage: 'generating',
         progress: 0,
@@ -120,7 +120,7 @@ class TrainingPackAutoGenerator {
       if (_shouldAbort || !deduplicate) {
         status.update(
           'TrainingPackAutoGenerator',
-          const AutogenStatus(
+          AutogenStatus(
             isRunning: false,
             currentStage: 'complete',
             progress: 1,
@@ -143,7 +143,7 @@ class TrainingPackAutoGenerator {
       }
       status.update(
         'TrainingPackAutoGenerator',
-        const AutogenStatus(
+        AutogenStatus(
           isRunning: false,
           currentStage: 'complete',
           progress: 1,
@@ -181,7 +181,7 @@ class TrainingPackAutoGenerator {
     if (_shouldAbort) {
       status.update(
         'TrainingPackAutoGenerator',
-        const AutogenStatus(
+        AutogenStatus(
           isRunning: false,
           currentStage: 'aborted',
           progress: 0,
@@ -191,7 +191,7 @@ class TrainingPackAutoGenerator {
     }
     status.update(
       'TrainingPackAutoGenerator',
-      const AutogenStatus(
+      AutogenStatus(
         isRunning: true,
         currentStage: 'generating',
         progress: 0,
@@ -256,7 +256,7 @@ class TrainingPackAutoGenerator {
       }
       status.update(
         'TrainingPackAutoGenerator',
-        const AutogenStatus(
+        AutogenStatus(
           isRunning: false,
           currentStage: 'complete',
           progress: 1,

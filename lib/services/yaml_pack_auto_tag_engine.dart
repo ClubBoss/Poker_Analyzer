@@ -5,7 +5,7 @@ import '../models/game_type.dart';
 
 /// Generates tags for YAML packs based on simple heuristics.
 class YamlPackAutoTagEngine {
-  const YamlPackAutoTagEngine();
+  YamlPackAutoTagEngine();
 
   /// Returns a sorted list of unique tags inferred from [pack]. Existing
   /// tags in the pack are preserved.

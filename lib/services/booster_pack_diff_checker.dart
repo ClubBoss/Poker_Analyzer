@@ -7,7 +7,7 @@ class BoosterSpotDiff {
   final List<String> fields;
   final int oldIndex;
   final int newIndex;
-  const BoosterSpotDiff({
+  BoosterSpotDiff({
     required this.id,
     required this.fields,
     required this.oldIndex,
@@ -33,7 +33,7 @@ class BoosterDiffReport {
   final List<String> added;
   final List<String> removed;
   final List<BoosterSpotDiff> modified;
-  const BoosterDiffReport({
+  BoosterDiffReport({
     this.added = const [],
     this.removed = const [],
     this.modified = const [],
@@ -62,7 +62,7 @@ class BoosterDiffReport {
 }
 
 class BoosterPackDiffChecker {
-  const BoosterPackDiffChecker();
+  BoosterPackDiffChecker();
 
   BoosterDiffReport diff(
     TrainingPackTemplateV2 oldPack,

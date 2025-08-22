@@ -14,7 +14,7 @@ class SmartBoosterGenerator {
   final MistakeTagInsightsService insightsService;
   final MistakeTagClusterService clusterService;
 
-  const SmartBoosterGenerator({
+  SmartBoosterGenerator({
     this.insightsService = const MistakeTagInsightsService(),
     this.clusterService = const MistakeTagClusterService(),
   });

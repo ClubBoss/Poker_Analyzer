@@ -12,7 +12,7 @@ class TheoryStageAutoSeeder {
   final String dir;
   final int maxStages;
 
-  const TheoryStageAutoSeeder({
+  TheoryStageAutoSeeder({
     TheoryYamlImporter? importer,
     this.dir = 'yaml_out/theory',
     this.maxStages = 12,

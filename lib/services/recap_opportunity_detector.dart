@@ -101,7 +101,7 @@ class RecapOpportunityDetector {
     final recentCompletion =
         _lastCompletion != null &&
         DateTime.now().difference(_lastCompletion!) <
-            const Duration(minutes: 10);
+            Duration(minutes: 10);
     if (!recentCompletion) {
       final last = await _lastPromptTime();
       if (last != null &&

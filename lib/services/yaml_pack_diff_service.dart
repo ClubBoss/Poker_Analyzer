@@ -3,7 +3,7 @@ import 'package:collection/collection.dart';
 import '../models/v2/training_pack_template_v2.dart';
 
 class YamlPackDiffService {
-  const YamlPackDiffService();
+  YamlPackDiffService();
 
   String generateMarkdownDiff(
     TrainingPackTemplateV2 oldPack,

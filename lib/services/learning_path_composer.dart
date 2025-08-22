@@ -18,7 +18,7 @@ class PackMeta {
   final double decisionDensity;
   final bool theoryHeavy;
 
-  const PackMeta({
+  PackMeta({
     required this.id,
     this.categories = const [],
     this.textureDistribution = const {},
@@ -38,7 +38,7 @@ class DifficultyWeights {
   final double theory;
   final double texture;
   final double novelty;
-  const DifficultyWeights({
+  DifficultyWeights({
     this.tags = 0.35,
     this.decision = 0.25,
     this.theory = 0.15,
@@ -49,7 +49,7 @@ class DifficultyWeights {
 
 class DifficultyScorer {
   final DifficultyWeights weights;
-  const DifficultyScorer({DifficultyWeights? weights})
+  DifficultyScorer({DifficultyWeights? weights})
     : weights = weights ?? const DifficultyWeights();
 
   double score(PackMeta meta) {
@@ -93,7 +93,7 @@ class LevelQuota {
   final double? minDecisionDensity;
   final bool requireTheoryHeavy;
   final bool textureBalanced;
-  const LevelQuota({
+  LevelQuota({
     required this.minDifficulty,
     required this.maxDifficulty,
     this.minCategories = 0,
@@ -128,7 +128,7 @@ const Map<int, LevelQuota> defaultQuotas = {
 class CompositionResult {
   final LearningPathTemplateV2 path;
   final Map<int, List<PackMeta>> assignments;
-  const CompositionResult(this.path, this.assignments);
+  CompositionResult(this.path, this.assignments);
 }
 
 class LearningPathComposer {

@@ -10,7 +10,7 @@ import 'adaptive_training_planner.dart';
 class PlanSignatureBuilder {
   static const _sigKeyPrefix = 'planner.sigs.';
 
-  const PlanSignatureBuilder();
+  PlanSignatureBuilder();
 
   /// Builds a canonical signature for [plan]. The signature is the SHA-256
   /// hash (hex) of a canonical JSON representation containing only the

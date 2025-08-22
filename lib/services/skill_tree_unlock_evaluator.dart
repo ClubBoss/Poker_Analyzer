@@ -6,7 +6,7 @@ import 'skill_tree_node_progress_tracker.dart';
 class SkillTreeUnlockEvaluator {
   final SkillTreeNodeProgressTracker progress;
 
-  const SkillTreeUnlockEvaluator({SkillTreeNodeProgressTracker? progress})
+  SkillTreeUnlockEvaluator({SkillTreeNodeProgressTracker? progress})
     : progress = progress ?? SkillTreeNodeProgressTracker.instance;
 
   /// Returns nodes that are unlocked and not yet completed in [tree].

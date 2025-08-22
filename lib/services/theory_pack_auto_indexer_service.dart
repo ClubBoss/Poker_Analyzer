@@ -9,7 +9,7 @@ import 'theory_pack_auto_booster_suggester.dart';
 
 /// Builds YAML index of theory packs with usage metadata.
 class TheoryPackAutoIndexerService {
-  const TheoryPackAutoIndexerService();
+  TheoryPackAutoIndexerService();
 
   /// Returns YAML string with packs grouped by usage status.
   String buildIndexYaml(

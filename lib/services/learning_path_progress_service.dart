@@ -15,7 +15,7 @@ class LearningStageItem {
   final LearningItemStatus status;
   final String? templateId;
 
-  const LearningStageItem({
+  LearningStageItem({
     required this.title,
     required this.icon,
     required this.progress,
@@ -33,7 +33,7 @@ class LearningStageState {
   final List<LearningStageItem> items;
   final bool isLocked;
 
-  const LearningStageState({
+  LearningStageState({
     required this.title,
     required this.levelIndex,
     required this.goal,
@@ -226,7 +226,7 @@ class LearningPathProgressService {
     }
 
     final stages = [
-      const LearningStageState(
+      LearningStageState(
         levelIndex: 1,
         title: 'Beginner',
         goal: 'Освой базовый пуш-фолд',
@@ -257,7 +257,7 @@ class LearningPathProgressService {
           ),
         ],
       ),
-      const LearningStageState(
+      LearningStageState(
         levelIndex: 2,
         title: 'Intermediate',
         goal: 'Изучи ICM и диапазоны 20bb',
@@ -280,7 +280,7 @@ class LearningPathProgressService {
           ),
         ],
       ),
-      const LearningStageState(
+      LearningStageState(
         levelIndex: 3,
         title: 'Advanced',
         goal: 'Углуби стратегию и эксплойт',

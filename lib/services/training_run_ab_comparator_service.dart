@@ -13,7 +13,7 @@ class ABComparisonResult {
   final int earlyDropA;
   final int earlyDropB;
 
-  const ABComparisonResult({
+  ABComparisonResult({
     required this.accuracyA,
     required this.accuracyB,
     required this.timeA,

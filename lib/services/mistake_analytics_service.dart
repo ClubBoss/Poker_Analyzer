@@ -5,7 +5,7 @@ class MistakeTagData {
   final int mistakeCount;
   final double evLoss;
 
-  const MistakeTagData({
+  MistakeTagData({
     required this.tag,
     required this.mistakeCount,
     required this.evLoss,
@@ -14,7 +14,7 @@ class MistakeTagData {
 
 /// Provides analytics on recent mistakes.
 class MistakeAnalyticsService {
-  const MistakeAnalyticsService();
+  MistakeAnalyticsService();
 
   /// Returns stats for top mistake tags sorted by frequency.
   Future<List<MistakeTagData>> getTopMistakeTags({int max = 5}) async {

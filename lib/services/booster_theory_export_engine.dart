@@ -9,7 +9,7 @@ import '../core/training/engine/training_type_engine.dart';
 
 /// Exports theory packs from a library into YAML files.
 class BoosterTheoryExportEngine {
-  const BoosterTheoryExportEngine();
+  BoosterTheoryExportEngine();
 
   /// Writes every theory pack from [library] into [dir].
   ///

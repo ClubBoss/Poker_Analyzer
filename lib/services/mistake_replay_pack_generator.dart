@@ -10,7 +10,7 @@ import '../core/training/engine/training_type_engine.dart';
 
 /// Generates a training pack replaying the user's own mistakes.
 class MistakeReplayPackGenerator {
-  const MistakeReplayPackGenerator();
+  MistakeReplayPackGenerator();
 
   /// Builds a pack from [history] focusing on recent mistakes. Spots are
   /// selected when their EV gain is below [evThreshold] or the answer was

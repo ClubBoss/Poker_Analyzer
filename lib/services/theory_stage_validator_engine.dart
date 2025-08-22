@@ -4,7 +4,7 @@ import 'learning_path_stage_library.dart';
 
 /// Validates theory stages against the main pack library.
 class TheoryStageValidatorEngine {
-  const TheoryStageValidatorEngine();
+  TheoryStageValidatorEngine();
 
   /// Returns a list of validation errors.
   List<String> validate() {

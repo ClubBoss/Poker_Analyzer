@@ -10,7 +10,7 @@ class SkillTreeStageBadgeEvaluatorService {
   final SkillTreeStageStateService stageStateService;
   final SkillTreeNodeCompletionStateService nodeStateService;
 
-  const SkillTreeStageBadgeEvaluatorService({
+  SkillTreeStageBadgeEvaluatorService({
     this.stageStateService = const SkillTreeStageStateService(),
     this.nodeStateService = const SkillTreeNodeCompletionStateService(),
   });

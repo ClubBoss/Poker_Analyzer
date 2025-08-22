@@ -6,7 +6,7 @@ import '../models/v2/hero_position.dart';
 import '../models/v2/training_pack_template_v2.dart';
 
 class WeaknessInsightService {
-  const WeaknessInsightService();
+  WeaknessInsightService();
 
   List<LeakInsight> analyze({
     required List<SessionLog> logs,

@@ -4,7 +4,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 
 class PackMatrixConfig {
-  const PackMatrixConfig();
+  PackMatrixConfig();
 
   Future<List<(String, List<String>)>> loadMatrix() async {
     final file = await _getFile();

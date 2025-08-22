@@ -9,7 +9,7 @@ class RecallEvent {
   final DateTime timestamp;
   final Duration? viewDuration;
 
-  const RecallEvent({
+  RecallEvent({
     required this.trigger,
     this.lessonId,
     this.tags,

@@ -3,7 +3,7 @@ import '../models/learning_path_block.dart';
 
 /// Builds [LearningPathBlock]s from injected mini lessons.
 class InjectionBlockAssembler {
-  const InjectionBlockAssembler();
+  InjectionBlockAssembler();
 
   /// Creates a [LearningPathBlock] presentation for [lesson].
   LearningPathBlock build(

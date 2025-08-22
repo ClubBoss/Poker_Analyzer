@@ -8,7 +8,7 @@ class TheoryBoosterGenerator {
   final TheoryInjectionEngine _engine;
   final Uuid _uuid;
 
-  const TheoryBoosterGenerator({
+  TheoryBoosterGenerator({
     TheoryInjectionEngine engine = const TheoryInjectionEngine(),
     Uuid uuid = const Uuid(),
   }) : _engine = engine,

@@ -2,7 +2,7 @@ import '../models/training_track_summary.dart';
 
 /// Updates tag mastery values based on a completed training track summary.
 class TagMasteryUpdater {
-  const TagMasteryUpdater();
+  TagMasteryUpdater();
 
   /// Returns an updated copy of [current] with mastery adjusted using
   /// [summary]. The update moves mastery towards the observed accuracy

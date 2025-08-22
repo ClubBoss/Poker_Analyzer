@@ -5,7 +5,7 @@ import '../core/training/generation/yaml_reader.dart';
 import '../models/v2/training_pack_template_v2.dart';
 
 class TheoryYamlImporter {
-  const TheoryYamlImporter({ErrorLogger? logger})
+  TheoryYamlImporter({ErrorLogger? logger})
     : _logger = logger ?? ErrorLogger.instance;
 
   final ErrorLogger _logger;

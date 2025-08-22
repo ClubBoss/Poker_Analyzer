@@ -9,7 +9,7 @@ import '../models/v2/training_pack_template_v2.dart';
 class PackLibraryLevel2Seeder {
   final SpotFactoryLevel2Engine engine;
   final TrainingPackExporterV2 exporter;
-  const PackLibraryLevel2Seeder({
+  PackLibraryLevel2Seeder({
     this.engine = const SpotFactoryLevel2Engine(),
     this.exporter = const TrainingPackExporterV2(),
   });

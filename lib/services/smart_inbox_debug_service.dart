@@ -11,7 +11,7 @@ class SmartInboxDebugInfo {
   final List<PinnedBlockBoosterSuggestion> limited;
   final List<PinnedBlockBoosterSuggestion> rendered;
 
-  const SmartInboxDebugInfo({
+  SmartInboxDebugInfo({
     required this.raw,
     required this.scheduled,
     required this.deduplicated,

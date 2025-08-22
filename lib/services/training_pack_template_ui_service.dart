@@ -10,7 +10,7 @@ import 'push_fold_ev_service.dart';
 import '../utils/template_coverage_utils.dart';
 
 class TrainingPackTemplateUiService {
-  const TrainingPackTemplateUiService();
+  TrainingPackTemplateUiService();
 
   Future<List<TrainingPackSpot>> generateSpotsWithProgress(
     BuildContext context,

@@ -3,7 +3,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/hero_position.dart';
 
 class YamlPackValidatorService {
-  const YamlPackValidatorService();
+  YamlPackValidatorService();
 
   YamlPackValidationReport validate(TrainingPackTemplateV2 pack) {
     final errors = <String>[];

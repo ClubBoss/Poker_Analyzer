@@ -5,7 +5,7 @@ import '../screens/skill_tree_screen.dart';
 
 /// Handles navigation to skill tree tracks.
 class SkillTreeNavigator {
-  const SkillTreeNavigator();
+  SkillTreeNavigator();
 
   static SkillTreeNavigator instance = const SkillTreeNavigator();
 

@@ -5,7 +5,7 @@ import 'dart:io';
 class PackGenerationMetricsTrackerService {
   final String _filePath;
 
-  const PackGenerationMetricsTrackerService({
+  PackGenerationMetricsTrackerService({
     String filePath = 'autogen_metrics.json',
   }) : _filePath = filePath;
 

@@ -14,7 +14,7 @@ class TrackProgressEntry {
   final double completionRate; // 0.0 to 1.0
   final bool isCompleted;
 
-  const TrackProgressEntry({
+  TrackProgressEntry({
     required this.tree,
     required this.completionRate,
     required this.isCompleted,

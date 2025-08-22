@@ -9,7 +9,7 @@ class SmartSkillGapBoosterEngine {
   final MiniLessonLibraryService library;
   final MiniLessonProgressTracker progress;
 
-  const SmartSkillGapBoosterEngine({
+  SmartSkillGapBoosterEngine({
     SkillGapDetectorService? detector,
     MiniLessonLibraryService? library,
     MiniLessonProgressTracker? progress,

@@ -10,7 +10,7 @@ class TrainingPathProgressTrackerService {
   final TrainingPathNodeDefinitionService definitions;
   final SharedPreferences? _prefsOverride;
 
-  const TrainingPathProgressTrackerService({
+  TrainingPathProgressTrackerService({
     this.definitions = const TrainingPathNodeDefinitionService(),
     SharedPreferences? prefs,
   }) : _prefsOverride = prefs;

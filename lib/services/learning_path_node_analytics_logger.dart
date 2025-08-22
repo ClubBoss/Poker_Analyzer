@@ -2,7 +2,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// Logs when sections within a learning path node are viewed.
 class LearningPathNodeAnalyticsLogger {
-  const LearningPathNodeAnalyticsLogger();
+  LearningPathNodeAnalyticsLogger();
 
   static const _storeKey = 'learning_path_group_views';
 

@@ -14,7 +14,7 @@ class RecommendationTask {
   final String title;
   final IconData icon;
   final int remaining;
-  const RecommendationTask({
+  RecommendationTask({
     required this.title,
     required this.icon,
     required this.remaining,
@@ -75,7 +75,7 @@ class PersonalRecommendationService extends ChangeNotifier {
       case PlayerStyle.aggressive:
         _tasks.insert(
           0,
-          const RecommendationTask(
+          RecommendationTask(
             title: 'Сбавьте агрессию ранних улиц',
             icon: Icons.trending_down,
             remaining: 1,
@@ -85,7 +85,7 @@ class PersonalRecommendationService extends ChangeNotifier {
       case PlayerStyle.passive:
         _tasks.insert(
           0,
-          const RecommendationTask(
+          RecommendationTask(
             title: 'Проявите больше агрессии',
             icon: Icons.trending_up,
             remaining: 1,
@@ -99,7 +99,7 @@ class PersonalRecommendationService extends ChangeNotifier {
     if (prog.accuracy < 0.7) {
       _tasks.insert(
         0,
-        const RecommendationTask(
+        RecommendationTask(
           title: 'Работайте над точностью',
           icon: Icons.bar_chart,
           remaining: 1,
@@ -109,7 +109,7 @@ class PersonalRecommendationService extends ChangeNotifier {
     if (prog.ev < 0) {
       _tasks.insert(
         0,
-        const RecommendationTask(
+        RecommendationTask(
           title: 'Улучшите EV',
           icon: Icons.show_chart,
           remaining: 1,
@@ -119,7 +119,7 @@ class PersonalRecommendationService extends ChangeNotifier {
     if (prog.icm < 0) {
       _tasks.insert(
         0,
-        const RecommendationTask(
+        RecommendationTask(
           title: 'Улучшите ICM',
           icon: Icons.pie_chart,
           remaining: 1,

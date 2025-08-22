@@ -199,7 +199,7 @@ class SavedHandImportExportService {
     if (data == null || data.text == null) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Неверный формат данных.')),
+          SnackBar(content: Text('Неверный формат данных.')),
         );
       }
       return null;
@@ -326,7 +326,7 @@ class SavedHandImportExportService {
     if (hands.isEmpty) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No saved hands to export')),
+          SnackBar(content: Text('No saved hands to export')),
         );
       }
       return;

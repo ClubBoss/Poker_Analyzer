@@ -5,14 +5,14 @@ import '../models/node_completion_status.dart';
 
 /// Builds overlay widgets showing lesson state for skill tree nodes.
 class SkillTreeLessonStateOverlayBuilder {
-  const SkillTreeLessonStateOverlayBuilder();
+  SkillTreeLessonStateOverlayBuilder();
 
   /// Returns a list of small overlay widgets for the node's top right corner.
   List<Widget> build(NodeGateStatus gate, NodeCompletionStatus completion) {
     final widgets = <Widget>[];
     if (completion.isCompleted) {
       widgets.add(
-        const Icon(Icons.check_circle, color: Colors.green, size: 18),
+        Icon(Icons.check_circle, color: Colors.green, size: 18),
       );
     } else if (!gate.isEnabled) {
       widgets.add(const Icon(Icons.lock, color: Colors.grey, size: 18));

@@ -8,7 +8,7 @@ import 'learning_path_progress_service_v2.dart';
 class SuggestedNextAction {
   final String stageId;
   final String reason;
-  const SuggestedNextAction({required this.stageId, required this.reason});
+  SuggestedNextAction({required this.stageId, required this.reason});
 }
 
 /// Recommends which stage of a learning path should be played next.
@@ -16,7 +16,7 @@ class LearningPathAdvancer {
   final AdaptiveTrainingPathEngine engine;
   final LearningPathProgressService progressService;
 
-  const LearningPathAdvancer({
+  LearningPathAdvancer({
     this.engine = const AdaptiveTrainingPathEngine(),
     this.progressService = const LearningPathProgressService(),
   });

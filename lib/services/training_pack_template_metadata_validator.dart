@@ -8,7 +8,7 @@ import '../models/v2/training_pack_spot.dart';
 /// Returns a record containing lists of valid and rejected templates. Rejected
 /// packs are logged with the reasons for failure.
 class TrainingPackTemplateMetadataValidator {
-  const TrainingPackTemplateMetadataValidator();
+  TrainingPackTemplateMetadataValidator();
 
   ({List<TrainingPackTemplateV2> valid, List<TrainingPackTemplateV2> rejected})
   filter(List<TrainingPackTemplateV2> packs) {

@@ -3,7 +3,7 @@ import '../models/session_log.dart';
 
 /// Checks if an entire learning path has been completed based on session logs.
 class LearningPathCompletionEngine {
-  const LearningPathCompletionEngine();
+  LearningPathCompletionEngine();
 
   /// Returns `true` when every stage in [path] has at least the required number
   /// of hands played with sufficient accuracy.

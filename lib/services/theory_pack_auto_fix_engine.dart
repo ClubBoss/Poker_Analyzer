@@ -1,7 +1,7 @@
 import '../models/theory_pack_model.dart';
 
 class TheoryPackAutoFixEngine {
-  const TheoryPackAutoFixEngine();
+  TheoryPackAutoFixEngine();
 
   TheoryPackModel autoFix(TheoryPackModel pack) {
     String clean(String v) => v.replaceAll(RegExp(r'\s+'), ' ').trim();

@@ -8,7 +8,7 @@ import '../models/v2/game_type.dart';
 import '../core/training/engine/training_type_engine.dart';
 
 class TheoryPackGeneratorService {
-  const TheoryPackGeneratorService();
+  TheoryPackGeneratorService();
 
   static const Map<String, Map<String, String>> _titles = {
     'pushFold': {'en': 'Push/Fold Basics', 'ru': 'Основы пуш/фолда'},

@@ -9,7 +9,7 @@ class StarterLearningPathBuilder {
   final TheoryPackLibraryService theoryLibrary;
   final TheoryPackStageInjector injector;
 
-  const StarterLearningPathBuilder({
+  StarterLearningPathBuilder({
     TheoryPackLibraryService? theoryLibrary,
     this.injector = const TheoryPackStageInjector(),
   }) : theoryLibrary = theoryLibrary ?? TheoryPackLibraryService.instance;

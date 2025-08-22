@@ -10,7 +10,7 @@ class SkillLoss {
 }
 
 class SkillLossDetector {
-  const SkillLossDetector();
+  SkillLossDetector();
 
   List<SkillLoss> detect(
     Map<String, List<double>> tagHistory, {

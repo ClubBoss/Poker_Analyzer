@@ -10,7 +10,7 @@ class TheoryPackSeederLevel2 {
   final YamlReader reader;
   final YamlWriter writer;
 
-  const TheoryPackSeederLevel2({
+  TheoryPackSeederLevel2({
     Map<String, Map<String, String>>? templates,
     this.reader = const YamlReader(),
     this.writer = const YamlWriter(),

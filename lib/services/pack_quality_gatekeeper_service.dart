@@ -6,7 +6,7 @@ import '../core/models/spot_seed/seed_issue.dart';
 
 /// Filters out training packs that do not meet the minimum quality score.
 class PackQualityGatekeeperService {
-  const PackQualityGatekeeperService({
+  PackQualityGatekeeperService({
     PackQualityScoreCalculatorService? scoreCalculator,
   }) : _scoreCalculator =
            scoreCalculator ?? const PackQualityScoreCalculatorService();

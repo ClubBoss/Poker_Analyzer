@@ -14,7 +14,7 @@ class AdaptiveLearningPlan {
   final List<LearningGoal> goals;
   final TrainingPackTemplateV2? mistakeReplayPack;
 
-  const AdaptiveLearningPlan({
+  AdaptiveLearningPlan({
     required this.recommendedTracks,
     required this.goals,
     this.mistakeReplayPack,
@@ -28,7 +28,7 @@ class AdaptiveLearningFlowEngine {
   final AdaptiveSchedulerService scheduler;
   final MistakeReplayPackGenerator mistakeGenerator;
 
-  const AdaptiveLearningFlowEngine({
+  AdaptiveLearningFlowEngine({
     this.clusterEngine = const WeaknessClusterEngine(),
     this.goalEngine = const LearningGoalEngine(),
     this.trackBuilder = const DynamicTrackBuilder(),

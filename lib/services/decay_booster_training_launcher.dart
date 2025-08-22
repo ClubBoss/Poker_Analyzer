@@ -14,7 +14,7 @@ class DecayBoosterTrainingLauncher {
   final TrainingSessionLauncher launcher;
   final DecayTagRetentionTrackerService retention;
 
-  const DecayBoosterTrainingLauncher({
+  DecayBoosterTrainingLauncher({
     this.queue = BoosterQueueService.instance,
     this.launcher = const TrainingSessionLauncher(),
     this.retention = const DecayTagRetentionTrackerService(),

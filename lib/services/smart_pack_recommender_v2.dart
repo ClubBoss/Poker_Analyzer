@@ -9,7 +9,7 @@ class SmartPackRecommenderV2 {
   final TrainingPathUnlockService _unlockService;
   final WeaknessClusterEngine _clusterEngine;
 
-  const SmartPackRecommenderV2({
+  SmartPackRecommenderV2({
     TrainingPathUnlockService? unlockService,
     WeaknessClusterEngine? clusterEngine,
   }) : _unlockService = unlockService ?? const TrainingPathUnlockService(),

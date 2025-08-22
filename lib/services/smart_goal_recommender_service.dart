@@ -8,7 +8,7 @@ class SmartGoalRecommenderService {
   final TagMasteryService mastery;
   final SessionLogService logs;
 
-  const SmartGoalRecommenderService({
+  SmartGoalRecommenderService({
     required this.mastery,
     required this.logs,
   });

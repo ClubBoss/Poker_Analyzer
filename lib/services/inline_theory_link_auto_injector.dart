@@ -14,7 +14,7 @@ class InlineTheoryInjectionResult {
   final double avgScore;
   final int uniqueTheoryBlocks;
 
-  const InlineTheoryInjectionResult({
+  InlineTheoryInjectionResult({
     required this.linkedCount,
     required this.rejectedLowScore,
     required this.avgScore,
@@ -40,7 +40,7 @@ class InlineTheoryLinkAutoInjector {
   final double wCluster;
   final bool preferNovelty;
 
-  const InlineTheoryLinkAutoInjector({
+  InlineTheoryLinkAutoInjector({
     this.enabled = true,
     this.maxLinksPerSpot = 2,
     this.minScore = 0.5,
@@ -59,7 +59,7 @@ class InlineTheoryLinkAutoInjector {
     final status = AutogenStatusDashboardService.instance;
     status.update(
       'InlineTheoryLinkAutoInjector',
-      const AutogenStatus(isRunning: true, currentStage: 'inject', progress: 0),
+      AutogenStatus(isRunning: true, currentStage: 'inject', progress: 0),
     );
     try {
       final result = _injectAll(model.spots, theoryIndex, status);
@@ -71,7 +71,7 @@ class InlineTheoryLinkAutoInjector {
       }
       status.update(
         'InlineTheoryLinkAutoInjector',
-        const AutogenStatus(
+        AutogenStatus(
           isRunning: false,
           currentStage: 'complete',
           progress: 1,
@@ -100,7 +100,7 @@ class InlineTheoryLinkAutoInjector {
     final status = AutogenStatusDashboardService.instance;
     status.update(
       'InlineTheoryLinkAutoInjector',
-      const AutogenStatus(isRunning: true, currentStage: 'inject', progress: 0),
+      AutogenStatus(isRunning: true, currentStage: 'inject', progress: 0),
     );
     try {
       final result = _injectAll(spots, theoryIndex, status);
@@ -112,7 +112,7 @@ class InlineTheoryLinkAutoInjector {
       }
       status.update(
         'InlineTheoryLinkAutoInjector',
-        const AutogenStatus(
+        AutogenStatus(
           isRunning: false,
           currentStage: 'complete',
           progress: 1,

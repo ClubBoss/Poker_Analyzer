@@ -4,7 +4,7 @@ import '../models/learning_path_template_v2.dart';
 
 /// Audits theory pack usage across learning paths.
 class BoosterTheoryUsageAuditService {
-  const BoosterTheoryUsageAuditService();
+  BoosterTheoryUsageAuditService();
 
   /// Returns list of issues about unused or missing packs.
   List<TheoryUsageIssue> audit({

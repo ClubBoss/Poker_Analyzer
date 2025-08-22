@@ -88,7 +88,7 @@ class BoardEditingService {
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(
-        const SnackBar(content: Text('This card is already in use')),
+        SnackBar(content: Text('This card is already in use')),
       );
   }
 

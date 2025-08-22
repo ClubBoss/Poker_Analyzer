@@ -10,7 +10,7 @@ class LearningStats {
   final bool hasWeakTags;
   final bool hasMistakes;
 
-  const LearningStats({
+  LearningStats({
     required this.completedPacks,
     required this.accuracy,
     required this.ev,
@@ -29,7 +29,7 @@ class NextStepAdvice {
   final String description;
   final String action;
 
-  const NextStepAdvice({
+  NextStepAdvice({
     required this.title,
     required this.description,
     required this.action,
@@ -38,7 +38,7 @@ class NextStepAdvice {
 
 /// Simple rule-based advisor for what to do next.
 class NextStepAdvisorService {
-  const NextStepAdvisorService();
+  NextStepAdvisorService();
 
   NextStepAdvice recommend({required LearningStats stats}) {
     if (stats.hasMistakes && (stats.ev < 0 || stats.icm < 0)) {

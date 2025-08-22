@@ -8,7 +8,7 @@ import 'booster_thematic_tagger.dart';
 
 /// Exports YAML booster packs into thematic clusters.
 class BoosterPackClusterExporter {
-  const BoosterPackClusterExporter();
+  BoosterPackClusterExporter();
 
   /// Reads all YAML files from [src] (defaults to `/packs`),
   /// detects thematic tags and copies packs into

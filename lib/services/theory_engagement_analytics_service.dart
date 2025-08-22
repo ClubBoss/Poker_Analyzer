@@ -9,7 +9,7 @@ class TheoryEngagementAnalyticsService {
   final RecallBoostInteractionLogger viewLogger;
   final TheoryRecallEfficiencyEvaluatorService efficiencyService;
 
-  const TheoryEngagementAnalyticsService({
+  TheoryEngagementAnalyticsService({
     TheoryMiniLessonUsageTracker? usageTracker,
     RecallBoostInteractionLogger? viewLogger,
     TheoryRecallEfficiencyEvaluatorService? efficiencyService,

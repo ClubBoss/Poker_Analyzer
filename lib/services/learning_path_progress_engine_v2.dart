@@ -2,7 +2,7 @@ import '../models/learning_path_template_v2.dart';
 
 /// Simple engine computing overall learning path progress.
 class LearningPathProgressEngine {
-  const LearningPathProgressEngine();
+  LearningPathProgressEngine();
 
   /// Returns how many stages from [path] are included in [completedStageIds].
   int completedStages(

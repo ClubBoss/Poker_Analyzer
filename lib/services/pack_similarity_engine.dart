@@ -4,7 +4,7 @@ import 'pack_library_index_loader.dart';
 
 /// Provides simple similarity search over training packs.
 class PackSimilarityEngine {
-  const PackSimilarityEngine({List<TrainingPackTemplateV2>? library})
+  PackSimilarityEngine({List<TrainingPackTemplateV2>? library})
     : _library = library;
   final List<TrainingPackTemplateV2>? _library;
 

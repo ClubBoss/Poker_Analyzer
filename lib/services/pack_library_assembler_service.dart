@@ -10,7 +10,7 @@ import '../models/v2/training_pack_template_v2.dart';
 class PackLibraryAssemblerService {
   final PackYamlConfigParser parser;
   final TrainingTypeEngine engine;
-  const PackLibraryAssemblerService({
+  PackLibraryAssemblerService({
     PackYamlConfigParser? parser,
     TrainingTypeEngine? engine,
   }) : parser = parser ?? const PackYamlConfigParser(),

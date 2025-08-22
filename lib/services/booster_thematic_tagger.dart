@@ -5,7 +5,7 @@ import '../models/v2/hero_position.dart';
 
 /// Suggests thematic tags for booster packs.
 class BoosterThematicTagger {
-  const BoosterThematicTagger();
+  BoosterThematicTagger();
 
   /// Returns thematic tags for [pack] sorted by frequency.
   /// The method also logs tag frequencies to the console.

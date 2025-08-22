@@ -7,7 +7,7 @@ class BoosterEffectivenessAnalyzer {
   final BoosterPathHistoryService history;
   final DecayTagRetentionTrackerService retention;
 
-  const BoosterEffectivenessAnalyzer({
+  BoosterEffectivenessAnalyzer({
     BoosterPathHistoryService? history,
     this.retention = const DecayTagRetentionTrackerService(),
   }) : history = history ?? BoosterPathHistoryService.instance;

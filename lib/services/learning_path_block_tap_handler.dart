@@ -11,7 +11,7 @@ class LearningPathBlockTapHandler {
   final MiniLessonLibraryService lessons;
   final BoosterLibraryService boosters;
 
-  const LearningPathBlockTapHandler({
+  LearningPathBlockTapHandler({
     this.lessons = MiniLessonLibraryService.instance,
     this.boosters = BoosterLibraryService.instance,
   });

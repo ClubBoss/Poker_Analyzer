@@ -6,7 +6,7 @@ class XPLevelInfo {
   final int currentXP;
   final int xpToNext;
 
-  const XPLevelInfo({
+  XPLevelInfo({
     required this.level,
     required this.currentXP,
     required this.xpToNext,

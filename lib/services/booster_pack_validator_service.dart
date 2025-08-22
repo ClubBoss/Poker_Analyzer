@@ -6,7 +6,7 @@ import '../models/v2/training_pack_spot.dart';
 import '../models/v2/hero_position.dart';
 
 class BoosterPackValidatorService {
-  const BoosterPackValidatorService();
+  BoosterPackValidatorService();
 
   BoosterValidationReport validate(TrainingPackTemplateV2 pack) {
     final errors = <String>[];

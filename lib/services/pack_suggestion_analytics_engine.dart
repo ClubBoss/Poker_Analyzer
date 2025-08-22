@@ -5,7 +5,7 @@ import 'suggested_training_packs_history_service.dart';
 class PackSuggestionAnalyticsEngine {
   final SessionLogService logs;
 
-  const PackSuggestionAnalyticsEngine({required this.logs});
+  PackSuggestionAnalyticsEngine({required this.logs});
 
   Future<List<PackEngagementStats>> getStats({
     Duration since = const Duration(days: 30),

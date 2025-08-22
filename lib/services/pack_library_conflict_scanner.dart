@@ -8,7 +8,7 @@ import '../core/training/generation/yaml_reader.dart';
 import '../models/v2/training_pack_template_v2.dart';
 
 class PackLibraryConflictScanner {
-  const PackLibraryConflictScanner();
+  PackLibraryConflictScanner();
 
   Future<List<(String, String)>> scanConflicts({
     String path = 'training_packs/library',

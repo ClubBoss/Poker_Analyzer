@@ -6,7 +6,7 @@ import 'suggestion_cooldown_manager.dart';
 import 'suggested_training_packs_history_service.dart';
 
 class DormantTagSuggestionService {
-  const DormantTagSuggestionService();
+  DormantTagSuggestionService();
 
   Future<TrainingPackTemplateV2?> suggestPack() async {
     final dormant = await TrainingGapDetectorService.detectDormantTags(

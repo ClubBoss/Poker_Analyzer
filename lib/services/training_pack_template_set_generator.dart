@@ -11,7 +11,7 @@ import 'constraint_resolver_engine_v2.dart';
 /// instances. Supports both legacy mustache-style interpolation and
 /// constraint-based template set entries.
 class TrainingPackTemplateSetGenerator {
-  const TrainingPackTemplateSetGenerator();
+  TrainingPackTemplateSetGenerator();
 
   /// Generates all packs defined by [set]. Supports both legacy mustache
   /// variants and the new constraint-based [TemplateSetEntry] expansions.

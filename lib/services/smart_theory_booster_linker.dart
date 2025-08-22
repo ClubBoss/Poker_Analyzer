@@ -6,7 +6,7 @@ class SmartTheoryBoosterLinker {
   final TheoryLessonTagClusterer clusterer;
   final TheoryClusterSummaryService summaryService;
 
-  const SmartTheoryBoosterLinker({
+  SmartTheoryBoosterLinker({
     TheoryLessonTagClusterer? clusterer,
     TheoryClusterSummaryService? summaryService,
   }) : clusterer = clusterer ?? TheoryLessonTagClusterer(),

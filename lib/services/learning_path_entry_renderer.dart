@@ -13,7 +13,7 @@ import '../widgets/pack_card.dart';
 
 /// Renders individual [LearningPathEntry] items into widgets.
 class LearningPathEntryRenderer {
-  const LearningPathEntryRenderer();
+  LearningPathEntryRenderer();
 
   /// Builds a widget for a single [entry].
   ///

@@ -1,0 +1,10 @@
+00:00 [32m+0[0m: [1m[90mloading test/smoke/utils_math_smoke_test.dart[0m[0m
+00:00 [32m+0[0m[31m -1[0m: [1m[90mloading test/smoke/utils_math_smoke_test.dart[0m [1m[31m[E][0m[0m
+  [31mFailed to load "test/smoke/utils_math_smoke_test.dart":[0m
+  test/smoke/utils_math_smoke_test.dart:3:8: Error: Error when reading 'lib/utils/math_utils.dart': No such file or directory
+  import 'package:poker_analyzer/utils/math_utils.dart'; // любая pure-функция
+         ^
+  test/smoke/utils_math_smoke_test.dart:7:12: Error: Method not found: 'clampInt'.
+      expect(clampInt(12, min: 0, max: 10), 10); // замените на вашу функцию
+             ^^^^^^^^
+00:00 [32m+0[0m[31m -1[0m: [31mSome tests failed.[0m

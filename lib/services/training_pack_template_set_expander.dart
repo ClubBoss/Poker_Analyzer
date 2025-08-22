@@ -13,7 +13,7 @@ import 'constraint_resolver_engine_v2.dart';
 class TrainingPackTemplateSetExpander {
   final ConstraintResolverEngine _engine;
 
-  const TrainingPackTemplateSetExpander({ConstraintResolverEngine? engine})
+  TrainingPackTemplateSetExpander({ConstraintResolverEngine? engine})
     : _engine = engine ?? const ConstraintResolverEngine();
 
   /// Generates pack templates defined by [set].

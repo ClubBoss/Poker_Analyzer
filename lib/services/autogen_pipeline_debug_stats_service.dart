@@ -7,7 +7,7 @@ class AutogenPipelineStats {
   final int curated;
   final int published;
 
-  const AutogenPipelineStats({
+  AutogenPipelineStats({
     required this.generated,
     required this.deduplicated,
     required this.curated,
@@ -35,7 +35,7 @@ class AutogenPipelineDebugStatsService {
 
   static final ValueNotifier<AutogenPipelineStats> _statsNotifier =
       ValueNotifier(
-        const AutogenPipelineStats(
+        AutogenPipelineStats(
           generated: 0,
           deduplicated: 0,
           curated: 0,

@@ -15,7 +15,7 @@ class PackNoveltyResult {
   final int overlapCount;
   final List<NoveltyMatch> topSimilar;
 
-  const PackNoveltyResult({
+  PackNoveltyResult({
     required this.isDuplicate,
     this.bestMatchId,
     required this.jaccard,
@@ -30,7 +30,7 @@ class NoveltyMatch {
   final double jaccard;
   final int overlapCount;
 
-  const NoveltyMatch({
+  NoveltyMatch({
     required this.packId,
     required this.jaccard,
     required this.overlapCount,

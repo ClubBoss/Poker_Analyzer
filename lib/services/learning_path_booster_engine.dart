@@ -8,7 +8,7 @@ import '../core/training/engine/training_type_engine.dart';
 class LearningPathBoosterEngine {
   final List<TrainingPackTemplateV2>? _libraryOverride;
 
-  const LearningPathBoosterEngine({List<TrainingPackTemplateV2>? library})
+  LearningPathBoosterEngine({List<TrainingPackTemplateV2>? library})
     : _libraryOverride = library;
 
   Future<List<TrainingPackTemplateV2>> getBoosterPacks({

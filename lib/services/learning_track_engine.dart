@@ -5,22 +5,22 @@ import 'training_pack_stats_service.dart';
 import 'training_path_unlock_service.dart';
 
 class LearningTrackEngine {
-  const LearningTrackEngine();
+  LearningTrackEngine();
 
   static final List<LessonTrack> _tracks = [
-    const LessonTrack(
+    LessonTrack(
       id: 'mtt_pro',
       title: 'MTT Pro Track',
       description: 'Become a tournament crusher',
       stepIds: ['lesson1'],
     ),
-    const LessonTrack(
+    LessonTrack(
       id: 'live_exploit',
       title: 'Live Exploit Track',
       description: 'Exploitative lines for live games',
       stepIds: ['lesson1'],
     ),
-    const LessonTrack(
+    LessonTrack(
       id: 'leak_fixer',
       title: 'Leak Fixer',
       description: 'Fix your weakest spots using tags',

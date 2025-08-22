@@ -84,7 +84,7 @@ class CloudSyncService {
       if (r != ConnectivityResult.none &&
           (lastSync.value == null ||
               DateTime.now().difference(lastSync.value!) >
-                  const Duration(hours: 6))) {
+                  Duration(hours: 6))) {
         await syncDown();
       }
     });

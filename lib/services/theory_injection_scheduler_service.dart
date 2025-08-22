@@ -63,7 +63,7 @@ class TheoryInjectionSchedulerService {
     if (_mutex.isRunning && force) {
       _dashboard.update(
         'TheoryInjectionScheduler',
-        const AutogenStatus(isRunning: true, currentStage: 'queued'),
+        AutogenStatus(isRunning: true, currentStage: 'queued'),
       );
     }
     await _mutex.run(() async {

@@ -11,7 +11,7 @@ class StageAutoScrollService {
   final StageAutoHighlightService highlighter;
   final SkillTreeStageStateService stageStateService;
 
-  const StageAutoScrollService({
+  StageAutoScrollService({
     this.stageMarker = const SkillTreeTrackNodeStageMarkerService(),
     this.highlighter = const StageAutoHighlightService(),
     this.stageStateService = const SkillTreeStageStateService(),

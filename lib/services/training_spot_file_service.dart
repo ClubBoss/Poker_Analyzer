@@ -15,7 +15,7 @@ import 'training_import_export_service.dart';
 class TrainingSpotFileService {
   final TrainingImportExportService _importExport;
 
-  const TrainingSpotFileService([
+  TrainingSpotFileService([
     this._importExport = const TrainingImportExportService(),
   ]);
 
@@ -136,7 +136,7 @@ class TrainingSpotFileService {
       if (data is! List) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Неверный формат файла')),
+            SnackBar(content: Text('Неверный формат файла')),
           );
         }
         return [];
@@ -152,7 +152,7 @@ class TrainingSpotFileService {
       if (spots.isEmpty) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Неверный формат файла')),
+            SnackBar(content: Text('Неверный формат файла')),
           );
         }
         return [];

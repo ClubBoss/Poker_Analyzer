@@ -9,7 +9,7 @@ import 'starter_pack_telemetry.dart';
 
 /// Handles seeding of built-in starter packs on first launch.
 class BuiltInPackBootstrapService {
-  const BuiltInPackBootstrapService({
+  BuiltInPackBootstrapService({
     PackLibraryService? library,
     SharedPreferences? prefs,
   }) : _library = library ?? PackLibraryService.instance,

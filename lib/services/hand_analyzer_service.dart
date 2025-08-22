@@ -4,7 +4,7 @@ import '../helpers/hand_utils.dart';
 import 'push_fold_ev_service.dart';
 
 class HandAnalyzerService {
-  const HandAnalyzerService();
+  HandAnalyzerService();
 
   HandAnalysisRecord? analyzePush({
     required List<CardModel> cards,

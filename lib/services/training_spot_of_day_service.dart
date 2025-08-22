@@ -6,7 +6,7 @@ import '../models/training_spot.dart';
 
 /// Provides a single [TrainingSpot] to highlight each day.
 class TrainingSpotOfDayService {
-  const TrainingSpotOfDayService();
+  TrainingSpotOfDayService();
 
   /// Loads a spot from bundled assets based on the current day.
   Future<TrainingSpot?> getSpot() async {

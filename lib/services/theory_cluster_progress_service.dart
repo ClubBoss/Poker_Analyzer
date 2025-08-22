@@ -8,7 +8,7 @@ class ClusterProgress {
   final int completed;
   final int total;
 
-  const ClusterProgress({
+  ClusterProgress({
     required this.cluster,
     required this.completed,
     required this.total,
@@ -20,7 +20,7 @@ class ClusterProgress {
 class TheoryClusterProgressService {
   final MiniLessonProgressTracker progress;
 
-  const TheoryClusterProgressService({MiniLessonProgressTracker? progress})
+  TheoryClusterProgressService({MiniLessonProgressTracker? progress})
     : progress = progress ?? MiniLessonProgressTracker.instance;
 
   Future<List<ClusterProgress>> computeProgress(

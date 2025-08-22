@@ -13,7 +13,7 @@ class ResolvedArm {
   final Map<String, dynamic> prefs;
   final String? audience;
   final String? format;
-  const ResolvedArm({
+  ResolvedArm({
     required this.expId,
     required this.armId,
     this.prefs = const {},

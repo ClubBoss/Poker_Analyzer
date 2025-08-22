@@ -2,7 +2,7 @@ import '../models/skill_tree_node_model.dart';
 
 /// Helper service that groups nodes into visual stage blocks based on level.
 class SkillTreeTrackNodeStageMarkerService {
-  const SkillTreeTrackNodeStageMarkerService();
+  SkillTreeTrackNodeStageMarkerService();
 
   /// Groups [nodes] by their level and returns ordered stage blocks.
   List<StageBlock> build(List<SkillTreeNodeModel> nodes) {
@@ -24,5 +24,5 @@ class StageBlock {
   final int stageIndex;
   final List<SkillTreeNodeModel> nodes;
 
-  const StageBlock({required this.stageIndex, required this.nodes});
+  StageBlock({required this.stageIndex, required this.nodes});
 }

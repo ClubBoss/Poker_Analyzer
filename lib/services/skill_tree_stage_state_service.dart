@@ -8,7 +8,7 @@ enum SkillTreeStageState { locked, unlocked, completed }
 class SkillTreeStageStateService {
   final SkillTreeNodeCompletionStateService nodeStateService;
 
-  const SkillTreeStageStateService({
+  SkillTreeStageStateService({
     this.nodeStateService = const SkillTreeNodeCompletionStateService(),
   });
 

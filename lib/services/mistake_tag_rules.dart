@@ -7,7 +7,7 @@ typedef MistakeTagPredicate = bool Function(TrainingSpotAttempt attempt);
 class MistakeTagRule {
   final MistakeTag tag;
   final MistakeTagPredicate predicate;
-  const MistakeTagRule(this.tag, this.predicate);
+  MistakeTagRule(this.tag, this.predicate);
 }
 
 final List<MistakeTagRule> mistakeTagRules = [

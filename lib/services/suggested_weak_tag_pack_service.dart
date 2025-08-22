@@ -10,7 +10,7 @@ import 'suggested_training_packs_history_service.dart';
 class SuggestedWeakTagPackResult {
   final TrainingPackTemplateV2? pack;
   final bool isFallback;
-  const SuggestedWeakTagPackResult({
+  SuggestedWeakTagPackResult({
     required this.pack,
     required this.isFallback,
   });
@@ -19,7 +19,7 @@ class SuggestedWeakTagPackResult {
 class SuggestedWeakTagPackService {
   final List<TrainingPackTemplateV2>? _libraryOverride;
   final Future<List<TagPerformance>> Function()? _detectWeakTags;
-  const SuggestedWeakTagPackService({
+  SuggestedWeakTagPackService({
     List<TrainingPackTemplateV2>? library,
     Future<List<TagPerformance>> Function()? detectWeakTags,
   }) : _libraryOverride = library,

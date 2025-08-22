@@ -5,7 +5,7 @@ import '../core/training/engine/training_type_engine.dart';
 
 /// Links theory packs to learning path stages based on tags.
 class BoosterTheoryPackLinker {
-  const BoosterTheoryPackLinker();
+  BoosterTheoryPackLinker();
 
   /// Returns [template] with [LearningPathStageModel.theoryPackId] filled
   /// whenever a matching theory pack exists in [library].

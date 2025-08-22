@@ -2,7 +2,7 @@ import '../models/card_model.dart';
 
 /// Classifies flop boards into descriptive texture tags.
 class BoardTextureClassifier {
-  const BoardTextureClassifier();
+  BoardTextureClassifier();
 
   /// Classifies [flop] such as `'7c5s2h'` into a set of texture tags.
   Set<String> classify(String flop) {

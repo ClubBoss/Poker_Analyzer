@@ -7,7 +7,7 @@ import '../models/v2/hero_position.dart';
 typedef ValidationIssue = ({String file, String message});
 
 class PackLibraryValidatorService {
-  const PackLibraryValidatorService();
+  PackLibraryValidatorService();
 
   Future<List<ValidationIssue>> validateAll({required String audience}) async {
     final manifest = await AssetManifest.instance;

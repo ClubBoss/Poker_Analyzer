@@ -6,7 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'yaml_validation_service.dart';
 
 class PackLibraryExportService {
-  const PackLibraryExportService();
+  PackLibraryExportService();
 
   Future<int> exportAll({String target = '/export'}) async {
     if (!kDebugMode) return 0;

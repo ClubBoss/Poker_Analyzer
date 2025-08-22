@@ -15,7 +15,7 @@ import 'autogen_stats_dashboard_service.dart';
 /// such as timestamps or UI options are ignored so identical packs always
 /// produce the same fingerprint regardless of field ordering.
 class TrainingPackFingerprintGenerator {
-  const TrainingPackFingerprintGenerator({
+  TrainingPackFingerprintGenerator({
     SpotFingerprintGenerator? spotFingerprint,
     AutogenStatsDashboardService? dashboard,
   }) : _spotFingerprint = spotFingerprint ?? const SpotFingerprintGenerator(),

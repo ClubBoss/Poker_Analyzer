@@ -5,7 +5,7 @@ import 'decay_tag_retention_tracker_service.dart';
 class SmartDecayInboxBoosterService {
   final DecayTagRetentionTrackerService retention;
 
-  const SmartDecayInboxBoosterService({
+  SmartDecayInboxBoosterService({
     DecayTagRetentionTrackerService? retention,
   }) : retention = retention ?? const DecayTagRetentionTrackerService();
 

@@ -9,7 +9,7 @@ import 'autogen_pipeline_event_logger_service.dart';
 class YamlPackExporter {
   final TrainingPackExporterV2 _delegate;
 
-  const YamlPackExporter({TrainingPackExporterV2? delegate})
+  YamlPackExporter({TrainingPackExporterV2? delegate})
     : _delegate = delegate ?? const TrainingPackExporterV2();
 
   /// Writes [pack] to disk as a YAML file and returns the created [File].

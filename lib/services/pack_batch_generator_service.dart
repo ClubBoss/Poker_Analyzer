@@ -11,7 +11,7 @@ import 'tag_frequency_analyzer.dart';
 import 'training_pack_index_writer.dart';
 
 class PackBatchGeneratorService {
-  const PackBatchGeneratorService({
+  PackBatchGeneratorService({
     required this.gpt,
     PackYamlConfigParser? parser,
   }) : parser = parser ?? const PackYamlConfigParser();

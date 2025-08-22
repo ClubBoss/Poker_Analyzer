@@ -6,7 +6,7 @@ class RewardCardStyle {
   final String badgeText;
   final Color badgeColor;
 
-  const RewardCardStyle({
+  RewardCardStyle({
     required this.gradient,
     required this.icon,
     required this.badgeText,

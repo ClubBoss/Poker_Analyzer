@@ -4,7 +4,7 @@ import '../models/v2/training_pack_template_v2.dart';
 /// Moves validated theory packs from [PackLibrary.staging] into
 /// [PackLibrary.main].
 class TheoryPackPromoter {
-  const TheoryPackPromoter();
+  TheoryPackPromoter();
 
   /// Copies all packs from [PackLibrary.staging] to [PackLibrary.main].
   /// Existing IDs in the main library are skipped. Each promoted pack gets

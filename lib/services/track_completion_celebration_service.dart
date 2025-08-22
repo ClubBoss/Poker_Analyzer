@@ -52,8 +52,8 @@ class TrackCompletionCelebrationService {
                 color: Colors.orange,
               ),
             ),
-            const SizedBox(height: 12),
-            const Text('Вы прошли весь трек!'),
+            SizedBox(height: 12),
+            Text('Вы прошли весь трек!'),
           ],
         ),
         actions: [

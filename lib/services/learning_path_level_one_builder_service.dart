@@ -1,7 +1,7 @@
 import '../models/learning_path_node_v2.dart';
 
 class LearningPathLevelOneBuilderService {
-  const LearningPathLevelOneBuilderService();
+  LearningPathLevelOneBuilderService();
 
   List<LearningPathNodeV2> build() {
     return const [

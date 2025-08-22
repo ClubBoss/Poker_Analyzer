@@ -41,7 +41,7 @@ class TheoryLinkConfig {
   final int perDayCap;
   final int perTagCooldownHours;
 
-  const TheoryLinkConfig({
+  TheoryLinkConfig({
     required this.maxPerModule,
     required this.maxPerPack,
     required this.maxPerSpot,

@@ -7,7 +7,7 @@ import 'yaml_pack_changelog_service.dart';
 
 class YamlPackAutoFixEngine {
   final Uuid _uuid;
-  const YamlPackAutoFixEngine({Uuid? uuid}) : _uuid = uuid ?? const Uuid();
+  YamlPackAutoFixEngine({Uuid? uuid}) : _uuid = uuid ?? const Uuid();
 
   TrainingPackTemplateV2 autoFix(TrainingPackTemplateV2 pack) {
     final id = pack.id.trim().isEmpty ? _uuid.v4() : pack.id;
@@ -51,7 +51,7 @@ class YamlPackAutoFixEngine {
       recommended: pack.recommended,
     );
     unawaited(
-      const YamlPackChangelogService().appendChangeLog(
+      YamlPackChangelogService().appendChangeLog(
         result,
         'Автофикс: добавлены id, удалены дубликаты',
       ),

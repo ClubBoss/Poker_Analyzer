@@ -10,7 +10,7 @@ class TheoryMilestoneEvent {
   final double progress;
   final String type;
 
-  const TheoryMilestoneEvent({
+  TheoryMilestoneEvent({
     required this.clusterName,
     required this.progress,
     required this.type,

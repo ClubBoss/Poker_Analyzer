@@ -3,7 +3,7 @@ import '../models/v3/track_unlock_condition.dart';
 import '../models/player_profile.dart';
 
 class TrackUnlockConditionsEngine {
-  const TrackUnlockConditionsEngine();
+  TrackUnlockConditionsEngine();
 
   bool isTrackUnlocked(LessonTrack track, PlayerProfile profile) {
     return _matches(track.unlockCondition, profile);

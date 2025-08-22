@@ -15,7 +15,7 @@ class BoosterSlotDecision {
   final String tag;
   final String slot; // 'recap', 'inbox', or 'goal'
 
-  const BoosterSlotDecision({
+  BoosterSlotDecision({
     required this.lessonId,
     required this.tag,
     required this.slot,
@@ -63,7 +63,7 @@ class BoosterSlotAllocator {
       final hist = histMap[tag];
       if (hist != null &&
           DateTime.now().difference(hist.lastInteraction) <
-              const Duration(days: 1)) {
+              Duration(days: 1)) {
         continue; // recently repeated
       }
 

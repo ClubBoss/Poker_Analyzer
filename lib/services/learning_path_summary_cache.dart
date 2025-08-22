@@ -8,7 +8,7 @@ class LearningPathSummary {
   final int remainingPacks;
   final double avgMastery;
 
-  const LearningPathSummary({
+  LearningPathSummary({
     required this.totalStages,
     required this.completedStages,
     required this.remainingPacks,

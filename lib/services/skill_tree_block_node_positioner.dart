@@ -5,7 +5,7 @@ import '../models/skill_tree_node_model.dart';
 
 /// Computes the rectangle positions of nodes inside a level block.
 class SkillTreeBlockNodePositioner {
-  const SkillTreeBlockNodePositioner();
+  SkillTreeBlockNodePositioner();
 
   /// Returns a map of node id to rectangle in the block coordinate space.
   Map<String, Rect> calculate({

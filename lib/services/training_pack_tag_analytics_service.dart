@@ -8,7 +8,7 @@ class TagAnalytics {
   final int launches;
   final int totalTrained;
   final int mistakes;
-  const TagAnalytics({
+  TagAnalytics({
     required this.tag,
     required this.launches,
     required this.totalTrained,

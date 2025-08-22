@@ -4,7 +4,7 @@ import '../models/training_attempt.dart';
 import '../models/v2/training_pack_template_v2.dart';
 
 class SkillTargetingRecommender {
-  const SkillTargetingRecommender();
+  SkillTargetingRecommender();
 
   List<TrainingPackTemplateV2> recommendWeakest({
     required List<TrainingAttempt> attempts,

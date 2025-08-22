@@ -7,7 +7,7 @@ class BoosterExclusionAnalytics {
   final Map<String, int> exclusionsByTag;
   final Map<String, Map<String, int>> exclusionsByTagAndReason;
 
-  const BoosterExclusionAnalytics({
+  BoosterExclusionAnalytics({
     required this.exclusionsByReason,
     required this.exclusionsByTag,
     required this.exclusionsByTagAndReason,
@@ -15,7 +15,7 @@ class BoosterExclusionAnalytics {
 }
 
 class BoosterExclusionAnalyticsDashboardService {
-  const BoosterExclusionAnalyticsDashboardService();
+  BoosterExclusionAnalyticsDashboardService();
 
   Future<BoosterExclusionAnalytics> getDashboardData() async {
     final log = await SmartBoosterExclusionTrackerService().exportLog();

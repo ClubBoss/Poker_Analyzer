@@ -2,7 +2,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import '../models/yaml_pack_review_report.dart';
 
 class TrainingPackAutoFixEngine {
-  const TrainingPackAutoFixEngine();
+  TrainingPackAutoFixEngine();
 
   TrainingPackTemplateV2 autoFix(
     TrainingPackTemplateV2 pack,

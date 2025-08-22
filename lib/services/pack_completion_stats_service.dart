@@ -6,7 +6,7 @@ class TrainingPackStat {
   final double icm;
   final int attempts;
 
-  const TrainingPackStat({
+  TrainingPackStat({
     required this.accuracy,
     required this.ev,
     required this.icm,
@@ -15,7 +15,7 @@ class TrainingPackStat {
 }
 
 class PackCompletionStatsService {
-  const PackCompletionStatsService();
+  PackCompletionStatsService();
 
   Map<String, TrainingPackStat> computeStats(List<TrainingAttempt> attempts) {
     final Map<String, Map<String, TrainingAttempt>> latest = {};

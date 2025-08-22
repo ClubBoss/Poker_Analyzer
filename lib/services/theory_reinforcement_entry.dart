@@ -7,7 +7,7 @@ class TheoryReinforcementEntry {
   final int level;
   final DateTime next;
 
-  const TheoryReinforcementEntry({required this.level, required this.next});
+  TheoryReinforcementEntry({required this.level, required this.next});
 
   factory TheoryReinforcementEntry.fromJson(Map<String, dynamic> json) =>
       _$TheoryReinforcementEntryFromJson(json);

@@ -7,7 +7,7 @@ class PackAugmentationEngine {
   final TrainingSpotExpander expander;
   final Uuid _uuid;
 
-  const PackAugmentationEngine({TrainingSpotExpander? expander, Uuid? uuid})
+  PackAugmentationEngine({TrainingSpotExpander? expander, Uuid? uuid})
     : expander = expander ?? const TrainingSpotExpander(),
       _uuid = uuid ?? const Uuid();
 

@@ -7,7 +7,7 @@ class LearningContext {
   final List<double> recentEv;
   final bool afterPackCompleted;
 
-  const LearningContext({
+  LearningContext({
     required this.stageTitle,
     required this.stageProgress,
     this.errorCounts = const {},
@@ -23,7 +23,7 @@ class LearningContext {
 }
 
 class SmartPathUXHintsService {
-  const SmartPathUXHintsService();
+  SmartPathUXHintsService();
 
   Future<String?> getHint(LearningContext ctx) async {
     if (!appConfig.showSmartPathHints) return null;

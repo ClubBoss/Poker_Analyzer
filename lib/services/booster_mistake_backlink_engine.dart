@@ -6,7 +6,7 @@ import '../models/booster_backlink.dart';
 
 /// Maps booster packs back to their originating weak theory clusters.
 class BoosterMistakeBacklinkEngine {
-  const BoosterMistakeBacklinkEngine();
+  BoosterMistakeBacklinkEngine();
 
   /// Returns a [BoosterBacklink] describing how [booster] relates to [clusters].
   BoosterBacklink link(

@@ -254,7 +254,7 @@ class _GoalOverviewScreenState extends State<GoalOverviewScreen> {
                       horizontal: 12,
                     ),
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
+                      gradient: LinearGradient(
                         colors: [AppColors.accent, Colors.redAccent],
                       ),
                       borderRadius: BorderRadius.circular(8),

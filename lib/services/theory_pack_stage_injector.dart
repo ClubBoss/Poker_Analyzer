@@ -10,7 +10,7 @@ class TheoryPackStageInjector {
   final TheoryPackAutoBoosterSuggester boosterSuggester;
   final List<TheoryPackModel> boosterLibrary;
 
-  const TheoryPackStageInjector({
+  TheoryPackStageInjector({
     this.tagger = const TheoryPackAutoTagger(),
     this.boosterSuggester = const TheoryPackAutoBoosterSuggester(),
     this.boosterLibrary = const [],

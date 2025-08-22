@@ -7,7 +7,7 @@ class TheorySuggestion {
   final String proposedTitle;
   final String proposedPackId;
 
-  const TheorySuggestion({
+  TheorySuggestion({
     required this.tag,
     required this.proposedTitle,
     required this.proposedPackId,
@@ -29,7 +29,7 @@ class TheorySuggestion {
 class SmartTheorySuggestionEngine {
   final TagMasteryService mastery;
 
-  const SmartTheorySuggestionEngine({required this.mastery});
+  SmartTheorySuggestionEngine({required this.mastery});
 
   Future<List<TheorySuggestion>> suggestMissingTheoryStages({
     double threshold = 0.3,

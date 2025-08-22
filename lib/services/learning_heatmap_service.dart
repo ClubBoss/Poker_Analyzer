@@ -2,7 +2,7 @@ import '../models/heatmap_entry.dart';
 import '../models/track_play_history.dart';
 
 class LearningHeatmapService {
-  const LearningHeatmapService();
+  LearningHeatmapService();
 
   /// Builds a tag -> daily activity heatmap from [history].
   Map<String, List<HeatmapEntry>> buildHeatmap(List<TrackPlayHistory> history) {

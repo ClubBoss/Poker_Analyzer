@@ -11,7 +11,7 @@ import 'pack_novelty_guard_service.dart';
 class AssessmentPackSynthesizer {
   final PackNoveltyGuardService noveltyGuard;
 
-  const AssessmentPackSynthesizer({PackNoveltyGuardService? noveltyGuard})
+  AssessmentPackSynthesizer({PackNoveltyGuardService? noveltyGuard})
     : noveltyGuard = noveltyGuard ?? const PackNoveltyGuardService();
 
   Future<TrainingPackTemplateV2> createAssessment({

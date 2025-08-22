@@ -2,7 +2,7 @@ import 'learning_path_library.dart';
 
 /// Updates [target] library with paths from [staged] when IDs match.
 class LearningPathPromoter {
-  const LearningPathPromoter();
+  LearningPathPromoter();
 
   /// Replaces entries in [target] with staged versions that share the same id.
   /// Returns the number of paths that were updated.

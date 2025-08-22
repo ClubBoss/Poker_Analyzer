@@ -1,7 +1,7 @@
 import '../core/training/engine/training_type_engine.dart';
 
 class WeakTrainingTypeDetector {
-  const WeakTrainingTypeDetector();
+  WeakTrainingTypeDetector();
 
   TrainingType? findWeakestType(Map<TrainingType, double> stats) {
     final filtered = <TrainingType, double>{};

@@ -11,7 +11,7 @@ class MiniLessonEntry {
   final String content;
   final List<String> examples;
 
-  const MiniLessonEntry({
+  MiniLessonEntry({
     required this.tag,
     required this.title,
     required this.content,
@@ -38,7 +38,7 @@ class MiniLessonLibraryBuilder {
   final MiniLessonNodeBuilder nodeBuilder;
   final YamlWriter writer;
 
-  const MiniLessonLibraryBuilder({
+  MiniLessonLibraryBuilder({
     MiniLessonNodeBuilder? nodeBuilder,
     YamlWriter? yamlWriter,
   }) : nodeBuilder = nodeBuilder ?? const MiniLessonNodeBuilder(),

@@ -6,7 +6,7 @@ import '../models/v2/training_pack_template.dart';
 class PackReviewStatsExporter {
   static const _boxName = 'pack_review_stats_box';
 
-  const PackReviewStatsExporter();
+  PackReviewStatsExporter();
 
   Future<Box<dynamic>> _openBox() async {
     if (!Hive.isBoxOpen(_boxName)) {

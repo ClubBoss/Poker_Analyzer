@@ -5,7 +5,7 @@ import '../models/theory_mini_lesson_node.dart';
 
 /// Loads YAML mini lesson packs into [MiniLessonPackModel] objects.
 class MiniLessonPackImporter {
-  const MiniLessonPackImporter({YamlReader? yamlReader, ErrorLogger? logger})
+  MiniLessonPackImporter({YamlReader? yamlReader, ErrorLogger? logger})
     : _reader = yamlReader ?? const YamlReader(),
       _logger = logger ?? ErrorLogger.instance;
 

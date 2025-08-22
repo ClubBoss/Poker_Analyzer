@@ -14,7 +14,7 @@ class MiniLessonPathInjector {
   final MiniLessonLibraryService library;
   final LearningPathStageLibrary stageLibrary;
 
-  const MiniLessonPathInjector({
+  MiniLessonPathInjector({
     LearningPathEngine? engine,
     MiniLessonLibraryService? library,
     LearningPathStageLibrary? stageLibrary,

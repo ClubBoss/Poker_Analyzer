@@ -7,7 +7,7 @@ import '../core/training/engine/training_type_engine.dart';
 import 'tag_mastery_service.dart';
 
 class TrainingPackTemplateBuilder {
-  const TrainingPackTemplateBuilder();
+  TrainingPackTemplateBuilder();
 
   Future<TrainingPackTemplateV2> buildSimplifiedPack(
     List<TrainingPackSpot> mistakes,

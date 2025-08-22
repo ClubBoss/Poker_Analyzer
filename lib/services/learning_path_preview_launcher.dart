@@ -5,7 +5,7 @@ import 'learning_path_library.dart';
 
 /// Opens a staged learning path by [id] for preview.
 class LearningPathPreviewLauncher {
-  const LearningPathPreviewLauncher();
+  LearningPathPreviewLauncher();
 
   Future<void> launch(BuildContext context, String id) async {
     final template = LearningPathLibrary.staging.getById(id);

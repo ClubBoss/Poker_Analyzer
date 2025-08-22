@@ -2,7 +2,7 @@ import '../models/skill_tree.dart';
 
 /// Computes global progress metrics for a skill tree.
 class SkillTreeProgressService {
-  const SkillTreeProgressService();
+  SkillTreeProgressService();
 
   /// Returns the total number of nodes in [tree].
   int getTotalNodeCount(SkillTree tree) => tree.nodes.length;

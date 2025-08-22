@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
 class RangeImportExportService {
-  const RangeImportExportService();
+  RangeImportExportService();
 
   Future<File> _fileFor(String id) async {
     final dir = await getApplicationDocumentsDirectory();

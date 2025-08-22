@@ -82,7 +82,7 @@ class BoardTexturePresetLibrary {
   }
 
   static final BoardTextureFilterService _textureFilter =
-      const BoardTextureFilterService();
+      BoardTextureFilterService();
   static final BoardFilteringServiceV2 _boardFilter =
-      const BoardFilteringServiceV2();
+      BoardFilteringServiceV2();
 }

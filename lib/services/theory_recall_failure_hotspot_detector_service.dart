@@ -6,7 +6,7 @@ typedef RecallFailureLogLoader = Future<List<RecallFailureLogEntry>> Function();
 class TheoryRecallFailureHotspotDetectorService {
   final RecallFailureLogLoader loadLogs;
 
-  const TheoryRecallFailureHotspotDetectorService({required this.loadLogs});
+  TheoryRecallFailureHotspotDetectorService({required this.loadLogs});
 
   Future<RecallHotspotReport> generateHotspotReport({int top = 5}) async {
     if (top <= 0) {

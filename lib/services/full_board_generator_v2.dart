@@ -7,7 +7,7 @@ import 'board_cluster_library.dart';
 import 'board_texture_classifier.dart';
 
 class FullBoardGeneratorV2 {
-  const FullBoardGeneratorV2({
+  FullBoardGeneratorV2({
     CardDeckService? deckService,
     BoardTextureFilterService? textureFilter,
     BoardFilteringServiceV2? boardFilter,

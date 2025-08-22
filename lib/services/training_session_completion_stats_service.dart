@@ -8,7 +8,7 @@ class CompletionStats {
   final double averageAccuracy;
   final Duration? averageDuration;
 
-  const CompletionStats({
+  CompletionStats({
     required this.totalSessions,
     required this.averageAccuracy,
     this.averageDuration,
@@ -19,7 +19,7 @@ class CompletionStats {
 class TrainingSessionCompletionStatsService {
   final CompletedTrainingPackRegistry registry;
 
-  const TrainingSessionCompletionStatsService({
+  TrainingSessionCompletionStatsService({
     CompletedTrainingPackRegistry? registry,
   }) : registry = registry ?? CompletedTrainingPackRegistry();
 

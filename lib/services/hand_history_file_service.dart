@@ -59,7 +59,7 @@ class HandHistoryFileService {
     if (imported.isEmpty) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Не удалось импортировать файлы')),
+          SnackBar(content: Text('Не удалось импортировать файлы')),
         );
       }
       return 0;

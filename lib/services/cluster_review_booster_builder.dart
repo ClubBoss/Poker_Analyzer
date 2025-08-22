@@ -13,7 +13,7 @@ class ClusterReviewBoosterBuilder {
   final TrainingPackSourceTagger _tagger;
   final TrainingTypeEngine _typeEngine;
 
-  const ClusterReviewBoosterBuilder({
+  ClusterReviewBoosterBuilder({
     Uuid uuid = const Uuid(),
     TrainingPackSourceTagger tagger = const TrainingPackSourceTagger(),
     TrainingTypeEngine typeEngine = const TrainingTypeEngine(),

@@ -5,7 +5,7 @@ import '../models/saved_hand.dart';
 class SnapshotDiff {
   final Map<String, dynamic> forward;
   final Map<String, dynamic> backward;
-  const SnapshotDiff({required this.forward, required this.backward});
+  SnapshotDiff({required this.forward, required this.backward});
 }
 
 class DiffSnapshotService {

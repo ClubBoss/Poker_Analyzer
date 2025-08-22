@@ -6,7 +6,7 @@ import 'training_pack_index_service.dart';
 class TrainingPackLibrarySearchService {
   final TrainingPackIndexService _indexService;
 
-  const TrainingPackLibrarySearchService({
+  TrainingPackLibrarySearchService({
     TrainingPackIndexService? indexService,
   }) : _indexService = indexService ?? TrainingPackIndexService.instance;
 

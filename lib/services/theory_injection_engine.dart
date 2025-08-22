@@ -3,7 +3,7 @@ import '../models/v2/training_pack_spot.dart';
 
 /// Injects theory spots into a base training pack at a fixed interval.
 class TheoryInjectionEngine {
-  const TheoryInjectionEngine();
+  TheoryInjectionEngine();
 
   /// Returns [basePack] with theory spots from [theoryPack] inserted.
   ///

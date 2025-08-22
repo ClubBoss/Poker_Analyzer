@@ -4,7 +4,7 @@ import '../core/training/generation/yaml_writer.dart';
 import '../models/v2/training_pack_template_v2.dart';
 
 class LiveHUDPackSeeder {
-  const LiveHUDPackSeeder();
+  LiveHUDPackSeeder();
 
   Future<void> generateLivePath() async {
     await PackLibraryIndexLoader.instance.load();

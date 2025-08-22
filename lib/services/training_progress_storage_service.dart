@@ -2,7 +2,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// Handles persistence for training progress data.
 class TrainingProgressStorageService {
-  const TrainingProgressStorageService();
+  TrainingProgressStorageService();
 
   String _key(String packId) => 'pack_progress_$packId';
 

@@ -9,7 +9,7 @@ import 'training_pack_stats_service.dart';
 class UnlockCheckResult {
   final bool unlocked;
   final String? reason;
-  const UnlockCheckResult(this.unlocked, [this.reason]);
+  UnlockCheckResult(this.unlocked, [this.reason]);
 }
 
 class PackUnlockingRulesEngine {

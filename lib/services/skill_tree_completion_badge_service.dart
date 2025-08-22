@@ -7,7 +7,7 @@ class SkillTreeCompletionBadgeService {
   final SkillTreeTrackProgressService progressService;
   final SkillTreeLibraryService libraryService;
 
-  const SkillTreeCompletionBadgeService({
+  SkillTreeCompletionBadgeService({
     SkillTreeTrackProgressService? progressService,
     SkillTreeLibraryService? libraryService,
   }) : progressService = progressService ?? SkillTreeTrackProgressService(),

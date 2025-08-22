@@ -19,7 +19,7 @@ class MistakeTagInsightsService {
   };
 
   final int exampleCount;
-  const MistakeTagInsightsService({this.exampleCount = 3});
+  MistakeTagInsightsService({this.exampleCount = 3});
 
   Future<List<MistakeInsight>> buildInsights({
     bool sortByEvLoss = false,

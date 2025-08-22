@@ -7,7 +7,7 @@ import 'autogen_status_dashboard_service.dart';
 class SkillTreeAutoLinker {
   final SkillTagSkillNodeMapService map;
 
-  const SkillTreeAutoLinker({SkillTagSkillNodeMapService? map})
+  SkillTreeAutoLinker({SkillTagSkillNodeMapService? map})
     : map = map ?? const SkillTagSkillNodeMapService();
 
   /// Assigns `skillNode` meta fields for all [spots].
@@ -15,7 +15,7 @@ class SkillTreeAutoLinker {
     final status = AutogenStatusDashboardService.instance;
     status.update(
       'SkillTreeAutoLinker',
-      const AutogenStatus(isRunning: true, currentStage: 'link', progress: 0),
+      AutogenStatus(isRunning: true, currentStage: 'link', progress: 0),
     );
     try {
       final used = <String>{};
@@ -39,7 +39,7 @@ class SkillTreeAutoLinker {
       }
       status.update(
         'SkillTreeAutoLinker',
-        const AutogenStatus(
+        AutogenStatus(
           isRunning: false,
           currentStage: 'complete',
           progress: 1,

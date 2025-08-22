@@ -9,7 +9,7 @@ class WeeklyDrillStats {
   final int total;
   final int streak;
   final double improvementPct;
-  const WeeklyDrillStats({
+  WeeklyDrillStats({
     required this.accuracy,
     required this.total,
     required this.streak,

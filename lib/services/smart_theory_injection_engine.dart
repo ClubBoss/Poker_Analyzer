@@ -13,7 +13,7 @@ class SmartTheoryInjectionEngine {
   final MiniLessonLibraryService library;
   final BoosterCooldownScheduler cooldown;
 
-  const SmartTheoryInjectionEngine({
+  SmartTheoryInjectionEngine({
     SkillGapDetectorService? detector,
     MiniLessonProgressTracker? progress,
     MiniLessonLibraryService? library,

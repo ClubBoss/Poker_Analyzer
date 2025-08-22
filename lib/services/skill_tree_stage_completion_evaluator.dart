@@ -2,7 +2,7 @@ import '../models/skill_tree.dart';
 
 /// Evaluates completion of skill tree stages (levels).
 class SkillTreeStageCompletionEvaluator {
-  const SkillTreeStageCompletionEvaluator();
+  SkillTreeStageCompletionEvaluator();
 
   /// Returns `true` if all nodes in [tree] with [level] are completed.
   bool isStageCompleted(

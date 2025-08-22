@@ -6,7 +6,7 @@ class TagMasteryAdjustmentEntry {
   final double delta;
   final DateTime timestamp;
 
-  const TagMasteryAdjustmentEntry({
+  TagMasteryAdjustmentEntry({
     required this.tag,
     required this.delta,
     required this.timestamp,

@@ -5,7 +5,7 @@ class UserProfile {
   final Set<String> completedPackIds;
   final List<String> tags;
   final List<String> goals;
-  const UserProfile({
+  UserProfile({
     this.completedPackIds = const {},
     this.tags = const [],
     this.goals = const [],
@@ -13,7 +13,7 @@ class UserProfile {
 }
 
 class SmartPackRecommendationEngine {
-  const SmartPackRecommendationEngine();
+  SmartPackRecommendationEngine();
 
   List<TrainingPackTemplateV2> recommend(
     UserProfile user,

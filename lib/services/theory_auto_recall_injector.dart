@@ -12,7 +12,7 @@ class TheoryAutoRecallInjector {
   final DecayTagRetentionTrackerService retention;
   final MiniLessonLibraryService lessons;
 
-  const TheoryAutoRecallInjector({
+  TheoryAutoRecallInjector({
     DecayTagRetentionTrackerService? retention,
     MiniLessonLibraryService? lessons,
   }) : retention = retention ?? const DecayTagRetentionTrackerService(),
@@ -54,7 +54,7 @@ class TheoryAutoRecallInjector {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Divider(color: Colors.white24, height: 16),
+              Divider(color: Colors.white24, height: 16),
               Text(
                 lesson.resolvedTitle,
                 style: const TextStyle(
@@ -62,7 +62,7 @@ class TheoryAutoRecallInjector {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 2),
+              SizedBox(height: 2),
               Text(
                 summary,
                 style: const TextStyle(fontSize: 12, color: Colors.white70),

@@ -5,7 +5,7 @@ import '../core/training/engine/training_type_engine.dart';
 import '../models/v2/training_pack_template_v2.dart';
 
 class TheoryExportValidator {
-  const TheoryExportValidator();
+  TheoryExportValidator();
 
   Future<List<(String, String)>> validateAll({
     String dir = 'yaml_out/theory',

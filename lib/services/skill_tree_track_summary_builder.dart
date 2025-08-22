@@ -8,7 +8,7 @@ class SkillTreeTrackSummaryBuilder {
   final SkillTreeNodeProgressTracker progress;
   final TrainingStatsService? stats;
 
-  const SkillTreeTrackSummaryBuilder({
+  SkillTreeTrackSummaryBuilder({
     SkillTreeNodeProgressTracker? progress,
     this.stats,
   }) : progress = progress ?? SkillTreeNodeProgressTracker.instance;

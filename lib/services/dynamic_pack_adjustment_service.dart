@@ -15,7 +15,7 @@ class DynamicPackAdjustmentService {
   final PlayerProgressService progress;
   final PlayerStyleForecastService forecast;
   final PlayerStyleService style;
-  const DynamicPackAdjustmentService({
+  DynamicPackAdjustmentService({
     required this.mistakes,
     required this.eval,
     required this.hands,

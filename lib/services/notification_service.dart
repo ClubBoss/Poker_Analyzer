@@ -22,7 +22,7 @@ class NotificationService {
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
     await _plugin.initialize(
-      const InitializationSettings(android: android, iOS: ios),
+      InitializationSettings(android: android, iOS: ios),
       onDidReceiveNotificationResponse: (r) {
         if (r.payload == 'progress') {
           final ctx = navigatorKey.currentState?.context;
@@ -84,7 +84,7 @@ class NotificationService {
       'Poker Analyzer',
       'Time to train!',
       when,
-      const NotificationDetails(
+      NotificationDetails(
         android: AndroidNotificationDetails('daily_push', 'Daily Push'),
         iOS: DarwinNotificationDetails(),
       ),
@@ -123,7 +123,7 @@ class NotificationService {
       'Poker Analyzer',
       '⚡ Готов улучшить $focus? У тебя есть $remaining незавершённых спотов - продолжим тренировку?',
       when,
-      const NotificationDetails(
+      NotificationDetails(
         android: AndroidNotificationDetails('daily_progress', 'Daily Progress'),
         iOS: DarwinNotificationDetails(),
       ),
@@ -147,7 +147,7 @@ class NotificationService {
       title,
       body,
       tz.TZDateTime.from(when, tz.local),
-      const NotificationDetails(
+      NotificationDetails(
         android: AndroidNotificationDetails('generic', 'Generic'),
         iOS: DarwinNotificationDetails(),
       ),
@@ -172,7 +172,7 @@ class NotificationService {
         103,
         'Poker Analyzer',
         '🔥 ${tpl.name} - осталось $remaining спотов',
-        const NotificationDetails(
+        NotificationDetails(
           android: AndroidNotificationDetails('rec_pack', 'Recommended Pack'),
           iOS: DarwinNotificationDetails(),
         ),

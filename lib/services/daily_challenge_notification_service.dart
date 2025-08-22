@@ -21,7 +21,7 @@ class DailyChallengeNotificationService {
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
     await _plugin.initialize(
-      const InitializationSettings(android: android, iOS: ios),
+      InitializationSettings(android: android, iOS: ios),
     );
     tz.initializeTimeZones();
     _initialized = true;
@@ -56,7 +56,7 @@ class DailyChallengeNotificationService {
       'Poker Analyzer',
       '🎯 Готов к челленджу дня? Вернись и улучшай свои навыки!',
       when,
-      const NotificationDetails(
+      NotificationDetails(
         android: AndroidNotificationDetails(
           'daily_challenge',
           'Daily Challenge',

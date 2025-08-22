@@ -9,7 +9,7 @@ import 'pack_library_auto_fix_engine.dart';
 import 'pack_validation_engine.dart';
 
 class PackLibrarySmartValidator {
-  const PackLibrarySmartValidator();
+  PackLibrarySmartValidator();
 
   Future<SmartValidationResult> validateAndFix(String path) async {
     final file = File(path);

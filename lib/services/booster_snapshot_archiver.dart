@@ -7,7 +7,7 @@ import '../models/v2/training_pack_template_v2.dart';
 
 /// Handles archiving of generated booster packs as YAML files.
 class BoosterSnapshotArchiver {
-  const BoosterSnapshotArchiver();
+  BoosterSnapshotArchiver();
 
   /// Saves [pack] to `yaml_out/booster_archive` using a timestamped filename.
   Future<File?> archive(

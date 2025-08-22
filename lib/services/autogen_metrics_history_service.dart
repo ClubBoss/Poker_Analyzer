@@ -30,7 +30,7 @@ class RunMetricsEntry {
 class AutogenMetricsHistoryService {
   final String _filePath;
 
-  const AutogenMetricsHistoryService({
+  AutogenMetricsHistoryService({
     String filePath = 'autogen_metrics_history.json',
   }) : _filePath = filePath;
 

@@ -3,7 +3,7 @@ import '../models/session_log.dart';
 
 /// Service computing learning path progress based on session logs.
 class LearningPathProgressTrackerService {
-  const LearningPathProgressTrackerService();
+  LearningPathProgressTrackerService();
 
   /// Aggregates [logs] by pack id summing correct and mistake counts.
   Map<String, SessionLog> aggregateLogsByPack(List<SessionLog> logs) {

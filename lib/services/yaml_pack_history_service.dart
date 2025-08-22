@@ -8,7 +8,7 @@ import '../core/training/generation/yaml_writer.dart';
 import 'yaml_pack_formatter_service.dart';
 
 class YamlPackHistoryService {
-  const YamlPackHistoryService();
+  YamlPackHistoryService();
 
   Future<void> saveSnapshot(TrainingPackTemplateV2 pack, String action) async {
     if (pack.id.trim().isEmpty) return;

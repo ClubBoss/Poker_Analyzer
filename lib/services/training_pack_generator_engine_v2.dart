@@ -22,7 +22,7 @@ class TrainingPackGeneratorEngineV2 {
   final LineGraphEngine _lineEngine;
   final Uuid _uuid;
 
-  const TrainingPackGeneratorEngineV2({
+  TrainingPackGeneratorEngineV2({
     TrainingPackTemplateExpanderService? expander,
     AutoSpotTheoryInjectorService? injector,
     LineGraphEngine? lineEngine,

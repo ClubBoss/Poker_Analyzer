@@ -7,7 +7,7 @@ import 'booster_thematic_descriptions.dart';
 
 /// Generates a simple theory training pack for a given [tag].
 class TheoryPackGenerator {
-  const TheoryPackGenerator();
+  TheoryPackGenerator();
 
   /// Default text used when no localized strings are provided.
   static const String defaultQuestion = 'Question';

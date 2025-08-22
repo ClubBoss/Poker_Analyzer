@@ -5,7 +5,7 @@ class TagReviewRecord {
   final double accuracy;
   final DateTime timestamp;
 
-  const TagReviewRecord({required this.accuracy, required this.timestamp});
+  TagReviewRecord({required this.accuracy, required this.timestamp});
 
   Map<String, dynamic> toJson() => {
     'accuracy': accuracy,

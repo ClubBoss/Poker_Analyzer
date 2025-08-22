@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'tag_mastery_service.dart';
 
 class RetentionEvaluator {
-  const RetentionEvaluator();
+  RetentionEvaluator();
 
   double evaluate({
     required double mastery,
@@ -23,7 +23,7 @@ class RetentionEvaluator {
 class TagRetentionTracker {
   final TagMasteryService mastery;
   final RetentionEvaluator evaluator;
-  const TagRetentionTracker({
+  TagRetentionTracker({
     required this.mastery,
     RetentionEvaluator? evaluator,
   }) : evaluator = evaluator ?? const RetentionEvaluator();

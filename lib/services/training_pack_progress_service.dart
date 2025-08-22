@@ -4,7 +4,7 @@ import 'training_progress_tracker_service.dart';
 class TrainingPackProgressStats {
   final int completedCount;
   final int totalCount;
-  const TrainingPackProgressStats({
+  TrainingPackProgressStats({
     required this.completedCount,
     required this.totalCount,
   });

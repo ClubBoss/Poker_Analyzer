@@ -9,7 +9,7 @@ class InboxSimulationResult {
   final bool wouldShow;
   final String reasonIfExcluded;
 
-  const InboxSimulationResult({
+  InboxSimulationResult({
     required this.tag,
     required this.wouldShow,
     required this.reasonIfExcluded,

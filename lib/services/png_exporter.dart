@@ -176,7 +176,7 @@ class _TemplatePreview extends StatelessWidget {
                 Text('Stack: ${template.heroBbStack} BB'),
               ],
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             HeroRangeGridWidget(rangeMatrix: _matrix()),
           ],
         ),

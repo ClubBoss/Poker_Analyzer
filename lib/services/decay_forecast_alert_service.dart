@@ -6,7 +6,7 @@ class DecayForecastAlertService {
   final DecayForecastEngine engine;
   final double threshold;
 
-  const DecayForecastAlertService({
+  DecayForecastAlertService({
     DecayForecastEngine? engine,
     this.threshold = 60,
   }) : engine = engine ?? const DecayForecastEngine();

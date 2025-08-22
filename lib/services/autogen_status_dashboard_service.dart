@@ -17,7 +17,7 @@ class DuplicatePackInfo {
   final double similarity;
   final String reason;
 
-  const DuplicatePackInfo({
+  DuplicatePackInfo({
     required this.candidateId,
     required this.existingId,
     required this.similarity,
@@ -81,7 +81,7 @@ class AutogenStatusDashboardService {
 
   // Real-time pipeline status.
   final ValueNotifier<AutogenStatus> pipelineStatusNotifier = ValueNotifier(
-    const AutogenStatus(),
+    AutogenStatus(),
   );
   final StreamController<AutogenStatus> _statusStreamController =
       StreamController.broadcast();

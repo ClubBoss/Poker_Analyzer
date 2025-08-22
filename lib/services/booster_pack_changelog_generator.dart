@@ -5,7 +5,7 @@ import 'booster_snapshot_archiver.dart';
 /// Generates a markdown changelog comparing the latest two archived
 /// versions of a booster pack.
 class BoosterPackChangelogGenerator {
-  const BoosterPackChangelogGenerator();
+  BoosterPackChangelogGenerator();
 
   /// Loads the two most recent archived versions of the booster with [id]
   /// and returns a markdown changelog summarizing the differences.

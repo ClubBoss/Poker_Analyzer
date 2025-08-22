@@ -3,7 +3,7 @@ import '../core/training/engine/training_type_engine.dart';
 
 /// Assigns a level to training packs based on their tags or training type.
 class LevelTagAutoAssigner {
-  const LevelTagAutoAssigner();
+  LevelTagAutoAssigner();
 
   /// Updates `meta['level']` for each [templates] item and returns the list.
   List<TrainingPackTemplateV2> assign(List<TrainingPackTemplateV2> templates) {

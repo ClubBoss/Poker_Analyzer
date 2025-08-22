@@ -7,7 +7,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import 'yaml_pack_markdown_preview_service.dart';
 
 class YamlPackExporterService {
-  const YamlPackExporterService();
+  YamlPackExporterService();
 
   Future<File> exportToTextFile(dynamic pack, [String format = 'yaml']) async {
     final TrainingPackTemplateV2 tpl;
@@ -29,7 +29,7 @@ class YamlPackExporterService {
 
     if (fmt == 'markdown') {
       final md =
-          const YamlPackMarkdownPreviewService().generateMarkdownPreview(tpl) ??
+          YamlPackMarkdownPreviewService().generateMarkdownPreview(tpl) ??
           '';
       await file.writeAsString(md);
     } else {

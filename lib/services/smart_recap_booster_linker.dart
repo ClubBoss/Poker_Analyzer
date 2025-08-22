@@ -8,7 +8,7 @@ class SmartRecapBoosterLinker {
   final TrainingPackTemplateStorageService storage;
   final PackLibraryLoaderService library;
 
-  const SmartRecapBoosterLinker({
+  SmartRecapBoosterLinker({
     required this.storage,
     this.library = PackLibraryLoaderService.instance,
   });

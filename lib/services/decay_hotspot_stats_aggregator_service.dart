@@ -12,7 +12,7 @@ class DecayHotspotStatsAggregatorService {
   final SpotTagResolver resolveTags;
   final RecallSuccessLoader? loadSuccesses;
 
-  const DecayHotspotStatsAggregatorService({
+  DecayHotspotStatsAggregatorService({
     required this.loadSpottings,
     required this.resolveTags,
     this.loadSuccesses,

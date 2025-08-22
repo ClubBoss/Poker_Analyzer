@@ -8,7 +8,7 @@ class BoosterPackSimilarityReport {
   final int similarSpotCount;
   final double similarityPercent;
 
-  const BoosterPackSimilarityReport({
+  BoosterPackSimilarityReport({
     this.similarSpotCount = 0,
     this.similarityPercent = 0,
   });
@@ -18,7 +18,7 @@ class BoosterPackSimilarityReporter {
   final BoosterSimilarityEngine _engine;
   final double _threshold;
 
-  const BoosterPackSimilarityReporter({
+  BoosterPackSimilarityReporter({
     BoosterSimilarityEngine? engine,
     double threshold = 0.85,
   }) : _engine = engine ?? const BoosterSimilarityEngine(),

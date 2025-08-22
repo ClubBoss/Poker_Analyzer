@@ -12,7 +12,7 @@ import 'learning_path_advancer.dart';
 class RecommendedPack {
   final String packId;
   final String reason;
-  const RecommendedPack({required this.packId, required this.reason});
+  RecommendedPack({required this.packId, required this.reason});
 }
 
 class SmartPackRecommender {
@@ -20,7 +20,7 @@ class SmartPackRecommender {
   final LearningPathAdvancer _advancer;
   final TrainingPathUnlockService _unlockService;
 
-  const SmartPackRecommender({
+  SmartPackRecommender({
     WeaknessClusterEngine? clusterEngine,
     LearningPathAdvancer? advancer,
     TrainingPathUnlockService? unlockService,

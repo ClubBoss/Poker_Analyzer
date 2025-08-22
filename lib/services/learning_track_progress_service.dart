@@ -14,7 +14,7 @@ class LearningTrackProgressService {
   final LearningPathProgressSnapshotService snapshots;
   String? _currentPathId;
 
-  const LearningTrackProgressService({
+  LearningTrackProgressService({
     required this.progress,
     required this.gatekeeper,
     LearningPathRegistryService? registry,

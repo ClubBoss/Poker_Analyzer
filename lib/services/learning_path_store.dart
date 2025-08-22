@@ -15,7 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class LearningPathStore {
   final String rootDir;
 
-  const LearningPathStore({this.rootDir = 'autogen_cache/learning_paths'});
+  LearningPathStore({this.rootDir = 'autogen_cache/learning_paths'});
 
   File _fileFor(String userId) => File('$rootDir/$userId.json');
 

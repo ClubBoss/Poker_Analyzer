@@ -3,7 +3,7 @@ import 'theory_pack_auto_fix_engine.dart';
 
 /// Performs cleanup and auto-fixes on booster theory packs.
 class BoosterPackAutoFixEngine extends TheoryPackAutoFixEngine {
-  const BoosterPackAutoFixEngine();
+  BoosterPackAutoFixEngine();
 
   @override
   TheoryPackModel autoFix(TheoryPackModel pack) {
@@ -25,7 +25,7 @@ class BoosterPackAutoFixEngine extends TheoryPackAutoFixEngine {
     }
     if (sections.isEmpty) {
       sections.add(
-        const TheorySectionModel(
+        TheorySectionModel(
           title: 'Placeholder',
           text: 'Content will be added later',
           type: 'tip',

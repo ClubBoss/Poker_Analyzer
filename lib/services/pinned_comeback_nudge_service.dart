@@ -67,7 +67,7 @@ class PinnedComebackNudgeService with WidgetsBindingObserver {
           DateTime.now().difference(
                 DateTime.fromMillisecondsSinceEpoch(lastMillis),
               ) <
-              const Duration(hours: 24)) {
+              Duration(hours: 24)) {
         return;
       }
 
@@ -94,7 +94,7 @@ class PinnedComebackNudgeService with WidgetsBindingObserver {
         DateTime.now().difference(
               DateTime.fromMillisecondsSinceEpoch(item.lastSeen!),
             ) <=
-            const Duration(days: 7)) {
+            Duration(days: 7)) {
       return false;
     }
     if (!await _hasHighDecay(item)) return false;
@@ -127,7 +127,7 @@ class PinnedComebackNudgeService with WidgetsBindingObserver {
       const android = AndroidInitializationSettings('@mipmap/ic_launcher');
       const ios = DarwinInitializationSettings();
       await _plugin.initialize(
-        const InitializationSettings(android: android, iOS: ios),
+        InitializationSettings(android: android, iOS: ios),
       );
       _pluginInitialized = true;
     }
@@ -135,7 +135,7 @@ class PinnedComebackNudgeService with WidgetsBindingObserver {
       904,
       'Come back to training',
       'You have pinned content getting rusty.',
-      const NotificationDetails(
+      NotificationDetails(
         android: AndroidNotificationDetails(
           'pinned_comeback',
           'Pinned Comeback',

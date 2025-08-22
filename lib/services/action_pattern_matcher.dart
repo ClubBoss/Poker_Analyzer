@@ -1,5 +1,5 @@
 class ActionPatternMatcher {
-  const ActionPatternMatcher();
+  ActionPatternMatcher();
 
   bool matches(List<String> actions, List<String> pattern) {
     if (pattern.isEmpty) return true;

@@ -14,7 +14,7 @@ class LevelIIPackTemplateSeeder {
   final TrainingPackTemplateExpanderService _expander;
   final TrainingPackTemplateLibraryService _library;
 
-  const LevelIIPackTemplateSeeder({
+  LevelIIPackTemplateSeeder({
     TrainingPackTemplateExpanderService? expander,
     TrainingPackTemplateLibraryService? library,
   }) : _expander = expander ?? TrainingPackTemplateExpanderService(),

@@ -18,7 +18,7 @@ class BoosterClusterEngine {
   final BoosterSimilarityEngine _engine;
   final double _threshold;
 
-  const BoosterClusterEngine({
+  BoosterClusterEngine({
     BoosterSimilarityEngine? engine,
     double threshold = 0.85,
   }) : _engine = engine ?? const BoosterSimilarityEngine(),

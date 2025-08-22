@@ -4,7 +4,7 @@ import '../models/skill_tree_category_visual.dart';
 
 /// Provides visual metadata for skill tree categories.
 class SkillTreeCategoryBannerService {
-  const SkillTreeCategoryBannerService();
+  SkillTreeCategoryBannerService();
 
   /// Returns visuals for [category].
   SkillTreeCategoryVisual getVisual(String category) {

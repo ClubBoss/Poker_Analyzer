@@ -8,7 +8,7 @@ import '../helpers/hand_utils.dart';
 /// The fingerprint is based on key semantic features of the spot so that
 /// logically equivalent spots produce the same hash.
 class SpotFingerprintGenerator {
-  const SpotFingerprintGenerator();
+  SpotFingerprintGenerator();
 
   /// Builds a SHA1 hash from the spot's hero hand, board, position and action.
   String generate(TrainingPackSpot spot) {

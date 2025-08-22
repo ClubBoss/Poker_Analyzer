@@ -2,7 +2,7 @@ import '../models/inline_theory_entry.dart';
 import '../models/line_graph_result.dart';
 
 class InlineTheoryNodeLinker {
-  const InlineTheoryNodeLinker();
+  InlineTheoryNodeLinker();
 
   LineGraphResult link(
     LineGraphResult result,

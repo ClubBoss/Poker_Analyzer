@@ -20,7 +20,7 @@ import 'playback_manager_service.dart';
 import 'stack_manager_service.dart';
 
 class TrainingImportExportService {
-  const TrainingImportExportService();
+  TrainingImportExportService();
 
   /// Create a TrainingSpot from a saved hand, including tournament metadata.
   TrainingSpot fromSavedHand(SavedHand hand) =>
@@ -390,7 +390,7 @@ class TrainingImportExportService {
       if (data == null || data.text == null) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Неверный формат данных')),
+            SnackBar(content: Text('Неверный формат данных')),
           );
         }
         return null;
@@ -399,14 +399,14 @@ class TrainingImportExportService {
       if (spot == null) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Неверный формат данных')),
+            SnackBar(content: Text('Неверный формат данных')),
           );
         }
         return null;
       }
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Спот загружен из буфера')),
+          SnackBar(content: Text('Спот загружен из буфера')),
         );
       }
       return spot;
@@ -448,7 +448,7 @@ class TrainingImportExportService {
       if (spot == null) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Неверный формат файла')),
+            SnackBar(content: Text('Неверный формат файла')),
           );
         }
         return null;
@@ -506,7 +506,7 @@ class TrainingImportExportService {
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ошибка сохранения файла')),
+          SnackBar(content: Text('Ошибка сохранения файла')),
         );
       }
     }
@@ -519,7 +519,7 @@ class TrainingImportExportService {
     if (spots.isEmpty) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Нет спотов для экспорта')),
+          SnackBar(content: Text('Нет спотов для экспорта')),
         );
       }
       return;
@@ -552,7 +552,7 @@ class TrainingImportExportService {
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ошибка сохранения архива')),
+          SnackBar(content: Text('Ошибка сохранения архива')),
         );
       }
     }

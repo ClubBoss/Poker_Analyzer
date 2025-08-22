@@ -12,7 +12,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import 'yaml_pack_rating_engine.dart';
 
 class TrainingPackRankingEngine {
-  const TrainingPackRankingEngine();
+  TrainingPackRankingEngine();
 
   static const _w1 = 0.2;
   static const _w2 = 0.2;

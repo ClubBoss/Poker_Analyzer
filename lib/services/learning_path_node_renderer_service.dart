@@ -13,7 +13,7 @@ class LearningPathNodeRendererService {
   final LearningPathNodeAnalyticsLogger analyticsLogger;
   final TheoryAutoRecallInjector autoRecall;
 
-  const LearningPathNodeRendererService({
+  LearningPathNodeRendererService({
     LearningPathEntryRenderer? entryRenderer,
     LearningPathNodeAnalyticsLogger? analyticsLogger,
     TheoryAutoRecallInjector? autoRecall,

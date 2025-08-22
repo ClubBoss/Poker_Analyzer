@@ -2,7 +2,7 @@ import 'mini_lesson_library_builder.dart';
 
 /// Rewrites raw mini lesson snippets into cleaner lessons.
 class AutoTheoryRewriter {
-  const AutoTheoryRewriter();
+  AutoTheoryRewriter();
 
   /// Returns cleaned versions of [raw] entries.
   List<MiniLessonEntry> rewrite(List<MiniLessonEntry> raw) {

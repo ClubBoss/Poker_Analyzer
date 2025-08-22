@@ -9,7 +9,7 @@ class PackQualityIssue {
   final String severity;
   final String? fixSuggestion;
 
-  const PackQualityIssue({
+  PackQualityIssue({
     required this.id,
     required this.description,
     required this.severity,
@@ -73,7 +73,7 @@ class PackQualityInspectorService {
     final theoryRatio = linked / pack.spots.length;
     if (theoryRatio < 0.3) {
       issues.add(
-        const PackQualityIssue(
+        PackQualityIssue(
           id: 'missing_theory_links',
           description: 'Most spots lack theory references',
           severity: 'warning',
@@ -92,7 +92,7 @@ class PackQualityInspectorService {
     final boardRatio = boards.length / pack.spots.length;
     if (boardRatio < 0.5) {
       issues.add(
-        const PackQualityIssue(
+        PackQualityIssue(
           id: 'low_board_diversity',
           description: 'Many spots share identical boards',
           severity: 'info',

@@ -19,7 +19,7 @@ class PackPlayStats {
   final int launches;
   final int totalTrained;
   final int mistakes;
-  const PackPlayStats({
+  PackPlayStats({
     this.launches = 0,
     this.totalTrained = 0,
     this.mistakes = 0,

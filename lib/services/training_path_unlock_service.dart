@@ -2,7 +2,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import 'training_pack_stats_service.dart';
 
 class TrainingPathUnlockService {
-  const TrainingPathUnlockService();
+  TrainingPathUnlockService();
 
   /// Returns the subset of [allPacks] that are unlocked based on [stats].
   ///

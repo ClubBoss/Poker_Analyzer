@@ -14,7 +14,7 @@ class SmartRecapBoosterLauncher {
   final SmartRecapBoosterLinker linker;
   final NavigationService navigation;
 
-  const SmartRecapBoosterLauncher({
+  SmartRecapBoosterLauncher({
     required this.linker,
     this.navigation = const NavigationService(),
   });

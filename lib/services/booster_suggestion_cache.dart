@@ -8,7 +8,7 @@ class BoosterSuggestionCache {
   static const _cacheKey = 'smart_booster_cache';
   static const _cacheTimeKey = 'smart_booster_cache_time';
 
-  const BoosterSuggestionCache();
+  BoosterSuggestionCache();
 
   /// Returns the cached booster pack if it was saved within 24 hours.
   Future<TrainingPackTemplateV2?> load() async {

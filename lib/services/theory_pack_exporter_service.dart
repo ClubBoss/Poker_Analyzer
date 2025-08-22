@@ -8,7 +8,7 @@ import '../models/theory_mini_lesson_node.dart';
 class TheoryPackExporterService {
   final YamlEncoder _encoder;
 
-  const TheoryPackExporterService({YamlEncoder? encoder})
+  TheoryPackExporterService({YamlEncoder? encoder})
     : _encoder = encoder ?? const YamlEncoder();
 
   /// Saves [lessons] into [outputDir] grouped by [groupBy].

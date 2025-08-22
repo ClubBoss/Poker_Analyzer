@@ -8,7 +8,7 @@ class SmartTheoryBatchGenerator {
   final SmartTheoryPackGenerator generator;
   final int batchSize;
 
-  const SmartTheoryBatchGenerator({
+  SmartTheoryBatchGenerator({
     this.generator = const SmartTheoryPackGenerator(),
     this.batchSize = 20,
   });

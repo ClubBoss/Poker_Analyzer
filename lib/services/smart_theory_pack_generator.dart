@@ -9,7 +9,7 @@ import '../core/training/engine/training_type_engine.dart';
 
 /// Auto-generates a simple theory pack for a given tag.
 class SmartTheoryPackGenerator {
-  const SmartTheoryPackGenerator();
+  SmartTheoryPackGenerator();
 
   List<TrainingPackSpot> _buildTemplate(String tag, String idPrefix) {
     final explanation = 'This is a theory module about $tag';

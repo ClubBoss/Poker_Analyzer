@@ -3,7 +3,7 @@ import 'session_log_service.dart';
 
 /// Determines whether a stage in a learning path is unlocked.
 class LearningPathStageGatekeeperService {
-  const LearningPathStageGatekeeperService();
+  LearningPathStageGatekeeperService();
 
   /// Returns `true` if the stage at [index] is unlocked given player progress.
   ///

@@ -2,7 +2,7 @@ import '../models/learning_goal.dart';
 import 'weakness_cluster_engine.dart';
 
 class LearningGoalEngine {
-  const LearningGoalEngine();
+  LearningGoalEngine();
 
   List<LearningGoal> generateGoals(List<WeaknessCluster> clusters) {
     if (clusters.isEmpty) return const [];

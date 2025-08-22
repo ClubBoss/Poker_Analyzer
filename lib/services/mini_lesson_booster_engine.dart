@@ -11,7 +11,7 @@ class MiniLessonBoosterEngine {
   final LearningPathEngine _engine;
   final MiniLessonLibraryService _library;
 
-  const MiniLessonBoosterEngine({
+  MiniLessonBoosterEngine({
     LearningPathEngine? engine,
     MiniLessonLibraryService? library,
   }) : _engine = engine ?? LearningPathEngine.instance,

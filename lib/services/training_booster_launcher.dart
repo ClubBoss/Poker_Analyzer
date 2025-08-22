@@ -11,7 +11,7 @@ import 'training_session_service.dart';
 
 /// Launches an ad-hoc booster pack built from training spots.
 class TrainingBoosterLauncher {
-  const TrainingBoosterLauncher();
+  TrainingBoosterLauncher();
 
   /// Starts a training session for [spots] if the list is not empty.
   Future<void> launch(List<TrainingSpotV2> spots) async {

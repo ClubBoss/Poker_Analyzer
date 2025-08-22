@@ -13,7 +13,7 @@ class BoosterVariationInjector {
   /// How many variation spots should be added for each original spot.
   final int _variationsPerSpot;
 
-  const BoosterVariationInjector({
+  BoosterVariationInjector({
     BoosterSimilarityEngine? engine,
     double similarityThreshold = 0.8,
     int variationsPerSpot = 1,

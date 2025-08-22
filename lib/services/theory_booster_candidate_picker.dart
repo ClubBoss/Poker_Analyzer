@@ -6,7 +6,7 @@ import 'mini_lesson_library_service.dart';
 class TheoryBoosterCandidatePicker {
   final MiniLessonLibraryService library;
 
-  const TheoryBoosterCandidatePicker({
+  TheoryBoosterCandidatePicker({
     this.library = MiniLessonLibraryService.instance,
   });
 

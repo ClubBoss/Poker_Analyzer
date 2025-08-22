@@ -10,7 +10,7 @@ class SimilarPackMatch {
   final TrainingPackModel pack;
   final double similarity;
 
-  const SimilarPackMatch(this.pack, this.similarity);
+  SimilarPackMatch(this.pack, this.similarity);
 }
 
 /// Represents a pair of packs with a similarity score.
@@ -19,7 +19,7 @@ class PackSimilarityResult {
   final TrainingPackModel b;
   final double similarity;
 
-  const PackSimilarityResult({
+  PackSimilarityResult({
     required this.a,
     required this.b,
     required this.similarity,
@@ -31,7 +31,7 @@ class PackFingerprintComparerService {
   final SpotFingerprintGenerator _fingerprint;
   final bool _debug;
 
-  const PackFingerprintComparerService({
+  PackFingerprintComparerService({
     SpotFingerprintGenerator? fingerprint,
     bool debug = false,
   }) : _fingerprint = fingerprint ?? const SpotFingerprintGenerator(),

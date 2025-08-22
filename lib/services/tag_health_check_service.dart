@@ -7,7 +7,7 @@ import '../core/training/generation/yaml_reader.dart';
 import '../models/v2/training_pack_template_v2.dart';
 
 class TagHealthCheckService {
-  const TagHealthCheckService();
+  TagHealthCheckService();
 
   Future<void> runChecks({String path = 'training_packs/library'}) async {
     final docs = await getApplicationDocumentsDirectory();

@@ -11,7 +11,7 @@ import 'booster_path_history_service.dart';
 /// considered active only if the latest review is also within [maxGap]
 /// from now.
 class ReviewStreakEvaluatorService {
-  const ReviewStreakEvaluatorService({this.recallStats});
+  ReviewStreakEvaluatorService({this.recallStats});
 
   /// Service used to read review history. Defaults to
   /// [PackRecallStatsService.instance].

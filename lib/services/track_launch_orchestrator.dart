@@ -14,7 +14,7 @@ class TrackLaunchOrchestrator {
   final TrainingSessionLauncher launcher;
   final TrackPlayRecorder recorder;
 
-  const TrackLaunchOrchestrator({
+  TrackLaunchOrchestrator({
     this.launcher = const TrainingSessionLauncher(),
     TrackPlayRecorder? recorder,
   }) : recorder = recorder ?? TrackPlayRecorder.instance;
@@ -53,7 +53,7 @@ class TrackLaunchOrchestrator {
         await showDialog<void>(
           context: ctx,
           builder: (_) =>
-              const AlertDialog(content: Text('\u{1F389} All caught up!')),
+              AlertDialog(content: Text('\u{1F389} All caught up!')),
         );
       }
     }

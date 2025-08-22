@@ -5,7 +5,7 @@ import '../models/training_goal.dart';
 
 /// Generates simple short-term goals from booster stats and weaknesses.
 class BoosterGoalRecommender {
-  const BoosterGoalRecommender();
+  BoosterGoalRecommender();
 
   /// Returns up to two training goals based on [stats], [weakTags] and [profile].
   List<TrainingGoal> recommend({
@@ -18,7 +18,7 @@ class BoosterGoalRecommender {
     // Goal 1: encourage booster streaks.
     if (stats.streak < 5) {
       goals.add(
-        const TrainingGoal(
+        TrainingGoal(
           '🔥 Достигни серии из 5 дней',
           description: 'Играйте хотя бы один бустер каждый день',
           tag: 'boosterStreak',

@@ -5,7 +5,7 @@ import 'mini_lesson_library_service.dart';
 class TheoryPathPreviewBuilder {
   final MiniLessonLibraryService library;
 
-  const TheoryPathPreviewBuilder({MiniLessonLibraryService? library})
+  TheoryPathPreviewBuilder({MiniLessonLibraryService? library})
     : library = library ?? MiniLessonLibraryService.instance;
 
   /// Returns up to [maxDepth] lessons starting from [rootId].

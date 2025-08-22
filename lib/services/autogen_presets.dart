@@ -5,7 +5,7 @@ import 'texture_keys.dart';
 /// Currently only `postflop_default` is provided with a target mix.
 class AutogenPreset {
   final Map<String, double> targetMix;
-  const AutogenPreset({required this.targetMix});
+  AutogenPreset({required this.targetMix});
 }
 
 /// Registry of available presets.

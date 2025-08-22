@@ -6,7 +6,7 @@ class YamlPackConflict {
   final TrainingPackTemplateV2 packB;
   final String type;
   final double similarityScore;
-  const YamlPackConflict({
+  YamlPackConflict({
     required this.packA,
     required this.packB,
     required this.type,
@@ -15,7 +15,7 @@ class YamlPackConflict {
 }
 
 class YamlPackConflictDetector {
-  const YamlPackConflictDetector();
+  YamlPackConflictDetector();
 
   List<YamlPackConflict> detectConflicts(List<TrainingPackTemplateV2> packs) {
     final conflicts = <YamlPackConflict>[];

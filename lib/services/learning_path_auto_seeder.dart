@@ -7,7 +7,7 @@ import 'learning_path_stage_library.dart';
 
 /// Creates learning path stages from promoted theory packs.
 class LearningPathAutoSeeder {
-  const LearningPathAutoSeeder();
+  LearningPathAutoSeeder();
 
   /// Generates stages from [PackLibrary.main] and stores them in
   /// [LearningPathStageLibrary].

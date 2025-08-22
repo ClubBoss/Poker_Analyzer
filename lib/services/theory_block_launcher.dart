@@ -11,7 +11,7 @@ import '../services/theory_track_resume_service.dart';
 
 /// Launches the next appropriate item within a [TheoryBlockModel].
 class TheoryBlockLauncher {
-  const TheoryBlockLauncher();
+  TheoryBlockLauncher();
 
   Future<void> launch({
     required BuildContext context,

@@ -13,7 +13,7 @@ class ReviewStrategyDecision {
   final String reason;
   final String? targetTag;
 
-  const ReviewStrategyDecision({
+  ReviewStrategyDecision({
     required this.type,
     required this.reason,
     this.targetTag,
@@ -25,7 +25,7 @@ class SmartMistakeReviewStrategy {
   final SkillLossFeedEngine skillLossEngine;
   final TagInsightReminderEngine reminder;
 
-  const SmartMistakeReviewStrategy({
+  SmartMistakeReviewStrategy({
     this.insightsService = const MistakeTagInsightsService(),
     this.skillLossEngine = const SkillLossFeedEngine(),
     TagInsightReminderEngine? reminder,

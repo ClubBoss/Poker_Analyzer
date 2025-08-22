@@ -8,7 +8,7 @@ import 'skill_tree_unlock_evaluator.dart';
 
 /// Provides hints explaining how to unlock a skill tree node on the detail page.
 class SkillTreeNodeDetailUnlockHintService {
-  const SkillTreeNodeDetailUnlockHintService({
+  SkillTreeNodeDetailUnlockHintService({
     this.stageEvaluator = const SkillTreeStageGateEvaluator(),
   });
 

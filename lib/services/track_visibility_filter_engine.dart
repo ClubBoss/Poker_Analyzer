@@ -4,7 +4,7 @@ import 'track_unlock_conditions_engine.dart';
 
 /// Filters lesson tracks based on unlock conditions.
 class TrackVisibilityFilterEngine {
-  const TrackVisibilityFilterEngine({
+  TrackVisibilityFilterEngine({
     this.showLockedTracks = false,
     TrackUnlockConditionsEngine? unlockEngine,
   }) : _unlockEngine = unlockEngine ?? const TrackUnlockConditionsEngine();

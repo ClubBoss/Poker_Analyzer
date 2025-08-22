@@ -5,7 +5,7 @@ import '../models/learning_path_stage_model.dart';
 import 'learning_path_stage_library.dart';
 
 class LearningPathStageSeeder {
-  const LearningPathStageSeeder();
+  LearningPathStageSeeder();
 
   Future<void> seedStages(
     List<String> yamlPaths, {

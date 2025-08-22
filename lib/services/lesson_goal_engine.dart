@@ -8,7 +8,7 @@ class GoalProgress {
   final int target;
   final bool completed;
 
-  const GoalProgress({
+  GoalProgress({
     required this.current,
     required this.target,
     required this.completed,

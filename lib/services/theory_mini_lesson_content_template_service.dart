@@ -10,7 +10,7 @@ class TheoryMiniLessonContentTemplateService {
   /// `'BTN vs BB, Flop CBet'`.
   final Map<String, String> templateMap;
 
-  const TheoryMiniLessonContentTemplateService({
+  TheoryMiniLessonContentTemplateService({
     Map<String, String>? templateMap,
   }) : templateMap = templateMap ?? theoryLessonTemplateMap;
 

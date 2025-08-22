@@ -6,7 +6,7 @@ import '../core/training/engine/training_type_engine.dart';
 
 /// Validates a single [LearningPathTemplateV2].
 class LearningPathTemplateValidator {
-  const LearningPathTemplateValidator();
+  LearningPathTemplateValidator();
 
   /// Returns a list of validation issues for [path].
   List<ValidationIssue> validate(LearningPathTemplateV2 path) {
@@ -17,7 +17,7 @@ class LearningPathTemplateValidator {
       final sid = stage.id.trim();
       if (sid.isEmpty) {
         issues.add(
-          const ValidationIssue(type: 'error', message: 'empty_stage_id'),
+          ValidationIssue(type: 'error', message: 'empty_stage_id'),
         );
         continue;
       }

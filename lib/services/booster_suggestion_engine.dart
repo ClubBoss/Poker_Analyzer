@@ -21,7 +21,7 @@ import 'theory_replay_cooldown_manager.dart';
 import '../models/theory_mini_lesson_node.dart';
 
 class BoosterSuggestionEngine {
-  const BoosterSuggestionEngine();
+  BoosterSuggestionEngine();
 
   /// Returns the id of the best booster pack to recommend.
   ///

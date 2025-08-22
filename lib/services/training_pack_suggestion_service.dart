@@ -8,7 +8,7 @@ import 'session_log_service.dart';
 class TrainingPackSuggestionService {
   final SessionLogService history;
   final TrainingPackFilterEngine engine;
-  const TrainingPackSuggestionService({
+  TrainingPackSuggestionService({
     required this.history,
     this.engine = const TrainingPackFilterEngine(),
   });

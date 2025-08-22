@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class PlanIdempotencyGuard {
   static const _prefix = 'planner.injected.';
 
-  const PlanIdempotencyGuard();
+  PlanIdempotencyGuard();
 
   /// Returns `true` if [sig] has not been injected for [userId] within
   /// the [window]. If it has, returns `false` indicating the caller should

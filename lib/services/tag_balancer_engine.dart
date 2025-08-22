@@ -7,7 +7,7 @@ class TagBalancerEngine {
   /// Maximum number of boost templates returned by [balance].
   final int maxBoostCount;
 
-  const TagBalancerEngine({this.maxBoostCount = 5});
+  TagBalancerEngine({this.maxBoostCount = 5});
 
   /// Returns additional templates from [baseSet] that help balance [coverage].
   ///

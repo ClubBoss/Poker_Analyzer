@@ -2,7 +2,7 @@ import '../models/theory_pack_model.dart';
 
 /// Generates automatic tags for a [TheoryPackModel].
 class TheoryPackAutoTagger {
-  const TheoryPackAutoTagger();
+  TheoryPackAutoTagger();
 
   /// Returns a set of tags detected in [pack] using simple
   /// keyword heuristics over all section titles and texts.

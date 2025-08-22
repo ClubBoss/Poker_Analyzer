@@ -22,7 +22,7 @@ class LessonReminderScheduler {
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
     await _plugin.initialize(
-      const InitializationSettings(android: android, iOS: ios),
+      InitializationSettings(android: android, iOS: ios),
     );
     tz.initializeTimeZones();
     _initialized = true;
@@ -62,7 +62,7 @@ class LessonReminderScheduler {
       "\uD83C\uDFC6 Don't forget your daily poker training!",
       'Complete your 5 hands and keep your streak alive \uD83D\uDD25',
       when,
-      const NotificationDetails(
+      NotificationDetails(
         android: AndroidNotificationDetails(
           'lesson_reminder',
           'Lesson Reminder',

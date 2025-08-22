@@ -73,7 +73,7 @@ class TagEffectiveness {
   final Duration averageDuration;
   final double repeatRate;
 
-  const TagEffectiveness({
+  TagEffectiveness({
     required this.tag,
     required this.count,
     required this.averageDuration,

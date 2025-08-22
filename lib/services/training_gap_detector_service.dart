@@ -5,7 +5,7 @@ import 'training_pack_stats_service.dart';
 import 'training_tag_performance_engine.dart';
 
 class TrainingGapDetectorService {
-  const TrainingGapDetectorService();
+  TrainingGapDetectorService();
 
   static const _skillKey = 'stats_skill_stats';
 

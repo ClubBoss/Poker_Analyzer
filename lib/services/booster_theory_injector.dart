@@ -10,7 +10,7 @@ enum BoosterTheoryInjectionMode { preDrill, postDrill }
 /// Injects theory recap dialogs into booster drills based on weakness tags.
 class BoosterTheoryInjector {
   final BoosterTheoryInjectionMode mode;
-  const BoosterTheoryInjector({
+  BoosterTheoryInjector({
     this.mode = BoosterTheoryInjectionMode.preDrill,
   });
 

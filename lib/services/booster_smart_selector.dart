@@ -6,7 +6,7 @@ import 'booster_cluster_engine.dart';
 
 /// Selects a diverse subset of spots for booster packs.
 class BoosterSmartSelector {
-  const BoosterSmartSelector();
+  BoosterSmartSelector();
 
   /// Returns a copy of [pack] containing at most [maxSpots] of the most
   /// representative spots from [pack] and [clusters].

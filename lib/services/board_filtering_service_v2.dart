@@ -2,7 +2,7 @@ import '../models/board_stages.dart';
 import '../models/card_model.dart';
 
 class BoardFilteringServiceV2 {
-  const BoardFilteringServiceV2();
+  BoardFilteringServiceV2();
 
   bool isMatch(
     BoardStages board,

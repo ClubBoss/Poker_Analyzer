@@ -14,7 +14,7 @@ final Map<MistakeTag, MistakeTagCluster> _clusterMap = {
 };
 
 class MistakeTagClusterService {
-  const MistakeTagClusterService();
+  MistakeTagClusterService();
 
   MistakeTagCluster getClusterForTag(MistakeTag tag) {
     return _clusterMap[tag] ?? MistakeTagCluster.aggressiveMistakes;

@@ -6,7 +6,7 @@ import 'training_path_progress_service_v2.dart';
 class LearningPathStatsService {
   final TrainingPathProgressServiceV2 progress;
 
-  const LearningPathStatsService({required this.progress});
+  LearningPathStatsService({required this.progress});
 
   /// Builds progress statistics for [path] using current user progress.
   LearningPathProgressStats computeStats(LearningPathTemplateV2 path) {

@@ -8,7 +8,7 @@ class GoalSlotAssignment {
   final XPGuidedGoal goal;
   final String slot; // 'home', 'theory', or 'postrecap'
 
-  const GoalSlotAssignment({required this.goal, required this.slot});
+  GoalSlotAssignment({required this.goal, required this.slot});
 }
 
 /// Routes XP goals to delivery slots based on urgency and context.
@@ -50,7 +50,7 @@ class GoalSlotAllocator {
         final h = hist[tag];
         if (h != null &&
             DateTime.now().difference(h.lastInteraction) <
-                const Duration(hours: 1)) {
+                Duration(hours: 1)) {
           slot = 'postrecap';
         }
       }

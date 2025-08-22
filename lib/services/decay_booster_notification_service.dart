@@ -63,7 +63,7 @@ class DecayBoosterNotificationService with WidgetsBindingObserver {
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
     await _plugin.initialize(
-      const InitializationSettings(android: android, iOS: ios),
+      InitializationSettings(android: android, iOS: ios),
       onDidReceiveNotificationResponse: (r) async {
         final id = r.payload;
         if (id == null) return;
@@ -131,7 +131,7 @@ class DecayBoosterNotificationService with WidgetsBindingObserver {
           'Time to refresh your skills!',
           'You\u2019re forgetting $tag \u2014 tap to review now',
           when,
-          const NotificationDetails(
+          NotificationDetails(
             android: AndroidNotificationDetails(
               'decay_booster',
               'Decay Booster',

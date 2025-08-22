@@ -19,7 +19,7 @@ class WeakSpotRecommendation {
   final double ev;
   final double icm;
   final int hands;
-  const WeakSpotRecommendation({
+  WeakSpotRecommendation({
     required this.position,
     required this.accuracy,
     required this.ev,

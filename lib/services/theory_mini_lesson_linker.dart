@@ -12,7 +12,7 @@ class TheoryMiniLessonLinker {
   final MiniLessonLibraryService library;
   final PackLibraryLoaderService loader;
 
-  const TheoryMiniLessonLinker({
+  TheoryMiniLessonLinker({
     this.library = MiniLessonLibraryService.instance,
     this.loader = PackLibraryLoaderService.instance,
   });

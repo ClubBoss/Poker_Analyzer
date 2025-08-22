@@ -3,7 +3,7 @@ class AutogenPipelineEvent {
   final String message;
   final DateTime timestamp;
 
-  const AutogenPipelineEvent({
+  AutogenPipelineEvent({
     required this.type,
     required this.message,
     required this.timestamp,

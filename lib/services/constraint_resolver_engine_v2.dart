@@ -11,7 +11,7 @@ import 'package:uuid/uuid.dart';
 class ConstraintResolverEngine {
   final ActionPatternMatcher _actionMatcher;
 
-  const ConstraintResolverEngine({ActionPatternMatcher? actionMatcher})
+  ConstraintResolverEngine({ActionPatternMatcher? actionMatcher})
     : _actionMatcher = actionMatcher ?? const ActionPatternMatcher();
 
   bool isValid(SpotSeedFormat candidate, ConstraintSet constraints) {

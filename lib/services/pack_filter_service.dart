@@ -3,7 +3,7 @@ import '../core/training/engine/training_type_engine.dart';
 import '../models/v2/pack_ux_metadata.dart';
 
 class PackFilterService {
-  const PackFilterService();
+  PackFilterService();
 
   List<TrainingPackTemplateV2> filter({
     required List<TrainingPackTemplateV2> templates,

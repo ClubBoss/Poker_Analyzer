@@ -35,7 +35,7 @@ class AdaptivePlanExecutor {
   final AssessmentPackSynthesizer synthesizer;
   final AutogenStatusDashboardService dashboard;
 
-  const AdaptivePlanExecutor({
+  AdaptivePlanExecutor({
     TargetedPackBoosterEngine? boosterEngine,
     AutoFormatSelector? formatSelector,
     PackQualityGatekeeperService? gatekeeper,

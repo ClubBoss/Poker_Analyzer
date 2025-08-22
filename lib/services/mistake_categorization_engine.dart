@@ -5,7 +5,7 @@ import 'pack_generator_service.dart';
 import '../widgets/poker_table_view.dart' show PlayerAction;
 
 class MistakeCategorizationEngine {
-  const MistakeCategorizationEngine();
+  MistakeCategorizationEngine();
 
   double computeHandStrength(String cards) {
     final code = handCode(cards);

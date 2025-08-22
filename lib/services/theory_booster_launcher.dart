@@ -13,7 +13,7 @@ class TheoryBoosterLauncher {
   final TrainingSessionLauncher launcher;
   final PlayerProfile? profile;
 
-  const TheoryBoosterLauncher({
+  TheoryBoosterLauncher({
     required this.mastery,
     this.profile,
     TrainingPackLibraryV2? library,

@@ -9,7 +9,7 @@ import '../models/learning_path_template_v2.dart';
 /// Loads [LearningPathTemplateV2] definitions from YAML files under
 /// `assets/learning_paths/`.
 class LearningPathLoader {
-  const LearningPathLoader();
+  LearningPathLoader();
 
   /// Loads a path by [pathId]. The file name should match the id.
   Future<LearningPathTemplateV2> load(String pathId) async {

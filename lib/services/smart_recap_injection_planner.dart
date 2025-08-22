@@ -10,7 +10,7 @@ class RecapInjectionPlan {
   final List<String> tagIds;
   final DateTime plannedAt;
 
-  const RecapInjectionPlan({required this.tagIds, required this.plannedAt});
+  RecapInjectionPlan({required this.tagIds, required this.plannedAt});
 
   Map<String, dynamic> toJson() => {
     'tags': tagIds,

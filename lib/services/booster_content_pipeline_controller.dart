@@ -7,7 +7,7 @@ import 'theory_yaml_importer.dart';
 
 /// Controls the generation and import pipeline for booster content.
 class BoosterContentPipelineController {
-  const BoosterContentPipelineController({
+  BoosterContentPipelineController({
     BoosterPackLibraryBuilder? builder,
     TheoryYamlImporter? importer,
   }) : _builder = builder ?? const BoosterPackLibraryBuilder(),

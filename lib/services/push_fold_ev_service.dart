@@ -42,7 +42,7 @@ double computeCallEV({
 }
 
 class PushFoldEvService {
-  const PushFoldEvService();
+  PushFoldEvService();
 
   Future<void> evaluate(TrainingPackSpot spot, {int anteBb = 0}) async {
     final hero = spot.hand.heroIndex;

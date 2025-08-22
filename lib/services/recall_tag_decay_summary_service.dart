@@ -9,7 +9,7 @@ class RecallTagDecaySummaryService {
   final RecallSuccessLoggerService logger;
   final InboxBoosterTunerService tuner;
 
-  const RecallTagDecaySummaryService({
+  RecallTagDecaySummaryService({
     DecayTagRetentionTrackerService? retention,
     RecallSuccessLoggerService? logger,
     InboxBoosterTunerService? tuner,

@@ -10,7 +10,7 @@ import 'learning_plan_cache_models.dart';
 class LearningPlanCache {
   static const _key = 'learning_plan_cache';
 
-  const LearningPlanCache();
+  LearningPlanCache();
 
   /// Saves [plan] to local storage.
   Future<void> save(AdaptiveLearningPlan plan) async {

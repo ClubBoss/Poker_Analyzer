@@ -7,7 +7,7 @@ class TheoryWeaknessRepeater {
   final MiniLessonLibraryService library;
   final MiniLessonProgressTracker progress;
 
-  const TheoryWeaknessRepeater({
+  TheoryWeaknessRepeater({
     MiniLessonLibraryService? library,
     MiniLessonProgressTracker? progress,
   }) : library = library ?? MiniLessonLibraryService.instance,

@@ -3,7 +3,7 @@ import '../models/v2/training_pack_spot.dart';
 import '../models/v2/training_pack_template_v2.dart';
 
 class YamlPackBalanceAnalyzer {
-  const YamlPackBalanceAnalyzer();
+  YamlPackBalanceAnalyzer();
 
   List<PackBalanceIssue> analyze(TrainingPackTemplateV2 pack) {
     final spots = pack.spots;
@@ -53,7 +53,7 @@ class YamlPackBalanceAnalyzer {
       final pct = posCount / evs.length;
       if (pct >= 0.8) {
         issues.add(
-          const PackBalanceIssue(
+          PackBalanceIssue(
             type: 'ev_easy',
             description: 'EV mostly positive',
             severity: 1,
@@ -61,7 +61,7 @@ class YamlPackBalanceAnalyzer {
         );
       } else if (pct <= 0.2) {
         issues.add(
-          const PackBalanceIssue(
+          PackBalanceIssue(
             type: 'ev_hard',
             description: 'EV mostly negative',
             severity: 1,

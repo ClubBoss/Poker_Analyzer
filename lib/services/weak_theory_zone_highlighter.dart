@@ -6,7 +6,7 @@ import '../models/weak_cluster_info.dart';
 
 /// Identifies weak theory tags and clusters based on player progress.
 class WeakTheoryZoneHighlighter {
-  const WeakTheoryZoneHighlighter();
+  WeakTheoryZoneHighlighter();
 
   /// Returns weak tags sorted by [WeakTheoryTag.score] descending.
   List<WeakTheoryTag> detectWeakTags({

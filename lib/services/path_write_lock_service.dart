@@ -6,7 +6,7 @@ class PathWriteLockService {
   final String rootDir;
   final Map<String, RandomAccessFile> _handles = {};
 
-  const PathWriteLockService({required this.rootDir});
+  PathWriteLockService({required this.rootDir});
 
   String _lockPath(String userId) => '$rootDir/$userId.lock';
 

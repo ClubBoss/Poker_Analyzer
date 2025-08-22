@@ -11,7 +11,7 @@ class BoosterTestReport {
   final Map<String, int> tagHistogram;
   final String quality;
 
-  const BoosterTestReport({
+  BoosterTestReport({
     required this.totalSpots,
     required this.evAvg,
     required this.emptyExplanations,
@@ -22,7 +22,7 @@ class BoosterTestReport {
 }
 
 class BoosterQuickTesterEngine {
-  const BoosterQuickTesterEngine();
+  BoosterQuickTesterEngine();
 
   BoosterTestReport test(
     TrainingPackTemplateV2 pack, {

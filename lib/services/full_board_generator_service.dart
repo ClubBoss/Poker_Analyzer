@@ -10,7 +10,7 @@ class FullBoardRequest {
   final List<CardModel> excludedCards;
   final Map<String, dynamic>? boardFilterParams;
 
-  const FullBoardRequest({
+  FullBoardRequest({
     required this.stages,
     this.excludedCards = const [],
     this.boardFilterParams,

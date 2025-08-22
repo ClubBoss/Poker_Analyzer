@@ -13,7 +13,7 @@ class Achievement {
   final int target;
   final DateTime? completedAt;
 
-  const Achievement({
+  Achievement({
     required this.title,
     required this.icon,
     required this.progress,
@@ -50,19 +50,19 @@ class AchievementManager {
     required int drillMaster,
   }) async {
     _achievements = [
-      const Achievement(
+      Achievement(
         title: 'Разобрать 10 ошибок',
         icon: Icons.bug_report,
         progress: 0,
         target: 10,
       ),
-      const Achievement(
+      Achievement(
         title: 'Пройти 3 дня подряд',
         icon: Icons.calendar_today,
         progress: 0,
         target: 3,
       ),
-      const Achievement(
+      Achievement(
         title: 'Выполнить цель дня',
         icon: Icons.flag,
         progress: 0,
@@ -98,7 +98,7 @@ class AchievementManager {
         progress: errorFreeStreak,
         target: 100,
       ),
-      const Achievement(
+      Achievement(
         title: '7-дневная серия',
         icon: Icons.calendar_month,
         progress: 0,

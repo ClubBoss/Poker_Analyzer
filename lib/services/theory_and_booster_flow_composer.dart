@@ -10,7 +10,7 @@ class TheoryAndBoosterFlowComposer {
   final BoosterInjectionOrchestrator boosterOrchestrator;
   final InjectionBlockAssembler assembler;
 
-  const TheoryAndBoosterFlowComposer({
+  TheoryAndBoosterFlowComposer({
     SmartTheoryInjectionEngine? theoryEngine,
     required BoosterInjectionOrchestrator boosterOrchestrator,
     InjectionBlockAssembler? assembler,

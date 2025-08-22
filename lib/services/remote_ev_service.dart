@@ -11,7 +11,7 @@ class RemoteEvService {
   static const _cacheAge = Duration(hours: 24);
   static Box<dynamic>? _box;
 
-  const RemoteEvService({String? endpoint, http.Client? client})
+  RemoteEvService({String? endpoint, http.Client? client})
     : endpoint = endpoint ?? EvaluationSettingsService.instance.remoteEndpoint,
       client = client ?? const http.Client();
 

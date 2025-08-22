@@ -5,7 +5,7 @@ import '../helpers/hand_utils.dart';
 
 /// Computes similarity between booster spots to detect duplicates.
 class BoosterSimilarityEngine {
-  const BoosterSimilarityEngine();
+  BoosterSimilarityEngine();
 
   /// Returns pairs of spot ids with similarity above [threshold].
   List<SpotSimilarityResult> analyzeSpots(

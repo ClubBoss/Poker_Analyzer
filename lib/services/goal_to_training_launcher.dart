@@ -7,7 +7,7 @@ class GoalToTrainingLauncher {
   final MiniLessonLibraryService library;
   final TrainingSessionLauncher launcher;
 
-  const GoalToTrainingLauncher({
+  GoalToTrainingLauncher({
     this.library = MiniLessonLibraryService.instance,
     this.launcher = const TrainingSessionLauncher(),
   });

@@ -25,7 +25,7 @@ class TrainingReminderPushService {
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
     await _plugin.initialize(
-      const InitializationSettings(android: android, iOS: ios),
+      InitializationSettings(android: android, iOS: ios),
     );
     tz.initializeTimeZones();
     _initialized = true;
@@ -75,7 +75,7 @@ class TrainingReminderPushService {
       'Poker Analyzer',
       body,
       when,
-      const NotificationDetails(
+      NotificationDetails(
         android: AndroidNotificationDetails(
           'training_goal_reminder',
           'Training Goal Reminder',

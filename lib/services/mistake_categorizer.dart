@@ -9,7 +9,7 @@ import '../helpers/hand_utils.dart';
 import 'mistake_categorization_engine.dart';
 
 class MistakeCategorizer {
-  const MistakeCategorizer();
+  MistakeCategorizer();
 
   String classify(SavedHand hand) {
     final act = heroAction(hand)?.action;

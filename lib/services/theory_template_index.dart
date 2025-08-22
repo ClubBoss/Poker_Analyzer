@@ -8,7 +8,7 @@ import 'theory_yaml_safe_reader.dart';
 
 /// Generates a JSON index for theory YAML packs in `yaml_out/`.
 class TheoryTemplateIndex {
-  const TheoryTemplateIndex();
+  TheoryTemplateIndex();
 
   /// List of all known theory tags.
   static List<String> get tags => TheoryPackGeneratorService.tags;

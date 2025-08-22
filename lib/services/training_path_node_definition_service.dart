@@ -30,7 +30,7 @@ class TrainingPathNodeDefinitionService {
     ),
   ];
 
-  const TrainingPathNodeDefinitionService();
+  TrainingPathNodeDefinitionService();
 
   List<TrainingPathNode> getPath() => _nodes;
 

@@ -9,7 +9,7 @@ class TagPerformance {
   final double accuracy;
   final DateTime? lastTrained;
 
-  const TagPerformance({
+  TagPerformance({
     required this.tag,
     required this.totalAttempts,
     required this.correct,

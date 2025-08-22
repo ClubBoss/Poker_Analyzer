@@ -3,7 +3,7 @@ import '../models/training_result.dart';
 import '../models/training_track_summary.dart';
 
 class TrainingTrackSummarizer {
-  const TrainingTrackSummarizer();
+  TrainingTrackSummarizer();
 
   TrainingTrackSummary summarizeTrack({
     required TrainingTrack track,

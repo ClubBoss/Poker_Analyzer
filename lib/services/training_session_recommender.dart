@@ -6,7 +6,7 @@ import '../models/training_track.dart';
 /// Suggests which training session to play next based on the current
 /// [AdaptiveLearningPlan] and past [TrackPlayHistory].
 class TrainingSessionRecommender {
-  const TrainingSessionRecommender();
+  TrainingSessionRecommender();
 
   List<TrainingRecommendation> recommend({
     required AdaptiveLearningPlan plan,

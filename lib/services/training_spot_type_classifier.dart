@@ -2,7 +2,7 @@ import '../models/spot_type.dart';
 import '../models/v2/training_pack_spot.dart';
 
 class TrainingSpotTypeClassifier {
-  const TrainingSpotTypeClassifier();
+  TrainingSpotTypeClassifier();
 
   SpotType classify(TrainingPackSpot spot) {
     final heroStack = spot.hand.stacks['${spot.hand.heroIndex}'] ?? 0.0;

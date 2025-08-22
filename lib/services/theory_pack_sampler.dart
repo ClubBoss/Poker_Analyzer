@@ -2,7 +2,7 @@ import '../models/v2/training_pack_template_v2.dart';
 
 /// Extracts theory spots from a training pack template.
 class TheoryPackSampler {
-  const TheoryPackSampler();
+  TheoryPackSampler();
 
   /// Returns a new [TrainingPackTemplateV2] containing only spots
   /// with `type == "theory"`. Returns `null` if no such spots exist.

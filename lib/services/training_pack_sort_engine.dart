@@ -6,7 +6,7 @@ enum SortMode { progress, difficulty, recent, focus }
 
 /// Provides custom sorting utilities for training packs.
 class TrainingPackSortEngine {
-  const TrainingPackSortEngine();
+  TrainingPackSortEngine();
 
   static const instance = TrainingPackSortEngine();
 

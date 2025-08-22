@@ -33,7 +33,7 @@ class TheoryLessonNotificationScheduler {
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings();
     await _plugin.initialize(
-      const InitializationSettings(android: android, iOS: ios),
+      InitializationSettings(android: android, iOS: ios),
       onDidReceiveNotificationResponse: (r) async {
         final lessonId = r.payload;
         if (lessonId == null) return;
@@ -83,7 +83,7 @@ class TheoryLessonNotificationScheduler {
       'Продолжите обучение',
       'Вы остановились на: ${lesson.resolvedTitle}',
       when,
-      const NotificationDetails(
+      NotificationDetails(
         android: AndroidNotificationDetails('theory_resume', 'Theory Resume'),
         iOS: DarwinNotificationDetails(),
       ),

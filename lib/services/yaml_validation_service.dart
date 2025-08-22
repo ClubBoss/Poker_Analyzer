@@ -4,7 +4,7 @@ import '../core/training/generation/yaml_reader.dart';
 import '../models/v2/training_pack_template_v2.dart';
 
 class YamlValidationService {
-  const YamlValidationService();
+  YamlValidationService();
 
   Future<List<(String, String)>> validateAll({
     String dir = 'assets/packs/v2',

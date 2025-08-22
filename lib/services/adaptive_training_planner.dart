@@ -16,7 +16,7 @@ class AdaptivePlan {
   final Map<String, double> tagWeights;
   final Map<String, int> mix;
 
-  const AdaptivePlan({
+  AdaptivePlan({
     required this.clusters,
     required this.estMins,
     required this.tagWeights,
@@ -30,7 +30,7 @@ class AdaptiveTrainingPlanner {
   final AutoSkillGapClusterer clusterer;
   final LearningPathStore store;
 
-  const AdaptiveTrainingPlanner({
+  AdaptiveTrainingPlanner({
     UserSkillModelService? skillService,
     DecayTagRetentionTrackerService? retention,
     AutoSkillGapClusterer? clusterer,

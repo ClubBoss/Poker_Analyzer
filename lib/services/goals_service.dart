@@ -22,7 +22,7 @@ class Goal {
   final DateTime? completedAt;
   final bool Function(SavedHand hand)? rule;
 
-  const Goal({
+  Goal({
     required this.title,
     required this.progress,
     required this.target,

@@ -7,7 +7,7 @@ class DecayHeatmapTile {
   final double urgency; // 0.0 = fresh, 1.0 = decayed
   final Color color;
 
-  const DecayHeatmapTile({
+  DecayHeatmapTile({
     required this.tag,
     required this.urgency,
     required this.color,
@@ -17,7 +17,7 @@ class DecayHeatmapTile {
 class DecayHeatmapTileGenerator {
   final TagDecayForecastService service;
 
-  const DecayHeatmapTileGenerator({
+  DecayHeatmapTileGenerator({
     this.service = const TagDecayForecastService(),
   });
 

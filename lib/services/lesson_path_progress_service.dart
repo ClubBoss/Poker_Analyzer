@@ -55,7 +55,7 @@ class LessonPathProgressService {
     final track = const LearningTrackEngine().getTracks().firstWhere(
       (t) => t.id == trackId,
       orElse: () =>
-          const LessonTrack(id: '', title: '', description: '', stepIds: []),
+          LessonTrack(id: '', title: '', description: '', stepIds: []),
     );
 
     final stepIds = track.stepIds;

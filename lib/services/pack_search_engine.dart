@@ -5,7 +5,7 @@ import 'pack_library_index_loader.dart';
 
 /// Provides fuzzy search over training pack titles and tags.
 class PackSearchEngine {
-  const PackSearchEngine({List<TrainingPackTemplateV2>? library})
+  PackSearchEngine({List<TrainingPackTemplateV2>? library})
     : _library = library;
 
   final List<TrainingPackTemplateV2>? _library;

@@ -7,7 +7,7 @@ import '../core/training/engine/training_type_engine.dart';
 class YamlPackAutoTagger {
   final YamlReader reader;
   final YamlWriter writer;
-  const YamlPackAutoTagger({YamlReader? yamlReader, YamlWriter? yamlWriter})
+  YamlPackAutoTagger({YamlReader? yamlReader, YamlWriter? yamlWriter})
     : reader = yamlReader ?? const YamlReader(),
       writer = yamlWriter ?? const YamlWriter();
 

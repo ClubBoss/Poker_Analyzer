@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class IntroSeenTracker {
   static const _keyPrefix = 'theory_intro_seen_';
 
-  const IntroSeenTracker();
+  IntroSeenTracker();
 
   Future<bool> hasSeen(String tag) async {
     final prefs = await SharedPreferences.getInstance();

@@ -178,7 +178,7 @@ class SavedHandManagerService extends ChangeNotifier {
                     decoration: const InputDecoration(hintText: 'Поиск'),
                     onChanged: (value) => setStateDialog(() => filter = value),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: TextButton(
@@ -223,7 +223,7 @@ class SavedHandManagerService extends ChangeNotifier {
                     child: const Text('Фильтр по тегам'),
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Row(
                   children: [
                     DropdownButton<String>(
@@ -234,7 +234,7 @@ class SavedHandManagerService extends ChangeNotifier {
                           .map((d) => DropdownMenuItem(value: d, child: Text(d)))
                           .toList(),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     DropdownButton<String>(
                       value: sortOrder,
                       dropdownColor: const Color(0xFF2A2B2E),
@@ -249,7 +249,7 @@ class SavedHandManagerService extends ChangeNotifier {
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Flexible(
                   child: ListView.builder(
                       shrinkWrap: true,
@@ -329,7 +329,7 @@ class SavedHandManagerService extends ChangeNotifier {
                                               decoration: const InputDecoration(
                                                   labelText: 'Название'),
                                             ),
-                                            const SizedBox(height: 8),
+                                            SizedBox(height: 8),
                                             Autocomplete<String>(
                                               optionsBuilder: (TextEditingValue value) {
                                                 final input = value.text.toLowerCase();
@@ -372,7 +372,7 @@ class SavedHandManagerService extends ChangeNotifier {
                                                 );
                                               },
                                             ),
-                                            const SizedBox(height: 8),
+                                            SizedBox(height: 8),
                                             TextField(
                                               controller: commentController,
                                               decoration: const InputDecoration(
@@ -380,7 +380,7 @@ class SavedHandManagerService extends ChangeNotifier {
                                               keyboardType: TextInputType.multiline,
                                               maxLines: null,
                                             ),
-                                            const SizedBox(height: 16),
+                                            SizedBox(height: 16),
                                             Align(
                                               alignment: Alignment.centerRight,
                                               child: TextButton(
@@ -423,7 +423,7 @@ class SavedHandManagerService extends ChangeNotifier {
                                     await _storage.update(savedIndex, updated);
                                     setStateSheet(() {});
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Раздача обновлена')),
+                                      SnackBar(content: Text('Раздача обновлена')),
                                     );
                                   }
 

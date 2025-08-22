@@ -7,7 +7,7 @@ import '../core/training/generation/yaml_reader.dart';
 import '../models/v2/training_pack_template_v2.dart';
 
 class PackLibraryDuplicateCleaner {
-  const PackLibraryDuplicateCleaner();
+  PackLibraryDuplicateCleaner();
 
   Future<int> clean(String directoryPath) async {
     final dir = Directory(directoryPath);

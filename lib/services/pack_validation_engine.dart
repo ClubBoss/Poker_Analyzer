@@ -4,7 +4,7 @@ import '../models/v2/training_pack_spot.dart';
 import '../models/v2/hero_position.dart';
 
 class PackValidationEngine {
-  const PackValidationEngine();
+  PackValidationEngine();
 
   YamlPackValidationReport validate(TrainingPackTemplateV2 pack) {
     final errors = <String>[];

@@ -5,7 +5,7 @@ import 'theory_pack_review_status_engine.dart';
 
 /// Links booster theory packs to a given theory module.
 class TheoryBoosterPackLinker {
-  const TheoryBoosterPackLinker();
+  TheoryBoosterPackLinker();
 
   /// Returns up to 3 booster pack ids relevant to [theoryPack].
   List<String> autoLinkBoosters(

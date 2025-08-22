@@ -4,7 +4,7 @@ import 'learning_path_stage_ui_status_engine.dart';
 
 /// Determines if a stage within a learning path is unlocked.
 class LearningPathStageUnlockEngine {
-  const LearningPathStageUnlockEngine();
+  LearningPathStageUnlockEngine();
 
   /// Returns `true` if [stageId] is unlocked given the set of
   /// [completedStageIds].

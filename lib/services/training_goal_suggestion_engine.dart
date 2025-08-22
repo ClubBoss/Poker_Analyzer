@@ -4,7 +4,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import 'smart_pack_recommendation_engine.dart';
 
 class TrainingGoalSuggestionEngine {
-  const TrainingGoalSuggestionEngine();
+  TrainingGoalSuggestionEngine();
 
   List<TrainingGoal> suggest(
     UserProfile user,
@@ -31,7 +31,7 @@ class TrainingGoalSuggestionEngine {
       goals.add(const TrainingGoal('🔁 Повтори паки с ошибками'));
     }
     goals.add(
-      const TrainingGoal(
+      TrainingGoal(
         '🔥 Заверши 1 тренировку каждый день в течение 3 дней',
       ),
     );

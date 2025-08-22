@@ -12,7 +12,7 @@ class AutoDeduplicationReport {
   final List<PackSimilarityResult> duplicates;
   final Map<String, List<String>> mergeSuggestions;
 
-  const AutoDeduplicationReport({
+  AutoDeduplicationReport({
     required this.duplicates,
     required this.mergeSuggestions,
   });

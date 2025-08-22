@@ -6,7 +6,7 @@ class SkillTagCluster {
   final String clusterId;
   final String themeName;
 
-  const SkillTagCluster({
+  SkillTagCluster({
     required this.tags,
     required this.clusterId,
     required this.themeName,
@@ -25,7 +25,7 @@ class AutoSkillGapClusterer {
   /// Optional mapping from tag -> human friendly theme name.
   final Map<String, String> themeMap;
 
-  const AutoSkillGapClusterer({
+  AutoSkillGapClusterer({
     this.linkPercentage = 0.5,
     this.maxClusterSize = 5,
     this.themeMap = const {},

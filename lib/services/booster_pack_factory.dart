@@ -9,7 +9,7 @@ import 'training_spot_library.dart';
 
 /// Builds ad-hoc booster packs from existing spots filtered by tags.
 class BoosterPackFactory {
-  const BoosterPackFactory();
+  BoosterPackFactory();
 
   /// Returns a training pack containing spots matching [tags].
   /// The result may be `null` if no suitable spots are found.

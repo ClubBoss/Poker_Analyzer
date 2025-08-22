@@ -1,7 +1,7 @@
 import '../models/card_model.dart';
 
 class BoardTextureFilterService {
-  const BoardTextureFilterService();
+  BoardTextureFilterService();
 
   bool filter(List<String> board, List<String> filters) {
     if (filters.isEmpty) return true;

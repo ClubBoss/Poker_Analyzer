@@ -6,7 +6,7 @@ import 'recall_tag_decay_summary_service.dart';
 class DecayStreakTrackerService {
   final RecallTagDecaySummaryService summary;
 
-  const DecayStreakTrackerService({RecallTagDecaySummaryService? summary})
+  DecayStreakTrackerService({RecallTagDecaySummaryService? summary})
     : summary = summary ?? const RecallTagDecaySummaryService();
 
   static const String _countKey = 'decay_streak_count';

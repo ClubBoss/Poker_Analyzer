@@ -3,7 +3,7 @@ import '../models/v2/training_pack_template_v2.dart';
 import '../models/v2/hero_position.dart';
 
 class TrainingPackTemplateValidator {
-  const TrainingPackTemplateValidator();
+  TrainingPackTemplateValidator();
 
   List<ValidationIssue> validate(TrainingPackTemplateV2 pack) {
     final issues = <ValidationIssue>[];

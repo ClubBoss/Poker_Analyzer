@@ -16,7 +16,7 @@ class TheoryClusterCacheService {
 
   static const _keyPrefix = 'theory_cluster_';
   final TheoryLessonClusterSerializer _serializer =
-      const TheoryLessonClusterSerializer();
+      TheoryLessonClusterSerializer();
 
   /// Persists [cluster] to local storage.
   Future<void> saveCluster(TheoryLessonCluster cluster) async {

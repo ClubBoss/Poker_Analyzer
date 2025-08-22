@@ -6,7 +6,7 @@ class TheoryLessonReachabilityResult {
   final List<String> unreachableIds;
   final List<String> cycleIds;
 
-  const TheoryLessonReachabilityResult({
+  TheoryLessonReachabilityResult({
     this.orphanIds = const [],
     this.unreachableIds = const [],
     this.cycleIds = const [],
@@ -17,7 +17,7 @@ class TheoryLessonReachabilityResult {
 class TheoryLessonReachabilityValidator {
   final MiniLessonLibraryService library;
 
-  const TheoryLessonReachabilityValidator({MiniLessonLibraryService? library})
+  TheoryLessonReachabilityValidator({MiniLessonLibraryService? library})
     : library = library ?? MiniLessonLibraryService.instance;
 
   /// Analyzes the mini lesson graph and returns [TheoryLessonReachabilityResult].

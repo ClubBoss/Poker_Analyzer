@@ -8,7 +8,7 @@ class BoosterSimilarityPruner {
   final BoosterSimilarityEngine _engine;
   final double _threshold;
 
-  const BoosterSimilarityPruner({
+  BoosterSimilarityPruner({
     BoosterSimilarityEngine? engine,
     double threshold = 0.85,
   }) : _engine = engine ?? const BoosterSimilarityEngine(),

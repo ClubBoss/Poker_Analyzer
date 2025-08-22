@@ -22,7 +22,7 @@ import '../widgets/unlock_progress_dialog.dart';
 
 /// Helper to start a training session from a pack template.
 class TrainingSessionLauncher {
-  const TrainingSessionLauncher();
+  TrainingSessionLauncher();
 
   /// Launches a training session for [template]. If the pack only contains
   /// theory spots, shows [TheoryPackPreviewScreen] first.

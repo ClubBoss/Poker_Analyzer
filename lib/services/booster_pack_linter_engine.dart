@@ -3,7 +3,7 @@ import '../models/v2/hero_position.dart';
 
 /// Lints booster packs and returns list of formatted error messages.
 class BoosterPackLinterEngine {
-  const BoosterPackLinterEngine();
+  BoosterPackLinterEngine();
 
   /// Returns list of errors in "- [id] Ошибка: ..." format.
   List<String> lint(TrainingPackTemplateV2 pack) {

@@ -3,7 +3,7 @@ import '../models/v2/training_pack_spot.dart';
 import '../models/v2/hero_position.dart';
 
 class YamlPackRefactorEngine {
-  const YamlPackRefactorEngine();
+  YamlPackRefactorEngine();
 
   TrainingPackTemplateV2 refactor(TrainingPackTemplateV2 pack) {
     pack.goal = _cleanText(pack.goal);

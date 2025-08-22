@@ -2,7 +2,7 @@ import '../models/unlock_condition.dart';
 
 /// Evaluates [UnlockCondition]s based on provided progress and accuracy data.
 class UnlockConditionEvaluator {
-  const UnlockConditionEvaluator();
+  UnlockConditionEvaluator();
 
   /// Returns `true` if [condition] is satisfied given [progress] and [accuracy].
   bool isUnlocked(

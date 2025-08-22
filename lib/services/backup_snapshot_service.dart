@@ -101,16 +101,16 @@ class BackupSnapshotService {
       if (!await dir.exists()) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No snapshot files found')),
+            SnackBar(content: Text('No snapshot files found')),
           );
         }
         return;
       }
-      final files = await dir.list(recursive: true).whereType<File>().toList();
+      final files = await dir.list(recursive: true).where((e) => e is File).cast<File>().toList();
       if (files.isEmpty) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No snapshot files found')),
+            SnackBar(content: Text('No snapshot files found')),
           );
         }
         return;
@@ -141,7 +141,7 @@ class BackupSnapshotService {
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to export snapshots')),
+          SnackBar(content: Text('Failed to export snapshots')),
         );
       }
     }
@@ -153,7 +153,7 @@ class BackupSnapshotService {
       if (!await dir.exists()) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No snapshot files found')),
+            SnackBar(content: Text('No snapshot files found')),
           );
         }
         return;
@@ -191,7 +191,7 @@ class BackupSnapshotService {
     } catch (_) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to import snapshot')),
+          SnackBar(content: Text('Failed to import snapshot')),
         );
       }
     }
@@ -256,7 +256,7 @@ class BackupSnapshotService {
     if (!await dir.exists()) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No snapshot files found')),
+          SnackBar(content: Text('No snapshot files found')),
         );
       }
       return;

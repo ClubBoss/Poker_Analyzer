@@ -11,7 +11,7 @@ class BoosterPackDiffReport {
   final int uniqueHandCount;
   final int uniqueBoardCount;
 
-  const BoosterPackDiffReport({
+  BoosterPackDiffReport({
     this.unchangedCount = 0,
     this.addedCount = 0,
     this.removedCount = 0,
@@ -41,7 +41,7 @@ class BoosterPackDiffReport {
 }
 
 class BoosterPackDiffReporter {
-  const BoosterPackDiffReporter();
+  BoosterPackDiffReporter();
 
   BoosterPackDiffReport compare(
     TrainingPackTemplateV2 oldPack,
