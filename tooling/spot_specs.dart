@@ -24,6 +24,14 @@ enum SpotKind {
   l4_icm_sb_jam_vs_fold,
   l4_icm_bb_jam_vs_fold,
   l1_core_call_vs_price,
+  l2_core_rules_check,
+  l2_core_actions,
+  l2_core_min_raise,
+  l2_core_allin_reopen,
+  l2_core_showdown,
+  l2_core_out_of_turn,
+  l2_core_string_bet,
+  l2_core_round_end,
 }
 
 const Set<String> kSpotKindUniverse = {
@@ -52,6 +60,14 @@ const Set<String> kSpotKindUniverse = {
   'l4_icm_sb_jam_vs_fold',
   'l4_icm_bb_jam_vs_fold',
   'l1_core_call_vs_price',
+  'l2_core_rules_check',
+  'l2_core_actions',
+  'l2_core_min_raise',
+  'l2_core_allin_reopen',
+  'l2_core_showdown',
+  'l2_core_out_of_turn',
+  'l2_core_string_bet',
+  'l2_core_round_end',
 };
 
 bool isValidSpotKind(String s) => kSpotKindUniverse.contains(s);
