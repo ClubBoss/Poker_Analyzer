@@ -1,53 +1,56 @@
-# Style Guide for Content Generation — Single‑Module Mode (v3)
+# Poker Analyzer — Content Style Guide
 
-Batch mode is deprecated. Every prompt targets **one module** and includes `MODULE SPECIFICS` and `VICTORY CONDITIONS`.
+GOALS
+- Produce consistent, mobile-first training content that passes automated audits.
+- Keep language simple. Define every new term in a Mini-glossary.
 
----
+GLOBAL RULES
+- ASCII-only. Straight quotes. Use "-" not en/em dashes. No hyperlinks or tables.
+- Paths: content/<module_id>/v1/...
+- IDs: "<module_id>:demo:NN" and "<module_id>:drill:NN". NN is zero-padded 2-digit.
+- JSONL: one JSON object per line. No trailing commas. Valid UTF-8 ASCII subset.
 
-## Global Rules
-- Audience and tone tailored per module.
-- Theory.md: 450–550 words with mandatory sections.
-- Demos: 2–3 items, steps single‑line.
-- Drills: 12–16 items, rationale <= 1 line.
-- ASCII‑only; no smart quotes/dashes; use plain quotes and "-".
-- JSONL: line‑delimited; unique IDs (<moduleId>:demo:NN, <moduleId>:drill:NN).
+THEORY.MD
+- 450-550 words total.
+- Required sections:
+  1) What it is — 2-3 lines
+  2) Why it matters — 2-3 lines
+  3) Rules of thumb — 3-5 bullets, each with a short "why"
+  4) Mini example — 3-5 lines; must be rules-legal
+  5) Common mistakes — 3 bullets; each explains why it is a mistake AND why players make it
+  6) Mini-glossary — include only if new terms appear (2-4 entries, one line each)
+  7) Contrast line — Core modules only; one sentence contrasting with adjacent module
+- Legality constraints for Mini example:
+  - Action order correct; folded players never act later.
+  - Pot size increases monotonically when bets occur; hand ends logically.
+  - Showdown consistency with river action.
 
-## Mandatory Sections in Theory.md
-1) What it is — define simply.  
-2) Why it matters — connect to win rate/EV.  
-3) Rules of thumb — 3–5 bullets, each with a short **why**.  
-4) Mini example — concrete, minimal math, readable on mobile.  
-5) Common mistakes — exactly 3 bullets. For each provide:
-   - **Why this is a mistake** (mechanics/EV/coverage),
-   - **Why players make it** (habit, bias, misread).
-6) Mini‑glossary (conditional) — 2–4 entries if new terms appear.  
-7) Contrast line (Core only) — one sentence that distinguishes this module from the adjacent one.
+DEMOS.JSONL
+- 2-3 demo items.
+- Each item: "id", "title", "steps"[], optional "hints"[] if schema allows.
+- Each step is <= 1 line of text.
 
-## MODULE SPECIFICS (required)
-Include a block named `MODULE SPECIFICS` in every prompt with 5–7 bullets:
-- Emphasis (math depth, exploit vs GTO, live vs online).
-- Constraints (positions, stacks, bet sizes, board types).
-- Example guidance (what hands/boards to use).
-- Pitfalls to spotlight.
+DRILLS.JSONL
+- 12-16 drills.
+- Each item: "id", "spotKind", "params"{...}, "target"[], "rationale".
+- "rationale" is <= 1 line.
+- Include mandatory edge-case drills:
+  - Short all-in (< min-raise) and whether it reopens betting.
+  - River show order with a river bet (bettor shows first).
+  - River show order with no river bet (first active seat left of BTN shows first).
+  - Out-of-turn and string bet identification.
 
-## VICTORY CONDITIONS (required)
-At the end of every prompt, include a checklist that must be satisfied in the output:
-- Theory.md contains all required sections.  
-- Demos.jsonl and drills.jsonl counts and formats match spec, IDs unique.  
-- For Math modules: a one‑line **sanity check** validates the formula in the example.  
-- For HU/Live modules: include a **population exploit hook** line in drills.  
-- ASCII‑only; passes `content_audit.dart` and smoke tests.
+RULES AND FORMULAS
+- Min-raise rule: new_total - current_bet >= last_raise_size.
+- Showdown defaults:
+  - If there was a river bet and call: bettor shows first, then caller.
+  - If no river bet: first active seat left of BTN shows first.
+- Opensize guidance: write "typical online open size is 2-3bb at 100bb", not a universal rule.
 
-## Examples
-### Core fundamentals
-- Audience: beginner‑friendly; tone: coach‑like, structured
-- Emphasis: practical rules and common leaks
-- Must include a contrast line to adjacent core modules
+SPOTKIND DISCIPLINE
+- Use ONLY SpotKind values from the SSOT list.
+- Do NOT invent new kinds in content. If a new kind is needed, first propose a Codex PR to add enum + actions/subtitle maps, then use it in content.
 
-### Math modules
-- Audience: intermediate; tone: precise, didactic
-- Emphasis: step‑by‑step procedures; add a sanity‑check line
-
-### HU/Live modules
-- Audience: practical grinders; tone: concise, actionable
-- Emphasis: real‑table dynamics; add a population‑exploit hook in drills
+QUALITY GATES
+- Content must pass: content_audit.dart and content_audit_smoke_test.dart.
+- No new dependencies, no schema changes via content files.
