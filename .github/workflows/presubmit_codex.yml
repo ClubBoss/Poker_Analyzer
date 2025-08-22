@@ -23,6 +23,11 @@ jobs:
         with:
           channel: stable
           cache: true
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
         with:
           fetch-depth: 0
           persist-credentials: false
