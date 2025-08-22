@@ -4,20 +4,20 @@ on:
   pull_request:
     branches: [ main ]
     paths:
-      - 'lib/services/**'
-      - 'lib/l3/**'
-      - 'tool/l3/**'
+      - 'lib/**'
+      - 'tool/**'
       - 'test/l3_cli_runner_weights_parse_test.dart'
       - 'test/fixtures/l3/weights/**'
+      - 'test/smoke/**'
       - '.github/workflows/l3-contract.yml'
   push:
     branches: [ main ]
     paths:
-      - 'lib/services/**'
-      - 'lib/l3/**'
-      - 'tool/l3/**'
+      - 'lib/**'
+      - 'tool/**'
       - 'test/l3_cli_runner_weights_parse_test.dart'
       - 'test/fixtures/l3/weights/**'
+      - 'test/smoke/**'
       - '.github/workflows/l3-contract.yml'
 
 jobs:
@@ -30,7 +30,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: '3.27.0'
+          flutter-version: '3.35.1'  # Dart 3.9.x
           cache: true
 
       - run: flutter --version
@@ -41,13 +41,17 @@ jobs:
         with:
           path: ~/.pub-cache
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
+          restore-keys: ${{ runner.os }}-pub-
 
       - run: flutter pub get
 
       - name: Precommit sanity
         run: bash tool/dev/precommit_sanity.sh
 
+      # Контрактный тест (pure-Dart)
       - name: Run contract tests
-        run: dart test test/l3_cli_runner_weights_parse_test.dart
+        run: dart test test/l3_cli_runner_weights_parse_test.dart -r expanded
+
+      # Flutter smoke отдельно через flutter test
+      - name: Run Flutter smoke tests
+        run: flutter test test/smoke/win_overlays_smoke_test.dart -r expanded

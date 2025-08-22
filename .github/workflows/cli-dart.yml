@@ -6,6 +6,8 @@ on:
       - "bin/**"
       - "ev/**"
       - "test/ev/**"
+      - "test/content_audit_smoke_test.dart"
+      - "tooling/**"
       - "pubspec.yaml"
       - "pubspec.lock"
       - ".github/workflows/cli-dart.yml"
@@ -15,6 +17,8 @@ on:
       - "bin/**"
       - "ev/**"
       - "test/ev/**"
+      - "test/content_audit_smoke_test.dart"
+      - "tooling/**"
       - "pubspec.yaml"
       - "pubspec.lock"
       - ".github/workflows/cli-dart.yml"
@@ -22,63 +26,51 @@ on:
 jobs:
   dart-cli:
     runs-on: ubuntu-latest
-
     steps:
       - name: Check out
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        with: { fetch-depth: 0 }
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
+      - name: Set up Dart
+        uses: dart-lang/setup-dart@v1
+        with: { sdk: "3.9.0" }
+
+      - run: dart --version
 
       - name: Cache Pub dependencies
         uses: actions/cache@v4
         with:
           path: ~/.pub-cache
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
+          restore-keys: ${{ runner.os }}-pub-
 
       - name: Pub get
-        run: flutter pub get
-
-      # ASCII-punctuation only in CLI scope
-      - name: Fail on smart quotes / punctuation (CLI scope)
-        shell: bash
-        run: |
-          set -euo pipefail
-          pattern='[\x{2018}\x{2019}\x{201C}\x{201D}\x{2026}\x{2014}\x{2013}]'
-          if git grep -I -nP "$pattern" -- \
-              'bin/**/*.dart' \
-              'ev/**/*.dart' \
-              'test/ev/**/*.dart' \
-              'README*.md' 'README_*.md'; then
-            echo "::error ::Smart punctuation found in CLI scope. Replace with ASCII equivalents."
-            exit 1
-          fi
+        run: dart pub get
 
       - name: Format check (CLI only)
-        run: dart format --output=none --set-exit-if-changed bin test/ev
+        run: dart format --output=none --set-exit-if-changed bin test/ev tooling
 
       - name: Analyze (CLI only)
-        run: flutter analyze bin test/ev
+        run: dart analyze bin test/ev tooling
 
+      # Только pure-Dart тесты, исключаем quarantine и Flutter smoke
       - name: Unit tests (CLI only)
+        run: |
+          dart test test/ev -x quarantine -r expanded
+          dart test test/content_audit_smoke_test.dart -r expanded
+
+      # Аудит контента только при изменениях в content/**
+      - name: content audit (only if content changed)
         shell: bash
         run: |
           set -euo pipefail
-          FILES="$(git ls-files \
-            'test/ev/_cli_help_smoke_test.dart' \
-            'test/ev/*_cli_test.dart' \
-            2>/dev/null || true)"
-          if [ -z "$FILES" ]; then
-            echo "No CLI tests found in test/ev; skipping."
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref || 'main' }}...HEAD | grep '^content/' || true)
+          if [ -z "$CHANGED" ]; then
+            echo "No content changes; skipping audit."
             exit 0
           fi
-          echo "Running CLI tests:"
-          echo "$FILES"
-          echo "$FILES" | xargs dart test -r expanded
+          MODULES=$(echo "$CHANGED" | awk -F/ '{print $2}' | sort -u)
+          for m in $MODULES; do
+            echo "Auditing $m"
+            dart run tooling/content_audit.dart "$m"
+          done

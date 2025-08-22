@@ -38,7 +38,7 @@ class _WinnerZoneHighlightState extends State<WinnerZoneHighlight>
         ).chain(CurveTween(curve: Curves.easeInOut)),
         weight: 20,
       ),
-      const TweenSequenceItem(tween: ConstantTween(1.0), weight: 60),
+      TweenSequenceItem(tween: ConstantTween<double>(1.0), weight: 60),
       TweenSequenceItem(
         tween: Tween(
           begin: 1.0,

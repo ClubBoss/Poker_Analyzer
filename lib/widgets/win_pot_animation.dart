@@ -51,7 +51,7 @@ class _WinPotAnimationState extends State<WinPotAnimation>
         ).chain(CurveTween(curve: Curves.easeIn)),
         weight: 30,
       ),
-      const TweenSequenceItem(tween: ConstantTween(1.0), weight: 40),
+      TweenSequenceItem(tween: ConstantTween<double>(1.0), weight: 40),
       TweenSequenceItem(
         tween: Tween(
           begin: 1.0,
