@@ -13,18 +13,6 @@ jobs:
     continue-on-error: true  # non-blocking
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
