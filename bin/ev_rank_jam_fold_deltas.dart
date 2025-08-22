@@ -1,10 +1,9 @@
-Полный файл для `bin/ev_rank_jam_fold_deltas.dart` с корректным `--help` и пустыми аргументами (stdout + exitCode = 0):
-
-```dart
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:poker_analyzer/services/board_texture_classifier.dart';
+// Deferred to avoid loading on --help path
+import 'package:poker_analyzer/services/board_texture_classifier.dart'
+    deferred as btc;
 
 const _USAGE = r'''
 Usage:
@@ -46,12 +45,12 @@ OUTPUT:
   --fields a,b,c                    # for jsonl/csv only
 
 Notes:
-  • Sorting is deterministic: (delta or |delta|) desc, then path asc, then spotIndex asc.
-  • Path + hand globs are case-sensitive. Quote patterns in shells:
-      - bash/zsh:       --include-hand '* *'
-      - PowerShell:     --include-hand '* *'
-      - cmd.exe:        --include-hand "* *"
-  • If you see: Unknown or incomplete argument: A*s → wrap the pattern in quotes.
+  - Sorting is deterministic: (delta or |delta|) desc, then path asc, then spotIndex asc.
+  - Path and hand globs are case-sensitive. Quote patterns in shells:
+      - bash/zsh:   --include-hand '* *'
+      - PowerShell: --include-hand '* *'
+      - cmd.exe:    --include-hand "* *"
+  - If you see: Unknown or incomplete argument: A*s -> wrap the pattern in quotes.
 
 Examples:
   dart run bin/ev_rank_jam_fold_deltas.dart --dir reports/ --limit 10
@@ -62,7 +61,7 @@ Examples:
 ''';
 
 Future<void> main(List<String> args) async {
-  // Early help / no-args path: print usage to STDOUT and exitCode=0
+  // Help / no-args -> OK
   if (args.isEmpty || args.contains('--help') || args.contains('-h')) {
     stdout.writeln(_USAGE);
     exitCode = 0;
@@ -303,9 +302,12 @@ Future<void> main(List<String> args) async {
     return;
   }
 
+  // Load the classifier lazily to keep --help path lightweight
+  await btc.loadLibrary();
+  final classifier = btc.BoardTextureClassifier();
+
   final root = Directory.current.path;
   final spots = <Map<String, dynamic>>[];
-  final classifier = const BoardTextureClassifier();
 
   Future<void> handle(String path) async {
     final content = await File(path).readAsString();
@@ -616,4 +618,3 @@ String _csvCell(Object? value) {
   }
   return s;
 }
-```
