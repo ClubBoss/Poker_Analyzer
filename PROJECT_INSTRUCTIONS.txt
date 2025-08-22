@@ -1,28 +1,43 @@
-# Project Instructions — Poker Analyzer
+# Poker Analyzer — Project Instructions
 
-1. **SSOT for curriculum** is CURRICULUM_STRUCTURE.md (v3.1).  
-2. All generation flows (Research, Zip, Codex) must use this file as the single source of truth.  
+## Workflow Phases
 
-3. **Flow**
-- Core is mandatory.  
-- After Core → branch into Cash or MTT.  
-- Heads-Up (HU) is a separate optional path.  
-- Math is a separate optional path.  
-- Live/Online/Cross modules are side-branches.  
+1. Skeleton Phase
+   - Driven by Codex.
+   - Goal: create minimal loaders for all modules.
+   - Completion is verified by automated tests + CLI audit.
 
-4. **Style Rules**
-- Research must adapt STYLE OVERRIDE per batch.  
-- Use simple language, explain every term (no jargon without definition).  
-- Always include “why it matters” and “why this mistake is common” in bullets.  
-- Distinguish Live vs Online dynamics where relevant.  
-- Math path: gradual, beginner-friendly, step-by-step.  
+2. Content Phase
+   - Driven by Research.
+   - **Single-module mode only.**
+   - Process:
+     * For each module in SSOT order, generate 3 files:
+       - theory.md (450–550 words)
+       - demos.jsonl (2–3 items)
+       - drills.jsonl (12–16 items)
+     * Style override must be tailored per module.
+     * Validate with `dart run tooling/content_audit.dart`.
 
-5. **Quality Gates**
-- ASCII-only (7-bit).  
-- JSONL strictly valid, unique IDs.  
-- Run `dart run tooling/content_audit.dart` locally; deliver only if all checks = OK.  
+3. Integration Phase
+   - Driven by ZIP chat.
+   - Research outputs are zipped and integrated into the repo.
+   - Pipeline:
+     ZIPFILE=$(ls -t batch*.zip | head -n1)
+     rm -rf content
+     unzip -o "$ZIPFILE" -d .
+     dart format .
+     dart analyze
+     dart test test/content_audit_smoke_test.dart
+     dart run tooling/content_audit.dart
+     dart test
+     git add .
+     git commit -m "Add content batch"
+     git push
 
-6. **Chats**
-- Research chat: generates content.  
-- Zip chat: packages ZIP, provides pipeline commands.  
-- PM/Advisor chat: tracks roadmap, status, and next prompts.
+## Rules
+
+- Enum append-only; guard unchanged.
+- CI must stay green.
+- All tests pure-Dart unless Flutter is required.
+- Content files must pass audit and smoke tests.
+- Batching is NOT allowed. One module = one prompt = one set of files.
