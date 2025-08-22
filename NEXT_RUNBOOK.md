@@ -1,4 +1,4 @@
-# NEXT Runbook — Poker Analyzer
+# NEXT Runbook - Poker Analyzer
 
 ## Purpose
 Define how to compute NEXT module for skeleton or content.

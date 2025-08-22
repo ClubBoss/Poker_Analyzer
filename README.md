@@ -1,6 +1,6 @@
 Poker Analyzer
 
-Poker Analyzer — платформа для анализа и обучения принятию решений в покере (Texas Hold’em). Проект фокусируется на корректности и измеримой выгоде (EV-first), автоматизации пайплайна и минимальных диффах при разработке.
+Poker Analyzer - платформа для анализа и обучения принятию решений в покере (Texas Hold'em). Проект фокусируется на корректности и измеримой выгоде (EV-first), автоматизации пайплайна и минимальных диффах при разработке.
 
 What it does
 
@@ -32,13 +32,13 @@ Architecture (high-level)
 +-----------------+    +----------------------+
 
 
-Flutter UI — интерфейс тренажёра и отчётов
+Flutter UI - интерфейс тренажёра и отчётов
 
-Learning Engine — исполнение сценариев и логика обучения
+Learning Engine - исполнение сценариев и логика обучения
 
-Autogen Pipeline — сборка паков/данных, конвертеры
+Autogen Pipeline - сборка паков/данных, конвертеры
 
-Integrity — проверки данных/теории/EV в CI
+Integrity - проверки данных/теории/EV в CI
 
 Install & Run
 
@@ -62,15 +62,15 @@ Release-driven, EV-first. Минимальные диффы (1–2 файла), 
 
 Codex цикл: Prompt → Codex → PR → анализ → следующий Prompt.
 
-PR Template (Quality Footer) — чек-лист дисциплины в каждом PR.
+PR Template (Quality Footer) - чек-лист дисциплины в каждом PR.
 
 CI (PR):
 
-Autoformat — применяет dart format и пушит фикс в PR-ветку;
+Autoformat - применяет dart format и пушит фикс в PR-ветку;
 
-Fast checks — flutter analyze в advisory-режиме (не блокирует merge).
+Fast checks - flutter analyze в advisory-режиме (не блокирует merge).
 
-Enum discipline: SpotKind — append-only; dev-guard ловит переименования/перестановки.
+Enum discipline: SpotKind - append-only; dev-guard ловит переименования/перестановки.
 
 Canonical guard централизован (ровно 1 вызов, контролируется тестом):
 

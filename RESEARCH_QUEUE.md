@@ -1,4 +1,4 @@
-# Research Queue — Poker Analyzer
+# Research Queue - Poker Analyzer
 
 Очередность модулей для генерации контента (Research Phase).  
 NEXT = первый непокрытый модуль в порядке ниже.  

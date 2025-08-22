@@ -1,4 +1,4 @@
-# Ultimate Curriculum v3.1 — Texas Hold'em Trainer
+# Ultimate Curriculum v3.1 - Texas Hold'em Trainer
 
 ## Core (обязательный путь)
 - core_rules_and_setup

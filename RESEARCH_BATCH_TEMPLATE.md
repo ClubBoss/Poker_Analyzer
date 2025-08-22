@@ -8,7 +8,7 @@ You are the Content Generator for Poker Analyzer. Produce three files for a sing
 
 BOUNDARIES
 - ASCII-only. Straight quotes. Use "-" not long dashes. No links, no tables.
-- Normalize any non-ASCII punctuation from this prompt (e.g., “ ” ’ •) to ASCII in your output.
+- Normalize any non-ASCII punctuation from this prompt (e.g., " " ' •) to ASCII in your output.
 - Valid JSONL for demos/drills. Each line is a standalone JSON object.
 - IDs must be unique and follow: "{{MODULE_ID}}:demo:NN" and "{{MODULE_ID}}:drill:NN".
 - Paths must match exactly. No extra commentary in output.
@@ -58,7 +58,7 @@ content/{{MODULE_ID}}/v1/drills.jsonl
 
 INTERNAL QA LOOP
 Do not output files until ALL checks pass. If any check fails, revise silently and re-run.
-- ASCII-only; do not emit “ ” ’ • - normalize to " ' - .
+- ASCII-only; do not emit " " ' • - normalize to " ' - .
 - Theory.md: 450-550 words; sections present; Core has one-sentence contrast line.
 - Mini example legality: action order correct; folded players never act; pots consistent; river/turn end logically; showdown rule consistent.
 - Use POSITIONS (UTG, MP, CO, BTN, SB, BB). Fail if "Seat " appears anywhere.

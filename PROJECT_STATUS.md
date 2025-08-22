@@ -1,4 +1,4 @@
-# Project Status — Poker Analyzer
+# Project Status - Poker Analyzer
 
 ## Current Phase
 - Skeleton phase: ✅ Completed

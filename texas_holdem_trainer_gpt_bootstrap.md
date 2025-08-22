@@ -1,4 +1,4 @@
-# Texas Hold'em Trainer — GPT Bootstrap (v3.1 aligned)
+# Texas Hold'em Trainer - GPT Bootstrap (v3.1 aligned)
 
 ## Purpose
 Bootstrap document to align Codex + Research + UX streams.

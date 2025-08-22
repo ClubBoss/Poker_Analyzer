@@ -16,7 +16,7 @@ Blinds 1/2. UTG opens to 2.5bb (typical online). MP 3-bets to 4.0bb; last raise 
 
 Common mistakes
 - Treating a multi-motion chip dump as a raise; mistake because without a prior verbal amount it is a call only. Players copy loose home-game habits.
-- Assuming any all-in reopens action; mistake because only a legal raise size reopens. Players equate “more chips” with “raise.”
+- Assuming any all-in reopens action; mistake because only a legal raise size reopens. Players equate "more chips" with "raise."
 - Showing out of order; mistake because it gives free information. Players forget the bettor shows first after a river bet; otherwise first active left of BTN shows.
 
 Mini-glossary
@@ -27,4 +27,4 @@ Mini-glossary
 - Showdown order: default who-tables-first rule based on whether there was a river bet.
 
 Contrast line
-This module teaches procedures and legality; the adjacent module “core_positions_and_initiative” focuses on how position and initiative create advantage, not on mechanics.
+This module teaches procedures and legality; the adjacent module "core_positions_and_initiative" focuses on how position and initiative create advantage, not on mechanics.
