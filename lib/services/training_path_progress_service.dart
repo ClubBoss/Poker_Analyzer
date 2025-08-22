@@ -46,8 +46,9 @@ class TrainingPathProgressService {
     final packs = stages[stageId] ?? const <String>[];
     if (packs.isEmpty) return 0.0;
     final prefs = await SharedPreferences.getInstance();
-    final completed =
-        packs.where((id) => prefs.getBool('$_prefsPrefix$id') ?? false).length;
+    final completed = packs
+        .where((id) => prefs.getBool('$_prefsPrefix$id') ?? false)
+        .length;
     return completed / packs.length;
   }
 

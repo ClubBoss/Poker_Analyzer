@@ -21,8 +21,9 @@ class BoosterProgressCard extends StatelessWidget {
           return const SizedBox.shrink();
         }
         final list = snapshot.data!;
-        final maxAbs =
-            list.map((e) => e.value.abs()).reduce((a, b) => a > b ? a : b);
+        final maxAbs = list
+            .map((e) => e.value.abs())
+            .reduce((a, b) => a > b ? a : b);
         Widget row(MapEntry<String, double> e) {
           final color = e.value >= 0 ? Colors.green : Colors.red;
           final icon = e.value >= 0 ? Icons.arrow_upward : Icons.arrow_downward;

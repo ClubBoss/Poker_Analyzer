@@ -16,10 +16,10 @@ class PlayerEditingService {
     required StackManagerService stackService,
     required PlaybackManagerService playbackManager,
     required PlayerProfileService profile,
-  })  : _playerManager = playerManager,
-        _stackService = stackService,
-        _playbackManager = playbackManager,
-        _profile = profile;
+  }) : _playerManager = playerManager,
+       _stackService = stackService,
+       _playbackManager = playbackManager,
+       _profile = profile;
 
   final PlayerManagerService _playerManager;
   final StackManagerService _stackService;

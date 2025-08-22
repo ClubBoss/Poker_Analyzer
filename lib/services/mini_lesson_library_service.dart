@@ -38,8 +38,8 @@ class MiniLessonLibraryService {
   /// Suggests the next lesson that has not been completed yet.
   Future<TheoryMiniLessonNode?> getNextLesson() async {
     await loadAll();
-    final completions =
-        await TheoryLessonCompletionLogger.instance.getCompletions();
+    final completions = await TheoryLessonCompletionLogger.instance
+        .getCompletions();
     final completedIds = completions.map((e) => e.lessonId).toSet();
     for (final lesson in _lessons) {
       if (!completedIds.contains(lesson.id)) return lesson;
@@ -124,8 +124,8 @@ extension MiniLessonLibraryProgress on MiniLessonLibraryService {
 
   Future<int> getCompletedLessonCount() async {
     await loadAll();
-    final completed =
-        await TheoryLessonCompletionLogger.instance.getCompletedLessons();
+    final completed = await TheoryLessonCompletionLogger.instance
+        .getCompletedLessons();
     return completed.keys.where((id) => getById(id) != null).length;
   }
 }

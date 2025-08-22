@@ -273,8 +273,9 @@ class _RecommendedCarouselState extends State<_RecommendedCarousel> {
     final service = context.read<AdaptiveTrainingService>();
     await service.refresh();
     final list = service.recommended.toList();
-    final weak =
-        await context.read<WeakSpotRecommendationService>().buildPack();
+    final weak = await context
+        .read<WeakSpotRecommendationService>()
+        .buildPack();
     if (weak != null) list.insert(0, weak);
     final sr = await context.read<SpacedReviewService>().duePack(log: false);
     if (sr != null) list.insert(0, sr);
@@ -285,7 +286,8 @@ class _RecommendedCarouselState extends State<_RecommendedCarousel> {
     final delta = <String, double?>{};
     final adjusted = <TrainingPackTemplate>[];
     for (final t in list) {
-      stats[t.id] = service.statFor(t.id) ??
+      stats[t.id] =
+          service.statFor(t.id) ??
           await TrainingPackStatsService.getStats(t.id);
       final hist = await TrainingPackStatsService.history(t.id);
       if (hist.length >= 2) {
@@ -426,14 +428,14 @@ class _PackCard extends StatelessWidget {
     final label = completed
         ? 'Пройдено'
         : progress > 0
-            ? 'Продолжить'
-            : 'Начать';
+        ? 'Продолжить'
+        : 'Начать';
     final color = completed ? Colors.green : Colors.orange;
     final spotlight =
         context.watch<DailySpotlightService>().template?.id == template.id;
     final hasMistakes = context.read<MistakeReviewPackService>().hasMistakes(
-          template.id,
-        );
+      template.id,
+    );
     final ev = stat?.postEvPct ?? 0;
     final icm = stat?.postIcmPct ?? 0;
     final rating = ((stat?.accuracy ?? 0) * 5).clamp(1, 5).round();
@@ -524,8 +526,8 @@ class _PackCard extends StatelessWidget {
                       await context.read<SpacedReviewService>().logDueOpened();
                     }
                     await context.read<TrainingSessionService>().startSession(
-                          template,
-                        );
+                      template,
+                    );
                     if (context.mounted) {
                       await Navigator.push(
                         context,
@@ -551,8 +553,8 @@ class _PackCard extends StatelessWidget {
                     .review(context, template.id);
                 if (review != null && context.mounted) {
                   await context.read<TrainingSessionService>().startSession(
-                        review,
-                      );
+                    review,
+                  );
                   if (context.mounted) {
                     await Navigator.push(
                       context,

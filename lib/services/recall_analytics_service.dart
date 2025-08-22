@@ -19,13 +19,13 @@ class RecallEvent {
   });
 
   Map<String, dynamic> toJson() => {
-        'trigger': trigger,
-        if (lessonId != null) 'lessonId': lessonId,
-        if (tags != null && tags!.isNotEmpty) 'tags': tags,
-        'action': action,
-        'timestamp': timestamp.toIso8601String(),
-        if (viewDuration != null) 'viewDuration': viewDuration!.inMilliseconds,
-      };
+    'trigger': trigger,
+    if (lessonId != null) 'lessonId': lessonId,
+    if (tags != null && tags!.isNotEmpty) 'tags': tags,
+    'action': action,
+    'timestamp': timestamp.toIso8601String(),
+    if (viewDuration != null) 'viewDuration': viewDuration!.inMilliseconds,
+  };
 }
 
 class RecallAnalyticsService extends ChangeNotifier {

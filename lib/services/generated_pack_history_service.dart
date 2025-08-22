@@ -47,11 +47,11 @@ class GeneratedPackInfo {
   });
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'type': type,
-        'ts': ts.toIso8601String(),
-      };
+    'id': id,
+    'name': name,
+    'type': type,
+    'ts': ts.toIso8601String(),
+  };
 
   factory GeneratedPackInfo.fromJson(Map<String, dynamic> j) =>
       GeneratedPackInfo(

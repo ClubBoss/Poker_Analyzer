@@ -24,17 +24,17 @@ class TrainingPackProgressService {
       _cache[packId] = null;
       return null;
     }
-    final total =
-        template.spots.isNotEmpty ? template.spots.length : template.spotCount;
+    final total = template.spots.isNotEmpty
+        ? template.spots.length
+        : template.spotCount;
     if (total <= 0) {
       _cache[packId] = null;
       return null;
     }
     final completed =
         (await TrainingProgressTrackerService.instance.getCompletedSpotIds(
-      packId,
-    ))
-            .length;
+          packId,
+        )).length;
     final stats = TrainingPackProgressStats(
       completedCount: completed,
       totalCount: total,

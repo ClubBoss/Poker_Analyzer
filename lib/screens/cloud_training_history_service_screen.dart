@@ -189,8 +189,8 @@ class _CloudTrainingHistoryScreenState
                       },
                     );
                     if (confirm == true) {
-                      final service =
-                          context.read<CloudTrainingHistoryService>();
+                      final service = context
+                          .read<CloudTrainingHistoryService>();
                       await service.deleteSession(entry.path);
                       if (mounted) {
                         setState(() => _sessions.removeAt(index));

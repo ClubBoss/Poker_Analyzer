@@ -38,14 +38,15 @@ class LearningPathEngine {
     TrainingPathProgressServiceV2? progress,
     LearningPathLevelOneBuilderService? levelOneBuilder,
     LearningPathAutoExpander? autoExpander,
-  })  : orchestrator = orchestrator ?? LearningPathGraphOrchestrator(),
-        progress = progress ??
-            TrainingPathProgressServiceV2(
-              logs: SessionLogService(sessions: TrainingSessionService()),
-            ),
-        levelOneBuilder =
-            levelOneBuilder ?? const LearningPathLevelOneBuilderService(),
-        autoExpander = autoExpander ?? const LearningPathAutoExpander();
+  }) : orchestrator = orchestrator ?? LearningPathGraphOrchestrator(),
+       progress =
+           progress ??
+           TrainingPathProgressServiceV2(
+             logs: SessionLogService(sessions: TrainingSessionService()),
+           ),
+       levelOneBuilder =
+           levelOneBuilder ?? const LearningPathLevelOneBuilderService(),
+       autoExpander = autoExpander ?? const LearningPathAutoExpander();
 
   static final LearningPathEngine instance = LearningPathEngine();
 

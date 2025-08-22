@@ -25,8 +25,7 @@ class _FakeSuppression extends TheoryRecapSuppressionEngine {
   Future<bool> shouldSuppress({
     required String lessonId,
     required String trigger,
-  }) async =>
-      value;
+  }) async => value;
 }
 
 class _FakeFatigue extends RecapFatigueEvaluator {
@@ -49,8 +48,7 @@ class _FakeBoosterEngine extends TheoryBoosterSuggestionEngine {
   @override
   Future<List<TheoryMiniLessonNode>> suggestBoosters({
     int maxCount = 3,
-  }) async =>
-      boosters;
+  }) async => boosters;
 }
 
 void main() {

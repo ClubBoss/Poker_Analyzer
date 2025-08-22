@@ -52,18 +52,17 @@ class _PassGatekeeper extends PackQualityGatekeeperService {
     pack, {
     double minScore = 0.7,
     seedIssues = const {},
-  }) =>
-      true;
+  }) => true;
 }
 
 class _FailingExecutor extends AdaptivePlanExecutor {
   _FailingExecutor({required LearningPathStore store})
-      : super(
-          boosterEngine: _FakeBoosterEngine(),
-          formatSelector: _FakeFormatSelector(),
-          gatekeeper: const _PassGatekeeper(),
-          store: store,
-        );
+    : super(
+        boosterEngine: _FakeBoosterEngine(),
+        formatSelector: _FakeFormatSelector(),
+        gatekeeper: const _PassGatekeeper(),
+        store: store,
+      );
 
   @override
   Future<List<InjectedPathModule>> execute({
@@ -89,12 +88,9 @@ void main() {
 
   test('rollback removes partial modules and retry succeeds', () async {
     const user = 'u1';
-    await UserSkillModelService.instance.recordAttempt(
-        user,
-        [
-          'tag',
-        ],
-        correct: false);
+    await UserSkillModelService.instance.recordAttempt(user, [
+      'tag',
+    ], correct: false);
     final tempDir = await Directory.systemTemp.createTemp('rollback');
     final store = LearningPathStore(rootDir: tempDir.path);
     final failingExec = _FailingExecutor(store: store);

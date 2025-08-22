@@ -6,14 +6,11 @@ final _repoRoot = Directory.current.path;
 String get _dartExe => Platform.resolvedExecutable;
 
 Future<ProcessResult> _run(List<String> args) {
-  return Process.run(
-      _dartExe,
-      [
-        'run',
-        'bin/ev_rank_jam_fold_deltas.dart',
-        ...args,
-      ],
-      workingDirectory: _repoRoot);
+  return Process.run(_dartExe, [
+    'run',
+    'bin/ev_rank_jam_fold_deltas.dart',
+    ...args,
+  ], workingDirectory: _repoRoot);
 }
 
 void main() {

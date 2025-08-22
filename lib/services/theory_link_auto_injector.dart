@@ -31,16 +31,16 @@ class TheoryLinkAutoInjector {
     TrainingPackLibraryV2? packLibrary,
     DecayTagRetentionTrackerService? retention,
     this.saveStrategy = TheoryLinkSaveStrategy.inMemory,
-  })  : config = config ?? TheoryLinkConfigService.instance,
-        dashboard = dashboard ?? AutogenStatusDashboardService.instance,
-        packLibrary = packLibrary ?? TrainingPackLibraryV2.instance,
-        retention = retention ?? const DecayTagRetentionTrackerService(),
-        clusterer = InlinePackTheoryClusterer(
-          maxPerPack:
-              (config ?? TheoryLinkConfigService.instance).value.maxPerPack,
-          maxPerSpot:
-              (config ?? TheoryLinkConfigService.instance).value.maxPerSpot,
-        ) {
+  }) : config = config ?? TheoryLinkConfigService.instance,
+       dashboard = dashboard ?? AutogenStatusDashboardService.instance,
+       packLibrary = packLibrary ?? TrainingPackLibraryV2.instance,
+       retention = retention ?? const DecayTagRetentionTrackerService(),
+       clusterer = InlinePackTheoryClusterer(
+         maxPerPack:
+             (config ?? TheoryLinkConfigService.instance).value.maxPerPack,
+         maxPerSpot:
+             (config ?? TheoryLinkConfigService.instance).value.maxPerSpot,
+       ) {
     _applyConfig(this.config.value);
     this.config.notifier.addListener(() {
       _applyConfig(this.config.value);
@@ -119,8 +119,8 @@ class TheoryLinkAutoInjector {
 
       for (final module in pending) {
         final demand = <String>{};
-        final clusterTags =
-            (module.metrics['clusterTags'] as List?)?.cast<String>();
+        final clusterTags = (module.metrics['clusterTags'] as List?)
+            ?.cast<String>();
         if (clusterTags != null && clusterTags.isNotEmpty) {
           demand.addAll(clusterTags.map((e) => e.toLowerCase()));
         } else {

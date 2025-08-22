@@ -25,7 +25,7 @@ class _FakeReengagementService extends GoalReengagementService {
   TrainingGoal? goal;
   int dismissCount;
   _FakeReengagementService({this.goal, this.dismissCount = 0})
-      : super(logs: SessionLogService(sessions: TrainingSessionService()));
+    : super(logs: SessionLogService(sessions: TrainingSessionService()));
   @override
   Future<TrainingGoal?> pickReengagementGoal() async =>
       dismissCount >= 3 ? null : goal;

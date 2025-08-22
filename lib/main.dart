@@ -132,8 +132,8 @@ Future<void> _bootstrap() async {
   await packCloud.syncUpTemplates(templateStorage);
   unawaited(
     AssetSyncService.instance.syncIfNeeded().catchError(
-          (e, st) => ErrorLogger.instance.logError('Asset sync failed', e, st),
-        ),
+      (e, st) => ErrorLogger.instance.logError('Asset sync failed', e, st),
+    ),
   );
   await EvaluationSettingsService.instance.load();
   await MistakeHintService.instance.load();
@@ -343,8 +343,9 @@ class _PokerAIAnalyzerAppState extends State<PokerAIAnalyzerApp> {
     final stat = await TrainingPackStatsService.getStats(pinned.id);
     final idx = stat?.lastIndex ?? 0;
     if (completed && idx >= pinned.spots.length - 1) {
-      final rec =
-          await ctx.read<PersonalRecommendationService>().getTopRecommended();
+      final rec = await ctx
+          .read<PersonalRecommendationService>()
+          .getTopRecommended();
       if (rec == null) return;
       await ctx.read<TrainingSessionService>().startSession(rec);
     } else {

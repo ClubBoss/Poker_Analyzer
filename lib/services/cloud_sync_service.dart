@@ -16,8 +16,8 @@ import 'mistake_history_sync_service.dart';
 
 class CloudSyncService {
   CloudSyncService({FirebaseFirestore? firestore, FirebaseAuth? auth})
-      : _db = firestore ?? FirebaseFirestore.instance,
-        _auth = auth ?? FirebaseAuth.instance;
+    : _db = firestore ?? FirebaseFirestore.instance,
+      _auth = auth ?? FirebaseAuth.instance;
 
   static const _cols = [
     'training_spots',
@@ -160,10 +160,10 @@ class CloudSyncService {
               : null;
           final remoteAt =
               DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
-                  DateTime.fromMillisecondsSinceEpoch(0);
+              DateTime.fromMillisecondsSinceEpoch(0);
           final localAt =
               DateTime.tryParse(local?['updatedAt'] as String? ?? '') ??
-                  DateTime.fromMillisecondsSinceEpoch(0);
+              DateTime.fromMillisecondsSinceEpoch(0);
           if (remoteAt.isAfter(localAt)) {
             await _prefs.setString('cached_$col', jsonEncode(remote));
           }
@@ -219,14 +219,14 @@ class CloudSyncService {
           .doc('main')
           .snapshots()
           .listen((snap) async {
-        if (!snap.exists) return;
-        await _prefs.setString('cached_$col', jsonEncode(snap.data()));
-        lastSync.value = DateTime.now();
-        await _prefs.setString(
-          'last_sync',
-          lastSync.value!.toIso8601String(),
-        );
-      });
+            if (!snap.exists) return;
+            await _prefs.setString('cached_$col', jsonEncode(snap.data()));
+            lastSync.value = DateTime.now();
+            await _prefs.setString(
+              'last_sync',
+              lastSync.value!.toIso8601String(),
+            );
+          });
     }
   }
 
@@ -313,7 +313,8 @@ class CloudSyncService {
             if (e is Map) SavedHand.fromJson(Map<String, dynamic>.from(e)),
         ];
       }
-      localAt = DateTime.tryParse(cached['updatedAt'] as String? ?? '') ??
+      localAt =
+          DateTime.tryParse(cached['updatedAt'] as String? ?? '') ??
           DateTime.fromMillisecondsSinceEpoch(0);
     }
     if (uid == null) return hands;
@@ -329,7 +330,7 @@ class CloudSyncService {
       final remote = snap.data()!;
       final remoteAt =
           DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
-              DateTime.fromMillisecondsSinceEpoch(0);
+          DateTime.fromMillisecondsSinceEpoch(0);
       if (remoteAt.isAfter(localAt)) {
         final list = remote['hands'];
         if (list is List) {

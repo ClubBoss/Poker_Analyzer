@@ -8,7 +8,7 @@ class DecayStreakBadgeNotifier {
   final DecayStreakTrackerService tracker;
 
   DecayStreakBadgeNotifier({DecayStreakTrackerService? tracker})
-      : tracker = tracker ?? const DecayStreakTrackerService();
+    : tracker = tracker ?? const DecayStreakTrackerService();
 
   static const _milestones = [3, 7, 14, 30];
   static const _key = 'decay_streak_last_milestone';

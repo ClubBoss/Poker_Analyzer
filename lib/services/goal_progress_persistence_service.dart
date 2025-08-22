@@ -10,14 +10,15 @@ class GoalCompletionLog {
   GoalCompletionLog({required this.goalId, required this.completedAt});
 
   Map<String, dynamic> toJson() => {
-        'goalId': goalId,
-        'completedAt': completedAt.toIso8601String(),
-      };
+    'goalId': goalId,
+    'completedAt': completedAt.toIso8601String(),
+  };
 
   factory GoalCompletionLog.fromJson(Map<String, dynamic> json) =>
       GoalCompletionLog(
         goalId: json['goalId'] as String? ?? '',
-        completedAt: DateTime.tryParse(json['completedAt'] as String? ?? '') ??
+        completedAt:
+            DateTime.tryParse(json['completedAt'] as String? ?? '') ??
             DateTime.now(),
       );
 }

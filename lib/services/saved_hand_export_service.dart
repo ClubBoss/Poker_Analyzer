@@ -17,8 +17,8 @@ class SavedHandExportService {
   SavedHandExportService({
     required SavedHandManagerService manager,
     required SavedHandStatsService stats,
-  })  : _manager = manager,
-        _stats = stats;
+  }) : _manager = manager,
+       _stats = stats;
 
   final SavedHandManagerService _manager;
   final SavedHandStatsService _stats;

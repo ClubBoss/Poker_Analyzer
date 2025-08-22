@@ -24,12 +24,12 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
   final _history = TableEditHistory();
 
   TableState get _state => TableState(
-        playerCount: _playerCount,
-        names: List<String>.from(_names),
-        stacks: List<double>.from(_stacks),
-        heroIndex: _heroIndex,
-        pot: _pot,
-      );
+    playerCount: _playerCount,
+    names: List<String>.from(_names),
+    stacks: List<double>.from(_stacks),
+    heroIndex: _heroIndex,
+    pot: _pot,
+  );
 
   @override
   void initState() {
@@ -112,9 +112,9 @@ class _PokerTableDemoScreenState extends State<PokerTableDemoScreen> {
   }
 
   void _resetActions() => setState(() {
-        _actions = List.filled(_playerCount, PlayerAction.none);
-        _bets = List.filled(_playerCount, 0.0);
-      });
+    _actions = List.filled(_playerCount, PlayerAction.none);
+    _bets = List.filled(_playerCount, 0.0);
+  });
 
   Future<void> _copyJson() async {
     final jsonStr = jsonEncode(_state.toJson());

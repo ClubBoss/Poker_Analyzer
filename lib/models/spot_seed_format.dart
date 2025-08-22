@@ -19,9 +19,9 @@ class SpotSeedFormat {
     List<CardModel>? board,
     List<String>? villainActions,
     List<String>? tags,
-  })  : board = board ?? [],
-        villainActions = villainActions ?? [],
-        tags = tags ?? [];
+  }) : board = board ?? [],
+       villainActions = villainActions ?? [],
+       tags = tags ?? [];
 
   SpotSeedFormat copyWith({
     List<CardModel>? board,
@@ -29,17 +29,16 @@ class SpotSeedFormat {
     List<String>? tags,
     double? heroStack,
     String? opponentPosition,
-  }) =>
-      SpotSeedFormat(
-        player: player,
-        handGroup: handGroup,
-        position: position,
-        opponentPosition: opponentPosition ?? this.opponentPosition,
-        heroStack: heroStack ?? this.heroStack,
-        board: board ?? this.board,
-        villainActions: villainActions ?? this.villainActions,
-        tags: tags ?? this.tags,
-      );
+  }) => SpotSeedFormat(
+    player: player,
+    handGroup: handGroup,
+    position: position,
+    opponentPosition: opponentPosition ?? this.opponentPosition,
+    heroStack: heroStack ?? this.heroStack,
+    board: board ?? this.board,
+    villainActions: villainActions ?? this.villainActions,
+    tags: tags ?? this.tags,
+  );
 
   /// Returns the street name based on current board length.
   String get currentStreet {

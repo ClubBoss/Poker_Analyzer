@@ -39,9 +39,9 @@ class _FakeLessonLibrary implements MiniLessonLibraryService {
 
   @override
   List<TheoryMiniLessonNode> findByTags(List<String> tags) => [
-        for (final l in lessons)
-          if (l.tags.any(tags.contains)) l,
-      ];
+    for (final l in lessons)
+      if (l.tags.any(tags.contains)) l,
+  ];
 
   @override
   List<TheoryMiniLessonNode> getByTags(Set<String> tags) =>
@@ -103,11 +103,11 @@ TrainingPackTemplateV2 _pack(String id, String tag, String spotId) {
 }
 
 TrainingHistoryEntryV2 _hist(String packId) => TrainingHistoryEntryV2(
-      timestamp: DateTime.now(),
-      tags: const [],
-      packId: packId,
-      type: TrainingType.pushFold,
-    );
+  timestamp: DateTime.now(),
+  tags: const [],
+  packId: packId,
+  type: TrainingType.pushFold,
+);
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

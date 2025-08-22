@@ -5,7 +5,7 @@ import 'board_texture_classifier.dart';
 /// Service that classifies board textures for [TrainingPackSpot]s.
 class BoardTextureClassifierService {
   const BoardTextureClassifierService({BoardTextureClassifier? classifier})
-      : _classifier = classifier ?? const BoardTextureClassifier();
+    : _classifier = classifier ?? const BoardTextureClassifier();
 
   final BoardTextureClassifier _classifier;
 

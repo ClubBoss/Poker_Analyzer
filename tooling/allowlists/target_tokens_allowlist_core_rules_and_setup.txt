@@ -1,0 +1,14 @@
+left_of_bb
+left_of_btn
+min_raise_illegal
+min_raise_legal
+no_reopen
+reopen
+bettor_shows_first
+first_active_left_of_btn_shows
+string_bet_call_only
+single_motion_raise_legal
+binding
+returned
+skip_folded_player
+info_only

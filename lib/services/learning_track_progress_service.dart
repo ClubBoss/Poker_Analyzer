@@ -19,8 +19,8 @@ class LearningTrackProgressService {
     required this.gatekeeper,
     LearningPathRegistryService? registry,
     LearningPathProgressSnapshotService? snapshots,
-  })  : registry = registry ?? LearningPathRegistryService.instance,
-        snapshots = snapshots ?? LearningPathProgressSnapshotService.instance;
+  }) : registry = registry ?? LearningPathRegistryService.instance,
+       snapshots = snapshots ?? LearningPathProgressSnapshotService.instance;
 
   Future<LearningTrackProgressModel> build(String pathId) async {
     _currentPathId = pathId;

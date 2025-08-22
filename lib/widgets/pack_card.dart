@@ -103,7 +103,8 @@ class _PackCardState extends State<PackCard>
         if (minHands != null && minHands > 0) {
           handsRatio = hands / minHands;
         }
-        _almostUnlocked = (accRatio >= 0.5 && accRatio < 1) ||
+        _almostUnlocked =
+            (accRatio >= 0.5 && accRatio < 1) ||
             (handsRatio >= 0.5 && handsRatio < 1);
       });
     }
@@ -168,12 +169,12 @@ class _PackCardState extends State<PackCard>
     final reqAcc = _requiredAccuracy;
     final minHands = _minHands;
     if (reqAcc == null && minHands == null) return;
-    final ok =
-        await TrainingPackPerformanceTrackerService.instance.meetsRequirements(
-      widget.template.id,
-      requiredAccuracy: reqAcc != null ? reqAcc / 100 : null,
-      minHands: minHands,
-    );
+    final ok = await TrainingPackPerformanceTrackerService.instance
+        .meetsRequirements(
+          widget.template.id,
+          requiredAccuracy: reqAcc != null ? reqAcc / 100 : null,
+          minHands: minHands,
+        );
     final wasLocked = _locked;
     if (mounted) {
       setState(() {
@@ -352,12 +353,15 @@ class _PackCardState extends State<PackCard>
         .replaceAllMapped(RegExp(r'(?<=[a-z])(?=[A-Z])'), (m) => ' ')
         .split(RegExp(r'[\s_]+'));
     const uppers = {'btn', 'bb', 'sb', 'utg', 'mp', 'co', 'hj'};
-    return words.where((w) => w.isNotEmpty).map((w) {
-      final lower = w.toLowerCase();
-      if (lower == 'vs') return 'vs';
-      if (uppers.contains(lower)) return lower.toUpperCase();
-      return lower[0].toUpperCase() + lower.substring(1);
-    }).join(' ');
+    return words
+        .where((w) => w.isNotEmpty)
+        .map((w) {
+          final lower = w.toLowerCase();
+          if (lower == 'vs') return 'vs';
+          if (uppers.contains(lower)) return lower.toUpperCase();
+          return lower[0].toUpperCase() + lower.substring(1);
+        })
+        .join(' ');
   }
 
   @override

@@ -17,7 +17,7 @@ class GraphTemplateExporter {
   final GraphPathTemplateParser parser;
 
   const GraphTemplateExporter({GraphPathTemplateParser? parser})
-      : parser = parser ?? GraphPathTemplateParser();
+    : parser = parser ?? GraphPathTemplateParser();
 
   /// Converts [nodes] into a YAML string.
   String encodeNodes(List<LearningPathNode> nodes) {

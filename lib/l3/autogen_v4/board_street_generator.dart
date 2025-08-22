@@ -52,13 +52,9 @@ class TargetMix {
 
   /// Const named constructor so callers can do: `const mix = TargetMix.mvsDefault();`
   const TargetMix.mvsDefault()
-      : streetPct = const {
-          Street.flop: 0.5,
-          Street.turn: 0.3,
-          Street.river: 0.2
-        },
-        sprPct = const {SprBin.short: 0.4, SprBin.mid: 0.4, SprBin.deep: 0.2},
-        posPct = const {Position.ip: 0.5, Position.oop: 0.5};
+    : streetPct = const {Street.flop: 0.5, Street.turn: 0.3, Street.river: 0.2},
+      sprPct = const {SprBin.short: 0.4, SprBin.mid: 0.4, SprBin.deep: 0.2},
+      posPct = const {Position.ip: 0.5, Position.oop: 0.5};
 }
 
 const List<String> _flopTextures = [

@@ -37,7 +37,8 @@ class TrainingPackSuggestionService {
         final key = tag.trim().toLowerCase();
         if (key.isNotEmpty) tags.update(key, (v) => v + 1, ifAbsent: () => 1);
       }
-      final d = (t.meta['rankScore'] as num?)?.toDouble() ??
+      final d =
+          (t.meta['rankScore'] as num?)?.toDouble() ??
           (t.meta['difficulty'] as num?)?.toDouble();
       if (d != null) diffs.add(d);
     }
@@ -56,11 +57,13 @@ class TrainingPackSuggestionService {
     if (diffs.isNotEmpty) {
       final avg = diffs.reduce((a, b) => a + b) / diffs.length;
       list.sort((a, b) {
-        final ad = ((a.meta['rankScore'] as num?)?.toDouble() ??
+        final ad =
+            ((a.meta['rankScore'] as num?)?.toDouble() ??
                 (a.meta['difficulty'] as num?)?.toDouble() ??
                 avg) -
             avg;
-        final bd = ((b.meta['rankScore'] as num?)?.toDouble() ??
+        final bd =
+            ((b.meta['rankScore'] as num?)?.toDouble() ??
                 (b.meta['difficulty'] as num?)?.toDouble() ??
                 avg) -
             avg;

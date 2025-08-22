@@ -108,8 +108,8 @@ class TrainingSessionService extends ChangeNotifier {
 
   TrainingPackSpot? get currentSpot =>
       _session != null && _session!.index < _spots.length
-          ? _spots[_session!.index]
-          : null;
+      ? _spots[_session!.index]
+      : null;
 
   Map<String, bool> get results => _session?.results ?? {};
   int get correctCount => results.values.where((e) => e).length;
@@ -199,13 +199,17 @@ class TrainingSessionService extends ChangeNotifier {
               TrainingPackSpot.fromJson(Map<String, dynamic>.from(e)),
           ];
           if (_spots.isNotEmpty) {
-            final evs =
-                _spots.map((e) => e.heroEv).whereType<double>().toList();
+            final evs = _spots
+                .map((e) => e.heroEv)
+                .whereType<double>()
+                .toList();
             if (evs.isNotEmpty) {
               _evAverageAll = evs.reduce((a, b) => a + b) / evs.length;
             }
-            final icms =
-                _spots.map((e) => e.heroIcmEv).whereType<double>().toList();
+            final icms = _spots
+                .map((e) => e.heroIcmEv)
+                .whereType<double>()
+                .toList();
             if (icms.isNotEmpty) {
               _icmAverageAll = icms.reduce((a, b) => a + b) / icms.length;
             }
@@ -266,8 +270,9 @@ class TrainingSessionService extends ChangeNotifier {
           }
           if (_focusHandTypes.isNotEmpty && _handGoalTotal.isEmpty) {
             for (final g in _focusHandTypes) {
-              _handGoalTotal[g.label] =
-                  _spots.where((s) => _matchHandTypeLabel(s, g.label)).length;
+              _handGoalTotal[g.label] = _spots
+                  .where((s) => _matchHandTypeLabel(s, g.label))
+                  .length;
             }
           }
           if (_focusHandTypes.isNotEmpty && _handGoalCount.isEmpty) {
@@ -395,11 +400,11 @@ class TrainingSessionService extends ChangeNotifier {
       unawaited(LearningPathProgressService.instance.markCustomPathStarted());
     }
     AppBootstrap.registry.get<TrainingSessionContextService>().start(
-          packId: template.id,
-          trainingType: 'standard',
-          includedTags: [...template.tags, ...?sessionTags],
-          source: source,
-        );
+      packId: template.id,
+      trainingType: 'standard',
+      includedTags: [...template.tags, ...?sessionTags],
+      source: source,
+    );
     _template = template;
     _sessionTags
       ..clear()
@@ -440,8 +445,9 @@ class TrainingSessionService extends ChangeNotifier {
     _handGoalCount.clear();
     _categoryStats.clear();
     for (final g in _focusHandTypes) {
-      _handGoalTotal[g.label] =
-          _spots.where((s) => _matchHandTypeLabel(s, g.label)).length;
+      _handGoalTotal[g.label] = _spots
+          .where((s) => _matchHandTypeLabel(s, g.label))
+          .length;
       _handGoalCount[g.label] = 0;
     }
     int savedIndex = startIndex;
@@ -536,9 +542,9 @@ class TrainingSessionService extends ChangeNotifier {
       );
       MistakeReviewPackService.setLatestTemplate(tpl);
       await context.read<MistakeReviewPackService>().addPack(
-            ids,
-            templateId: _template!.id,
-          );
+        ids,
+        templateId: _template!.id,
+      );
     }
     unawaited(
       context.read<CloudTrainingHistoryService>().saveSession(_buildResults()),
@@ -595,17 +601,18 @@ class TrainingSessionService extends ChangeNotifier {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: resultBuilder ??
+        builder:
+            resultBuilder ??
             (_) => TrainingSessionSummaryScreen(
-                  session: _session!,
-                  template: _template!,
-                  preEvPct: _preEvPct,
-                  preIcmPct: _preIcmPct,
-                  xpEarned: xp,
-                  xpMultiplier: multiplier,
-                  streakMultiplier: streakMultiplier,
-                  tagDeltas: deltas,
-                ),
+              session: _session!,
+              template: _template!,
+              preEvPct: _preEvPct,
+              preIcmPct: _preIcmPct,
+              xpEarned: xp,
+              xpMultiplier: multiplier,
+              streakMultiplier: streakMultiplier,
+              tagDeltas: deltas,
+            ),
       ),
     );
   }
@@ -707,8 +714,9 @@ class TrainingSessionService extends ChangeNotifier {
         if (_template != null) {
           final totalHands = _spots.length;
           final totalSpots = _template!.totalWeight;
-          final evAfter =
-              totalSpots == 0 ? 0.0 : _template!.evCovered * 100 / totalSpots;
+          final evAfter = totalSpots == 0
+              ? 0.0
+              : _template!.evCovered * 100 / totalSpots;
           unawaited(
             TrainingProgressLogger.finishSession(
               _template!.id,

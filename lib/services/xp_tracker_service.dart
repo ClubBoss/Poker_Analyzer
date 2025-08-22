@@ -43,10 +43,10 @@ class XPTrackerService extends ChangeNotifier {
   }
 
   Map<String, dynamic> _toMap() => {
-        'xp': _xp,
-        'entries': [for (final e in _history) e.toJson()],
-        'updatedAt': DateTime.now().toIso8601String(),
-      };
+    'xp': _xp,
+    'entries': [for (final e in _history) e.toJson()],
+    'updatedAt': DateTime.now().toIso8601String(),
+  };
 
   Future<void> _persist(DateTime ts) async {
     await _saveXp();
@@ -91,8 +91,9 @@ class XPTrackerService extends ChangeNotifier {
       if (remote != null) {
         final remoteAt =
             DateTime.tryParse(remote['updatedAt'] as String? ?? '') ??
-                DateTime.fromMillisecondsSinceEpoch(0);
-        final localAt = DateTime.tryParse(prefs.getString(_timeKey) ?? '') ??
+            DateTime.fromMillisecondsSinceEpoch(0);
+        final localAt =
+            DateTime.tryParse(prefs.getString(_timeKey) ?? '') ??
             DateTime.fromMillisecondsSinceEpoch(0);
         if (remoteAt.isAfter(localAt)) {
           final list = remote['entries'];
@@ -105,7 +106,8 @@ class XPTrackerService extends ChangeNotifier {
                 ),
               );
             _trim();
-            _xp = (remote['xp'] as num?)?.toInt() ??
+            _xp =
+                (remote['xp'] as num?)?.toInt() ??
                 _history.fold(0, (p, e) => p + e.xp);
             await _persist(remoteAt);
           }

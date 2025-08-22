@@ -18,13 +18,12 @@ import 'package:poker_analyzer/screens/training_session_screen.dart';
 class _FakeLinker extends SmartRecapBoosterLinker {
   final List<TrainingPackTemplateV2> packs;
   _FakeLinker(this.packs)
-      : super(storage: TrainingPackTemplateStorageService());
+    : super(storage: TrainingPackTemplateStorageService());
 
   @override
   Future<List<TrainingPackTemplateV2>> getBoostersForLesson(
     TheoryMiniLessonNode lesson,
-  ) async =>
-      packs;
+  ) async => packs;
 }
 
 void main() {

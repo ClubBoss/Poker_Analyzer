@@ -23,10 +23,11 @@ class PackLibraryConflictScanner {
     final invalid = <String>[];
     final evGroups = <String, List<(String, double)>>{};
     final icmGroups = <String, List<(String, double)>>{};
-    for (final f in dir
-        .listSync(recursive: true)
-        .whereType<File>()
-        .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
+    for (final f
+        in dir
+            .listSync(recursive: true)
+            .whereType<File>()
+            .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
       try {
         final yaml = await f.readAsString();
         final map = reader.read(yaml);
@@ -39,9 +40,11 @@ class PackLibraryConflictScanner {
         final meta = tpl.meta;
         if (meta.isEmpty) invalid.add(f.path);
         final aud = tpl.audience ?? 'Unknown';
-        final ev = (map['evScore'] as num?)?.toDouble() ??
+        final ev =
+            (map['evScore'] as num?)?.toDouble() ??
             (meta['evScore'] as num?)?.toDouble();
-        final icm = (map['icmScore'] as num?)?.toDouble() ??
+        final icm =
+            (map['icmScore'] as num?)?.toDouble() ??
             (meta['icmScore'] as num?)?.toDouble();
         for (final t in tpl.tags) {
           final key = '$aud|$t';

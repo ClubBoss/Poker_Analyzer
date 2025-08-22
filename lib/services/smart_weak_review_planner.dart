@@ -7,7 +7,7 @@ class SmartWeakReviewPlanner {
   final LearningPathGraphOrchestrator orchestrator;
 
   SmartWeakReviewPlanner({LearningPathGraphOrchestrator? orchestrator})
-      : orchestrator = orchestrator ?? LearningPathGraphOrchestrator();
+    : orchestrator = orchestrator ?? LearningPathGraphOrchestrator();
 
   static final SmartWeakReviewPlanner instance = SmartWeakReviewPlanner();
 

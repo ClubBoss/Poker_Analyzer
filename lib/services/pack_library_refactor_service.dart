@@ -24,10 +24,11 @@ class PackLibraryRefactorService {
     final seen = <String, String>{};
     var refactored = 0;
     var removed = 0;
-    for (final f in dir
-        .listSync(recursive: true)
-        .whereType<File>()
-        .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
+    for (final f
+        in dir
+            .listSync(recursive: true)
+            .whereType<File>()
+            .where((e) => e.path.toLowerCase().endsWith('.yaml'))) {
       Map<String, dynamic> map;
       try {
         final yaml = await f.readAsString();

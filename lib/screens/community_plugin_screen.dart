@@ -74,12 +74,13 @@ class _CommunityPluginScreenState extends State<CommunityPluginScreen> {
             for (final e in data)
               CommunityPlugin.fromJson(e as Map<String, dynamic>),
           ];
-          _categories = _plugins
-              .map((e) => e.category)
-              .whereType<String>()
-              .toSet()
-              .toList()
-            ..sort();
+          _categories =
+              _plugins
+                  .map((e) => e.category)
+                  .whereType<String>()
+                  .toSet()
+                  .toList()
+                ..sort();
         }
       }
       _status = await PluginManager().loadStatus();
@@ -124,119 +125,116 @@ class _CommunityPluginScreenState extends State<CommunityPluginScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _plugins.isEmpty
-              ? const Center(child: Text('No plugins'))
-              : Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _searchCtrl,
-                              decoration: InputDecoration(
-                                prefixIcon: const Icon(Icons.search),
-                                hintText: 'Search...',
-                                suffixIcon: _query.isEmpty
-                                    ? null
-                                    : IconButton(
-                                        icon: const Icon(Icons.clear),
-                                        onPressed: () => setState(() {
-                                          _searchCtrl.clear();
-                                          _query = '';
-                                        }),
-                                      ),
-                              ),
-                              onChanged: (v) => setState(
-                                  () => _query = v.trim().toLowerCase()),
-                            ),
+          ? const Center(child: Text('No plugins'))
+          : Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _searchCtrl,
+                          decoration: InputDecoration(
+                            prefixIcon: const Icon(Icons.search),
+                            hintText: 'Search...',
+                            suffixIcon: _query.isEmpty
+                                ? null
+                                : IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: () => setState(() {
+                                      _searchCtrl.clear();
+                                      _query = '';
+                                    }),
+                                  ),
                           ),
-                          if (_categories.isNotEmpty) ...[
-                            const SizedBox(width: 8),
-                            DropdownButton<String>(
-                              value: _categoryFilter,
-                              dropdownColor: const Color(0xFF2A2B2E),
-                              onChanged: (v) =>
-                                  setState(() => _categoryFilter = v ?? 'All'),
-                              items: ['All', ..._categories]
-                                  .map(
-                                    (c) => DropdownMenuItem(
-                                        value: c, child: Text(c)),
-                                  )
-                                  .toList(),
-                            ),
-                          ],
-                        ],
+                          onChanged: (v) =>
+                              setState(() => _query = v.trim().toLowerCase()),
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: ListView.separated(
-                        itemCount: _filtered().length,
-                        separatorBuilder: (_, __) => const Divider(height: 1),
-                        itemBuilder: (context, index) {
-                          final plugin = _filtered()[index];
-                          final file = p.basename(Uri.parse(plugin.url).path);
-                          final localVersion =
-                              _status[file]?['version'] as String?;
-                          final installed = localVersion != null;
-                          final needsUpdate =
-                              installed && localVersion != plugin.version;
-                          final subtitle = <Widget>[];
-                          if (plugin.category != null) {
-                            subtitle.add(Text(plugin.category!));
-                          }
-                          subtitle.add(Text('v${plugin.version}'));
-                          if (plugin.rating != null) {
-                            subtitle.add(
-                              Row(
-                                children: [
-                                  for (var i = 0;
-                                      i < plugin.rating!.round();
-                                      i++)
-                                    const Icon(
-                                      Icons.star,
-                                      color: Colors.amber,
-                                      size: 16,
-                                    ),
-                                ],
-                              ),
-                            );
-                          }
-                          if (plugin.description != null) {
-                            subtitle.add(Text(plugin.description!));
-                          }
-                          if (needsUpdate) {
-                            subtitle.add(
-                              Text(
-                                'Installed v$localVersion',
-                                style: const TextStyle(color: Colors.red),
-                              ),
-                            );
-                          }
-                          return ListTile(
-                            title: Text(plugin.name),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: subtitle,
-                            ),
-                            trailing: TextButton(
-                              onPressed: installed && !needsUpdate
-                                  ? null
-                                  : () => _install(plugin),
-                              child: Text(
-                                needsUpdate
-                                    ? 'Update'
-                                    : installed
-                                        ? 'Installed'
-                                        : 'Install',
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
+                      if (_categories.isNotEmpty) ...[
+                        const SizedBox(width: 8),
+                        DropdownButton<String>(
+                          value: _categoryFilter,
+                          dropdownColor: const Color(0xFF2A2B2E),
+                          onChanged: (v) =>
+                              setState(() => _categoryFilter = v ?? 'All'),
+                          items: ['All', ..._categories]
+                              .map(
+                                (c) =>
+                                    DropdownMenuItem(value: c, child: Text(c)),
+                              )
+                              .toList(),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
+                Expanded(
+                  child: ListView.separated(
+                    itemCount: _filtered().length,
+                    separatorBuilder: (_, __) => const Divider(height: 1),
+                    itemBuilder: (context, index) {
+                      final plugin = _filtered()[index];
+                      final file = p.basename(Uri.parse(plugin.url).path);
+                      final localVersion = _status[file]?['version'] as String?;
+                      final installed = localVersion != null;
+                      final needsUpdate =
+                          installed && localVersion != plugin.version;
+                      final subtitle = <Widget>[];
+                      if (plugin.category != null) {
+                        subtitle.add(Text(plugin.category!));
+                      }
+                      subtitle.add(Text('v${plugin.version}'));
+                      if (plugin.rating != null) {
+                        subtitle.add(
+                          Row(
+                            children: [
+                              for (var i = 0; i < plugin.rating!.round(); i++)
+                                const Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                  size: 16,
+                                ),
+                            ],
+                          ),
+                        );
+                      }
+                      if (plugin.description != null) {
+                        subtitle.add(Text(plugin.description!));
+                      }
+                      if (needsUpdate) {
+                        subtitle.add(
+                          Text(
+                            'Installed v$localVersion',
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        );
+                      }
+                      return ListTile(
+                        title: Text(plugin.name),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: subtitle,
+                        ),
+                        trailing: TextButton(
+                          onPressed: installed && !needsUpdate
+                              ? null
+                              : () => _install(plugin),
+                          child: Text(
+                            needsUpdate
+                                ? 'Update'
+                                : installed
+                                ? 'Installed'
+                                : 'Install',
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
     );
   }
 

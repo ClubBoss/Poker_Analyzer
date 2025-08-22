@@ -81,8 +81,9 @@ class _PackLibraryDiffScreenState extends State<PackLibraryDiffScreen> {
         title: const Text('Pack Diff Viewer'),
         actions: [
           IconButton(
-            onPressed:
-                _packA != null && _packB != null ? _exportMarkdown : null,
+            onPressed: _packA != null && _packB != null
+                ? _exportMarkdown
+                : null,
             icon: const Icon(Icons.share),
           ),
         ],
@@ -144,7 +145,8 @@ class _PackLibraryDiffScreenState extends State<PackLibraryDiffScreen> {
   Widget _listDiff(String title, List<dynamic>? a, List<dynamic>? b) {
     final listA = a ?? [];
     final listB = b ?? [];
-    final useId = listA.every((e) => e is Map && e['id'] != null) ||
+    final useId =
+        listA.every((e) => e is Map && e['id'] != null) ||
         listB.every((e) => e is Map && e['id'] != null);
     final children = <Widget>[];
     if (useId) {
@@ -184,13 +186,13 @@ class _PackLibraryDiffScreenState extends State<PackLibraryDiffScreen> {
     final type = a == null
         ? _DiffType.added
         : b == null
-            ? _DiffType.removed
-            : _DiffType.changed;
+        ? _DiffType.removed
+        : _DiffType.changed;
     final text = a == null
         ? _fmt(b)
         : b == null
-            ? _fmt(a)
-            : '${_fmt(a)} → ${_fmt(b)}';
+        ? _fmt(a)
+        : '${_fmt(a)} → ${_fmt(b)}';
     return ListTile(
       title: Text(key),
       subtitle: Text(text),

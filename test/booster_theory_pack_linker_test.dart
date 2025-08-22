@@ -8,23 +8,23 @@ import 'package:poker_analyzer/models/v2/hand_data.dart';
 import 'package:poker_analyzer/core/training/engine/training_type_engine.dart';
 
 LearningPathStageModel _stage(String id, String tag) => LearningPathStageModel(
-      id: id,
-      title: id,
-      description: '',
-      packId: 'pack_$id',
-      requiredAccuracy: 80,
-      minHands: 10,
-      tags: [tag],
-    );
+  id: id,
+  title: id,
+  description: '',
+  packId: 'pack_$id',
+  requiredAccuracy: 80,
+  minHands: 10,
+  tags: [tag],
+);
 
 TrainingPackTemplateV2 _theory(String id, String tag) => TrainingPackTemplateV2(
-      id: id,
-      name: id,
-      trainingType: TrainingType.theory,
-      tags: [tag],
-      spots: [TrainingPackSpot(id: 's', type: 'theory', hand: HandData())],
-      spotCount: 1,
-    );
+  id: id,
+  name: id,
+  trainingType: TrainingType.theory,
+  tags: [tag],
+  spots: [TrainingPackSpot(id: 's', type: 'theory', hand: HandData())],
+  spotCount: 1,
+);
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

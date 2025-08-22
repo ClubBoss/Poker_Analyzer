@@ -19,8 +19,8 @@ class PostflopTemplateSeeder {
   const PostflopTemplateSeeder({
     TrainingPackTemplateExpanderService? expander,
     TrainingPackTemplateLibraryService? library,
-  })  : _expander = expander ?? TrainingPackTemplateExpanderService(),
-        _library = library ?? TrainingPackTemplateLibraryService.instance;
+  }) : _expander = expander ?? TrainingPackTemplateExpanderService(),
+       _library = library ?? TrainingPackTemplateLibraryService.instance;
 
   /// Seeds all predefined postflop templates.
   Future<void> seedAll() async {

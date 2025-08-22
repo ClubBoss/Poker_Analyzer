@@ -80,8 +80,9 @@ class _TrainingPackSpotEditorScreenState
       } else if (_heroCards.length == index) {
         _heroCards.add(card);
       }
-      widget.spot.hand.heroCards =
-          _heroCards.map((c) => '${c.rank}${c.suit}').join(' ');
+      widget.spot.hand.heroCards = _heroCards
+          .map((c) => '${c.rank}${c.suit}')
+          .join(' ');
     });
   }
 
@@ -234,10 +235,10 @@ class _TrainingPackSpotEditorScreenState
       _street = widget.spot.hand.board.length >= 5
           ? 3
           : widget.spot.hand.board.length == 4
-              ? 2
-              : widget.spot.hand.board.length >= 3
-                  ? 1
-                  : 1;
+          ? 2
+          : widget.spot.hand.board.length >= 3
+          ? 1
+          : 1;
     }
     _villainAction = widget.spot.villainAction ?? 'none';
     _heroOptions = widget.spot.heroOptions.toSet();
@@ -255,8 +256,9 @@ class _TrainingPackSpotEditorScreenState
   }
 
   void _sync() {
-    widget.spot.hand.heroCards =
-        _heroCards.map((c) => '${c.rank}${c.suit}').join(' ');
+    widget.spot.hand.heroCards = _heroCards
+        .map((c) => '${c.rank}${c.suit}')
+        .join(' ');
     widget.spot.hand.position = _position;
     widget.spot.hand.stacks['0'] = double.tryParse(_heroStackCtr.text) ?? 0;
     widget.spot.hand.stacks['1'] = double.tryParse(_villainStackCtr.text) ?? 0;
@@ -299,8 +301,8 @@ class _TrainingPackSpotEditorScreenState
     setState(() => _loading = true);
     try {
       final res = await context.read<EvaluationExecutorService>().evaluate(
-            widget.spot,
-          );
+        widget.spot,
+      );
       setState(() => widget.spot.evalResult = res);
       final ev = (res.expectedEquity * 100).toStringAsFixed(1);
       ScaffoldMessenger.of(

@@ -7,11 +7,11 @@ class ExportUtils {
   const ExportUtils._();
 
   static Map<String, String?> _handFields(SavedHand hand) => {
-        'Действие': hand.expectedAction,
-        'GTO': hand.gtoAction,
-        'Группа': hand.rangeGroup,
-        'Комментарий': hand.comment,
-      };
+    'Действие': hand.expectedAction,
+    'GTO': hand.gtoAction,
+    'Группа': hand.rangeGroup,
+    'Комментарий': hand.comment,
+  };
 
   static String handMarkdown(SavedHand hand, {int level = 2}) {
     final buffer = StringBuffer();

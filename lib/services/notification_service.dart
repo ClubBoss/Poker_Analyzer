@@ -43,9 +43,9 @@ class NotificationService {
   static Future<int> _loadTime(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     final def = context.read<RemoteConfigService>().get<int>(
-          'dailyReminderDefaultMinutes',
-          20 * 60,
-        );
+      'dailyReminderDefaultMinutes',
+      20 * 60,
+    );
     return prefs.getInt(_timeKey) ?? def;
   }
 
@@ -161,8 +161,9 @@ class NotificationService {
   static void startRecommendedPackTask(BuildContext context) {
     _packTimer?.cancel();
     _packTimer = Timer.periodic(const Duration(hours: 6), (_) async {
-      final tpl =
-          await context.read<AdaptiveTrainingService>().nextRecommendedPack();
+      final tpl = await context
+          .read<AdaptiveTrainingService>()
+          .nextRecommendedPack();
       if (tpl == null) return;
       final prefs = await SharedPreferences.getInstance();
       final idx = prefs.getInt('tpl_prog_${tpl.id}') ?? 0;

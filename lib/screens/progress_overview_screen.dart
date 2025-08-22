@@ -76,8 +76,8 @@ class _ProgressOverviewScreenState extends State<ProgressOverviewScreen> {
           EvIcmTrendChart(
             mode: _mode,
             sessionDates: context.watch<TrainingStatsService>().sessionHistory(
-                  context.watch<SavedHandManagerService>().hands,
-                ),
+              context.watch<SavedHandManagerService>().hands,
+            ),
           ),
           const SizedBox(height: 16),
           if (hasData) AccuracyChart(sessions: sessions) else _placeholder(),

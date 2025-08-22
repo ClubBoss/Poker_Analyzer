@@ -11,8 +11,8 @@ class BlockCompletionRewardService {
       'stage_banner_${title.toLowerCase()}';
 
   Future<bool> isStageCompleted(String stageTitle) async {
-    final stages =
-        await LearningPathProgressService.instance.getCurrentStageState();
+    final stages = await LearningPathProgressService.instance
+        .getCurrentStageState();
     final stage = stages.firstWhere(
       (s) => s.title.toLowerCase() == stageTitle.toLowerCase(),
       orElse: () => null,

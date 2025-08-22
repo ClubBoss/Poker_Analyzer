@@ -11,46 +11,46 @@ void main() {
   const engine = LearningPathStageUnlockEngine();
 
   LearningPathTemplateV2 path0() => const LearningPathTemplateV2(
-        id: 'p',
-        title: 'Path',
+    id: 'p',
+    title: 'Path',
+    description: '',
+    stages: [
+      LearningPathStageModel(
+        id: 's1',
+        title: 'S1',
         description: '',
-        stages: [
-          LearningPathStageModel(
-            id: 's1',
-            title: 'S1',
-            description: '',
-            packId: 'pack1',
-            requiredAccuracy: 80,
-            minHands: 2,
-          ),
-          LearningPathStageModel(
-            id: 's2',
-            title: 'S2',
-            description: '',
-            packId: 'pack2',
-            requiredAccuracy: 70,
-            minHands: 1,
-          ),
-          LearningPathStageModel(
-            id: 's3',
-            title: 'S3',
-            description: '',
-            packId: 'pack3',
-            requiredAccuracy: 70,
-            minHands: 1,
-          ),
-        ],
-      );
+        packId: 'pack1',
+        requiredAccuracy: 80,
+        minHands: 2,
+      ),
+      LearningPathStageModel(
+        id: 's2',
+        title: 'S2',
+        description: '',
+        packId: 'pack2',
+        requiredAccuracy: 70,
+        minHands: 1,
+      ),
+      LearningPathStageModel(
+        id: 's3',
+        title: 'S3',
+        description: '',
+        packId: 'pack3',
+        requiredAccuracy: 70,
+        minHands: 1,
+      ),
+    ],
+  );
 
   SessionLog log(String id, int correct, int mistakes) => SessionLog(
-        tags: const [],
-        sessionId: '1',
-        templateId: id,
-        startedAt: DateTime.now(),
-        completedAt: DateTime.now(),
-        correctCount: correct,
-        mistakeCount: mistakes,
-      );
+    tags: const [],
+    sessionId: '1',
+    templateId: id,
+    startedAt: DateTime.now(),
+    completedAt: DateTime.now(),
+    correctCount: correct,
+    mistakeCount: mistakes,
+  );
 
   test('only next stage active after completion', () {
     final path = path0();

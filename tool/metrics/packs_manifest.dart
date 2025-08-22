@@ -54,18 +54,21 @@ Future<void> main(List<String> args) async {
       if (!raw.contains('\nspots:')) continue;
       final id =
           RegExp(r'^id:\s*(\S+)', multiLine: true).firstMatch(raw)?.group(1) ??
-              '';
-      final stageId = RegExp(
+          '';
+      final stageId =
+          RegExp(
             r'^stage:\n\s+id:\s*(\S+)',
             multiLine: true,
           ).firstMatch(raw)?.group(1) ??
           'unknown';
-      final subtype = RegExp(
+      final subtype =
+          RegExp(
             r'^subtype:\s*(\S+)',
             multiLine: true,
           ).firstMatch(raw)?.group(1) ??
           'unknown';
-      final street = RegExp(
+      final street =
+          RegExp(
             r'^street:\s*(\S+)',
             multiLine: true,
           ).firstMatch(raw)?.group(1) ??
@@ -132,8 +135,8 @@ Future<void> main(List<String> args) async {
 
   entries.sort((a, b) {
     final s = (a['stage'] as Map)['id'].toString().compareTo(
-          (b['stage'] as Map)['id'].toString(),
-        );
+      (b['stage'] as Map)['id'].toString(),
+    );
     if (s != 0) return s;
     final st = a['subtype'].toString().compareTo(b['subtype'].toString());
     if (st != 0) return st;

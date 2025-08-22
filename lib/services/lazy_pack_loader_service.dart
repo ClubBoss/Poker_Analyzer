@@ -69,8 +69,8 @@ class LazyPackLoaderService {
 /// training drills.
 class SpotStreamingEngine {
   SpotStreamingEngine(this._template, {this.prefetch = 5})
-      : _index = 0,
-        _cache = [];
+    : _index = 0,
+      _cache = [];
 
   final TrainingPackTemplateV2 _template;
   final int prefetch;

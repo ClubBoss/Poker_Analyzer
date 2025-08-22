@@ -59,8 +59,8 @@ class BoardCardsWidget extends StatelessWidget {
 
               final animation =
                   revealAnimations != null && index < revealAnimations!.length
-                      ? revealAnimations![index]
-                      : const AlwaysStoppedAnimation(1.0);
+                  ? revealAnimations![index]
+                  : const AlwaysStoppedAnimation(1.0);
               return FadeTransition(
                 opacity: animation,
                 child: GestureDetector(

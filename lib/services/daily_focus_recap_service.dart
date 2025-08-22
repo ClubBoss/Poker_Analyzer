@@ -97,7 +97,8 @@ class DailyFocusRecapService extends ChangeNotifier {
     for (final h in list) {
       final pos = parseHeroPosition(h.heroPosition);
       final prev = map[pos] ?? const _PosStats();
-      final correct = h.expectedAction?.trim().toLowerCase() ==
+      final correct =
+          h.expectedAction?.trim().toLowerCase() ==
           h.gtoAction?.trim().toLowerCase();
       map[pos] = _PosStats(
         hands: prev.hands + 1,

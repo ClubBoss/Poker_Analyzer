@@ -207,8 +207,9 @@ Map<T, int> _buildQuotas<T>(Map<T, double> pct, int total, List<T> order) {
   var remaining = total;
   for (var i = 0; i < order.length; i++) {
     final v = order[i];
-    final q =
-        i == order.length - 1 ? remaining : (total * (pct[v] ?? 0)).round();
+    final q = i == order.length - 1
+        ? remaining
+        : (total * (pct[v] ?? 0)).round();
     quotas[v] = q;
     remaining -= q;
   }

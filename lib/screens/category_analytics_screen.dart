@@ -138,8 +138,7 @@ class CategoryAnalyticsScreen extends StatelessWidget {
     final categories = <String>{
       for (final h in hands)
         if (h.category != null && h.category!.isNotEmpty) h.category!,
-    }.toList()
-      ..sort();
+    }.toList()..sort();
     if (categories.isEmpty) {
       return Scaffold(
         appBar: AppBar(

@@ -109,9 +109,9 @@ class _Record {
   }
 
   Map<String, dynamic> toJson() => {
-        if (dismissed != null) 'd': dismissed!.toIso8601String(),
-        if (completed != null) 'c': completed!.toIso8601String(),
-      };
+    if (dismissed != null) 'd': dismissed!.toIso8601String(),
+    if (completed != null) 'c': completed!.toIso8601String(),
+  };
 
   factory _Record.fromJson(Map<String, dynamic> json) {
     return _Record(

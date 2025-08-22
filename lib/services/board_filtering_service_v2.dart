@@ -9,8 +9,9 @@ class BoardFilteringServiceV2 {
     Set<String> requiredTags, {
     Set<String>? excludedTags,
   }) {
-    final tags =
-        board.textureTags.isNotEmpty ? board.textureTags : _evaluate(board);
+    final tags = board.textureTags.isNotEmpty
+        ? board.textureTags
+        : _evaluate(board);
     if (excludedTags != null && excludedTags.any(tags.contains)) {
       return false;
     }

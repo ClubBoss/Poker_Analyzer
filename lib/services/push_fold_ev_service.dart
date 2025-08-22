@@ -83,7 +83,8 @@ class PushFoldEvService {
     for (var i = 0; i < acts.length; i++) {
       final a = acts[i];
       if (a.playerIndex == hero && a.action == 'push') {
-        final chipEv = a.ev ??
+        final chipEv =
+            a.ev ??
             computePushEV(
               heroBbStack: stack,
               bbCount: spot.hand.playerCount - 1,

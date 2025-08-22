@@ -58,8 +58,9 @@ class _TrainingPackSearchBarWidgetState
 
   void _onFormatPressed(int index) {
     setState(() {
-      final selected =
-          index == 0 ? TrainingPackFormat.cash : TrainingPackFormat.tournament;
+      final selected = index == 0
+          ? TrainingPackFormat.cash
+          : TrainingPackFormat.tournament;
       _format = _format == selected ? null : selected;
     });
     _update();

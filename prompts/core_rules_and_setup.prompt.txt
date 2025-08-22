@@ -1,0 +1,2 @@
+GO MODULE: core_rules_and_setup
+[Full prompt present in earlier drop; keep constraints identical.]

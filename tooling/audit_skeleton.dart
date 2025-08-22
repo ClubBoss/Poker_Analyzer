@@ -43,4 +43,3 @@ void main(List<String> args) {
     File('curriculum_status.json').writeAsStringSync(json);
   }
 }
-

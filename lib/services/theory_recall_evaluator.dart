@@ -25,8 +25,8 @@ class TheoryRecallEvaluator {
     this.recencyWeight = 0.1,
     this.cooldownPenalty = 1.0,
     this.completionPenalty = 2.0,
-  })  : cooldown = cooldown ?? BoosterCooldownService.instance,
-        progress = progress ?? MiniLessonProgressTracker.instance;
+  }) : cooldown = cooldown ?? BoosterCooldownService.instance,
+       progress = progress ?? MiniLessonProgressTracker.instance;
 
   static final RegExp _stageRe = RegExp(r'^level\\d+\$', caseSensitive: false);
 
@@ -105,8 +105,8 @@ class TheoryRecallEvaluator {
     final prefs = await SharedPreferences.getInstance();
     final cutoff = DateTime.now().subtract(Duration(days: days));
 
-    final completed =
-        await BoosterCompletionTracker.instance.getAllCompletedBoosters();
+    final completed = await BoosterCompletionTracker.instance
+        .getAllCompletedBoosters();
     final tagScores = <String, double>{};
     for (final pack in packs) {
       if (!completed.contains(pack.id)) continue;
@@ -117,7 +117,8 @@ class TheoryRecallEvaluator {
       if (lastStr == null) continue;
       final last = DateTime.tryParse(lastStr);
       if (last == null || last.isBefore(cutoff)) continue;
-      final acc = prefs.getDouble('last_accuracy_tpl_${pack.id}_0') ??
+      final acc =
+          prefs.getDouble('last_accuracy_tpl_${pack.id}_0') ??
           prefs.getDouble('last_accuracy_tpl_${pack.id}') ??
           100.0;
       if (acc >= accuracyThreshold) continue;

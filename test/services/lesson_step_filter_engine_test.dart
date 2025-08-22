@@ -18,13 +18,13 @@ void main() {
   );
 
   LessonStep step(String id, LessonStepFilter? filter) => LessonStep(
-        id: id,
-        title: id,
-        introText: '',
-        linkedPackId: 'p',
-        filter: filter,
-        meta: const {'schemaVersion': '3.0.0'},
-      );
+    id: id,
+    title: id,
+    introText: '',
+    linkedPackId: 'p',
+    filter: filter,
+    meta: const {'schemaVersion': '3.0.0'},
+  );
 
   test('filters by minXp', () {
     final steps = [

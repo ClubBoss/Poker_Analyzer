@@ -5,7 +5,7 @@ import 'pinned_interaction_logger_service.dart';
 /// due to user fatigue.
 class NudgeFatigueDetectorService {
   NudgeFatigueDetectorService({PinnedInteractionLoggerService? logger})
-      : _logger = logger ?? PinnedInteractionLoggerService.instance;
+    : _logger = logger ?? PinnedInteractionLoggerService.instance;
 
   /// Singleton instance.
   static final NudgeFatigueDetectorService instance =

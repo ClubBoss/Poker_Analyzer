@@ -9,7 +9,7 @@ class TotalInvestedLabel extends StatelessWidget {
   final double scale;
 
   const TotalInvestedLabel({Key? key, required this.total, this.scale = 1.0})
-      : super(key: key);
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {

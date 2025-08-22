@@ -13,14 +13,14 @@ class _Result extends TrainingResult {
   final bool isCorrect;
   final double heroEv;
   _Result({required this.spotId, required this.isCorrect, required this.heroEv})
-      : super(
-          date: DateTime.now(),
-          total: 1,
-          correct: isCorrect ? 1 : 0,
-          accuracy: isCorrect ? 100 : 0,
-          tags: const ['cbet'],
-          evDiff: heroEv - 1,
-        );
+    : super(
+        date: DateTime.now(),
+        total: 1,
+        correct: isCorrect ? 1 : 0,
+        accuracy: isCorrect ? 100 : 0,
+        tags: const ['cbet'],
+        evDiff: heroEv - 1,
+      );
 }
 
 TrainingPackSpot _spot(String id, String tag, double ev) {

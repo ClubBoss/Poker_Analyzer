@@ -32,10 +32,10 @@ class DeduplicationPolicy {
   }
 
   Map<String, dynamic> toJson() => {
-        'reason': reason,
-        'action': action.name,
-        'threshold': threshold,
-      };
+    'reason': reason,
+    'action': action.name,
+    'threshold': threshold,
+  };
 }
 
 class DeduplicationPolicyEngine {

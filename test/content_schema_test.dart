@@ -28,8 +28,10 @@ void main() {
       });
 
       test('demos.jsonl: 2–3 valid JSON lines', () {
-        final lines =
-            demos.readAsLinesSync().where((l) => l.trim().isNotEmpty).toList();
+        final lines = demos
+            .readAsLinesSync()
+            .where((l) => l.trim().isNotEmpty)
+            .toList();
         expect(lines.length >= 2 && lines.length <= 3, true);
         for (final l in lines) {
           json.decode(l);
@@ -37,8 +39,10 @@ void main() {
       });
 
       test('drills.jsonl: 10–20 valid JSON lines with required fields', () {
-        final lines =
-            drills.readAsLinesSync().where((l) => l.trim().isNotEmpty).toList();
+        final lines = drills
+            .readAsLinesSync()
+            .where((l) => l.trim().isNotEmpty)
+            .toList();
         expect(lines.length >= 10 && lines.length <= 20, true);
         for (final l in lines) {
           final obj = json.decode(l);

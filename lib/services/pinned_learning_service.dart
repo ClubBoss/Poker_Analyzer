@@ -53,7 +53,8 @@ class PinnedLearningService extends ChangeNotifier {
 
   Future<void> toggle(String type, String id) async {
     if (type == 'block') {
-      final block = TheoryBlockLibraryService.instance.getById(id) ??
+      final block =
+          TheoryBlockLibraryService.instance.getById(id) ??
           TheoryBlockModel(
             id: id,
             title: '',

@@ -45,8 +45,9 @@ class WeaknessClusterEngine {
       final plays = attempts[tag] ?? 0;
       final miss = mistakes[tag] ?? 0;
       final acc = plays > 0 ? (plays - miss) / plays : 1.0;
-      final avgEv =
-          evCount.containsKey(tag) ? evSum[tag]! / evCount[tag]! : null;
+      final avgEv = evCount.containsKey(tag)
+          ? evSum[tag]! / evCount[tag]!
+          : null;
       final mastery = tagMastery[tag] ?? 1.0;
 
       double bestScore = 0;

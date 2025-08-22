@@ -23,7 +23,8 @@ class EvaluationProcessingService {
     RetryEvaluationService? retryService,
   }) {
     _executor = executor ?? registry.get<EvaluationExecutor>();
-    _retryService = retryService ??
+    _retryService =
+        retryService ??
         RetryEvaluationService(registry: registry, executor: _executor);
     debugPrefs.addListener(_onPrefsChanged);
     _initFuture = _initialize();
@@ -87,7 +88,8 @@ class EvaluationProcessingService {
       if (cancelRequested) break;
       if (await queueService.queueLock.synchronized(
         () => queueService.pending.isEmpty,
-      )) break;
+      ))
+        break;
       final success = await _processSingleEvaluation(req);
       await queueService.queueLock.synchronized(() {
         if (queueService.pending.isNotEmpty) {

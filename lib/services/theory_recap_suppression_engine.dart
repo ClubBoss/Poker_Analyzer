@@ -10,7 +10,7 @@ import 'theory_recap_analytics_summarizer.dart';
 class TheoryRecapSuppressionEngine {
   final TheoryRecapAnalyticsSummarizer summarizer;
   TheoryRecapSuppressionEngine({TheoryRecapAnalyticsSummarizer? summarizer})
-      : summarizer = summarizer ?? TheoryRecapAnalyticsSummarizer();
+    : summarizer = summarizer ?? TheoryRecapAnalyticsSummarizer();
 
   static final TheoryRecapSuppressionEngine instance =
       TheoryRecapSuppressionEngine();

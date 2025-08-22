@@ -110,7 +110,8 @@ class _LearningPathLinearViewScreenState
                     (n) => n.id == currentId,
                   );
                   final nodeIndex = _nodes.indexOf(node);
-                  final isBlocked = !isCompleted &&
+                  final isBlocked =
+                      !isCompleted &&
                       !isCurrent &&
                       nodeIndex > currentIndex &&
                       currentIndex >= 0;

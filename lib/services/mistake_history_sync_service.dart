@@ -9,8 +9,8 @@ class MistakeHistorySyncService {
   final String? _uid;
 
   MistakeHistorySyncService({FirebaseFirestore? firestore, String? uid})
-      : _db = firestore ?? FirebaseFirestore.instance,
-        _uid = uid ?? FirebaseAuth.instance.currentUser?.uid;
+    : _db = firestore ?? FirebaseFirestore.instance,
+      _uid = uid ?? FirebaseAuth.instance.currentUser?.uid;
 
   Future<void> uploadMistakes(Map<String, int> mistakeCounts) async {
     if (_uid == null) return;

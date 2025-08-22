@@ -11,8 +11,8 @@ class BoosterSimilarityPruner {
   const BoosterSimilarityPruner({
     BoosterSimilarityEngine? engine,
     double threshold = 0.85,
-  })  : _engine = engine ?? const BoosterSimilarityEngine(),
-        _threshold = threshold;
+  }) : _engine = engine ?? const BoosterSimilarityEngine(),
+       _threshold = threshold;
 
   /// Returns a copy of [pack] with similar spots removed.
   TrainingPackTemplateV2 prune(

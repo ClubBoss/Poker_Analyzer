@@ -40,7 +40,8 @@ class _LearningTrackScreenState extends State<LearningTrackScreen> {
 
   Future<void> _load() async {
     final unlocked = await _progression.getUnlockedBlocks(widget.track);
-    final last = widget.initialBlockId ??
+    final last =
+        widget.initialBlockId ??
         await TheoryTrackResumeService.instance.getLastVisitedBlock(
           widget.track.id,
         );
@@ -50,8 +51,8 @@ class _LearningTrackScreenState extends State<LearningTrackScreen> {
         final targetId = (last != null && unlocked.any((b) => b.id == last))
             ? last
             : unlocked.isNotEmpty
-                ? unlocked.first.id
-                : null;
+            ? unlocked.first.id
+            : null;
         final key = targetId != null ? _blockKeys[targetId] : null;
         final context = key?.currentContext;
         if (context != null) {

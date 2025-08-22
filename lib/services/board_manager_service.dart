@@ -24,10 +24,10 @@ class BoardManagerService extends ChangeNotifier {
     required this.lockService,
     required BoardSyncService boardSync,
     required this.boardReveal,
-  })  : _playerManager = playerManager,
-        _actionSync = actionSync,
-        _playbackManager = playbackManager,
-        _boardSync = boardSync {
+  }) : _playerManager = playerManager,
+       _actionSync = actionSync,
+       _playbackManager = playbackManager,
+       _boardSync = boardSync {
     _playerManager.addListener(_onPlayerManagerChanged);
     boardReveal.setRevealStreet(currentStreet);
   }

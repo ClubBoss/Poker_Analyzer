@@ -110,9 +110,6 @@ class _SummaryData {
     required this.delta,
     required this.events,
   });
-  const _SummaryData.empty()
-      : tags = 0,
-        delta = 0,
-        events = const [];
+  const _SummaryData.empty() : tags = 0, delta = 0, events = const [];
   bool get isEmpty => tags == 0;
 }

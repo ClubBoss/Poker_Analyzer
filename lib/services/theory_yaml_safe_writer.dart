@@ -23,7 +23,7 @@ class TheoryWriteConflict implements Exception {
 
 class TheoryYamlSafeWriter {
   TheoryYamlSafeWriter({AutogenStatusDashboardService? dashboard})
-      : _dashboard = dashboard ?? AutogenStatusDashboardService.instance;
+    : _dashboard = dashboard ?? AutogenStatusDashboardService.instance;
 
   final AutogenStatusDashboardService _dashboard;
 
@@ -42,7 +42,8 @@ class TheoryYamlSafeWriter {
       String backupPath,
       String newHash,
       String? prevHash,
-    )? onBackup,
+    )?
+    onBackup,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final dryRun = prefs.getBool('theory.safeWriter.dryRun') ?? false;
@@ -117,12 +118,13 @@ class TheoryYamlSafeWriter {
 
         // Lexicographic prune works because suffix is fixed-width millis
         final base = p.basename(rel);
-        final backups = backupFile.parent
-            .listSync()
-            .whereType<File>()
-            .where((f) => p.basename(f.path).startsWith('$base.'))
-            .toList()
-          ..sort((a, b) => a.path.compareTo(b.path));
+        final backups =
+            backupFile.parent
+                .listSync()
+                .whereType<File>()
+                .where((f) => p.basename(f.path).startsWith('$base.'))
+                .toList()
+              ..sort((a, b) => a.path.compareTo(b.path));
         final over = backups.length - keep;
         if (over > 0) {
           for (final f in backups.take(over)) {

@@ -48,7 +48,8 @@ class _TrackCompletionDialogState extends State<TrackCompletionDialog> {
         return AlertDialog(
           content: SizedBox(
             width: 320,
-            child: snapshot.connectionState == ConnectionState.done &&
+            child:
+                snapshot.connectionState == ConnectionState.done &&
                     renderer != null
                 ? renderer.buildCard(widget.trackId)
                 : const SizedBox(

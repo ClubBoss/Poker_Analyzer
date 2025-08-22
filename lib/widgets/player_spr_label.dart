@@ -9,7 +9,7 @@ class PlayerSprLabel extends StatelessWidget {
   final double scale;
 
   const PlayerSprLabel({Key? key, required this.spr, this.scale = 1.0})
-      : super(key: key);
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {

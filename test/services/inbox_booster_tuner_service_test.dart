@@ -8,7 +8,7 @@ import 'package:poker_analyzer/models/theory_mini_lesson_node.dart';
 class _FakeLibrary extends MiniLessonLibraryService {
   final Map<String, TheoryMiniLessonNode> items;
   _FakeLibrary(List<TheoryMiniLessonNode> lessons)
-      : items = {for (final l in lessons) l.id: l};
+    : items = {for (final l in lessons) l.id: l};
 
   @override
   Future<void> loadAll() async {}

@@ -11,29 +11,29 @@ void main() {
   const service = LearningPathProgressService();
 
   LearningPathTemplateV2 path() => const LearningPathTemplateV2(
-        id: 'p1',
-        title: 'Test Path',
+    id: 'p1',
+    title: 'Test Path',
+    description: '',
+    stages: [
+      LearningPathStageModel(
+        id: 's1',
+        title: 'Stage 1',
         description: '',
-        stages: [
-          LearningPathStageModel(
-            id: 's1',
-            title: 'Stage 1',
-            description: '',
-            packId: 'pack1',
-            requiredAccuracy: 80,
-            minHands: 10,
-            unlocks: ['s2'],
-          ),
-          LearningPathStageModel(
-            id: 's2',
-            title: 'Stage 2',
-            description: '',
-            packId: 'pack2',
-            requiredAccuracy: 80,
-            minHands: 10,
-          ),
-        ],
-      );
+        packId: 'pack1',
+        requiredAccuracy: 80,
+        minHands: 10,
+        unlocks: ['s2'],
+      ),
+      LearningPathStageModel(
+        id: 's2',
+        title: 'Stage 2',
+        description: '',
+        packId: 'pack2',
+        requiredAccuracy: 80,
+        minHands: 10,
+      ),
+    ],
+  );
 
   final allPacks = [
     const TrainingPackTemplateV2(id: 'pack1', name: 'A'),

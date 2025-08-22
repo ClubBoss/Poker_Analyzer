@@ -121,12 +121,12 @@ class _CorrectedMistakeHistoryScreenState
                                                       label: Text(t),
                                                       backgroundColor:
                                                           const Color(
-                                                        0xFF3A3B3E,
-                                                      ),
+                                                            0xFF3A3B3E,
+                                                          ),
                                                       labelStyle:
                                                           const TextStyle(
-                                                        color: Colors.white,
-                                                      ),
+                                                            color: Colors.white,
+                                                          ),
                                                       visualDensity:
                                                           VisualDensity.compact,
                                                     ),

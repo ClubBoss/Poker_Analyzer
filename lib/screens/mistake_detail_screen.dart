@@ -13,9 +13,9 @@ class MistakeDetailScreen extends StatelessWidget {
   const MistakeDetailScreen({super.key, required this.hand});
 
   Map<int, String> _posMap() => {
-        for (int i = 0; i < hand.numberOfPlayers; i++)
-          i: hand.playerPositions[i] ?? 'P${i + 1}',
-      };
+    for (int i = 0; i < hand.numberOfPlayers; i++)
+      i: hand.playerPositions[i] ?? 'P${i + 1}',
+  };
 
   List<ActionEntry> _actions() => List<ActionEntry>.from(hand.actions);
 

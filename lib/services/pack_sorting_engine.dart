@@ -12,8 +12,8 @@ class PackSortingEngine {
     List<TrainingPackTemplateV2> packs, {
     bool prioritizeUntrained = true,
   }) async {
-    final completions =
-        await PackLibraryCompletionService.instance.getAllCompletions();
+    final completions = await PackLibraryCompletionService.instance
+        .getAllCompletions();
     final entries = packs.asMap().entries.toList();
     mergeSort<MapEntry<int, TrainingPackTemplateV2>>(
       entries,
@@ -39,8 +39,8 @@ class PackSortingEngine {
     List<TrainingPackTemplateV2> packs, {
     bool descending = false,
   }) async {
-    final completions =
-        await PackLibraryCompletionService.instance.getAllCompletions();
+    final completions = await PackLibraryCompletionService.instance
+        .getAllCompletions();
     final entries = packs.asMap().entries.toList();
     mergeSort<MapEntry<int, TrainingPackTemplateV2>>(
       entries,

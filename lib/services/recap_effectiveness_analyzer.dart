@@ -5,7 +5,7 @@ class RecapEffectivenessAnalyzer {
   final RecapCompletionTracker tracker;
 
   RecapEffectivenessAnalyzer({RecapCompletionTracker? tracker})
-      : tracker = tracker ?? RecapCompletionTracker.instance;
+    : tracker = tracker ?? RecapCompletionTracker.instance;
 
   static final RecapEffectivenessAnalyzer instance =
       RecapEffectivenessAnalyzer();
@@ -93,8 +93,9 @@ class _MutableTagStats {
       final diff = timestamps[i].difference(timestamps[i - 1]).inDays;
       if (diff <= 5) repeats++;
     }
-    final repeatRate =
-        timestamps.length > 1 ? repeats / (timestamps.length - 1) : 0.0;
+    final repeatRate = timestamps.length > 1
+        ? repeats / (timestamps.length - 1)
+        : 0.0;
     final avg = count > 0
         ? Duration(milliseconds: totalDuration.inMilliseconds ~/ count)
         : Duration.zero;

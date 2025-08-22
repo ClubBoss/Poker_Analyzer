@@ -14,10 +14,12 @@ Future<void> showUnlockProgressDialog(
   final accReq = requiredAccuracy;
   final handsReq = minHands;
 
-  final neededAcc =
-      accReq != null ? (accReq - accuracyAfter).clamp(0, double.infinity) : 0;
-  final neededHands =
-      handsReq != null ? (handsReq - handsAfter).clamp(0, double.infinity) : 0;
+  final neededAcc = accReq != null
+      ? (accReq - accuracyAfter).clamp(0, double.infinity)
+      : 0;
+  final neededHands = handsReq != null
+      ? (handsReq - handsAfter).clamp(0, double.infinity)
+      : 0;
 
   final achieved = (neededAcc <= 0) && (neededHands <= 0);
 
@@ -28,11 +30,16 @@ Future<void> showUnlockProgressDialog(
   if (neededHands > 0) {
     final h = neededHands.toInt();
     remainingParts.add(
-      '$h ру${h == 1 ? 'ка' : h < 5 ? 'ки' : 'к'}',
+      '$h ру${h == 1
+          ? 'ка'
+          : h < 5
+          ? 'ки'
+          : 'к'}',
     );
   }
-  final remainingText =
-      achieved ? 'Цель достигнута!' : 'Осталось: ${remainingParts.join(' и ')}';
+  final remainingText = achieved
+      ? 'Цель достигнута!'
+      : 'Осталось: ${remainingParts.join(' и ')}';
 
   if (achieved) {
     WidgetsBinding.instance.addPostFrameCallback((_) {

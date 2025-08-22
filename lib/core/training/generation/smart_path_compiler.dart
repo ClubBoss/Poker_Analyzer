@@ -17,11 +17,11 @@ class SmartPathCompiler {
     LearningPathAutoPackAssigner? packAssigner,
     LearningPathPackValidator? validator,
     LearningPathLibraryGenerator? libraryGenerator,
-  })  : seedGenerator = seedGenerator ?? const SmartPathSeedGenerator(),
-        packAssigner = packAssigner ?? const LearningPathAutoPackAssigner(),
-        validator = validator ?? const LearningPathPackValidator(),
-        libraryGenerator =
-            libraryGenerator ?? const LearningPathLibraryGenerator();
+  }) : seedGenerator = seedGenerator ?? const SmartPathSeedGenerator(),
+       packAssigner = packAssigner ?? const LearningPathAutoPackAssigner(),
+       validator = validator ?? const LearningPathPackValidator(),
+       libraryGenerator =
+           libraryGenerator ?? const LearningPathLibraryGenerator();
 
   /// Compiles [lines] into a YAML learning path using packs from [packsDir].
   /// Throws [Exception] if any referenced packs are missing.

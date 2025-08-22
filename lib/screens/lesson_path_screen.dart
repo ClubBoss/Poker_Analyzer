@@ -56,10 +56,10 @@ class _LessonPathScreenState extends State<LessonPathScreen> {
       return <dynamic>[];
     }
     _track = const LearningTrackEngine().getTracks().firstWhereOrNull(
-          (t) => t.id == id,
-        );
-    _stepProgress =
-        await LessonProgressTrackerService.instance.getCompletedStepsFlat();
+      (t) => t.id == id,
+    );
+    _stepProgress = await LessonProgressTrackerService.instance
+        .getCompletedStepsFlat();
     return Future.wait([
       LessonLoaderService.instance.loadAllLessons(),
       LessonProgressService.instance.getCompletedSteps(),
@@ -93,176 +93,173 @@ class _LessonPathScreenState extends State<LessonPathScreen> {
           body: snapshot.connectionState != ConnectionState.done
               ? const Center(child: CircularProgressIndicator())
               : (steps == null || steps.isEmpty)
-                  ? const Center(
-                      child: Text(
-                        'Нет шагов',
-                        style: TextStyle(color: Colors.white70),
+              ? const Center(
+                  child: Text(
+                    'Нет шагов',
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                )
+              : Column(
+                  children: [
+                    if (_showDashboardBanner)
+                      MaterialBanner(
+                        leading: const Text(
+                          '🧠',
+                          style: TextStyle(fontSize: 24),
+                        ),
+                        content: const Text(
+                          'Откройте обзор теории по кластерам',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      const TheoryClusterDashboardScreen(),
+                                ),
+                              );
+                              setState(() => _showDashboardBanner = false);
+                            },
+                            child: const Text('Открыть'),
+                          ),
+                          TextButton(
+                            onPressed: () =>
+                                setState(() => _showDashboardBanner = false),
+                            child: const Text('Закрыть'),
+                          ),
+                        ],
                       ),
-                    )
-                  : Column(
-                      children: [
-                        if (_showDashboardBanner)
-                          MaterialBanner(
-                            leading: const Text(
-                              '🧠',
-                              style: TextStyle(fontSize: 24),
+                    FutureBuilder<LessonPathProgress>(
+                      future: LessonPathProgressService.instance
+                          .computeProgress(),
+                      builder: (context, progressSnapshot) {
+                        final progress = progressSnapshot.data;
+                        if (progress == null || progress.total == 0) {
+                          return const SizedBox.shrink();
+                        }
+                        final percentInt = progress.percent.round();
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Прогресс: $percentInt%',
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                              const SizedBox(height: 4),
+                              LinearProgressIndicator(
+                                value: progress.percent / 100,
+                                color: Colors.orange,
+                                backgroundColor: Colors.white24,
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: steps.length,
+                        itemBuilder: (context, index) {
+                          final step = steps[index];
+                          final intro = step.introText;
+                          final preview = intro.length > 100
+                              ? '${intro.substring(0, 100)}...'
+                              : intro;
+                          final firstIncomplete = steps.indexWhere(
+                            (s) => !completed.contains(s.id),
+                          );
+                          final isDone = completed.contains(step.id);
+                          final trackerDone = _stepProgress[step.id] == true;
+                          final completedCount = trackerDone ? 1 : 0;
+                          const totalCount = 1;
+                          final statusIcon = isDone
+                              ? '✅'
+                              : (index == firstIncomplete ? '🟡' : '🟢');
+                          final buttonLabel = isDone
+                              ? 'Открыть'
+                              : (index == firstIncomplete
+                                    ? 'Начать'
+                                    : 'Продолжить');
+                          final Widget progressWidget;
+                          if (completedCount == totalCount) {
+                            progressWidget = const Icon(
+                              Icons.check_circle,
+                              color: Colors.green,
+                              size: 18,
+                            );
+                          } else {
+                            final color = completedCount == 0
+                                ? Colors.grey
+                                : Colors.orange;
+                            progressWidget = Text(
+                              '$completedCount / $totalCount',
+                              style: TextStyle(color: color),
+                            );
+                            if (completedCount == 0) {
+                              progressWidget = Opacity(
+                                opacity: 0.4,
+                                child: progressWidget,
+                              );
+                            }
+                          }
+                          return Card(
+                            color: const Color(0xFF1E1E1E),
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
                             ),
-                            content: const Text(
-                              'Откройте обзор теории по кластерам',
-                            ),
-                            actions: [
-                              TextButton(
+                            child: ListTile(
+                              title: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text('$statusIcon ${step.title}'),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  progressWidget,
+                                ],
+                              ),
+                              subtitle: Text(
+                                preview,
+                                style: const TextStyle(color: Colors.white70),
+                              ),
+                              trailing: ElevatedButton(
                                 onPressed: () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (_) =>
-                                          const TheoryClusterDashboardScreen(),
-                                    ),
-                                  );
-                                  setState(() => _showDashboardBanner = false);
-                                },
-                                child: const Text('Открыть'),
-                              ),
-                              TextButton(
-                                onPressed: () => setState(
-                                    () => _showDashboardBanner = false),
-                                child: const Text('Закрыть'),
-                              ),
-                            ],
-                          ),
-                        FutureBuilder<LessonPathProgress>(
-                          future: LessonPathProgressService.instance
-                              .computeProgress(),
-                          builder: (context, progressSnapshot) {
-                            final progress = progressSnapshot.data;
-                            if (progress == null || progress.total == 0) {
-                              return const SizedBox.shrink();
-                            }
-                            final percentInt = progress.percent.round();
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Прогресс: $percentInt%',
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  LinearProgressIndicator(
-                                    value: progress.percent / 100,
-                                    color: Colors.orange,
-                                    backgroundColor: Colors.white24,
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                        Expanded(
-                          child: ListView.builder(
-                            itemCount: steps.length,
-                            itemBuilder: (context, index) {
-                              final step = steps[index];
-                              final intro = step.introText;
-                              final preview = intro.length > 100
-                                  ? '${intro.substring(0, 100)}...'
-                                  : intro;
-                              final firstIncomplete = steps.indexWhere(
-                                (s) => !completed.contains(s.id),
-                              );
-                              final isDone = completed.contains(step.id);
-                              final trackerDone =
-                                  _stepProgress[step.id] == true;
-                              final completedCount = trackerDone ? 1 : 0;
-                              const totalCount = 1;
-                              final statusIcon = isDone
-                                  ? '✅'
-                                  : (index == firstIncomplete ? '🟡' : '🟢');
-                              final buttonLabel = isDone
-                                  ? 'Открыть'
-                                  : (index == firstIncomplete
-                                      ? 'Начать'
-                                      : 'Продолжить');
-                              final Widget progressWidget;
-                              if (completedCount == totalCount) {
-                                progressWidget = const Icon(
-                                  Icons.check_circle,
-                                  color: Colors.green,
-                                  size: 18,
-                                );
-                              } else {
-                                final color = completedCount == 0
-                                    ? Colors.grey
-                                    : Colors.orange;
-                                progressWidget = Text(
-                                  '$completedCount / $totalCount',
-                                  style: TextStyle(color: color),
-                                );
-                                if (completedCount == 0) {
-                                  progressWidget = Opacity(
-                                    opacity: 0.4,
-                                    child: progressWidget,
-                                  );
-                                }
-                              }
-                              return Card(
-                                color: const Color(0xFF1E1E1E),
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
-                                ),
-                                child: ListTile(
-                                  title: Row(
-                                    children: [
-                                      Expanded(
-                                        child:
-                                            Text('$statusIcon ${step.title}'),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      progressWidget,
-                                    ],
-                                  ),
-                                  subtitle: Text(
-                                    preview,
-                                    style:
-                                        const TextStyle(color: Colors.white70),
-                                  ),
-                                  trailing: ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => LessonStepScreen(
-                                            step: step,
-                                            onStepComplete: (s) async {
-                                              await Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (_) =>
-                                                      LessonStepRecapScreen(
+                                      builder: (_) => LessonStepScreen(
+                                        step: step,
+                                        onStepComplete: (s) async {
+                                          await Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) =>
+                                                  LessonStepRecapScreen(
                                                     step: s,
                                                   ),
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    child: Text(buttonLabel),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Text(buttonLabel),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ),
+                  ],
+                ),
         );
       },
     );

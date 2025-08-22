@@ -87,24 +87,24 @@ class _GoalCenterScreenState extends State<GoalCenterScreen> {
       body: goals == null
           ? const Center(child: CircularProgressIndicator())
           : goals.isEmpty
-              ? const Center(
-                  child: Text(
-                    'Нет персональных целей',
-                    style: TextStyle(color: Colors.white70),
-                  ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: goals.length,
-                  itemBuilder: (context, index) {
-                    final g = goals[index];
-                    return TrainingGoalCard(
-                      goal: g,
-                      onStart: () => _startGoal(g),
-                      progress: g.tag != null ? _progress[g.tag] : null,
-                    );
-                  },
-                ),
+          ? const Center(
+              child: Text(
+                'Нет персональных целей',
+                style: TextStyle(color: Colors.white70),
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: goals.length,
+              itemBuilder: (context, index) {
+                final g = goals[index];
+                return TrainingGoalCard(
+                  goal: g,
+                  onStart: () => _startGoal(g),
+                  progress: g.tag != null ? _progress[g.tag] : null,
+                );
+              },
+            ),
     );
   }
 }

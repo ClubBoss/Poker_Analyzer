@@ -29,7 +29,8 @@ class _SkillDecayChartWidgetState extends State<SkillDecayChartWidget> {
   }
 
   Future<Map<String, List<FlSpot>>> _load() async {
-    final tags = widget.tags ??
+    final tags =
+        widget.tags ??
         (await _service.getMostDecayedTags(3)).map((e) => e.key).toList();
     final now = DateTime.now();
     final start = now.subtract(Duration(days: widget.days));
@@ -46,8 +47,9 @@ class _SkillDecayChartWidgetState extends State<SkillDecayChartWidget> {
       final spots = <FlSpot>[];
       for (var i = 0; i <= widget.days; i++) {
         final date = start.add(Duration(days: i));
-        final daysSince =
-            last == null ? 100.0 : date.difference(last).inDays.toDouble();
+        final daysSince = last == null
+            ? 100.0
+            : date.difference(last).inDays.toDouble();
         final retention = (1 - daysSince / 100).clamp(0.0, 1.0) * 100;
         spots.add(FlSpot(date.millisecondsSinceEpoch.toDouble(), retention));
       }

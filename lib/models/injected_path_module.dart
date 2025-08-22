@@ -49,18 +49,18 @@ class InjectedPathModule {
   }
 
   Map<String, dynamic> toJson() => {
-        'moduleId': moduleId,
-        'clusterId': clusterId,
-        'themeName': themeName,
-        'theoryIds': theoryIds,
-        'boosterPackIds': boosterPackIds,
-        'assessmentPackId': assessmentPackId,
-        'createdAt': createdAt.toIso8601String(),
-        'triggerReason': triggerReason,
-        'status': status,
-        'metrics': metrics,
-        if (itemsDurations != null) 'itemsDurations': itemsDurations,
-      };
+    'moduleId': moduleId,
+    'clusterId': clusterId,
+    'themeName': themeName,
+    'theoryIds': theoryIds,
+    'boosterPackIds': boosterPackIds,
+    'assessmentPackId': assessmentPackId,
+    'createdAt': createdAt.toIso8601String(),
+    'triggerReason': triggerReason,
+    'status': status,
+    'metrics': metrics,
+    if (itemsDurations != null) 'itemsDurations': itemsDurations,
+  };
 
   static InjectedPathModule fromJson(Map<String, dynamic> json) =>
       InjectedPathModule(

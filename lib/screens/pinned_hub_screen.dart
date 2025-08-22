@@ -41,12 +41,15 @@ class _PinnedHubScreenState extends State<PinnedHubScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final lessons =
-        _service.items.where((e) => e.type == 'lesson').toList(growable: false);
-    final packs =
-        _service.items.where((e) => e.type == 'pack').toList(growable: false);
-    final blocks =
-        _service.items.where((e) => e.type == 'block').toList(growable: false);
+    final lessons = _service.items
+        .where((e) => e.type == 'lesson')
+        .toList(growable: false);
+    final packs = _service.items
+        .where((e) => e.type == 'pack')
+        .toList(growable: false);
+    final blocks = _service.items
+        .where((e) => e.type == 'block')
+        .toList(growable: false);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pinned Items'),

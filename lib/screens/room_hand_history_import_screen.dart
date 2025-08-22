@@ -593,14 +593,14 @@ class _RoomHandHistoryImportScreenState
                                           ),
                                           Builder(
                                             builder: (_) {
-                                              final hero = h
-                                                          .playerCards.length >
+                                              final hero =
+                                                  h.playerCards.length >
                                                       h.heroIndex
                                                   ? h.playerCards[h.heroIndex]
-                                                      .map(
-                                                        (c) => c.toString(),
-                                                      )
-                                                      .join(' ')
+                                                        .map(
+                                                          (c) => c.toString(),
+                                                        )
+                                                        .join(' ')
                                                   : '';
                                               final board = h.boardCards
                                                   .map((c) => c.toString())
@@ -640,11 +640,11 @@ class _RoomHandHistoryImportScreenState
                                                         ),
                                                       ),
                                                       backgroundColor:
-                                                          Colors.primaries[
-                                                              t.hashCode %
-                                                                  Colors
-                                                                      .primaries
-                                                                      .length],
+                                                          Colors.primaries[t
+                                                                  .hashCode %
+                                                              Colors
+                                                                  .primaries
+                                                                  .length],
                                                     ),
                                                 ],
                                               ),

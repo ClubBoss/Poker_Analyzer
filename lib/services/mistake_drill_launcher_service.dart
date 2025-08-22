@@ -17,8 +17,8 @@ class MistakeDrillLauncherService {
     required this.generator,
     TrainingSessionLauncher launcher = const TrainingSessionLauncher(),
     RecentPackStore? store,
-  })  : launcher = launcher,
-        store = store ?? RecentPackStore.instance;
+  }) : launcher = launcher,
+       store = store ?? RecentPackStore.instance;
 
   /// Returns `true` if enough time has passed since the last auto drill.
   Future<bool> shouldTriggerAutoDrill({DateTime? now}) async {

@@ -36,12 +36,15 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
       h.spotId ?? h.savedAt.millisecondsSinceEpoch.toString();
 
   TrainingPackSpot _spotFromHand(SavedHand h) {
-    final hero =
-        h.playerCards[h.heroIndex].map((c) => '${c.rank}${c.suit}').join(' ');
+    final hero = h.playerCards[h.heroIndex]
+        .map((c) => '${c.rank}${c.suit}')
+        .join(' ');
     final board = [for (final c in h.boardCards) '${c.rank}${c.suit}'];
     final actions = <int, List<ActionEntry>>{};
     for (final a in h.actions) {
-      actions.putIfAbsent(a.street, () => []).add(
+      actions
+          .putIfAbsent(a.street, () => [])
+          .add(
             ActionEntry(
               a.street,
               a.playerIndex,
@@ -89,8 +92,9 @@ class _WeaknessOverviewScreenState extends State<WeaknessOverviewScreen> {
       final exp = h.expectedAction;
       final gto = h.gtoAction;
       if (exp == null || gto == null) continue;
-      final acc =
-          exp.trim().toLowerCase() == gto.trim().toLowerCase() ? 1.0 : 0.0;
+      final acc = exp.trim().toLowerCase() == gto.trim().toLowerCase()
+          ? 1.0
+          : 0.0;
       attempts.add(
         TrainingAttempt(
           packId: 'history',

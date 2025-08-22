@@ -17,7 +17,7 @@ class RewardCardStyle {
 /// Provides visual style parameters for reward cards.
 class RewardCardStyleTunerService {
   RewardCardStyleTunerService({Map<String, RewardCardStyle>? trackStyles})
-      : _trackStyles = trackStyles ?? _defaultTrackStyles;
+    : _trackStyles = trackStyles ?? _defaultTrackStyles;
 
   final Map<String, RewardCardStyle> _trackStyles;
 

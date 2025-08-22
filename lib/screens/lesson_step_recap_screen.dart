@@ -112,7 +112,8 @@ class _LessonStepRecapScreenState extends State<LessonStepRecapScreen> {
   @override
   Widget build(BuildContext context) {
     final accent = Theme.of(context).colorScheme.secondary;
-    final tags = (widget.step.meta['tags'] as List?)
+    final tags =
+        (widget.step.meta['tags'] as List?)
             ?.map((e) => e.toString())
             .toList() ??
         const <String>[];

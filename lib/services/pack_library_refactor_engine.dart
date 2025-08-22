@@ -16,9 +16,9 @@ class PackLibraryRefactorEngine {
     YamlReader? yamlReader,
     YamlWriter? yamlWriter,
     YamlPackAutoTagger? autoTagger,
-  })  : reader = yamlReader ?? const YamlReader(),
-        writer = yamlWriter ?? const YamlWriter(),
-        tagger = autoTagger ?? const YamlPackAutoTagger();
+  }) : reader = yamlReader ?? const YamlReader(),
+       writer = yamlWriter ?? const YamlWriter(),
+       tagger = autoTagger ?? const YamlPackAutoTagger();
 
   Future<void> refactorAll(String path) async {
     final docs = await getApplicationDocumentsDirectory();
@@ -47,10 +47,12 @@ class PackLibraryRefactorEngine {
           );
         tpl.positions = [for (final p in sorted) p.label];
         await writer.write(_orderedMap(tpl), f.path);
-        final safeA =
-            (tpl.audience ?? 'any').replaceAll(' ', '_').toLowerCase();
-        final safeT =
-            (tpl.category ?? 'pack').replaceAll(' ', '_').toLowerCase();
+        final safeA = (tpl.audience ?? 'any')
+            .replaceAll(' ', '_')
+            .toLowerCase();
+        final safeT = (tpl.category ?? 'pack')
+            .replaceAll(' ', '_')
+            .toLowerCase();
         final ts = DateFormat('yyyyMMdd').format(tpl.created);
         final newPath = p.join(f.parent.path, 'lib_${safeA}_${safeT}_$ts.yaml');
         if (p.basename(f.path) != p.basename(newPath)) {

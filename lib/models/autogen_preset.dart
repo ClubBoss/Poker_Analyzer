@@ -52,15 +52,15 @@ class AutogenPreset {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        if (description != null) 'description': description,
-        'textures': textures.toJson(),
-        'theory': theory.toJson(),
-        'spotsPerPack': spotsPerPack,
-        'streets': streets,
-        'theoryRatio': theoryRatio,
-        'outputDir': outputDir,
-        if (extras.isNotEmpty) 'extras': extras,
-      };
+    'id': id,
+    'name': name,
+    if (description != null) 'description': description,
+    'textures': textures.toJson(),
+    'theory': theory.toJson(),
+    'spotsPerPack': spotsPerPack,
+    'streets': streets,
+    'theoryRatio': theoryRatio,
+    'outputDir': outputDir,
+    if (extras.isNotEmpty) 'extras': extras,
+  };
 }

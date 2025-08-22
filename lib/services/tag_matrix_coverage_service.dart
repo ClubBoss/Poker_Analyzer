@@ -19,9 +19,9 @@ class TagMatrixAxes {
   MatrixAxis operator [](int index) => axes[index];
 
   factory TagMatrixAxes.fromJson(List<dynamic> list) => TagMatrixAxes([
-        for (final a in list)
-          MatrixAxis.fromJson(Map<String, dynamic>.from(a as Map)),
-      ]);
+    for (final a in list)
+      MatrixAxis.fromJson(Map<String, dynamic>.from(a as Map)),
+  ]);
 
   List<Map<String, dynamic>> toJson() => [for (final a in axes) a.toJson()];
 }
@@ -33,9 +33,9 @@ class TagMatrixCell {
   TagMatrixCell(this.count, this.packs);
 
   factory TagMatrixCell.fromJson(Map<String, dynamic> json) => TagMatrixCell(
-        json['count'] as int,
-        [for (final p in json['packs']) p.toString()],
-      );
+    json['count'] as int,
+    [for (final p in json['packs']) p.toString()],
+  );
 
   Map<String, dynamic> toJson() => {'count': count, 'packs': packs};
 }
@@ -122,12 +122,12 @@ Future<Map<String, dynamic>> _coverageTask(Map args) async {
         final stack = bb >= 21
             ? '21+'
             : bb >= 13
-                ? '13-20'
-                : bb >= 8
-                    ? '8-12'
-                    : bb >= 5
-                        ? '5-7'
-                        : '<5';
+            ? '13-20'
+            : bb >= 8
+            ? '8-12'
+            : bb >= 5
+            ? '5-7'
+            : '<5';
         final posList = tpl.positions.isNotEmpty
             ? tpl.positions
             : [

@@ -33,9 +33,9 @@ import 'action_tag_service.dart';
 
 class SavedHandImportExportService {
   SavedHandImportExportService(this.manager, {ServiceRegistry? registry})
-      : _pipeline = registry?.contains<ConverterPipeline>() == true
-            ? registry!.get<ConverterPipeline>()
-            : null;
+    : _pipeline = registry?.contains<ConverterPipeline>() == true
+          ? registry!.get<ConverterPipeline>()
+          : null;
 
   final SavedHandManagerService manager;
   final ConverterPipeline? _pipeline;
@@ -56,7 +56,8 @@ class SavedHandImportExportService {
     String? gameType = hand.gameType;
     String? category = hand.category;
     if (gameType == null || gameType.isEmpty) {
-      gameType = (hand.buyIn != null ||
+      gameType =
+          (hand.buyIn != null ||
               hand.tournamentId?.isNotEmpty == true ||
               (hand.numberOfEntrants ?? 0) > 0)
           ? 'Tournament'
