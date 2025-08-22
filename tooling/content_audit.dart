@@ -1,198 +1,206 @@
-// tooling/content_audit.dart
-// ignore_for_file: avoid_print
-
+// dart run tooling/content_audit.dart [module_id]
 import 'dart:convert';
 import 'dart:io';
 
-class CheckResult {
-  final String status;
-  final List<String> reasons;
-  CheckResult(this.status, [List<String>? reasons])
-      : reasons = reasons ?? const [];
-}
+final asciiOk = RegExp(r'^[\x00-\x7F]+$');
+final idDemo = RegExp(r'^[a-z0-9_]+:demo:\d{2}$');
+final idDrill = RegExp(r'^[a-z0-9_]+:drill:\d{2}$');
+final snakeToken = RegExp(r'^[a-z0-9_]+$');
+final sectionHeaders = <String>[
+  'What it is',
+  'Why it matters',
+  'Rules of thumb',
+  'Mini example',
+  'Common mistakes',
+];
 
-class LineValidation {
-  final bool isValid;
-  final bool badIdPattern;
-  LineValidation(this.isValid, {this.badIdPattern = false});
-}
-
-List<String> readModules() {
-  final file = File('curriculum_status.json');
-  final data = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
-  final mods = data['modules_done'] as List<dynamic>?;
-  return mods?.map((e) => e.toString()).toList() ?? [];
-}
-
-CheckResult checkTheory(String moduleId) {
-  final path = 'content/$moduleId/v1/theory.md';
-  final file = File(path);
-  if (!file.existsSync()) {
-    return CheckResult('MISSING');
-  }
-  final text = file.readAsStringSync().trim();
-  if (text.isEmpty) {
-    return CheckResult('INVALID', ['empty_file']);
-  }
-  return CheckResult('OK');
-}
-
-bool idMatches(String id, String moduleId, String kind) {
-  final prefix = '$moduleId:$kind:';
-  if (!id.startsWith(prefix)) return false;
-  final suffix = id.substring(prefix.length);
-  return suffix.length == 2 && int.tryParse(suffix) != null;
-}
-
-CheckResult checkJsonlFile(
-  String moduleId,
-  String name,
-  LineValidation Function(Map<String, dynamic>, String) validator, {
-  required int minLines,
-  required int maxLines,
-}) {
-  final path = 'content/$moduleId/v1/$name';
-  final file = File(path);
-  if (!file.existsSync()) {
-    return CheckResult('MISSING');
-  }
-  final lines = file.readAsLinesSync();
-  if (lines.isEmpty) {
-    return CheckResult('INVALID', ['empty_file']);
-  }
-  int invalid = 0;
-  int badId = 0;
-  bool nonAscii = false;
-
-  for (final line in lines) {
-    if (!isAscii(line)) {
-      nonAscii = true;
-      continue;
-    }
-    dynamic data;
-    try {
-      data = jsonDecode(line);
-    } catch (_) {
-      invalid++;
-      continue;
-    }
-    if (data is! Map<String, dynamic>) {
-      invalid++;
-      continue;
-    }
-    final res = validator(data, moduleId);
-    if (!res.isValid) {
-      invalid++;
-    }
-    if (res.badIdPattern) {
-      badId++;
-    }
-  }
-
-  final reasons = <String>[];
-  if (invalid > 0) reasons.add('jsonl_invalid:$invalid');
-  if (badId > 0) reasons.add('bad_id_pattern:$badId');
-  if (lines.length < minLines || lines.length > maxLines)
-    reasons.add('wrong_count');
-  if (nonAscii) reasons.add('non_ascii');
-
-  return reasons.isEmpty ? CheckResult('OK') : CheckResult('INVALID', reasons);
-}
-
-LineValidation validateDemoLine(Map<String, dynamic> data, String moduleId) {
-  final id = data['id'];
-  final title = data['title'];
-  final steps = data['steps'];
-  final hints = data['hints'];
-  bool badId = false;
-  if (id is! String || !idMatches(id, moduleId, 'demo')) badId = true;
-
-  if (id is! String || title is! String || steps is! List) {
-    return LineValidation(false, badIdPattern: badId);
-  }
-  if (steps.isEmpty || steps.any((e) => e is! String || e.trim().isEmpty)) {
-    return LineValidation(false, badIdPattern: badId);
-  }
-  if (hints != null) {
-    if (hints is! List || hints.any((e) => e is! String)) {
-      return LineValidation(false, badIdPattern: badId);
-    }
-  }
-  return LineValidation(!badId, badIdPattern: badId);
-}
-
-LineValidation validateDrillLine(Map<String, dynamic> data, String moduleId) {
-  final id = data['id'];
-  final spotKind = data['spotKind'];
-  final params = data['params'];
-  final target = data['target'];
-  final rationale = data['rationale'];
-  bool badId = false;
-  if (id is! String || !idMatches(id, moduleId, 'drill')) badId = true;
-
-  if (id is! String ||
-      spotKind is! String ||
-      spotKind.trim().isEmpty ||
-      params is! Map ||
-      target is! List ||
-      target.isEmpty ||
-      target.any((e) => e is! String || e.trim().isEmpty) ||
-      rationale is! String ||
-      rationale.contains('\n')) {
-    return LineValidation(false, badIdPattern: badId);
-  }
-  return LineValidation(!badId, badIdPattern: badId);
-}
-
-bool isAscii(String line) => line.codeUnits.every((c) => c <= 0x7f);
-
-String formatResult(CheckResult r) =>
-    r.status != 'INVALID' ? r.status : 'INVALID(${r.reasons.join(',')})';
-
-void main() {
-  final modules = readModules();
-  final issueModules = <String>[];
-
+void main(List<String> args) async {
+  final moduleId = args.isNotEmpty ? args.first : null;
+  final modules = await _discoverModules(moduleId);
+  var failed = false;
   for (final m in modules) {
-    final theory = checkTheory(m);
-    final demos = checkJsonlFile(
-      m,
-      'demos.jsonl',
-      validateDemoLine,
-      minLines: 2,
-      maxLines: 3,
-    );
-    final drills = checkJsonlFile(
-      m,
-      'drills.jsonl',
-      validateDrillLine,
-      minLines: 10,
-      maxLines: 20,
-    );
-
-    if (theory.status != 'OK' ||
-        demos.status != 'OK' ||
-        drills.status != 'OK') {
-      issueModules.add(m);
+    final errs = <String>[];
+    errs.addAll(await _checkTheory(m));
+    errs.addAll(await _checkDemos(m));
+    errs.addAll(await _checkDrills(m));
+    if (errs.isEmpty) {
+      stdout.writeln('OK: $m');
+    } else {
+      failed = true;
+      stderr.writeln('FAIL: $m');
+      for (final e in errs) {
+        stderr.writeln('- $e');
+      }
     }
+  }
+  if (failed) exitCode = 1;
+}
 
-    final idPadded = m.padRight(40);
-    print(
-      '$idPadded theory:${formatResult(theory)} demos:${formatResult(demos)} drills:${formatResult(drills)}',
+Future<List<String>> _discoverModules(String? only) async {
+  final root = Directory('content');
+  if (!root.existsSync()) return [];
+  final result = <String>[];
+  for (final e in root.listSync()) {
+    if (e is Directory) {
+      final id = e.uri.pathSegments.last.replaceAll('/', '');
+      if (only == null || only == id) {
+        final v1 = Directory('${e.path}/v1');
+        if (v1.existsSync()) result.add(id);
+      }
+    }
+  }
+  return result..sort();
+}
+
+List<String> _readLines(String path) => File(path).readAsLinesSync();
+
+String _readAll(String path) => File(path).readAsStringSync();
+
+List<String> _asciiErrors(String content, String label) {
+  if (asciiOk.hasMatch(content)) return [];
+  final bad = content.runes.where((c) => c > 0x7F).take(3).toList();
+  return ['Non-ASCII in $label, codepoints: ${bad.join(", ")}'];
+}
+
+Future<List<String>> _checkTheory(String moduleId) async {
+  final p = 'content/$moduleId/v1/theory.md';
+  if (!File(p).existsSync()) return ['Missing $p'];
+  final txt = _readAll(p);
+  final errs = <String>[];
+  errs.addAll(_asciiErrors(txt, 'theory.md'));
+  final words = txt.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length;
+  if (words < 450 || words > 550) {
+    errs.add('theory.md word count $words out of 450–550');
+  }
+  for (final h in sectionHeaders) {
+    if (!txt.contains('\n$h\n')) {
+      errs.add('Missing section header: "$h"');
+    }
+  }
+  final isCore = moduleId.startsWith('core_');
+  if (isCore && !txt.contains('\nContrast line\n')) {
+    errs.add('Core module missing "Contrast line" section');
+  }
+  // Ban long dashes and smart quotes explicitly
+  if (txt.contains('—') ||
+      txt.contains('–') ||
+      txt.contains('“') ||
+      txt.contains('”') ||
+      txt.contains('’')) {
+    errs.add(
+      'theory.md contains forbidden punctuation (smart quotes or long dashes)',
     );
   }
+  return errs;
+}
 
-  print(
-    'Totals: ${modules.length} modules, ${issueModules.length} with issues',
-  );
+Future<List<String>> _checkDemos(String moduleId) async {
+  final p = 'content/$moduleId/v1/demos.jsonl';
+  if (!File(p).existsSync()) return ['Missing $p'];
+  final lines = _readLines(p).where((l) => l.trim().isNotEmpty).toList();
+  final errs = <String>[];
+  if (lines.length < 2 || lines.length > 3) {
+    errs.add('demos.jsonl must have 2–3 lines, found ${lines.length}');
+  }
+  final ids = <String>{};
+  for (var i = 0; i < lines.length; i++) {
+    final line = lines[i];
+    errs.addAll(_asciiErrors(line, 'demos.jsonl line ${i + 1}'));
+    Map<String, dynamic> obj;
+    try {
+      obj = jsonDecode(line);
+    } catch (_) {
+      errs.add('Invalid JSON on demos line ${i + 1}');
+      continue;
+    }
+    final id = obj['id'] as String?;
+    if (id == null || !idDemo.hasMatch(id)) {
+      errs.add('Invalid demo id on line ${i + 1}: "$id"');
+    }
+    if (!ids.add(id ?? '')) errs.add('Duplicate id on demos line ${i + 1}');
+    final steps = obj['steps'];
+    if (steps is! List) {
+      errs.add('Missing steps[] on demos line ${i + 1}');
+    } else {
+      for (final s in steps) {
+        if (s is! String) {
+          errs.add('Non-string step on demos line ${i + 1}');
+          continue;
+        }
+        if (s.contains('\n')) errs.add('Multiline step on demos line ${i + 1}');
+        if (!asciiOk.hasMatch(s))
+          errs.add('Non-ASCII step on demos line ${i + 1}');
+      }
+    }
+  }
+  return errs;
+}
 
-  for (var i = 0; i < issueModules.length; i += 12) {
-    final end = (i + 12 > issueModules.length) ? issueModules.length : i + 12;
-    final batch = issueModules.sublist(i, end);
-    print('');
-    print('GO MODULES: ${batch.join(',')}');
-    print('STYLE OVERRIDE: (per PROMPT_RULES.md)');
+Future<List<String>> _checkDrills(String moduleId) async {
+  final p = 'content/$moduleId/v1/drills.jsonl';
+  if (!File(p).existsSync()) return ['Missing $p'];
+  final lines = _readLines(p).where((l) => l.trim().isNotEmpty).toList();
+  final errs = <String>[];
+  if (lines.length < 12 || lines.length > 16) {
+    errs.add('drills.jsonl must have 12–16 lines, found ${lines.length}');
+  }
+  final ids = <String>{};
+  final targetsAll = <String>{};
+  for (var i = 0; i < lines.length; i++) {
+    final line = lines[i];
+    errs.addAll(_asciiErrors(line, 'drills.jsonl line ${i + 1}'));
+    Map<String, dynamic> obj;
+    try {
+      obj = jsonDecode(line);
+    } catch (_) {
+      errs.add('Invalid JSON on drills line ${i + 1}');
+      continue;
+    }
+    final id = obj['id'] as String?;
+    if (id == null || !idDrill.hasMatch(id)) {
+      errs.add('Invalid drill id on line ${i + 1}: "$id"');
+    }
+    if (!ids.add(id ?? '')) errs.add('Duplicate id on drills line ${i + 1}');
+    final kind = obj['spotKind'];
+    if (kind is! String || !RegExp(r'^l\d+_[a-z0-9_]+$').hasMatch(kind)) {
+      errs.add('Invalid spotKind format on drills line ${i + 1}: "$kind"');
+    }
+    final target = obj['target'];
+    if (target is! List || target.isEmpty) {
+      errs.add('Missing target[] on drills line ${i + 1}');
+    } else {
+      for (final t in target) {
+        if (t is! String || !snakeToken.hasMatch(t)) {
+          errs.add(
+            'Target must be snake_case token on drills line ${i + 1}: "$t"',
+          );
+        } else {
+          targetsAll.add(t);
+        }
+      }
+    }
+    final rationale = obj['rationale'];
+    if (rationale is! String ||
+        rationale.contains('\n') ||
+        !asciiOk.hasMatch(rationale)) {
+      errs.add('Invalid rationale on drills line ${i + 1}');
+    }
   }
 
-  print(issueModules.isEmpty ? 'AUDIT:OK' : 'AUDIT:FAILED');
+  // Module-specific coverage checks
+  if (moduleId == 'core_rules_and_setup') {
+    final need = {
+      'no_reopen',
+      'reopen',
+      'bettor_shows_first',
+      'first_active_left_of_btn_shows',
+    };
+    for (final k in need) {
+      if (!targetsAll.contains(k)) {
+        errs.add('Missing coverage token in targets: $k');
+      }
+    }
+  }
+
+  return errs;
 }

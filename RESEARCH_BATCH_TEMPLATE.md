@@ -25,6 +25,7 @@ STYLE OVERRIDE
   7) Contrast line: one sentence "how this differs from the adjacent module" (Core modules only)
 - Demos.jsonl: 2-3 items, each step <= 1 line
 - Drills.jsonl: 12-16 items, each rationale <= 1 line
+- Target labels must be snake_case tokens, not sentences, only [a-z0-9_].
 
 MODULE SPECIFICS
 - Module ID: {{MODULE_ID}}
@@ -58,15 +59,16 @@ Do not output files until ALL checks pass. If any check fails, revise silently a
 - Demos.jsonl: 2-3 items; steps one line each; ASCII-only.
 - Drills.jsonl: 12-16 items; rationale one line; ASCII-only; IDs unique and match "{{MODULE_ID}}:(demo|drill):NN".
 - SpotKind: use ONLY values from the provided SSOT list; never invent new kinds.
+- Target labels: all targets are snake_case tokens, not sentences.
 - Min-raise math: new_total - current_bet >= last_raise_size. Targets and rationales must reflect this.
-- Showdown order coverage: include both cases — with river bet (bettor shows first) and with no river bet (first active seat left of BTN shows first).
+- Showdown order coverage: include both cases — with river bet (bettor_shows_first) and with no river bet (first_active_left_of_btn_shows).
 - Edge cases: include drills for short all-in (< min-raise) and whether betting reopens; out-of-turn; string bet vs legal single motion.
 - Language: ASCII-only; avoid "always/never" unless defined; label "2-3bb opens" as "typical online".
 - Output contract: exact paths; valid JSONL; no extra commentary.
 
-EDGE CASE COVERAGE (must appear in drills)
-- Short all-in and reopen logic.
-- River: bettor-shows-first vs no-bet show order.
+EDGE CASE COVERAGE (must appear in drills for core_rules_and_setup)
+- Short all-in and reopen logic (no_reopen and reopen labels).
+- River: bettor_shows_first vs no-bet show order (first_active_left_of_btn_shows).
 - Out-of-turn fold handling.
 - String bet vs single clear motion.
 
