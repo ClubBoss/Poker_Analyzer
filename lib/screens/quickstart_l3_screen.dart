@@ -148,9 +148,9 @@ class _QuickstartL3ScreenState extends State<QuickstartL3Screen> {
       _error = null;
       _inlineWarning = null;
     });
-    var weights = _weightsController.text.trim();
+    final weights = _weightsController.text.trim();
     String? weightsArg = weights.isEmpty ? null : weights;
-    var preset = _weightsPreset;
+    final preset = _weightsPreset;
     if (weightsArg != null) {
       try {
         final decoded = jsonDecode(weightsArg);
