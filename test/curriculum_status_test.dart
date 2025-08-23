@@ -1,16 +1,30 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:test/test.dart';
 
 final _idRe = RegExp(r'^[a-z0-9_]+$');
 
-List<String> _parseQueue() {
-  final file = File('RESEARCH_QUEUE.md');
+List<String> _readSsotIds() {
+  final file = File('tooling/curriculum_ids.dart');
+  final raw = ascii.decode(ascii.encode(file.readAsStringSync()));
+  final listRe = RegExp(
+    r'const\s+(?:List<String>\s+)?(?:kCurriculumIds|curriculumIds)\s*=\s*\[',
+  );
+  final match = listRe.firstMatch(raw);
+  if (match == null) {
+    throw FormatException('curriculum_ids list not found');
+  }
+  final start = match.end;
+  final end = raw.indexOf('];', start);
+  if (end == -1) {
+    throw FormatException('curriculum_ids list not closed');
+  }
+  final body = raw.substring(start, end);
   final ids = <String>[];
-  for (final raw in file.readAsLinesSync()) {
-    final line = ascii.decode(ascii.encode(raw));
-    if (!line.startsWith('- ')) continue;
-    final id = line.substring(2).trim();
+  final tokenRe = RegExp(r"['\"]([a-z0-9_]+)['\"]");
+  for (final m in tokenRe.allMatches(body)) {
+    final id = m.group(1)!;
     if (!_idRe.hasMatch(id)) {
       throw FormatException('Invalid module id: $id');
     }
@@ -19,9 +33,9 @@ List<String> _parseQueue() {
   return ids;
 }
 
-List<String> _readStatus() {
+Set<String> _readStatus() {
   final file = File('curriculum_status.json');
-  if (!file.existsSync()) return <String>[];
+  if (!file.existsSync()) return <String>{};
   final raw = ascii.decode(ascii.encode(file.readAsStringSync()));
   final noComments = raw
       .split('\n')
@@ -32,7 +46,7 @@ List<String> _readStatus() {
   if (data is! Map || data['modules_done'] is! List) {
     throw FormatException('Invalid curriculum_status.json');
   }
-  final result = <String>[];
+  final result = <String>{};
   for (final id in data['modules_done']) {
     if (id is String && _idRe.hasMatch(id)) {
       result.add(id);
@@ -44,12 +58,12 @@ List<String> _readStatus() {
 }
 
 void main() {
-  test('compute NEXT from queue', () {
-    final queue = _parseQueue();
+  test('compute NEXT from SSOT', () {
+    final ssot = _readSsotIds();
     final status = _readStatus();
-    expect(queue.toSet().containsAll(status), isTrue);
+    expect(ssot.toSet().containsAll(status), isTrue);
     var next = 'none';
-    for (final id in queue) {
+    for (final id in ssot) {
       if (!status.contains(id)) {
         next = id;
         break;
@@ -59,3 +73,4 @@ void main() {
     print('NEXT: $next');
   });
 }
+
