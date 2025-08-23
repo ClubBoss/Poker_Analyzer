@@ -1,27 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
+import 'ids_source.dart';
 
 String _ascii(String s) =>
     String.fromCharCodes(s.codeUnits.where((c) => c <= 0x7F));
-
-List<String> parseQueue(String path) {
-  final file = File(path);
-  if (!file.existsSync()) {
-    throw FileSystemException('missing queue', path);
-  }
-  final ids = <String>[];
-  final lines = file.readAsLinesSync().map(_ascii);
-  final idRe = RegExp(r'^[a-z0-9_]+$');
-  for (final line in lines) {
-    if (!line.startsWith('- ')) continue;
-    final id = line.substring(2).trim();
-    if (!idRe.hasMatch(id)) {
-      throw FormatException('invalid id line: $line');
-    }
-    ids.add(id);
-  }
-  return ids;
-}
 
 Map<String, String> readShortScope(String path) {
   final file = File(path);
@@ -84,7 +66,7 @@ void main(List<String> args) {
   List<String> ids;
   Map<String, String> shortScope;
   try {
-    ids = parseQueue('RESEARCH_QUEUE.md');
+    ids = readCurriculumIds();
     shortScope = readShortScope('tooling/short_scope.json');
   } on FormatException catch (e) {
     stderr.writeln(e.message);
@@ -95,6 +77,8 @@ void main(List<String> args) {
     exitCode = 2;
     return;
   }
+
+  stdout.writeln(_ascii('ID SOURCE: $idSource'));
 
   if (onlyId != null) {
     final id = onlyId;

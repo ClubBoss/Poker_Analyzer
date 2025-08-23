@@ -8,8 +8,8 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'ids_source.dart';
 
-const String _queuePath = 'RESEARCH_QUEUE.md';
 const String _shortScopePath = 'tooling/short_scope.json';
 const String _allowlistDir = 'tooling/allowlists';
 
@@ -18,23 +18,6 @@ String _normalize(String s) {
   var out = s;
   repl.forEach((k, v) => out = out.replaceAll(k, v));
   return out;
-}
-
-List<String> parseQueue() {
-  final f = File(_queuePath);
-  final txt = _normalize(f.readAsStringSync());
-  final ids = <String>[];
-  for (final line in const LineSplitter().convert(txt)) {
-    final t = line.trim();
-    if (t.startsWith('-')) {
-      final id = t.substring(1).trim();
-      if (RegExp(r'^[a-z0-9_]+$').hasMatch(id)) {
-        ids.add(id);
-      }
-    }
-  }
-  if (ids.isEmpty) throw const FormatException('No modules found');
-  return ids;
 }
 
 Map<String, String> readShortScope() {
@@ -100,7 +83,8 @@ void printSummary(int total, int spot, int token, int shortAdded, bool write) {
 void main(List<String> args) {
   final write = args.contains('--write');
   try {
-    final ids = parseQueue();
+    final ids = readCurriculumIds();
+    stdout.writeln('ID SOURCE: $idSource');
     final existing = readShortScope();
     final merged = mergeShortScope(existing, ids);
     final shortAdded = merged.length - existing.length;
