@@ -22,7 +22,7 @@ List<String> _readSsotIds() {
   }
   final body = raw.substring(start, end);
   final ids = <String>[];
-  final tokenRe = RegExp(r"['\"]([a-z0-9_]+)['\"]");
+  final tokenRe = RegExp(r"['\"]([a-z0-9]+)['\"]");
   for (final m in tokenRe.allMatches(body)) {
     final id = m.group(1)!;
     if (!_idRe.hasMatch(id)) {

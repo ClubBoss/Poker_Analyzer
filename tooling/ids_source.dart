@@ -35,8 +35,8 @@ List<String>? _readCurriculumFile() {
     final t = line.trim();
     if (t.isEmpty || t.startsWith('//')) continue;
     final match =
-        RegExp(r"^['\"]([a-z0-9_]+)['\"],\s*(//.*)?$").firstMatch(t);
-    if (match == null) throw const FormatException('Invalid curriculum_ids.dart');
+        RegExp(r"^['\"]([a-z0-9]+)['\"],\s*(//.*)?$").firstMatch(t);
+    
     ids.add(match.group(1)!);
   }
   if (ids.isEmpty) throw const FormatException('No modules found');
