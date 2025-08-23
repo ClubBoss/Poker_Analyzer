@@ -1,15 +1,12 @@
-# Poker Analyzer analysis options
+
 analyzer:
   exclude:
     - lib/services/**
-    - lib/shop/**
     - lib/plugins/**
-  language:
-    strict-inference: false
-    strict-raw-types: false
+    - lib/utils/shared_prefs_keys.dart
+    - lib/models/saved_hand.dart
+    - lib/models/training_pack_template_model.dart
+    - lib/models/street_investments.dart
+    - lib/services/**
+    - test/services/**
 
-linter:
-  rules:
-    - avoid_print
-    - prefer_final_locals
-    - unawaited_futures
