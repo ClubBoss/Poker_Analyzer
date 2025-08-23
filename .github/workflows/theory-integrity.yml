@@ -1,21 +1,17 @@
 name: Theory Integrity
-
 on:
   pull_request:
-  push:
-    branches: [main]
+  push: { branches: [main] }
   workflow_dispatch:
-
 jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
+        with: { channel: stable, cache: true }
       - run: flutter --version
       - run: flutter pub get
       - run: dart --version
-      - run: dart run tooling/theory_integrity.dart --mode=verify
+      - name: Content audit
+        run: dart run tooling/content_audit.dart

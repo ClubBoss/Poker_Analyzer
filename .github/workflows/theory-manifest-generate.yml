@@ -13,4 +13,5 @@ jobs:
       - run: flutter --version
       - run: flutter pub get
       - run: dart --version
-      - run: dart run tooling/theory_manifest.dart --mode=baseline
+      - name: Content next (baseline)
+        run: dart run tooling/content_next.dart --strict
