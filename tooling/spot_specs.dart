@@ -71,4 +71,3 @@ const Set<String> kSpotKindUniverse = {
 };
 
 bool isValidSpotKind(String s) => kSpotKindUniverse.contains(s);
-
