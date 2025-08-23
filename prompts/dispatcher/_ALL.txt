@@ -1,0 +1,62 @@
+module_id: core_rules_and_setup
+short_scope: Rules, hand ranking, blinds, button, action order, streets.
+spotkind_allowlist:
+l1_core_call_vs_price
+l2_core_rules_check
+l2_core_actions
+l2_core_min_raise
+l2_core_allin_reopen
+l2_core_showdown
+l2_core_out_of_turn
+l2_core_string_bet
+l2_core_round_end
+target_tokens_allowlist:
+left_of_bb
+left_of_btn
+min_raise_illegal
+min_raise_legal
+no_reopen
+reopen
+bettor_shows_first
+first_active_left_of_btn_shows
+string_bet_call_only
+single_motion_raise_legal
+binding
+returned
+skip_folded_player
+info_only
+
+module_id: core_positions_and_initiative
+short_scope: Position names, opening by seat, initiative vs no-initiative.
+spotkind_allowlist:
+none
+target_tokens_allowlist:
+none
+
+module_id: core_pot_odds_equity
+short_scope: Pot odds, equity, implied odds, breakeven percent, rule of 2 and 4.
+spotkind_allowlist:
+none
+target_tokens_allowlist:
+none
+
+module_id: core_starting_hands
+short_scope: Open ranges, 3bet/4bet basics, suited connectors, pairs, blockers.
+spotkind_allowlist:
+none
+target_tokens_allowlist:
+none
+
+module_id: core_flop_fundamentals
+short_scope: Range vs range, c-bet types, board categories, sizing basics.
+spotkind_allowlist:
+none
+target_tokens_allowlist:
+none
+
+module_id: core_turn_fundamentals
+short_scope: Second barrel logic, equity shifts, blockers, pot geometry.
+spotkind_allowlist:
+none
+target_tokens_allowlist:
+none

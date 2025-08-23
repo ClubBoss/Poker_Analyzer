@@ -1,0 +1,464 @@
+GO MODULE: core_rules_and_setup
+# Research Prompt Template
+
+ROLE
+You are the Content Generator for Poker Analyzer. Produce three files for a single module:
+- content/core_rules_and_setup/v1/theory.md
+- content/core_rules_and_setup/v1/demos.jsonl
+- content/core_rules_and_setup/v1/drills.jsonl
+
+BOUNDARIES
+- ASCII-only. Straight quotes. Use "-" not long dashes. No links, no tables.
+- Normalize any non-ASCII punctuation from this prompt (e.g., " " ' -) to ASCII in your output.
+- Valid JSONL for demos/drills. Each line is a standalone JSON object.
+- IDs must be unique and follow: "core_rules_and_setup:demo:NN" and "core_rules_and_setup:drill:NN".
+- Paths must match exactly. No extra commentary in output.
+
+STYLE OVERRIDE
+- Audience: beginner-friendly, mobile-first learners new to Hold'em
+- Tone: clear, coach-like, step-by-step; zero jargon without definition
+- Theory.md = 450-550 words with sections:
+  1) What it is (2-3 lines)
+  2) Why it matters (2-3 lines)
+  3) Rules of thumb (3-5 bullets) - each bullet adds a short "why"
+  4) Mini example (3-5 lines) - use POSITIONS (UTG, MP, CO, BTN, SB, BB), not seat numbers
+  5) Common mistakes (3 bullets) - for each: why it is a mistake AND why players make it
+  6) Mini-glossary (only if new terms appear): 2-4 entries, one line each
+  7) Contrast line: one sentence "how this differs from the adjacent module" (Core modules only)
+- Demos.jsonl: 2-3 items, each step <= 1 line
+- Drills.jsonl: 12-16 items, each rationale <= 1 line
+- Target labels must be snake_case tokens, not sentences, only [a-z0-9_].
+
+MODULE SPECIFICS
+- Module ID: core_rules_and_setup
+- Focus: Rules, hand ranking, blinds, button, action order, streets.
+- Use positions, not seat numbers, in examples unless explicitly asked.
+- Include live vs online conventions when relevant. If you mention open sizes, label them as "typical online".
+- Do not invent new SpotKind values; use only the allowlisted kinds.
+
+SPOTKIND ALLOWLIST (strict - use ONLY these kinds)
+l1_core_call_vs_price
+l2_core_rules_check
+l2_core_actions
+l2_core_min_raise
+l2_core_allin_reopen
+l2_core_showdown
+l2_core_out_of_turn
+l2_core_string_bet
+l2_core_round_end
+
+OUTPUT FORMAT
+Return only the three files in this order, separated by clear file headers:
+
+content/core_rules_and_setup/v1/theory.md
+```
+<theory.md content>
+```
+
+content/core_rules_and_setup/v1/demos.jsonl
+```
+<one JSON object per line>
+```
+
+content/core_rules_and_setup/v1/drills.jsonl
+```
+<one JSON object per line>
+```
+
+INTERNAL QA LOOP
+Do not output files until ALL checks pass. If any check fails, revise silently and re-run.
+- ASCII-only; do not emit " " ' - - normalize to " ' - .
+- Theory.md: 450-550 words; sections present; Core has one-sentence contrast line.
+- Mini example legality: action order correct; folded players never act; pots consistent; river/turn end logically; showdown rule consistent.
+- Use POSITIONS (UTG, MP, CO, BTN, SB, BB). Fail if "Seat " appears anywhere.
+- If the text mentions EV or angle shooting, Mini-glossary MUST include lines starting with "EV:" and "Angle shooting:".
+- If the text mentions "open" or "open size" or "bb" when giving sizing guidance, include the phrase "typical online".
+- Demos.jsonl: 2-3 items; steps one line each; ASCII-only.
+- Drills.jsonl: 12-16 items; rationale one line; ASCII-only; IDs unique and match "core_rules_and_setup:(demo|drill):NN".
+- SpotKind: must be one of the values listed in SPOTKIND ALLOWLIST above.
+- Target labels: all targets are snake_case tokens, not sentences.
+- Min-raise math: new_total - current_bet >= last_raise_size. Targets and rationales must reflect this.
+- Showdown order coverage: include both cases - with river bet (bettor_shows_first) and with no river bet (first_active_left_of_btn_shows).
+- Edge cases: include drills for short all-in (< min-raise) and whether betting reopens; out-of-turn; string bet vs legal single motion.
+- Output contract: exact paths; valid JSONL; no extra commentary.
+
+GO MODULE: core_positions_and_initiative
+# Research Prompt Template
+
+ROLE
+You are the Content Generator for Poker Analyzer. Produce three files for a single module:
+- content/core_positions_and_initiative/v1/theory.md
+- content/core_positions_and_initiative/v1/demos.jsonl
+- content/core_positions_and_initiative/v1/drills.jsonl
+
+BOUNDARIES
+- ASCII-only. Straight quotes. Use "-" not long dashes. No links, no tables.
+- Normalize any non-ASCII punctuation from this prompt (e.g., " " ' -) to ASCII in your output.
+- Valid JSONL for demos/drills. Each line is a standalone JSON object.
+- IDs must be unique and follow: "core_positions_and_initiative:demo:NN" and "core_positions_and_initiative:drill:NN".
+- Paths must match exactly. No extra commentary in output.
+
+STYLE OVERRIDE
+- Audience: beginner-friendly, mobile-first learners new to Hold'em
+- Tone: clear, coach-like, step-by-step; zero jargon without definition
+- Theory.md = 450-550 words with sections:
+  1) What it is (2-3 lines)
+  2) Why it matters (2-3 lines)
+  3) Rules of thumb (3-5 bullets) - each bullet adds a short "why"
+  4) Mini example (3-5 lines) - use POSITIONS (UTG, MP, CO, BTN, SB, BB), not seat numbers
+  5) Common mistakes (3 bullets) - for each: why it is a mistake AND why players make it
+  6) Mini-glossary (only if new terms appear): 2-4 entries, one line each
+  7) Contrast line: one sentence "how this differs from the adjacent module" (Core modules only)
+- Demos.jsonl: 2-3 items, each step <= 1 line
+- Drills.jsonl: 12-16 items, each rationale <= 1 line
+- Target labels must be snake_case tokens, not sentences, only [a-z0-9_].
+
+MODULE SPECIFICS
+- Module ID: core_positions_and_initiative
+- Focus: Position names, opening by seat, initiative vs no-initiative.
+- Use positions, not seat numbers, in examples unless explicitly asked.
+- Include live vs online conventions when relevant. If you mention open sizes, label them as "typical online".
+- Do not invent new SpotKind values; use only the allowlisted kinds.
+
+SPOTKIND ALLOWLIST (strict - use ONLY these kinds)
+none
+
+OUTPUT FORMAT
+Return only the three files in this order, separated by clear file headers:
+
+content/core_positions_and_initiative/v1/theory.md
+```
+<theory.md content>
+```
+
+content/core_positions_and_initiative/v1/demos.jsonl
+```
+<one JSON object per line>
+```
+
+content/core_positions_and_initiative/v1/drills.jsonl
+```
+<one JSON object per line>
+```
+
+INTERNAL QA LOOP
+Do not output files until ALL checks pass. If any check fails, revise silently and re-run.
+- ASCII-only; do not emit " " ' - - normalize to " ' - .
+- Theory.md: 450-550 words; sections present; Core has one-sentence contrast line.
+- Mini example legality: action order correct; folded players never act; pots consistent; river/turn end logically; showdown rule consistent.
+- Use POSITIONS (UTG, MP, CO, BTN, SB, BB). Fail if "Seat " appears anywhere.
+- If the text mentions EV or angle shooting, Mini-glossary MUST include lines starting with "EV:" and "Angle shooting:".
+- If the text mentions "open" or "open size" or "bb" when giving sizing guidance, include the phrase "typical online".
+- Demos.jsonl: 2-3 items; steps one line each; ASCII-only.
+- Drills.jsonl: 12-16 items; rationale one line; ASCII-only; IDs unique and match "core_positions_and_initiative:(demo|drill):NN".
+- SpotKind: must be one of the values listed in SPOTKIND ALLOWLIST above.
+- Target labels: all targets are snake_case tokens, not sentences.
+- Min-raise math: new_total - current_bet >= last_raise_size. Targets and rationales must reflect this.
+- Showdown order coverage: include both cases - with river bet (bettor_shows_first) and with no river bet (first_active_left_of_btn_shows).
+- Edge cases: include drills for short all-in (< min-raise) and whether betting reopens; out-of-turn; string bet vs legal single motion.
+- Output contract: exact paths; valid JSONL; no extra commentary.
+
+GO MODULE: core_pot_odds_equity
+# Research Prompt Template
+
+ROLE
+You are the Content Generator for Poker Analyzer. Produce three files for a single module:
+- content/core_pot_odds_equity/v1/theory.md
+- content/core_pot_odds_equity/v1/demos.jsonl
+- content/core_pot_odds_equity/v1/drills.jsonl
+
+BOUNDARIES
+- ASCII-only. Straight quotes. Use "-" not long dashes. No links, no tables.
+- Normalize any non-ASCII punctuation from this prompt (e.g., " " ' -) to ASCII in your output.
+- Valid JSONL for demos/drills. Each line is a standalone JSON object.
+- IDs must be unique and follow: "core_pot_odds_equity:demo:NN" and "core_pot_odds_equity:drill:NN".
+- Paths must match exactly. No extra commentary in output.
+
+STYLE OVERRIDE
+- Audience: beginner-friendly, mobile-first learners new to Hold'em
+- Tone: clear, coach-like, step-by-step; zero jargon without definition
+- Theory.md = 450-550 words with sections:
+  1) What it is (2-3 lines)
+  2) Why it matters (2-3 lines)
+  3) Rules of thumb (3-5 bullets) - each bullet adds a short "why"
+  4) Mini example (3-5 lines) - use POSITIONS (UTG, MP, CO, BTN, SB, BB), not seat numbers
+  5) Common mistakes (3 bullets) - for each: why it is a mistake AND why players make it
+  6) Mini-glossary (only if new terms appear): 2-4 entries, one line each
+  7) Contrast line: one sentence "how this differs from the adjacent module" (Core modules only)
+- Demos.jsonl: 2-3 items, each step <= 1 line
+- Drills.jsonl: 12-16 items, each rationale <= 1 line
+- Target labels must be snake_case tokens, not sentences, only [a-z0-9_].
+
+MODULE SPECIFICS
+- Module ID: core_pot_odds_equity
+- Focus: Pot odds, equity, implied odds, breakeven percent, rule of 2 and 4.
+- Use positions, not seat numbers, in examples unless explicitly asked.
+- Include live vs online conventions when relevant. If you mention open sizes, label them as "typical online".
+- Do not invent new SpotKind values; use only the allowlisted kinds.
+
+SPOTKIND ALLOWLIST (strict - use ONLY these kinds)
+none
+
+OUTPUT FORMAT
+Return only the three files in this order, separated by clear file headers:
+
+content/core_pot_odds_equity/v1/theory.md
+```
+<theory.md content>
+```
+
+content/core_pot_odds_equity/v1/demos.jsonl
+```
+<one JSON object per line>
+```
+
+content/core_pot_odds_equity/v1/drills.jsonl
+```
+<one JSON object per line>
+```
+
+INTERNAL QA LOOP
+Do not output files until ALL checks pass. If any check fails, revise silently and re-run.
+- ASCII-only; do not emit " " ' - - normalize to " ' - .
+- Theory.md: 450-550 words; sections present; Core has one-sentence contrast line.
+- Mini example legality: action order correct; folded players never act; pots consistent; river/turn end logically; showdown rule consistent.
+- Use POSITIONS (UTG, MP, CO, BTN, SB, BB). Fail if "Seat " appears anywhere.
+- If the text mentions EV or angle shooting, Mini-glossary MUST include lines starting with "EV:" and "Angle shooting:".
+- If the text mentions "open" or "open size" or "bb" when giving sizing guidance, include the phrase "typical online".
+- Demos.jsonl: 2-3 items; steps one line each; ASCII-only.
+- Drills.jsonl: 12-16 items; rationale one line; ASCII-only; IDs unique and match "core_pot_odds_equity:(demo|drill):NN".
+- SpotKind: must be one of the values listed in SPOTKIND ALLOWLIST above.
+- Target labels: all targets are snake_case tokens, not sentences.
+- Min-raise math: new_total - current_bet >= last_raise_size. Targets and rationales must reflect this.
+- Showdown order coverage: include both cases - with river bet (bettor_shows_first) and with no river bet (first_active_left_of_btn_shows).
+- Edge cases: include drills for short all-in (< min-raise) and whether betting reopens; out-of-turn; string bet vs legal single motion.
+- Output contract: exact paths; valid JSONL; no extra commentary.
+
+GO MODULE: core_starting_hands
+# Research Prompt Template
+
+ROLE
+You are the Content Generator for Poker Analyzer. Produce three files for a single module:
+- content/core_starting_hands/v1/theory.md
+- content/core_starting_hands/v1/demos.jsonl
+- content/core_starting_hands/v1/drills.jsonl
+
+BOUNDARIES
+- ASCII-only. Straight quotes. Use "-" not long dashes. No links, no tables.
+- Normalize any non-ASCII punctuation from this prompt (e.g., " " ' -) to ASCII in your output.
+- Valid JSONL for demos/drills. Each line is a standalone JSON object.
+- IDs must be unique and follow: "core_starting_hands:demo:NN" and "core_starting_hands:drill:NN".
+- Paths must match exactly. No extra commentary in output.
+
+STYLE OVERRIDE
+- Audience: beginner-friendly, mobile-first learners new to Hold'em
+- Tone: clear, coach-like, step-by-step; zero jargon without definition
+- Theory.md = 450-550 words with sections:
+  1) What it is (2-3 lines)
+  2) Why it matters (2-3 lines)
+  3) Rules of thumb (3-5 bullets) - each bullet adds a short "why"
+  4) Mini example (3-5 lines) - use POSITIONS (UTG, MP, CO, BTN, SB, BB), not seat numbers
+  5) Common mistakes (3 bullets) - for each: why it is a mistake AND why players make it
+  6) Mini-glossary (only if new terms appear): 2-4 entries, one line each
+  7) Contrast line: one sentence "how this differs from the adjacent module" (Core modules only)
+- Demos.jsonl: 2-3 items, each step <= 1 line
+- Drills.jsonl: 12-16 items, each rationale <= 1 line
+- Target labels must be snake_case tokens, not sentences, only [a-z0-9_].
+
+MODULE SPECIFICS
+- Module ID: core_starting_hands
+- Focus: Open ranges, 3bet/4bet basics, suited connectors, pairs, blockers.
+- Use positions, not seat numbers, in examples unless explicitly asked.
+- Include live vs online conventions when relevant. If you mention open sizes, label them as "typical online".
+- Do not invent new SpotKind values; use only the allowlisted kinds.
+
+SPOTKIND ALLOWLIST (strict - use ONLY these kinds)
+none
+
+OUTPUT FORMAT
+Return only the three files in this order, separated by clear file headers:
+
+content/core_starting_hands/v1/theory.md
+```
+<theory.md content>
+```
+
+content/core_starting_hands/v1/demos.jsonl
+```
+<one JSON object per line>
+```
+
+content/core_starting_hands/v1/drills.jsonl
+```
+<one JSON object per line>
+```
+
+INTERNAL QA LOOP
+Do not output files until ALL checks pass. If any check fails, revise silently and re-run.
+- ASCII-only; do not emit " " ' - - normalize to " ' - .
+- Theory.md: 450-550 words; sections present; Core has one-sentence contrast line.
+- Mini example legality: action order correct; folded players never act; pots consistent; river/turn end logically; showdown rule consistent.
+- Use POSITIONS (UTG, MP, CO, BTN, SB, BB). Fail if "Seat " appears anywhere.
+- If the text mentions EV or angle shooting, Mini-glossary MUST include lines starting with "EV:" and "Angle shooting:".
+- If the text mentions "open" or "open size" or "bb" when giving sizing guidance, include the phrase "typical online".
+- Demos.jsonl: 2-3 items; steps one line each; ASCII-only.
+- Drills.jsonl: 12-16 items; rationale one line; ASCII-only; IDs unique and match "core_starting_hands:(demo|drill):NN".
+- SpotKind: must be one of the values listed in SPOTKIND ALLOWLIST above.
+- Target labels: all targets are snake_case tokens, not sentences.
+- Min-raise math: new_total - current_bet >= last_raise_size. Targets and rationales must reflect this.
+- Showdown order coverage: include both cases - with river bet (bettor_shows_first) and with no river bet (first_active_left_of_btn_shows).
+- Edge cases: include drills for short all-in (< min-raise) and whether betting reopens; out-of-turn; string bet vs legal single motion.
+- Output contract: exact paths; valid JSONL; no extra commentary.
+
+GO MODULE: core_flop_fundamentals
+# Research Prompt Template
+
+ROLE
+You are the Content Generator for Poker Analyzer. Produce three files for a single module:
+- content/core_flop_fundamentals/v1/theory.md
+- content/core_flop_fundamentals/v1/demos.jsonl
+- content/core_flop_fundamentals/v1/drills.jsonl
+
+BOUNDARIES
+- ASCII-only. Straight quotes. Use "-" not long dashes. No links, no tables.
+- Normalize any non-ASCII punctuation from this prompt (e.g., " " ' -) to ASCII in your output.
+- Valid JSONL for demos/drills. Each line is a standalone JSON object.
+- IDs must be unique and follow: "core_flop_fundamentals:demo:NN" and "core_flop_fundamentals:drill:NN".
+- Paths must match exactly. No extra commentary in output.
+
+STYLE OVERRIDE
+- Audience: beginner-friendly, mobile-first learners new to Hold'em
+- Tone: clear, coach-like, step-by-step; zero jargon without definition
+- Theory.md = 450-550 words with sections:
+  1) What it is (2-3 lines)
+  2) Why it matters (2-3 lines)
+  3) Rules of thumb (3-5 bullets) - each bullet adds a short "why"
+  4) Mini example (3-5 lines) - use POSITIONS (UTG, MP, CO, BTN, SB, BB), not seat numbers
+  5) Common mistakes (3 bullets) - for each: why it is a mistake AND why players make it
+  6) Mini-glossary (only if new terms appear): 2-4 entries, one line each
+  7) Contrast line: one sentence "how this differs from the adjacent module" (Core modules only)
+- Demos.jsonl: 2-3 items, each step <= 1 line
+- Drills.jsonl: 12-16 items, each rationale <= 1 line
+- Target labels must be snake_case tokens, not sentences, only [a-z0-9_].
+
+MODULE SPECIFICS
+- Module ID: core_flop_fundamentals
+- Focus: Range vs range, c-bet types, board categories, sizing basics.
+- Use positions, not seat numbers, in examples unless explicitly asked.
+- Include live vs online conventions when relevant. If you mention open sizes, label them as "typical online".
+- Do not invent new SpotKind values; use only the allowlisted kinds.
+
+SPOTKIND ALLOWLIST (strict - use ONLY these kinds)
+none
+
+OUTPUT FORMAT
+Return only the three files in this order, separated by clear file headers:
+
+content/core_flop_fundamentals/v1/theory.md
+```
+<theory.md content>
+```
+
+content/core_flop_fundamentals/v1/demos.jsonl
+```
+<one JSON object per line>
+```
+
+content/core_flop_fundamentals/v1/drills.jsonl
+```
+<one JSON object per line>
+```
+
+INTERNAL QA LOOP
+Do not output files until ALL checks pass. If any check fails, revise silently and re-run.
+- ASCII-only; do not emit " " ' - - normalize to " ' - .
+- Theory.md: 450-550 words; sections present; Core has one-sentence contrast line.
+- Mini example legality: action order correct; folded players never act; pots consistent; river/turn end logically; showdown rule consistent.
+- Use POSITIONS (UTG, MP, CO, BTN, SB, BB). Fail if "Seat " appears anywhere.
+- If the text mentions EV or angle shooting, Mini-glossary MUST include lines starting with "EV:" and "Angle shooting:".
+- If the text mentions "open" or "open size" or "bb" when giving sizing guidance, include the phrase "typical online".
+- Demos.jsonl: 2-3 items; steps one line each; ASCII-only.
+- Drills.jsonl: 12-16 items; rationale one line; ASCII-only; IDs unique and match "core_flop_fundamentals:(demo|drill):NN".
+- SpotKind: must be one of the values listed in SPOTKIND ALLOWLIST above.
+- Target labels: all targets are snake_case tokens, not sentences.
+- Min-raise math: new_total - current_bet >= last_raise_size. Targets and rationales must reflect this.
+- Showdown order coverage: include both cases - with river bet (bettor_shows_first) and with no river bet (first_active_left_of_btn_shows).
+- Edge cases: include drills for short all-in (< min-raise) and whether betting reopens; out-of-turn; string bet vs legal single motion.
+- Output contract: exact paths; valid JSONL; no extra commentary.
+
+GO MODULE: core_turn_fundamentals
+# Research Prompt Template
+
+ROLE
+You are the Content Generator for Poker Analyzer. Produce three files for a single module:
+- content/core_turn_fundamentals/v1/theory.md
+- content/core_turn_fundamentals/v1/demos.jsonl
+- content/core_turn_fundamentals/v1/drills.jsonl
+
+BOUNDARIES
+- ASCII-only. Straight quotes. Use "-" not long dashes. No links, no tables.
+- Normalize any non-ASCII punctuation from this prompt (e.g., " " ' -) to ASCII in your output.
+- Valid JSONL for demos/drills. Each line is a standalone JSON object.
+- IDs must be unique and follow: "core_turn_fundamentals:demo:NN" and "core_turn_fundamentals:drill:NN".
+- Paths must match exactly. No extra commentary in output.
+
+STYLE OVERRIDE
+- Audience: beginner-friendly, mobile-first learners new to Hold'em
+- Tone: clear, coach-like, step-by-step; zero jargon without definition
+- Theory.md = 450-550 words with sections:
+  1) What it is (2-3 lines)
+  2) Why it matters (2-3 lines)
+  3) Rules of thumb (3-5 bullets) - each bullet adds a short "why"
+  4) Mini example (3-5 lines) - use POSITIONS (UTG, MP, CO, BTN, SB, BB), not seat numbers
+  5) Common mistakes (3 bullets) - for each: why it is a mistake AND why players make it
+  6) Mini-glossary (only if new terms appear): 2-4 entries, one line each
+  7) Contrast line: one sentence "how this differs from the adjacent module" (Core modules only)
+- Demos.jsonl: 2-3 items, each step <= 1 line
+- Drills.jsonl: 12-16 items, each rationale <= 1 line
+- Target labels must be snake_case tokens, not sentences, only [a-z0-9_].
+
+MODULE SPECIFICS
+- Module ID: core_turn_fundamentals
+- Focus: Second barrel logic, equity shifts, blockers, pot geometry.
+- Use positions, not seat numbers, in examples unless explicitly asked.
+- Include live vs online conventions when relevant. If you mention open sizes, label them as "typical online".
+- Do not invent new SpotKind values; use only the allowlisted kinds.
+
+SPOTKIND ALLOWLIST (strict - use ONLY these kinds)
+none
+
+OUTPUT FORMAT
+Return only the three files in this order, separated by clear file headers:
+
+content/core_turn_fundamentals/v1/theory.md
+```
+<theory.md content>
+```
+
+content/core_turn_fundamentals/v1/demos.jsonl
+```
+<one JSON object per line>
+```
+
+content/core_turn_fundamentals/v1/drills.jsonl
+```
+<one JSON object per line>
+```
+
+INTERNAL QA LOOP
+Do not output files until ALL checks pass. If any check fails, revise silently and re-run.
+- ASCII-only; do not emit " " ' - - normalize to " ' - .
+- Theory.md: 450-550 words; sections present; Core has one-sentence contrast line.
+- Mini example legality: action order correct; folded players never act; pots consistent; river/turn end logically; showdown rule consistent.
+- Use POSITIONS (UTG, MP, CO, BTN, SB, BB). Fail if "Seat " appears anywhere.
+- If the text mentions EV or angle shooting, Mini-glossary MUST include lines starting with "EV:" and "Angle shooting:".
+- If the text mentions "open" or "open size" or "bb" when giving sizing guidance, include the phrase "typical online".
+- Demos.jsonl: 2-3 items; steps one line each; ASCII-only.
+- Drills.jsonl: 12-16 items; rationale one line; ASCII-only; IDs unique and match "core_turn_fundamentals:(demo|drill):NN".
+- SpotKind: must be one of the values listed in SPOTKIND ALLOWLIST above.
+- Target labels: all targets are snake_case tokens, not sentences.
+- Min-raise math: new_total - current_bet >= last_raise_size. Targets and rationales must reflect this.
+- Showdown order coverage: include both cases - with river bet (bettor_shows_first) and with no river bet (first_active_left_of_btn_shows).
+- Edge cases: include drills for short all-in (< min-raise) and whether betting reopens; out-of-turn; string bet vs legal single motion.
+- Output contract: exact paths; valid JSONL; no extra commentary.
+

@@ -57,7 +57,7 @@ List<String> _validate(
   List<MapEntry<String, String>> research,
   List<MapEntry<String, String>> dispatch,
   List<String> ssot,
-  {String? onlyId},
+  {String? onlyId}
 ) {
   final errors = <String>[];
 
