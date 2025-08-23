@@ -186,6 +186,9 @@ void main(List<String> args) {
     final skipped = <String>[];
     final prompts = <String, String>{};
     final dispatchers = <String, String>{};
+    var scopeMissing = 0;
+    var spotMissing = 0;
+    var tokenMissing = 0;
 
     for (final id in ids) {
       if (only != null && id != only) continue;
@@ -193,22 +196,34 @@ void main(List<String> args) {
         ready.add(id);
         if (write) {
           final scope = _normalize(shortScope[id]!);
-          final spot = readAllow('$_allowlistDir/spotkind_allowlist_${id}.txt') ?? '';
-          final token = readAllow('$_allowlistDir/target_tokens_allowlist_${id}.txt') ?? '';
+          final spot =
+              readAllow('$_allowlistDir/spotkind_allowlist_${id}.txt') ?? '';
+          final token =
+              readAllow('$_allowlistDir/target_tokens_allowlist_${id}.txt') ?? '';
           prompts[id] = renderPrompt(template, id, scope, spot, token);
           dispatchers[id] = renderDispatcherBlock(id, scope, spot, token);
         }
       } else {
         skipped.add(id);
+        final scope = shortScope[id];
+        if (scope == null || scope.trim().isEmpty) scopeMissing++;
+        final spotPath = '$_allowlistDir/spotkind_allowlist_${id}.txt';
+        if (!File(spotPath).existsSync()) spotMissing++;
+        final tokenPath = '$_allowlistDir/target_tokens_allowlist_${id}.txt';
+        if (!File(tokenPath).existsSync()) tokenMissing++;
       }
     }
 
     stdout.writeln('READY (${ready.length}): ${ready.join(', ')}');
     stdout.writeln('SKIPPED (${skipped.length}): ${skipped.join(', ')}');
+    if (!write) {
+      stdout.writeln(
+          'SKIP REASONS: scope=$scopeMissing, spot=$spotMissing, token=$tokenMissing');
+    }
 
     String? next;
     for (final id in ready) {
-      if (!Directory('content/$id').existsSync()) {
+      if (!Directory('content/$id/v1').existsSync()) {
         next = id;
         break;
       }
