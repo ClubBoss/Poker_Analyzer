@@ -1,68 +1,61 @@
-// Pure-Dart test that prints NEXT and never fails because of missing content.
-// It only asserts JSON shape. Order SSOT = tooling/curriculum_ids.dart (append-only).
-
 import 'dart:convert';
 import 'dart:io';
 import 'package:test/test.dart';
 
-void main() {
-  test('curriculum status: print NEXT based on SSOT order', () async {
-    // 1) Load status
-    final statusFile = File('curriculum_status.json');
-    expect(await statusFile.exists(), isTrue,
-        reason: 'curriculum_status.json is required');
-    final statusJson = json.decode(await statusFile.readAsString());
-    expect(statusJson, isA<Map>());
-    expect(statusJson['modules_done'], isA<List>(),
-        reason: 'modules_done must be a JSON array');
+final _idRe = RegExp(r'^[a-z0-9_]+$');
 
-    final done = <String>{
-      ...((statusJson['modules_done'] as List).whereType<String>())
-    };
-
-    // 2) Load SSOT order from tooling/curriculum_ids.dart (append-only)
-    final idsFile = File('tooling/curriculum_ids.dart');
-    expect(await idsFile.exists(), isTrue,
-        reason: 'tooling/curriculum_ids.dart is the SSOT for order');
-    final src = await idsFile.readAsString();
-
-    // Extract list literal like: const kCurriculumIds = [ 'id_a', "id_b", ... ];
-    final listMatch = RegExp(
-      r'''(?:kCurriculumIds|curriculumIds)\s*=\s*\[(.*?)\];''',
-      dotAll: true,
-    ).firstMatch(src);
-
-    List<String> allIds;
-    if (listMatch != null) {
-      final body = listMatch.group(1)!;
-      // Pick both 'id' and "id"
-      allIds = RegExp(r"""'([a-z0-9_]+)'|"([a-z0-9_]+)"""")
-          .allMatches(body)
-          .map((m) => (m.group(1) ?? m.group(2))!)
-          .toList(growable: false);
-    } else {
-      // Fallback: any quoted snake_case tokens
-      final matches =
-          RegExp(r'''["']([a-z0-9_]+)["']''').allMatches(src).toList();
-      allIds = matches.map((m) => m.group(1)!).toSet().toList();
+List<String> _parseQueue() {
+  final file = File('RESEARCH_QUEUE.md');
+  final ids = <String>[];
+  for (final raw in file.readAsLinesSync()) {
+    final line = ascii.decode(ascii.encode(raw));
+    if (!line.startsWith('- ')) continue;
+    final id = line.substring(2).trim();
+    if (!_idRe.hasMatch(id)) {
+      throw FormatException('Invalid module id: $id');
     }
+    ids.add(id);
+  }
+  return ids;
+}
 
-    expect(allIds.isNotEmpty, isTrue,
-        reason: 'No curriculum IDs found in tooling/curriculum_ids.dart');
+List<String> _readStatus() {
+  final file = File('curriculum_status.json');
+  if (!file.existsSync()) return <String>[];
+  final raw = ascii.decode(ascii.encode(file.readAsStringSync()));
+  final noComments = raw
+      .split('\n')
+      .where((l) => !l.trim().startsWith('//'))
+      .join('\n');
+  final cleaned = noComments.replaceAll(',]', ']').replaceAll(',}', '}');
+  final data = jsonDecode(cleaned);
+  if (data is! Map || data['modules_done'] is! List) {
+    throw FormatException('Invalid curriculum_status.json');
+  }
+  final result = <String>[];
+  for (final id in data['modules_done']) {
+    if (id is String && _idRe.hasMatch(id)) {
+      result.add(id);
+    } else {
+      throw FormatException('Invalid module id in status: $id');
+    }
+  }
+  return result;
+}
 
-    // 3) Compute NEXT
-    String? next;
-    for (final id in allIds) {
-      if (!done.contains(id)) {
+void main() {
+  test('compute NEXT from queue', () {
+    final queue = _parseQueue();
+    final status = _readStatus();
+    expect(queue.toSet().containsAll(status), isTrue);
+    var next = 'none';
+    for (final id in queue) {
+      if (!status.contains(id)) {
         next = id;
         break;
       }
     }
-
-    // 4) Print NEXT line for downstream parsing
     // ignore: avoid_print
-    print(next == null ? 'NEXT = <none>' : 'NEXT = $next');
-
-    // No failing assertions beyond shape checks.
+    print('NEXT: $next');
   });
 }

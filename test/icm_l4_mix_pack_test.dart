@@ -1,7 +1,6 @@
 import 'package:test/test.dart';
 import 'package:poker_analyzer/ui/modules/icm_mix_packs.dart';
 import 'package:poker_analyzer/services/spot_importer.dart';
-import 'package:poker_analyzer/ui/session_player/models.dart';
 
 void main() {
   test('ICM L4 Mix starter pack parses correctly', () {

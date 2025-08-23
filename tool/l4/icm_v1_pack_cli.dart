@@ -40,7 +40,7 @@ void main(List<String> args) {
     exit(2);
   }
   final mix = IcmMix.mvsDefault();
-  final pack = buildIcmPack(seed: seed!, count: count, mix: mix);
+  final pack = buildIcmPack(seed: seed, count: count, mix: mix);
   final json = format == 'pretty'
       ? encodeIcmPackPretty(pack)
       : encodeIcmPackCompact(pack);

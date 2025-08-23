@@ -1127,8 +1127,8 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       const passAccPct = 80;
       const passAvgMs = 1800;
 
-      int total = _answers.length;
-      int correct = _answers.where((a) => a.correct).length;
+      final int total = _answers.length;
+      final int correct = _answers.where((a) => a.correct).length;
       final accPct = total == 0 ? 0.0 : (correct * 100.0) / total;
       final avgMs = total == 0
           ? 0
