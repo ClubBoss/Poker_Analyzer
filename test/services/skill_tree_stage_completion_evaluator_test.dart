@@ -14,7 +14,7 @@ void main() {
 
   class OptionalNode extends SkillTreeNodeModel {
     final bool isOptional;
-    const OptionalNode({required String id, required int level})
+  const OptionalNode({required String id, required int level})
         : isOptional = true,
           super(id: id, title: id, category: 'Push/Fold', level: level);
   }

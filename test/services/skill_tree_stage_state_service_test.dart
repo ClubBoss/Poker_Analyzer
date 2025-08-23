@@ -12,7 +12,7 @@ void main() {
 
   class OptionalNode extends SkillTreeNodeModel {
     final bool isOptional;
-    const OptionalNode(String id)
+  const OptionalNode(String id)
         : isOptional = true,
           super(id: id, title: id, category: 'cat', level: 1);
   }

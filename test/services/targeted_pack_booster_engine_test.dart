@@ -153,7 +153,7 @@ void main() {
     }
 
     @override
-    Stream<String> get Stream<String> onDecayStateChanged => controller.stream;
+  @override\n  Stream<String> get onDecayStateChanged => controller.stream;\n  }
   }
 
   test('auto-generates boosters when decay threshold crossed', () async {
