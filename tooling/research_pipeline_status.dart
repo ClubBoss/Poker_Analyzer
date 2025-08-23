@@ -1,27 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'ids_source.dart';
+
 String _ascii(String s) =>
     String.fromCharCodes(s.codeUnits.where((c) => c <= 0x7F));
-
-List<String> parseQueue(String path) {
-  final file = File(path);
-  if (!file.existsSync()) {
-    throw FileSystemException('missing queue', path);
-  }
-  final ids = <String>[];
-  final lines = file.readAsLinesSync().map(_ascii);
-  final idRe = RegExp(r'^[a-z0-9_]+$');
-  for (final line in lines) {
-    if (!line.startsWith('- ')) continue;
-    final id = line.substring(2).trim();
-    if (!idRe.hasMatch(id)) {
-      throw FormatException('invalid id line: $line');
-    }
-    ids.add(id);
-  }
-  return ids;
-}
 
 Map<String, String> readShortScope(String path) {
   final file = File(path);
@@ -39,11 +22,12 @@ Map<String, String> readShortScope(String path) {
 
 Map<String, bool> computeFlags(String id, Map<String, String> shortScope) {
   final hasShort = shortScope[id]?.trim().isNotEmpty ?? false;
-  final hasSpot =
-      File('tooling/allowlists/spotkind_allowlist_${id}.txt').existsSync();
-  final hasToken =
-      File('tooling/allowlists/target_tokens_allowlist_${id}.txt')
-          .existsSync();
+  final hasSpot = File(
+    'tooling/allowlists/spotkind_allowlist_${id}.txt',
+  ).existsSync();
+  final hasToken = File(
+    'tooling/allowlists/target_tokens_allowlist_${id}.txt',
+  ).existsSync();
   final ready = hasShort && hasSpot && hasToken;
   final hasContent = Directory('content/$id/v1').existsSync();
   return {
@@ -65,20 +49,23 @@ void printTable(List<Map<String, dynamic>> modules) {
     final flagReady = m['ready'] ? 'Y' : 'N';
     final flagContent = m['content'] ? 'Y' : 'N';
     stdout.writeln(
-        '$id |  $flagShort |  $flagSpot |   $flagToken |   $flagReady |   $flagContent');
+      '$id |  $flagShort |  $flagSpot |   $flagToken |   $flagReady |   $flagContent',
+    );
   }
 }
 
 void printJson(List<Map<String, dynamic>> modules, String? next) {
   final list = modules
-      .map((m) => {
-            'id': m['id'],
-            'short': m['short'],
-            'spot': m['spot'],
-            'token': m['token'],
-            'ready': m['ready'],
-            'content': m['content']
-          })
+      .map(
+        (m) => {
+          'id': m['id'],
+          'short': m['short'],
+          'spot': m['spot'],
+          'token': m['token'],
+          'ready': m['ready'],
+          'content': m['content'],
+        },
+      )
       .toList();
   stdout.writeln(jsonEncode(list));
   stdout.writeln(jsonEncode({'next': next ?? 'none'}));
@@ -108,7 +95,7 @@ void main(List<String> args) {
   List<String> ids;
   Map<String, String> shortScope;
   try {
-    ids = parseQueue('RESEARCH_QUEUE.md');
+    ids = readCurriculumIds();
     shortScope = readShortScope('tooling/short_scope.json');
   } on FormatException catch (e) {
     stderr.writeln(e.message);
@@ -120,8 +107,11 @@ void main(List<String> args) {
     return;
   }
 
-  final modules =
-      ids.map((id) => {'id': id, ...computeFlags(id, shortScope)}).toList();
+  stdout.writeln('ID SOURCE: $idSource');
+
+  final modules = ids
+      .map((id) => {'id': id, ...computeFlags(id, shortScope)})
+      .toList();
 
   if (onlyId != null) {
     modules.retainWhere((m) => m['id'] == onlyId);
