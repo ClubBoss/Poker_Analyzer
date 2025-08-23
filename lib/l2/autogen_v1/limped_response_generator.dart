@@ -217,7 +217,7 @@ Map<T, int> _buildQuotas<T>(Map<T, double> pct, int total, List<T> order) {
 }
 
 T _pickWithQuota<T>(Random rand, Map<T, int> quota, List<T> order) {
-  var choice = order[rand.nextInt(order.length)];
+  final choice = order[rand.nextInt(order.length)];
   if ((quota[choice] ?? 0) > 0) {
     quota[choice] = quota[choice]! - 1;
     return choice;
