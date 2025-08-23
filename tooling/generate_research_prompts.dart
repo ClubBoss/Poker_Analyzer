@@ -10,7 +10,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-const String _queuePath = 'RESEARCH_QUEUE.md';
+import 'ids_source.dart';
+ 
 const String _templatePath = 'RESEARCH_BATCH_TEMPLATE.md';
 const String _shortScopePath = 'tooling/short_scope.json';
 const String _allowlistDir = 'tooling/allowlists';
@@ -30,24 +31,6 @@ String _normalize(String s) {
   var out = s;
   repl.forEach((k, v) => out = out.replaceAll(k, v));
   return out;
-}
-
-List<String> parseQueue() {
-  final f = File(_queuePath);
-  final txt = _normalize(f.readAsStringSync());
-  final ids = <String>[];
-  for (final line in const LineSplitter().convert(txt)) {
-    final t = line.trim();
-    if (t.startsWith('-')) {
-      final id = t.substring(1).trim();
-      if (!RegExp(r'^[a-z0-9_]+$').hasMatch(id)) {
-        throw const FormatException('Invalid module id');
-      }
-      ids.add(id);
-    }
-  }
-  if (ids.isEmpty) throw const FormatException('No modules found');
-  return ids;
 }
 
 Map<String, String> readShortScope() {
@@ -174,7 +157,8 @@ void main(List<String> args) {
   }
 
   try {
-    final ids = parseQueue();
+    final ids = readCurriculumIds();
+    stdout.writeln('ID SOURCE: $idSource');
     final templateFile = File(_templatePath);
     if (!templateFile.existsSync()) {
       stderr.writeln('missing template');
