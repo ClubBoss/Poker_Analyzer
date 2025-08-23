@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import '../../lib/cross/feed.dart';
 import '../../lib/cross/feed_fs.dart';
 
 void main(List<String> args) {

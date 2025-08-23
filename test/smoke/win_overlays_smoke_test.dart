@@ -18,7 +18,7 @@ void main() {
 }
 
 class _FakeWinOverlay extends StatelessWidget {
-  const _FakeWinOverlay({super.key});
+  const _FakeWinOverlay();
 
   @override
   Widget build(BuildContext context) {
