@@ -2,8 +2,12 @@ class StackRangeFilter {
   final int? _min;
   final int? _max;
 
-  StackRangeFilter(String? raw)
-      : (_min, _max) = raw == null ? (null, null) : _parseRange(raw);
+  factory StackRangeFilter(String? raw) {
+    final parsed = raw == null ? (null, null) : _parseRange(raw);
+    return StackRangeFilter._(parsed.$1, parsed.$2);
+  }
+
+  const StackRangeFilter._(this._min, this._max);
 
   static (int?, int?) _parseRange(String raw) {
     if (raw.endsWith('+')) {
