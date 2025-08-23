@@ -1,14 +1,9 @@
 # Poker Analyzer analysis options
 analyzer:
   exclude:
-    - lib/screens/**
-    - lib/widgets/**
-    - lib/ui/**
+    - lib/services/**
+    - lib/shop/**
     - lib/plugins/**
-    - lib/providers/**
-    - lib/models/v2/**
-    - test/**
-    - tool/**
   language:
     strict-inference: false
     strict-raw-types: false
