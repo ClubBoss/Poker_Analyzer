@@ -8,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:poker_analyzer/app_bootstrap.dart';
 import 'package:poker_analyzer/controllers/pack_run_controller.dart';
 import 'package:poker_analyzer/models/action_entry.dart';
-import 'package:poker_analyzer/models/card_model.dart';
 import 'package:poker_analyzer/models/evaluation_result.dart';
 import 'package:poker_analyzer/models/player_model.dart';
 import 'package:poker_analyzer/models/training_spot.dart';
@@ -20,7 +19,6 @@ import 'package:poker_analyzer/services/training_session_controller.dart';
 import 'package:poker_analyzer/services/training_session_fingerprint_service.dart';
 import 'package:poker_analyzer/models/recall_snippet_result.dart';
 import 'package:poker_analyzer/services/user_action_logger.dart';
-import '../test_stubs.dart';
 
 class _FakeFingerprintService extends TrainingSessionFingerprintService {
   @override
