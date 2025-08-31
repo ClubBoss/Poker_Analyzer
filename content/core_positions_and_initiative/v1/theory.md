@@ -1,3 +1,6 @@
+[[IMAGE: position_wheel | 6-max positions]]
+[[IMAGE: opening_ranges_strip | Opening ranges by seat]]
+[[IMAGE: initiative_flow | Initiative vs no-initiative]]
 What it is
 This module defines 6-max positions - UTG, MP, CO, BTN, SB, BB - and opening ranges by seat. It also explains initiative vs no-initiative. The player who was the last aggressor on the previous street has initiative; the caller has no-initiative.
 
