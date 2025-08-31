@@ -1,0 +1,17 @@
+
+{"id":"core_board_textures:drill:01","spot_kind":"l2_board_classify","question":"Classify K72 rainbow for PFR vs caller.","target":"dry_board","rationale":"Few draws and slow equity shifts."}
+{"id":"core_board_textures:drill:02","spot_kind":"l2_board_classify","question":"Classify T98 two_tone for single-raised pot.","target":"wet_board","rationale":"Many straights and flush draws available."}
+{"id":"core_board_textures:drill:03","spot_kind":"l2_board_classify","question":"Board is 994 rainbow. Texture tag?","target":"paired_board","rationale":"One rank pairs, compressing value distribution."}
+{"id":"core_board_textures:drill:04","spot_kind":"l2_board_classify","question":"Board is A76 all hearts. Suit pattern?","target":"monotone","rationale":"Three cards of the same suit."}
+{"id":"core_board_textures:drill:05","spot_kind":"l2_board_classify","question":"Board is Q83 with two spades. Suit pattern?","target":"two_tone","rationale":"Two cards share a suit creating flush draws."}
+{"id":"core_board_textures:drill:06","spot_kind":"l2_board_advantage","question":"Who tends to have range advantage on A72 rainbow after raising pre?","target":"range_advantage_raiser","rationale":"Raiser holds more strong aces and top pairs."}
+{"id":"core_board_textures:drill:07","spot_kind":"l2_board_advantage","question":"Who often has nut advantage on 965 two_tone after BB defends?","target":"nut_advantage_defender","rationale":"Defender connects with more sets and straights."}
+{"id":"core_board_textures:drill:08","spot_kind":"l2_board_sizing","question":"Default sizing on K62 rainbow as PFR heads-up?","target":"cbet_small","rationale":"Dry_board with range_advantage suits small size."}
+{"id":"core_board_textures:drill:09","spot_kind":"l2_board_sizing","question":"Default sizing on QJT two_tone as PFR?","target":"cbet_big","rationale":"Wet_board needs larger size to tax draws."}
+{"id":"core_board_textures:drill:10","spot_kind":"l2_board_reaction","question":"IP on monotone A76, marginal top pair no high flush card. Action?","target":"check_back","rationale":"Value gap is small and reverse implied odds are high."}
+{"id":"core_board_textures:drill:11","spot_kind":"l2_board_reaction","question":"OOP on 772 rainbow after PFR checks back. Turn is 9. Plan?","target":"probe_bet","rationale":"Raiser capped range invites a lead."}
+{"id":"core_board_textures:drill:12","spot_kind":"l2_board_reaction","question":"Facing check-raise on T98 two_tone with strong draw. Response?","target":"raise_flop","rationale":"Leverage fold equity plus robust drawing equity."}
+{"id":"core_board_textures:drill:13","spot_kind":"l2_board_multiway","question":"Multiway on K72 rainbow as PFR. Frequency adjust?","target":"cbet_less_often","rationale":"Multiway reduces range advantage; tighten up."}
+{"id":"core_board_textures:drill:14","spot_kind":"l2_board_static_dynamic","question":"Which texture is more static: A72 rainbow or KQ2 two_tone?","target":"more_static","rationale":"Fewer changing turns on A72 rainbow."}
+{"id":"core_board_textures:drill:15","spot_kind":"l2_board_static_dynamic","question":"Which texture is more dynamic: 872 two_tone or A72 rainbow?","target":"more_dynamic","rationale":"Many turns shift equity on 872 two_tone."}
+{"id":"core_board_textures:drill:16","spot_kind":"l2_board_blockers","question":"You hold the spade ace on Q83 two_tone. Bluff potential tag?","target":"good_blocker_bluff","rationale":"Blocking the nut flush improves bluff quality later."}

@@ -1,1 +1,13 @@
-none
+overbet_river
+bet_big_river
+bet_small_river
+value_bet
+thin_value
+blocker_bluff
+bluffcatch
+check_back
+check_fold
+check_raise
+check_call
+bettor_shows_first
+first_active_left_of_btn_shows

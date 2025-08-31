@@ -1,0 +1,3 @@
+{"id": "core_bet_sizing_fe:demo:01", "steps": ["CO opens, BTN calls, blinds fold", "Flop A72 rainbow: CO uses small 33% pot with merged range", "BTN calls worse pairs and folds air"]}
+{"id": "core_bet_sizing_fe:demo:02", "steps": ["BTN opens, BB calls", "Flop T98 two tone: BTN bets large ~80% to charge draws", "BB folds weak pairs, continues strong draws and top pairs"]}
+{"id": "core_bet_sizing_fe:demo:03", "steps": ["UTG double-barrels K72r-5 turn for ~60%", "River bricks and UTG polarizes with overbet", "Villain folds bluffcatcher, showing pressure from polar size"]}

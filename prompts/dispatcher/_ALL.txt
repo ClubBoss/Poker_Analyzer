@@ -1,109 +1,34 @@
-module_id: core_rules_and_setup
-short_scope: Rules, hand ranking, blinds, button, action order, streets.
+module_id: core_river_fundamentals
+short_scope: River strategy: value vs bluff, sizing (incl. overbet), bluffcatching, blockers, showdown.
 spotkind_allowlist:
-l1_core_call_vs_price
-l2_core_rules_check
-l2_core_actions
-l2_core_min_raise
-l2_core_allin_reopen
-l2_core_showdown
-l2_core_out_of_turn
-l2_core_string_bet
-l2_core_round_end
+l2_river_sizing
+l2_river_value
+l2_river_bluffcatch
+l2_river_blockers
+l2_river_check_raise
 target_tokens_allowlist:
-utg
-first_active_left_of_btn
-bettor_shows_first
-first_active_left_of_btn_shows
-legal_min_raise
-min_raise_legal
-not_min_raise
-min_raise_illegal
-does_not_reopen
-no_reopen
-reopens
-reopen
-string_bet
-string_bet_call_only
-legal_bet
-single_motion_raise_legal
-action_cancelled
-action_canceled
-round_ends
-hand_a
-hand_b
-split_pot
-call
-fold
-module_id: core_positions_and_initiative
-short_scope: Position names, opening ranges by seat, initiative vs no-initiative.
-spotkind_allowlist:
 none
-target_tokens_allowlist:
-button_widest
-early_tight
-utg_has_initiative
-btn_has_initiative
-sb_raise_or_fold
-defend_wide_vs_small_open
-tighten_vs_large_opens
-min_raise_legal
-does_not_reopen
-reopens
-string_bet_call_only
-single_motion_raise_legal
-bettor_shows_first
-first_active_left_of_btn_shows
-action_canceled
-widen_on_button
-module_id: core_pot_odds_equity
-short_scope: Pot odds, equity, implied odds, breakeven percentage, rule of 2 and 4.
+module_id: core_board_textures
+short_scope: Board taxonomy (dry/wet, paired, monotone/two_tone), static vs dynamic, range & nut advantage cues.
 spotkind_allowlist:
 none
 target_tokens_allowlist:
 none
-module_id: core_starting_hands
-short_scope: Open ranges, 3bet/4bet basics, suited connectors, pairs, blockers.
+module_id: core_equity_realization
+short_scope: Equity realization: position/initiative, SPR (stack-to-pot), sizing & texture, HU vs multiway.
 spotkind_allowlist:
 none
 target_tokens_allowlist:
 none
-module_id: core_flop_fundamentals
-short_scope: Range vs range, c-bet types, board categories, baseline sizings.
+module_id: core_bet_sizing_fe
+short_scope: Bet sizing: small/medium/large/overbet, polar vs merge, frequencies and exploit cues.
 spotkind_allowlist:
 none
 target_tokens_allowlist:
-cbet_small
-cbet_big
-check_back
-delay_cbet
-probe_bet
-donk_bet
-raise_flop
-float_call
-fold
-call
-raise
-range_advantage
-nut_advantage
-dry_board
-wet_board
-two_tone
-monotone
-paired_board
-module_id: core_turn_fundamentals
-short_scope: Second barrel logic, equity shifts, blockers, pot geometry.
+none
+module_id: core_check_raise_systems
+short_scope: Check-raise: value vs bluff, sizing, frequencies
 spotkind_allowlist:
-l2_turn_barrel
-l2_turn_sizing
-l2_turn_blockers
-l2_turn_delay
-l2_pot_geometry
+none
 target_tokens_allowlist:
-bet_big_turn
-bet_small_turn
-delay_cbet
-check_back
-bluff_with_blocker
-set_up_river_jam
-size_down_to_see_river
+none
