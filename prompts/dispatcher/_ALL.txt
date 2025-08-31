@@ -26,3 +26,9 @@ spotkind_allowlist:
 none
 target_tokens_allowlist:
 none
+module_id: core_check_raise_systems
+short_scope: Check-raise: value vs bluff, sizing, frequencies
+spotkind_allowlist:
+none
+target_tokens_allowlist:
+none
