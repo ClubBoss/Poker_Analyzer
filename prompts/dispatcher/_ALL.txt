@@ -107,3 +107,26 @@ check_back
 bluff_with_blocker
 set_up_river_jam
 size_down_to_see_river
+module_id: core_river_fundamentals
+short_scope: River strategy: value vs bluff, sizing (incl. overbet), bluffcatching, blockers, showdown.
+spotkind_allowlist:
+l2_river_sizing
+l2_river_value
+l2_river_bluffcatch
+l2_river_blockers
+l2_river_check_raise
+target_tokens_allowlist:
+bet_big_river
+bet_small_river
+overbet_river
+thin_value
+value_bet
+bluffcatch
+blocker_bluff
+check_back
+check_call
+check_fold
+check_raise
+polarize
+bettor_shows_first
+first_active_left_of_btn_shows
