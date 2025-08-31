@@ -94,6 +94,16 @@ paired_board
 module_id: core_turn_fundamentals
 short_scope: Second barrel logic, equity shifts, blockers, pot geometry.
 spotkind_allowlist:
-none
+l2_turn_barrel
+l2_turn_sizing
+l2_turn_blockers
+l2_turn_delay
+l2_pot_geometry
 target_tokens_allowlist:
-none
+bet_big_turn
+bet_small_turn
+delay_cbet
+check_back
+bluff_with_blocker
+set_up_river_jam
+size_down_to_see_river

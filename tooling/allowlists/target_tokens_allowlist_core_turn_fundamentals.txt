@@ -1,1 +1,7 @@
-none
+bet_big_turn
+bet_small_turn
+delay_cbet
+check_back
+bluff_with_blocker
+set_up_river_jam
+size_down_to_see_river
