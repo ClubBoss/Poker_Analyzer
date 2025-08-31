@@ -12,11 +12,11 @@
   "dispatcher_path": "prompts/dispatcher/_ALL.txt",
   "bytes": {
     "research": 23082,
-    "dispatcher": 1499
+    "dispatcher": 1968
   },
   "line_count": {
     "research": 464,
-    "dispatcher": 72
+    "dispatcher": 104
   },
-  "generated_at": "2025-08-31T03:57:13"
+  "generated_at": "2025-08-31T06:13:49"
 }
