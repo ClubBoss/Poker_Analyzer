@@ -40,7 +40,22 @@ short_scope: Position names, opening ranges by seat, initiative vs no-initiative
 spotkind_allowlist:
 none
 target_tokens_allowlist:
-none
+button_widest
+early_tight
+utg_has_initiative
+btn_has_initiative
+sb_raise_or_fold
+defend_wide_vs_small_open
+tighten_vs_large_opens
+min_raise_legal
+does_not_reopen
+reopens
+string_bet_call_only
+single_motion_raise_legal
+bettor_shows_first
+first_active_left_of_btn_shows
+action_canceled
+widen_on_button
 module_id: core_pot_odds_equity
 short_scope: Pot odds, equity, implied odds, breakeven percentage, rule of 2 and 4.
 spotkind_allowlist:
@@ -58,7 +73,24 @@ short_scope: Range vs range, c-bet types, board categories, baseline sizings.
 spotkind_allowlist:
 none
 target_tokens_allowlist:
-none
+cbet_small
+cbet_big
+check_back
+delay_cbet
+probe_bet
+donk_bet
+raise_flop
+float_call
+fold
+call
+raise
+range_advantage
+nut_advantage
+dry_board
+wet_board
+two_tone
+monotone
+paired_board
 module_id: core_turn_fundamentals
 short_scope: Second barrel logic, equity shifts, blockers, pot geometry.
 spotkind_allowlist:
