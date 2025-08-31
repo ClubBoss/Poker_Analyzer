@@ -203,3 +203,5 @@ perl -0777 -pe "s/target_tokens_allowlist:\s*(?=module_id:|\Z)/target_tokens_all
 
 GO MODULE: core_equity_realization
 GO MODULE: core_bet_sizing_fe
+GO MODULE: core_bet_sizing_fe
+GO MODULE: core_equity_realization
