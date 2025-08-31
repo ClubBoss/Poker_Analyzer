@@ -32,3 +32,24 @@ spotkind_allowlist:
 none
 target_tokens_allowlist:
 none
+module_id: core_gto_vs_exploit
+short_scope: GTO baseline vs exploits; when to deviate and re-anchor.
+spotkind_allowlist:
+none
+target_tokens_allowlist:
+start_from_baseline
+exploit_overfold
+exploit_overcall
+size_up_polar
+thin_value_more
+small_shift_only
+widen_open_late_vs_tight_blinds
+tighten_open_late_vs_loose_blinds
+add_3bet_bluffs
+four_bet_value_heavier
+fold_more_vs_underbluff
+call_more_vs_overbluff
+bet_bigger_vs_capped
+bet_smaller_merged
+re_anchor_to_baseline
+respect_sample_size
