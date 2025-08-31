@@ -88,4 +88,6 @@ const List<String> kCurriculumIds = [
   'hand_review_and_annotation_standards',
   'review_workflow_and_study_routines',
   'database_leakfinder_playbook',
+
+  "core_bet_sizing_fe",
 ];

@@ -1,1 +1,12 @@
-none
+dry_board
+wet_board
+paired_board
+monotone
+two_tone
+static_board
+dynamic_board
+range_advantage
+nut_advantage
+broadway_heavy
+low_connected
+wheel_board
