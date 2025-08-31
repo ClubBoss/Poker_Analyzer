@@ -90,4 +90,5 @@ const List<String> kCurriculumIds = [
   'database_leakfinder_playbook',
 
   "core_bet_sizing_fe",
+  "core_check_raise_systems",
 ];

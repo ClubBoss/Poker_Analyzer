@@ -1,0 +1,5 @@
+
+{"id":"core_check_raise_systems:demo:01","steps":["CO opens, BTN calls, SB calls, BB folds","Flop K72 rainbow: SB checks, CO bets small","BTN folds, SB check-raises small for value with K7s","Turn brings draws; SB sizes up to charge equity"]}
+{"id":"core_check_raise_systems:demo:02","steps":["UTG opens, CO calls, blinds fold","Flop T98 two_tone: UTG bets, CO check-raises big as a bluff with backdoors","UTG folds overcards without redraws"]}
+{"id":"core_check_raise_systems:demo:03","steps":["BTN opens, BB calls","Flop A55 rainbow: BB checks, BTN small-bets","BB check-raises small with trips and some A-high backdoors as bluffs","BTN continues with strong Ax and folds air"]}
+

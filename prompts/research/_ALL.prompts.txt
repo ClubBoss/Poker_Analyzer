@@ -361,3 +361,4 @@ Do not output files until ALL checks pass. If any check fails, revise silently a
 - Edge cases (include only if relevant to the module): short all-in (< min-raise) and whether betting reopens; out-of-turn; string bet vs legal single motion.
 - Image placeholders: include 1-3 well-placed [[IMAGE: ... | ...]] lines in theory.md when helpful.
 - Output contract: exact paths; valid JSONL; no extra commentary.
+GO MODULE: core_check_raise_systems
