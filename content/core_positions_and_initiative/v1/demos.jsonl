@@ -1,0 +1,3 @@
+{"id":"core_positions_and_initiative:demo:01","spot_kind":"l2_core_actions","steps":["UTG opens 2.2 bb (typical online)","MP folds, CO calls, BTN folds","SB folds, BB calls","Flop BB checks, UTG has initiative and bets small","Both fold and UTG wins uncontested"]}
+{"id":"core_positions_and_initiative:demo:02","spot_kind":"l2_core_actions","steps":["CO opens 2.5 bb (typical online)","BTN 3-bets, blinds fold","CO folds marginal hand without position or initiative"]}
+{"id":"core_positions_and_initiative:demo:03","spot_kind":"l2_core_actions","steps":["BTN opens 2.3 bb (typical online)","SB folds, BB calls","Flop BB checks OOP, BTN keeps initiative and checks back to control pot"]}
