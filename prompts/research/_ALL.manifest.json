@@ -11,12 +11,12 @@
   "research_path": "prompts/research/_ALL.prompts.txt",
   "dispatcher_path": "prompts/dispatcher/_ALL.txt",
   "bytes": {
-    "research": 23069,
-    "dispatcher": 1373
+    "research": 23082,
+    "dispatcher": 1499
   },
   "line_count": {
     "research": 464,
-    "dispatcher": 62
+    "dispatcher": 72
   },
-  "generated_at": "2025-08-23T08:00:37"
+  "generated_at": "2025-08-31T03:57:13"
 }

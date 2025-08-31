@@ -49,4 +49,6 @@ flutter.tar.xz
 flutter-sdk/
 
 # FVM Version Cache
-.fvm/
+.fvm/*.bak
+coverage/
+

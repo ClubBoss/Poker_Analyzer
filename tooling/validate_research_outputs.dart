@@ -56,15 +56,17 @@ List<String> _loadIds() {
 List<String> _validate(
   List<MapEntry<String, String>> research,
   List<MapEntry<String, String>> dispatch,
-  List<String> ssot,
-  {String? onlyId}
-) {
+  List<String> ssot, {
+  String? onlyId,
+}) {
   final errors = <String>[];
 
-  final r =
-      onlyId == null ? research : research.where((e) => e.key == onlyId).toList();
-  final d =
-      onlyId == null ? dispatch : dispatch.where((e) => e.key == onlyId).toList();
+  final r = onlyId == null
+      ? research
+      : research.where((e) => e.key == onlyId).toList();
+  final d = onlyId == null
+      ? dispatch
+      : dispatch.where((e) => e.key == onlyId).toList();
 
   final rIds = r.map((e) => e.key).toList();
   final dIds = d.map((e) => e.key).toList();
@@ -176,11 +178,11 @@ void main(List<String> args) {
     final dispatchRaw = _ascii(File(_dispatcherPath).readAsStringSync());
     final researchBlocks = _splitResearch(researchRaw);
     final dispatchBlocks = _splitDispatcher(dispatchRaw);
-    final errors =
-        _validate(researchBlocks, dispatchBlocks, ids, onlyId: only);
+    final errors = _validate(researchBlocks, dispatchBlocks, ids, onlyId: only);
     final ok = errors.isEmpty;
-    final checkedIds =
-        only != null ? <String>[only!] : researchBlocks.map((e) => e.key).toList();
+    final checkedIds = only != null
+        ? <String>[only!]
+        : researchBlocks.map((e) => e.key).toList();
     if (json) {
       final res = {
         'ok': ok,
@@ -193,7 +195,9 @@ void main(List<String> args) {
       if (checkedIds.isEmpty) {
         print('OK modules=0');
       } else {
-        print('OK modules=${checkedIds.length} first=${checkedIds.first} last=${checkedIds.last}');
+        print(
+          'OK modules=${checkedIds.length} first=${checkedIds.first} last=${checkedIds.last}',
+        );
       }
     } else {
       for (final e in errors) {

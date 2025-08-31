@@ -1,1 +1,16 @@
-none
+button_widest
+early_tight
+utg_has_initiative
+btn_has_initiative
+sb_raise_or_fold
+defend_wide_vs_small_open
+tighten_vs_large_opens
+min_raise_legal
+does_not_reopen
+reopens
+string_bet_call_only
+single_motion_raise_legal
+bettor_shows_first
+first_active_left_of_btn_shows
+action_canceled
+widen_on_button
