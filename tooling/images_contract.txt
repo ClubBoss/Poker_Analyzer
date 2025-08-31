@@ -1,0 +1,8 @@
+IMAGES / AUTO-PLACEHOLDERS (must)
+- In theory.md insert 2–3 inline placeholders as single lines: @@img:<id>@@
+- Choose spots among: after_why_it_matters, before_mini_example, after_rules_of_thumb.
+- For this module include at least one positions diagram.
+- Also emit content/<module_id>/v1/images.json listing objects:
+  {"id":"<id>","slot":"<one of spots above>","alt":"<short alt text>"}
+- ids in theory.md MUST match ids in images.json. No real images, placeholders only.
+- If unsure, still include one positions placeholder.

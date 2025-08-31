@@ -115,7 +115,7 @@ STYLE OVERRIDE
 
 MODULE SPECIFICS
 - Module ID: core_positions_and_initiative
-- Focus: Position names, opening by seat, initiative vs no-initiative.
+- Focus: Position names, opening ranges by seat, initiative vs no-initiative.
 - Use positions, not seat numbers, in examples unless explicitly asked.
 - Include live vs online conventions when relevant. If you mention open sizes, label them as "typical online".
 - Do not invent new SpotKind values; use only the allowlisted kinds.
@@ -191,7 +191,7 @@ STYLE OVERRIDE
 
 MODULE SPECIFICS
 - Module ID: core_pot_odds_equity
-- Focus: Pot odds, equity, implied odds, breakeven percent, rule of 2 and 4.
+- Focus: Pot odds, equity, implied odds, breakeven percentage, rule of 2 and 4.
 - Use positions, not seat numbers, in examples unless explicitly asked.
 - Include live vs online conventions when relevant. If you mention open sizes, label them as "typical online".
 - Do not invent new SpotKind values; use only the allowlisted kinds.
@@ -343,7 +343,7 @@ STYLE OVERRIDE
 
 MODULE SPECIFICS
 - Module ID: core_flop_fundamentals
-- Focus: Range vs range, c-bet types, board categories, sizing basics.
+- Focus: Range vs range, c-bet types, board categories, baseline sizings.
 - Use positions, not seat numbers, in examples unless explicitly asked.
 - Include live vs online conventions when relevant. If you mention open sizes, label them as "typical online".
 - Do not invent new SpotKind values; use only the allowlisted kinds.

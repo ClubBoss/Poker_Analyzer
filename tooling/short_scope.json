@@ -1,9 +1,9 @@
 {
   "core_rules_and_setup": "Rules, hand ranking, blinds, button, action order, streets.",
-  "core_positions_and_initiative": "Position names, opening by seat, initiative vs no-initiative.",
-  "core_pot_odds_equity": "Pot odds, equity, implied odds, breakeven percent, rule of 2 and 4.",
+  "core_positions_and_initiative": "Position names, opening ranges by seat, initiative vs no-initiative.",
+  "core_pot_odds_equity": "Pot odds, equity, implied odds, breakeven percentage, rule of 2 and 4.",
   "core_starting_hands": "Open ranges, 3bet/4bet basics, suited connectors, pairs, blockers.",
-  "core_flop_fundamentals": "Range vs range, c-bet types, board categories, sizing basics.",
+  "core_flop_fundamentals": "Range vs range, c-bet types, board categories, baseline sizings.",
   "core_turn_fundamentals": "Second barrel logic, equity shifts, blockers, pot geometry.",
   "core_river_fundamentals": "",
   "core_board_textures": "",

@@ -11,49 +11,54 @@ l2_core_out_of_turn
 l2_core_string_bet
 l2_core_round_end
 target_tokens_allowlist:
-left_of_bb
-left_of_btn
-min_raise_illegal
-min_raise_legal
-no_reopen
-reopen
+utg
+first_active_left_of_btn
 bettor_shows_first
 first_active_left_of_btn_shows
+legal_min_raise
+min_raise_legal
+not_min_raise
+min_raise_illegal
+does_not_reopen
+no_reopen
+reopens
+reopen
+string_bet
 string_bet_call_only
+legal_bet
 single_motion_raise_legal
-binding
-returned
-skip_folded_player
-info_only
-
+action_cancelled
+action_canceled
+round_ends
+hand_a
+hand_b
+split_pot
+call
+fold
 module_id: core_positions_and_initiative
-short_scope: Position names, opening by seat, initiative vs no-initiative.
+short_scope: Position names, opening ranges by seat, initiative vs no-initiative.
 spotkind_allowlist:
 none
 target_tokens_allowlist:
 none
-
 module_id: core_pot_odds_equity
-short_scope: Pot odds, equity, implied odds, breakeven percent, rule of 2 and 4.
+short_scope: Pot odds, equity, implied odds, breakeven percentage, rule of 2 and 4.
 spotkind_allowlist:
 none
 target_tokens_allowlist:
 none
-
 module_id: core_starting_hands
 short_scope: Open ranges, 3bet/4bet basics, suited connectors, pairs, blockers.
 spotkind_allowlist:
 none
 target_tokens_allowlist:
 none
-
 module_id: core_flop_fundamentals
-short_scope: Range vs range, c-bet types, board categories, sizing basics.
+short_scope: Range vs range, c-bet types, board categories, baseline sizings.
 spotkind_allowlist:
 none
 target_tokens_allowlist:
 none
-
 module_id: core_turn_fundamentals
 short_scope: Second barrel logic, equity shifts, blockers, pot geometry.
 spotkind_allowlist:
