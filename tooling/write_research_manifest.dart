@@ -57,8 +57,9 @@ List<String> _loadIds() {
 Map<String, int> _counts(String path) {
   final file = File(path);
   final bytes = file.readAsBytesSync().length;
-  final lines =
-      const LineSplitter().convert(_ascii(file.readAsStringSync())).length;
+  final lines = const LineSplitter()
+      .convert(_ascii(file.readAsStringSync()))
+      .length;
   return {'bytes': bytes, 'lines': lines};
 }
 
@@ -115,4 +116,3 @@ void main(List<String> args) {
     exit(2);
   }
 }
-

@@ -106,11 +106,14 @@ void main(List<String> args) {
 
     final tpl = File(_tplPath).readAsStringSync();
 
-    final spotBlock = (parsed.spotKinds.length == 1 && parsed.spotKinds[0] == 'none')
+    final spotBlock =
+        (parsed.spotKinds.length == 1 && parsed.spotKinds[0] == 'none')
         ? 'none'
         : parsed.spotKinds.join('\n');
 
-    final tokensBlock = (parsed.tokens.isEmpty || (parsed.tokens.length == 1 && parsed.tokens[0] == 'none'))
+    final tokensBlock =
+        (parsed.tokens.isEmpty ||
+            (parsed.tokens.length == 1 && parsed.tokens[0] == 'none'))
         ? 'none'
         : parsed.tokens.join('\n');
 

@@ -11,7 +11,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'ids_source.dart';
- 
+
 const String _templatePath = 'RESEARCH_BATCH_TEMPLATE.md';
 const String _shortScopePath = 'tooling/short_scope.json';
 const String _allowlistDir = 'tooling/allowlists';
@@ -183,7 +183,8 @@ void main(List<String> args) {
           final spot =
               readAllow('$_allowlistDir/spotkind_allowlist_${id}.txt') ?? '';
           final token =
-              readAllow('$_allowlistDir/target_tokens_allowlist_${id}.txt') ?? '';
+              readAllow('$_allowlistDir/target_tokens_allowlist_${id}.txt') ??
+              '';
           prompts[id] = renderPrompt(template, id, scope, spot, token);
           dispatchers[id] = renderDispatcherBlock(id, scope, spot, token);
         }
@@ -202,7 +203,8 @@ void main(List<String> args) {
     stdout.writeln('SKIPPED (${skipped.length}): ${skipped.join(', ')}');
     if (!write) {
       stdout.writeln(
-          'SKIP REASONS: scope=$scopeMissing, spot=$spotMissing, token=$tokenMissing');
+        'SKIP REASONS: scope=$scopeMissing, spot=$spotMissing, token=$tokenMissing',
+      );
     }
 
     String? next;

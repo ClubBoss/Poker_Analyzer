@@ -1,7 +1,144 @@
-module_id: core_bet_sizing_fe
-short_scope: Bet sizing: small/medium/large/overbet, polar vs merge, frequencies and exploit cues.
+module_id: core_rules_and_setup
+short_scope: Rules, setup, buy-in, table flow.
 spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+action_canceled
+bettor_shows_first
+call
+does_not_reopen
+first_active_left_of_btn_shows
+hand_a
+legal_min_raise
+min_raise_illegal
+reopens
+round_ends
+single_motion_raise_legal
+split_pot
+string_bet_call_only
+module_id: core_positions_and_initiative
+short_scope: Positions, initiative, who has the lead.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+button_widest
+early_tight
+utg_has_initiative
+btn_has_initiative
+sb_raise_or_fold
+defend_wide_vs_small_open
+tighten_vs_large_opens
+min_raise_legal
+does_not_reopen
+reopens
+string_bet_call_only
+single_motion_raise_legal
+bettor_shows_first
+first_active_left_of_btn_shows
+action_canceled
+widen_on_button
+module_id: core_pot_odds_equity
+short_scope: Pot odds, equity, breakeven math.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
 none
+module_id: core_starting_hands
+short_scope: Open/defend ranges by position.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: core_flop_fundamentals
+short_scope: Flop plans: advantage, sizing, folds.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+cbet_small
+cbet_big
+check_back
+delay_cbet
+probe_bet
+donk_bet
+raise_flop
+float_call
+fold
+call
+raise
+range_advantage
+nut_advantage
+dry_board
+wet_board
+two_tone
+monotone
+paired_board
+module_id: core_turn_fundamentals
+short_scope: Turn play: second barrels, probes, pot growth.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+bet_big_turn
+bet_small_turn
+delay_cbet
+check_back
+bluff_with_blocker
+set_up_river_jam
+size_down_to_see_river
+module_id: core_river_fundamentals
+short_scope: River play: value, bluffs, sizes, blockers.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+overbet_river
+bet_big_river
+bet_small_river
+value_bet
+thin_value
+blocker_bluff
+bluffcatch
+check_back
+check_fold
+check_raise
+check_call
+bettor_shows_first
+first_active_left_of_btn_shows
+module_id: core_board_textures
+short_scope: Textures: high/low, wet/dry, paired/mono.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+dry_board
+wet_board
+paired_board
+monotone
+two_tone
+static_board
+dynamic_board
+range_advantage
+nut_advantage
+broadway_heavy
+low_connected
+wheel_board
+module_id: core_equity_realization
+short_scope: Realization by position, size, SPR.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: core_bet_sizing_fe
+short_scope: Bet sizing: small/medium/large/overbet.
+spotkind_allowlist:
+l2_core_rules_check
+
 target_tokens_allowlist:
 bet_fold
 bet_fold_bluff
@@ -19,9 +156,10 @@ small_or_medium
 thin_value_small
 value_bet_bigger
 module_id: core_check_raise_systems
-short_scope: Check-raise: value vs bluff, sizing, frequencies
+short_scope: Check-raise: value vs bluff, sizing, freq.
 spotkind_allowlist:
-none
+l2_core_rules_check
+
 target_tokens_allowlist:
 backdoor_blocker_bluff
 barrel_good_turns
@@ -39,10 +177,40 @@ induce_worse_calls
 low_freq_bluff
 one_size_fits_all_leak
 slow_or_give_up
-module_id: core_mental_game
-short_scope: Mental game: focus, tilt control, routines, variance literacy.
+module_id: core_gto_vs_exploit
+short_scope: GTO baselines vs population exploits.
 spotkind_allowlist:
 l2_core_rules_check
+
+target_tokens_allowlist:
+start_from_baseline
+exploit_overfold
+exploit_overcall
+size_up_polar
+thin_value_more
+small_shift_only
+widen_open_late_vs_tight_blinds
+tighten_open_late_vs_loose_blinds
+add_3bet_bluffs
+four_bet_value_heavier
+fold_more_vs_underbluff
+call_more_vs_overbluff
+bet_bigger_vs_capped
+bet_smaller_merged
+re_anchor_to_baseline
+respect_sample_size
+module_id: core_bankroll_management
+short_scope: Bankroll, stake rules, stop-loss.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: core_mental_game
+short_scope: Mental game: focus, routines, variance.
+spotkind_allowlist:
+l2_core_rules_check
+
 target_tokens_allowlist:
 box_breathing_4x4
 breathe_reset_10s
@@ -61,9 +229,10 @@ stop_loss_quit
 table_change_now
 tag_and_move_on
 module_id: core_note_taking
-short_scope: Note taking: tags, one-line reviews, fast capture, study routing.
+short_scope: Notes: tags, one-line reviews, routing.
 spotkind_allowlist:
 l2_core_rules_check
+
 target_tokens_allowlist:
 calls_down
 capture_first
@@ -82,9 +251,10 @@ study_spot_folder
 tiny_3bet_blind
 under_120_chars
 module_id: cash_rake_and_stakes
-short_scope: Cash games: rake models, stake selection, winrate math.
+short_scope: Module scope.
 spotkind_allowlist:
 l2_core_rules_check
+
 target_tokens_allowlist:
 add_volume_or_quit
 choose_softer_even_if_rakey
@@ -102,3 +272,424 @@ tighten_early_ranges
 tighten_steal_ranges
 value_bet_confident
 value_thicker_after_cap
+module_id: cash_single_raised_pots
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+bet_bigger_river
+cbet_big
+cbet_less_often
+cbet_small
+check_back
+check_back_more
+delay_cbet
+float_call
+fold
+open_tighter_early_wider_late
+probe_bet
+raise_for_value
+second_barrel
+suited_connectors_and_gappers
+tighten_oop_defends
+value_thicker_after_cap
+module_id: cash_threebet_pots
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: cash_fourbet_pots
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: cash_multiway_pots
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: cash_multiway_3bet_pots
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: cash_blind_defense
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: cash_blind_vs_blind
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: cash_isolation_raises
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: cash_squeeze_strategy
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: cash_short_handed
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: cash_population_exploits
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: cash_limp_pots_systems
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: cash_delayed_cbet_and_probe_systems
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: cash_overbets_and_blocker_bets
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: mtt_antes_phases
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: mtt_short_stack
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: mtt_mid_stack
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: mtt_deep_stack
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: mtt_icm_basics
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: mtt_icm_endgame_advanced
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: mtt_pko_strategy
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: mtt_pko_advanced_bounty_routing
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: mtt_satellite_strategy
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: mtt_day2_bagging_and_reentry_ev
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: mtt_final_table_playbooks
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: mtt_late_reg_strategy
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: icm_bubble_blind_vs_blind
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: hu_preflop
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: hu_postflop
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: hu_turn_play
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: hu_river_play
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: hu_preflop_strategy
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: hu_postflop_play
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: hu_exploit_adv
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: math_intro_basics
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: math_pot_odds_equity
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: math_combo_blockers
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: math_ev_calculations
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: math_icm_basics
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: math_icm_advanced
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: math_solver_basics
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: solver_node_locking_basics
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: live_tells_and_dynamics
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: live_etiquette_and_procedures
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: live_full_ring_adjustments
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: live_special_formats_straddle_bomb_ante
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: online_tells_and_dynamics
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: online_table_selection_and_multitabling
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: online_fastfold_pool_dynamics
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: online_economics_rakeback_promos
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: hudless_strategy_and_note_coding
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: exploit_advanced
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: donk_bets_and_leads
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: spr_basics
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: spr_advanced
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: hand_review_and_annotation_standards
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: review_workflow_and_study_routines
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
+module_id: database_leakfinder_playbook
+short_scope: Module scope.
+spotkind_allowlist:
+l2_core_rules_check
+
+target_tokens_allowlist:
+none
