@@ -181,7 +181,7 @@ void main(List<String> args) {
     final errors = _validate(researchBlocks, dispatchBlocks, ids, onlyId: only);
     final ok = errors.isEmpty;
     final checkedIds = only != null
-        ? <String>[only!]
+        ? <String>[only]
         : researchBlocks.map((e) => e.key).toList();
     if (json) {
       final res = {

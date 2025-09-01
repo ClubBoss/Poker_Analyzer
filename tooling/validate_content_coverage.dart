@@ -126,6 +126,6 @@ void main(List<String> args) {
     stderr.writeln('missing id');
     exit(2);
   }
-  final code = _runForId(id!);
+  final code = _runForId(id);
   exit(code);
 }
