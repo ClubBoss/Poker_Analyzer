@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:convert';
 
 const _researchPath = 'prompts/research/_ALL.prompts.txt';
 const _dispatcherPath = 'prompts/dispatcher/_ALL.txt';
@@ -112,8 +111,8 @@ void main(List<String> args) {
     final dispRaw = _ascii(File(_dispatcherPath).readAsStringSync());
     final research = _splitResearch(researchRaw);
     final disp = _splitDispatcher(dispRaw);
-    final r = research[id!];
-    final d = disp[id!];
+    final r = research[id];
+    final d = disp[id];
     if (r == null) {
       stderr.writeln('no research for $id');
       exit(2);
@@ -122,7 +121,7 @@ void main(List<String> args) {
       stderr.writeln('no dispatcher for $id');
       exit(2);
     }
-    final contract = _contractFor(id!);
+    final contract = _contractFor(id);
 
     final intro = _ascii('''
 CONTENT GENERATOR RUN

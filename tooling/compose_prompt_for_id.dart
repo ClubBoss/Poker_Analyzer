@@ -85,7 +85,7 @@ void main(List<String> args) {
       exit(2);
     }
   }
-  if (id == null || id!.isEmpty) {
+  if (id == null || id.isEmpty) {
     stderr.writeln('missing --id');
     exit(2);
   }
