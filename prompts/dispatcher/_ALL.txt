@@ -1,55 +1,41 @@
-module_id: core_river_fundamentals
-short_scope: River strategy: value vs bluff, sizing (incl. overbet), bluffcatching, blockers, showdown.
-spotkind_allowlist:
-l2_river_sizing
-l2_river_value
-l2_river_bluffcatch
-l2_river_blockers
-l2_river_check_raise
-target_tokens_allowlist:
-none
-module_id: core_board_textures
-short_scope: Board taxonomy (dry/wet, paired, monotone/two_tone), static vs dynamic, range & nut advantage cues.
-spotkind_allowlist:
-none
-target_tokens_allowlist:
-none
-module_id: core_equity_realization
-short_scope: Equity realization: position/initiative, SPR (stack-to-pot), sizing & texture, HU vs multiway.
-spotkind_allowlist:
-none
-target_tokens_allowlist:
-none
 module_id: core_bet_sizing_fe
 short_scope: Bet sizing: small/medium/large/overbet, polar vs merge, frequencies and exploit cues.
 spotkind_allowlist:
 none
 target_tokens_allowlist:
-none
+bet_fold
+bet_fold_bluff
+bluff_bigger
+call_or_fold_plan
+check_or_small
+large_bet
+large_or_overbet
+medium_bet
+overbet
+overbet_polar
+second_barrel_bigger
+small_bet
+small_or_medium
+thin_value_small
+value_bet_bigger
 module_id: core_check_raise_systems
 short_scope: Check-raise: value vs bluff, sizing, frequencies
 spotkind_allowlist:
 none
 target_tokens_allowlist:
-none
-module_id: core_gto_vs_exploit
-short_scope: GTO baseline vs exploits; when to deviate and re-anchor.
-spotkind_allowlist:
-none
-target_tokens_allowlist:
-start_from_baseline
-exploit_overfold
-exploit_overcall
-size_up_polar
-thin_value_more
-small_shift_only
-widen_open_late_vs_tight_blinds
-tighten_open_late_vs_loose_blinds
-add_3bet_bluffs
-four_bet_value_heavier
-fold_more_vs_underbluff
-call_more_vs_overbluff
-bet_bigger_vs_capped
-bet_smaller_merged
-re_anchor_to_baseline
-respect_sample_size
+backdoor_blocker_bluff
+barrel_good_turns
+bet_big_river
+call_ip_control
+check_call_or_fold
+check_raise_big
+check_raise_big_bluff
+check_raise_small
+check_raise_small_value
+continue_or_jam
+fold_medium_pair
+higher_freq_bluff
+induce_worse_calls
+low_freq_bluff
+one_size_fits_all_leak
+slow_or_give_up
