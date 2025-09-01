@@ -1,0 +1,16 @@
+{"id":"core_note_taking:drill:01","spot_kind":"l2_core_rules_check","question":"Best format for speed during play?","target":"one_idea_per_line","rationale":"Atomic notes are fast and searchable."}
+{"id":"core_note_taking:drill:02","spot_kind":"l2_core_rules_check","question":"You want a reusable player label for folding too much to flop bets. Tag?","target":"overfold_flop","rationale":"Stable, descriptive, and searchable."}
+{"id":"core_note_taking:drill:03","spot_kind":"l2_core_rules_check","question":"In-session priority: capture or analyze?","target":"capture_first","rationale":"Deep analysis waits for off-table time."}
+{"id":"core_note_taking:drill:04","spot_kind":"l2_core_rules_check","question":"Which context must be in most notes?","target":"positions_and_sizes","rationale":"Ranges depend on seats and sizing."}
+{"id":"core_note_taking:drill:05","spot_kind":"l2_core_rules_check","question":"Default buckets to route notes?","target":"fix_now_study_spot_player_read","rationale":"Routing avoids backlog bloat."}
+{"id":"core_note_taking:drill:06","spot_kind":"l2_core_rules_check","question":"You wrote 'spewy play' as a note. Better replacement?","target":"specific_tag","rationale":"Use precise tags like tiny_3bet or calls_down."}
+{"id":"core_note_taking:drill:07","spot_kind":"l2_core_rules_check","question":"Where to store pool-wide observations?","target":"pool_read_log","rationale":"Trends persist beyond single villains."}
+{"id":"core_note_taking:drill:08","spot_kind":"l2_core_rules_check","question":"Time to create one-line review entries?","target":"post_session_only","rationale":"Keeps focus during play."}
+{"id":"core_note_taking:drill:09","spot_kind":"l2_core_rules_check","question":"Note length guideline mid-hand?","target":"under_120_chars","rationale":"Short keeps attention on action."}
+{"id":"core_note_taking:drill:10","spot_kind":"l2_core_rules_check","question":"You keep forgetting to review. Fix?","target":"schedule_review_block","rationale":"Calendar time makes reviews happen."}
+{"id":"core_note_taking:drill:11","spot_kind":"l2_core_rules_check","question":"Marking which hands for urgent study?","target":"fix_now","rationale":"Immediate leaks change next session results."}
+{"id":"core_note_taking:drill:12","spot_kind":"l2_core_rules_check","question":"Good tag for blinds 3-betting too small vs BTN?","target":"tiny_3bet_blind","rationale":"Encodes pattern and position."}
+{"id":"core_note_taking:drill:13","spot_kind":"l2_core_rules_check","question":"You observed BB calls down light vs missed draws. Tag?","target":"calls_down","rationale":"Describes a sticky tendency."}
+{"id":"core_note_taking:drill:14","spot_kind":"l2_core_rules_check","question":"What to add when describing a bet?","target":"size_family","rationale":"Small, medium, large communicates price quickly."}
+{"id":"core_note_taking:drill:15","spot_kind":"l2_core_rules_check","question":"Where to log which study topic a hand belongs to?","target":"study_spot_folder","rationale":"Grouping speeds pattern learning."}
+{"id":"core_note_taking:drill:16","spot_kind":"l2_core_rules_check","question":"Quick self-note after tilt spike?","target":"emotion_flag","rationale":"Tracks triggers without derailing focus."}

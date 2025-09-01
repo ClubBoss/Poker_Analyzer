@@ -1,1 +1,16 @@
-none
+box_breathing_4x4
+breathe_reset_10s
+end_on_time
+mark_three_hands
+mute_chat_now
+one_line_journal
+pause_5_min
+reduce_table_count
+respect_time_box
+restate_goal
+shorten_or_skip
+stand_water_walk
+stick_to_plan
+stop_loss_quit
+table_change_now
+tag_and_move_on

@@ -11,10 +11,12 @@ Map<String, dynamic> _defaultCoverage(String id, {String? shortScope}) {
   final phrases = <String>[];
   if (shortScope != null) {
     // немного автоматической конкретики из short_scope
-    phrases.addAll(shortScope
-        .split(RegExp(r'[;,]'))
-        .map((s) => s.trim())
-        .where((s) => s.isNotEmpty));
+    phrases.addAll(
+      shortScope
+          .split(RegExp(r'[;,]'))
+          .map((s) => s.trim())
+          .where((s) => s.isNotEmpty),
+    );
   }
   // строгие дефолты для структуры
   return {
@@ -25,7 +27,7 @@ Map<String, dynamic> _defaultCoverage(String id, {String? shortScope}) {
     "demos_min": 2,
     "demos_max": 3,
     "drills_min": 12,
-    "drills_max": 16
+    "drills_max": 16,
   };
 }
 
@@ -73,10 +75,14 @@ String buildCoverageContract(String id) {
   }
   if (reqPos) {
     buf.writeln(
-        '- The mini example must use positions: UTG, MP, CO, BTN, SB, BB.');
+      '- The mini example must use positions: UTG, MP, CO, BTN, SB, BB.',
+    );
   }
-  buf.writeln('- demos.jsonl: $dMin–$dMax items. drills.jsonl: $rMin–$rMax items.');
   buf.writeln(
-      '- If any check fails, silently revise and re-run internal QA before output.');
+    '- demos.jsonl: $dMin–$dMax items. drills.jsonl: $rMin–$rMax items.',
+  );
+  buf.writeln(
+    '- If any check fails, silently revise and re-run internal QA before output.',
+  );
   return buf.toString();
 }

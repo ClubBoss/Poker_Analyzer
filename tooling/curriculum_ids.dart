@@ -3,7 +3,6 @@
 // ASCII-only.
 
 const List<String> kCurriculumIds = [
-  // Core
   'core_rules_and_setup',
   'core_positions_and_initiative',
   'core_pot_odds_equity',
@@ -19,8 +18,6 @@ const List<String> kCurriculumIds = [
   'core_bankroll_management',
   'core_mental_game',
   'core_note_taking',
-
-  // Cash
   'cash_rake_and_stakes',
   'cash_single_raised_pots',
   'cash_threebet_pots',
@@ -36,8 +33,6 @@ const List<String> kCurriculumIds = [
   'cash_limp_pots_systems',
   'cash_delayed_cbet_and_probe_systems',
   'cash_overbets_and_blocker_bets',
-
-  // MTT
   'mtt_antes_phases',
   'mtt_short_stack',
   'mtt_mid_stack',
@@ -51,8 +46,6 @@ const List<String> kCurriculumIds = [
   'mtt_final_table_playbooks',
   'mtt_late_reg_strategy',
   'icm_bubble_blind_vs_blind',
-
-  // Heads-Up (HU)
   'hu_preflop',
   'hu_postflop',
   'hu_turn_play',
@@ -60,8 +53,6 @@ const List<String> kCurriculumIds = [
   'hu_preflop_strategy',
   'hu_postflop_play',
   'hu_exploit_adv',
-
-  // Math
   'math_intro_basics',
   'math_pot_odds_equity',
   'math_combo_blockers',
@@ -70,8 +61,6 @@ const List<String> kCurriculumIds = [
   'math_icm_advanced',
   'math_solver_basics',
   'solver_node_locking_basics',
-
-  // Cross / Live & Online
   'live_tells_and_dynamics',
   'live_etiquette_and_procedures',
   'live_full_ring_adjustments',
@@ -88,7 +77,4 @@ const List<String> kCurriculumIds = [
   'hand_review_and_annotation_standards',
   'review_workflow_and_study_routines',
   'database_leakfinder_playbook',
-
-  "core_bet_sizing_fe",
-  "core_check_raise_systems",
 ];
