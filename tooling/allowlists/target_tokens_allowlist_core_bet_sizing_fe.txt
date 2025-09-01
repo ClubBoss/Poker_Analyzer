@@ -1,1 +1,15 @@
-none
+bet_fold
+bet_fold_bluff
+bluff_bigger
+call_or_fold_plan
+check_or_small
+large_bet
+large_or_overbet
+medium_bet
+overbet
+overbet_polar
+second_barrel_bigger
+small_bet
+small_or_medium
+thin_value_small
+value_bet_bigger

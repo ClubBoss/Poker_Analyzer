@@ -1,0 +1,3 @@
+{"id":"core_bankroll_management:demo:01","steps":["Online cash roll = 50 buy-ins","Player starts target stake and tracks results","After -3 buy-ins, hits stop-loss and ends session"]}
+{"id":"core_bankroll_management:demo:02","steps":["Live cash roll = 25 buy-ins","Table is tough; player table-changes to softer lineup","Win rate improves while bankroll variance drops"]}
+{"id":"core_bankroll_management:demo:03","steps":["Roll grows to 60 buy-ins for next stake","Player takes a 5 buy-in shot with 2 buy-in loss cap","Shot fails; player instantly moves down per plan"]}
