@@ -1,1 +1,16 @@
-none
+add_volume_or_quit
+choose_softer_even_if_rakey
+edge_minus_rake_compare
+iso_limpers_bigger
+isolate_and_steal_more
+net_winrate_tracking
+play_value_hands
+prefer_better_cap_stake
+quit_before_leaks
+raise_not_limp
+rake_paid_and_rakeback
+table_change_to_action
+tighten_early_ranges
+tighten_steal_ranges
+value_bet_confident
+value_thicker_after_cap
