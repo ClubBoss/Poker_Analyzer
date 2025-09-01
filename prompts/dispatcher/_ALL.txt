@@ -39,3 +39,24 @@ induce_worse_calls
 low_freq_bluff
 one_size_fits_all_leak
 slow_or_give_up
+module_id: core_mental_game
+short_scope: Mental game: focus, tilt control, routines, variance literacy.
+spotkind_allowlist:
+l2_core_rules_check
+target_tokens_allowlist:
+box_breathing_4x4
+breathe_reset_10s
+end_on_time
+mark_three_hands
+mute_chat_now
+one_line_journal
+pause_5_min
+reduce_table_count
+respect_time_box
+restate_goal
+shorten_or_skip
+stand_water_walk
+stick_to_plan
+stop_loss_quit
+table_change_now
+tag_and_move_on

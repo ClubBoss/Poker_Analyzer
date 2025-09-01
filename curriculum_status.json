@@ -2,7 +2,8 @@
   "schema": 1,
   "modules_done": [
     "core_bet_sizing_fe",
-    "core_check_raise_systems"
+    "core_check_raise_systems",
+    "core_mental_game"
   ],
   "notes": "SSOT of order is tooling/curriculum_ids.dart; NEXT = first id from curriculum_ids not present in modules_done"
 }
