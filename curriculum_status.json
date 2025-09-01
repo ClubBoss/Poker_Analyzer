@@ -1,7 +1,8 @@
 {
   "schema": 1,
   "modules_done": [
-    // append-only; keep order of completion here
+    "core_bet_sizing_fe",
+    "core_check_raise_systems"
   ],
   "notes": "SSOT of order is tooling/curriculum_ids.dart; NEXT = first id from curriculum_ids not present in modules_done"
 }
