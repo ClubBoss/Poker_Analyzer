@@ -60,3 +60,24 @@ stick_to_plan
 stop_loss_quit
 table_change_now
 tag_and_move_on
+module_id: core_note_taking
+short_scope: Note taking: tags, one-line reviews, fast capture, study routing.
+spotkind_allowlist:
+l2_core_rules_check
+target_tokens_allowlist:
+calls_down
+capture_first
+emotion_flag
+fix_now
+fix_now_study_spot_player_read
+one_idea_per_line
+overfold_flop
+pool_read_log
+positions_and_sizes
+post_session_only
+schedule_review_block
+size_family
+specific_tag
+study_spot_folder
+tiny_3bet_blind
+under_120_chars
