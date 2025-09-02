@@ -1,12 +1,12 @@
 {
   "schema": 1,
   "modules_done": [
-    "core_rules_and_setup",
     "core_bet_sizing_fe",
     "core_check_raise_systems",
     "core_mental_game",
     "core_note_taking",
     "cash_rake_and_stakes",
+    "core_rules_and_setup",
     "cash_single_raised_pots",
     "core_positions_and_initiative"
   ],
