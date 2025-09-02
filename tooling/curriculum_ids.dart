@@ -77,4 +77,5 @@ const List<String> curriculumIds = [
   "hand_review_and_annotation_standards",
   "review_workflow_and_study_routines",
   "database_leakfinder_playbook",
+  "core_positions_and_initiative",
 ];
