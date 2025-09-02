@@ -1,9 +1,3 @@
-module_id: core_rules_and_setup
-short_scope: TODO
-spotkind_allowlist:
-  l2_core_rules_check
-target_tokens_allowlist:
-  none
 module_id: core_bet_sizing_fe
 short_scope: TODO
 spotkind_allowlist:
@@ -29,6 +23,12 @@ spotkind_allowlist:
 target_tokens_allowlist:
   none
 module_id: cash_rake_and_stakes
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: core_rules_and_setup
 short_scope: TODO
 spotkind_allowlist:
   l2_core_rules_check
