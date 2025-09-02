@@ -46,7 +46,19 @@ spotkind_allowlist:
   none
 target_tokens_allowlist:
   none
-module_id: core_positions_and_initiative
+module_id: cash_threebet_pots
+short_scope: TODO
+spotkind_allowlist:
+  none
+target_tokens_allowlist:
+  none
+module_id: cash_threebet_pots
+short_scope: TODO
+spotkind_allowlist:
+  none
+target_tokens_allowlist:
+  none
+module_id: cash_threebet_pots
 short_scope: TODO
 spotkind_allowlist:
   none
