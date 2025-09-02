@@ -1,0 +1,3 @@
+{"id":"cash_threebet_pots:demo:01","spot_kind":"l2_core_rules_check","steps":["BTN opens 2.5bb, BB 3-bets 11bb OOP","BTN calls; pot ~23bb, SPR ~3.9","Flop 9c5d2s: BB bets 7.5bb (33%)","BTN calls","Turn 2h: BB bets 11.5bb (50%), BTN folds"]}
+{"id":"cash_threebet_pots:demo:02","spot_kind":"l2_core_rules_check","steps":["CO opens 2.3bb, BTN 3-bets 9bb IP","CO calls; pot ~19bb, SPR ~4.3","Flop Td9d8s: BTN bets 14bb (75%)","CO folds; initiative IP prints on wet board"]}
+{"id":"cash_threebet_pots:demo:03","spot_kind":"l2_core_rules_check","steps":["BTN opens 2.5bb, SB 3-bets 11bb","BTN 4-bets 22bb, SB folds","Shows small 4-bet baseline and OOP fold vs tight 4-bet"]}
