@@ -1,0 +1,444 @@
+module_id: core_rules_and_setup
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: core_positions_and_initiative
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: core_pot_odds_equity
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: core_starting_hands
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: core_flop_fundamentals
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: core_turn_fundamentals
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: core_river_fundamentals
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: core_board_textures
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: core_equity_realization
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: core_bet_sizing_fe
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: core_check_raise_systems
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: core_gto_vs_exploit
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: core_bankroll_management
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: core_mental_game
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: core_note_taking
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: cash_rake_and_stakes
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: cash_single_raised_pots
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: cash_threebet_pots
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: cash_fourbet_pots
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: cash_multiway_pots
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: cash_multiway_3bet_pots
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: cash_blind_defense
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: cash_blind_vs_blind
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: cash_isolation_raises
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: cash_squeeze_strategy
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: cash_short_handed
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: cash_population_exploits
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: cash_limp_pots_systems
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: cash_delayed_cbet_and_probe_systems
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: cash_overbets_and_blocker_bets
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: mtt_antes_phases
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: mtt_short_stack
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: mtt_mid_stack
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: mtt_deep_stack
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: mtt_icm_basics
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: mtt_icm_endgame_advanced
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: mtt_pko_strategy
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: mtt_pko_advanced_bounty_routing
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: mtt_satellite_strategy
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: mtt_day2_bagging_and_reentry_ev
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: mtt_final_table_playbooks
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: mtt_late_reg_strategy
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: icm_bubble_blind_vs_blind
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: hu_preflop
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: hu_postflop
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: hu_turn_play
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: hu_river_play
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: hu_preflop_strategy
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: hu_postflop_play
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: hu_exploit_adv
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: math_intro_basics
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: math_pot_odds_equity
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: math_combo_blockers
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: math_ev_calculations
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: math_icm_basics
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: math_icm_advanced
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: math_solver_basics
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: solver_node_locking_basics
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: live_tells_and_dynamics
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: live_etiquette_and_procedures
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: live_full_ring_adjustments
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: live_special_formats_straddle_bomb_ante
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: online_tells_and_dynamics
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: online_table_selection_and_multitabling
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: online_fastfold_pool_dynamics
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: online_economics_rakeback_promos
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: hudless_strategy_and_note_coding
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: exploit_advanced
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: donk_bets_and_leads
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: spr_basics
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: spr_advanced
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: hand_review_and_annotation_standards
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: review_workflow_and_study_routines
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
+module_id: database_leakfinder_playbook
+short_scope: TODO
+spotkind_allowlist:
+  l2_core_rules_check
+target_tokens_allowlist:
+  none
