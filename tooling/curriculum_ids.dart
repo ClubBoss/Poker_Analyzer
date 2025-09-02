@@ -8,6 +8,7 @@ const List<String> curriculumIds = [
   "core_rules_and_setup",
   "cash_single_raised_pots",
   "core_positions_and_initiative",
+  "cash_threebet_pots",
 ];
 // Legacy alias for older tooling/tests.
 const List<String> kCurriculumIds = curriculumIds;
