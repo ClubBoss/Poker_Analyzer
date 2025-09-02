@@ -16,8 +16,8 @@ Rules of thumb
 - Choose stakes by net winrate. If a higher stake has a better cap-to-blind ratio and similar opponents, moving up can increase net winrate even with the same raw skill. Why: better fee geometry can beat nominally smaller games.
 
 Quick math
-Net winrate (bb/100) ≈ gross_winrate − rake_paid_per_100 + rakeback_per_100.
-Cap effect: once pot ≥ cap_threshold, each extra chip is 0% rake → value sizings gain.
+Net winrate (bb/100) gross_winrate - rake_paid_per_100 + rakeback_per_100.
+Cap effect: once pot cap_threshold, each extra chip is 0% rake value sizings gain.
 
 Mini example
 UTG opens to 2.2 bb, MP folds, CO calls, BTN folds, SB folds, BB calls.

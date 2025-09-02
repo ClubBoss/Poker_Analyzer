@@ -10,7 +10,7 @@ SRPs are the most common pots and rake hits them hardest. A solid plan in SRP im
 
 Rules of thumb
 - Open tighter early, wider late. UTG/MP emphasize high-card strength; CO/BTN add suited connectors and suited gappers. Why: later position improves realization and fold equity versus blinds.
-- C-bet small on dry boards, big on wet boards. Why: dry boards favor the raiser’s range so a small size folds air cheaply; wet boards carry more draws and need larger bets to deny equity and extract value.
+- C-bet small on dry boards, big on wet boards. Why: dry boards favor the raiser's range so a small size folds air cheaply; wet boards carry more draws and need larger bets to deny equity and extract value.
 - Check back more in position with medium hands. Why: you control the turn, protect checking ranges, and avoid inflating pots that shrink versus check-raises or bad turns.
 - Probe after missed cbets from capped ranges. Why: when the raiser checks back, their range is capped; leading good turn cards denies equity and seizes initiative.
 - Respect rake at micros. Why: many small pots pay high effective rake, so prefer value-leaning lines and avoid marginal peel-offs out of position.
