@@ -46,3 +46,9 @@ spotkind_allowlist:
   none
 target_tokens_allowlist:
   none
+module_id: core_positions_and_initiative
+short_scope: TODO
+spotkind_allowlist:
+  none
+target_tokens_allowlist:
+  none
