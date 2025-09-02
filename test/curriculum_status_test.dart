@@ -102,6 +102,17 @@ void main() {
           'actual_prefix  (${actualPrefix.length}): ${actualPrefix.join(', ')}',
         );
       }
+
+      // After all assertions pass, print the next module to build.
+      final next = ssotOrder.firstWhere(
+        (id) => !modulesDone.contains(id),
+        orElse: () => '',
+      );
+      if (next.isEmpty) {
+        print('NEXT: DONE');
+      } else {
+        print('NEXT: $next');
+      }
     },
     skip: skipReason,
   );
