@@ -116,21 +116,6 @@ List<String> _readModulesDone() {
   return out;
 }
 
-List<String> _readModulesDone() {
-  final f = File(_statusPath);
-  if (!f.existsSync()) return const <String>[];
-  final raw = _ascii(f.readAsStringSync());
-  final obj = jsonDecode(raw);
-  if (obj is! Map) return const <String>[];
-  final list = obj['modules_done'];
-  if (list is! List) return const <String>[];
-  final out = <String>[];
-  for (final v in list) {
-    if (v is String && RegExp(r'^[a-z0-9_]+$').hasMatch(v)) out.add(v);
-  }
-  return out;
-}
-
 List<String> _validate(
   List<MapEntry<String, String>> research,
   List<MapEntry<String, String>> dispatch,
