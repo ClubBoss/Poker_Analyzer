@@ -56,10 +56,14 @@ List<String> _loadIds() {
   final txt = _ascii(f.readAsStringSync());
 
   List<RegExp> patterns = [
-    RegExp(r'const\s+List<String>\s+curriculumIds\s*=\s*\[(.*?)\];',
-        dotAll: true),
-    RegExp(r'const\s+List<String>\s+kCurriculumIds\s*=\s*\[(.*?)\];',
-        dotAll: true),
+    RegExp(
+      r'const\s+List<String>\s+curriculumIds\s*=\s*\[(.*?)\];',
+      dotAll: true,
+    ),
+    RegExp(
+      r'const\s+List<String>\s+kCurriculumIds\s*=\s*\[(.*?)\];',
+      dotAll: true,
+    ),
     RegExp(
       r'const\s+List<String>\s+[A-Za-z_][A-Za-z0-9_]*\s*=\s*\[(.*?)\];',
       dotAll: true,
@@ -95,6 +99,21 @@ List<String> _loadIds() {
   idSource = 'curriculum_ids.dart';
   stdout.writeln('ID SOURCE: curriculum_ids.dart');
   return best;
+}
+
+List<String> _readModulesDone() {
+  final f = File(_statusPath);
+  if (!f.existsSync()) return const <String>[];
+  final raw = _ascii(f.readAsStringSync());
+  final obj = jsonDecode(raw);
+  if (obj is! Map) return const <String>[];
+  final list = obj['modules_done'];
+  if (list is! List) return const <String>[];
+  final out = <String>[];
+  for (final v in list) {
+    if (v is String && RegExp(r'^[a-z0-9_]+$').hasMatch(v)) out.add(v);
+  }
+  return out;
 }
 
 List<String> _readModulesDone() {
