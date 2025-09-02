@@ -49,9 +49,52 @@ List<MapEntry<String, String>> _splitDispatcher(String raw) {
 }
 
 List<String> _loadIds() {
-  final ids = readCurriculumIds();
-  stdout.writeln('ID SOURCE: $idSource');
-  return ids;
+  // Read SSOT directly from tooling/curriculum_ids.dart using robust matching.
+  final f = File('tooling/curriculum_ids.dart');
+  if (!f.existsSync())
+    throw const FormatException('missing curriculum_ids.dart');
+  final txt = _ascii(f.readAsStringSync());
+
+  List<RegExp> patterns = [
+    RegExp(r'const\s+List<String>\s+curriculumIds\s*=\s*\[(.*?)\];',
+        dotAll: true),
+    RegExp(r'const\s+List<String>\s+kCurriculumIds\s*=\s*\[(.*?)\];',
+        dotAll: true),
+    RegExp(
+      r'const\s+List<String>\s+[A-Za-z_][A-Za-z0-9_]*\s*=\s*\[(.*?)\];',
+      dotAll: true,
+    ),
+  ];
+
+  List<RegExpMatch> matches = [];
+  for (final p in patterns) {
+    final ms = p.allMatches(txt).toList();
+    if (ms.isNotEmpty) {
+      matches = ms;
+      break;
+    }
+  }
+
+  if (matches.isEmpty)
+    throw const FormatException('curriculum_ids list not found');
+
+  final tokRe = RegExp(r'"([a-z0-9_]+)"\s*,');
+  List<String> best = const [];
+  for (final m in matches) {
+    final body = m.group(1) ?? '';
+    final ids = <String>[];
+    for (final t in tokRe.allMatches(body)) {
+      ids.add(t.group(1)!);
+    }
+    if (ids.length > best.length) best = ids;
+  }
+
+  if (best.isEmpty) throw const FormatException('no ids');
+
+  // Align downstream outputs with prior behavior.
+  idSource = 'curriculum_ids.dart';
+  stdout.writeln('ID SOURCE: curriculum_ids.dart');
+  return best;
 }
 
 List<String> _readModulesDone() {
