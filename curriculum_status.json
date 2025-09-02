@@ -7,7 +7,8 @@
     "core_mental_game",
     "core_note_taking",
     "cash_rake_and_stakes",
-    "cash_single_raised_pots"
+    "cash_single_raised_pots",
+    "core_positions_and_initiative"
   ],
   "notes": "SSOT of order is tooling/curriculum_ids.dart; NEXT = first id from curriculum_ids not present in modules_done"
 }
