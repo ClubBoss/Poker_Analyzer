@@ -8,6 +8,7 @@
     "cash_rake_and_stakes",
     "core_rules_and_setup",
     "cash_single_raised_pots",
+    "core_positions_and_initiative",
     "core_positions_and_initiative"
   ],
   "notes": "SSOT of order is tooling/curriculum_ids.dart; NEXT = first id from curriculum_ids not present in modules_done"
