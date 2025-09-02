@@ -32,49 +32,35 @@ List<String> _readCurriculumFile() {
   if (!f.existsSync())
     throw const FormatException('missing curriculum_ids.dart');
   final txt = _ascii(f.readAsStringSync());
-  // Try tolerant, ordered patterns to capture the bracket block.
-  final patterns = <RegExp>[
-    RegExp(r'const\s+List<String>\s+curriculumIds\s*=\s*\[(.*?)\];',
-        dotAll: true),
-    RegExp(r'const\s+List<String>\s+kCurriculumIds\s*=\s*\[(.*?)\];',
-        dotAll: true),
-    RegExp(
-      r'const\s+List<String>\s+\w+\s*=\s*\[(.*?)\];',
-      dotAll: true,
-    ),
-  ];
+  final m = RegExp(
+    r'const\s+(?:List<String>\s+)?(?:kCurriculumIds|curriculumIds)\s*=\s*\[(.*?)\];',
+    dotAll: true,
+  ).firstMatch(txt);
+  if (m == null) throw const FormatException('list not found');
+  final body = m.group(1)!;
 
-  // Collect all candidate matches (in order), then pick the one with most IDs.
-  final candidates = <String>[];
-  for (final p in patterns) {
-    final ms = p.allMatches(txt).toList();
-    for (final m in ms) {
-      final body = m.group(1) ?? '';
-      candidates.add(body);
-    }
+  // Требуем стиль с запятой перед ]: ,]
+  if (!RegExp(r',\s*\]\s*$').hasMatch(txt)) {
+    // не критично для загрузки, но можно считать это предупреждением
   }
 
-  if (candidates.isEmpty) throw const FormatException('list not found');
-
-  final tokRe = RegExp(r'"([a-z0-9_]+)"\s*,');
-  List<String> best = const [];
-  for (final body in candidates) {
-    final ids = <String>[];
-    for (final mm in tokRe.allMatches(body)) {
-      ids.add(mm.group(1)!);
+  final tokRe = RegExp(r'''["']([a-z0-9_]+)["']\s*,''');
+  final ids = <String>[];
+  for (final mm in tokRe.allMatches(body)) {
+    final id = mm.group(1)!;
+    if (!RegExp(r'^[a-z0-9_]+$').hasMatch(id)) {
+      throw const FormatException('Invalid id token');
     }
-    if (ids.length > best.length) best = ids;
+    ids.add(id);
   }
-
-  if (best.isEmpty) throw const FormatException('No modules found');
-  return best;
+  if (ids.isEmpty) throw const FormatException('No modules found');
+  return ids;
 }
 
 List<String> readCurriculumIds() {
   try {
     final ids = _readCurriculumFile();
     idSource = 'curriculum_ids.dart';
-    stdout.writeln('ID SOURCE: curriculum_ids.dart');
     return ids;
   } catch (_) {
     idSource = 'queue';
