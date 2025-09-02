@@ -1,169 +1,162 @@
 #!/usr/bin/env python3
-"""Normalize dispatcher prompt lists.
-
-This tiny fixer normalizes spacing in ``prompts/dispatcher/_ALL.txt`` so the
-validator stops reporting empty ``spotkind_allowlist`` entries.
-
-Usage examples for CI:
-  Check: python3 tooling/fix_dispatcher_format.py --check prompts/dispatcher/_ALL.txt
-  Fix:   python3 tooling/fix_dispatcher_format.py --in-place prompts/dispatcher/_ALL.txt
-"""
+# Normalize dispatcher and auto-fill empty allowlists permanently.
+#
+# Usage:
+#   python3 tooling/fix_dispatcher_format.py --check prompts/dispatcher/_ALL.txt
+#   python3 tooling/fix_dispatcher_format.py --in-place prompts/dispatcher/_ALL.txt
+#
+# Policy:
+# - 2-space indent for list items.
+# - Tabs -> spaces, strip trailing spaces, LF only.
+# - Ensure both blocks exist per module in exact order with no blank lines between:
+#     module_id, short_scope, spotkind_allowlist, target_tokens_allowlist
+# - spotkind_allowlist: list kinds, no blank lines inside or after the list.
+# - target_tokens_allowlist: if empty, must be exactly 'none' (no blank line after).
+# - If a block has 0 items -> insert the default item (spot: l2_core_rules_check, tokens: none).
+# - Idempotent. Atomic replace. One .bak per run.
 
 from __future__ import annotations
-
-import argparse
-import os
-import sys
-import tempfile
+import argparse, os, sys, tempfile
+import re
 from itertools import zip_longest
 
+SPOT_HDR = "spotkind_allowlist:"
+TGT_HDR  = "target_tokens_allowlist:"
+SPOT_DEFAULT = "l2_core_rules_check"
+TGT_DEFAULT  = "none"
 
 def _normalize(lines: list[str]):
-    result: list[str] = []
+    # Join to text for easier block splitting and capture original blocks for change tracking
+    raw_text = "".join(s if s.endswith("\n") else s + "\n" for s in lines)
+    raw_text = raw_text.replace("\r\n", "\n").replace("\r", "\n")
+
+    # Split into blocks by module_id line
+    mod_re = re.compile(r"^module_id:\s*([a-z0-9_]+)\s*$", re.M)
+    matches = list(mod_re.finditer(raw_text))
+    if not matches:
+        # nothing to do
+        return raw_text, [], 0
+
+    out_lines: list[str] = []
     modules_changed: list[str] = []
-    current_module: str | None = None
-    module_changed = False
-    state: str | None = None  # None, 'spot', 'target'
-    prev_item: str | None = None
 
-    def finish_module():
-        nonlocal module_changed
-        if current_module and module_changed and current_module not in modules_changed:
-            modules_changed.append(current_module)
-        module_changed = False
+    def strip_trailing_spaces(s: str) -> str:
+        return "\n".join(ln.rstrip().replace("\t", "    ") for ln in s.splitlines()) + ("\n" if s.endswith("\n") else "")
 
-    i = 0
-    while i < len(lines):
-        orig_line = lines[i]
-        if not orig_line.endswith("\n"):
-            orig_line += "\n"
-        line = orig_line.rstrip("\n")
-        if "\t" in line:
-            line = line.replace("\t", "    ")
-        stripped = line.rstrip(" ")
-        if stripped != line:
-            line = stripped
-            module_changed = True
-        # blank lines
-        if line == "":
-            if not result:
-                if orig_line != "\n":
-                    module_changed = True
-            elif result[-1] != "\n":
-                result.append("\n")
-                if orig_line != "\n":
-                    module_changed = True
+    def parse_block(block_text: str) -> dict:
+        # Normalize tabs/spaces and strip trailing spaces for parsing
+        norm = block_text.replace("\t", "    ")
+        lines = [ln.rstrip("\n\r ") for ln in norm.splitlines()]
+        mid = None
+        short = None
+        spot: list[str] = []
+        tgt: list[str] = []
+        state = None  # 'spot' | 'tgt' | None
+        for ln in lines:
+            if not ln:
+                # No blank lines inside blocks: skip
+                continue
+            if ln.startswith("module_id:"):
+                mid = ln.split(":", 1)[1].strip()
+                state = None
+                continue
+            if ln.startswith("short_scope:"):
+                short = ln.split(":", 1)[1].strip()
+                state = None
+                continue
+            if ln.strip() == SPOT_HDR or ln.startswith(SPOT_HDR):
+                state = 'spot'
+                continue
+            if ln.strip() == TGT_HDR or ln.startswith(TGT_HDR):
+                state = 'tgt'
+                continue
+            # items inside current list
+            if state == 'spot':
+                item = ln.strip().rstrip(":")
+                if item and (not spot or spot[-1] != item):
+                    spot.append(item)
+            elif state == 'tgt':
+                item = ln.strip().rstrip(":")
+                if item and (not tgt or tgt[-1] != item):
+                    tgt.append(item)
             else:
-                if orig_line != "\n":
-                    module_changed = True
-            i += 1
-            continue
-        # headers
-        if line.startswith("module_id:"):
-            finish_module()
-            if result and result[-1] != "\n":
-                result.append("\n")
-                module_changed = True
-            current_module = line.split(":", 1)[1].strip()
-            out = f"module_id: {current_module}"
-            if line != out:
-                module_changed = True
-            result.append(out + "\n")
-            state = None
-            prev_item = None
-            i += 1
-            continue
-        if line.startswith("short_scope:"):
-            out = "short_scope: " + line.split(":", 1)[1].strip()
-            if out != line:
-                module_changed = True
-            result.append(out + "\n")
-            i += 1
-            continue
-        if line.startswith("spotkind_allowlist:"):
-            if result and result[-1] != "\n":
-                result.append("\n")
-                module_changed = True
-            result.append("spotkind_allowlist:\n")
-            if line != "spotkind_allowlist:":
-                module_changed = True
-            state = "spot"
-            prev_item = None
-            i += 1
-            continue
-        if line.startswith("target_tokens_allowlist:"):
-            if result and result[-1] != "\n":
-                result.append("\n")
-                module_changed = True
-            result.append("target_tokens_allowlist:\n")
-            if line != "target_tokens_allowlist:":
-                module_changed = True
-            state = "target"
-            prev_item = None
-            i += 1
-            continue
-        if state in {"spot", "target"}:
-            item = line.lstrip()
-            out = "  " + item
-            norm = out.strip()
-            if norm == prev_item:
-                module_changed = True
-            else:
-                if out != line:
-                    module_changed = True
-                result.append(out + "\n")
-                prev_item = norm
-            i += 1
-            continue
-        # passthrough lines
-        if line != orig_line.rstrip("\n"):
-            module_changed = True
-        result.append(line + "\n")
-        i += 1
-    finish_module()
-    lines_changed = sum(1 for o, n in zip_longest(lines, result) if (o or "") != (n or ""))
-    return "".join(result), modules_changed, lines_changed
+                # ignore stray lines
+                pass
+        if not short:
+            short = "TODO"
+        if not spot:
+            spot = [SPOT_DEFAULT]
+        if not tgt:
+            tgt = [TGT_DEFAULT]
+        return {"module_id": mid or "", "short": short, "spot": spot, "tgt": tgt}
 
+    def render_block(data: dict) -> list[str]:
+        lines: list[str] = []
+        lines.append(f"module_id: {data['module_id']}\n")
+        lines.append(f"short_scope: {data['short']}\n")
+        lines.append(SPOT_HDR + "\n")
+        for it in data['spot']:
+            lines.append(f"  {it}\n")
+        lines.append(TGT_HDR + "\n")
+        for it in data['tgt']:
+            lines.append(f"  {it}\n")
+        return lines
+
+    # Iterate blocks
+    for idx, m in enumerate(matches):
+        start = m.start()
+        end = matches[idx + 1].start() if idx + 1 < len(matches) else len(raw_text)
+        block_text = raw_text[start:end]
+        original_block_norm = strip_trailing_spaces(block_text)
+        data = parse_block(block_text)
+        rendered = render_block(data)
+        # no blank lines between modules
+        out_lines.extend(rendered)
+        if "".join(rendered) != original_block_norm:
+            if data["module_id"]:
+                modules_changed.append(data["module_id"])
+
+    normalized_text = "".join(out_lines)
+    # compute line delta roughly
+    lines_changed = sum(1 for a,b in zip_longest(raw_text.splitlines(True), normalized_text.splitlines(True)) if (a or "") != (b or ""))
+    return normalized_text, modules_changed, lines_changed
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Normalize dispatcher format")
-    parser.add_argument("path", help="path to _ALL.txt")
-    parser.add_argument("--check", action="store_true", help="only check for compliance")
-    parser.add_argument("--in-place", action="store_true", dest="in_place", help="rewrite file in place")
-    args = parser.parse_args()
-    if args.check and args.in_place:
-        parser.error("choose either --check or --in-place")
-    mode = "in_place" if args.in_place else "check"
+    p = argparse.ArgumentParser()
+    p.add_argument("path")
+    g = p.add_mutually_exclusive_group()
+    g.add_argument("--check", action="store_true")
+    g.add_argument("--in-place", dest="in_place", action="store_true")
+    args = p.parse_args()
+    mode = "check" if args.check or not args.in_place else "in_place"
 
     with open(args.path, "r", encoding="ascii", newline="\n") as f:
         original = f.read().splitlines(True)
+
     normalized, modules_changed, lines_changed = _normalize(original)
 
     if mode == "check":
         if modules_changed or normalized != "".join(original):
-            for mid in modules_changed:
-                print(mid)
+            for mid in modules_changed: print(mid)
             return 1
         return 0
-    # in-place
+
     if normalized != "".join(original):
         bak = args.path + ".bak"
         if not os.path.exists(bak):
             with open(bak, "w", encoding="ascii", newline="\n") as bf:
                 bf.writelines(original)
-        fd, tmp = tempfile.mkstemp(dir=os.path.dirname(args.path))
+        fd, tmp = tempfile.mkstemp(dir=os.path.dirname(args.path) or ".")
         try:
             with os.fdopen(fd, "w", encoding="ascii", newline="\n") as tf:
                 tf.write(normalized)
             os.replace(tmp, args.path)
         finally:
-            if os.path.exists(tmp):
-                os.unlink(tmp)
+            if os.path.exists(tmp): os.unlink(tmp)
         print(f"modules_touched={len(modules_changed)}, lines_changed={lines_changed}")
     else:
         print("modules_touched=0, lines_changed=0")
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

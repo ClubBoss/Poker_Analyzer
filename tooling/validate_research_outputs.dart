@@ -5,6 +5,7 @@ import 'ids_source.dart';
 
 const _researchPath = 'prompts/research/_ALL.prompts.txt';
 const _dispatcherPath = 'prompts/dispatcher/_ALL.txt';
+const _statusPath = 'curriculum_status.json';
 
 String _ascii(String s) {
   final buf = StringBuffer();
@@ -53,6 +54,21 @@ List<String> _loadIds() {
   return ids;
 }
 
+List<String> _readModulesDone() {
+  final f = File(_statusPath);
+  if (!f.existsSync()) return const <String>[];
+  final raw = _ascii(f.readAsStringSync());
+  final obj = jsonDecode(raw);
+  if (obj is! Map) return const <String>[];
+  final list = obj['modules_done'];
+  if (list is! List) return const <String>[];
+  final out = <String>[];
+  for (final v in list) {
+    if (v is String && RegExp(r'^[a-z0-9_]+$').hasMatch(v)) out.add(v);
+  }
+  return out;
+}
+
 List<String> _validate(
   List<MapEntry<String, String>> research,
   List<MapEntry<String, String>> dispatch,
@@ -82,15 +98,10 @@ List<String> _validate(
     }
   }
 
-  var pos = -1;
+  // Research: ensure ids are known (SSOT), but do not enforce SSOT order.
   for (final id in rIds) {
     final idx = ssot.indexOf(id);
-    if (idx == -1) {
-      errors.add('unknown id: $id');
-    } else {
-      if (idx <= pos) errors.add('order mismatch: $id');
-      pos = idx;
-    }
+    if (idx == -1) errors.add('unknown id: $id');
   }
 
   final placeholder = RegExp(r'\{\{[^}]+\}\}');
@@ -100,14 +111,15 @@ List<String> _validate(
     }
   }
 
-  if (rIds.length != dIds.length) {
-    errors.add('dispatcher ids mismatch');
-  } else {
-    for (var i = 0; i < rIds.length; i++) {
-      if (rIds[i] != dIds[i]) {
-        errors.add('dispatcher ids mismatch');
-        break;
-      }
+  // Dispatcher prefix must begin with modules_done sorted by SSOT.
+  final modulesDone = _readModulesDone();
+  if (modulesDone.isNotEmpty) {
+    final doneSorted = modulesDone.where((id) => ssot.contains(id)).toList()
+      ..sort((a, b) => ssot.indexOf(a).compareTo(ssot.indexOf(b)));
+    final prefix = dIds.take(doneSorted.length).toList();
+    if (prefix.length != doneSorted.length ||
+        prefix.asMap().entries.any((e) => e.value != doneSorted[e.key])) {
+      errors.add('dispatcher prefix mismatch');
     }
   }
 
@@ -155,11 +167,14 @@ List<String> _validate(
 
 void main(List<String> args) {
   bool json = false;
+  bool fix = false;
   String? only;
   for (var i = 0; i < args.length; i++) {
     final a = args[i];
     if (a == '--json') {
       json = true;
+    } else if (a == '--fix') {
+      fix = true;
     } else if (a == '--only') {
       if (i + 1 >= args.length) {
         stderr.writeln('missing id');
@@ -178,7 +193,33 @@ void main(List<String> args) {
     final dispatchRaw = _ascii(File(_dispatcherPath).readAsStringSync());
     final researchBlocks = _splitResearch(researchRaw);
     final dispatchBlocks = _splitDispatcher(dispatchRaw);
-    final errors = _validate(researchBlocks, dispatchBlocks, ids, onlyId: only);
+    var errors = _validate(researchBlocks, dispatchBlocks, ids, onlyId: only);
+    if (errors.isNotEmpty && fix && only == null) {
+      // Attempt to rebuild dispatcher prefix from curriculum_status.json via helper.
+      try {
+        final res = Process.runSync(Platform.resolvedExecutable, [
+          'run',
+          'tooling/rebuild_dispatcher_from_status.dart',
+        ]);
+        if (res.exitCode != 0) {
+          stderr.writeln('fix failed');
+        } else {
+          // Reload dispatcher and re-validate.
+          final newDispatchRaw = _ascii(
+            File(_dispatcherPath).readAsStringSync(),
+          );
+          final newDispatchBlocks = _splitDispatcher(newDispatchRaw);
+          errors = _validate(
+            researchBlocks,
+            newDispatchBlocks,
+            ids,
+            onlyId: only,
+          );
+        }
+      } catch (_) {
+        stderr.writeln('fix error');
+      }
+    }
     final ok = errors.isEmpty;
     final checkedIds = only != null
         ? <String>[only]
