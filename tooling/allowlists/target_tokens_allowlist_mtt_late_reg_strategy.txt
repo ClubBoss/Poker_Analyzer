@@ -1,1 +1,13 @@
-none
+3bet_ip_9bb
+3bet_oop_12bb
+4bet_ip_21bb
+big_bet_75
+call
+delay_turn
+fold
+half_pot_50
+overfold_exploit
+probe_turns
+protect_check_range
+size_down_dry
+small_cbet_33
