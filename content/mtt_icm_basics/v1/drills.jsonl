@@ -14,3 +14,4 @@
 {"id": "mtt_icm_basics:drill:14", "spot_kind": "l2_core_rules_check", "question": "Population leak: covered mediums fold too many turns. Tag?", "target": "overfold_exploit", "rationale": "Press with bets that force dominated folds."}
 {"id": "mtt_icm_basics:drill:15", "spot_kind": "l2_core_rules_check", "question": "Range-shifting turn after small flop c-bet and you cover. Action?", "target": "double_barrel_good", "rationale": "Pressure increases EV when risk is on opponent."}
 {"id": "mtt_icm_basics:drill:16", "spot_kind": "l2_core_rules_check", "question": "River scare with proper blockers and you cover villain. Action?", "target": "triple_barrel_scare", "rationale": "Credible story; apply max pressure when ICM favors you."}
+
