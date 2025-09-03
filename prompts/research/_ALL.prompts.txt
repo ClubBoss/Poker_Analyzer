@@ -741,3 +741,5 @@ allow_spot_kinds: l2_core_rules_check
 prompt:
   - Research prompts for cash_threebet_pots.
 end
+
+GO MODULE: cash_fourbet_pots
