@@ -1,1 +1,12 @@
-none
+3bet_ip_10bb
+4bet_small_22bb
+bettor_shows_first
+big_bet_75
+complete_vs_under_isolation
+delay_cbet_oop
+fold_vs_4bet_oop
+half_pot_50
+polarize_river
+probe_turns
+raise_or_fold_default
+small_cbet_33

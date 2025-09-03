@@ -1,1 +1,16 @@
-none
+a5s_defend
+ace_blocker_better
+bet_small_turn
+cbet_big
+cbet_small
+check_back
+check_fold_more
+delay_cbet
+float_call
+fold
+fold_more_multiway
+heads_up_better
+high_realization
+ip_caller_more
+poor_realization
+pot_control_oop

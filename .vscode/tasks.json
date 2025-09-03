@@ -1,0 +1,7 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    { "label": "Allowlists: sync",  "type": "shell", "command": "python3 tools/allowlists_sync.py --write" },
+    { "label": "Allowlists: check", "type": "shell", "command": "python3 tools/allowlists_sync.py --check" }
+  ]
+}

@@ -1,1 +1,16 @@
-none
+3bet_ip_9bb
+3bet_oop_11bb
+4bet_small_22bb
+big_bet_75
+call_vs_3bet_ip
+check_back_marginal
+defend_vs_small_cbet
+delay_cbet_ip
+fold_vs_4bet_oop
+give_up_low_equity
+half_pot_50
+shove_spr_lt_1_5
+size_down_dry
+size_up_wet
+small_cbet_33
+stab_turn_scare

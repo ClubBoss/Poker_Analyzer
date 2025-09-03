@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+python3 tools/allowlists_sync.py --write
+git add tooling/allowlists/target_tokens_allowlist_*.txt 2>/dev/null || true
+python3 tools/allowlists_sync.py --check
