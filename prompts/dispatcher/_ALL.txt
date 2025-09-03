@@ -52,3 +52,27 @@ spotkind_allowlist:
   none
 target_tokens_allowlist:
   none
+module_id: cash_fourbet_pots
+short_scope: TODO
+spotkind_allowlist:
+  none
+target_tokens_allowlist:
+  none
+module_id: cash_fourbet_pots
+short_scope: TODO
+spotkind_allowlist:
+  none
+target_tokens_allowlist:
+  none
+module_id: cash_blind_vs_blind
+short_scope: TODO
+spotkind_allowlist:
+  none
+target_tokens_allowlist:
+  none
+module_id: cash_blind_vs_blind
+short_scope: TODO
+spotkind_allowlist:
+  none
+target_tokens_allowlist:
+  none

@@ -12,6 +12,7 @@ const List<String> curriculumIds = [
   "cash_fourbet_pots",
   "cash_blind_vs_blind",
   "cash_fourbet_pots",
+  "cash_blind_vs_blind",
 ];
 // Legacy alias for older tooling/tests.
 const List<String> kCurriculumIds = curriculumIds;

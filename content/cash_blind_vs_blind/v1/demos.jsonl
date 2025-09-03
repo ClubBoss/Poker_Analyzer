@@ -1,0 +1,3 @@
+{"id": "cash_blind_vs_blind:demo:01", "spot_kind": "l2_core_rules_check", "steps": ["SB opens 2.5bb", "BB 3-bets 10bb (linear)", "SB calls; pot ~20.5bb, SPR ~4.3", "Flop K72r: BB bets 6.8bb (33%), SB calls", "Turn 5x: BB bets 15.4bb (75%), SB folds"]}
+{"id": "cash_blind_vs_blind:demo:02", "spot_kind": "l2_core_rules_check", "steps": ["SB opens 3.0bb", "BB calls; pot ~6.5bb, SPR ~15", "Flop J95r: SB checks, BB checks back (delay_cbet_ip)", "Turn Qx: BB bets 3.2bb (half_pot_50), SB folds"]}
+{"id": "cash_blind_vs_blind:demo:03", "spot_kind": "l2_core_rules_check", "steps": ["SB opens 2.5bb", "BB 3-bets 10bb, SB 4-bets 22bb (4bet_small_22bb)", "BB folds vs tight 4-bet range", "Shows size ladder and fold_vs_4bet_oop tendency"]}
