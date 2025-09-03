@@ -1,7 +1,15 @@
+action_canceled
 bet_big_turn
 bet_small_turn
-delay_cbet
-check_back
 bluff_with_blocker
+call
+check_back
+delay_cbet
+does_not_reopen
+fold
+min_raise_illegal
+reopens
 set_up_river_jam
+single_motion_raise_legal
 size_down_to_see_river
+string_bet_call_only

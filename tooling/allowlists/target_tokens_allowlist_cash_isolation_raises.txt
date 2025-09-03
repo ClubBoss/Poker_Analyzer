@@ -1,1 +1,14 @@
-none
+call_down_top_pair
+defend_vs_small_cbet
+deny_equity_turn
+fold_vs_limp_raise
+half_pot_50
+iso_raise_ip_6bb
+iso_raise_oop_8bb
+overlimp_ok
+polarize_river
+probe_turns
+protect_check_range
+size_up_wet
+small_cbet_33
+squeeze_iso_3bet

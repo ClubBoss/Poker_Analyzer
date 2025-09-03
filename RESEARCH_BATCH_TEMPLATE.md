@@ -72,3 +72,10 @@ Do not output files until ALL checks pass. If any check fails, revise silently a
 - Showdown order coverage: include both cases - with river bet (bettor_shows_first) and with no river bet (first_active_left_of_btn_shows).
 - Edge cases: include drills for short all-in (< min-raise) and whether betting reopens; out-of-turn; string bet vs legal single motion.
 - Output contract: exact paths; valid JSONL; no extra commentary.
+
+---
+
+## ALLOWLIST ENFORCEMENT
+- tooling/allowlists/target_tokens_allowlist_<module>.txt MUST list all unique 'target' tokens from content/<module>/v1/drills.jsonl, one per line, ASCII-only.
+- 'none' is not allowed.
+- Packs without a correct allowlist are rejected by auditor, pre-commit, and CI.
