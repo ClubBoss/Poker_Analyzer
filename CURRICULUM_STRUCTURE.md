@@ -1,3 +1,4 @@
+CURRICULUM_STRUCTURE.md
 # Ultimate Curriculum v3.1 - Texas Hold'em Trainer
 
 ## Core (обязательный путь)
@@ -78,11 +79,7 @@
 
 ---
 
-## Cross / Live & Online dynamics
-- live_tells_and_dynamics
-- live_etiquette_and_procedures
-- live_full_ring_adjustments
-- live_special_formats_straddle_bomb_ante
+## Cross / Online dynamics
 - online_tells_and_dynamics
 - online_table_selection_and_multitabling
 - online_fastfold_pool_dynamics
@@ -95,3 +92,43 @@
 - hand_review_and_annotation_standards
 - review_workflow_and_study_routines
 - database_leakfinder_playbook
+
+---
+
+## Live overlay (append-only)
+applies_to: [cash, mtt]  
+default_mode: online  
+mode: overlay  
+prerequisites: [core_*]
+
+order:
+  - live_tells_and_dynamics
+  - live_etiquette_and_procedures
+  - live_full_ring_adjustments
+  - live_special_formats_straddle_bomb_ante
+  - live_table_selection_and_seat_change
+  - live_chip_handling_and_bet_declares
+  - live_speech_timing_basics
+  - live_rake_structures_and_tips
+  - live_floor_calls_and_dispute_resolution
+  - live_session_log_and_review
+  - live_security_and_game_integrity
+
+runtime_flags:
+  - has_straddle
+  - bomb_ante
+  - multi_limpers
+  - announce_required
+  - rake_type(time|drop)
+  - avg_stack_bb
+  - table_speed
+
+live_validations:
+  - string_bet
+  - single_motion_raise_legal
+  - bettor_shows_first
+  - first_active_left_of_btn_shows
+
+telemetry_dims:
+  - track:<cash|mtt>
+  - mode:<live|online>

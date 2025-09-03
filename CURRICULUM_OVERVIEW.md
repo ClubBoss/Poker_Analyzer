@@ -1,79 +1,107 @@
-# Curriculum Overview - Poker Analyzer
-
-Полный список из 70 блоков обучения с краткими пояснениями.
+Полный список из 81 блока обучения с краткими пояснениями.  
 Назначение: обзор для внешних читателей и новичков.  
-Источники контента: theory.md / demos.jsonl / drills.jsonl в паке каждого модуля.
+Источники контента: theory.md / demos.jsonl / drills.jsonl в паке каждого модуля.  
+Примечание: режим Live overlay накладывает лайв-контекст на Cash/MTT без дублирования деревьев.
 
 ---
 
-1. intro_getting_started - Welcome и объяснение как работает тренер, зачем проходить путь.  
-2. core_rules_and_setup - Базовые правила покера и структура раздачи.  
-3. core_pot_odds_equity - Пот-оддсы и эквити, как считать выгодность коллов.  
-4. core_starting_hands - Разбор стартовых рук и базовых диапазонов.  
-5. core_flop_play - Основы игры на флопе, продолженные ставки.  
-6. core_turn_river_play - Переход на тёрн и ривер, базовые линии.  
-7. core_blockers_combos - Комбинаторика и блокеры.  
-8. core_equity_realization - Как эквити превращается в реальные выигрыши.  
-9. core_bet_sizing_fe - Размеры ставок и fold equity.  
-10. core_gto_vs_exploit - Баланс GTO и эксплойт.  
-11. core_bankroll_management - Управление банкроллом.  
-12. core_mental_game - Психология и тильт-контроль.  
-13. core_note_taking - Ведение нотсов и трекинг оппов.  
-14. cash_rake_and_stakes - Рейк и выбор лимитов.  
-15. cash_single_raised_pots - SRP: стратегии на префлопе и постфлопе.  
-16. cash_threebet_pots - 3-бет банки.  
-17. cash_multiway_pots - Мультивей банки.  
-18. cash_blind_defense - Защита блайндов.  
-19. cash_isolation_raises - Изоляционные рейзы.  
-20. cash_short_handed - Адаптация в 6-max и коротких составах.  
-21. cash_population_exploits - Эксплойты против поля.  
-22. mtt_antes_phases - Турнирные фазы с анте.  
-23. mtt_short_stack - Игра с коротким стеком.  
-24. mtt_mid_stack - Средний стек в турнирах.  
-25. mtt_deep_stack - Дипстек стратегия.  
-26. mtt_icm_basics - Основы ICM.  
-27. mtt_bubble_and_FT - Пузырь и финалка.  
-28. mtt_pko_strategy - PKO форматы.  
-29. mtt_satellite_strategy - Сателлиты.  
-30. hu_preflop_strategy - HU префлоп диапазоны.  
-31. hu_postflop_play - HU игра постфлоп.  
-32. hu_exploit_adv - HU эксплойты.  
-33. spr_basics - SPR и его значение.  
-34. live_tells_and_dynamics - Лайв-теллы и динамика.  
-35. online_tells_and_dynamics - Онлайн-теллы и динамика.  
-36. hu_preflop - HU отдельные практики префлопа.  
-37. hu_postflop - HU отдельные практики постфлопа.  
-38. hu_turn_play - HU игра на тёрне.  
-39. core_board_textures (S) - Категории досок и их разбор.  
-40. core_river_play (S) - Игра на ривере, базовые споты.  
-41. core_check_raise_systems (S) - Системы чек-рейза.  
-42. cash_blind_vs_blind (S) - Стратегия BB vs SB.  
-43. cash_fourbet_pots (S) - 4-бет банки.  
-44. hu_river_play (S) - HU игра на ривере.  
-45. spr_advanced (A) - Продвинутые применения SPR.  
-46. cash_multiway_3bet_pots (A) - Мультивей 3-бет банки.  
-47. cash_delayed_cbet_and_probe_systems (A) - Системы delayed c-bet и probe.  
-48. cash_overbets_and_blocker_bets (A) - Овербеты и блокер-беты.  
-49. mtt_icm_endgame_advanced (A) - Продвинутый ICM в эндгейме.  
-50. mtt_final_table_playbooks (A) - Плейбуки финалки.  
-51. mtt_late_reg_strategy (A) - Лейт-рег стратегия.  
-52. exploit_advanced (B) - Продвинутые эксплойты.  
-53. hand_reading_and_range_construction (B) - Построение диапазонов.  
-54. live_etiquette_and_procedures (B) - Этикет в лайве.  
-55. online_table_selection_and_multitabling (B) - Селект и мультитейблинг.  
-56. review_workflow_and_study_routines (B) - Рутины для обучения.  
-57. donk_bets_and_leads (B) - Донк-беты.  
-58. cash_squeeze_strategy (A) - Сквиз стратегия.  
-59. icm_bubble_blind_vs_blind (A) - ICM в BB vs SB на баббле.  
-60. live_full_ring_adjustments (B) - Адаптации для фулл-ринга.  
-61. online_fastfold_pool_dynamics (A) - Динамика в fastfold пулах.  
-62. cash_limp_pots_systems (A) - Лимп-поты.  
-63. mtt_pko_advanced_bounty_routing (A) - PKO: маршрутизация баунти.  
-64. mtt_day2_bagging_and_reentry_ev (A) - Дэй2, ребай и EV.  
-65. database_leakfinder_playbook (A) - Анализ базы на лики.  
-66. solver_node_locking_basics (A) - Базовый нод-локинг.  
-67. live_special_formats_straddle_bomb_ante (B) - Специальные лайв-форматы.  
-68. online_economics_rakeback_promos (B) - Экономика румов, рейкбек.  
-69. hudless_strategy_and_note_coding (B) - Игра без HUD, кодировка нотсов.  
-70. hand_review_and_annotation_standards (B) - Стандарты анализа раздач.
+## Core
+1. core_rules_and_setup — Правила, порядок действий, шоудаун.
+2. core_positions_and_initiative — Позиции и инициатива.
+3. core_pot_odds_equity — Пот-оддсы и эквити.
+4. core_starting_hands — Базовые стартовые диапазоны.
+5. core_flop_fundamentals — Фундамент флопа и c-bet.
+6. core_turn_fundamentals — Игровые планы на тёрне.
+7. core_river_fundamentals — Ривер: вэлью/блеф/частоты.
+8. core_board_textures — Категории досок и стратегии.
+9. core_equity_realization — Реализация эквити в линии.
+10. core_bet_sizing_fe — Сайзинги и fold equity.
+11. core_check_raise_systems — Чек-рейз как система.
+12. core_gto_vs_exploit — Баланс GTO и эксплойт.
+13. core_bankroll_management — Банкролл и риски.
+14. core_mental_game — Рутины фокуса и антитильт.
+15. core_note_taking — Нотсы, теги, структура записей.
 
+## Cash
+16. cash_rake_and_stakes — Рейк/лимиты и выбор столов.
+17. cash_single_raised_pots — SRP: префлоп+постфлоп.
+18. cash_threebet_pots — 3-бет банки.
+19. cash_fourbet_pots — 4-бет банки.
+20. cash_multiway_pots — Мультивей-план.
+21. cash_multiway_3bet_pots — Мультивей 3-бет.
+22. cash_blind_defense — Защита блайндов.
+23. cash_blind_vs_blind — SB vs BB.
+24. cash_isolation_raises — Изоляции против лимпов.
+25. cash_squeeze_strategy — Сквизы.
+26. cash_short_handed — 6-max и короткие составы.
+27. cash_population_exploits — Эксплойты против поля.
+28. cash_limp_pots_systems — Системы для лимп-потов.
+29. cash_delayed_cbet_and_probe_systems — Delayed/probe.
+30. cash_overbets_and_blocker_bets — Овербеты/блокер-беты.
+
+## MTT
+31. mtt_antes_phases — Фазы с анте.
+32. mtt_short_stack — Короткий стек.
+33. mtt_mid_stack — Средний стек.
+34. mtt_deep_stack — Дипстек.
+35. mtt_icm_basics — База ICM.
+36. mtt_icm_endgame_advanced — ICM эндгейм продвинуто.
+37. mtt_pko_strategy — PKO базовые принципы.
+38. mtt_pko_advanced_bounty_routing — PKO баунти-роутинг.
+39. mtt_satellite_strategy — Сателлиты.
+40. mtt_day2_bagging_and_reentry_ev — Бэггинг и ребаи EV.
+41. mtt_final_table_playbooks — Плейбуки финалки.
+42. mtt_late_reg_strategy — Лейт-рег.
+43. icm_bubble_blind_vs_blind — Баббл BvB (ICM).
+
+## Heads-Up
+44. hu_preflop — Практика префлопа.
+45. hu_postflop — Практика постфлопа.
+46. hu_turn_play — Тёрн в HU.
+47. hu_river_play — Ривер в HU.
+48. hu_preflop_strategy — Диапазоны HU префлоп.
+49. hu_postflop_play — Стратегия HU постфлоп.
+50. hu_exploit_adv — Продвинутые эксплойты в HU.
+
+## Math
+51. math_intro_basics — Введение в математику покера.
+52. math_pot_odds_equity — Пот-оддсы/эквити расчёты.
+53. math_combo_blockers — Комбинаторика/блокеры.
+54. math_ev_calculations — EV-вычисления.
+55. math_icm_basics — База ICM-математики.
+56. math_icm_advanced — Продвинутые ICM-модели.
+57. math_solver_basics — Базовая работа с солвером.
+58. solver_node_locking_basics — Node locking базово.
+
+## Cross / Online dynamics
+59. online_tells_and_dynamics — Онлайн-теллы и паттерны.
+60. online_table_selection_and_multitabling — Селект и МТТинг.
+61. online_fastfold_pool_dynamics — Динамика fastfold.
+62. online_economics_rakeback_promos — Экономика/рейкбек.
+63. hudless_strategy_and_note_coding — Без HUD: код нотсов.
+64. exploit_advanced — Продвинутые эксплойты.
+65. donk_bets_and_leads — Донк и лид.
+66. spr_basics — База SPR.
+67. spr_advanced — Продвинутый SPR.
+68. hand_review_and_annotation_standards — Стандарты разбора.
+69. review_workflow_and_study_routines — Рутины обучения.
+70. database_leakfinder_playbook — Ликфайндер в базе.
+
+## Live overlay (режим поверх Cash/MTT)
+71. live_tells_and_dynamics — Теллы, контекст, надёжность.
+72. live_etiquette_and_procedures — Этикет и процедуры.
+73. live_full_ring_adjustments — Адаптации фулл-ринг.
+74. live_special_formats_straddle_bomb_ante — Стрэддл/бомб-анте.
+75. live_table_selection_and_seat_change — Выбор стола/пересадка.
+76. live_chip_handling_and_bet_declares — Фишки и объявления ставок.
+77. live_speech_timing_basics — Речь/тайминг за столом.
+78. live_rake_structures_and_tips — Рейк, тайм-коллы, чаевые.
+79. live_floor_calls_and_dispute_resolution — Флоор-коллы и споры.
+80. live_session_log_and_review — Журнал лайв-сессий и разбор.
+81. live_security_and_game_integrity — Безопасность и честность игры.
+
+### Как работает Live overlay
+- Тумблер Live overlay включает лайв-контекст для Cash/MTT.  
+- Добавляются флаги сценариев: has_straddle, bomb_ante, multi_limpers, announce_required, rake_type(time|drop), avg_stack_bb, table_speed.  
+- Активируются валидаторы процедур: string_bet, single_motion_raise_legal, bettor_shows_first, first_active_left_of_btn_shows.  
+- Структура модулей и SpotKind не дублируются.
