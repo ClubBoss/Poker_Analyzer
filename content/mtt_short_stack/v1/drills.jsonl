@@ -14,3 +14,4 @@
 {"id": "mtt_short_stack:drill:14", "spot_kind": "l2_core_rules_check", "question": "River scare completes believable story. With blockers, act?", "target": "triple_barrel_scare", "rationale": "Leverage narrative on credible scare rivers."}
 {"id": "mtt_short_stack:drill:15", "spot_kind": "l2_core_rules_check", "question": "Strong equity improves on turn after small flop bet. Action?", "target": "double_barrel_good", "rationale": "Barrel when range and equity shift in your favor."}
 {"id": "mtt_short_stack:drill:16", "spot_kind": "l2_core_rules_check", "question": "Volatile turn at 20bb with marginal value. Sizing avoid?", "target": "size_down_dry", "rationale": "Do not block-bet; choose sizes that commit cleanly or check."}
+
