@@ -1,1 +1,8 @@
-none
+big_bet_75
+call
+fold
+half_pot_50
+overfold_exploit
+protect_check_range
+size_down_dry
+triple_barrel_scare
