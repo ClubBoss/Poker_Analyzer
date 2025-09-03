@@ -1,25 +1,77 @@
+module_id: core_bet_sizing_fe
+short_scope: TODO
+spotkind_allowlist:
+  none
+target_tokens_allowlist:
+  none
 GO MODULE: core_bet_sizing_fe
-
+module_id: core_check_raise_systems
+short_scope: TODO
+spotkind_allowlist:
+  none
+target_tokens_allowlist:
+  none
 GO MODULE: core_check_raise_systems
-
+module_id: core_mental_game
+short_scope: TODO
+spotkind_allowlist:
+  none
+target_tokens_allowlist:
+  none
 GO MODULE: core_mental_game
-
+module_id: core_note_taking
+short_scope: TODO
+spotkind_allowlist:
+  none
+target_tokens_allowlist:
+  none
 GO MODULE: core_note_taking
-
+module_id: cash_rake_and_stakes
+short_scope: TODO
+spotkind_allowlist:
+  none
+target_tokens_allowlist:
+  none
 GO MODULE: cash_rake_and_stakes
-
+module_id: core_rules_and_setup
+short_scope: TODO
+spotkind_allowlist:
+  none
+target_tokens_allowlist:
+  none
 GO MODULE: core_rules_and_setup
-
+module_id: cash_single_raised_pots
+short_scope: TODO
+spotkind_allowlist:
+  none
+target_tokens_allowlist:
+  none
 GO MODULE: cash_single_raised_pots
-
+module_id: core_positions_and_initiative
+short_scope: TODO
+spotkind_allowlist:
+  none
+target_tokens_allowlist:
+  none
 GO MODULE: core_positions_and_initiative
-
+module_id: cash_threebet_pots
+short_scope: TODO
+spotkind_allowlist:
+  none
+target_tokens_allowlist:
+  none
 GO MODULE: cash_threebet_pots
-
+module_id: cash_fourbet_pots
+short_scope: TODO
+spotkind_allowlist:
+  none
+target_tokens_allowlist:
+  none
 GO MODULE: cash_fourbet_pots
-
-GO MODULE: cash_blind_vs_blind
-
-GO MODULE: cash_fourbet_pots
-
+module_id: cash_blind_vs_blind
+short_scope: TODO
+spotkind_allowlist:
+  none
+target_tokens_allowlist:
+  none
 GO MODULE: cash_blind_vs_blind
