@@ -1,4 +1,5 @@
 import 'package:sentry_flutter/sentry_flutter.dart';
+import '../live/live_runtime.dart';
 
 /// Minimal telemetry wrapper around Sentry.
 ///
@@ -28,6 +29,11 @@ class Telemetry {
   ]) async {
     if (!_enabled) return;
     try {
+      // Append current training mode to session lifecycle events only.
+      if (name == 'session_start' || name == 'session_end') {
+        final original = props ?? const <String, Object?>{};
+        props = Map<String, Object?>.from(withMode(original));
+      }
       await Sentry.captureMessage(
         name,
         withScope: (scope) {
@@ -43,4 +49,15 @@ class Telemetry {
       await Sentry.captureException(error, stackTrace: stack);
     } catch (_) {}
   }
+}
+
+/// Returns current mode tag: 'live' or 'online'.
+String liveModeTag() => LiveRuntime.isLive ? 'live' : 'online';
+
+/// Returns a new map with 'mode' set from [liveModeTag()].
+/// Does not mutate [base]. If 'mode' exists, it is overridden.
+Map<String, Object?> withMode(Map<String, Object?> base) {
+  final out = Map<String, Object?>.from(base);
+  out['mode'] = liveModeTag();
+  return out;
 }

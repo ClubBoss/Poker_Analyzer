@@ -1,0 +1,3 @@
+{"id": "hu_preflop:demo:01", "spot_kind": "l2_core_rules_check", "steps": ["Stacks 80bb effective", "SB opens 2.0bb", "BB 3-bets to 12bb OOP", "SB chooses between call and 4bet_ip_21bb with blockers or value", "If called, pot ~24bb and SPR ~2.8 going to flop"]}
+{"id": "hu_preflop:demo:02", "spot_kind": "l2_core_rules_check", "steps": ["Stacks 35bb effective", "SB opens 2.5bb", "BB 3-bets to 12bb", "SB evaluates 4bet_ip_21bb with QQ+/AK and folds marginal offsuit", "If 4-bet gets called, pot ~42bb and SPR ~0.33"]}
+{"id": "hu_preflop:demo:03", "spot_kind": "l2_core_rules_check", "steps": ["Stacks 20bb effective", "SB limps", "BB isolates to 5bb", "SB responds with 3bet_ip_9bb jam-proxy or call with suiteds", "Exploit tight BB iso range by jamming good blockers"]}
