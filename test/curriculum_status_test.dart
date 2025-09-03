@@ -103,15 +103,30 @@ void main() {
         );
       }
 
-      // After all assertions pass, print the next module to build.
-      final next = ssotOrder.firstWhere(
-        (id) => !modulesDone.contains(id),
-        orElse: () => '',
-      );
-      if (next.isEmpty) {
-        print('NEXT: DONE');
+      // After all assertions pass, print NEXT for live_* skeletons.
+      // If any of the tracked live_* IDs are not in modules_done, print all missing
+      // in the requested order. Otherwise, fall back to DONE.
+      // Note: append-only list; order matters for output.
+      const trackedLiveIds = <String>[
+        'live_tells_and_dynamics',
+        'live_etiquette_and_procedures',
+        'live_full_ring_adjustments',
+        'live_special_formats_straddle_bomb_ante',
+        'live_table_selection_and_seat_change',
+        'live_chip_handling_and_bet_declares',
+        'live_speech_timing_basics',
+        'live_rake_structures_and_tips',
+        'live_floor_calls_and_dispute_resolution',
+        'live_session_log_and_review',
+        'live_security_and_game_integrity',
+      ];
+      final missingLive = trackedLiveIds
+          .where((id) => !modulesDone.contains(id))
+          .toList(growable: false);
+      if (missingLive.isNotEmpty) {
+        print('NEXT: ${missingLive.join(', ')}');
       } else {
-        print('NEXT: $next');
+        print('NEXT: DONE');
       }
     },
     skip: skipReason,

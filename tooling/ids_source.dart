@@ -34,14 +34,15 @@ List<String> _readCurriculumFile() {
   final txt = _ascii(f.readAsStringSync());
   // Try tolerant, ordered patterns to capture the bracket block.
   final patterns = <RegExp>[
-    RegExp(r'const\s+List<String>\s+curriculumIds\s*=\s*\[(.*?)\];',
-        dotAll: true),
-    RegExp(r'const\s+List<String>\s+kCurriculumIds\s*=\s*\[(.*?)\];',
-        dotAll: true),
     RegExp(
-      r'const\s+List<String>\s+\w+\s*=\s*\[(.*?)\];',
+      r'const\s+List<String>\s+curriculumIds\s*=\s*\[(.*?)\];',
       dotAll: true,
     ),
+    RegExp(
+      r'const\s+List<String>\s+kCurriculumIds\s*=\s*\[(.*?)\];',
+      dotAll: true,
+    ),
+    RegExp(r'const\s+List<String>\s+\w+\s*=\s*\[(.*?)\];', dotAll: true),
   ];
 
   // Collect all candidate matches (in order), then pick the one with most IDs.
