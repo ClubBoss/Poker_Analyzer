@@ -7,6 +7,7 @@ import 'package:poker_analyzer/content/jsonl_validator.dart';
 
 void main(List<String> args) {
   final write = args.contains('--write');
+  final force = args.contains('--force') || args.contains('--skip-prevalidate');
   final modulesArg = args.firstWhere(
     (a) => a.startsWith('--modules='),
     orElse: () => '',
@@ -64,7 +65,7 @@ void main(List<String> args) {
       final text = _readFile(f.path);
       sources[f.path] = text;
       final report = validateJsonl(text);
-      if (!report.ok) {
+      if (!report.ok && !force) {
         stdout.writeln("VALIDATION FAIL ${f.path}");
         for (final issue in report.issues.take(5)) {
           stdout.writeln('  - line ${issue.line}: ${issue.message}');
