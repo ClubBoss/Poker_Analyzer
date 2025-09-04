@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:test/test.dart';
+import 'package:poker_analyzer/live/live_ids.dart';
 
 /// Validates that the dispatcher’s leading module blocks (prefix)
 /// match `modules_done` sorted by the SSOT order from
@@ -104,22 +105,8 @@ void main() {
       }
 
       // After all assertions pass, print NEXT for live_* skeletons.
-      // If any of the tracked live_* IDs are not in modules_done, print all missing
-      // in the requested order. Otherwise, fall back to DONE.
-      // Note: append-only list; order matters for output.
-      const trackedLiveIds = <String>[
-        'live_tells_and_dynamics',
-        'live_etiquette_and_procedures',
-        'live_full_ring_adjustments',
-        'live_special_formats_straddle_bomb_ante',
-        'live_table_selection_and_seat_change',
-        'live_chip_handling_and_bet_declares',
-        'live_speech_timing_basics',
-        'live_rake_structures_and_tips',
-        'live_floor_calls_and_dispute_resolution',
-        'live_session_log_and_review',
-        'live_security_and_game_integrity',
-      ];
+      // Source IDs from SSOT (kLiveModuleIds) to avoid drift.
+      final trackedLiveIds = kLiveModuleIds;
       final missingLive = trackedLiveIds
           .where((id) => !modulesDone.contains(id))
           .toList(growable: false);

@@ -30,6 +30,8 @@ import '../models/saved_hand.dart';
 import 'top_packs_screen.dart';
 import 'popular_now_screen.dart';
 import '../widgets/starter_packs_onboarding_banner.dart';
+import '../live/live_runtime.dart';
+import '../live/live_mode.dart';
 
 enum _PackSort { recommended, newest, hardest }
 
@@ -61,6 +63,7 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   List<TrainingPack> _suggestions = [];
   bool _hotOnly = false;
   List<TrainingPack> _hot = [];
+  void Function(TrainingMode)? _modeListener;
 
   Future<void> _importPack() async {
     final service = context.read<TrainingPackStorageService>();
@@ -110,6 +113,10 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
     super.initState();
     _loadPrefs();
     _updateHot();
+    _modeListener = (m) {
+      if (mounted) setState(() {});
+    };
+    LiveModeStore.addListener(_modeListener!);
   }
 
   @override
@@ -126,6 +133,9 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    if (_modeListener != null) {
+      LiveModeStore.removeListener(_modeListener!);
+    }
     super.dispose();
   }
 
@@ -228,6 +238,17 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
         appBar: AppBar(
           title: const Text('Тренировочные споты'),
           actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: ChoiceChip(
+                label: Text(
+                  'Live overlay: ' + (LiveRuntime.isLive ? 'ON' : 'OFF'),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                selected: LiveRuntime.isLive,
+                onSelected: (_) => setState(LiveRuntime.toggle),
+              ),
+            ),
             IconButton(
               icon: const Icon(Icons.analytics),
               onPressed: _openHistory,
@@ -342,6 +363,17 @@ class _TrainingPacksScreenState extends State<TrainingPacksScreen> {
         appBar: AppBar(
           title: const Text('Тренировочные споты'),
           actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: ChoiceChip(
+                label: Text(
+                  'Live overlay: ' + (LiveRuntime.isLive ? 'ON' : 'OFF'),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                selected: LiveRuntime.isLive,
+                onSelected: (_) => setState(LiveRuntime.toggle),
+              ),
+            ),
             IconButton(
               icon: const Icon(Icons.analytics),
               onPressed: _openHistory,

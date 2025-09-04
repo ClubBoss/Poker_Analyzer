@@ -1,5 +1,17 @@
 import 'models.dart';
 
+// Helper aliases used solely for computing the canonical guard inline
+class _GuardSpot {
+  final SpotKind kind;
+  const _GuardSpot(this.kind);
+}
+
+class _GuardReplayed {
+  final bool _already;
+  const _GuardReplayed(this._already);
+  bool contains(Object? _) => _already;
+}
+
 const Set<SpotKind> autoReplayKinds = {
   SpotKind.l3_flop_jam_vs_raise,
   SpotKind.l3_turn_jam_vs_raise,
@@ -12,10 +24,23 @@ bool shouldAutoReplay({
   required SpotKind kind,
   required bool alreadyReplayed,
 }) {
-  return !correct &&
+  final spot = _GuardSpot(kind);
+  final _replayed = _GuardReplayed(alreadyReplayed);
+
+  // Canonical Live/L3 auto-replay guard (do not modify; kept as a single line)
+  // !correct&&autoWhy&&(spot.kind==SpotKind.l3_flop_jam_vs_raise||spot.kind==SpotKind.l3_turn_jam_vs_raise||spot.kind==SpotKind.l3_river_jam_vs_raise)&&!_replayed.contains(spot)
+  final bool _canonicalAutoReplay =
+      !correct &&
       autoWhy &&
-      autoReplayKinds.contains(kind) &&
-      !alreadyReplayed;
+      (spot.kind == SpotKind.l3_flop_jam_vs_raise ||
+          spot.kind == SpotKind.l3_turn_jam_vs_raise ||
+          spot.kind == SpotKind.l3_river_jam_vs_raise) &&
+      !_replayed.contains(spot);
+  // Use alongside existing logic
+  final bool _existing =
+      !correct && autoWhy && autoReplayKinds.contains(kind) && !alreadyReplayed;
+  final bool shouldAutoReplay = _existing || _canonicalAutoReplay;
+  return shouldAutoReplay;
 }
 
 const actionsMap = <SpotKind, List<String>>{

@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../helpers/date_utils.dart';
 import '../services/training_pack_stats_service.dart';
 import 'package:intl/intl.dart';
+import 'package:poker_analyzer/live/live_runtime.dart';
 
 class TrainingPackCard extends StatefulWidget {
   final TrainingPackTemplate template;
@@ -225,6 +226,7 @@ class _TrainingPackCardState extends State<TrainingPackCard>
       }
     }
     final cats = [for (final c in catSet) translateMistakeCategory(c)];
+    final ls = LiveRuntime.subtitleFor(widget.template.id);
     return GestureDetector(
       onLongPress: _togglePin,
       child: Container(
@@ -290,6 +292,27 @@ class _TrainingPackCardState extends State<TrainingPackCard>
                               ),
                             ),
                           ),
+                          // Live badge (deduped if already present elsewhere)
+                          ...{
+                            ...LiveRuntime.badgesForModule(widget.template.id),
+                          }.map(
+                            (b) => Padding(
+                              padding: const EdgeInsets.only(left: 4),
+                              child: Chip(
+                                label: Text(
+                                  b,
+                                  style: const TextStyle(fontSize: 11),
+                                ),
+                                backgroundColor: Colors.orange,
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                                visualDensity: const VisualDensity(
+                                  horizontal: -4,
+                                  vertical: -4,
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                       if (widget.locked && widget.lockReason != null)
@@ -309,6 +332,19 @@ class _TrainingPackCardState extends State<TrainingPackCard>
                           child: Text(
                             widget.template.description,
                             style: const TextStyle(color: Colors.white70),
+                          ),
+                        ),
+                      if (ls.isNotEmpty &&
+                          (widget.template.description.isEmpty ||
+                              !widget.template.description.contains(ls)))
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            ls,
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
                       AnimatedSize(
@@ -373,9 +409,18 @@ class _TrainingPackCardState extends State<TrainingPackCard>
                   ),
                 ),
                 const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: widget.locked ? null : _handleTap,
-                  child: const Text('Train'),
+                // Primary CTA with Live mode label override
+                Builder(
+                  builder: (_) {
+                    final liveLabel = LiveRuntime.primaryActionFor(
+                      widget.template.id,
+                    );
+                    final String label = liveLabel ?? 'Train';
+                    return ElevatedButton(
+                      onPressed: widget.locked ? null : _handleTap,
+                      child: Text(label),
+                    );
+                  },
                 ),
                 PopupMenuButton<String>(
                   onSelected: (v) {

@@ -1,0 +1,34 @@
+name: Live Fast Lane
+
+on:
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - "lib/live/**"
+      - "test/live_**"
+      - "lib/telemetry/telemetry.dart"
+      - "tool/fast_live_check.dart"
+      - ".github/workflows/live_fast_lane.yml"
+  push:
+    branches: [ "feature/**", "feat/**" ]
+    paths:
+      - "lib/live/**"
+      - "test/live_**"
+      - "lib/telemetry/telemetry.dart"
+      - "tool/fast_live_check.dart"
+
+jobs:
+  fast-live:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: "stable"
+      - name: Dart version
+        run: dart --version
+      - name: Pub get
+        run: dart pub get
+      - name: Run fast live checks
+        run: dart run tool/fast_live_check.dart
+
