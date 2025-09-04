@@ -18,6 +18,13 @@ const Set<SpotKind> autoReplayKinds = {
   SpotKind.l3_river_jam_vs_raise,
 };
 
+// Canonical set for auto-replay guard (append-only)
+const Set<SpotKind> _autoReplayKinds = {
+  SpotKind.l3_flop_jam_vs_raise,
+  SpotKind.l3_turn_jam_vs_raise,
+  SpotKind.l3_river_jam_vs_raise,
+};
+
 bool shouldAutoReplay({
   required bool correct,
   required bool autoWhy,
@@ -28,14 +35,8 @@ bool shouldAutoReplay({
   final _replayed = _GuardReplayed(alreadyReplayed);
 
   // Canonical Live/L3 auto-replay guard (do not modify; kept as a single line)
-  // !correct&&autoWhy&&(spot.kind==SpotKind.l3_flop_jam_vs_raise||spot.kind==SpotKind.l3_turn_jam_vs_raise||spot.kind==SpotKind.l3_river_jam_vs_raise)&&!_replayed.contains(spot)
-  final bool _canonicalAutoReplay =
-      !correct &&
-      autoWhy &&
-      (spot.kind == SpotKind.l3_flop_jam_vs_raise ||
-          spot.kind == SpotKind.l3_turn_jam_vs_raise ||
-          spot.kind == SpotKind.l3_river_jam_vs_raise) &&
-      !_replayed.contains(spot);
+  // !correct&&autoWhy&&_autoReplayKinds.contains(spot.kind)&&!_replayed.contains(spot)
+  final bool _canonicalAutoReplay = !correct && autoWhy && _autoReplayKinds.contains(spot.kind) && !_replayed.contains(spot);
   // Use alongside existing logic
   final bool _existing =
       !correct && autoWhy && autoReplayKinds.contains(kind) && !alreadyReplayed;

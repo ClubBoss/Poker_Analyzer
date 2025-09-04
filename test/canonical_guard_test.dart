@@ -3,61 +3,43 @@ import 'dart:io';
 import 'package:test/test.dart';
 
 void main() {
-  test('canonical guard marker or wiring must be present (lib only)', () {
-    const literal =
-        '!correct&&autoWhy&&(spot.kind==SpotKind.l3_flop_jam_vs_raise||spot.kind==SpotKind.l3_turn_jam_vs_raise||spot.kind==SpotKind.l3_river_jam_vs_raise)&&!_replayed.contains(spot)';
-    const markerPrefix = '// CANONICAL_GUARD:';
+  late String src;
 
-    final libDir = Directory('lib');
-    expect(libDir.existsSync(), isTrue, reason: 'lib/ directory is missing');
+  setUpAll(() {
+    src = File('lib/ui/session_player/spot_specs.dart').readAsStringSync();
+  });
 
-    final markerHits = <String>[]; // path:line:text
-    var hasVar = false;
-    var hasOrUse = false;
+  test('_autoReplayKinds contains exactly the three jam_vs_raise kinds', () {
+    final re = RegExp(r'const\s+Set<SpotKind>\s+_autoReplayKinds\s*=\s*\{([^}]*)\}', dotAll: true);
+    final m = re.firstMatch(src);
+    expect(m, isNotNull, reason: 'Missing _autoReplayKinds set');
+    final inside = m!.group(1) ?? '';
+    final entries = inside
+        .split(',')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+    final expected = <String>{
+      'SpotKind.l3_flop_jam_vs_raise',
+      'SpotKind.l3_turn_jam_vs_raise',
+      'SpotKind.l3_river_jam_vs_raise',
+    };
+    expect(entries.length, expected.length, reason: 'Unexpected number of kinds');
+    expect(entries.toSet(), expected, reason: 'Kinds mismatch in _autoReplayKinds');
+  });
 
-    for (final entity in libDir.listSync(recursive: true)) {
-      if (entity is! File) continue;
-      if (!entity.path.endsWith('.dart')) continue;
+  test('exactly one usage of _autoReplayKinds.contains', () {
+    // Strip single-line comments before counting
+    final codeOnly = src.replaceAll(RegExp(r'//.*', multiLine: true), '');
+    final matches = RegExp(r'\b_autoReplayKinds\.contains\(').allMatches(codeOnly).length;
+    expect(matches, 1, reason: 'There must be exactly one guard occurrence using _autoReplayKinds.contains(spot.kind)');
+  });
 
-      final lines = entity.readAsLinesSync();
-      for (var i = 0; i < lines.length; i++) {
-        final line = lines[i];
-        final isAscii = line.codeUnits.every((c) => c <= 0x7F);
-        if (!isAscii) continue;
-
-        if (line.startsWith(markerPrefix) && line.contains(literal)) {
-          markerHits.add('${entity.path}:${i + 1}:$line');
-        }
-        if (!hasVar && line.contains('_canonicalAutoReplay')) {
-          hasVar = true;
-        }
-        if (!hasOrUse && line.contains('|| _canonicalAutoReplay')) {
-          hasOrUse = true;
-        }
-      }
-    }
-
-    if (markerHits.length > 1) {
-      final buf = StringBuffer();
-      buf.writeln(
-        'Expected exactly 1 CANONICAL_GUARD marker; found ${markerHits.length}.',
-      );
-      for (final h in markerHits) {
-        buf.writeln(h);
-      }
-      fail(buf.toString());
-    }
-
-    if (!hasVar || !hasOrUse) {
-      final missing = [
-        if (!hasVar) "'_canonicalAutoReplay'",
-        if (!hasOrUse) "'|| _canonicalAutoReplay'",
-      ].join(', ');
-      fail('Missing required wiring token(s): $missing under lib/.');
-    }
-
-    if (markerHits.isEmpty) {
-      return; // accept wiring without marker
-    }
+  test('canonical guard shape is correct', () {
+    // Match: !correct && autoWhy && _autoReplayKinds.contains(spot.kind) && !_replayed.contains(spot)
+    final codeOnly = src.replaceAll(RegExp(r'//.*', multiLine: true), '');
+    final guardRe = RegExp(r'!\s*correct\s*&&\s*autoWhy\s*&&\s*_autoReplayKinds\.contains\(\s*spot\.kind\s*\)\s*&&\s*!\s*_replayed\.contains\(\s*spot\s*\)');
+    final count = guardRe.allMatches(codeOnly).length;
+    expect(count, 1, reason: 'Canonical guard must appear exactly once with .contains(spot.kind)');
   });
 }
