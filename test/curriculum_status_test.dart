@@ -111,9 +111,9 @@ void main() {
           .where((id) => !modulesDone.contains(id))
           .toList(growable: false);
       if (missingLive.isNotEmpty) {
-        print('NEXT: ${missingLive.join(', ')}');
+        stdout.writeln('NEXT: ${missingLive.join(', ')}');
       } else {
-        print('NEXT: DONE');
+        stdout.writeln('NEXT: DONE');
       }
     },
     skip: skipReason,

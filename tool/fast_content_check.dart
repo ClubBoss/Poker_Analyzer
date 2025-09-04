@@ -58,6 +58,9 @@ void main(List<String> args) {
 
     // Derive moduleId from path: content/<moduleId>/v*/...
     final moduleId = _moduleIdFromPath(path);
+    // Derive version directory to validate theory.md alongside JSONL files.
+    final versionDir = File(path).parent; // .../content/<moduleId>/v*/
+    final theoryIssues = _theoryDiagnostics(versionDir.path);
 
     bool fileOk = report.ok;
     if (report.ok) {
@@ -104,6 +107,14 @@ void main(List<String> args) {
       }
     }
 
+    // Apply theory.md checks (exists, ASCII-only, non-empty) for the same version dir.
+    if (theoryIssues.isNotEmpty) {
+      for (final msg in theoryIssues) {
+        diagnostics.add('  - ' + msg);
+      }
+      fileOk = false;
+    }
+
     if (fileOk) {
       stdout.writeln('OK   $path');
     } else {
@@ -137,4 +148,40 @@ String _moduleIdFromPath(String p) {
   final vIdx = parts.indexWhere((e) => RegExp(r'^v\d+$').hasMatch(e));
   if (vIdx > 0) return parts[vIdx - 1];
   return '';
+}
+
+// Returns concise diagnostics for theory.md inside the given version directory.
+// Rules:
+// - must exist
+// - must be ASCII-only (bytes <= 0x7F)
+// - must be non-empty
+List<String> _theoryDiagnostics(String versionDirPath) {
+  final normalized = versionDirPath.replaceAll('\\', '/');
+  final theoryPath = normalized.endsWith('/')
+      ? normalized + 'theory.md'
+      : normalized + '/theory.md';
+  final issues = <String>[];
+  final f = File(theoryPath);
+  if (!f.existsSync()) {
+    issues.add('missing: theory.md');
+    return issues;
+  }
+  List<int> bytes;
+  try {
+    bytes = f.readAsBytesSync();
+  } catch (e) {
+    // Treat unreadable as missing-like error to avoid leaking exceptions in output.
+    issues.add('read-error: theory.md');
+    return issues;
+  }
+  if (bytes.isEmpty) {
+    issues.add('empty: theory.md');
+  }
+  for (final b in bytes) {
+    if (b > 0x7F) {
+      issues.add('non-ascii: theory.md');
+      break;
+    }
+  }
+  return issues;
 }

@@ -1,4 +1,3 @@
-
 {"id":"core_board_textures_drill_001","spot_kind":"l2_board_classify","question":"Classify K72 rainbow for PFR vs caller.","target":"dry_board","rationale":"Few draws and slow equity shifts."}
 {"id":"core_board_textures_drill_002","spot_kind":"l2_board_classify","question":"Classify T98 two_tone for single-raised pot.","target":"wet_board","rationale":"Many straights and flush draws available."}
 {"id":"core_board_textures_drill_003","spot_kind":"l2_board_classify","question":"Board is 994 rainbow. Texture tag?","target":"paired_board","rationale":"One rank pairs, compressing value distribution."}
