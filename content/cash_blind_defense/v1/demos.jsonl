@@ -1,3 +1,3 @@
-{"id": "cash_blind_defense:demo:01", "spot_kind": "l2_core_rules_check", "steps": ["CO opens 2.3bb, folds to BB", "BB calls; pot ~5.1bb, SPR ~19", "Flop A72r: CO bets 1.7bb (small_cbet_33), BB defend_vs_small_cbet (call)"]}
-{"id": "cash_blind_defense:demo:02", "spot_kind": "l2_core_rules_check", "steps": ["BTN opens 2.5bb", "SB 3bet_oop_11bb to 11bb", "BTN 4bet_small_22bb to 22bb", "SB fold_vs_4bet_oop"]}
-{"id": "cash_blind_defense:demo:03", "spot_kind": "l2_core_rules_check", "steps": ["UTG opens 2.5bb, CO calls", "BB squeeze_iso_3bet to 12bb (value-biased)", "UTG folds, CO calls; pot ~27bb, SPR ~3.3"]}
+{"id": "cash_blind_defense_demo_001", "spot_kind": "l2_core_rules_check", "steps": ["CO opens 2.3bb, folds to BB", "BB calls; pot ~5.1bb, SPR ~19", "Flop A72r: CO bets 1.7bb (small_cbet_33), BB defend_vs_small_cbet (call)"]}
+{"id": "cash_blind_defense_demo_002", "spot_kind": "l2_core_rules_check", "steps": ["BTN opens 2.5bb", "SB 3bet_oop_11bb to 11bb", "BTN 4bet_small_22bb to 22bb", "SB fold_vs_4bet_oop"]}
+{"id": "cash_blind_defense_demo_003", "spot_kind": "l2_core_rules_check", "steps": ["UTG opens 2.5bb, CO calls", "BB squeeze_iso_3bet to 12bb (value-biased)", "UTG folds, CO calls; pot ~27bb, SPR ~3.3"]}

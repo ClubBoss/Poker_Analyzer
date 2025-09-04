@@ -1,5 +1,5 @@
 
-{"id":"core_equity_realization:demo:01","steps":["UTG opens 2.3 bb (typical online), CO calls, others fold","Flop K72r: UTG small-bets, CO calls with backdoors","Turn 5: UTG small-bets again, CO folds","Aggressor keeps initiative and denies overcards, realizing equity"]}
-{"id":"core_equity_realization:demo:02","steps":["BTN opens, SB calls, BB calls","Flop T98 two_tone checks to BTN who bets big","Multiway callers face equity denial and realize worse with draws"]}
-{"id":"core_equity_realization:demo:03","steps":["CO 3-bets BTN, BB folds; heads-up to flop with low SPR","Flop A52r: CO small-bets range, BTN folds","Low SPR simplifies value and increases CO realization"]}
+{"id":"core_equity_realization_demo_001","steps":["UTG opens 2.3 bb (typical online), CO calls, others fold","Flop K72r: UTG small-bets, CO calls with backdoors","Turn 5: UTG small-bets again, CO folds","Aggressor keeps initiative and denies overcards, realizing equity"]}
+{"id":"core_equity_realization_demo_002","steps":["BTN opens, SB calls, BB calls","Flop T98 two_tone checks to BTN who bets big","Multiway callers face equity denial and realize worse with draws"]}
+{"id":"core_equity_realization_demo_003","steps":["CO 3-bets BTN, BB folds; heads-up to flop with low SPR","Flop A52r: CO small-bets range, BTN folds","Low SPR simplifies value and increases CO realization"]}
 

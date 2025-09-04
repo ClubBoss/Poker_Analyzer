@@ -1,3 +1,3 @@
-{"id":"core_flop_fundamentals:demo:01","steps":["CO opens, BTN calls, blinds fold","Flop K72 rainbow (dry_board)","CO has range_advantage and chooses cbet_small (typical online)","BTN float_call with backdoors","Turn 5 bricks; BTN folds to second barrel"]}
-{"id":"core_flop_fundamentals:demo:02","steps":["BTN opens, BB calls","Flop T98 two_tone (wet_board)","BTN uses cbet_big for value and denial","BB check-raises small, BTN raise_flop for value, BB folds draws"]}
-{"id":"core_flop_fundamentals:demo:03","steps":["UTG opens, BB calls","Flop A76 monotone","UTG check_back to protect medium-strength hands","Turn pairs board; BB small probe_bet, UTG delay_cbet raises and takes it"]}
+{"id":"core_flop_fundamentals_demo_001","steps":["CO opens, BTN calls, blinds fold","Flop K72 rainbow (dry_board)","CO has range_advantage and chooses cbet_small (typical online)","BTN float_call with backdoors","Turn 5 bricks; BTN folds to second barrel"]}
+{"id":"core_flop_fundamentals_demo_002","steps":["BTN opens, BB calls","Flop T98 two_tone (wet_board)","BTN uses cbet_big for value and denial","BB check-raises small, BTN raise_flop for value, BB folds draws"]}
+{"id":"core_flop_fundamentals_demo_003","steps":["UTG opens, BB calls","Flop A76 monotone","UTG check_back to protect medium-strength hands","Turn pairs board; BB small probe_bet, UTG delay_cbet raises and takes it"]}

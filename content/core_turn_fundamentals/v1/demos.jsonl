@@ -1,4 +1,4 @@
-content/core_turn_fundamentals/v1/demos.jsonl
-{"id":"core_turn_fundamentals:demo:01","steps":["UTG opens 2.3 bb (typical online), BTN calls, blinds fold","Flop K72r: UTG cbet_small, BTN calls","Turn A two_tone: UTG bet_big_turn to pressure Kx and draws","BTN folds to the second barrel"]}
-{"id":"core_turn_fundamentals:demo:02","steps":["CO opens, BB calls","Flop T84 two_tone: CO cbet_small, BB calls","Turn 2 bricks: CO check_back with medium pair to control","River plan: evaluate thin_value or check behind"]}
-{"id":"core_turn_fundamentals:demo:03","steps":["BTN opens, SB calls","Flop 973r: BTN checks back","Turn Q: BTN delay_cbet small to deny equity and set up river","SB calls; river sizing follows pot geometry plan"]}
+# demos for core_turn_fundamentals (placeholder)
+{"id":"core_turn_fundamentals_demo_001","steps":["UTG opens 2.3 bb (typical online), BTN calls, blinds fold","Flop K72r: UTG cbet_small, BTN calls","Turn A two_tone: UTG bet_big_turn to pressure Kx and draws","BTN folds to the second barrel"]}
+{"id":"core_turn_fundamentals_demo_002","steps":["CO opens, BB calls","Flop T84 two_tone: CO cbet_small, BB calls","Turn 2 bricks: CO check_back with medium pair to control","River plan: evaluate thin_value or check behind"]}
+{"id":"core_turn_fundamentals_demo_003","steps":["BTN opens, SB calls","Flop 973r: BTN checks back","Turn Q: BTN delay_cbet small to deny equity and set up river","SB calls; river sizing follows pot geometry plan"]}

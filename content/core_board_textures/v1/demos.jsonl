@@ -1,5 +1,5 @@
 
-{"id":"core_board_textures:demo:01","steps":["CO opens, BTN calls, blinds fold","Flop A72 rainbow (dry_board)","CO uses cbet_small targeting ace-high dominance","BTN folds underpairs and air"]}
-{"id":"core_board_textures:demo:02","steps":["BTN opens, BB calls","Flop T98 two_tone (wet_board)","BTN chooses cbet_big to tax draws or checks more often","BB continues with strong draws and pairs"]}
-{"id":"core_board_textures:demo:03","steps":["UTG opens, CO calls, others fold","Flop 772 rainbow (paired_board)","UTG bets small targeting ace-high and underpairs","CO calls some pairs, folds air"]}
+{"id":"core_board_textures_demo_001","steps":["CO opens, BTN calls, blinds fold","Flop A72 rainbow (dry_board)","CO uses cbet_small targeting ace-high dominance","BTN folds underpairs and air"]}
+{"id":"core_board_textures_demo_002","steps":["BTN opens, BB calls","Flop T98 two_tone (wet_board)","BTN chooses cbet_big to tax draws or checks more often","BB continues with strong draws and pairs"]}
+{"id":"core_board_textures_demo_003","steps":["UTG opens, CO calls, others fold","Flop 772 rainbow (paired_board)","UTG bets small targeting ace-high and underpairs","CO calls some pairs, folds air"]}
 
