@@ -132,3 +132,7 @@ live_validations:
 telemetry_dims:
   - track:<cash|mtt>
   - mode:<live|online>
+
+## Rich Track
+See docs/RICH_TRACK_SCHEMA.md
+Units of 6 modules; packs L1/L2/BRIDGE/CHECKPOINT/BOSS; IDs are append-only.
