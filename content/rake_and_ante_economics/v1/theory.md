@@ -46,3 +46,10 @@ Mini-glossary
 
 Contrast
 Math and ICM cover prices and payout pressure. Here we layer rake/ante economics on top: physics and sizes stay the same; only frequencies move through the same tokens.
+
+See also
+- exploit_advanced (score 31) -> ../../exploit_advanced/v1/theory.md
+- icm_final_table_hu (score 31) -> ../../icm_final_table_hu/v1/theory.md
+- live_etiquette_and_procedures (score 31) -> ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 31) -> ../../live_full_ring_adjustments/v1/theory.md
+- live_session_log_and_review (score 31) -> ../../live_session_log_and_review/v1/theory.md

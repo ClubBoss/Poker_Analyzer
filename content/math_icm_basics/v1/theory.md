@@ -45,4 +45,4 @@ See also
 - live_chip_handling_and_bet_declares (score 25) -> ../../live_chip_handling_and_bet_declares/v1/theory.md
 - live_etiquette_and_procedures (score 25) -> ../../live_etiquette_and_procedures/v1/theory.md
 - live_full_ring_adjustments (score 25) -> ../../live_full_ring_adjustments/v1/theory.md
-- live_speech_timing_basics (score 25) -> ../../live_speech_timing_basics/v1/theory.md
+- online_hud_and_db_review (score 25) -> ../../online_hud_and_db_review/v1/theory.md

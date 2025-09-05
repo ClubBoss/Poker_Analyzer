@@ -47,8 +47,8 @@ Contrast
 Online_tells_and_dynamics uses digital cadence; live_tells_and_dynamics adds physical handling. Here we focus specifically on speech/timing and map every cue to the same fixed tokens and 33/50/75 families.
 
 See also
-- live_etiquette_and_procedures (score 33) -> ../../live_etiquette_and_procedures/v1/theory.md
-- live_full_ring_adjustments (score 33) -> ../../live_full_ring_adjustments/v1/theory.md
-- online_hud_and_db_review (score 33) -> ../../online_hud_and_db_review/v1/theory.md
-- online_table_selection_and_multitabling (score 33) -> ../../online_table_selection_and_multitabling/v1/theory.md
-- cash_short_handed (score 31) -> ../../cash_short_handed/v1/theory.md
+- live_etiquette_and_procedures (score 31) -> ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 31) -> ../../live_full_ring_adjustments/v1/theory.md
+- live_special_formats_straddle_bomb_ante (score 31) -> ../../live_special_formats_straddle_bomb_ante/v1/theory.md
+- online_hud_and_db_review (score 31) -> ../../online_hud_and_db_review/v1/theory.md
+- online_table_selection_and_multitabling (score 31) -> ../../online_table_selection_and_multitabling/v1/theory.md

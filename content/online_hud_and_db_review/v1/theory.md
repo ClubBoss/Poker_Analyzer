@@ -57,6 +57,6 @@ Online tells use timing; this module uses aggregates. Both keep the same tokens 
 See also
 - live_etiquette_and_procedures (score 33) -> ../../live_etiquette_and_procedures/v1/theory.md
 - live_full_ring_adjustments (score 33) -> ../../live_full_ring_adjustments/v1/theory.md
-- live_speech_timing_basics (score 33) -> ../../live_speech_timing_basics/v1/theory.md
 - online_table_selection_and_multitabling (score 33) -> ../../online_table_selection_and_multitabling/v1/theory.md
 - cash_short_handed (score 31) -> ../../cash_short_handed/v1/theory.md
+- exploit_advanced (score 31) -> ../../exploit_advanced/v1/theory.md

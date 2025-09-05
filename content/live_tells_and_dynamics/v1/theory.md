@@ -59,8 +59,8 @@ See also
 - icm_mid_ladder_decisions (score 31) -> ../../icm_mid_ladder_decisions/v1/theory.md
 - live_etiquette_and_procedures (score 31) -> ../../live_etiquette_and_procedures/v1/theory.md
 - live_full_ring_adjustments (score 31) -> ../../live_full_ring_adjustments/v1/theory.md
-- live_speech_timing_basics (score 31) -> ../../live_speech_timing_basics/v1/theory.md
 - online_hud_and_db_review (score 31) -> ../../online_hud_and_db_review/v1/theory.md
+- online_table_selection_and_multitabling (score 31) -> ../../online_table_selection_and_multitabling/v1/theory.md
 
 What it is
 
