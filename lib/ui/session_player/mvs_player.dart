@@ -30,6 +30,7 @@ import 'package:poker_analyzer/ui/modules/icm_mix_packs.dart';
 import 'package:poker_analyzer/ui/modules/icm_bubble_packs.dart';
 import 'package:poker_analyzer/ui/modules/icm_ladder_packs.dart';
 import 'package:poker_analyzer/ui/session_player/l3_jsonl_export.dart';
+import 'package:poker_analyzer/infra/weakness_log.dart';
 
 const actionsMap = <SpotKind, List<String>>{...specs.actionsMap};
 
@@ -484,6 +485,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     final spot = _spots[_index];
     final autoWhy = _prefs.autoWhyOnWrong;
     final correct = action == spot.action;
+    if (!correct && autoWhy) {
+      weaknessLog.record(familyFor(spot.kind));
+    }
     final stackBB = int.tryParse(spot.stack.replaceAll(RegExp(r'[^0-9]'), ''));
     final elapsedMs = _timer.elapsed.inMilliseconds;
     final spotId = '$_index';
