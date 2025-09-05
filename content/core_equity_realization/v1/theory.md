@@ -36,3 +36,4 @@ Multiway: Pots with 3+ players; realization and bluff success both decrease.
 Contrast
 Unlike core_pot_odds_equity, which prices a single call, this module shows how position, initiative, SPR, texture, and player count change how much of that equity you actually realize.
 
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

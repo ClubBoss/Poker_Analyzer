@@ -32,3 +32,5 @@ Pot geometry: Planning sizes across streets to target a desired river SPR and ac
 
 Contrast
 Unlike core_flop_fundamentals, which sets flop baselines, this module focuses on turn cards that change equities, selecting bluffs with blockers, and sizing to shape river outcomes.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

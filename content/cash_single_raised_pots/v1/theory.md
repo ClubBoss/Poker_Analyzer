@@ -37,3 +37,5 @@ Realization: how much equity a hand converts given position and play.
 
 Contrast
 Unlike cash_rake_and_stakes, which selects games by fee structure, this module applies rake-aware tactics inside SRPs to turn small, frequent edges into steady profit.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

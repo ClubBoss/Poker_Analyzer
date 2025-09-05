@@ -35,3 +35,5 @@ Side pot: Extra pot between non-all-in players; can overshadow bounty EV if larg
 
 Contrast
 Compared to basic PKO, advanced routing emphasizes heads-up capture, side-pot math, and depth-specific iso vs overcall choices. Compared to non-PKO, you weight coverage and bounty overlay above small chip-EV edges, especially when multiway risk looms.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

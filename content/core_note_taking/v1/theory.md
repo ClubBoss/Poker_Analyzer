@@ -34,3 +34,5 @@ Pool read: A note about a general pool trend, such as overfold_vs_big_turn.
 
 Contrast
 Unlike core_mental_game, which centers on routines and tilt control, this module creates a capture-and-review pipeline so your play and study inform each other.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

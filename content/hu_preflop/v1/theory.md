@@ -30,3 +30,5 @@ Blocker 4-bet: 4bet_ip_21bb or 4bet_oop_24bb chosen partly for A or K blockers t
 
 Contrast
 Compared to 6-max, HU preflop uses wider ranges, smaller opens deep, more 3-bets, and more blocker-driven 4-bets. Choices prioritize retaining initiative and clean geometry over narrow value-only ranges.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

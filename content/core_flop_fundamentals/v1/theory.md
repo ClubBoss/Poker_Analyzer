@@ -33,3 +33,5 @@ Donk_bet: Out-of-position lead into the aggressor; use sparingly and only with a
 
 Contrast
 Unlike core_starting_hands, which chooses preflop holdings, this module shows how board texture and range edges drive c-bet choices and reactions on the flop.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

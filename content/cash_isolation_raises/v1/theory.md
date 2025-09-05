@@ -35,3 +35,4 @@ fold_vs_limp_raise: Tight response to limp-raise pressure; continue mainly with 
 Contrast
 Unlike blind-vs-blind, iso pots target one capped limp-call range and aim to avoid multiway, so sizes push more folds and set heads-up SPRs that reward top pair and initiative.
 
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

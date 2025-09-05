@@ -31,3 +31,5 @@ Overbet: A bet larger than the pot, used mainly with polar ranges when villain i
 
 Contrast
 Unlike core_equity_realization, which explains how position, SPR, and texture affect how much equity you realize, this module shows how to choose sizes that drive folds, calls, and pot growth to meet your plan.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

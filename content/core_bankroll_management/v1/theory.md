@@ -34,3 +34,4 @@ Stop-loss: A predefined maximum session loss that ends play and protects bankrol
 Contrast
 Unlike core_gto_vs_exploit, which tweaks strategy based on opponent leaks, this module focuses on financial safeguards, seat and stake selection, and disciplined session rules so you stay in action long enough for skill to matter.
 
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

@@ -35,3 +35,5 @@ Open size: First-raise amount preflop; 2.0-2.5 bb is common online.
 
 Contrast
 Unlike core_rules_and_setup, which covers mechanics and procedures, this module shows how seat and initiative convert the same cards into different EV by changing ranges, leverage, and show order discipline.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

@@ -40,3 +40,5 @@ Jam proxy: a smaller raise that captures most of a jams fold equity without comm
 
 Contrast
 This module sets HU preflop sizes and ranges; later HU postflop modules focus on c-bet frequencies and turn/river plans.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

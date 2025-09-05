@@ -13,7 +13,7 @@ Rules of thumb
 * Commit thresholds: if a turn big_bet_75 leaves trivial behind on the river, plan double_barrel_good only with equity and blockers. Why: clean realization at low SPR.
 * Low SPR does not auto-call: fold vs big_bet_75 without blockers in under-bluffed pools. Why: population effect dominates price.
 * Mid-SPR OOP vs raise-prone IP -> delay_turn with medium strength and protect_check_range. Why: avoid getting blown off equity.
-* High SPR after check-check -> probe_turns more. Why: opponents surrender turns at high SPR after missing the flop stab.
+* High SPR after chk-chk -> probe_turns more. Why: opponents surrender turns at high SPR after missing the flop stab.
 * Keep ladders and sizes fixed; SPR shifts frequencies only. Why: consistency under pressure.
 
 [[IMAGE: spr_definition_tiles | SPR definition with street start examples]]

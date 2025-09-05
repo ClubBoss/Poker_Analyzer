@@ -33,3 +33,5 @@ Suited connectors (SCs): Sequential suited hands (98s, T9s) that make strong dra
 
 Contrast
 Unlike core_positions_and_initiative, which centers on seat and who has the betting lead, this module focuses on which hands to open, 3-bet, or 4-bet from each seat and why.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

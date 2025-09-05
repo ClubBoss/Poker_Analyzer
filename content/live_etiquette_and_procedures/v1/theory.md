@@ -13,7 +13,7 @@ Rules of thumb
 * has_straddle / bomb_ante: dead money improves price. Slightly widen 3bet_ip_9bb / 3bet_oop_12bb; tag overfold_exploit only after repetition. Why: risk–reward improves but evidence still matters.
 * Table_speed down or fatigue up: simplify. Bias to small_cbet_33, half_pot_50, delay_turn, protect_check_range; cut triple_barrel_scare unless blockers are strong. Why: APM and accuracy.
 * Tank -> big on river from tight players: under-bluffed polar. Fold more to big_bet_75 without blockers. Why: population tendency.
-* Snap small on static: merged/range bet. Defend now and plan probe_turns after check-check nodes. Why: autopilot behavior.
+* Snap small on static: merged/range bet. Defend now and plan probe_turns after chk-chk nodes. Why: autopilot behavior.
 * Avg_stack_bb low: lower SPR. Prefer half_pot_50 over big_bet_75 unless blockers plus fold trend. Why: cleaner commitment.
 * Show-order clarity: use bettor_shows_first / first_active_left_of_btn_shows to capture info and plan future probe_turns or folds. Why: information fuels tokens.
 * Line_rule and verbal_binding: when ambiguous, declare clearly and confirm. Keep sizes in-family. Why: protect EV and avoid floor calls.

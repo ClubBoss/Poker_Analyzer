@@ -5,14 +5,14 @@ Why it matters
 Live sessions are noisy and slow; memory is unreliable. A minimal log lets you act now (one token) and review later without results bias. The post-session loop standardizes improvement: triage → compact baseline check (no new sizes) → optional single-knob validation (e.g., Fv75) → convert to a demo + drill → schedule spaced review. EV/hour rises when your decisions stay inside 33/50/75 and exploit only with persistent evidence.
 
 Rules of thumb
-- Use a lightweight log schema per hand: Price, Texture, Family 33/50/75, Pos (IP/OOP), Init (PFA/Caller), Blockers, Raise risk, Sequence (chk–chk?), Pressure gate (Fv50/Fv75), SPR band, Token. End each street with exactly one token.  
-- Sequence rule: if flop checked through, the turn stab is probe_turns (not a lead). Log “chk–chk” explicitly.  
+- Use a lightweight log schema per hand: Price, Texture, Family 33/50/75, Pos (IP/OOP), Init (PFA/Caller), Blockers, Raise risk, Sequence (chk-chk?), Pressure gate (Fv50/Fv75), SPR band, Token. End each street with exactly one token.  
+- Sequence rule: if flop checked through, the turn stab is probe_turns (not a lead). Log “chk-chk” explicitly.  
 - Texture before read: write “dry/wet” first, then the family (size_down_dry or size_up_wet), then the size (33/50/75).  
 - Evidence gates: tag overfold_exploit only at repetition tier medium+ (3–5+) and aligned with context (e.g., blinds fast-fold to 12bb).  
 - River discipline tile: live pools under-bluff polar big bets; without blockers vs big_bet_75, prefer fold. Log whether you held key blockers.  
 - Turn pressure tile: default half_pot_50; upgrade to big_bet_75 + double_barrel_good only with blockers and a logged Fv75 spike.  
 - Protection tile: in stabby rooms or multiway, increase protect_check_range and delay_turn at mid SPR. Log “raise risk: high”.  
-- Probe KPI: count missed probe_turns after chk–chk; add one spaced drill per miss.  
+- Probe KPI: count missed probe_turns after chk-chk; add one spaced drill per miss.  
 - Family errors: if you used big_bet_75 on a static board, log “family error” and build a drill for size_down_dry + small_cbet_33.  
 - Preflop pressure: log fast folds / low 4-bets; widen 3bet_ip_9bb/3bet_oop_12bb with blockers; upgrade premiums to 4bet_ip_21bb / 4bet_oop_24bb.  
 - Economics flags: record rake_type(time|drop), has_straddle, bomb_ante, multi_limpers, avg_stack_bb, table_speed; these nudge frequencies (merged value/discipline), never sizes.  
@@ -30,14 +30,14 @@ Common mistakes
 - Writing paragraphs. Fix: one-line annotation grammar ending in a single token.  
 - Results-oriented notes. Fix: log cues/texture, not outcomes; use repetition tiers.  
 - Mixing families or inventing sizes. Fix: choose size_down_dry or size_up_wet, then 33/50/75 only.  
-- Mislabeling probes/leads. Fix: probe_turns only after chk–chk.  
+- Mislabeling probes/leads. Fix: probe_turns only after chk-chk.  
 - River heroing without blockers. Fix: default fold vs big_bet_75; log blocker status.  
 - Premature overfold_exploit. Fix: require medium+ repetition and context fit.
 
 Mini-glossary
 Annotation grammar: compact street line ending in one token.  
 Family: dry vs wet selector (size_down_dry / size_up_wet).  
-Sequence tag: records chk–chk or bet/call patterns for probe/discipline.  
+Sequence tag: records chk-chk or bet/call patterns for probe/discipline.  
 Pressure gate: Fv50/Fv75 read logged for turn sizing.  
 Spacing tier: fresh→1d→3d→7d review cadence.  
 KPI tile: dashboard counter (e.g., missed probe_turns).  

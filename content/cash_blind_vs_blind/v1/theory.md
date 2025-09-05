@@ -66,3 +66,5 @@ Contrast
 Unlike BTN-vs-BB, both ranges start wider and less capped, and the SB is OOP far
 more. Initiative flips more often and SPR bands shift faster because raises
 escalate from the blinds without position advantage.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

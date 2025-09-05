@@ -38,7 +38,7 @@ Mini-glossary
 Snap: instant action, often pre-decided, range or merged.
 Tank-then-small: delayed small bet; commonly merged strength.
 Fv3B: fold vs 3-bet; high invites blocker 3-bets and value 4-bets.
-FvProbe: fold vs turn probe after flop checks; high invites probe_turns.
+FvProbe: fold vs probe_turns after flop checks; high invites probe_turns.
 Polar/Merged: big_bet_75 polar vs half_pot_50 merged value.
 Population prior: default pool tendencies used when no HUD data.
 Tag tiering: weak/medium/strong repetition lanes guiding action.

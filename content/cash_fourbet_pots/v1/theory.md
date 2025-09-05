@@ -33,3 +33,5 @@ Blocker: A card that reduces opponent strong combos (e.g., Ax blocks AA/AK).
 
 Contrast
 Compared to cash_threebet_pots and cash_single_raised_pots, 4-bet pots start with lower SPR, tighter nut concentration, and clearer stack-off bands, so size discipline and blocker-driven decisions matter even more.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

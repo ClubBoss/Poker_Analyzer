@@ -13,7 +13,7 @@ Rules of thumb
 - Straddle/bomb_ante with drop: dead money improves steals but drop taxes small pots; selectively 3bet_ip_9bb / 3bet_oop_12bb with blockers; postflop use half_pot_50 for merged value. Why: better price pre, but keep pots meaningful.  
 - Multi-limpers in drop rooms: bluff EV falls; add protect_check_range; use half_pot_50 for merged value; thin value via size_down_dry. Why: multiway realization and drop tax.  
 - Mid-SPR raise-prone turns: choose delay_turn with medium strength; protect_check_range on prior street. Why: avoid getting blown off equity where rake/tips reduce comeback EV.  
-- Check–check SRPs: populations surrender often; add probe_turns. Why: low-cost capture of forfeit equity.  
+- chk-chk SRPs: populations surrender often; add probe_turns. Why: low-cost capture of forfeit equity.  
 - Under-bluffed polar rivers: default fold vs big_bet_75 without blockers; as PFA, reserve triple_barrel_scare for scare cards with strong blockers. Why: live pools lack enough bluffs and tips/drop punish thin heroing.  
 - Seat/table selection tie-in: prefer soft/fast tables in time games; avoid slow/nitty drop games; tokens unchanged. Why: EV/hour driver is cadence and opponent quality.  
 - Exploit gates: tag overfold_exploit only after persistent evidence (repetition), not off one orbit. Why: avoid false positives in noisy live data.
@@ -34,7 +34,7 @@ Mini example
 - Time game with single straddle. SB 2.0bb open into straddle; BB observes repeated fast folds → selectively 3bet_oop_12bb with A5s (evidence-gated). SRP later checks through on Q72r; next orbit you add probe_turns on safe turns.
 
 Common mistakes
-Chasing promos with off-tree sizes; over-calling thin rivers despite tipping tax; confusing probe_turns (after chk–chk) with leads; refusing to fold to big_bet_75 without blockers; tagging overfold_exploit after one hand; ignoring multiway drop effects and firing thin bluffs.
+Chasing promos with off-tree sizes; over-calling thin rivers despite tipping tax; confusing probe_turns (after chk-chk) with leads; refusing to fold to big_bet_75 without blockers; tagging overfold_exploit after one hand; ignoring multiway drop effects and firing thin bluffs.
 
 Mini-glossary
 Drop: per-pot rake taken from the pot, usually stepped/capped.  

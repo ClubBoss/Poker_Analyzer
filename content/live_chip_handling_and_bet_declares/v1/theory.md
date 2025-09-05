@@ -14,7 +14,7 @@ Rules of thumb
 * out_of_turn happens. Freeze, let action back up, re-evaluate texture, keep the family, do not escalate sizing. Why: preserve plan integrity.
 * Side pot setup. When all-ins create side pots, confirm amounts verbally. Postflop, stick to the chosen family. Why: clarity enables half_pot_50 merged value or small_cbet_33 denial as intended.
 * Pot size requests. Ask at the right time; decide the family first to avoid anchoring into off-tree sizes. Why: keeps 33/50/75 discipline.
-* Show-order. Use bettor_shows_first / first_active_left_of_btn_shows to bank info; later, probe_turns when ranges cap after check-check. Why: converts procedure into token edges.
+* Show-order. Use bettor_shows_first / first_active_left_of_btn_shows to bank info; later, probe_turns when ranges cap after chk-chk. Why: converts procedure into token edges.
 * River discipline. Tank→big is often under-bluffed live; fold without blockers. As the aggressor on scare rivers with blockers, use triple_barrel_scare. Why: population tendency.
 * Multiway etiquette. In limp-heavy pots, favor half_pot_50 merged value and size_down_dry thin value; cut pure bluffs. Why: multiway realization.
 * Verbal_binding protects intent. Say “half” or “seventy-five” clearly; then execute the family. Why: eliminates mis-sizes and rulings.

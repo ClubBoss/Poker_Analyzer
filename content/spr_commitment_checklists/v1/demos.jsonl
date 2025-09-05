@@ -1,0 +1,3 @@
+{"id": "spr_commitment_checklists:demo:01", "spot_kind": "l2_core_rules_check", "steps": ["3BP IP on JT9ss -> size_up_wet", "Default turn size -> half_pot_50", "Nut blocker + Turn Fv75 up + passes commitment -> Token: big_bet_75"]}
+{"id": "spr_commitment_checklists:demo:02", "spot_kind": "l2_core_rules_check", "steps": ["SRP OOP on K72r -> size_down_dry -> small_cbet_33", "Mid SPR vs raise-prone IP -> Token: delay_turn", "River facing polar 75 without blockers -> Token: fold"]}
+{"id": "spr_commitment_checklists:demo:03", "spot_kind": "l2_core_rules_check", "steps": ["SRP flop checks through -> Sequence: chk-chk", "Safe turn vs capped range -> Token: probe_turns", "Later turn without blockers/evidence -> Token: half_pot_50"]}

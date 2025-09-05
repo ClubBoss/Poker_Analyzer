@@ -3,7 +3,7 @@ delay_turn means you check back the flop in position, then bet the turn. probe_t
 
 [[IMAGE: delay_vs_cbet_map | Board classes: immediate c-bet vs delay]]
 [[IMAGE: probe_turns_windows | Probe frequency by turn cards]]
-[[IMAGE: delay_probe_lines | Lines: check-check -> probe / check-back -> delay]]
+[[IMAGE: delay_probe_lines | Lines: chk-chk -> probe / check-back -> delay]]
 
 Why it matters
 Many pools over-defend flops versus tiny bets, then overfold turns. Others check back too many ace-highs and marginal top pairs. Delayed and probe lines exploit this: you invest when equity and credibility improve, avoid bloating flops on bad textures, and steer SPR so rivers are cleaner.

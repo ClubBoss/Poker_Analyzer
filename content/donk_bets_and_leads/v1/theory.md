@@ -10,7 +10,7 @@ Rules of thumb
 * Flop donk, dynamic (986ss, JT9s): lead selectively when OOP holds many strong draws/2p/sets. Default half_pot_50; upgrade to big_bet_75 only with blockers plus proven overfolds - size_up_wet. Why: leverage plus blocker support.
 * Turn lead after call on range-shift cards (pairing second pair, completing straight/flush that favors OOP): prefer half_pot_50; go big_bet_75 with top blockers or clear fold-vs-size splits. Why: tax equity-heavy IP continues.
 * Versus raise-happy IP: reduce leading frequency; favor protect_check_range on flop and delay_turn with medium strength. Why: avoid getting blown off equity.
-* Probe vs lead distinction: if flop went check-check, the turn bet is probe_turns (not a lead). If IP c-bet flop and you called, a turn bet is a lead. Why: sequence dictates label and pool response.
+* Probe vs lead distinction: if flop went chk-chk, the turn bet is probe_turns (not a lead). If IP c-bet flop and you called, a turn bet is a lead. Why: sequence dictates label and pool response.
 * Population exploits: in anonymous/fastfold pools, donk bluffs underperform; fold rivers vs big_bet_75 without blockers. Reserve overfold_exploit for preflop only with persistent evidence. Why: under-bluffed polar nodes and quick surrenders.
 * No off-tree bets: sizes are 33/50/75 only, mapped via size_down_dry or size_up_wet. Why: consistency under pressure.
 
@@ -25,7 +25,7 @@ Common mistakes
 
 * Leading medium strength into raise-happy IP. Fix: use protect_check_range and delay_turn.
 * Polar 75% on dry flops. Fix: size_down_dry with small_cbet_33; save big_bet_75 for size_up_wet with blockers.
-* Treating probes as leads. Fix: only call it a lead after facing a flop bet and calling; check-check turns are probe_turns.
+* Treating probes as leads. Fix: only call it a lead after facing a flop bet and calling; chk-chk turns are probe_turns.
 * Off-tree sizing. Fix: never leave 33/50/75.
 * Over-bluffing donks in anonymous pools. Fix: default discipline; fold rivers vs big_bet_75 without blockers.
 * Ignoring blockers on big turn leads. Fix: choose big_bet_75 only with strong blockers or fold spikes.

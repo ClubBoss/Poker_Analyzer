@@ -31,3 +31,5 @@ overfold_exploit: Intentional pressure where pools fold too much, often on turns
 
 Contrast
 Unlike deep-stacked cash, short-stack MTT play compresses ranges and forces commitment earlier. You map preflop to shove/reshove families, default to small_cbet_33 on dry, and reserve big_bet_75 for size_up_wet with real equity; most thin lines vanish at low SPR.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

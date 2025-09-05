@@ -38,3 +38,5 @@ overfold_exploit: pool tendency to overfold turns when pressure and coverage ali
 
 Contrast
 Compared to chips-EV deep-stack play, advanced ICM endgame favors jam-first preflop, tighter call-offs when covered, fewer bluffs, and pressure timed by coverage and blockers rather than pure equity.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

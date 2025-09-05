@@ -21,7 +21,7 @@ Full-ring specifics
 EP vs 3-bet: Default to value defense; IP 3-bets narrower. With premiums, prefer 4bet_ip_21bb.
 CO/BTN vs blinds: Widen selectively with blockers using 3bet_ip_9bb / 3bet_oop_12bb; adopt overfold_exploit only after repeated fast folds.
 Multiway postflop: On static boards, size_down_dry with small_cbet_33 or thin half_pot_50; on dynamic boards, size_up_wet with half_pot_50, upgrade to big_bet_75 only with blockers and clear fold-vs-size evidence; keep protect_check_range.
-Blind-vs-Blind: More capped nodes -> probe_turns after check-check; stay within families, no new bets.
+Blind-vs-Blind: More capped nodes -> probe_turns after chk-chk; stay within families, no new bets.
 River discipline: Under-bluffed polar nodes -> fold vs big_bet_75 without blockers; attack only with triple_barrel_scare when blockers + scare.
 
 [[IMAGE: fr_position_pressure_map | Full-ring: positions -> pressure & tokens]]
@@ -33,7 +33,7 @@ EP raises, you 4bet_ip_21bb with QQ (full ring, low 4-bet field). Heads-up flop 
 CO steals; blinds overfold shown across orbits. BTN uses 3bet_ip_9bb with A5s (overfold_exploit). Single-raised pot checks through on T83r; on 6x turn vs surrendering field: probe_turns.
 
 Common mistakes
-Off-tree sizing in multiway pots; over-bluffing dynamic turns without blockers; hero-calling polar rivers; skipping protect_check_range OOP; confusing probe_turns (after check-check) with turn leads (after calling a c-bet).
+Off-tree sizing in multiway pots; over-bluffing dynamic turns without blockers; hero-calling polar rivers; skipping protect_check_range OOP; confusing probe_turns (after chk-chk) with turn leads (after calling a c-bet).
 
 Mini-glossary
 Multiway: 3+ players, bluff EV down, merged value up.

@@ -35,3 +35,5 @@ Squeeze: 3-bet over open+caller to avoid dominated multiway (3bet_oop_12bb / 3be
 
 Contrast
 Unlike deep-start entries, late-reg favors shove/reshove proxies, fewer OOP flats, and two-street pressure. Versus PKO, only the coverage-driven call-off deltas shift; your sizing families and risk control remain the same.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

@@ -36,3 +36,5 @@ Call-off: committing your stack versus an all-in; ultra-tight when covered.
 
 Contrast
 Unlike chips-EV MTT or PKO, satellites weight survival over chip gain. Jam-first preflop and risk-controlled postflop dominate; thin edges, splashy multiway flats, and big polar bets are mostly removed unless they clearly lock a seat.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
