@@ -28,7 +28,7 @@ Live overlay integration
 [[IMAGE: live_rake_models_map | Time vs drop vs tips -> frequency levers]]
 ![Time vs drop vs tips -> frequency levers](images/live_rake_models_map.svg)
 [[IMAGE: family_picker_under_drop | Texture (dry/wet) x drop/time -> 33/50/75 stays fixed]]
-![Texture (dry/wet) × drop/time -> 33/50/75 stays fixed](images/family_picker_under_drop.svg)
+![Texture (dry/wet) x drop/time -> 33/50/75 stays fixed](images/family_picker_under_drop.svg)
 ![Texture (dry/wet) x drop/time -> 33/50/75 stays fixed](images/family_picker_under_drop.svg)
 [[IMAGE: river_tax_and_discipline | Tipping + drop → river fold discipline flow]]
 ![Tipping + drop → river fold discipline flow](images/river_tax_and_discipline.svg)

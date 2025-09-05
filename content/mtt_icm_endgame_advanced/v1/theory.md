@@ -2,7 +2,7 @@ What it is
 Advanced ICM endgame covers bubble, pre-FT jumps, and full FT down to 3-handed. Chips do not equal cash; busting is costly. Coverage asymmetry rules: big stacks apply pressure, medium stacks carry the highest risk premium, and short stacks choose clean shove/call-off trees.
 
 [[IMAGE: icm_endgame_pressure_map | Risk premium by stack/position (bubble, FT 9->3, 3-5 handed)]]
-![Risk premium by stack/position (bubble, FT 9->3, 3–5 handed)](images/icm_endgame_pressure_map.svg)
+![Risk premium by stack/position (bubble, FT 9->3, 3-5 handed)](images/icm_endgame_pressure_map.svg)
 ![Risk premium by stack/position (bubble, FT 9->3, 3-5 handed)](images/icm_endgame_pressure_map.svg)
 [[IMAGE: endgame_shove_call_ladders | Shove/reshove/call-off ladders by seat and coverage]]
 ![Shove/reshove/call-off ladders by seat and coverage](images/endgame_shove_call_ladders.svg)

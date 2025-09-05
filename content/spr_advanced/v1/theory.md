@@ -21,7 +21,7 @@ Rules of thumb
 [[IMAGE: ladder_to_spr_map | 9/12/21/24 ladders -> typical SPR bands]]
 ![9/12/21/24 ladders -> typical SPR bands](images/ladder_to_spr_map.svg)
 [[IMAGE: spr_texture_matrix_advanced | TexturexSPR with blocker gates]]
-![Texture×SPR with blocker gates](images/spr_texture_matrix_advanced.svg)
+![TexturexSPR with blocker gates](images/spr_texture_matrix_advanced.svg)
 ![TexturexSPR with blocker gates](images/spr_texture_matrix_advanced.svg)
 
 Mini example
