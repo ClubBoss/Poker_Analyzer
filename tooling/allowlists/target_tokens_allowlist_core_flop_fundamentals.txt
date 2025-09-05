@@ -1,13 +1,6 @@
+big_bet_75
 call
-cbet_big
-cbet_small
-check_back
-delay_cbet
-donk_bet
-float_call
+delay_turn
 fold
-nut_advantage
-probe_bet
-raise
-raise_flop
-range_advantage
+probe_turns
+small_cbet_33
