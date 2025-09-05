@@ -2,8 +2,11 @@ What it is
 This module is a repeatable study pipeline that turns played hands into stable, tokenized adjustments. Steps: collect hands → tag quick signals → pick review spots → run a compact solver baseline (preflop ladders and 33/50/75 only) → optional single‑variable node lock → convert outputs to tokens → build drills → track KPIs → close the loop next session. All actions stay within: 3bet_ip_9bb, 3bet_oop_12bb, 4bet_ip_21bb, 4bet_oop_24bb, small_cbet_33, half_pot_50, big_bet_75, size_up_wet, size_down_dry, protect_check_range, delay_turn, probe_turns, double_barrel_good, triple_barrel_scare, call, fold, overfold_exploit.
 
 [[IMAGE: study_pipeline_map | From hand import -> tag -> solver -> token]]
+![From hand import -> tag -> solver -> token](images/study_pipeline_map.svg)
 [[IMAGE: kpi_review_dashboard | Weekly KPIs and leak radar]]
+![Weekly KPIs and leak radar](images/kpi_review_dashboard.svg)
 [[IMAGE: hand_to_drill_flow | How a spot becomes a spaced drill]]
+![How a spot becomes a spaced drill](images/hand_to_drill_flow.svg)
 
 Why it matters
 Systemized review improves EV/hour far more than ad‑hoc browsing. A single compact tree produces consistent decisions under pressure: physics first (board texture picks the size family), reads second (frequency shifts). The loop converts insights into drills and KPIs so they survive into real play and scale to more tables without inventing new sizes.
@@ -23,7 +26,7 @@ Rules of thumb
 Mini example
 Flagged hand 1: HU 100bb, SRP K72r IP. Baseline: size_down_dry → small_cbet_33 at high frequency; EV gap to check is small, so some mixing is fine. Turn 3h: database shows elevated turn‑raise%; choose delay_turn more with medium Kx to avoid getting raised off equity. River on Qc: facing big_bet_75 without helpful blockers is a fold; with better blockers, call more.
 Flagged hand 2: HU 60bb, 3‑bet pot JT9ss OOP after 3bet_oop_12bb. Baseline: size_up_wet prefers pressure; lock sweep shows Fold vs Turn 75% rises on straightening turns, so double_barrel_good with big_bet_75 increases EV. If the lock advantage persists across reasonable ranges, tag overfold_exploit for this texture family.
-Conversion: For each case, create a drill: (i) choose size family by texture, (ii) pick the continuation token, (iii) add one KPI tick (e.g., “missed probe_turns” if you failed to stab after check‑check).
+Conversion: For each case, create a drill: (i) choose size family by texture, (ii) pick the continuation token, (iii) add one KPI tick (e.g., "missed probe_turns" if you failed to stab after check‑check).
 
 Common mistakes
 * Overbuilt trees with too many sizes. Fix: ladders + 33/50/75 only.
@@ -31,7 +34,7 @@ Common mistakes
 * Reading frequency without EV context. Fix: select the highest‑EV token and allow small mixes when deltas are tiny.
 * Inventing off‑tree sizes. Fix: stay with small_cbet_33, half_pot_50, big_bet_75.
 * Skipping blockers on rivers. Fix: fold more to polar big bets without blockers; triple_barrel_scare only with strong blockers on credible scare cards.
-* Ignoring realization. Fix: call thresholds rise OOP; prefer initiative or fold marginal spots instead of “close” calls.
+* Ignoring realization. Fix: call thresholds rise OOP; prefer initiative or fold marginal spots instead of "close" calls.
 
 Mini-glossary
 Baseline: the unlocked equilibrium for your compact tree.
@@ -43,3 +46,10 @@ Token set: the fixed actions used in training and execution (preflop ladders, 33
 
 Contrast
 math_solver_basics teaches reading a baseline; solver_node_locking_basics teaches running locks. This module unifies both into a weekly workflow that outputs drills and KPI targets while preserving the same token set and size families.
+
+See also
+- exploit_advanced (score 31) → ../../exploit_advanced/v1/theory.md
+- icm_final_table_hu (score 31) → ../../icm_final_table_hu/v1/theory.md
+- live_etiquette_and_procedures (score 31) → ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 31) → ../../live_full_ring_adjustments/v1/theory.md
+- live_session_log_and_review (score 31) → ../../live_session_log_and_review/v1/theory.md

@@ -1,0 +1,23 @@
+module: live_floor_calls_and_dispute_resolution
+images:
+  - slug: floor_calls_matrix
+    caption: "Common rulings -> token frequency shifts"
+    engine: unknown
+    src: ""
+    out: images/floor_calls_matrix.svg
+    status: done
+    notes: ""
+  - slug: show_order_flow
+    caption: "Show order -> probe/discipline planner"
+    engine: unknown
+    src: ""
+    out: images/show_order_flow.svg
+    status: done
+    notes: ""
+  - slug: enforcement_spectrum
+    caption: "Strict vs loose enforcement -> protect/delay mix"
+    engine: unknown
+    src: ""
+    out: images/enforcement_spectrum.svg
+    status: done
+    notes: ""

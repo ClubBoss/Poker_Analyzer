@@ -1,0 +1,23 @@
+module: math_icm_advanced
+images:
+  - slug: icm_bubble_pressure_matrix
+    caption: "Bubble factors by stack matchup"
+    engine: unknown
+    src: ""
+    out: images/icm_bubble_pressure_matrix.svg
+    status: done
+    notes: ""
+  - slug: icm_endgame_stack_leverage
+    caption: "CL vs medium vs short leverage"
+    engine: unknown
+    src: ""
+    out: images/icm_endgame_stack_leverage.svg
+    status: done
+    notes: ""
+  - slug: icm_advanced_postflop_map
+    caption: "Safer postflop sizes and blockers under ICM"
+    engine: unknown
+    src: ""
+    out: images/icm_advanced_postflop_map.svg
+    status: done
+    notes: ""

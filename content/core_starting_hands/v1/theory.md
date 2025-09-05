@@ -1,6 +1,9 @@
 [[IMAGE: position_wheel | 6-max positions]]
+![6-max positions](images/position_wheel.svg)
 [[IMAGE: starting_ranges_grid | Default opening ranges (6-max)]]
+![Default opening ranges (6-max)](images/starting_ranges_grid.svg)
 [[IMAGE: blocker_3bet_tree | Blocker-based 3-bet/4-bet map]]
+![Blocker-based 3-bet/4-bet map](images/blocker_3bet_tree.svg)
 
 What it is
 This module defines strong and playable starting hands in 6-max Hold'em and how to use them by seat. You will learn sensible opening ranges by position, the difference between value 3-bets and blocker 3-bet/4-bet bluffs, when suited connectors and small pairs earn value, and how blockers shape bluff frequency (e.g., A5s removing AA/AK).
@@ -32,4 +35,13 @@ Suited connectors (SCs): Sequential suited hands (98s, T9s) that make strong dra
 4-bet: A raise over a 3-bet; often strong value, with a few blocker bluffs in late-position battles.
 
 Contrast
-Unlike core_positions_and_initiative, which centers on seat and who has the betting lead, this module focuses on which hands to open, 3-bet, or 4-bet from each seat and why.
+Unlike core_positions_and_initiative, which centers on seat and who has the betting probe_turns, this module focuses on which hands to open, 3-bet, or 4-bet from each seat and why.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- cash_short_handed (score 8) → ../../cash_short_handed/v1/theory.md
+- core_rules_and_setup (score 8) → ../../core_rules_and_setup/v1/theory.md
+- core_turn_fundamentals (score 8) → ../../core_turn_fundamentals/v1/theory.md
+- hand_review_and_annotation_standards (score 8) → ../../hand_review_and_annotation_standards/v1/theory.md
+- hu_exploit_adv (score 8) → ../../hu_exploit_adv/v1/theory.md

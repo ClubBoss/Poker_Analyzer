@@ -1,0 +1,23 @@
+module: cash_squeeze_strategy
+images:
+  - slug: squeeze_spots_tree
+    caption: "Squeeze vs flat decision tree"
+    engine: unknown
+    src: ""
+    out: images/squeeze_spots_tree.svg
+    status: done
+    notes: ""
+  - slug: squeeze_sizes_by_positions
+    caption: "Sizing ladder by callers"
+    engine: unknown
+    src: ""
+    out: images/squeeze_sizes_by_positions.svg
+    status: done
+    notes: ""
+  - slug: squeeze_spr_map
+    caption: "SPR after squeeze call"
+    engine: unknown
+    src: ""
+    out: images/squeeze_spr_map.svg
+    status: done
+    notes: ""

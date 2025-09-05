@@ -1,0 +1,23 @@
+module: online_hudless_strategy_and_note_coding
+images:
+  - slug: hudless_tags_grid
+    caption: "Minimal HUD-less tag codes mapped to actions"
+    engine: unknown
+    src: ""
+    out: images/hudless_tags_grid.svg
+    status: done
+    notes: ""
+  - slug: signal_to_token_flow
+    caption: "From live read -> frequency shift -> token"
+    engine: unknown
+    src: ""
+    out: images/signal_to_token_flow.svg
+    status: done
+    notes: ""
+  - slug: confidence_tiers
+    caption: "Weak/Medium/Strong repetition lanes"
+    engine: unknown
+    src: ""
+    out: images/confidence_tiers.svg
+    status: done
+    notes: ""

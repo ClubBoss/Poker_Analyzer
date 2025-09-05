@@ -1,0 +1,23 @@
+module: math_intro_basics
+images:
+  - slug: math_pot_odds_wheel
+    caption: "Quick reference: pot odds by bet size"
+    engine: unknown
+    src: ""
+    out: images/math_pot_odds_wheel.svg
+    status: done
+    notes: ""
+  - slug: math_ev_flow
+    caption: "EV flow from inputs to action"
+    engine: unknown
+    src: ""
+    out: images/math_ev_flow.svg
+    status: done
+    notes: ""
+  - slug: math_blockers_grid
+    caption: "Blocker effects on combos at a glance"
+    engine: unknown
+    src: ""
+    out: images/math_blockers_grid.svg
+    status: done
+    notes: ""

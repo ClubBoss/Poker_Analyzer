@@ -2,11 +2,13 @@ What it is
 This module teaches fast combo counting and blocker logic for Heads-Up. You will count combos at a glance and turn removal effects into clear actions using only: 3bet_ip_9bb, 3bet_oop_12bb, 4bet_ip_21bb, 4bet_oop_24bb, small_cbet_33, half_pot_50, big_bet_75, size_up_wet, size_down_dry, protect_check_range, delay_turn, probe_turns, double_barrel_good, triple_barrel_scare, call, fold, overfold_exploit.
 
 [[IMAGE: blockers_fast_grid | Quick combo blocks for pairs, suited, and offsuit]]
+![Quick combo blocks for pairs, suited, and offsuit](images/blockers_fast_grid.svg)
 
 Why it matters
 Blockers change the ratio of value to bluffs. Knowing what you remove improves bluff timing, tightens calls when you block bluffs, and expands thin value when you do not. Small edges compound and make lines harder to exploit.
 
 [[IMAGE: removal_to_action | From removal counts to betting actions]]
+![From removal counts to betting actions](images/removal_to_action.svg)
 
 Rules of thumb
 
@@ -18,6 +20,7 @@ Rules of thumb
 * Mapping to actions: size_up_wet with big_bet_75 when you do not block folds and you block calls; size_down_dry or delay_turn when you block calls; protect_check_range to avoid capped nodes; probe_turns when IP checks and turn favors you; double_barrel_good on improving turns; triple_barrel_scare with key blockers; overfold_exploit when pools fold too much.
 
 [[IMAGE: river_scare_blockers | River scare cards and which blockers to bluff with]]
+![River scare cards and which blockers to bluff with](images/river_scare_blockers.svg)
 
 Mini example
 UTG, MP, CO not seated. BTN is SB. BB posts 1bb. 100bb effective.
@@ -37,3 +40,10 @@ Pair removal: value shrinkage on paired boards that shifts you toward size_down_
 
 Contrast
 Math_pot_odds_equity focuses on prices; this module focuses on how blockers and removal change value-to-bluff ratios and size choices.
+
+See also
+- live_special_formats_straddle_bomb_ante (score 29) → ../../live_special_formats_straddle_bomb_ante/v1/theory.md
+- cash_short_handed (score 27) → ../../cash_short_handed/v1/theory.md
+- hand_review_and_annotation_standards (score 27) → ../../hand_review_and_annotation_standards/v1/theory.md
+- hu_exploit_adv (score 27) → ../../hu_exploit_adv/v1/theory.md
+- icm_final_table_hu (score 27) → ../../icm_final_table_hu/v1/theory.md

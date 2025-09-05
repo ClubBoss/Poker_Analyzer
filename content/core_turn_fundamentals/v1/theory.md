@@ -1,7 +1,10 @@
 content/core_turn_fundamentals/v1/theory.md
 [[IMAGE: turn_equity_shift_examples | Turn equity shifts (e.g., A on K72, 3 on 964)]]
+![Turn equity shifts (e.g., A on K72, 3 on 964)](images/turn_equity_shift_examples.svg)
 [[IMAGE: turn_sizing_tree | Turn sizing choices: small vs big]]
+![Turn sizing choices: small vs big](images/turn_sizing_tree.svg)
 [[IMAGE: pot_geometry_spr_chart | Pot geometry and target SPR on river]]
+![Pot geometry and target SPR on river](images/pot_geometry_spr_chart.svg)
 
 What it is
 This module covers turn play: when to fire a second barrel, how equity shifts change strategy, how blockers guide bluffing, and how pot geometry sets up the river. You will learn to choose sizes, plan two-street lines, and avoid automatic double-barrels.
@@ -32,3 +35,12 @@ Pot geometry: Planning sizes across streets to target a desired river SPR and ac
 
 Contrast
 Unlike core_flop_fundamentals, which sets flop baselines, this module focuses on turn cards that change equities, selecting bluffs with blockers, and sizing to shape river outcomes.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- core_flop_fundamentals (score 12) → ../../core_flop_fundamentals/v1/theory.md
+- cash_3bet_oop_playbook (score 10) → ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 10) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_blind_vs_blind (score 10) → ../../cash_blind_vs_blind/v1/theory.md
+- cash_fourbet_pots (score 10) → ../../cash_fourbet_pots/v1/theory.md

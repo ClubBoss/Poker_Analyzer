@@ -2,8 +2,11 @@ What it is
 Late registration strategy is how you enter 9-max MTTs mid-event and play from 20-45bb stacks. You weigh seat draw quality, who covers whom (coverage), field tendencies, and time remaining. Your ranges, sizings, and postflop lines tighten when covered and expand when you cover weaker stacks.
 
 [[IMAGE: late_reg_entry_bands_map | Entry stack bands and decisions (20-45bb)]]
+![Entry stack bands and decisions (20-45bb)](images/late_reg_entry_bands_map.svg)
 [[IMAGE: late_reg_ev_toggles | EV toggles: coverage, field tightness, time remaining]]
+![EV toggles: coverage, field tightness, time remaining](images/late_reg_ev_toggles.svg)
 [[IMAGE: late_reg_postflop_flows | Low-SPR lines after late-reg entry]]
+![Low-SPR lines after late-reg entry](images/late_reg_postflop_flows.svg)
 
 Why it matters
 Late-reg changes your equity sources. You skip deep-stack edges, but you gain higher blinds and antes that reward clean preflop trees and two-street pressure. Bad flats OOP create dominated, low-SPR hands versus stronger fields. Coverage asymmetry and table composition can swing EV more than card quality at the margins.
@@ -35,3 +38,12 @@ Squeeze: 3-bet over open+caller to avoid dominated multiway (3bet_oop_12bb / 3be
 
 Contrast
 Unlike deep-start entries, late-reg favors shove/reshove proxies, fewer OOP flats, and two-street pressure. Versus PKO, only the coverage-driven call-off deltas shift; your sizing families and risk control remain the same.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- hand_review_and_annotation_standards (score 27) → ../../hand_review_and_annotation_standards/v1/theory.md
+- live_etiquette_and_procedures (score 27) → ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 27) → ../../live_full_ring_adjustments/v1/theory.md
+- live_speech_timing_basics (score 27) → ../../live_speech_timing_basics/v1/theory.md
+- online_hud_and_db_review (score 27) → ../../online_hud_and_db_review/v1/theory.md

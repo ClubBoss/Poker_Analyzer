@@ -1,0 +1,9 @@
+module: program_catalog
+images:
+  - slug: overview_diagram
+    caption: "Overview diagram"
+    engine: unknown
+    src: ""
+    out: images/overview_diagram.svg
+    status: done
+    notes: ""

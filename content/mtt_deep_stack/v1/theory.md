@@ -2,8 +2,11 @@ What it is
 Deep-stack MTT play covers 50-100bb effective on 9-max tables. Higher SPR lets you flat more IP, value-bet thinner, and pressure turns and rivers with credible stories. Early seats remain tighter; OOP flats risk multiway, so prefer proactive 3-bet trees.
 
 [[IMAGE: deep_stack_phase_map | 50-100bb decisions by position]]
+![50-100bb decisions by position](images/deep_stack_phase_map.svg)
 [[IMAGE: preflop_4bet_mix_windows | Value/bluff 4-bet mixes and blockers]]
+![Value/bluff 4-bet mixes and blockers](images/preflop_4bet_mix_windows.svg)
 [[IMAGE: deep_spr_postflop_flows | C-bet, check, raise, and pressure windows]]
+![C-bet, check, raise, and pressure windows](images/deep_spr_postflop_flows.svg)
 
 Why it matters
 Antes inflate pots; deeper stacks magnify mistakes across two or three streets. The pool under-4bets, over-defends flop, then overfolds turns and some scare rivers. Clean ladders (3bet_ip_9bb, 3bet_oop_12bb, 4bet_ip_21bb, 4bet_oop_24bb) plus disciplined postflop sizing convert that into chips.
@@ -37,3 +40,10 @@ overfold_exploit: Node tag where population folds too much; bias pressure.
 
 Contrast
 Compared to mid-stack (25-50bb), deep-stack increases IP flats and river play while demanding tighter OOP discipline. Versus cash, antes keep pots larger, so seize initiative with 3-bets and plan flop+turn pressure rather than bloated rivers.
+
+See also
+- live_chip_handling_and_bet_declares (score 31) → ../../live_chip_handling_and_bet_declares/v1/theory.md
+- cash_short_handed (score 29) → ../../cash_short_handed/v1/theory.md
+- donk_bets_and_leads (score 29) → ../../donk_bets_and_leads/v1/theory.md
+- hand_review_and_annotation_standards (score 29) → ../../hand_review_and_annotation_standards/v1/theory.md
+- icm_final_table_hu (score 29) → ../../icm_final_table_hu/v1/theory.md

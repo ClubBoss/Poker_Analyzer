@@ -54,3 +54,7 @@ coverage/
 
 .fvm/
 *.zip
+.venv/
+build/
+.dart_tool/
+

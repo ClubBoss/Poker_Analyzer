@@ -1,0 +1,23 @@
+module: mtt_icm_basics
+images:
+  - slug: icm_pressure_map
+    caption: "Risk premium by stacks/positions (bubble, pre-FT, FT)"
+    engine: unknown
+    src: ""
+    out: images/icm_pressure_map.svg
+    status: done
+    notes: ""
+  - slug: icm_calloff_ladders
+    caption: "Shove/call-off ladders by seat and stack"
+    engine: unknown
+    src: ""
+    out: images/icm_calloff_ladders.svg
+    status: done
+    notes: ""
+  - slug: icm_postflop_geometry
+    caption: "SPR control and risk management under ICM"
+    engine: unknown
+    src: ""
+    out: images/icm_postflop_geometry.svg
+    status: done
+    notes: ""

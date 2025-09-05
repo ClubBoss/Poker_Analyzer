@@ -1,0 +1,23 @@
+module: core_note_taking
+images:
+  - slug: note_tokens
+    caption: "Short tags and tokens"
+    engine: unknown
+    src: ""
+    out: images/note_tokens.svg
+    status: done
+    notes: ""
+  - slug: capture_to_review
+    caption: "From capture to review"
+    engine: unknown
+    src: ""
+    out: images/capture_to_review.svg
+    status: done
+    notes: ""
+  - slug: lineup_notes
+    caption: "Table and player notes map"
+    engine: unknown
+    src: ""
+    out: images/lineup_notes.svg
+    status: done
+    notes: ""

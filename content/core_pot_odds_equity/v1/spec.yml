@@ -1,0 +1,23 @@
+module: core_pot_odds_equity
+images:
+  - slug: pot_odds_formula_card
+    caption: "Pot odds vs equity"
+    engine: unknown
+    src: ""
+    out: images/pot_odds_formula_card.svg
+    status: done
+    notes: ""
+  - slug: rule_2_4_cheatsheet
+    caption: "Rule of 2 and 4"
+    engine: unknown
+    src: ""
+    out: images/rule_2_4_cheatsheet.svg
+    status: done
+    notes: ""
+  - slug: implied_vs_reverse_graph
+    caption: "Implied vs reverse implied odds"
+    engine: unknown
+    src: ""
+    out: images/implied_vs_reverse_graph.svg
+    status: done
+    notes: ""

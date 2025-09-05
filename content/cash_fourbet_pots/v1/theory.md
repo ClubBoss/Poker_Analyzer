@@ -2,8 +2,11 @@ What it is
 This module explains strategy for 4-bet pots in 6-max NLHE cash. You will standardize 4-bet sizes (~22bb versus 9/11bb 3-bets after 2.2-2.5bb opens, typical online), pick IP vs OOP range shapes, and plan postflop size families (33/50/75/125) around low SPR geometry. The goal is clean commitment bands, disciplined bluff selection, and texture-aware pressure.
 
 [[IMAGE: fourbet_size_ladder | 3-bet/4-bet size ladder and resulting SPR]]
+![3-bet/4-bet size ladder and resulting SPR](images/fourbet_size_ladder.svg)
 [[IMAGE: spr_bands_fourbet | Typical SPR after 4-bet call by position]]
+![Typical SPR after 4-bet call by position](images/spr_bands_fourbet.svg)
 [[IMAGE: texture_pressure_map_4bp | Boards favoring small vs big c-bets in 4-bet pots]]
+![Boards favoring small vs big c-bets in 4-bet pots](images/texture_pressure_map_4bp.svg)
 
 Why it matters
 4-bet pots run at low SPR (often ~1.6-2.2), so one or two bets decide stacks. Rake impact is smaller relative to pot, which magnifies both good value bets and bad calls. Clear preflop trees prevent loose OOP flats and curb over-bluffed IP lines. Good blockers and geometry planning turn fold equity into chips while protecting your stack when ranges are tight.
@@ -33,3 +36,12 @@ Blocker: A card that reduces opponent strong combos (e.g., Ax blocks AA/AK).
 
 Contrast
 Compared to cash_threebet_pots and cash_single_raised_pots, 4-bet pots start with lower SPR, tighter nut concentration, and clearer stack-off bands, so size discipline and blocker-driven decisions matter even more.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- hand_review_and_annotation_standards (score 21) → ../../hand_review_and_annotation_standards/v1/theory.md
+- live_chip_handling_and_bet_declares (score 21) → ../../live_chip_handling_and_bet_declares/v1/theory.md
+- mtt_deep_stack (score 21) → ../../mtt_deep_stack/v1/theory.md
+- cash_population_exploits (score 19) → ../../cash_population_exploits/v1/theory.md
+- cash_short_handed (score 19) → ../../cash_short_handed/v1/theory.md

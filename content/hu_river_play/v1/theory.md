@@ -2,8 +2,11 @@ What it is
 Heads-Up river play is the last betting decision after single-raised or 3-bet pots. You choose between thin value, bluffs, and bluff-catches using blocker logic: block value, unblock bluffs. You weigh capped vs uncapped ranges and pick disciplined sizes: size_down_dry for thin value on static boards, half_pot_50 for balanced value/bluff, and big_bet_75 for polar pressure. You also decide when to triple_barrel_scare and when to protect_check_range so you are not blown off equity.
 
 [[IMAGE: hu_river_blocker_map | Blocking value vs unblocking bluffs]]
+![Blocking value vs unblocking bluffs](images/hu_river_blocker_map.svg)
 [[IMAGE: hu_river_size_tree | Thin value vs polar size selection]]
+![Thin value vs polar size selection](images/hu_river_size_tree.svg)
 [[IMAGE: hu_river_cap_map | Capped vs uncapped range indicators]]
+![Capped vs uncapped range indicators](images/hu_river_cap_map.svg)
 
 Why it matters
 The river has the highest price per mistake. Pools overfold to big polar bets, under-bluff scary runouts, and call too wide versus half-pot on static boards. Clear rules keep your value bets called by worse, your bluffs chosen with the right blockers, and your bluff-catches selective and profitable.
@@ -13,7 +16,7 @@ Rules of thumb
 * Thin value on static boards: prefer size_down_dry on A-high or K-high rainbows and paired low runouts; move to half_pot_50 only when you beat many bluff-catchers and expect calls. Why: smaller sizing retains worse hands and avoids pricing out calls.
 * Polar pressure: use big_bet_75 when you are polar with nut advantage or key blockers, and reserve triple_barrel_scare for credible scare rivers that fit your story. Why: large bets demand leverage and blocker support to print folds.
 * Blocker discipline: bluff more when you block villain value and unblock bluffs; bluff-catch more when you block value and do not block bluffs. Why: blockers shift combos in your favor and raise EV on either side.
-* Capped vs uncapped: check back more when your range is capped and villain is uncapped; attack capped ranges after check-check lines on scary turns. Why: attacking uncapped ranges is costly; attacking capped ones is efficient.
+* Capped vs uncapped: check back more when your range is capped and villain is uncapped; attack capped ranges after chk-chk lines on scary turns. Why: attacking uncapped ranges is costly; attacking capped ones is efficient.
 * OOP defense and pool exploits: protect_check_range on rivers that invite stabs, and fold without blockers versus polar pressure. Tag overfold_exploit against opponents who overfold to big_bet_75. Why: protected checks defend vs probes; exploitative adjustments add EV.
 
 Mini example
@@ -35,3 +38,12 @@ bettor_shows_first, first_active_left_of_btn_shows, first_active_left_of_btn: sh
 
 Contrast
 Compared to turn play, river decisions rely more on blockers and range caps than equity growth; in HU you can polarize more often, but only when the story, blockers, and range advantage support the size, otherwise keep it thin and disciplined.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- cash_3bet_oop_playbook (score 17) → ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 17) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_overbets_and_blocker_bets (score 17) → ../../cash_overbets_and_blocker_bets/v1/theory.md
+- cash_turn_river_barreling (score 17) → ../../cash_turn_river_barreling/v1/theory.md
+- donk_bets_and_leads (score 17) → ../../donk_bets_and_leads/v1/theory.md

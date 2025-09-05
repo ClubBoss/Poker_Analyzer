@@ -1,0 +1,23 @@
+module: mtt_pko_advanced_bounty_routing
+images:
+  - slug: pko_routing_map
+    caption: "Jam / iso / overcall trees by coverage and stack depth"
+    engine: unknown
+    src: ""
+    out: images/pko_routing_map.svg
+    status: done
+    notes: ""
+  - slug: pko_multiway_sidepot
+    caption: "Side-pot geometry and bounty capture in multiway"
+    engine: unknown
+    src: ""
+    out: images/pko_multiway_sidepot.svg
+    status: done
+    notes: ""
+  - slug: pko_overlay_heuristics
+    caption: "Bounty overlay heuristics vs pot odds"
+    engine: unknown
+    src: ""
+    out: images/pko_overlay_heuristics.svg
+    status: done
+    notes: ""

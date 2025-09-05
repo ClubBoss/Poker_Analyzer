@@ -2,8 +2,11 @@ What it is
 This module explains cash-game rake models and how they affect stake selection and winrate math. You will learn percentage-with-cap rake, no flop no drop policies, time charge, and how rakeback changes your net results. The goal is to choose games and lines that win after fees.
 
 [[IMAGE: rake_models | % with cap, no flop no drop, time]]
+![% with cap, no flop no drop, time](images/rake_models.svg)
 [[IMAGE: rake_cap_curve | Cap makes big pots pay lower %]]
+![Cap makes big pots pay lower %](images/rake_cap_curve.svg)
 [[IMAGE: stake_selection_flow | Choose stakes by rake and edge]]
+![Choose stakes by rake and edge](images/stake_selection_flow.svg)
 
 Why it matters
 At small stakes, rake can be your biggest opponent. The structure of rake changes which hands are profitable, which tables are worth playing, and which stake your bankroll should target first. Understanding rake lets you pick games where your strategy converts edge into real profit. Smart selection compacts variance and raises true hourly.
@@ -38,3 +41,12 @@ Net winrate: Your winrate after subtracting rake and adding any rakeback or rewa
 
 Contrast
 Unlike core_bankroll_management, which sets bankroll cushions and stop-loss rules, this module helps you select stakes and tables where rake structure allows your edge to become real profit.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- cash_blind_defense (score 5) → ../../cash_blind_defense/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 5) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_blind_vs_blind (score 5) → ../../cash_blind_vs_blind/v1/theory.md
+- cash_isolation_raises (score 5) → ../../cash_isolation_raises/v1/theory.md
+- cash_limp_pots_systems (score 5) → ../../cash_limp_pots_systems/v1/theory.md

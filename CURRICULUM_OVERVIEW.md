@@ -78,7 +78,7 @@
 60. online_table_selection_and_multitabling — Селект и МТТинг.
 61. online_fastfold_pool_dynamics — Динамика fastfold.
 62. online_economics_rakeback_promos — Экономика/рейкбек.
-63. hudless_strategy_and_note_coding — Без HUD: код нотсов.
+63. online_hudless_strategy_and_note_coding — Без HUD: код нотсов.
 64. exploit_advanced — Продвинутые эксплойты.
 65. donk_bets_and_leads — Донк и лид.
 66. spr_basics — База SPR.
@@ -105,3 +105,22 @@
 - Добавляются флаги сценариев: has_straddle, bomb_ante, multi_limpers, announce_required, rake_type(time|drop), avg_stack_bb, table_speed.  
 - Активируются валидаторы процедур: string_bet, single_motion_raise_legal, bettor_shows_first, first_active_left_of_btn_shows.  
 - Структура модулей и SpotKind не дублируются.
+
+## Newly added modules (append-only)
+
+- online_notes_and_exploit_tracker — Трекер нотсов и эксплойтов онлайн.
+- study_review_handlab — Лаборатория разбора и разметки раздач.
+- bankroll_and_variance_management — Управление банкроллом и дисперсией.
+- mental_game_and_routines — Ментальные рутины и устойчивость.
+
+## Next after Core: High-priority backlog (append-only)
+
+- cash_3bet_ip_playbook — 3-bet pots IP playbook. Track: Cash. Level: L3–L4.
+- cash_3bet_oop_playbook — 3-bet pots OOP playbook. Track: Cash. Level: L3–L4.
+- cash_blind_defense_vs_btn_co — Blind defense vs BTN/CO. Track: Cash. Level: L3.
+- cash_turn_river_barreling — Double/triple barrel maps. Track: Cash. Level: L3–L4.
+- icm_mid_ladder_decisions — Mid-ladder decisions. Track: MTT/ICM. Level: L4–L5.
+- icm_final_table_hu — Final table HU play. Track: MTT/ICM. Level: L4–L5.
+- online_population_exploits_playbook — Online pool exploits → tokens. Track: Online. Level: L3–L4.
+- spr_commitment_checklists — SPR commitment checklists. Track: Cross. Level: L3.
+

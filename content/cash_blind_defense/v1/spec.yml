@@ -1,0 +1,23 @@
+module: cash_blind_defense
+images:
+  - slug: blind_defense_price_map
+    caption: "BB pot odds vs opens 2.2-2.5bb"
+    engine: unknown
+    src: ""
+    out: images/blind_defense_price_map.svg
+    status: done
+    notes: ""
+  - slug: blind_defense_3bet_ladders
+    caption: "SB/BB 3-bet/4-bet size ladders"
+    engine: unknown
+    src: ""
+    out: images/blind_defense_3bet_ladders.svg
+    status: done
+    notes: ""
+  - slug: blind_defense_postflop_matrix
+    caption: "OOP defense: boards to check-raise vs defend"
+    engine: unknown
+    src: ""
+    out: images/blind_defense_postflop_matrix.svg
+    status: done
+    notes: ""

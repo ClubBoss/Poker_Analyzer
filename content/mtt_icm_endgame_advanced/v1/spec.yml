@@ -1,0 +1,23 @@
+module: mtt_icm_endgame_advanced
+images:
+  - slug: icm_endgame_pressure_map
+    caption: "Risk premium by stack/position (bubble, FT 9->3, 3–5 handed)"
+    engine: unknown
+    src: ""
+    out: images/icm_endgame_pressure_map.svg
+    status: done
+    notes: ""
+  - slug: endgame_shove_call_ladders
+    caption: "Shove/reshove/call-off ladders by seat and coverage"
+    engine: unknown
+    src: ""
+    out: images/endgame_shove_call_ladders.svg
+    status: done
+    notes: ""
+  - slug: endgame_postflop_geometry
+    caption: "SPR control and risk exposure at FT"
+    engine: unknown
+    src: ""
+    out: images/endgame_postflop_geometry.svg
+    status: done
+    notes: ""

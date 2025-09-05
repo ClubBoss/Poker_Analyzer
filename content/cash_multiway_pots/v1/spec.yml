@@ -1,0 +1,23 @@
+module: cash_multiway_pots
+images:
+  - slug: multiway_spr_map
+    caption: "Typical SPRs by preflop path multiway"
+    engine: unknown
+    src: ""
+    out: images/multiway_spr_map.svg
+    status: done
+    notes: ""
+  - slug: multiway_texture_matrix
+    caption: "Boards favoring small bet vs check multiway"
+    engine: unknown
+    src: ""
+    out: images/multiway_texture_matrix.svg
+    status: done
+    notes: ""
+  - slug: squeeze_decision_tree
+    caption: "Squeeze vs flat decision cues"
+    engine: unknown
+    src: ""
+    out: images/squeeze_decision_tree.svg
+    status: done
+    notes: ""

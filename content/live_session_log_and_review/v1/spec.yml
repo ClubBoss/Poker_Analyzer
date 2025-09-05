@@ -1,0 +1,23 @@
+module: live_session_log_and_review
+images:
+  - slug: live_log_schema_tiles
+    caption: "Minimal live session log schema"
+    engine: unknown
+    src: ""
+    out: images/live_log_schema_tiles.svg
+    status: done
+    notes: ""
+  - slug: kpi_dashboard_tiles
+    caption: "KPI tiles and thresholds"
+    engine: unknown
+    src: ""
+    out: images/kpi_dashboard_tiles.svg
+    status: done
+    notes: ""
+  - slug: log_to_drills_pipeline
+    caption: "Log → token → demo+drill → spaced review"
+    engine: unknown
+    src: ""
+    out: images/log_to_drills_pipeline.svg
+    status: done
+    notes: ""

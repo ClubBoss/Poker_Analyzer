@@ -2,8 +2,11 @@ What it is
 delay_turn means you check back the flop in position, then bet the turn. probe_turns means you bet the turn out of position after both players checked the flop. Both lines capture value and fold equity on better cards, control pot size, and protect medium-strength hands. They complement small_cbet_33; they do not replace it.
 
 [[IMAGE: delay_vs_cbet_map | Board classes: immediate c-bet vs delay]]
+![Board classes: immediate c-bet vs delay](images/delay_vs_cbet_map.svg)
 [[IMAGE: probe_turns_windows | Probe frequency by turn cards]]
-[[IMAGE: delay_probe_lines | Lines: check-check -> probe / check-back -> delay]]
+![Probe frequency by turn cards](images/probe_turns_windows.svg)
+[[IMAGE: delay_probe_lines | Lines: chk-chk -> probe / check-back -> delay]]
+![Lines: chk-chk -> probe / check-back -> delay](images/delay_probe_lines.svg)
 
 Why it matters
 Many pools over-defend flops versus tiny bets, then overfold turns. Others check back too many ace-highs and marginal top pairs. Delayed and probe lines exploit this: you invest when equity and credibility improve, avoid bloating flops on bad textures, and steer SPR so rivers are cleaner.
@@ -33,3 +36,10 @@ overfold_exploit: intentional pressure where pools fold too often.
 
 Contrast
 Immediate c-bets print on many dry, high-card boards; delayed and probe systems shift aggression to turns where range and credibility improve, squeezing fold equity from populations that overfold turns and under-stab after flop checks.
+
+See also
+- cash_3bet_oop_playbook (score 25) → ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 25) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_limp_pots_systems (score 25) → ../../cash_limp_pots_systems/v1/theory.md
+- cash_short_handed (score 25) → ../../cash_short_handed/v1/theory.md
+- cash_turn_river_barreling (score 25) → ../../cash_turn_river_barreling/v1/theory.md

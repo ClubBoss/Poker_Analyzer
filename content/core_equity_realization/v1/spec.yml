@@ -1,0 +1,23 @@
+module: core_equity_realization
+images:
+  - slug: equity_realization_factors
+    caption: "What improves realization"
+    engine: unknown
+    src: ""
+    out: images/equity_realization_factors.svg
+    status: done
+    notes: ""
+  - slug: spr_ladder
+    caption: "SPR and plan across streets"
+    engine: unknown
+    src: ""
+    out: images/spr_ladder.svg
+    status: done
+    notes: ""
+  - slug: hu_vs_multiway
+    caption: "Heads-up vs multiway realization"
+    engine: unknown
+    src: ""
+    out: images/hu_vs_multiway.svg
+    status: done
+    notes: ""

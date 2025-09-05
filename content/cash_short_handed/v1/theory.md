@@ -2,8 +2,11 @@ What it is
 Short-handed means playing 4-5 handed most of the session and sometimes 3-handed on 6-max tables. With fewer players, ranges widen, position changes value faster, and the blinds come around more often. You open first-in more, defend blinds more, and face more heads-up pots while keeping the same size families but higher action frequencies.
 
 [[IMAGE: short_handed_open_map | Open ranges by seats vs players]]
+![Open ranges by seats vs players](images/short_handed_open_map.svg)
 [[IMAGE: short_handed_3bet_sizes | 3-bet/4-bet sizings IP/OOP]]
+![3-bet/4-bet sizings IP/OOP](images/short_handed_3bet_sizes.svg)
 [[IMAGE: short_handed_postflop_flows | C-bet, probe, delay flows]]
+![C-bet, probe, delay flows](images/short_handed_postflop_flows.svg)
 
 Why it matters
 More steals and defenses create many marginal nodes. Rake per hand is similar, but you pay blinds more often. 3-bets lower SPR so decisions simplify and blockers matter more. Population leaks amplify: under-defended blinds, over-cbet on low boards, and overfolds to OOP turn barrels. Disciplined, size-led plans convert these into EV.
@@ -35,3 +38,12 @@ protect_check_range / delay_turn / probe_turns / double_barrel_good / triple_bar
 
 Contrast
 Full-ring instincts fail here; short-handed rewards wider first-in, disciplined 3-bet/4-bet ladders, and texture-driven small_cbet_33 with timely delay_turn and probe_turns.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- hand_review_and_annotation_standards (score 31) → ../../hand_review_and_annotation_standards/v1/theory.md
+- icm_final_table_hu (score 31) → ../../icm_final_table_hu/v1/theory.md
+- icm_mid_ladder_decisions (score 31) → ../../icm_mid_ladder_decisions/v1/theory.md
+- live_chip_handling_and_bet_declares (score 31) → ../../live_chip_handling_and_bet_declares/v1/theory.md
+- live_etiquette_and_procedures (score 31) → ../../live_etiquette_and_procedures/v1/theory.md

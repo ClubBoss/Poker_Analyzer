@@ -3,8 +3,11 @@ What it is
 This module explains check-raise systems: when to check-raise for value or as a bluff, how to choose sizing on dry vs wet boards, and how to keep coherent frequencies. You will learn which combos to pick, how to plan turn barrels, and when to slow down to protect EV.
 
 [[IMAGE: cr_value_bluff_mix | Value vs bluff mix by texture]]
+![Value vs bluff mix by texture](images/cr_value_bluff_mix.svg)
 [[IMAGE: cr_sizing_map | Small vs big check-raise sizing map]]
+![Small vs big check-raise sizing map](images/cr_sizing_map.svg)
 [[IMAGE: cr_turn_plans | Good and bad turn cards to barrel]]
+![Good and bad turn cards to barrel](images/cr_turn_plans.svg)
 
 Why it matters
 A good check-raise denies equity, wins folds from high-card hands, and builds pots with strong value. It also protects your checking range so aggressive opponents cannot auto c-bet. Poorly timed check-raises donate chips, face expensive 3-bets, and create tough turns with capped ranges.
@@ -33,3 +36,11 @@ Blocker: A card that reduces opponent strong holdings or calling combos.
 Contrast
 Unlike core_bet_sizing_fe, which is about sizing families in general, this module applies those sizes to the specific mechanic of check-raising and its value-bluff mix.
 
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- cash_3bet_oop_playbook (score 9) → ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense (score 9) → ../../cash_blind_defense/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 9) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_blind_vs_blind (score 9) → ../../cash_blind_vs_blind/v1/theory.md
+- cash_fourbet_pots (score 9) → ../../cash_fourbet_pots/v1/theory.md

@@ -2,11 +2,13 @@ What it is
 This module gives a clear, solver-aligned plan for Heads-Up preflop. Positions are SB (Button, in position) and BB (out of position). You will use compact open sizes when deep, add SB limp mixes when shallow, and follow stable ladders for 3-bets and 4-bets: 3bet_oop_12bb, 3bet_ip_9bb, 4bet_ip_21bb, 4bet_oop_24bb.
 
 [[IMAGE: hu_ranges_grid | Default SB and BB HU preflop ranges by depth]]
+![Default SB and BB HU preflop ranges by depth](images/hu_ranges_grid.svg)
 
 Why it matters
 In HU, every hand is a blind battle, so small preflop edges repeat hundreds of times. Clean sizes and simple frequency rules reduce noise, protect EV, and set up easier postflop play. A fixed ladder also improves execution speed and reduces leaks under pressure.
 
 [[IMAGE: hu_size_ladders | Size ladders: opens, 3-bets, 4-bets by depth]]
+![Size ladders: opens, 3-bets, 4-bets by depth](images/hu_size_ladders.svg)
 
 Rules of thumb
 - SB open size: 2.0bb at 60100bb, 2.22.5bb at 2540bb, add SB limp mixes at 1525bb; why: smaller risk deep, more pressure mid, lower variance shallow.
@@ -17,11 +19,12 @@ Rules of thumb
 - Rake-free or ante formats: open slightly wider and defend more; why: cheaper pots and more dead money make marginal hands viable.
 
 [[IMAGE: hu_depth_matrix | Depth matrix: open, limp, 3-bet, and call mixes]]
+![Depth matrix: open, limp, 3-bet, and call mixes](images/hu_depth_matrix.svg)
 
 Mini example
-UTG, MP, CO not seated. BTN is SB. BB posts 1bb. 100bb effective.  
-SB opens 2.0bb with a standard range. BB 3-bets to 12bb.  
-With A5s, SB prefers 4bet_ip_21bb as a blocker-driven bluff. With KQs, SB calls.  
+UTG, MP, CO not seated. BTN is SB. BB posts 1bb. 100bb effective. 
+SB opens 2.0bb with a standard range. BB 3-bets to 12bb. 
+With A5s, SB prefers 4bet_ip_21bb as a blocker-driven bluff. With KQs, SB calls. 
 With AKo, SB 4-bets for value. If BB faces a 21bb 4-bet with AQs, BB can call at 100bb but folds more often at 60bb due to worse implied odds.
 
 Common mistakes
@@ -32,11 +35,20 @@ Common mistakes
 - Ignoring rake or antes. Wrong assumptions skew ranges; players assume all sites play the same preflop economics.
 
 Mini-glossary
-Open: the first raise from SB when action reaches you. Sets the initial price.  
-Iso-raise: BB raises over an SB limp, usually to 45bb shallow.  
-Blocker: a card that removes combos of strong continues, improving bluff success.  
-Ladder: a fixed size mapping for 3-bets and 4-bets that stays stable across spots.  
+Open: the first raise from SB when action reaches you. Sets the initial price. 
+Iso-raise: BB raises over an SB limp, usually to 45bb shallow. 
+Blocker: a card that removes combos of strong continues, improving bluff success. 
+Ladder: a fixed size mapping for 3-bets and 4-bets that stays stable across spots. 
 Jam proxy: a smaller raise that captures most of a jams fold equity without committing full stack.
 
 Contrast
 This module sets HU preflop sizes and ranges; later HU postflop modules focus on c-bet frequencies and turn/river plans.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- cash_short_handed (score 15) → ../../cash_short_handed/v1/theory.md
+- hand_review_and_annotation_standards (score 15) → ../../hand_review_and_annotation_standards/v1/theory.md
+- hu_exploit_adv (score 15) → ../../hu_exploit_adv/v1/theory.md
+- hu_preflop (score 15) → ../../hu_preflop/v1/theory.md
+- icm_mid_ladder_decisions (score 15) → ../../icm_mid_ladder_decisions/v1/theory.md

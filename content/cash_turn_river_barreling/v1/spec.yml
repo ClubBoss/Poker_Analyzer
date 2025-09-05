@@ -1,0 +1,23 @@
+module: cash_turn_river_barreling
+images:
+  - slug: turn_upgrade_gates
+    caption: "When 50->75: blockers + Fv75"
+    engine: unknown
+    src: ""
+    out: images/turn_upgrade_gates.svg
+    status: done
+    notes: ""
+  - slug: barrel_decision_flow
+    caption: "Delay/Probe/50/75 flow by SPR & raise-risk"
+    engine: unknown
+    src: ""
+    out: images/barrel_decision_flow.svg
+    status: done
+    notes: ""
+  - slug: river_polar_discipline
+    caption: "Blocker gates for call vs big_bet_75"
+    engine: unknown
+    src: ""
+    out: images/river_polar_discipline.svg
+    status: done
+    notes: ""

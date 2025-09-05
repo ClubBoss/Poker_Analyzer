@@ -1,0 +1,23 @@
+module: hu_preflop
+images:
+  - slug: hu_open_size_map
+    caption: "SB open sizes by stack and rake"
+    engine: unknown
+    src: ""
+    out: images/hu_open_size_map.svg
+    status: done
+    notes: ""
+  - slug: hu_3bet_ladders
+    caption: "3-bet and 4-bet ladders IP and OOP"
+    engine: unknown
+    src: ""
+    out: images/hu_3bet_ladders.svg
+    status: done
+    notes: ""
+  - slug: hu_depth_playbook
+    caption: "Playbook across 15 25 40 60 100bb"
+    engine: unknown
+    src: ""
+    out: images/hu_depth_playbook.svg
+    status: done
+    notes: ""

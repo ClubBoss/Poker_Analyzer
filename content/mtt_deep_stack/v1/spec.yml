@@ -1,0 +1,23 @@
+module: mtt_deep_stack
+images:
+  - slug: deep_stack_phase_map
+    caption: "50-100bb decisions by position"
+    engine: unknown
+    src: ""
+    out: images/deep_stack_phase_map.svg
+    status: done
+    notes: ""
+  - slug: preflop_4bet_mix_windows
+    caption: "Value/bluff 4-bet mixes and blockers"
+    engine: unknown
+    src: ""
+    out: images/preflop_4bet_mix_windows.svg
+    status: done
+    notes: ""
+  - slug: deep_spr_postflop_flows
+    caption: "C-bet, check, raise, and pressure windows"
+    engine: unknown
+    src: ""
+    out: images/deep_spr_postflop_flows.svg
+    status: done
+    notes: ""

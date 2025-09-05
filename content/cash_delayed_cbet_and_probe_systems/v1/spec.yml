@@ -1,0 +1,23 @@
+module: cash_delayed_cbet_and_probe_systems
+images:
+  - slug: delay_vs_cbet_map
+    caption: "Board classes: immediate c-bet vs delay"
+    engine: unknown
+    src: ""
+    out: images/delay_vs_cbet_map.svg
+    status: done
+    notes: ""
+  - slug: probe_turns_windows
+    caption: "Probe frequency by turn cards"
+    engine: unknown
+    src: ""
+    out: images/probe_turns_windows.svg
+    status: done
+    notes: ""
+  - slug: delay_probe_lines
+    caption: "Lines: chk-chk -> probe / check-back -> delay"
+    engine: unknown
+    src: ""
+    out: images/delay_probe_lines.svg
+    status: done
+    notes: ""

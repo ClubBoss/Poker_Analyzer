@@ -1,0 +1,3 @@
+{"id": "icm_mid_ladder_decisions:demo:01", "spot_kind": "l2_core_rules_check", "steps": ["SRP IP on JT9ss -> size_up_wet", "Default turn size -> half_pot_50", "Nut spade + Fv75 up -> Token: big_bet_75 (double_barrel_good)"]}
+{"id": "icm_mid_ladder_decisions:demo:02", "spot_kind": "l2_core_rules_check", "steps": ["3BP OOP on K72r -> size_down_dry", "Flop plan -> small_cbet_33 at controlled freq", "Raise-prone IP at mid SPR -> Token: delay_turn", "River facing polar 75 without blockers -> Token: fold"]}
+{"id": "icm_mid_ladder_decisions:demo:03", "spot_kind": "l2_core_rules_check", "steps": ["Low 5-bet room with premiums IP -> Token: 4bet_ip_21bb", "Flop checks through SRP -> Sequence: chk-chk", "Safe turn vs capped range -> Token: probe_turns"]}

@@ -1,0 +1,23 @@
+module: icm_bubble_blind_vs_blind
+images:
+  - slug: icm_bubble_bvb_pressure_map
+    caption: "Coverage and risk by stacks SB vs BB"
+    engine: unknown
+    src: ""
+    out: images/icm_bubble_bvb_pressure_map.svg
+    status: done
+    notes: ""
+  - slug: bvb_preflop_ladders_icm
+    caption: "SB and BB jam and call ladders"
+    engine: unknown
+    src: ""
+    out: images/bvb_preflop_ladders_icm.svg
+    status: done
+    notes: ""
+  - slug: bvb_postflop_risk_control
+    caption: "Postflop pressure vs control windows"
+    engine: unknown
+    src: ""
+    out: images/bvb_postflop_risk_control.svg
+    status: done
+    notes: ""

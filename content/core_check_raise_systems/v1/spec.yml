@@ -1,0 +1,23 @@
+module: core_check_raise_systems
+images:
+  - slug: cr_value_bluff_mix
+    caption: "Value vs bluff mix by texture"
+    engine: unknown
+    src: ""
+    out: images/cr_value_bluff_mix.svg
+    status: done
+    notes: ""
+  - slug: cr_sizing_map
+    caption: "Small vs big check-raise sizing map"
+    engine: unknown
+    src: ""
+    out: images/cr_sizing_map.svg
+    status: done
+    notes: ""
+  - slug: cr_turn_plans
+    caption: "Good and bad turn cards to barrel"
+    engine: unknown
+    src: ""
+    out: images/cr_turn_plans.svg
+    status: done
+    notes: ""

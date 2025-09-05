@@ -1,0 +1,30 @@
+module: online_tells_and_dynamics
+images:
+  - slug: online_timing_map
+    caption: "Common timing patterns and likely hand classes"
+    engine: unknown
+    src: ""
+    out: images/online_timing_map.svg
+    status: done
+    notes: ""
+  - slug: online_size_patterns
+    caption: "Sizing families and exploit paths"
+    engine: unknown
+    src: ""
+    out: images/online_size_patterns.svg
+    status: done
+    notes: ""
+  - slug: online_flow_chart
+    caption: "From read -> tokenized action"
+    engine: unknown
+    src: ""
+    out: images/online_flow_chart.svg
+    status: done
+    notes: ""
+  - slug: online_board_context
+    caption: "Texture still drives size family selection"
+    engine: unknown
+    src: ""
+    out: images/online_board_context.svg
+    status: done
+    notes: ""

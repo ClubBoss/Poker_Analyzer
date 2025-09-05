@@ -19,11 +19,14 @@ Rules of thumb
 * Sizes never change. Only frequency shifts within small_cbet_33, half_pot_50, big_bet_75 and fixed preflop ladders.
 
 [[IMAGE: hudless_tags_grid | Minimal HUD-less tag codes mapped to actions]]
+![Minimal HUD-less tag codes mapped to actions](images/hudless_tags_grid.svg)
 [[IMAGE: signal_to_token_flow | From live read -> frequency shift -> token]]
+![From live read -> frequency shift -> token](images/signal_to_token_flow.svg)
 [[IMAGE: confidence_tiers | Weak/Medium/Strong repetition lanes]]
+![Weak/Medium/Strong repetition lanes](images/confidence_tiers.svg)
 
 Mini example
-PF: you tag BTN “Fv3B up, 4B down”. Next orbit at 100bb, BB widens 3bet_oop_12bb with A5s; with AKs IP facing 12bb you choose 4bet_ip_21bb. SRP K72r checks through; on 3h turn your “FvProbe up” tag maps to probe_turns. On JT9ss, your “Fv75 up” tag maps to big_bet_75 as double_barrel_good with blockers. River A94r-6s-Kd, “Polar low” tag -> fold marginal bluff-catchers without blockers.
+PF: you tag BTN "Fv3B up, 4B down". Next orbit at 100bb, BB widens 3bet_oop_12bb with A5s; with AKs IP facing 12bb you choose 4bet_ip_21bb. SRP K72r checks through; on 3h turn your "FvProbe up" tag maps to probe_turns. On JT9ss, your "Fv75 up" tag maps to big_bet_75 as double_barrel_good with blockers. River A94r-6s-Kd, "Polar low" tag -> fold marginal bluff-catchers without blockers.
 
 Common mistakes
 
@@ -38,11 +41,18 @@ Mini-glossary
 Snap: instant action, often pre-decided, range or merged.
 Tank-then-small: delayed small bet; commonly merged strength.
 Fv3B: fold vs 3-bet; high invites blocker 3-bets and value 4-bets.
-FvProbe: fold vs turn probe after flop checks; high invites probe_turns.
+FvProbe: fold vs probe_turns after flop checks; high invites probe_turns.
 Polar/Merged: big_bet_75 polar vs half_pot_50 merged value.
 Population prior: default pool tendencies used when no HUD data.
 Tag tiering: weak/medium/strong repetition lanes guiding action.
 Exploit tracker: your running list of tags linked to tokens.
 
 Contrast
-“online_hud_and_db_review” is stats-driven; “online_notes_and_exploit_tracker” is a fuller system. Here you operate with no HUD, using ultra-light tags and the same fixed tokens and sizes.
+"online_hud_and_db_review" is stats-driven; "online_notes_and_exploit_tracker" is a fuller system. Here you operate with no HUD, using ultra-light tags and the same fixed tokens and sizes.
+
+See also
+- icm_final_table_hu (score 33) → ../../icm_final_table_hu/v1/theory.md
+- live_session_log_and_review (score 33) → ../../live_session_log_and_review/v1/theory.md
+- online_economics_rakeback_promos (score 33) → ../../online_economics_rakeback_promos/v1/theory.md
+- online_tells_and_dynamics (score 33) → ../../online_tells_and_dynamics/v1/theory.md
+- spr_advanced (score 33) → ../../spr_advanced/v1/theory.md

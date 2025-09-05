@@ -1,0 +1,16 @@
+module: online_fastfold_pool_dynamics
+images:
+  - slug: fastfold_signals_map
+    caption: "Fastfold tendencies -> token adjustments"
+    engine: unknown
+    src: ""
+    out: images/fastfold_signals_map.svg
+    status: done
+    notes: ""
+  - slug: standard_lines_only
+    caption: "33/50/75 families for fastfold"
+    engine: unknown
+    src: ""
+    out: images/standard_lines_only.svg
+    status: done
+    notes: ""

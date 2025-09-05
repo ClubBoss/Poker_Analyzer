@@ -1,0 +1,23 @@
+module: core_mental_game
+images:
+  - slug: routine_cards
+    caption: "Simple routine before cards"
+    engine: unknown
+    src: ""
+    out: images/routine_cards.svg
+    status: done
+    notes: ""
+  - slug: tilt_triggers
+    caption: "Common tilt triggers and interrupts"
+    engine: unknown
+    src: ""
+    out: images/tilt_triggers.svg
+    status: done
+    notes: ""
+  - slug: variance_curve
+    caption: "Swings you should expect"
+    engine: unknown
+    src: ""
+    out: images/variance_curve.svg
+    status: done
+    notes: ""

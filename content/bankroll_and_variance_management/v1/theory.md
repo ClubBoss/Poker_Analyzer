@@ -2,11 +2,13 @@ What it is
 This playbook turns bankroll, variance, and session-management choices into stable frequency shifts using one compact action set: 3bet_ip_9bb, 3bet_oop_12bb, 4bet_ip_21bb, 4bet_oop_24bb, small_cbet_33, half_pot_50, big_bet_75, size_up_wet, size_down_dry, protect_check_range, delay_turn, probe_turns, double_barrel_good, triple_barrel_scare, call, fold, overfold_exploit. You keep the same trees and sizes. You adjust how often you use them based on bankroll tier, soft windows, and execution load.
 
 [[IMAGE: bankroll_curves | Downswing depth vs BB/100 & stdev]]
+![Downswing depth vs BB/100 & stdev](images/bankroll_curves.svg)
 
 Why it matters
 Bankroll and variance policy changes EV/hour more than micro in-hand tweaks. Proper caps, shot rules, and texture-consistent sizing prevent tilt lines and keep decisions reliable when scaling tables. The mantra is physics first, reads second: texture picks size family; bankroll and load move frequencies.
 
 [[IMAGE: variance_sim_tiles | Sample-size vs winrate confidence bands]]
+![Sample-size vs winrate confidence bands](images/variance_sim_tiles.svg)
 
 Rules of thumb
 
@@ -47,3 +49,11 @@ Contrast
 This module adjusts frequencies using bankroll, variance, and load. It does not add sizes or tokens. The same HU and postflop tokens carry over to 6-max and MTT contexts.
 
 [[IMAGE: session_guardrails | Table caps, stop-loss/win, tilt flags]]
+![Table caps, stop-loss/win, tilt flags](images/session_guardrails.svg)
+
+See also
+- exploit_advanced (score 29) → ../../exploit_advanced/v1/theory.md
+- icm_final_table_hu (score 29) → ../../icm_final_table_hu/v1/theory.md
+- live_etiquette_and_procedures (score 29) → ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 29) → ../../live_full_ring_adjustments/v1/theory.md
+- live_session_log_and_review (score 29) → ../../live_session_log_and_review/v1/theory.md

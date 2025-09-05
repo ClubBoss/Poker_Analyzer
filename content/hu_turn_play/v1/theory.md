@@ -2,8 +2,11 @@ What it is
 Heads-Up turn play is the plan after the flop action finishes and a new card shifts equities. You choose between double_barrel_good or delay_turn as IP, and between passive control or probe_turns as OOP after flop checks through. You size with half_pot_50 as a sturdy default, big_bet_75 when size_up_wet and leverage are justified, and size_down_dry on static runouts while keeping protect_check_range so your checks are not auto-punted.
 
 [[IMAGE: hu_turn_shifts | Turn cards that swing range advantage]]
+![Turn cards that swing range advantage](images/hu_turn_shifts.svg)
 [[IMAGE: hu_turn_size_ladders | 50 75 sizing ladder by texture and equity]]
+![50 75 sizing ladder by texture and equity](images/hu_turn_size_ladders.svg)
 [[IMAGE: hu_turn_oop_probes | OOP probe windows after flop checks through]]
+![OOP probe windows after flop checks through](images/hu_turn_oop_probes.svg)
 
 Why it matters
 The turn is the biggest EV fork in HU pots. Ranges narrow, pots grow, and the next bet sets river geometry. Pools overfold scary turns and under-bluff rivers; a clear turn system converts small edges into steady profit and avoids lighting chips on fire with automatic barrels.
@@ -33,3 +36,10 @@ half_pot_50, big_bet_75, size_up_wet, size_down_dry, protect_check_range: turn s
 
 Contrast
 In 6-max, multiway risk often limits turn aggression; in HU, wide uncapped ranges make small stabs and well-timed probes print, while careless big barrels without equity get punished.
+
+See also
+- bankroll_and_variance_management (score 21) → ../../bankroll_and_variance_management/v1/theory.md
+- cash_3bet_oop_playbook (score 21) → ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 21) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_turn_river_barreling (score 21) → ../../cash_turn_river_barreling/v1/theory.md
+- database_leakfinder_playbook (score 21) → ../../database_leakfinder_playbook/v1/theory.md

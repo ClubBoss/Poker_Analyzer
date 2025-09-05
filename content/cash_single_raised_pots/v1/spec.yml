@@ -1,0 +1,23 @@
+module: cash_single_raised_pots
+images:
+  - slug: srp_flow
+    caption: "From open to river in SRP"
+    engine: unknown
+    src: ""
+    out: images/srp_flow.svg
+    status: done
+    notes: ""
+  - slug: rake_awareness
+    caption: "Rake pressure vs pot size"
+    engine: unknown
+    src: ""
+    out: images/rake_awareness.svg
+    status: done
+    notes: ""
+  - slug: cbet_families
+    caption: "Small vs big c-bets by texture"
+    engine: unknown
+    src: ""
+    out: images/cbet_families.svg
+    status: done
+    notes: ""

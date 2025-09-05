@@ -2,8 +2,11 @@ What it is
 This module organizes play by ante phase in 9-max MTTs: pre-ante (no antes), early-ante (reduced), and full-ante (standard). Antes add dead money and lower everyone's required defense thresholds. Early seats exist in 9-max, so UTG and MP stay tighter for longer, while CO, BTN, and SB expand most as antes rise.
 
 [[IMAGE: mtt_antes_pot_build | Pot size with antes vs no antes]]
+![Pot size with antes vs no antes](images/mtt_antes_pot_build.svg)
 [[IMAGE: mtt_open_defend_shifts | Opens and defends by phase (9-max)]]
+![Opens and defends by phase (9-max)](images/mtt_open_defend_shifts.svg)
 [[IMAGE: mtt_postflop_flows | Small-cbet vs delay/probe by phase]]
+![Small-cbet vs delay/probe by phase](images/mtt_postflop_flows.svg)
 
 Why it matters
 Antes change risk-reward and geometry. Pots start larger, steals print more, and folding gives up more equity. SPR falls faster after 3-bets, so initiative and position gain value. Pools under-4bet and overfold turns; a phase-aware plan converts those leaks into chips.
@@ -34,3 +37,12 @@ small_cbet_33 / half_pot_50 / big_bet_75: core size families mapped to texture.
 
 Contrast
 Compared with 6-max cash, 9-max antes add early seats and more callers behind. You steal more by phase, control multiway with 3bet_oop_12bb, and lean on delay_turn and probe_turns to exploit turn overfolds while keeping 4bet_ip_21bb value-lean.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- database_leakfinder_playbook (score 29) → ../../database_leakfinder_playbook/v1/theory.md
+- exploit_advanced (score 29) → ../../exploit_advanced/v1/theory.md
+- icm_final_table_hu (score 29) → ../../icm_final_table_hu/v1/theory.md
+- live_etiquette_and_procedures (score 29) → ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 29) → ../../live_full_ring_adjustments/v1/theory.md

@@ -1,0 +1,23 @@
+module: online_economics_rakeback_promos
+images:
+  - slug: rakeback_models_map
+    caption: "Rakeback/promotions -> frequency levers"
+    engine: unknown
+    src: ""
+    out: images/rakeback_models_map.svg
+    status: done
+    notes: ""
+  - slug: leaderboard_grind_tradeoffs
+    caption: "Volume vs EV/hour trade-offs"
+    engine: unknown
+    src: ""
+    out: images/leaderboard_grind_tradeoffs.svg
+    status: done
+    notes: ""
+  - slug: size_family_stays_fixed
+    caption: "33/50/75 stay fixed; only frequencies move"
+    engine: unknown
+    src: ""
+    out: images/size_family_stays_fixed.svg
+    status: done
+    notes: ""

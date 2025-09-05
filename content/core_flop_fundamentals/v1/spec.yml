@@ -1,0 +1,23 @@
+module: core_flop_fundamentals
+images:
+  - slug: flop_board_categories
+    caption: "Flop board categories"
+    engine: unknown
+    src: ""
+    out: images/flop_board_categories.svg
+    status: done
+    notes: ""
+  - slug: range_vs_range_matrix
+    caption: "Range-vs-range heatmap"
+    engine: unknown
+    src: ""
+    out: images/range_vs_range_matrix.svg
+    status: done
+    notes: ""
+  - slug: flop_sizing_by_texture
+    caption: "Flop sizing by texture"
+    engine: unknown
+    src: ""
+    out: images/flop_sizing_by_texture.svg
+    status: done
+    notes: ""

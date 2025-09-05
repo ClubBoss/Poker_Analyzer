@@ -1,0 +1,23 @@
+module: cash_blind_vs_blind
+images:
+  - slug: bvb_preflop_ladders
+    caption: "SB open/BB 3-bet/ SB 4-bet size ladder"
+    engine: unknown
+    src: ""
+    out: images/bvb_preflop_ladders.svg
+    status: done
+    notes: ""
+  - slug: bvb_spr_map
+    caption: "Typical SPRs after raise/call, 3-bet/call, 4-bet/call BvB"
+    engine: unknown
+    src: ""
+    out: images/bvb_spr_map.svg
+    status: done
+    notes: ""
+  - slug: bvb_texture_matrix
+    caption: "Boards favoring small vs big c-bets BvB"
+    engine: unknown
+    src: ""
+    out: images/bvb_texture_matrix.svg
+    status: done
+    notes: ""

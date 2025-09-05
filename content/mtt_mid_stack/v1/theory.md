@@ -2,8 +2,11 @@ What it is
 Mid-stack MTT play covers 25-50bb effective on 9-max tables. SPRs allow two-street commit lines, especially in 3-bet pots. You will press edges with disciplined preflop ladders and pressure-first postflop plans, not river heroics.
 
 [[IMAGE: mid_stack_phase_map | 25-50bb decisions by position]]
+![25-50bb decisions by position](images/mid_stack_phase_map.svg)
 [[IMAGE: 3bet_4bet_geometry_25_50bb | Preflop ladders and SPR]]
+![Preflop ladders and SPR](images/3bet_4bet_geometry_25_50bb.svg)
 [[IMAGE: postflop_pressure_windows | Double-barrel and scare-river windows]]
+![Double-barrel and scare-river windows](images/postflop_pressure_windows.svg)
 
 Why it matters
 Antes inflate pots while stacks are deep enough to maneuver. The pool under-4bets, over-defends flop, then overfolds turns. Clean trees capture dead money and avoid dominated flats that create bad multiway SPR in 9-max.
@@ -37,3 +40,10 @@ overfold_exploit: Node tag where the pool folds too often; increase pressure and
 
 Contrast
 Compared to short-stack, mid-stack emphasizes planning two streets and leveraging blockers on turns and rivers. Compared to deep cash, you avoid wide flats OOP in 9-max and keep 4-bets value-lean while pressing turn pressure windows.
+
+See also
+- exploit_advanced (score 27) → ../../exploit_advanced/v1/theory.md
+- icm_final_table_hu (score 27) → ../../icm_final_table_hu/v1/theory.md
+- live_chip_handling_and_bet_declares (score 27) → ../../live_chip_handling_and_bet_declares/v1/theory.md
+- live_etiquette_and_procedures (score 27) → ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 27) → ../../live_full_ring_adjustments/v1/theory.md

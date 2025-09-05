@@ -35,20 +35,28 @@ void main() {
 
   test('order is append-only: runtime equals source order', () {
     final runtimeNames = SpotKind.values.map((e) => e.name).toList();
-    expect(runtimeNames, parsedNames,
-        reason:
-            'SpotKind must be append-only: do not rename/reorder; only append at the end (with trailing comma).');
+    expect(
+      runtimeNames,
+      parsedNames,
+      reason:
+          'SpotKind must be append-only: do not rename/reorder; only append at the end (with trailing comma).',
+    );
   });
 
   test('all names are unique', () {
-    expect(parsedNames.toSet().length, parsedNames.length,
-        reason: 'Duplicate SpotKind identifiers found.');
+    expect(
+      parsedNames.toSet().length,
+      parsedNames.length,
+      reason: 'Duplicate SpotKind identifiers found.',
+    );
   });
 
   test('last enumerator ends with a trailing comma', () {
-    expect(trailingComma, isTrue,
-        reason:
-            'The last SpotKind enumerator must end with a comma before the closing }. This enforces append-only diffs.');
+    expect(
+      trailingComma,
+      isTrue,
+      reason:
+          'The last SpotKind enumerator must end with a comma before the closing }. This enforces append-only diffs.',
+    );
   });
 }
-

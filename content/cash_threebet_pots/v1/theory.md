@@ -2,8 +2,11 @@ What it is
 This module explains strategy for 3-bet pots in 6-max NLHE cash. You will build preflop ranges in and out of position, choose standard 3-bet sizes (IP ~9bb, OOP ~11bb vs 2.2-2.5bb opens, typical online), set 4-bet baselines (~22bb), and pick postflop c-bet sizes (33/50/75/125). Decisions are tied to range advantage, equity denial, pot geometry, and SPR.
 
 [[IMAGE: threebet_sizing_ladders | 3-bet and 4-bet size ladder]]
+![3-bet and 4-bet size ladder](images/threebet_sizing_ladders.svg)
 [[IMAGE: spr_after_threebet | Typical SPR after 3-bet lines]]
+![Typical SPR after 3-bet lines](images/spr_after_threebet.svg)
 [[IMAGE: texture_pressure_map | Boards that favor small vs big c-bets]]
+![Boards that favor small vs big c-bets](images/texture_pressure_map.svg)
 
 Why it matters
 3-bet pots start larger with lower SPR, so mistakes cost more. Rake is proportionally smaller once the pot grows, making value extraction and clean folds more impactful. Sound size baselines and texture-driven plans prevent overcommitting with marginal hands or missing folds when capped.
@@ -25,10 +28,17 @@ Common mistakes
 - Ignoring stack depth. Deeper than 120bb, increase 3-bet value density and avoid low-equity 4-bet bluffs; shallow stacks favor linear 3-bets and clear jam trees.
 
 Mini-glossary
-3-bet: A re-raise preflop. In this module, IP ~9bb, OOP ~11bb versus 2.2-2.5bb opens.  
-4-bet: Re-raise of a 3-bet, baseline ~22bb; often induces shove/fold decisions pre or creates low SPR post.  
-SPR: Stack-to-pot ratio; lower SPR simplifies commitment with strong hands and reduces maneuverability with marginal ones.  
+3-bet: A re-raise preflop. In this module, IP ~9bb, OOP ~11bb versus 2.2-2.5bb opens. 
+4-bet: Re-raise of a 3-bet, baseline ~22bb; often induces shove/fold decisions pre or creates low SPR post. 
+SPR: Stack-to-pot ratio; lower SPR simplifies commitment with strong hands and reduces maneuverability with marginal ones. 
 Polar vs linear: Polar mixes strong value and bluffs; linear adds the next strongest hands for value against wide opens.
 
 Contrast
 Unlike single-raised pots, 3-bet pots have lower SPR and more condensed ranges, so sizes must pressure correctly by texture. Unlike postflop jam modules, here jams are planned via SPR bands created by preflop size choices.
+
+See also
+- cash_population_exploits (score 23) → ../../cash_population_exploits/v1/theory.md
+- hand_review_and_annotation_standards (score 23) → ../../hand_review_and_annotation_standards/v1/theory.md
+- cash_short_handed (score 21) → ../../cash_short_handed/v1/theory.md
+- database_leakfinder_playbook (score 21) → ../../database_leakfinder_playbook/v1/theory.md
+- donk_bets_and_leads (score 21) → ../../donk_bets_and_leads/v1/theory.md

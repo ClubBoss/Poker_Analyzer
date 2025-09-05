@@ -1,0 +1,23 @@
+module: cash_threebet_pots
+images:
+  - slug: threebet_sizing_ladders
+    caption: "3-bet and 4-bet size ladder"
+    engine: unknown
+    src: ""
+    out: images/threebet_sizing_ladders.svg
+    status: done
+    notes: ""
+  - slug: spr_after_threebet
+    caption: "Typical SPR after 3-bet lines"
+    engine: unknown
+    src: ""
+    out: images/spr_after_threebet.svg
+    status: done
+    notes: ""
+  - slug: texture_pressure_map
+    caption: "Boards that favor small vs big c-bets"
+    engine: unknown
+    src: ""
+    out: images/texture_pressure_map.svg
+    status: done
+    notes: ""

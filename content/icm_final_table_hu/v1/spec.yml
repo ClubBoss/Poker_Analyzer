@@ -1,0 +1,23 @@
+module: icm_final_table_hu
+images:
+  - slug: hu_icm_pressure_map
+    caption: "Where ICM shifts frequencies HU"
+    engine: unknown
+    src: ""
+    out: images/hu_icm_pressure_map.svg
+    status: done
+    notes: ""
+  - slug: hu_turn_upgrade_gates
+    caption: "Turn 50->75 gates under ICM"
+    engine: unknown
+    src: ""
+    out: images/hu_turn_upgrade_gates.svg
+    status: done
+    notes: ""
+  - slug: hu_river_discipline
+    caption: "Polar rivers & blockers HU"
+    engine: unknown
+    src: ""
+    out: images/hu_river_discipline.svg
+    status: done
+    notes: ""

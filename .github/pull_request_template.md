@@ -1,21 +1,19 @@
-<!-- Title: short, imperative, scoped (e.g., feat(l3): ..., fix(ui): ..., ci: ...) -->
+Summary
+Describe the intent of this change in 1–3 sentences.
 
-## Summary
-- what/why
-- scope
-- rollback
+Affected files
+List the exact files changed and why.
 
-## Quality Footer (must pass)
-- [ ] enum append-only: SpotKind changed only by appending last + trailing comma, no renames/reorders
-- [ ] single guard occurrence: exactly 1 occurrence of .contains(spot.kind) (canonical guard path only)
-- [ ] format/analyze clean: `dart format --set-exit-if-changed .` and `dart analyze` are clean
-- [ ] actions/subtitle match task: new/changed kinds have correct actions and subtitle mapping
-- [ ] no new deps/strings unless required (i18n later)
-- [ ] tiny, reversible diff: 1-2 files, minimal surface, rollback plan noted
-- [ ] tests (if touched): pass locally; Flutter-free where possible
+Quality Footer (must pass before merge)
+- [ ] No new dependencies; ASCII-only changes
+- [ ] Exactly 1–2 files changed (unless explicitly approved)
+- [ ] SpotKind enum is append-only (last + comma, no renames/reorders)
+- [ ] Canonical guard unchanged and single-site: !correct && autoWhy && (spot.kind == SpotKind.l3_flop_jam_vs_raise || spot.kind == SpotKind.l3_turn_jam_vs_raise || spot.kind == SpotKind.l3_river_jam_vs_raise) && !_replayed.contains(spot)
+- [ ] Content schema OK: theory 400–700 words with required sections; demos 2–3; drills 10–20; unique ids; allowed spot_kind/targets; no off-tree sizes
+- [ ] Images pipeline run: specs generated, stub SVGs rendered, links inserted
+- [ ] Terminology lint clean: use probe_turns; casing Fv50/Fv75 correct
+- [ ] Local run OK: make beta (table + TOP GAPS footer reviewed)
+- [ ] CI green: .github/workflows/content_ci.yml passed; artifacts reviewed (build/gaps.json, build/term_lint.json, build/beta_content.zip)
+- [ ] Format/analyze on changed files: dart format clean; dart analyze clean (best-effort if repo has unrelated parse errors)
+- [ ] Tests (pure-Dart) added/updated when applicable
 
-Canonical guard (keep centralized):
-
-```
-!correct && autoWhy && (spot.kind == SpotKind.l3_flop_jam_vs_raise || spot.kind == SpotKind.l3_turn_jam_vs_raise || spot.kind == SpotKind.l3_river_jam_vs_raise) && !_replayed.contains(spot)
-```

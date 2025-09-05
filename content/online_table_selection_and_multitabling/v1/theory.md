@@ -2,8 +2,11 @@ What it is
 This module shows how to select soft online games and scale multitabling without breaking your strategy. You will translate selection and load choices into frequency shifts using only: 3bet_ip_9bb, 3bet_oop_12bb, 4bet_ip_21bb, 4bet_oop_24bb, small_cbet_33, half_pot_50, big_bet_75, size_up_wet, size_down_dry, protect_check_range, delay_turn, probe_turns, double_barrel_good, triple_barrel_scare, call, fold, overfold_exploit.
 
 [[IMAGE: online_select_signals | Fast signals of soft tables]]
+![Fast signals of soft tables](images/online_select_signals.svg)
 [[IMAGE: multitabling_layouts | Table layouts: tile/stack + hotkeys]]
+![Table layouts: tile/stack + hotkeys](images/multitabling_layouts.svg)
 [[IMAGE: focus_ev_tradeoff | Balancing APM/attention vs EV]]
+![Balancing APM/attention vs EV](images/focus_ev_tradeoff.svg)
 
 Why it matters
 Game choice and workload change EV/hour more than thin in-hand edges. Soft pools allow wider 3bet_oop_12bb, more overfold_exploit, and thinner half_pot_50 value. Tough reg pools demand more protect_check_range, delay_turn, disciplined fold vs big_bet_75, and fewer speculative calls. Multitabling adds execution limits, so you simplify to stable size families and blocker-driven decisions.
@@ -36,3 +39,10 @@ Stop-loss/win: session guardrails; under fatigue, shift from triple_barrel_scare
 
 Contrast
 This module changes frequencies by table choice and workload while preserving the same token set and size families from HU, postflop, and math modules.
+
+See also
+- live_etiquette_and_procedures (score 33) → ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 33) → ../../live_full_ring_adjustments/v1/theory.md
+- live_speech_timing_basics (score 33) → ../../live_speech_timing_basics/v1/theory.md
+- online_hud_and_db_review (score 33) → ../../online_hud_and_db_review/v1/theory.md
+- cash_short_handed (score 31) → ../../cash_short_handed/v1/theory.md

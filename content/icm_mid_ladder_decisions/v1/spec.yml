@@ -1,0 +1,23 @@
+module: icm_mid_ladder_decisions
+images:
+  - slug: icm_midladder_pressure_map
+    caption: "Stack bands -> token levers"
+    engine: unknown
+    src: ""
+    out: images/icm_midladder_pressure_map.svg
+    status: done
+    notes: ""
+  - slug: icm_turn_upgrade_gates
+    caption: "50 -> 75% gates under ICM"
+    engine: unknown
+    src: ""
+    out: images/icm_turn_upgrade_gates.svg
+    status: done
+    notes: ""
+  - slug: icm_river_discipline
+    caption: "Polar 75%: blockers/discipline"
+    engine: unknown
+    src: ""
+    out: images/icm_river_discipline.svg
+    status: done
+    notes: ""

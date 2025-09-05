@@ -1,0 +1,23 @@
+module: mtt_mid_stack
+images:
+  - slug: mid_stack_phase_map
+    caption: "25-50bb decisions by position"
+    engine: unknown
+    src: ""
+    out: images/mid_stack_phase_map.svg
+    status: done
+    notes: ""
+  - slug: 3bet_4bet_geometry_25_50bb
+    caption: "Preflop ladders and SPR"
+    engine: unknown
+    src: ""
+    out: images/3bet_4bet_geometry_25_50bb.svg
+    status: done
+    notes: ""
+  - slug: postflop_pressure_windows
+    caption: "Double-barrel and scare-river windows"
+    engine: unknown
+    src: ""
+    out: images/postflop_pressure_windows.svg
+    status: done
+    notes: ""

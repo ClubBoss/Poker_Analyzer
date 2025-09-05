@@ -11,15 +11,18 @@ Rules of thumb
 * Tilt or fear spike: do not invent sizes; fold more vs big_bet_75 without blockers; choose size_down_dry for thin value. Why: protect bankroll while stable.
 * Confidence spike: keep tokens; require blockers before big_bet_75 on dynamic turns (size_up_wet). Why: avoid overreach.
 * After bad beat: physics first. Pause thin OOP calls; keep preflop ladders but trim bluff 3-bets without blockers. Why: reduce variance while composed.
-* End-session fatigue: default to probe_turns after check-check; cut river hero-calls; bias delay_turn with medium strength. Why: simple, high-EV actions.
+* End-session fatigue: default to probe_turns after chk-chk; cut river hero-calls; bias delay_turn with medium strength. Why: simple, high-EV actions.
 * Shot-taking window: smaller, lower-variance lines (small_cbet_33, half_pot_50); 4bet_ip_21bb / 4bet_oop_24bb only with premiums and blockers. Why: control risk.
 * Recovery block (post-tilt cooldown): increase protect_check_range in stab-prone nodes; keep big_bet_75 only with scare + blockers. Why: prevent auto-profit against you.
 * Confidence rebuild vs stations: value more with half_pot_50; thin value on static with size_down_dry. Why: merged callers pay.
 * Focus peak on dynamic textures: when equity and blockers align, size_up_wet and consider big_bet_75 as double_barrel_good. Why: capitalize when bandwidth is high.
 
 [[IMAGE: routine_state_switchboard | Routine states -> frequency shifts by token]]
+![Routine states -> frequency shifts by token](images/routine_state_switchboard.svg)
 [[IMAGE: error_rate_curve | Error rate vs tables/fatigue and recommended tokens]]
+![Error rate vs tables/fatigue and recommended tokens](images/error_rate_curve.svg)
 [[IMAGE: warmup_cooldown_checklist | 5-min warmup & 3-min cooldown]]
+![5-min warmup & 3-min cooldown](images/warmup_cooldown_checklist.svg)
 
 Mini example
 Start HU 100bb after warmup. SB opens 2.0bb; BB 3bet_oop_12bb with A5s (blockers). Flop A83r in a 3-bet pot, pot ~18bb: size_down_dry with small_cbet_33. Mid-session load jumps 6->12 tables; you simplify: on K72r SRP, keep small_cbet_33, choose delay_turn with medium Kx; earlier streets include protect_check_range to avoid stabs. Later river A94r-6s-Kd vs big_bet_75 without blockers: fold. Ladders unchanged throughout.
@@ -43,3 +46,10 @@ Execution load: cognitive demand; when high, bias delay_turn and small_cbet_33.
 
 Contrast
 Bankroll/variance sets macro policy; online dynamics use opponent signals. This module uses internal state to shift frequencies while preserving the same actions and size families.
+
+See also
+- exploit_advanced (score 27) → ../../exploit_advanced/v1/theory.md
+- icm_final_table_hu (score 27) → ../../icm_final_table_hu/v1/theory.md
+- icm_mid_ladder_decisions (score 27) → ../../icm_mid_ladder_decisions/v1/theory.md
+- live_etiquette_and_procedures (score 27) → ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 27) → ../../live_full_ring_adjustments/v1/theory.md

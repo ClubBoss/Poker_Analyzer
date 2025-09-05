@@ -1,0 +1,23 @@
+module: mtt_late_reg_strategy
+images:
+  - slug: late_reg_entry_bands_map
+    caption: "Entry stack bands and decisions (20-45bb)"
+    engine: unknown
+    src: ""
+    out: images/late_reg_entry_bands_map.svg
+    status: done
+    notes: ""
+  - slug: late_reg_ev_toggles
+    caption: "EV toggles: coverage, field tightness, time remaining"
+    engine: unknown
+    src: ""
+    out: images/late_reg_ev_toggles.svg
+    status: done
+    notes: ""
+  - slug: late_reg_postflop_flows
+    caption: "Low-SPR lines after late-reg entry"
+    engine: unknown
+    src: ""
+    out: images/late_reg_postflop_flows.svg
+    status: done
+    notes: ""

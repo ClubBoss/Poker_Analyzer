@@ -2,8 +2,11 @@ What it is
 This module builds a simple, repeatable mental game system: focus routines, tilt control, and variance literacy. You will set pre-session and in-session checklists that keep decisions clear when cards run bad or good, and you will practice short resets that recover judgment fast.
 
 [[IMAGE: routine_cards | Simple routine before cards]]
+![Simple routine before cards](images/routine_cards.svg)
 [[IMAGE: tilt_triggers | Common tilt triggers and interrupts]]
+![Common tilt triggers and interrupts](images/tilt_triggers.svg)
 [[IMAGE: variance_curve | Swings you should expect]]
+![Swings you should expect](images/variance_curve.svg)
 
 Why it matters
 Strong strategy collapses when attention slips or emotions steer choices. A routine lowers error rate, protects bankroll decisions, and helps you quit on time. Understanding variance prevents panic after bad beats and overconfidence after heaters, so you avoid chase mode and protect win rate.
@@ -32,3 +35,12 @@ A-game cue: A short phrase or action that reminds you how your best decisions fe
 
 Contrast
 Unlike core_bankroll_management, which sets financial cushions and stake rules, this module builds daily routines that keep decision quality high inside each session.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- cash_3bet_oop_playbook (score 5) → ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense (score 5) → ../../cash_blind_defense/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 5) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_blind_vs_blind (score 5) → ../../cash_blind_vs_blind/v1/theory.md
+- cash_delayed_cbet_and_probe_systems (score 5) → ../../cash_delayed_cbet_and_probe_systems/v1/theory.md

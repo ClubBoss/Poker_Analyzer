@@ -1,0 +1,23 @@
+module: study_review_handlab
+images:
+  - slug: study_pipeline_map
+    caption: "From hand import -> tag -> solver -> token"
+    engine: unknown
+    src: ""
+    out: images/study_pipeline_map.svg
+    status: done
+    notes: ""
+  - slug: kpi_review_dashboard
+    caption: "Weekly KPIs and leak radar"
+    engine: unknown
+    src: ""
+    out: images/kpi_review_dashboard.svg
+    status: done
+    notes: ""
+  - slug: hand_to_drill_flow
+    caption: "How a spot becomes a spaced drill"
+    engine: unknown
+    src: ""
+    out: images/hand_to_drill_flow.svg
+    status: done
+    notes: ""

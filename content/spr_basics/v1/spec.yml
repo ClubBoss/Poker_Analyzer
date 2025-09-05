@@ -1,0 +1,23 @@
+module: spr_basics
+images:
+  - slug: spr_definition_tiles
+    caption: "SPR definition with street start examples"
+    engine: unknown
+    src: ""
+    out: images/spr_definition_tiles.svg
+    status: done
+    notes: ""
+  - slug: spr_by_ladder
+    caption: "How 9/12/21/24 preflop sizes set SPR"
+    engine: unknown
+    src: ""
+    out: images/spr_by_ladder.svg
+    status: done
+    notes: ""
+  - slug: spr_texture_matrix
+    caption: "Texture family (dry/wet) × low/medium/high SPR play"
+    engine: unknown
+    src: ""
+    out: images/spr_texture_matrix.svg
+    status: done
+    notes: ""

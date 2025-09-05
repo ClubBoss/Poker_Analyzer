@@ -1,0 +1,23 @@
+module: donk_bets_and_leads
+images:
+  - slug: donk_where_and_why
+    caption: "Flop/turn lead spots by texture & range shift"
+    engine: unknown
+    src: ""
+    out: images/donk_where_and_why.svg
+    status: done
+    notes: ""
+  - slug: lead_size_picker
+    caption: "Turn lead: choose 50 vs 75 by blockers/fold-vs-size"
+    engine: unknown
+    src: ""
+    out: images/lead_size_picker.svg
+    status: done
+    notes: ""
+  - slug: defend_vs_raise
+    caption: "What to do when IP raises your lead"
+    engine: unknown
+    src: ""
+    out: images/defend_vs_raise.svg
+    status: done
+    notes: ""

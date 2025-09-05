@@ -1,9 +1,12 @@
 What it is
-Isolation raises target one or more limpers so you play heads up with the betting lead. You decide between iso, overlimp, or fold based on position, number of limpers, and limp-raise risk. Size ladders scale with limpers and position so you avoid multiway and land on clean SPRs for value capture and simple turn trees (typical online).
+Isolation raises target one or more limpers so you play heads up with the betting probe_turns. You decide between iso, overlimp, or fold based on position, number of limpers, and limp-raise risk. Size ladders scale with limpers and position so you avoid multiway and land on clean SPRs for value capture and simple turn trees (typical online).
 
 [[IMAGE: iso_sizing_ladder | IP/OOP iso size ladder]]
+![IP/OOP iso size ladder](images/iso_sizing_ladder.svg)
 [[IMAGE: iso_spr_map | SPR after iso vs 1-3 limpers]]
+![SPR after iso vs 1-3 limpers](images/iso_spr_map.svg)
 [[IMAGE: iso_decision_tree | Isolate or overlimp cues]]
+![Isolate or overlimp cues](images/iso_decision_tree.svg)
 
 Why it matters
 Limpers hide weak ranges and realize equity cheaply if you let the pot stay multiway. Correct iso sizes reclaim fold equity, isolate the weakest opponent, and build pots where top pair and c-bets perform well. Wrong sizes invite multiway, bloat OOP pots, and increase reverse implied risk, especially without position and kickers.
@@ -35,3 +38,11 @@ fold_vs_limp_raise: Tight response to limp-raise pressure; continue mainly with 
 Contrast
 Unlike blind-vs-blind, iso pots target one capped limp-call range and aim to avoid multiway, so sizes push more folds and set heads-up SPRs that reward top pair and initiative.
 
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- cash_population_exploits (score 21) → ../../cash_population_exploits/v1/theory.md
+- cash_short_handed (score 21) → ../../cash_short_handed/v1/theory.md
+- hand_review_and_annotation_standards (score 21) → ../../hand_review_and_annotation_standards/v1/theory.md
+- icm_mid_ladder_decisions (score 21) → ../../icm_mid_ladder_decisions/v1/theory.md
+- mtt_pko_strategy (score 21) → ../../mtt_pko_strategy/v1/theory.md

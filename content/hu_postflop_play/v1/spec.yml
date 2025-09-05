@@ -1,0 +1,23 @@
+module: hu_postflop_play
+images:
+  - slug: hu_size_families
+    caption: "Core sizing families and when to use each"
+    engine: unknown
+    src: ""
+    out: images/hu_size_families.svg
+    status: done
+    notes: ""
+  - slug: hu_board_textures
+    caption: "Dry vs wet boards and pressure mapping"
+    engine: unknown
+    src: ""
+    out: images/hu_board_textures.svg
+    status: done
+    notes: ""
+  - slug: hu_street_tree
+    caption: "Street-by-street decision tree with defaults"
+    engine: unknown
+    src: ""
+    out: images/hu_street_tree.svg
+    status: done
+    notes: ""

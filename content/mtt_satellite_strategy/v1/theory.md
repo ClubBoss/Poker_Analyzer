@@ -2,8 +2,11 @@ What it is
 Satellite strategy for 9-max with flat tickets prioritizes survival over chip accumulation. Decisions weight bubble factor, coverage (who covers whom), and seat math (players left vs seats). Preflop trees lean jam-first; postflop lines avoid variance. You will use size families and line tokens to keep risk controlled.
 
 [[IMAGE: satellite_bubble_factor_map | Risk premium by coverage and seats remaining]]
+![Risk premium by coverage and seats remaining](images/satellite_bubble_factor_map.svg)
 [[IMAGE: satellite_shove_call_ladders | Jam/call-off ladders by seat and stack bands]]
+![Jam/call-off ladders by seat and stack bands](images/satellite_shove_call_ladders.svg)
 [[IMAGE: satellite_postflop_risk | Postflop risk control: stab vs check by texture]]
+![Postflop risk control: stab vs check by texture](images/satellite_postflop_risk.svg)
 
 Why it matters
 One chip won is not equal to one chip lost when seats are flat. Calling off and busting is far worse than folding a small edge. Coverage asymmetry flips incentives: when covered, your stack has higher risk premium; when you cover shorts, shoves deny equity and win seats. Avoiding multiway side pots reduces bust risk and preserves fold equity later.
@@ -36,3 +39,12 @@ Call-off: committing your stack versus an all-in; ultra-tight when covered.
 
 Contrast
 Unlike chips-EV MTT or PKO, satellites weight survival over chip gain. Jam-first preflop and risk-controlled postflop dominate; thin edges, splashy multiway flats, and big polar bets are mostly removed unless they clearly lock a seat.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- database_leakfinder_playbook (score 25) → ../../database_leakfinder_playbook/v1/theory.md
+- donk_bets_and_leads (score 25) → ../../donk_bets_and_leads/v1/theory.md
+- hand_review_and_annotation_standards (score 25) → ../../hand_review_and_annotation_standards/v1/theory.md
+- icm_final_table_hu (score 25) → ../../icm_final_table_hu/v1/theory.md
+- live_chip_handling_and_bet_declares (score 25) → ../../live_chip_handling_and_bet_declares/v1/theory.md
