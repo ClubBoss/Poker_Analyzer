@@ -3,9 +3,7 @@
 4bet_ip_21bb
 4bet_oop_24bb
 big_bet_75
-call
 delay_turn
-double_barrel_good
 fold
 half_pot_50
 overfold_exploit
