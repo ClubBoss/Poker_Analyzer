@@ -31,3 +31,5 @@ Note: The helper `kpiFields(...)` in `lib/infra/kpi_fields_pure.dart` builds the
 
 Both flags are disabled by default; flipping them should not impact production behavior until explicitly enabled.
 
+When `kEnableWeaknessLog` is true, `session_end` telemetry may also include:
+- `weakness_top_family` and `weakness_top_count` (if any data recorded)
