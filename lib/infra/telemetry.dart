@@ -6,6 +6,8 @@ import 'package:poker_analyzer/infra/kpi_gate.dart';
 import 'package:poker_analyzer/infra/kpi_fields_pure.dart' show kpiFields;
 import 'package:poker_analyzer/infra/weakness_log.dart';
 import 'package:poker_analyzer/infra/blitz_timer.dart';
+import 'package:poker_analyzer/infra/rehab_hint.dart';
+import 'package:poker_analyzer/infra/spaced_review.dart';
 
 /// Minimal telemetry wrapper around Sentry.
 ///
@@ -99,6 +101,30 @@ class Telemetry {
             augmented['blitz_timeouts'] = v is int ? v : 0;
           } else {
             augmented.remove('blitz_timeouts');
+          }
+
+          // Rehab hint (additive): derive suggestions after KPI/weakness
+          final bool kpiMet = augmented['kpi_met'] == true;
+          final String? weaknessTop =
+              augmented['weakness_top_family'] as String?;
+          final List<String> hints = rehabHint(
+            kpiMet: kpiMet,
+            weaknessTop: weaknessTop,
+          );
+          if (hints.isNotEmpty) {
+            augmented['rehab_hint'] = hints;
+          }
+
+          // Spaced review next timestamp (additive)
+          if (kEnableSpaced &&
+              (augmented['kpi_met'] is bool) &&
+              total is int &&
+              correct is int) {
+            augmented['next_review_ts'] = nextReviewTs(
+              kpiMet: kpiMet,
+              correct: correct,
+              total: total,
+            ).toIso8601String();
           }
         }
         props = augmented;
