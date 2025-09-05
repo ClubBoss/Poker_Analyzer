@@ -18,8 +18,11 @@ Rules of thumb
 * Focus peak on dynamic textures: when equity and blockers align, size_up_wet and consider big_bet_75 as double_barrel_good. Why: capitalize when bandwidth is high.
 
 [[IMAGE: routine_state_switchboard | Routine states -> frequency shifts by token]]
+![Routine states -> frequency shifts by token](images/routine_state_switchboard.svg)
 [[IMAGE: error_rate_curve | Error rate vs tables/fatigue and recommended tokens]]
+![Error rate vs tables/fatigue and recommended tokens](images/error_rate_curve.svg)
 [[IMAGE: warmup_cooldown_checklist | 5-min warmup & 3-min cooldown]]
+![5-min warmup & 3-min cooldown](images/warmup_cooldown_checklist.svg)
 
 Mini example
 Start HU 100bb after warmup. SB opens 2.0bb; BB 3bet_oop_12bb with A5s (blockers). Flop A83r in a 3-bet pot, pot ~18bb: size_down_dry with small_cbet_33. Mid-session load jumps 6->12 tables; you simplify: on K72r SRP, keep small_cbet_33, choose delay_turn with medium Kx; earlier streets include protect_check_range to avoid stabs. Later river A94r-6s-Kd vs big_bet_75 without blockers: fold. Ladders unchanged throughout.
@@ -43,3 +46,10 @@ Execution load: cognitive demand; when high, bias delay_turn and small_cbet_33.
 
 Contrast
 Bankroll/variance sets macro policy; online dynamics use opponent signals. This module uses internal state to shift frequencies while preserving the same actions and size families.
+
+See also
+- exploit_advanced (score 27) → ../../exploit_advanced/v1/theory.md
+- icm_final_table_hu (score 27) → ../../icm_final_table_hu/v1/theory.md
+- icm_mid_ladder_decisions (score 27) → ../../icm_mid_ladder_decisions/v1/theory.md
+- live_etiquette_and_procedures (score 27) → ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 27) → ../../live_full_ring_adjustments/v1/theory.md

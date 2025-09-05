@@ -1,0 +1,23 @@
+module: spr_commitment_checklists
+images:
+  - slug: spr_band_checklists
+    caption: "SPR bands -> token biases"
+    engine: unknown
+    src: ""
+    out: images/spr_band_checklists.svg
+    status: done
+    notes: ""
+  - slug: turn_upgrade_gates_spr
+    caption: "50 -> 75% gates + commitment check"
+    engine: unknown
+    src: ""
+    out: images/turn_upgrade_gates_spr.svg
+    status: done
+    notes: ""
+  - slug: river_plan_flow
+    caption: "Turn choice -> river plan discipline"
+    engine: unknown
+    src: ""
+    out: images/river_plan_flow.svg
+    status: done
+    notes: ""

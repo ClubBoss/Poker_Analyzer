@@ -3,8 +3,11 @@ What it is
 This module explains river strategy: when to value_bet or bluff, how to choose bet_small_river, bet_big_river, or overbet_river, how blockers shape a blocker_bluff, when to bluffcatch, and the correct showdown flow.
 
 [[IMAGE: river_decision_tree | Value or bluff decision]]
+![Value or bluff decision](images/river_decision_tree.svg)
 [[IMAGE: polar_sizes | When to polarize with big sizes]]
+![When to polarize with big sizes](images/polar_sizes.svg)
 [[IMAGE: showdown_flow | Who shows first at showdown]]
+![Who shows first at showdown](images/showdown_flow.svg)
 
 Why it matters
 The river locks equities and concentrates chips. One sizing or one call decides sessions. Clear rules for polarize vs thin_value reduce fear-based choices and turn close spots into repeatable, profitable decisions.
@@ -35,3 +38,10 @@ Contrast
 Unlike core_turn_fundamentals, which plans geometry and second barrels, this module focuses on final-street sizing, value vs bluff decisions, blocker-driven bluffs, disciplined bluffcatching, and correct showdown flow.
 
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- cash_3bet_oop_playbook (score 12) → ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 12) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_blind_vs_blind (score 12) → ../../cash_blind_vs_blind/v1/theory.md
+- cash_fourbet_pots (score 12) → ../../cash_fourbet_pots/v1/theory.md
+- cash_population_exploits (score 12) → ../../cash_population_exploits/v1/theory.md

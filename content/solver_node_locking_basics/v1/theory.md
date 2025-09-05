@@ -2,8 +2,11 @@ What it is
 Node locking is a solver workflow where you fix parts of an opponent strategy at a node (e.g., fold%, raise rate, bet size mix) and let the solver re-optimize your side. You compare the locked solution to the baseline tree and translate the EV and frequency shifts into in-game actions: 3bet_ip_9bb, 3bet_oop_12bb, 4bet_ip_21bb, 4bet_oop_24bb, small_cbet_33, half_pot_50, big_bet_75, size_up_wet, size_down_dry, protect_check_range, delay_turn, probe_turns, double_barrel_good, triple_barrel_scare, call, fold, overfold_exploit.
 
 [[IMAGE: locking_flow | From baseline to locked model and back]]
+![From baseline to locked model and back](images/locking_flow.svg)
 [[IMAGE: ev_shift_chart | EV and frequency shifts after a lock]]
+![EV and frequency shifts after a lock](images/ev_shift_chart.svg)
 [[IMAGE: token_mapping | Turning locked findings into table actions]]
+![Turning locked findings into table actions](images/token_mapping.svg)
 
 Why it matters
 Pools rarely match baseline equilibria. If the BB overfolds to turn big_bet_75 or under-bluffs polar rivers, your best line changes. Locking converts reads into precise counter-strategies without guessing sizes. The result is a plan that is solver-aligned by construction and exploit-aware in execution, portable from HU to 6-max and MTT spots.
@@ -33,3 +36,10 @@ Exploit tag: a table note to apply overfold_exploit, big_bet_75, or fold more of
 
 Contrast
 Solver_basics teaches how to read baseline outputs; this module shows how to lock realistic opponent tendencies and convert stable EV shifts into the same tokenized actions for real play.
+
+See also
+- database_leakfinder_playbook (score 27) → ../../database_leakfinder_playbook/v1/theory.md
+- exploit_advanced (score 27) → ../../exploit_advanced/v1/theory.md
+- hand_review_and_annotation_standards (score 27) → ../../hand_review_and_annotation_standards/v1/theory.md
+- icm_final_table_hu (score 27) → ../../icm_final_table_hu/v1/theory.md
+- live_etiquette_and_procedures (score 27) → ../../live_etiquette_and_procedures/v1/theory.md

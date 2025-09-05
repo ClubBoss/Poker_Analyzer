@@ -1,3 +1,3 @@
 {"id": "live_session_log_and_review:demo:01", "spot_kind": "l2_core_rules_check", "steps": ["Log: SRP IP on K72r static; flop chk-chk (Sequence)", "Family=size_down_dry → 33% fits", "Action next time: probe_turns on turn surrender"]}
 {"id": "live_session_log_and_review:demo:02", "spot_kind": "l2_core_rules_check", "steps": ["Log: 3BP JT9ss; turn Q; Blockers good; gate=Fv75↑", "Family=size_up_wet", "Action: double_barrel_good with big_bet_75"]}
-{"id": "live_session_log_and_review:demo:03", "spot_kind": "l2_core_rules_check", "steps": ["Log: River tank→big 75% from tight reg; no blockers", "Keep family; node is polar under-bluffed live", "Action: fold vs big_bet_75; KPI ‘river discipline’ ticked"]}
+{"id": "live_session_log_and_review:demo:03", "spot_kind": "l2_core_rules_check", "steps": ["Log: River tank→big 75% from tight reg; no blockers", "Keep family; node is polar under-bluffed live", "Action: fold vs big_bet_75; KPI 'river discipline' ticked"]}

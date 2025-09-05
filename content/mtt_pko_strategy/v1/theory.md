@@ -2,8 +2,11 @@ What it is
 PKO strategy adapts normal MTT play to bounty equity. Each knockout pays half of the target bounty now and adds half to your own bounty. Coverage matters: you can only win a bounty if you cover the all-in stack. PKO ranges shift most in shove/call-off spots and in turn-river aggression where risk and reward depend on bounties.
 
 [[IMAGE: pko_bounty_equity_map | Bounty equity vs stack/coverage (pre-bubble -> FT)]]
+![Bounty equity vs stack/coverage (pre-bubble -> FT)](images/pko_bounty_equity_map.svg)
 [[IMAGE: pko_calloff_ladders | Shove/call-off ladders by bounty size and coverage]]
+![Shove/call-off ladders by bounty size and coverage](images/pko_calloff_ladders.svg)
 [[IMAGE: pko_postflop_pressure | Postflop pressure windows with bounty risk]]
+![Postflop pressure windows with bounty risk](images/pko_postflop_pressure.svg)
 
 Why it matters
 Bounty equity acts like extra pot share. When you cover a short with a big bounty, profitable calls and reshoves appear that would be folds in non-PKO. When you are covered and hold a large bounty, opponents call wider; thin bluffs and marginal peels lose value. Clear, tokenized trees reduce errors under changing incentives.
@@ -23,7 +26,7 @@ Bubble, 9-max. CO 35bb covers BTN 12bb who has a big bounty. CO opens 2.2bb; BTN
 
 Common mistakes
 - Ignoring coverage: calling too tight versus short covered bounties or too loose when you are the covered target.
-- Flatting multiway OOP to “trap” a short bounty and creating bad SPR; shove or fold instead.
+- Flatting multiway OOP to "trap" a short bounty and creating bad SPR; shove or fold instead.
 - Vanity big_bet_75 when covered and without size_up_wet equity; gives away your bounty.
 - Bluff 4-betting into tight ranges without blockers or coverage advantage.
 - Over-bluffing turns when your own bounty is attractive; pools snap wider there.
@@ -41,3 +44,10 @@ Contrast
 Compared to non-PKO, PKO widens call-offs and reshoves when you cover, tightens when covered, and shifts postflop aggression toward turns and rivers that convert bounty pressure, not just pot-share equity.
 
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- cash_short_handed (score 29) → ../../cash_short_handed/v1/theory.md
+- hand_review_and_annotation_standards (score 29) → ../../hand_review_and_annotation_standards/v1/theory.md
+- cash_population_exploits (score 27) → ../../cash_population_exploits/v1/theory.md
+- database_leakfinder_playbook (score 27) → ../../database_leakfinder_playbook/v1/theory.md
+- donk_bets_and_leads (score 27) → ../../donk_bets_and_leads/v1/theory.md

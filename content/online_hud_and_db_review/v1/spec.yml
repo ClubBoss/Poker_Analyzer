@@ -1,0 +1,23 @@
+module: online_hud_and_db_review
+images:
+  - slug: hud_metric_map
+    caption: "Common HUD and db metrics mapped to actions"
+    engine: unknown
+    src: ""
+    out: images/hud_metric_map.svg
+    status: done
+    notes: ""
+  - slug: turn_river_exploit_tree
+    caption: "Picking 50 or 75 by fold-vs-size"
+    engine: unknown
+    src: ""
+    out: images/turn_river_exploit_tree.svg
+    status: done
+    notes: ""
+  - slug: sampling_confidence_lanes
+    caption: "Sample size tiers: weak, medium, strong"
+    engine: unknown
+    src: ""
+    out: images/sampling_confidence_lanes.svg
+    status: done
+    notes: ""

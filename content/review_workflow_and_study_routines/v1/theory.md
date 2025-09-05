@@ -18,8 +18,11 @@ Rules of thumb
 * Drill pipeline: each reviewed hand becomes one demo and one drill with a single‑token answer. Why: frictionless practice.
 
 [[IMAGE: study_week_cadence | Weekly calendar: import -> triage -> solve -> drills -> space]]
+![Weekly calendar: import -> triage -> solve -> drills -> space](images/study_week_cadence.svg)
 [[IMAGE: kpi_radar_minimal | KPI radar: probes/family/river discipline/protection]]
+![KPI radar: probes/family/river discipline/protection](images/kpi_radar_minimal.svg)
 [[IMAGE: spot_to_drill_map | One reviewed spot -> token -> demo + drill]]
+![One reviewed spot -> token -> demo + drill](images/spot_to_drill_map.svg)
 
 Mini example
 Hand 1 (SRP): IP on K72r. Annotation: Texture=dry, Family=33, PFA=IP, SPR=high, Raise risk=normal. Token: size_down_dry + small_cbet_33. Spacing: 1d.
@@ -39,3 +42,10 @@ Token set: the fixed actions you execute in play.
 
 Contrast
 study_review_handlab is the lab recipe for one spot. This module is the weekly calendar: capture, triage, baseline, one lock, token mapping, drills, spacing, and KPI dashboards. Sizes and ladders remain identical; routines only shift frequencies.
+
+See also
+- icm_final_table_hu (score 31) → ../../icm_final_table_hu/v1/theory.md
+- live_session_log_and_review (score 31) → ../../live_session_log_and_review/v1/theory.md
+- live_table_selection_and_seat_change (score 31) → ../../live_table_selection_and_seat_change/v1/theory.md
+- online_economics_rakeback_promos (score 31) → ../../online_economics_rakeback_promos/v1/theory.md
+- online_hudless_strategy_and_note_coding (score 31) → ../../online_hudless_strategy_and_note_coding/v1/theory.md

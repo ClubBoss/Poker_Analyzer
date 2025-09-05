@@ -1,0 +1,23 @@
+module: spr_advanced
+images:
+  - slug: spr_commitment_planner
+    caption: "Turn sizing -> river plan at varying SPR"
+    engine: unknown
+    src: ""
+    out: images/spr_commitment_planner.svg
+    status: done
+    notes: ""
+  - slug: ladder_to_spr_map
+    caption: "9/12/21/24 ladders -> typical SPR bands"
+    engine: unknown
+    src: ""
+    out: images/ladder_to_spr_map.svg
+    status: done
+    notes: ""
+  - slug: spr_texture_matrix_advanced
+    caption: "Texture×SPR with blocker gates"
+    engine: unknown
+    src: ""
+    out: images/spr_texture_matrix_advanced.svg
+    status: done
+    notes: ""

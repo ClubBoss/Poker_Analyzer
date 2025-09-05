@@ -43,5 +43,15 @@ Contrast
 Compared to cash and HU ICM, mid-ladder ICM tightens upgrade and call gates, favors delay_turn and protect_check_range OOP, and keeps the same tokens and the 33/50/75 family.
 
 [[IMAGE: icm_midladder_pressure_map | Stack bands -> token levers]]
+![Stack bands -> token levers](images/icm_midladder_pressure_map.svg)
 [[IMAGE: icm_turn_upgrade_gates | 50 -> 75% gates under ICM]]
+![50 -> 75% gates under ICM](images/icm_turn_upgrade_gates.svg)
 [[IMAGE: icm_river_discipline | Polar 75%: blockers/discipline]]
+![Polar 75%: blockers/discipline](images/icm_river_discipline.svg)
+
+See also
+- cash_short_handed (score 31) → ../../cash_short_handed/v1/theory.md
+- hand_review_and_annotation_standards (score 31) → ../../hand_review_and_annotation_standards/v1/theory.md
+- icm_final_table_hu (score 31) → ../../icm_final_table_hu/v1/theory.md
+- live_chip_handling_and_bet_declares (score 31) → ../../live_chip_handling_and_bet_declares/v1/theory.md
+- live_etiquette_and_procedures (score 31) → ../../live_etiquette_and_procedures/v1/theory.md

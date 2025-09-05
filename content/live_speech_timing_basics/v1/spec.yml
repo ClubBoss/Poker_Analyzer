@@ -1,0 +1,23 @@
+module: live_speech_timing_basics
+images:
+  - slug: speech_timing_reliability
+    caption: "Speech & timing reliability tiers"
+    engine: unknown
+    src: ""
+    out: images/speech_timing_reliability.svg
+    status: done
+    notes: ""
+  - slug: cue_to_token_flow
+    caption: "Cue -> family (33/50/75) -> token"
+    engine: unknown
+    src: ""
+    out: images/cue_to_token_flow.svg
+    status: done
+    notes: ""
+  - slug: river_discipline_lane
+    caption: "River tank→big discipline + blocker gates"
+    engine: unknown
+    src: ""
+    out: images/river_discipline_lane.svg
+    status: done
+    notes: ""

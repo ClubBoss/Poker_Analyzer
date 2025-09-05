@@ -1,0 +1,23 @@
+module: mtt_final_table_playbooks
+images:
+  - slug: ft_roles_pressure_map
+    caption: "Chip leader vs medium vs short roles by position"
+    engine: unknown
+    src: ""
+    out: images/ft_roles_pressure_map.svg
+    status: done
+    notes: ""
+  - slug: ft_3bet_4bet_ladders_icm
+    caption: "3-bet/4-bet ladders under ICM & coverage"
+    engine: unknown
+    src: ""
+    out: images/ft_3bet_4bet_ladders_icm.svg
+    status: done
+    notes: ""
+  - slug: ft_postflop_risk_control
+    caption: "Postflop pressure vs control windows"
+    engine: unknown
+    src: ""
+    out: images/ft_postflop_risk_control.svg
+    status: done
+    notes: ""

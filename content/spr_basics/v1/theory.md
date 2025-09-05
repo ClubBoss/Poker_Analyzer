@@ -17,8 +17,12 @@ Rules of thumb
 * Keep ladders and sizes fixed; SPR shifts frequencies only. Why: consistency under pressure.
 
 [[IMAGE: spr_definition_tiles | SPR definition with street start examples]]
+![SPR definition with street start examples](images/spr_definition_tiles.svg)
 [[IMAGE: spr_by_ladder | How 9/12/21/24 preflop sizes set SPR]]
-[[IMAGE: spr_texture_matrix | Texture family (dry/wet) × low/medium/high SPR play]]
+![How 9/12/21/24 preflop sizes set SPR](images/spr_by_ladder.svg)
+[[IMAGE: spr_texture_matrix | Texture family (dry/wet) x low/medium/high SPR play]]
+![Texture family (dry/wet) × low/medium/high SPR play](images/spr_texture_matrix.svg)
+![Texture family (dry/wet) x low/medium/high SPR play](images/spr_texture_matrix.svg)
 
 Mini example
 HU 100bb 3-bet pot (low SPR): BB 3bet_oop_12bb vs SB 2.0bb. Flop JT9ss (dynamic) -> half_pot_50; turn Qs with blockers -> double_barrel_good, consider big_bet_75 (size_up_wet) if folds spike.
@@ -42,3 +46,10 @@ Leverage: pressure created by bet size relative to remaining stack.
 
 Contrast
 rake_and_ante_economics changes incentives via fees and dead money; donk_bets_and_leads covers OOP initiative vs PFA. SPR is the geometry that shapes frequency choices using the same tokens and families.
+
+See also
+- icm_final_table_hu (score 33) → ../../icm_final_table_hu/v1/theory.md
+- live_session_log_and_review (score 33) → ../../live_session_log_and_review/v1/theory.md
+- online_economics_rakeback_promos (score 33) → ../../online_economics_rakeback_promos/v1/theory.md
+- online_hudless_strategy_and_note_coding (score 33) → ../../online_hudless_strategy_and_note_coding/v1/theory.md
+- online_tells_and_dynamics (score 33) → ../../online_tells_and_dynamics/v1/theory.md

@@ -1,6 +1,9 @@
 [[IMAGE: pot_odds_formula_card | Pot odds vs equity]]
+![Pot odds vs equity](images/pot_odds_formula_card.svg)
 [[IMAGE: rule_2_4_cheatsheet | Rule of 2 and 4]]
+![Rule of 2 and 4](images/rule_2_4_cheatsheet.svg)
 [[IMAGE: implied_vs_reverse_graph | Implied vs reverse implied odds]]
+![Implied vs reverse implied odds](images/implied_vs_reverse_graph.svg)
 
 What it is
 This module explains pot odds, equity, implied odds, reverse implied odds, the breakeven percentage, and the quick estimate called the rule of 2 and 4. Pot odds compare the price of a call to the money you can win. Equity is your chance to win at showdown if all remaining cards are dealt.
@@ -35,3 +38,10 @@ Contrast
 Adjacent modules cover position names, opening ranges by seat, and initiative vs no-initiative; this module focuses on the math that tells you whether a call pays off.
 
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- cash_3bet_oop_playbook (score 4) → ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense (score 4) → ../../cash_blind_defense/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 4) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_blind_vs_blind (score 4) → ../../cash_blind_vs_blind/v1/theory.md
+- cash_delayed_cbet_and_probe_systems (score 4) → ../../cash_delayed_cbet_and_probe_systems/v1/theory.md

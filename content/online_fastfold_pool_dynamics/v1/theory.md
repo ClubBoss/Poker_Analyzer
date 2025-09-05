@@ -17,7 +17,9 @@ Rules of thumb
 * Notes/HUD devalue: prefer population priors; require repetition before overfold_exploit. Why: anonymity reduces sample quality.
 
 [[IMAGE: fastfold_signals_map | Fastfold tendencies -> token adjustments]]
+![Fastfold tendencies -> token adjustments](images/fastfold_signals_map.svg)
 [[IMAGE: standard_lines_only | 33/50/75 families for fastfold]]
+![33/50/75 families for fastfold](images/standard_lines_only.svg)
 
 Mini example
 Repeated blind fast-folds. BB widens 3bet_oop_12bb with A5s and tags overfold_exploit. In the 3-bet pot on A83r, pot ~18bb, choose small_cbet_33 (size_down_dry). Later an SRP checks through; on a favorable turn, fire probe_turns. River A94r-6s-Kd: facing big_bet_75 without blockers, fold.
@@ -40,3 +42,10 @@ Population prior: default pool tendency used when notes/HUD are thin.
 
 Contrast
 Regular tables allow deeper reads and opponent-specific exploits. Fastfold reduces information, so sizes stay identical and only frequencies move within the same token set.
+
+See also
+- icm_mid_ladder_decisions (score 29) → ../../icm_mid_ladder_decisions/v1/theory.md
+- live_etiquette_and_procedures (score 29) → ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 29) → ../../live_full_ring_adjustments/v1/theory.md
+- live_speech_timing_basics (score 29) → ../../live_speech_timing_basics/v1/theory.md
+- live_tells_and_dynamics (score 29) → ../../live_tells_and_dynamics/v1/theory.md

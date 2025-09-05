@@ -1,0 +1,23 @@
+module: live_chip_handling_and_bet_declares
+images:
+  - slug: chip_procedure_matrix
+    caption: "Verbal/one-motion/line-rule -> frequency shifts"
+    engine: unknown
+    src: ""
+    out: images/chip_procedure_matrix.svg
+    status: done
+    notes: ""
+  - slug: raise_legality_flow
+    caption: "Min-raise & oversized-chip quick flow"
+    engine: unknown
+    src: ""
+    out: images/raise_legality_flow.svg
+    status: done
+    notes: ""
+  - slug: family_picker_live
+    caption: "Texture -> 33/50/75 family with live safeguards"
+    engine: unknown
+    src: ""
+    out: images/family_picker_live.svg
+    status: done
+    notes: ""

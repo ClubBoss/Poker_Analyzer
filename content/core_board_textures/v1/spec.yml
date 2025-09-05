@@ -1,0 +1,23 @@
+module: core_board_textures
+images:
+  - slug: texture_taxonomy
+    caption: "Common flop texture families"
+    engine: unknown
+    src: ""
+    out: images/texture_taxonomy.svg
+    status: done
+    notes: ""
+  - slug: static_dynamic
+    caption: "Static vs dynamic boards"
+    engine: unknown
+    src: ""
+    out: images/static_dynamic.svg
+    status: done
+    notes: ""
+  - slug: range_nut_advantage
+    caption: "Range and nut advantage cues"
+    engine: unknown
+    src: ""
+    out: images/range_nut_advantage.svg
+    status: done
+    notes: ""

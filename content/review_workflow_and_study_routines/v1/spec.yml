@@ -1,0 +1,23 @@
+module: review_workflow_and_study_routines
+images:
+  - slug: study_week_cadence
+    caption: "Weekly calendar: import -> triage -> solve -> drills -> space"
+    engine: unknown
+    src: ""
+    out: images/study_week_cadence.svg
+    status: done
+    notes: ""
+  - slug: kpi_radar_minimal
+    caption: "KPI radar: probes/family/river discipline/protection"
+    engine: unknown
+    src: ""
+    out: images/kpi_radar_minimal.svg
+    status: done
+    notes: ""
+  - slug: spot_to_drill_map
+    caption: "One reviewed spot -> token -> demo + drill"
+    engine: unknown
+    src: ""
+    out: images/spot_to_drill_map.svg
+    status: done
+    notes: ""

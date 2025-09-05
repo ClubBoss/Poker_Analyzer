@@ -1,0 +1,23 @@
+module: cash_3bet_oop_playbook
+images:
+  - slug: oop_3bp_family_picker
+    caption: "OOP 3bp family picker"
+    engine: unknown
+    src: ""
+    out: images/oop_3bp_family_picker.svg
+    status: done
+    notes: ""
+  - slug: oop_turn_defense_gates
+    caption: "OOP turn defense gates"
+    engine: unknown
+    src: ""
+    out: images/oop_turn_defense_gates.svg
+    status: done
+    notes: ""
+  - slug: oop_river_discipline
+    caption: "OOP river discipline"
+    engine: unknown
+    src: ""
+    out: images/oop_river_discipline.svg
+    status: done
+    notes: ""

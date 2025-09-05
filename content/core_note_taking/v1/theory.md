@@ -2,8 +2,11 @@ What it is
 This module builds a fast note-taking and review system for poker. You will capture key info in seconds during play and route hands into a simple study loop after the session. The aim is short, structured notes that improve decisions without stealing focus.
 
 [[IMAGE: note_tokens | Short tags and tokens]]
+![Short tags and tokens](images/note_tokens.svg)
 [[IMAGE: capture_to_review | From capture to review]]
+![From capture to review](images/capture_to_review.svg)
 [[IMAGE: lineup_notes | Table and player notes map]]
+![Table and player notes map](images/lineup_notes.svg)
 
 Why it matters
 Accurate notes compound edge. They reveal pool leaks, player habits, and your own recurring mistakes. A lightweight system keeps you present at the table while ensuring high-value hands and reads are not lost. Good notes also cut study time by pointing directly at repeatable patterns.
@@ -36,3 +39,10 @@ Contrast
 Unlike core_mental_game, which centers on routines and tilt control, this module creates a capture-and-review pipeline so your play and study inform each other.
 
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- cash_3bet_oop_playbook (score 5) → ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense (score 5) → ../../cash_blind_defense/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 5) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_blind_vs_blind (score 5) → ../../cash_blind_vs_blind/v1/theory.md
+- cash_delayed_cbet_and_probe_systems (score 5) → ../../cash_delayed_cbet_and_probe_systems/v1/theory.md

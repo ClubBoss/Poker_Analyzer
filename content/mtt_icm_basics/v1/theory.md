@@ -2,8 +2,11 @@ What it is
 ICM (Independent Chip Model) means chips do not equal cash. Busting costs future payout equity, so calling off requires more equity than in chips-EV. Risk premium is highest for medium stacks near pay jumps, lower for big stacks who cover, and moderate for shorts who are often forced to take spots.
 
 [[IMAGE: icm_pressure_map | Risk premium by stacks/positions (bubble, pre-FT, FT)]]
+![Risk premium by stacks/positions (bubble, pre-FT, FT)](images/icm_pressure_map.svg)
 [[IMAGE: icm_calloff_ladders | Shove/call-off ladders by seat and stack]]
+![Shove/call-off ladders by seat and stack](images/icm_calloff_ladders.svg)
 [[IMAGE: icm_postflop_geometry | SPR control and risk management under ICM]]
+![SPR control and risk management under ICM](images/icm_postflop_geometry.svg)
 
 Why it matters
 When money jumps loom, chips lost hurt more than chips won help. That shifts good chips-EV calls into folds, especially when covered. Clear preflop shove/reshove trees reduce tough postflop spots. Postflop, prefer pot control OOP and choose pressure only when blockers and coverage favor you.
@@ -40,3 +43,10 @@ Contrast
 Versus chips-EV deep-stack play, ICM shifts value from thin calls and bluffs toward folds and jam-first trees. You win by avoiding dominated commitments when covered and by applying disciplined, blocker-backed pressure when you cover.
 
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- cash_short_handed (score 31) → ../../cash_short_handed/v1/theory.md
+- icm_final_table_hu (score 31) → ../../icm_final_table_hu/v1/theory.md
+- live_session_log_and_review (score 31) → ../../live_session_log_and_review/v1/theory.md
+- online_economics_rakeback_promos (score 31) → ../../online_economics_rakeback_promos/v1/theory.md
+- online_hudless_strategy_and_note_coding (score 31) → ../../online_hudless_strategy_and_note_coding/v1/theory.md

@@ -1,0 +1,23 @@
+module: cash_overbets_and_blocker_bets
+images:
+  - slug: overbet_nut_advantage_map
+    caption: "Boards and positions that enable overbets"
+    engine: unknown
+    src: ""
+    out: images/overbet_nut_advantage_map.svg
+    status: done
+    notes: ""
+  - slug: blocker_bet_spots
+    caption: "Thin value / set-price nodes"
+    engine: unknown
+    src: ""
+    out: images/blocker_bet_spots.svg
+    status: done
+    notes: ""
+  - slug: river_tree_overbet_blocker
+    caption: "Polar vs merge trees and sizes"
+    engine: unknown
+    src: ""
+    out: images/river_tree_overbet_blocker.svg
+    status: done
+    notes: ""

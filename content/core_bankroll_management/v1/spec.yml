@@ -1,0 +1,23 @@
+module: core_bankroll_management
+images:
+  - slug: bankroll_ladders
+    caption: "Buy-in guidelines by format"
+    engine: unknown
+    src: ""
+    out: images/bankroll_ladders.svg
+    status: done
+    notes: ""
+  - slug: downswing_buffer
+    caption: "Cushion for variance"
+    engine: unknown
+    src: ""
+    out: images/downswing_buffer.svg
+    status: done
+    notes: ""
+  - slug: game_selection_radar
+    caption: "Softness and rake checklist"
+    engine: unknown
+    src: ""
+    out: images/game_selection_radar.svg
+    status: done
+    notes: ""

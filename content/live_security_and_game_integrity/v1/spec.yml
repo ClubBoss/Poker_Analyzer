@@ -1,0 +1,23 @@
+module: live_security_and_game_integrity
+images:
+  - slug: integrity_signal_matrix
+    caption: "Common integrity signals -> tokenized responses"
+    engine: unknown
+    src: ""
+    out: images/integrity_signal_matrix.svg
+    status: done
+    notes: ""
+  - slug: angle_defense_flow
+    caption: "Angle pressure -> protect/delay/discipline chooser"
+    engine: unknown
+    src: ""
+    out: images/angle_defense_flow.svg
+    status: done
+    notes: ""
+  - slug: overlay_to_family
+    caption: "Overlay flags -> family stays 33/50/75; frequencies shift"
+    engine: unknown
+    src: ""
+    out: images/overlay_to_family.svg
+    status: done
+    notes: ""

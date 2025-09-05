@@ -1,0 +1,23 @@
+module: cash_blind_defense_vs_btn_co
+images:
+  - slug: blind_defense_family_picker
+    caption: "SB/BB vs BTN/CO: texture -> 33/50/75"
+    engine: unknown
+    src: ""
+    out: images/blind_defense_family_picker.svg
+    status: done
+    notes: ""
+  - slug: oop_defense_turn_gates
+    caption: "OOP turn gates: delay vs 50 vs 75"
+    engine: unknown
+    src: ""
+    out: images/oop_defense_turn_gates.svg
+    status: done
+    notes: ""
+  - slug: river_polar_nodes_oop
+    caption: "OOP river discipline vs big_bet_75"
+    engine: unknown
+    src: ""
+    out: images/river_polar_nodes_oop.svg
+    status: done
+    notes: ""

@@ -1,0 +1,23 @@
+module: cash_short_handed
+images:
+  - slug: short_handed_open_map
+    caption: "Open ranges by seats vs players"
+    engine: unknown
+    src: ""
+    out: images/short_handed_open_map.svg
+    status: done
+    notes: ""
+  - slug: short_handed_3bet_sizes
+    caption: "3-bet/4-bet sizings IP/OOP"
+    engine: unknown
+    src: ""
+    out: images/short_handed_3bet_sizes.svg
+    status: done
+    notes: ""
+  - slug: short_handed_postflop_flows
+    caption: "C-bet, probe, delay flows"
+    engine: unknown
+    src: ""
+    out: images/short_handed_postflop_flows.svg
+    status: done
+    notes: ""

@@ -1,0 +1,23 @@
+module: live_special_formats_straddle_bomb_ante
+images:
+  - slug: straddle_positional_shift
+    caption: "UTG straddle → action order and pressure lanes"
+    engine: unknown
+    src: ""
+    out: images/straddle_positional_shift.svg
+    status: done
+    notes: ""
+  - slug: bomb_ante_dead_money_map
+    caption: "Where dead money boosts steals & merged value"
+    engine: unknown
+    src: ""
+    out: images/bomb_ante_dead_money_map.svg
+    status: done
+    notes: ""
+  - slug: multiway_family_picker
+    caption: "Multi-limpers: 33/50/75 family chooser"
+    engine: unknown
+    src: ""
+    out: images/multiway_family_picker.svg
+    status: done
+    notes: ""

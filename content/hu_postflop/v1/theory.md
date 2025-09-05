@@ -2,8 +2,11 @@ What it is
 Heads-Up postflop is the plan after preflop action ends with one player IP (usually SB/Button) and one OOP (BB). Ranges are wide and uncapped, so texture, position, blockers, and stack depth drive sizing and aggression. You will mix small_cbet_33 on static boards, size_up_wet on volatile ones, protect_check_range when capped OOP, and add delay_turn or probe_turns when a new card shifts the range edge.
 
 [[IMAGE: hu_texture_grid | Dry vs wet boards and IP advantage]]
+![Dry vs wet boards and IP advantage](images/hu_texture_grid.svg)
 [[IMAGE: hu_size_ladders | 33 50 75 size families by node]]
+![33 50 75 size families by node](images/hu_size_ladders.svg)
 [[IMAGE: hu_aggression_windows | Turn and river pressure windows]]
+![Turn and river pressure windows](images/hu_aggression_windows.svg)
 
 Why it matters
 In HU, every pot is blind-vs-blind and equities run closer, so small edges compound. Many rooms rake HU less or not at all, which makes thin stabs and disciplined pressure worth more. Pools often overfold to large turn pressure and under-bluff rivers; a consistent sizing and timing system converts those leaks into EV without torching stacks.
@@ -31,3 +34,10 @@ delay_turn, probe_turns, double_barrel_good, triple_barrel_scare: timed aggressi
 
 Contrast
 6-max postflop has narrower ranges and more multiway risk; HU keeps ranges wide and uncapped, so small bets, disciplined protection, and well-timed turn pressure matter more than flashy river bluffs.
+
+See also
+- cash_3bet_oop_playbook (score 23) → ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 23) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_turn_river_barreling (score 23) → ../../cash_turn_river_barreling/v1/theory.md
+- donk_bets_and_leads (score 23) → ../../donk_bets_and_leads/v1/theory.md
+- hand_review_and_annotation_standards (score 23) → ../../hand_review_and_annotation_standards/v1/theory.md

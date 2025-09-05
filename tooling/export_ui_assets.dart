@@ -1,0 +1,141 @@
+// Export compact UI assets bundle from build artifacts (or recompute if missing).
+// Usage:
+//   dart run tooling/export_ui_assets.dart [--out build/ui_assets] [--recompute] [--quiet]
+// ASCII-only. No external deps. Exit 0 on success, 1 on I/O/parse error.
+
+import 'dart:convert';
+import 'dart:io';
+
+Future<void> main(List<String> args) async {
+  var outDir = 'build/ui_assets';
+  var recompute = false;
+  var quiet = false;
+  for (var i = 0; i < args.length; i++) {
+    final a = args[i];
+    if (a == '--out' && i + 1 < args.length) {
+      outDir = args[++i];
+    } else if (a == '--recompute') {
+      recompute = true;
+    } else if (a == '--quiet') {
+      quiet = true;
+    }
+  }
+
+  final out = Directory(outDir);
+  try {
+    out.createSync(recursive: true);
+  } catch (e) {
+    stderr.writeln('error: cannot create $outDir: $e');
+    exitCode = 1;
+    return;
+  }
+
+  // Ensure sources exist (recompute missing if needed or requested)
+  final sources = <String, Future<bool> Function()>{
+    'build/badges.json': () async =>
+        await _run([
+          'dart',
+          'run',
+          'tooling/export_progression_badges.dart',
+          '--json',
+          'build/badges.json',
+        ]) ==
+        0,
+    'build/search_index.json': () async =>
+        await _run([
+          'dart',
+          'run',
+          'tooling/build_search_index.dart',
+          '--json',
+          'build/search_index.json',
+        ]) ==
+        0,
+    'build/see_also.json': () async =>
+        await _run([
+          'dart',
+          'run',
+          'tooling/build_see_also.dart',
+          '--json',
+          'build/see_also.json',
+        ]) ==
+        0,
+  };
+
+  for (final path in sources.keys) {
+    final f = File(path);
+    if (recompute || !f.existsSync()) {
+      final ok = await sources[path]!();
+      if (!ok) {
+        stderr.writeln('error: failed to build $path');
+        exitCode = 1;
+        return;
+      }
+    }
+  }
+
+  // Copy files to outDir
+  final destBadges = '$outDir/badges.json';
+  final destIndex = '$outDir/search_index.json';
+  final destSeeAlso = '$outDir/see_also.json';
+  try {
+    File('build/badges.json').copySync(destBadges);
+    File('build/search_index.json').copySync(destIndex);
+    File('build/see_also.json').copySync(destSeeAlso);
+  } catch (e) {
+    stderr.writeln('error: copying files: $e');
+    exitCode = 1;
+    return;
+  }
+
+  // Parse counts
+  int modules = 0;
+  int tokens = 0;
+  int spots = 0;
+  try {
+    final badges = jsonDecode(File(destBadges).readAsStringSync());
+    if (badges is Map && badges['rows'] is List) {
+      modules = (badges['rows'] as List).length;
+    }
+    final index = jsonDecode(File(destIndex).readAsStringSync());
+    if (index is Map && index['summary'] is Map) {
+      final s = index['summary'] as Map;
+      tokens = (s['unique_tokens'] is int) ? s['unique_tokens'] as int : 0;
+      spots = (s['unique_spot_kinds'] is int)
+          ? s['unique_spot_kinds'] as int
+          : 0;
+    }
+  } catch (e) {
+    stderr.writeln('error: parsing counts: $e');
+    exitCode = 1;
+    return;
+  }
+
+  // Write manifest
+  final manifest = <String, dynamic>{
+    'generated_at': DateTime.now().millisecondsSinceEpoch ~/ 1000,
+    'files': ['badges.json', 'search_index.json', 'see_also.json'],
+    'counts': {'modules': modules, 'tokens': tokens, 'spot_kinds': spots},
+  };
+  try {
+    File('$outDir/manifest.json').writeAsStringSync(jsonEncode(manifest));
+  } catch (e) {
+    stderr.writeln('error: writing manifest: $e');
+    exitCode = 1;
+    return;
+  }
+
+  if (!quiet) {
+    stdout.writeln(
+      'UIASSETS out=$outDir files=3 modules=$modules tokens=$tokens spot_kinds=$spots',
+    );
+  }
+}
+
+Future<int> _run(List<String> cmd) async {
+  try {
+    final p = await Process.run(cmd.first, cmd.sublist(1));
+    return p.exitCode;
+  } catch (_) {
+    return 1;
+  }
+}

@@ -1,0 +1,23 @@
+module: core_rules_and_setup
+images:
+  - slug: positions_table
+    caption: "Positions at the table"
+    engine: unknown
+    src: ""
+    out: images/positions_table.svg
+    status: done
+    notes: ""
+  - slug: hand_ranking_ladder
+    caption: "Hand ranking ladder"
+    engine: unknown
+    src: ""
+    out: images/hand_ranking_ladder.svg
+    status: done
+    notes: ""
+  - slug: min_raise_math_chart
+    caption: "Min-raise math example"
+    engine: unknown
+    src: ""
+    out: images/min_raise_math_chart.svg
+    status: done
+    notes: ""

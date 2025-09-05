@@ -1,9 +1,13 @@
 What it is
 Advanced ICM endgame covers bubble, pre-FT jumps, and full FT down to 3-handed. Chips do not equal cash; busting is costly. Coverage asymmetry rules: big stacks apply pressure, medium stacks carry the highest risk premium, and short stacks choose clean shove/call-off trees.
 
-[[IMAGE: icm_endgame_pressure_map | Risk premium by stack/position (bubble, FT 9->3, 3–5 handed)]]
+[[IMAGE: icm_endgame_pressure_map | Risk premium by stack/position (bubble, FT 9->3, 3-5 handed)]]
+![Risk premium by stack/position (bubble, FT 9->3, 3–5 handed)](images/icm_endgame_pressure_map.svg)
+![Risk premium by stack/position (bubble, FT 9->3, 3-5 handed)](images/icm_endgame_pressure_map.svg)
 [[IMAGE: endgame_shove_call_ladders | Shove/reshove/call-off ladders by seat and coverage]]
+![Shove/reshove/call-off ladders by seat and coverage](images/endgame_shove_call_ladders.svg)
 [[IMAGE: endgame_postflop_geometry | SPR control and risk exposure at FT]]
+![SPR control and risk exposure at FT](images/endgame_postflop_geometry.svg)
 
 Why it matters
 Pay jumps change good chips-EV plays into bad cash-EV plays. Calling off when covered requires more equity; thin peels OOP are punished. Clear jam-first trees simplify decisions, avoid dominated multiway spots, and let you leverage coverage with credible pressure.
@@ -22,7 +26,7 @@ Bubble, 9-max. CO 36bb (covered by BTN 62bb) opens 2.2bb. BTN uses 3bet_ip_9bb (
 
 Common mistakes
 - Calling off because a spot is barely chips-EV while covered. Fold and keep ladder equity.
-- Cold-calling OOP medium stack to “see a flop.” Prefer 3bet_oop_12bb jam-proxy or fold.
+- Cold-calling OOP medium stack to "see a flop." Prefer 3bet_oop_12bb jam-proxy or fold.
 - Vanity big_bet_75 without equity or nut advantage. Half-pots only when setting a clean commit.
 - Bluff 4-betting tight 3-bettors under ICM. Keep 4bet_ip_21bb and 4bet_oop_24bb value-lean.
 - Triple-barreling scare cards without blockers or coverage edge; story collapses and burns cash equity.
@@ -40,3 +44,10 @@ Contrast
 Compared to chips-EV deep-stack play, advanced ICM endgame favors jam-first preflop, tighter call-offs when covered, fewer bluffs, and pressure timed by coverage and blockers rather than pure equity.
 
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- exploit_advanced (score 31) → ../../exploit_advanced/v1/theory.md
+- icm_final_table_hu (score 31) → ../../icm_final_table_hu/v1/theory.md
+- live_etiquette_and_procedures (score 31) → ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 31) → ../../live_full_ring_adjustments/v1/theory.md
+- live_session_log_and_review (score 31) → ../../live_session_log_and_review/v1/theory.md

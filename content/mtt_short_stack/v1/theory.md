@@ -2,8 +2,11 @@ What it is
 Short-stack play covers 8-25bb effective in 9-max MTTs. At 8-12bb, decisions cluster around push/fold and reshove. At 13-17bb, mixes include jam, raise-call, and raise-fold. At 18-25bb, small opens and 3-bet/4-bet trees reappear, but SPR stays low, so commitment math drives lines more than fancy maneuvering.
 
 [[IMAGE: short_stack_phase_map | 8-25bb decisions by position]]
+![8-25bb decisions by position](images/short_stack_phase_map.svg)
 [[IMAGE: preflop_jam_calloff_ladders | Raise/call/fold vs 3-bets]]
+![Raise/call/fold vs 3-bets](images/preflop_jam_calloff_ladders.svg)
 [[IMAGE: low_spr_postflop_flows | C-bet and commit trees]]
+![C-bet and commit trees](images/low_spr_postflop_flows.svg)
 
 Why it matters
 Antes inflate pots and shorten SPR. Small mistakes compound fast when you are close to all-in. A clean, tokenized plan avoids spew: map preflop to simple shove/reshove families and keep postflop sizes tied to equity and geometry. Pools under-4bet and overfold turns; exploit while staying value heavy.
@@ -33,3 +36,10 @@ Contrast
 Unlike deep-stacked cash, short-stack MTT play compresses ranges and forces commitment earlier. You map preflop to shove/reshove families, default to small_cbet_33 on dry, and reserve big_bet_75 for size_up_wet with real equity; most thin lines vanish at low SPR.
 
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- cash_short_handed (score 27) → ../../cash_short_handed/v1/theory.md
+- database_leakfinder_playbook (score 27) → ../../database_leakfinder_playbook/v1/theory.md
+- donk_bets_and_leads (score 27) → ../../donk_bets_and_leads/v1/theory.md
+- icm_final_table_hu (score 27) → ../../icm_final_table_hu/v1/theory.md
+- live_chip_handling_and_bet_declares (score 27) → ../../live_chip_handling_and_bet_declares/v1/theory.md

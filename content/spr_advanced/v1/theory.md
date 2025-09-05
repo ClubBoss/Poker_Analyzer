@@ -11,14 +11,18 @@ Rules of thumb
 * Turn → river planning: if turn big_bet_75 leaves trivial behind, commit only with equity/blockers; otherwise stay with half_pot_50 or delay_turn. Why: avoid bloating pots with hands that cannot finish the tree.
 * Mid SPR OOP vs raise‑prone IP: increase delay_turn and keep protect_check_range. Why: you realize equity and dodge high‑frequency turn raises.
 * High SPR after check‑check: increase probe_turns on favorable turns. Why: many opponents surrender after missing the flop stab.
-* Low SPR ≠ auto‑call: fold vs polar big_bet_75 without blockers in under‑bluffed pools. Why: population effect beats price.
+* Low SPR != auto‑call: fold vs polar big_bet_75 without blockers in under‑bluffed pools. Why: population effect beats price.
 * Ladder → plan mapping: 3bet_oop_12bb and 3bet_ip_9bb lower SPR so that top pairs and initiative gain. On static boards prefer size_down_dry with small_cbet_33; on dynamic boards start half_pot_50 and double_barrel_good only with equity/blockers. Why: initiative plus lower SPR improves conversion.
-* BvB transfer: blind‑defend trees shift SPR fast; flop donk/turn lead intersections exist, but sizes remain 33/50/75. Why: initiative may flip while families stay identical.
+* BvB transfer: blind‑defend trees shift SPR fast; flop probe_turns/turn probe_turns intersections exist, but sizes remain 33/50/75. Why: initiative may flip while families stay identical.
 * Exploit gates: tag overfold_exploit only with persistent evidence; SPR never justifies off‑tree plays. Why: discipline controls variance and bias.
 
 [[IMAGE: spr_commitment_planner | Turn sizing -> river plan at varying SPR]]
+![Turn sizing -> river plan at varying SPR](images/spr_commitment_planner.svg)
 [[IMAGE: ladder_to_spr_map | 9/12/21/24 ladders -> typical SPR bands]]
-[[IMAGE: spr_texture_matrix_advanced | Texture×SPR with blocker gates]]
+![9/12/21/24 ladders -> typical SPR bands](images/ladder_to_spr_map.svg)
+[[IMAGE: spr_texture_matrix_advanced | TexturexSPR with blocker gates]]
+![Texture×SPR with blocker gates](images/spr_texture_matrix_advanced.svg)
+![TexturexSPR with blocker gates](images/spr_texture_matrix_advanced.svg)
 
 Mini example
 HU 100bb. SB opens 2.0bb, BB 3bet_oop_12bb (lower SPR). Flop A83r (static): choose size_down_dry with small_cbet_33. Turn 7c (still dry): prefer half_pot_50 only when equity/backdoors justify; against raise‑prone IP, delay_turn with medium strength.
@@ -44,4 +48,11 @@ Leverage: pressure relative to stacks created by your bet size.
 Realization: how efficiently equity converts to EV given position and SPR.
 
 Contrast
-spr_basics introduced families by texture and simple SPR nudges. This module goes deeper: ladder‑to‑plan mapping, blocker‑gated upgrades, and turn sizing that pre‑plans river outcomes — all inside the same tokens and 33/50/75 families.
+spr_basics introduced families by texture and simple SPR nudges. This module goes deeper: ladder‑to‑plan mapping, blocker‑gated upgrades, and turn sizing that pre‑plans river outcomes - all inside the same tokens and 33/50/75 families.
+
+See also
+- icm_final_table_hu (score 33) → ../../icm_final_table_hu/v1/theory.md
+- live_session_log_and_review (score 33) → ../../live_session_log_and_review/v1/theory.md
+- online_economics_rakeback_promos (score 33) → ../../online_economics_rakeback_promos/v1/theory.md
+- online_hudless_strategy_and_note_coding (score 33) → ../../online_hudless_strategy_and_note_coding/v1/theory.md
+- online_tells_and_dynamics (score 33) → ../../online_tells_and_dynamics/v1/theory.md

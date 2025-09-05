@@ -1,0 +1,23 @@
+module: core_river_fundamentals
+images:
+  - slug: river_decision_tree
+    caption: "Value or bluff decision"
+    engine: unknown
+    src: ""
+    out: images/river_decision_tree.svg
+    status: done
+    notes: ""
+  - slug: polar_sizes
+    caption: "When to polarize with big sizes"
+    engine: unknown
+    src: ""
+    out: images/polar_sizes.svg
+    status: done
+    notes: ""
+  - slug: showdown_flow
+    caption: "Who shows first at showdown"
+    engine: unknown
+    src: ""
+    out: images/showdown_flow.svg
+    status: done
+    notes: ""

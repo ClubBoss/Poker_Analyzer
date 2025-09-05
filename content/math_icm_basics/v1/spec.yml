@@ -1,0 +1,23 @@
+module: math_icm_basics
+images:
+  - slug: icm_bubble_factor_table
+    caption: "Bubble factor and risk premium"
+    engine: unknown
+    src: ""
+    out: images/icm_bubble_factor_table.svg
+    status: done
+    notes: ""
+  - slug: icm_stack_roles
+    caption: "Chip leader vs medium vs short impact"
+    engine: unknown
+    src: ""
+    out: images/icm_stack_roles.svg
+    status: done
+    notes: ""
+  - slug: icm_postflop_map
+    caption: "Safer size selection under ICM"
+    engine: unknown
+    src: ""
+    out: images/icm_postflop_map.svg
+    status: done
+    notes: ""

@@ -1,0 +1,99 @@
+name: Content CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  content:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Dart version
+        run: dart --version
+
+      - name: Prep build dir
+        run: mkdir -p build
+
+      - name: Generate image specs
+        run: dart run tooling/gen_image_specs.dart
+
+      - name: Render stub images
+        run: dart run tooling/render_images_stub.dart
+
+      - name: Link images in theory
+        run: dart run tooling/link_images_in_theory.dart
+
+      - name: ASCII sanitize check
+        run: dart run tooling/ascii_sanitize.dart --check
+
+      - name: Derive allowlists
+        run: dart run tooling/derive_allowlists.dart --write --clear
+
+      - name: Gap report (JSON)
+        run: dart run tooling/content_gap_report.dart --json build/gaps.json
+
+      - name: GAP details (JSON)
+        run: dart run tooling/explain_gap_details.dart --json build/gap_details.json
+
+      - name: Demos steps lint (JSON)
+        run: dart run tooling/demos_steps_lint.dart --json build/demos_steps.json
+
+      - name: Terminology lint (JSON)
+        run: dart run tooling/term_lint.dart --json build/term_lint.json
+
+      - name: Validate progression
+        run: dart run tooling/validate_progression.dart
+
+      - name: Compute unlocks
+        run: dart run tooling/compute_unlocks.dart > build/unlocks.txt
+      - name: Export badges (JSON)
+        run: dart run tooling/export_progression_badges.dart --json build/badges.json
+      - name: Build search index (JSON)
+        run: dart run tooling/build_search_index.dart --json build/search_index.json
+      - name: Build see-also (JSON)
+        run: dart run tooling/build_see_also.dart --json build/see_also.json
+
+      - name: Link see-also in theory
+        run: dart run tooling/link_see_also_in_theory.dart
+
+      - name: Check theory links (JSON)
+        run: dart run tooling/check_links.dart --json build/links_report.json
+
+      - name: Pre-release check
+        run: dart run tooling/pre_release_check.dart
+
+      - name: Export beta bundle
+        run: dart run tooling/export_beta_bundle.dart --out build/beta_bundle.zip
+
+      - name: Zip content (best-effort)
+        run: zip -qr build/beta_content.zip content || true
+
+      - name: Zip allowlists (best-effort)
+        run: zip -qr build/allowlists.zip tooling/allowlists || true
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: content-artifacts
+          path: |
+            build/gaps.json
+            build/gap_details.json
+            build/term_lint.json
+            build/beta_content.zip
+            build/allowlists.zip
+            build/unlocks.txt
+            build/badges.json
+            build/pre_release_check.txt
+            build/search_index.json
+            build/see_also.json
+            build/links_report.json
+            build/ui_assets
+            build/demos_steps.json

@@ -1,0 +1,23 @@
+module: math_pot_odds_equity
+images:
+  - slug: pot_odds_chart
+    caption: "Pot odds and bluff breakeven at a glance"
+    engine: unknown
+    src: ""
+    out: images/pot_odds_chart.svg
+    status: done
+    notes: ""
+  - slug: equity_outs_grid
+    caption: "Quick equity from outs with blockers"
+    engine: unknown
+    src: ""
+    out: images/equity_outs_grid.svg
+    status: done
+    notes: ""
+  - slug: realization_flow
+    caption: "Equity realization IP vs OOP and size selection"
+    engine: unknown
+    src: ""
+    out: images/realization_flow.svg
+    status: done
+    notes: ""

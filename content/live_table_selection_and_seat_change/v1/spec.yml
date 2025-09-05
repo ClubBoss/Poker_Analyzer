@@ -1,0 +1,23 @@
+module: live_table_selection_and_seat_change
+images:
+  - slug: seat_value_map
+    caption: "Seats vs whale/reg and token levers"
+    engine: unknown
+    src: ""
+    out: images/seat_value_map.svg
+    status: done
+    notes: ""
+  - slug: table_quality_radar
+    caption: "VPIP/avg_pot/speed/limps -> go/leave gates"
+    engine: unknown
+    src: ""
+    out: images/table_quality_radar.svg
+    status: done
+    notes: ""
+  - slug: move_decision_flow
+    caption: "Stay / Seat change / Table change -> token shifts"
+    engine: unknown
+    src: ""
+    out: images/move_decision_flow.svg
+    status: done
+    notes: ""

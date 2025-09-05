@@ -1,0 +1,23 @@
+module: math_ev_calculations
+images:
+  - slug: ev_formulas_card
+    caption: "Key EV formulas and thresholds"
+    engine: unknown
+    src: ""
+    out: images/ev_formulas_card.svg
+    status: done
+    notes: ""
+  - slug: size_selection_tree
+    caption: "Map from texture to size and EV target"
+    engine: unknown
+    src: ""
+    out: images/size_selection_tree.svg
+    status: done
+    notes: ""
+  - slug: blockers_shift_ev
+    caption: "How blockers shift fold% and call ranges"
+    engine: unknown
+    src: ""
+    out: images/blockers_shift_ev.svg
+    status: done
+    notes: ""

@@ -1,0 +1,23 @@
+module: mtt_day2_bagging_and_reentry_ev
+images:
+  - slug: day2_bagging_pressure_map
+    caption: "Survival vs accumulation by stack vs time remaining"
+    engine: unknown
+    src: ""
+    out: images/day2_bagging_pressure_map.svg
+    status: done
+    notes: ""
+  - slug: reentry_ev_heuristics
+    caption: "Re-entry EV ladders: buy-in, field softness, payout, bagged stack"
+    engine: unknown
+    src: ""
+    out: images/reentry_ev_heuristics.svg
+    status: done
+    notes: ""
+  - slug: end_of_day_postflop_risk
+    caption: "Postflop risk control near bagging: stab vs check windows"
+    engine: unknown
+    src: ""
+    out: images/end_of_day_postflop_risk.svg
+    status: done
+    notes: ""

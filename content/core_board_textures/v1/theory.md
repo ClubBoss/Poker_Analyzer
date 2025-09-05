@@ -3,8 +3,11 @@ What it is
 This module explains board textures: dry_board vs wet_board, paired_board vs unpaired, and suit patterns like monotone and two_tone. You will also learn static vs dynamic boards and how range_advantage and nut_advantage can shift between players.
 
 [[IMAGE: texture_taxonomy | Common flop texture families]]
+![Common flop texture families](images/texture_taxonomy.svg)
 [[IMAGE: static_dynamic | Static vs dynamic boards]]
+![Static vs dynamic boards](images/static_dynamic.svg)
 [[IMAGE: range_nut_advantage | Range and nut advantage cues]]
+![Range and nut advantage cues](images/range_nut_advantage.svg)
 
 Why it matters
 Texture predicts how often ranges connect and how fast hand strength can change. Reading the board correctly improves your c-bet frequencies, sizes, and reaction lines. Texture awareness reduces guesswork and stops you from overvaluing thin hands on dangerous runouts.
@@ -34,3 +37,10 @@ Contrast
 Unlike core_flop_fundamentals, which focuses on actions and sizes, this module classifies textures so you can pick the right frequency and sizing plan across streets.
 
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- cash_3bet_oop_playbook (score 16) → ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 16) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_population_exploits (score 16) → ../../cash_population_exploits/v1/theory.md
+- cash_turn_river_barreling (score 16) → ../../cash_turn_river_barreling/v1/theory.md
+- donk_bets_and_leads (score 16) → ../../donk_bets_and_leads/v1/theory.md

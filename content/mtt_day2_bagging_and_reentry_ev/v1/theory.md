@@ -2,8 +2,11 @@ What it is
 Day 2 bagging and re-entry EV is end-of-flight strategy for 9-max MTTs that balances survival with chip accumulation and the option to fire again. Decisions hinge on time remaining, stack vs average, coverage (who can bust whom), and whether another flight is still open.
 
 [[IMAGE: day2_bagging_pressure_map | Survival vs accumulation by stack vs time remaining]]
+![Survival vs accumulation by stack vs time remaining](images/day2_bagging_pressure_map.svg)
 [[IMAGE: reentry_ev_heuristics | Re-entry EV ladders: buy-in, field softness, payout, bagged stack]]
+![Re-entry EV ladders: buy-in, field softness, payout, bagged stack](images/reentry_ev_heuristics.svg)
 [[IMAGE: end_of_day_postflop_risk | Postflop risk control near bagging: stab vs check windows]]
+![Postflop risk control near bagging: stab vs check windows](images/end_of_day_postflop_risk.svg)
 
 Why it matters
 Bagging a playable stack converts chips to future EV: better table draw, antes rising, and re-entry closing. Near end of Day 1, pools polarize: some overfold, others punt to double. Re-entry availability moves thresholds: with another bullet, slightly thinner reshoves are acceptable; once closed, survival-first and variance control dominate.
@@ -38,3 +41,10 @@ Contrast
 Unlike standard chips-EV MTT or PKO, bagging and re-entry EV emphasize survival, coverage, and clock-based thresholds. Preflop trees skew to jam-or-fold and value-lean 4-bets; postflop lines favor control (small_cbet_33, protect_check_range, delay_turn) over thin polarization unless you safely cover opponents.
 
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- cash_short_handed (score 29) → ../../cash_short_handed/v1/theory.md
+- hand_review_and_annotation_standards (score 29) → ../../hand_review_and_annotation_standards/v1/theory.md
+- hu_exploit_adv (score 27) → ../../hu_exploit_adv/v1/theory.md
+- icm_final_table_hu (score 27) → ../../icm_final_table_hu/v1/theory.md
+- icm_mid_ladder_decisions (score 27) → ../../icm_mid_ladder_decisions/v1/theory.md

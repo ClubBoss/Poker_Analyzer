@@ -1,0 +1,23 @@
+module: cash_rake_and_stakes
+images:
+  - slug: rake_models
+    caption: "% with cap, no flop no drop, time"
+    engine: unknown
+    src: ""
+    out: images/rake_models.svg
+    status: done
+    notes: ""
+  - slug: rake_cap_curve
+    caption: "Cap makes big pots pay lower %"
+    engine: unknown
+    src: ""
+    out: images/rake_cap_curve.svg
+    status: done
+    notes: ""
+  - slug: stake_selection_flow
+    caption: "Choose stakes by rake and edge"
+    engine: unknown
+    src: ""
+    out: images/stake_selection_flow.svg
+    status: done
+    notes: ""

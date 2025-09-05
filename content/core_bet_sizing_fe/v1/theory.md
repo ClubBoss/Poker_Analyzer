@@ -2,8 +2,11 @@ What it is
 This module teaches bet sizing: when to use small, medium, large, or overbet sizes, how polar vs merge ranges affect sizing, and how to set frequencies that fit texture and opponent tendencies. You will connect size to purpose instead of guessing.
 
 [[IMAGE: sizing_ladder | Small, medium, large, overbet]]
+![Small, medium, large, overbet](images/sizing_ladder.svg)
 [[IMAGE: polar_vs_merge | Pairing size with range shape]]
+![Pairing size with range shape](images/polar_vs_merge.svg)
 [[IMAGE: exploit_cues | Sizing exploits vs pool leaks]]
+![Sizing exploits vs pool leaks](images/exploit_cues.svg)
 
 Why it matters
 Your size controls price, fold equity, and pot growth. Good sizing pressures the right part of the opponent's range and lets your value hands win bigger pots. Poor sizing burns chips, leaves money on the table, or gives opponents free chances to realize equity.
@@ -33,3 +36,10 @@ Contrast
 Unlike core_equity_realization, which explains how position, SPR, and texture affect how much equity you realize, this module shows how to choose sizes that drive folds, calls, and pot growth to meet your plan.
 
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- cash_3bet_oop_playbook (score 15) → ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 15) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_population_exploits (score 15) → ../../cash_population_exploits/v1/theory.md
+- cash_turn_river_barreling (score 15) → ../../cash_turn_river_barreling/v1/theory.md
+- donk_bets_and_leads (score 15) → ../../donk_bets_and_leads/v1/theory.md

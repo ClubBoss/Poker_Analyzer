@@ -1,0 +1,23 @@
+module: hu_postflop
+images:
+  - slug: hu_texture_grid
+    caption: "Dry vs wet boards and IP advantage"
+    engine: unknown
+    src: ""
+    out: images/hu_texture_grid.svg
+    status: done
+    notes: ""
+  - slug: hu_size_ladders
+    caption: "33 50 75 size families by node"
+    engine: unknown
+    src: ""
+    out: images/hu_size_ladders.svg
+    status: done
+    notes: ""
+  - slug: hu_aggression_windows
+    caption: "Turn and river pressure windows"
+    engine: unknown
+    src: ""
+    out: images/hu_aggression_windows.svg
+    status: done
+    notes: ""

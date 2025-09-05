@@ -1,0 +1,23 @@
+module: core_bet_sizing_fe
+images:
+  - slug: sizing_ladder
+    caption: "Small, medium, large, overbet"
+    engine: unknown
+    src: ""
+    out: images/sizing_ladder.svg
+    status: done
+    notes: ""
+  - slug: polar_vs_merge
+    caption: "Pairing size with range shape"
+    engine: unknown
+    src: ""
+    out: images/polar_vs_merge.svg
+    status: done
+    notes: ""
+  - slug: exploit_cues
+    caption: "Sizing exploits vs pool leaks"
+    engine: unknown
+    src: ""
+    out: images/exploit_cues.svg
+    status: done
+    notes: ""

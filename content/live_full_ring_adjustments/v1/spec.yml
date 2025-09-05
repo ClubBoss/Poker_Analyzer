@@ -1,0 +1,23 @@
+module: live_full_ring_adjustments
+images:
+  - slug: fr_position_pressure_map
+    caption: "Full-ring: positions -> pressure & tokens"
+    engine: unknown
+    src: ""
+    out: images/fr_position_pressure_map.svg
+    status: done
+    notes: ""
+  - slug: multiway_family_guide
+    caption: "Multiway: where 33/50/75 fit and why"
+    engine: unknown
+    src: ""
+    out: images/multiway_family_guide.svg
+    status: done
+    notes: ""
+  - slug: river_underbluff_lane
+    caption: "Polar rivers: discipline & blockers"
+    engine: unknown
+    src: ""
+    out: images/river_underbluff_lane.svg
+    status: done
+    notes: ""

@@ -1,0 +1,23 @@
+module: live_rake_structures_and_tips
+images:
+  - slug: live_rake_models_map
+    caption: "Time vs drop vs tips -> frequency levers"
+    engine: unknown
+    src: ""
+    out: images/live_rake_models_map.svg
+    status: done
+    notes: ""
+  - slug: family_picker_under_drop
+    caption: "Texture (dry/wet) × drop/time -> 33/50/75 stays fixed"
+    engine: unknown
+    src: ""
+    out: images/family_picker_under_drop.svg
+    status: done
+    notes: ""
+  - slug: river_tax_and_discipline
+    caption: "Tipping + drop → river fold discipline flow"
+    engine: unknown
+    src: ""
+    out: images/river_tax_and_discipline.svg
+    status: done
+    notes: ""

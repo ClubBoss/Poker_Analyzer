@@ -3,8 +3,11 @@ What it is
 This module explains bankroll management: how many buy-ins to keep for your games, how to handle downswings, and how to pick tables that fit your roll. You will learn rules for moving up and down, smart shot-taking, session stop-losses, and simple record-keeping to keep decisions clear.
 
 [[IMAGE: bankroll_ladders | Buy-in guidelines by format]]
+![Buy-in guidelines by format](images/bankroll_ladders.svg)
 [[IMAGE: downswing_buffer | Cushion for variance]]
+![Cushion for variance](images/downswing_buffer.svg)
 [[IMAGE: game_selection_radar | Softness and rake checklist]]
+![Softness and rake checklist](images/game_selection_radar.svg)
 
 Why it matters
 Skill does not protect you from variance. A sound bankroll plan reduces risk of ruin and keeps you steady when cards run cold. Good game selection plus disciplined move-up and move-down rules let you survive bad runs and capitalize when you have an edge, instead of bouncing between stakes on tilt.
@@ -35,3 +38,10 @@ Contrast
 Unlike core_gto_vs_exploit, which tweaks strategy based on opponent leaks, this module focuses on financial safeguards, seat and stake selection, and disciplined session rules so you stay in action long enough for skill to matter.
 
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- cash_3bet_oop_playbook (score 10) → ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 10) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_delayed_cbet_and_probe_systems (score 10) → ../../cash_delayed_cbet_and_probe_systems/v1/theory.md
+- cash_limp_pots_systems (score 10) → ../../cash_limp_pots_systems/v1/theory.md
+- cash_short_handed (score 10) → ../../cash_short_handed/v1/theory.md

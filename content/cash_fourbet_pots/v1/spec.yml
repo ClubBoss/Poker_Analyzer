@@ -1,0 +1,23 @@
+module: cash_fourbet_pots
+images:
+  - slug: fourbet_size_ladder
+    caption: "3-bet/4-bet size ladder and resulting SPR"
+    engine: unknown
+    src: ""
+    out: images/fourbet_size_ladder.svg
+    status: done
+    notes: ""
+  - slug: spr_bands_fourbet
+    caption: "Typical SPR after 4-bet call by position"
+    engine: unknown
+    src: ""
+    out: images/spr_bands_fourbet.svg
+    status: done
+    notes: ""
+  - slug: texture_pressure_map_4bp
+    caption: "Boards favoring small vs big c-bets in 4-bet pots"
+    engine: unknown
+    src: ""
+    out: images/texture_pressure_map_4bp.svg
+    status: done
+    notes: ""

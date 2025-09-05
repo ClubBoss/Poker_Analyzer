@@ -9,7 +9,7 @@ Rules of thumb
 - Default sizes by family. Dry → small_cbet_33; wet → half_pot_50. Upgrade to big_bet_75 only with strong blockers and Fv75 up. Why: large bets need removal of continues plus data.
 - Versus raise-prone villains at mid SPR, prefer delay_turn and mix protect_check_range on stabby textures. Why: avoid getting blown off equity and keep options for good turns.
 - Sequence rule. Flop chk-chk → probe_turns on favorable turns; never probe after bet/call. Why: initiative is earned by the check-through.
-- River discipline. Facing polar big_bet_75 without blockers → fold; with scare + top blockers and a prebuilt plan → triple_barrel_scare or call. Why: don’t pay dominated bluff-catches; exploit real overfolds.
+- River discipline. Facing polar big_bet_75 without blockers → fold; with scare + top blockers and a prebuilt plan → triple_barrel_scare or call. Why: don't pay dominated bluff-catches; exploit real overfolds.
 - Commitment gate. If a turn big_bet_75 leaves a trivial river behind, ensure blockers/equity justify the commitment; otherwise keep half_pot_50 or delay_turn. Why: clean, planned stacks.
 
 Mini example
@@ -18,7 +18,7 @@ Line 2 (IP SRP as PFA): CO opens, BTN calls; you c-bet T98ss with half_pot_50 fr
 Line 3 (SRP OOP as caller): UTG opens, BB calls. Flop K72r checks through. Sequence: chk-chk → probe_turns on safe turn; river facing polar 75 without blockers → fold.
 
 Common mistakes
-- Using big_bet_75 without blockers or Fv75 evidence. Error: overbluffs into sticky ranges; burns equity when called. Why players do it: momentum after “good” turns and misread population folds.
+- Using big_bet_75 without blockers or Fv75 evidence. Error: overbluffs into sticky ranges; burns equity when called. Why players do it: momentum after "good" turns and misread population folds.
 - Probing without the chk-chk sequence. Error: turns thin ranges into spew versus uncapped IP. Why players do it: urge to take initiative regardless of eligibility.
 - Calling polar 75% rivers without blockers. Error: pays off value in under-bluffed nodes. Why players do it: curiosity and fear of being bluffed.
 
@@ -32,5 +32,15 @@ Contrast
 This module plugs into cash_3bet_ip/oop and SRP modules by standardizing turn/river actions while sizes stay 33/50/75 and families remain size_down_dry vs size_up_wet.
 
 [[IMAGE: turn_upgrade_gates | When 50->75: blockers + Fv75]]
+![When 50->75: blockers + Fv75](images/turn_upgrade_gates.svg)
 [[IMAGE: barrel_decision_flow | Delay/Probe/50/75 flow by SPR & raise-risk]]
+![Delay/Probe/50/75 flow by SPR & raise-risk](images/barrel_decision_flow.svg)
 [[IMAGE: river_polar_discipline | Blocker gates for call vs big_bet_75]]
+![Blocker gates for call vs big_bet_75](images/river_polar_discipline.svg)
+
+See also
+- cash_3bet_oop_playbook (score 27) → ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 27) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- donk_bets_and_leads (score 27) → ../../donk_bets_and_leads/v1/theory.md
+- hu_postflop_play (score 27) → ../../hu_postflop_play/v1/theory.md
+- live_chip_handling_and_bet_declares (score 27) → ../../live_chip_handling_and_bet_declares/v1/theory.md

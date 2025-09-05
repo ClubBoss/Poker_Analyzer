@@ -1,0 +1,23 @@
+module: solver_node_locking_basics
+images:
+  - slug: locking_flow
+    caption: "From baseline to locked model and back"
+    engine: unknown
+    src: ""
+    out: images/locking_flow.svg
+    status: done
+    notes: ""
+  - slug: ev_shift_chart
+    caption: "EV and frequency shifts after a lock"
+    engine: unknown
+    src: ""
+    out: images/ev_shift_chart.svg
+    status: done
+    notes: ""
+  - slug: token_mapping
+    caption: "Turning locked findings into table actions"
+    engine: unknown
+    src: ""
+    out: images/token_mapping.svg
+    status: done
+    notes: ""

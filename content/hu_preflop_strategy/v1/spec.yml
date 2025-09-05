@@ -1,0 +1,23 @@
+module: hu_preflop_strategy
+images:
+  - slug: hu_ranges_grid
+    caption: "Default SB and BB HU preflop ranges by depth"
+    engine: unknown
+    src: ""
+    out: images/hu_ranges_grid.svg
+    status: done
+    notes: ""
+  - slug: hu_size_ladders
+    caption: "Size ladders: opens, 3-bets, 4-bets by depth"
+    engine: unknown
+    src: ""
+    out: images/hu_size_ladders.svg
+    status: done
+    notes: ""
+  - slug: hu_depth_matrix
+    caption: "Depth matrix: open, limp, 3-bet, and call mixes"
+    engine: unknown
+    src: ""
+    out: images/hu_depth_matrix.svg
+    status: done
+    notes: ""

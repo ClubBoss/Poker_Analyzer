@@ -1,0 +1,23 @@
+module: math_combo_blockers
+images:
+  - slug: blockers_fast_grid
+    caption: "Quick combo blocks for pairs, suited, and offsuit"
+    engine: unknown
+    src: ""
+    out: images/blockers_fast_grid.svg
+    status: done
+    notes: ""
+  - slug: removal_to_action
+    caption: "From removal counts to betting actions"
+    engine: unknown
+    src: ""
+    out: images/removal_to_action.svg
+    status: done
+    notes: ""
+  - slug: river_scare_blockers
+    caption: "River scare cards and which blockers to bluff with"
+    engine: unknown
+    src: ""
+    out: images/river_scare_blockers.svg
+    status: done
+    notes: ""

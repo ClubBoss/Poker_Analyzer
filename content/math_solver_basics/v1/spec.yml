@@ -1,0 +1,23 @@
+module: math_solver_basics
+images:
+  - slug: solver_tree_setup
+    caption: "Clean HU tree sizes"
+    engine: unknown
+    src: ""
+    out: images/solver_tree_setup.svg
+    status: done
+    notes: ""
+  - slug: solver_size_families
+    caption: "33/50/75 usage by texture"
+    engine: unknown
+    src: ""
+    out: images/solver_size_families.svg
+    status: done
+    notes: ""
+  - slug: solver_to_table
+    caption: "From outputs to actions"
+    engine: unknown
+    src: ""
+    out: images/solver_to_table.svg
+    status: done
+    notes: ""

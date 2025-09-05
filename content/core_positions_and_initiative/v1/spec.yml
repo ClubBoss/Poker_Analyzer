@@ -1,0 +1,23 @@
+module: core_positions_and_initiative
+images:
+  - slug: positions_map
+    caption: "6-max positions and acting order"
+    engine: unknown
+    src: ""
+    out: images/positions_map.svg
+    status: done
+    notes: ""
+  - slug: initiative_flow
+    caption: "How initiative passes across streets"
+    engine: unknown
+    src: ""
+    out: images/initiative_flow.svg
+    status: done
+    notes: ""
+  - slug: showdown_order
+    caption: "Bettor shows first vs checked river"
+    engine: unknown
+    src: ""
+    out: images/showdown_order.svg
+    status: done
+    notes: ""

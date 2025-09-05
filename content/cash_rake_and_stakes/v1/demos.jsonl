@@ -1,3 +1,3 @@
-{"id":"cash_rake_and_stakes_demo_001","spot_kind":"l2_core_rules_check","steps":["Room uses % with cap; loose table builds big pots","Once cap is reached, value bets keep more chips","Player prefers value-heavy lines after cap triggers"]}
-{"id":"cash_rake_and_stakes_demo_002","spot_kind":"l2_core_rules_check","steps":["No flop no drop policy in effect","CO raises over limpers and wins preflop","Pot ends with zero rake; aggression pays"]}
-{"id":"cash_rake_and_stakes_demo_003","spot_kind":"l2_core_rules_check","steps":["Live room charges time per 30 minutes","Player table-changes to fast, action table","More hands/hour lowers cost per hand"]}
+{"id":"cash_rake_and_stakes_demo_001","spot_kind":"l2_core_rules_check","steps":["Room uses % with cap; loose table builds big pots","Once cap is reached, value bets keep more chips","Player prefers value-heavy lines after cap triggers"],"tokens":["call"]}
+{"id":"cash_rake_and_stakes_demo_002","spot_kind":"l2_core_rules_check","steps":["No flop no drop policy in effect","CO raises over limpers and wins preflop","Pot ends with zero rake; aggression pays"],"tokens":["call"]}
+{"id":"cash_rake_and_stakes_demo_003","spot_kind":"l2_core_rules_check","steps":["Live room charges time per 30 minutes","Player table-changes to fast, action table","More hands/hour lowers cost per hand"],"tokens":["call"]}

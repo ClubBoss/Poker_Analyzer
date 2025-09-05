@@ -1,0 +1,23 @@
+module: hu_river_play
+images:
+  - slug: hu_river_blocker_map
+    caption: "Blocking value vs unblocking bluffs"
+    engine: unknown
+    src: ""
+    out: images/hu_river_blocker_map.svg
+    status: done
+    notes: ""
+  - slug: hu_river_size_tree
+    caption: "Thin value vs polar size selection"
+    engine: unknown
+    src: ""
+    out: images/hu_river_size_tree.svg
+    status: done
+    notes: ""
+  - slug: hu_river_cap_map
+    caption: "Capped vs uncapped range indicators"
+    engine: unknown
+    src: ""
+    out: images/hu_river_cap_map.svg
+    status: done
+    notes: ""

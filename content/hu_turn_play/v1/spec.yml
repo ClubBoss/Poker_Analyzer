@@ -1,0 +1,23 @@
+module: hu_turn_play
+images:
+  - slug: hu_turn_shifts
+    caption: "Turn cards that swing range advantage"
+    engine: unknown
+    src: ""
+    out: images/hu_turn_shifts.svg
+    status: done
+    notes: ""
+  - slug: hu_turn_size_ladders
+    caption: "50 75 sizing ladder by texture and equity"
+    engine: unknown
+    src: ""
+    out: images/hu_turn_size_ladders.svg
+    status: done
+    notes: ""
+  - slug: hu_turn_oop_probes
+    caption: "OOP probe windows after flop checks through"
+    engine: unknown
+    src: ""
+    out: images/hu_turn_oop_probes.svg
+    status: done
+    notes: ""

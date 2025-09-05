@@ -1,0 +1,23 @@
+module: bankroll_and_variance_management
+images:
+  - slug: bankroll_curves
+    caption: "Downswing depth vs BB/100 & stdev"
+    engine: unknown
+    src: ""
+    out: images/bankroll_curves.svg
+    status: done
+    notes: ""
+  - slug: variance_sim_tiles
+    caption: "Sample-size vs winrate confidence bands"
+    engine: unknown
+    src: ""
+    out: images/variance_sim_tiles.svg
+    status: done
+    notes: ""
+  - slug: session_guardrails
+    caption: "Table caps, stop-loss/win, tilt flags"
+    engine: unknown
+    src: ""
+    out: images/session_guardrails.svg
+    status: done
+    notes: ""

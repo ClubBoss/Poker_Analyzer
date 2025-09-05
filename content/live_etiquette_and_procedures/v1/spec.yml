@@ -1,0 +1,23 @@
+module: live_etiquette_and_procedures
+images:
+  - slug: live_etiquette_matrix
+    caption: "Room procedures -> tokenized frequency shifts"
+    engine: unknown
+    src: ""
+    out: images/live_etiquette_matrix.svg
+    status: done
+    notes: ""
+  - slug: enforcement_spectrum
+    caption: "Strict vs loose enforcement -> protect/delay/probe mix"
+    engine: unknown
+    src: ""
+    out: images/enforcement_spectrum.svg
+    status: done
+    notes: ""
+  - slug: chip_and_line_basics
+    caption: "Verbal binding, line rule, one-motion examples"
+    engine: unknown
+    src: ""
+    out: images/chip_and_line_basics.svg
+    status: done
+    notes: ""

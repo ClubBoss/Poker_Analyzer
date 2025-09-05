@@ -1,0 +1,23 @@
+module: cash_multiway_3bet_pots
+images:
+  - slug: mw3b_spr_map
+    caption: "Typical SPRs for multiway 3-bet lines"
+    engine: unknown
+    src: ""
+    out: images/mw3b_spr_map.svg
+    status: done
+    notes: ""
+  - slug: mw3b_texture_matrix
+    caption: "Boards favoring small bet vs check multiway 3-bet"
+    engine: unknown
+    src: ""
+    out: images/mw3b_texture_matrix.svg
+    status: done
+    notes: ""
+  - slug: mw3b_squeeze_vs_flat
+    caption: "Value-biased squeeze vs flat cues"
+    engine: unknown
+    src: ""
+    out: images/mw3b_squeeze_vs_flat.svg
+    status: done
+    notes: ""

@@ -1,0 +1,23 @@
+module: mtt_satellite_strategy
+images:
+  - slug: satellite_bubble_factor_map
+    caption: "Risk premium by coverage and seats remaining"
+    engine: unknown
+    src: ""
+    out: images/satellite_bubble_factor_map.svg
+    status: done
+    notes: ""
+  - slug: satellite_shove_call_ladders
+    caption: "Jam/call-off ladders by seat and stack bands"
+    engine: unknown
+    src: ""
+    out: images/satellite_shove_call_ladders.svg
+    status: done
+    notes: ""
+  - slug: satellite_postflop_risk
+    caption: "Postflop risk control: stab vs check by texture"
+    engine: unknown
+    src: ""
+    out: images/satellite_postflop_risk.svg
+    status: done
+    notes: ""

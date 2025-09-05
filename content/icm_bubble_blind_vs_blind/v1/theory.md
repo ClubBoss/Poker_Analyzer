@@ -2,8 +2,11 @@ What it is
 This module covers blind-vs-blind SB vs BB play on the money bubble in 9-max MTTs. Coverage - who can bust whom - and risk premium change incentives: the covered player must avoid stack-offs without strong equity, while the cover applies targeted pressure. Chip-EV takes a back seat to cash-EV.
 
 [[IMAGE: icm_bubble_bvb_pressure_map | Coverage and risk by stacks SB vs BB]]
+![Coverage and risk by stacks SB vs BB](images/icm_bubble_bvb_pressure_map.svg)
 [[IMAGE: bvb_preflop_ladders_icm | SB and BB jam and call ladders]]
+![SB and BB jam and call ladders](images/bvb_preflop_ladders_icm.svg)
 [[IMAGE: bvb_postflop_risk_control | Postflop pressure vs control windows]]
+![Postflop pressure vs control windows](images/bvb_postflop_risk_control.svg)
 
 Why it matters
 BvB is the most frequent confrontation near the bubble. Losing all-ins when covered is disproportionately costly, while winning small pots as the cover is disproportionately valuable. Clear preflop trees and disciplined postflop lines prevent torching equity and convert population tendencies into folds without risking your stack needlessly.
@@ -34,3 +37,10 @@ Contrast
 Standard BvB without ICM pursues thin chip-EV edges; bubble BvB prioritizes coverage-first pressure, tighter call-offs, and small-cbet plus half-pot commit trees over thin polarization.
 
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- hand_review_and_annotation_standards (score 27) → ../../hand_review_and_annotation_standards/v1/theory.md
+- icm_mid_ladder_decisions (score 27) → ../../icm_mid_ladder_decisions/v1/theory.md
+- live_etiquette_and_procedures (score 27) → ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 27) → ../../live_full_ring_adjustments/v1/theory.md
+- live_speech_timing_basics (score 27) → ../../live_speech_timing_basics/v1/theory.md

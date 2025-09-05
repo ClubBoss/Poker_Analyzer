@@ -1,0 +1,23 @@
+module: core_turn_fundamentals
+images:
+  - slug: turn_equity_shift_examples
+    caption: "Turn equity shifts (e.g., A on K72, 3 on 964)"
+    engine: unknown
+    src: ""
+    out: images/turn_equity_shift_examples.svg
+    status: done
+    notes: ""
+  - slug: turn_sizing_tree
+    caption: "Turn sizing choices: small vs big"
+    engine: unknown
+    src: ""
+    out: images/turn_sizing_tree.svg
+    status: done
+    notes: ""
+  - slug: pot_geometry_spr_chart
+    caption: "Pot geometry and target SPR on river"
+    engine: unknown
+    src: ""
+    out: images/pot_geometry_spr_chart.svg
+    status: done
+    notes: ""

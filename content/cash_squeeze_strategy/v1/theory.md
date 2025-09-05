@@ -2,8 +2,11 @@ What it is
 Squeezing is a 3-bet over an open when at least one caller has entered. It prints because you collect dead money, punish loose flats, and force poor realization for dominated hands. Primary lanes: IP squeezes from CO/BTN over EP/MP/CO opens with caller(s); OOP squeezes from the blinds over late opens plus a call. Baselines (typical online): 3bet_ip_9bb versus 2.2-2.5bb opens with no caller; squeeze_ip_12bb versus open + 1 caller; squeeze_oop_14bb from blinds versus open + 1 caller.
 
 [[IMAGE: squeeze_spots_tree | Squeeze vs flat decision tree]]
+![Squeeze vs flat decision tree](images/squeeze_spots_tree.svg)
 [[IMAGE: squeeze_sizes_by_positions | Sizing ladder by callers]]
+![Sizing ladder by callers](images/squeeze_sizes_by_positions.svg)
 [[IMAGE: squeeze_spr_map | SPR after squeeze call]]
+![SPR after squeeze call](images/squeeze_spr_map.svg)
 
 Why it matters
 Multiway crushes fold equity and creates tough, bloated decisions. A good squeeze reclaims initiative, lowers SPR, and shifts the rake share as pots grow. With the right geometry your value hands win bigger pots and your bluffs use blockers to pull folds; with poor geometry you invite multiway and make dominated, low-realization calls.
@@ -32,3 +35,10 @@ EV: Expected value; average profit of a line across many repeats.
 
 Contrast
 Compared to standard 3-bet pots, squeeze ranges are more value-biased and sizes larger to punish callers. Compared to single-raised multiway, you reclaim initiative, lower SPR, and rely less on thin bluffs while pressing blocker and value edges.
+
+See also
+- cash_population_exploits (score 19) → ../../cash_population_exploits/v1/theory.md
+- hand_review_and_annotation_standards (score 19) → ../../hand_review_and_annotation_standards/v1/theory.md
+- hu_exploit_adv (score 19) → ../../hu_exploit_adv/v1/theory.md
+- live_etiquette_and_procedures (score 19) → ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 19) → ../../live_full_ring_adjustments/v1/theory.md

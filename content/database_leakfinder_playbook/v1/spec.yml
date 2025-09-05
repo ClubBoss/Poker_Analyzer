@@ -1,0 +1,23 @@
+module: database_leakfinder_playbook
+images:
+  - slug: leakfinder_metric_map
+    caption: "Key DB metrics -> token routes"
+    engine: unknown
+    src: ""
+    out: images/leakfinder_metric_map.svg
+    status: done
+    notes: ""
+  - slug: leak_sweep_dashboard
+    caption: "One-knob lock sweep & adoption gate"
+    engine: unknown
+    src: ""
+    out: images/leak_sweep_dashboard.svg
+    status: done
+    notes: ""
+  - slug: leak_to_token_matrix
+    caption: "From leak category -> 33/50/75 + token"
+    engine: unknown
+    src: ""
+    out: images/leak_to_token_matrix.svg
+    status: done
+    notes: ""

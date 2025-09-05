@@ -1,0 +1,23 @@
+module: cash_limp_pots_systems
+images:
+  - slug: limp_trees_map
+    caption: "Limp/iso trees by seats"
+    engine: unknown
+    src: ""
+    out: images/limp_trees_map.svg
+    status: done
+    notes: ""
+  - slug: iso_sizing_ladders
+    caption: "Iso-raise sizings vs #limpers"
+    engine: unknown
+    src: ""
+    out: images/iso_sizing_ladders.svg
+    status: done
+    notes: ""
+  - slug: limp_postflop_flows
+    caption: "SRP vs iso pot flows"
+    engine: unknown
+    src: ""
+    out: images/limp_postflop_flows.svg
+    status: done
+    notes: ""

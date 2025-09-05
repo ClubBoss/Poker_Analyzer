@@ -2,14 +2,17 @@ What it is
 Limp pots start when one or more players enter the pot for the minimum without raising. Your choices are isolate (raise), overlimp (call), or check in the blinds. Iso aims to play heads-up in position versus a capped range. Overlimp aims to realize equity cheaply in multiway. In the blinds, you often check and play postflop with range advantage only on some textures.
 
 [[IMAGE: limp_trees_map | Limp/iso trees by seats]]
+![Limp/iso trees by seats](images/limp_trees_map.svg)
 [[IMAGE: iso_sizing_ladders | Iso-raise sizings vs #limpers]]
+![Iso-raise sizings vs #limpers](images/iso_sizing_ladders.svg)
 [[IMAGE: limp_postflop_flows | SRP vs iso pot flows]]
+![SRP vs iso pot flows](images/limp_postflop_flows.svg)
 
 Why it matters
 Limpers advertise weakness, but many still call raises. Correct iso sizes reclaim initiative, isolate the weakest opponent, and set clean SPRs. Overlimping the right hands prints in passive pools. Poor choices bloat pots OOP, invite multiway, and force tough turns where your equity realizes poorly.
 
 Rules of thumb
-- Iso basics: IP vs 1 limper raise ~5–6bb; add ~1bb per extra limper. OOP use ~7–9bb; add ~1–2bb per extra. Size up versus sticky callers or deeper stacks; size down slightly when stacks are 40–60bb to keep turn jam trees clean.
+- Iso basics: IP vs 1 limper raise ~5-6bb; add ~1bb per extra limper. OOP use ~7-9bb; add ~1-2bb per extra. Size up versus sticky callers or deeper stacks; size down slightly when stacks are 40-60bb to keep turn jam trees clean.
 - Range shape: linear versus weak fields (broadways, pairs, suited). Add blocker bluffs (Axs/Kxs) more IP. Trim offsuit junk OOP that plays badly multiway.
 - Overlimp policy: take the price with suited connectors, suited gappers, and small pairs behind passive limpers. Avoid dominated overlimps when aggressive players remain who squeeze often.
 - Postflop after iso: small_cbet_33 on dry Axx/Kxx to tax floats; half_pot_50 on middling textures when value and fold equity both matter; size_up_wet only with strong equity on T98/QJT two-tone. OOP protect_check_range on middling and defend raises tighter.
@@ -31,10 +34,17 @@ Iso raise: raise over one or more limpers to isolate a weak range and take initi
 Overlimp: call behind a limper to see a flop cheaply with playable suited/connected hands.
 small_cbet_33 / half_pot_50 / big_bet_75: pot-based families for flop/turn sizing.
 size_up_wet / size_down_dry: directional adjustments by board texture.
-probe_turns / delay_turn: take the betting lead on turns after missed c-bets.
+probe_turns / delay_turn: take the betting probe_turns on turns after missed c-bets.
 protect_check_range: structured checks to keep medium-strength hands safe.
 overfold_exploit: intentional pressure where pools fold too often in a node.
 double_barrel_good / triple_barrel_scare: turn/river aggression triggers.
 
 Contrast
 Unlike standard raised pots, limp pots begin with capped ranges and higher fold equity IP. Versus blind-vs-blind steals, you target a single weak range and use tailored iso sizes to avoid multiway and awkward OOP SPRs.
+
+See also
+- cash_blind_defense_vs_btn_co (score 27) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_short_handed (score 27) → ../../cash_short_handed/v1/theory.md
+- donk_bets_and_leads (score 27) → ../../donk_bets_and_leads/v1/theory.md
+- live_chip_handling_and_bet_declares (score 27) → ../../live_chip_handling_and_bet_declares/v1/theory.md
+- cash_3bet_oop_playbook (score 25) → ../../cash_3bet_oop_playbook/v1/theory.md

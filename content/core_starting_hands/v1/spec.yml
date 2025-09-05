@@ -1,0 +1,23 @@
+module: core_starting_hands
+images:
+  - slug: position_wheel
+    caption: "6-max positions"
+    engine: unknown
+    src: ""
+    out: images/position_wheel.svg
+    status: done
+    notes: ""
+  - slug: starting_ranges_grid
+    caption: "Default opening ranges (6-max)"
+    engine: unknown
+    src: ""
+    out: images/starting_ranges_grid.svg
+    status: done
+    notes: ""
+  - slug: blocker_3bet_tree
+    caption: "Blocker-based 3-bet/4-bet map"
+    engine: unknown
+    src: ""
+    out: images/blocker_3bet_tree.svg
+    status: done
+    notes: ""

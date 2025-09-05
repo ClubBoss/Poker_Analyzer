@@ -1,0 +1,23 @@
+module: mtt_short_stack
+images:
+  - slug: short_stack_phase_map
+    caption: "8-25bb decisions by position"
+    engine: unknown
+    src: ""
+    out: images/short_stack_phase_map.svg
+    status: done
+    notes: ""
+  - slug: preflop_jam_calloff_ladders
+    caption: "Raise/call/fold vs 3-bets"
+    engine: unknown
+    src: ""
+    out: images/preflop_jam_calloff_ladders.svg
+    status: done
+    notes: ""
+  - slug: low_spr_postflop_flows
+    caption: "C-bet and commit trees"
+    engine: unknown
+    src: ""
+    out: images/low_spr_postflop_flows.svg
+    status: done
+    notes: ""

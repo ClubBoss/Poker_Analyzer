@@ -1,0 +1,23 @@
+module: hand_review_and_annotation_standards
+images:
+  - slug: annotation_schema_tiles
+    caption: "Minimal hand annotation schema"
+    engine: unknown
+    src: ""
+    out: images/annotation_schema_tiles.svg
+    status: done
+    notes: ""
+  - slug: tag_to_token_map
+    caption: "From annotations -> tokenized actions"
+    engine: unknown
+    src: ""
+    out: images/tag_to_token_map.svg
+    status: done
+    notes: ""
+  - slug: review_to_drills_flow
+    caption: "Hand -> standardized note -> spaced drill"
+    engine: unknown
+    src: ""
+    out: images/review_to_drills_flow.svg
+    status: done
+    notes: ""

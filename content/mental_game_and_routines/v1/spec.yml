@@ -1,0 +1,23 @@
+module: mental_game_and_routines
+images:
+  - slug: routine_state_switchboard
+    caption: "Routine states -> frequency shifts by token"
+    engine: unknown
+    src: ""
+    out: images/routine_state_switchboard.svg
+    status: done
+    notes: ""
+  - slug: error_rate_curve
+    caption: "Error rate vs tables/fatigue and recommended tokens"
+    engine: unknown
+    src: ""
+    out: images/error_rate_curve.svg
+    status: done
+    notes: ""
+  - slug: warmup_cooldown_checklist
+    caption: "5-min warmup & 3-min cooldown"
+    engine: unknown
+    src: ""
+    out: images/warmup_cooldown_checklist.svg
+    status: done
+    notes: ""

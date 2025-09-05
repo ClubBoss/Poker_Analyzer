@@ -1,3 +1,3 @@
 {"id":"cash_single_raised_pots_demo_001","spot_kind":"l2_core_rules_check","steps":["UTG opens 2.2 bb (typical online), MP folds, CO calls, BB calls","Flop K72r: UTG uses small c-bet, CO folds, BB calls","Turn 5: UTG small second barrel, BB folds"]}
 {"id":"cash_single_raised_pots_demo_002","spot_kind":"l2_core_rules_check","steps":["BTN opens, SB calls, BB folds","Flop T98 two-tone: BTN bets big; SB calls","Turn 2: BTN checks back medium pair to control and realize"]}
-{"id":"cash_single_raised_pots_demo_003","spot_kind":"l2_core_rules_check","steps":["CO opens, BTN calls, blinds fold","Flop A76 monotone: CO checks back range","Turn 9: BTN leads small as a probe after missed c-bet; CO calls selectively"]}
+{"id":"cash_single_raised_pots_demo_003","spot_kind":"l2_core_rules_check","steps":["CO opens, BTN calls, blinds fold","Flop A76 monotone: CO checks back range","Turn 9: BTN probe_turns small as a probe after missed c-bet; CO calls selectively"]}

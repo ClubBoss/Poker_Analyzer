@@ -1,0 +1,23 @@
+module: live_tells_and_dynamics
+images:
+  - slug: live_tell_reliability_tiers
+    caption: "Physical/speech/timing reliability lanes"
+    engine: unknown
+    src: ""
+    out: images/live_tell_reliability_tiers.svg
+    status: done
+    notes: ""
+  - slug: live_overlay_flags_to_tokens
+    caption: "Overlay flags -> token frequency shifts"
+    engine: unknown
+    src: ""
+    out: images/live_overlay_flags_to_tokens.svg
+    status: done
+    notes: ""
+  - slug: live_sequence_map
+    caption: "From read -> family (33/50/75) -> token"
+    engine: unknown
+    src: ""
+    out: images/live_sequence_map.svg
+    status: done
+    notes: ""

@@ -52,5 +52,15 @@ Contrast
 Live_tells_and_dynamics focuses on reads; live_etiquette_and_procedures on process. This module optimizes where you sit and which table you choose so the same tokens earn more, with families fixed at 33/50/75.
 
 [[IMAGE: seat_value_map | Seats vs whale/reg and token levers]]
+![Seats vs whale/reg and token levers](images/seat_value_map.svg)
 [[IMAGE: table_quality_radar | VPIP/avg_pot/speed/limps -> go/leave gates]]
+![VPIP/avg_pot/speed/limps -> go/leave gates](images/table_quality_radar.svg)
 [[IMAGE: move_decision_flow | Stay / Seat change / Table change -> token shifts]]
+![Stay / Seat change / Table change -> token shifts](images/move_decision_flow.svg)
+
+See also
+- icm_final_table_hu (score 31) → ../../icm_final_table_hu/v1/theory.md
+- live_session_log_and_review (score 31) → ../../live_session_log_and_review/v1/theory.md
+- online_economics_rakeback_promos (score 31) → ../../online_economics_rakeback_promos/v1/theory.md
+- online_hudless_strategy_and_note_coding (score 31) → ../../online_hudless_strategy_and_note_coding/v1/theory.md
+- online_tells_and_dynamics (score 31) → ../../online_tells_and_dynamics/v1/theory.md

@@ -1,0 +1,23 @@
+module: online_table_selection_and_multitabling
+images:
+  - slug: online_select_signals
+    caption: "Fast signals of soft tables"
+    engine: unknown
+    src: ""
+    out: images/online_select_signals.svg
+    status: done
+    notes: ""
+  - slug: multitabling_layouts
+    caption: "Table layouts: tile/stack + hotkeys"
+    engine: unknown
+    src: ""
+    out: images/multitabling_layouts.svg
+    status: done
+    notes: ""
+  - slug: focus_ev_tradeoff
+    caption: "Balancing APM/attention vs EV"
+    engine: unknown
+    src: ""
+    out: images/focus_ev_tradeoff.svg
+    status: done
+    notes: ""

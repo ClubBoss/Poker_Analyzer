@@ -1,0 +1,23 @@
+module: mtt_pko_strategy
+images:
+  - slug: pko_bounty_equity_map
+    caption: "Bounty equity vs stack/coverage (pre-bubble -> FT)"
+    engine: unknown
+    src: ""
+    out: images/pko_bounty_equity_map.svg
+    status: done
+    notes: ""
+  - slug: pko_calloff_ladders
+    caption: "Shove/call-off ladders by bounty size and coverage"
+    engine: unknown
+    src: ""
+    out: images/pko_calloff_ladders.svg
+    status: done
+    notes: ""
+  - slug: pko_postflop_pressure
+    caption: "Postflop pressure windows with bounty risk"
+    engine: unknown
+    src: ""
+    out: images/pko_postflop_pressure.svg
+    status: done
+    notes: ""

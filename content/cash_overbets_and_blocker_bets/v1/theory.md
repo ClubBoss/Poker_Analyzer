@@ -2,8 +2,11 @@ What it is
 Overbets are large polar bets on turns or rivers used when your range holds nut advantage or strong blockers. Blocker bets are small, thin-value or set-price bets on static nodes where both ranges are condensed. In practice we map these ideas to size families: big_bet_75 as the polar lever, size_down_dry as the blocker/thin-value lever, and half_pot_50 as the default when neither extreme fits. small_cbet_33 remains a flop baseline on dry boards.
 
 [[IMAGE: overbet_nut_advantage_map | Boards and positions that enable overbets]]
+![Boards and positions that enable overbets](images/overbet_nut_advantage_map.svg)
 [[IMAGE: blocker_bet_spots | Thin value / set-price nodes]]
+![Thin value / set-price nodes](images/blocker_bet_spots.svg)
 [[IMAGE: river_tree_overbet_blocker | Polar vs merge trees and sizes]]
+![Polar vs merge trees and sizes](images/river_tree_overbet_blocker.svg)
 
 Why it matters
 Sizing drives fold equity, value capture, and future geometry. Polar pressure punishes capped ranges and missed draws; small blocker bets harvest thin value and control exposure versus raise-happy opponents. Pools often overfold to big polar bets out of position and under-raise rivers versus small bets. Disciplined deployment prints while staying solver-aligned.
@@ -38,3 +41,10 @@ Contrast
 Unlike baseline small_cbet_33 trees that realize equity cheaply, this module shifts to polarized big_bet_75 and size_down_dry on later streets to maximize fold equity or thin value while keeping defense sound against opponents' polar sizing.
 
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- cash_3bet_oop_playbook (score 19) → ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 19) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_turn_river_barreling (score 19) → ../../cash_turn_river_barreling/v1/theory.md
+- donk_bets_and_leads (score 19) → ../../donk_bets_and_leads/v1/theory.md
+- hu_postflop_play (score 19) → ../../hu_postflop_play/v1/theory.md

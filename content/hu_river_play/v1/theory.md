@@ -2,8 +2,11 @@ What it is
 Heads-Up river play is the last betting decision after single-raised or 3-bet pots. You choose between thin value, bluffs, and bluff-catches using blocker logic: block value, unblock bluffs. You weigh capped vs uncapped ranges and pick disciplined sizes: size_down_dry for thin value on static boards, half_pot_50 for balanced value/bluff, and big_bet_75 for polar pressure. You also decide when to triple_barrel_scare and when to protect_check_range so you are not blown off equity.
 
 [[IMAGE: hu_river_blocker_map | Blocking value vs unblocking bluffs]]
+![Blocking value vs unblocking bluffs](images/hu_river_blocker_map.svg)
 [[IMAGE: hu_river_size_tree | Thin value vs polar size selection]]
+![Thin value vs polar size selection](images/hu_river_size_tree.svg)
 [[IMAGE: hu_river_cap_map | Capped vs uncapped range indicators]]
+![Capped vs uncapped range indicators](images/hu_river_cap_map.svg)
 
 Why it matters
 The river has the highest price per mistake. Pools overfold to big polar bets, under-bluff scary runouts, and call too wide versus half-pot on static boards. Clear rules keep your value bets called by worse, your bluffs chosen with the right blockers, and your bluff-catches selective and profitable.
@@ -37,3 +40,10 @@ Contrast
 Compared to turn play, river decisions rely more on blockers and range caps than equity growth; in HU you can polarize more often, but only when the story, blockers, and range advantage support the size, otherwise keep it thin and disciplined.
 
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
+
+See also
+- cash_3bet_oop_playbook (score 17) → ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 17) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_overbets_and_blocker_bets (score 17) → ../../cash_overbets_and_blocker_bets/v1/theory.md
+- cash_turn_river_barreling (score 17) → ../../cash_turn_river_barreling/v1/theory.md
+- donk_bets_and_leads (score 17) → ../../donk_bets_and_leads/v1/theory.md
