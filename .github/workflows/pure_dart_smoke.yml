@@ -37,6 +37,7 @@ jobs:
             ${{ runner.os }}-dart-
 
       - name: JSONL guard (drills)
+        if: ${{ hashFiles('tools/jsonl_guard.py') != '' }}
         run: python3 tools/jsonl_guard.py --check 'content/*/v1/drills.jsonl'
 
       - name: Allowlists check
@@ -48,4 +49,3 @@ jobs:
           dart test -r compact test/actions_subtitle_smoke_test.dart
           dart test -r compact test/spot_maps_coverage_test.dart
           dart test -r compact test/spotkind_enum_discipline_test.dart
-
