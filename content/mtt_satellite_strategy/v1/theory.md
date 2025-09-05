@@ -43,8 +43,8 @@ Unlike chips-EV MTT or PKO, satellites weight survival over chip gain. Jam-first
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
 
 See also
-- database_leakfinder_playbook (score 25) → ../../database_leakfinder_playbook/v1/theory.md
-- donk_bets_and_leads (score 25) → ../../donk_bets_and_leads/v1/theory.md
-- hand_review_and_annotation_standards (score 25) → ../../hand_review_and_annotation_standards/v1/theory.md
-- icm_final_table_hu (score 25) → ../../icm_final_table_hu/v1/theory.md
-- live_chip_handling_and_bet_declares (score 25) → ../../live_chip_handling_and_bet_declares/v1/theory.md
+- database_leakfinder_playbook (score 25) -> ../../database_leakfinder_playbook/v1/theory.md
+- donk_bets_and_leads (score 25) -> ../../donk_bets_and_leads/v1/theory.md
+- hand_review_and_annotation_standards (score 25) -> ../../hand_review_and_annotation_standards/v1/theory.md
+- icm_final_table_hu (score 25) -> ../../icm_final_table_hu/v1/theory.md
+- live_chip_handling_and_bet_declares (score 25) -> ../../live_chip_handling_and_bet_declares/v1/theory.md

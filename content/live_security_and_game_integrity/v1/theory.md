@@ -1,5 +1,5 @@
 What it is
-A defensive playbook for spotting live integrity risks (soft-play clusters, chip-dump patterns, marked/defective deck suspicions, device/communication cues, angle pressure, repeated dealer/procedural errors) and translating them into frequency shifts using our fixed tokens only. Sizes/trees never change. Preflop ladders: 3bet_ip_9bb, 3bet_oop_12bb, 4bet_ip_21bb, 4bet_oop_24bb. Postflop families: small_cbet_33, half_pot_50, big_bet_75. Concepts: size_up_wet, size_down_dry, protect_check_range, delay_turn, probe_turns, double_barrel_good, triple_barrel_scare, call, fold, overfold_exploit. Physics first: static (A83r/K72r) → size_down_dry; dynamic (JT9ss/986ss) → size_up_wet. Integrity context only nudges frequencies.
+A defensive playbook for spotting live integrity risks (soft-play clusters, chip-dump patterns, marked/defective deck suspicions, device/communication cues, angle pressure, repeated dealer/procedural errors) and translating them into frequency shifts using our fixed tokens only. Sizes/trees never change. Preflop ladders: 3bet_ip_9bb, 3bet_oop_12bb, 4bet_ip_21bb, 4bet_oop_24bb. Postflop families: small_cbet_33, half_pot_50, big_bet_75. Concepts: size_up_wet, size_down_dry, protect_check_range, delay_turn, probe_turns, double_barrel_good, triple_barrel_scare, call, fold, overfold_exploit. Physics first: static (A83r/K72r) -> size_down_dry; dynamic (JT9ss/986ss) -> size_up_wet. Integrity context only nudges frequencies.
 
 Why it matters
 Compromised games erase edges and raise cognitive load. Sticking to 33/50/75 and 9/12/21/24 while choosing safer tokens (protection, delay, disciplined river folds, evidence-gated exploits) preserves EV, reduces tilt, and buys time to document and escalate to the floor without leaking.
@@ -30,11 +30,11 @@ Validators you may note for context: string_bet, single_motion_raise_legal, bett
 ![Overlay flags -> family stays 33/50/75; frequencies shift](images/overlay_to_family.svg)
 
 Mini example
-1) Soft-play suspicion: BvB SRP on K72r (static) checks through. Log softplay_suspected. Turn: choose probe_turns (sequence); river facing big_bet_75 without blockers → fold. Sizes unchanged (33/50/75).
+1) Soft-play suspicion: BvB SRP on K72r (static) checks through. Log softplay_suspected. Turn: choose probe_turns (sequence); river facing big_bet_75 without blockers -> fold. Sizes unchanged (33/50/75).
 2) Angle pressure, strict room: 3BP turn on dynamic card; raise-prone opponent, enforcement_strict. Pick delay_turn instead of thin barrel; separate session note shows persistent fast folds to your 12bb-next orbit you widen with 3bet_oop_12bb under overfold_exploit (evidence-gated).
 
 Common mistakes
-- Paranoia → off-tree bets. Fix: keep 33/50/75; shift frequency only.
+- Paranoia -> off-tree bets. Fix: keep 33/50/75; shift frequency only.
 - Calling polar rivers without blockers. Fix: default fold vs big_bet_75.
 - Tagging overfold_exploit after one hand. Fix: require repetition.
 - Mixing probes/probe_turns. Fix: probe_turns only after chk-chk.
@@ -53,8 +53,8 @@ Contrast
 Unlike live_etiquette_and_procedures (broader conduct) and live_floor_calls_and_dispute_resolution (rulings), this module turns integrity risk into conservative frequency shifts with the same tokens, keeping physics-first family selection intact.
 
 See also
-- bankroll_and_variance_management (score 27) → ../../bankroll_and_variance_management/v1/theory.md
-- cash_short_handed (score 27) → ../../cash_short_handed/v1/theory.md
-- exploit_advanced (score 27) → ../../exploit_advanced/v1/theory.md
-- icm_final_table_hu (score 27) → ../../icm_final_table_hu/v1/theory.md
-- live_etiquette_and_procedures (score 27) → ../../live_etiquette_and_procedures/v1/theory.md
+- bankroll_and_variance_management (score 27) -> ../../bankroll_and_variance_management/v1/theory.md
+- cash_short_handed (score 27) -> ../../cash_short_handed/v1/theory.md
+- exploit_advanced (score 27) -> ../../exploit_advanced/v1/theory.md
+- icm_final_table_hu (score 27) -> ../../icm_final_table_hu/v1/theory.md
+- live_etiquette_and_procedures (score 27) -> ../../live_etiquette_and_procedures/v1/theory.md

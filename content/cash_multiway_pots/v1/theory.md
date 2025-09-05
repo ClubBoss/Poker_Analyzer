@@ -46,8 +46,8 @@ Contrast
 Compared to single-raised or 3-bet heads-up pots, multiway uses fewer bluffs, smaller default sizings, more checking OOP, stricter raise respect, and a bigger position edge due to realization and equity sharing.
 
 See also
-- cash_blind_defense_vs_btn_co (score 21) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
-- cash_multiway_3bet_pots (score 21) → ../../cash_multiway_3bet_pots/v1/theory.md
-- cash_population_exploits (score 21) → ../../cash_population_exploits/v1/theory.md
-- donk_bets_and_leads (score 21) → ../../donk_bets_and_leads/v1/theory.md
-- hand_review_and_annotation_standards (score 21) → ../../hand_review_and_annotation_standards/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 21) -> ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_multiway_3bet_pots (score 21) -> ../../cash_multiway_3bet_pots/v1/theory.md
+- cash_population_exploits (score 21) -> ../../cash_population_exploits/v1/theory.md
+- donk_bets_and_leads (score 21) -> ../../donk_bets_and_leads/v1/theory.md
+- hand_review_and_annotation_standards (score 21) -> ../../hand_review_and_annotation_standards/v1/theory.md

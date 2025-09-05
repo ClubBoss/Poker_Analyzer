@@ -48,8 +48,8 @@ Contrast
 Bankroll/variance sets macro policy; online dynamics use opponent signals. This module uses internal state to shift frequencies while preserving the same actions and size families.
 
 See also
-- exploit_advanced (score 27) → ../../exploit_advanced/v1/theory.md
-- icm_final_table_hu (score 27) → ../../icm_final_table_hu/v1/theory.md
-- icm_mid_ladder_decisions (score 27) → ../../icm_mid_ladder_decisions/v1/theory.md
-- live_etiquette_and_procedures (score 27) → ../../live_etiquette_and_procedures/v1/theory.md
-- live_full_ring_adjustments (score 27) → ../../live_full_ring_adjustments/v1/theory.md
+- exploit_advanced (score 27) -> ../../exploit_advanced/v1/theory.md
+- icm_final_table_hu (score 27) -> ../../icm_final_table_hu/v1/theory.md
+- icm_mid_ladder_decisions (score 27) -> ../../icm_mid_ladder_decisions/v1/theory.md
+- live_etiquette_and_procedures (score 27) -> ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 27) -> ../../live_full_ring_adjustments/v1/theory.md

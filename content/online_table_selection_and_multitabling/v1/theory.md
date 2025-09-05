@@ -32,7 +32,7 @@ Common mistakes
 Mini-glossary
 Soft table: opponents fast-fold, few 4-bets, tiny rivers; widen 3bet_oop_12bb/3bet_ip_9bb and use overfold_exploit.
 Fastfold: format with rapid new hands; standardize to small_cbet_33/half_pot_50 and fold more thinly.
-Tile/stack: layout choice; more tables → more delay_turn/protect_check_range, fewer big_bet_75 bluffs.
+Tile/stack: layout choice; more tables -> more delay_turn/protect_check_range, fewer big_bet_75 bluffs.
 Autopilot: habitual actions; punish with probe_turns and double_barrel_good on good turns.
 EV/hour: output measure; selection and load change frequencies more than micro in-hand tweaks.
 Stop-loss/win: session guardrails; under fatigue, shift from triple_barrel_scare to protect_check_range and fold more marginally.
@@ -41,8 +41,8 @@ Contrast
 This module changes frequencies by table choice and workload while preserving the same token set and size families from HU, postflop, and math modules.
 
 See also
-- live_etiquette_and_procedures (score 33) → ../../live_etiquette_and_procedures/v1/theory.md
-- live_full_ring_adjustments (score 33) → ../../live_full_ring_adjustments/v1/theory.md
-- live_speech_timing_basics (score 33) → ../../live_speech_timing_basics/v1/theory.md
-- online_hud_and_db_review (score 33) → ../../online_hud_and_db_review/v1/theory.md
-- cash_short_handed (score 31) → ../../cash_short_handed/v1/theory.md
+- live_etiquette_and_procedures (score 33) -> ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 33) -> ../../live_full_ring_adjustments/v1/theory.md
+- live_speech_timing_basics (score 33) -> ../../live_speech_timing_basics/v1/theory.md
+- online_hud_and_db_review (score 33) -> ../../online_hud_and_db_review/v1/theory.md
+- cash_short_handed (score 31) -> ../../cash_short_handed/v1/theory.md

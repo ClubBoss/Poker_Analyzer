@@ -40,8 +40,8 @@ Unlike core_turn_fundamentals, which plans geometry and second barrels, this mod
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
 
 See also
-- cash_3bet_oop_playbook (score 12) → ../../cash_3bet_oop_playbook/v1/theory.md
-- cash_blind_defense_vs_btn_co (score 12) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
-- cash_blind_vs_blind (score 12) → ../../cash_blind_vs_blind/v1/theory.md
-- cash_fourbet_pots (score 12) → ../../cash_fourbet_pots/v1/theory.md
-- cash_population_exploits (score 12) → ../../cash_population_exploits/v1/theory.md
+- cash_3bet_oop_playbook (score 12) -> ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 12) -> ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_blind_vs_blind (score 12) -> ../../cash_blind_vs_blind/v1/theory.md
+- cash_fourbet_pots (score 12) -> ../../cash_fourbet_pots/v1/theory.md
+- cash_population_exploits (score 12) -> ../../cash_population_exploits/v1/theory.md

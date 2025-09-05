@@ -70,8 +70,8 @@ edge, and tighter value thresholds.
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
 
 See also
-- cash_blind_defense_vs_btn_co (score 23) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
-- cash_population_exploits (score 23) → ../../cash_population_exploits/v1/theory.md
-- donk_bets_and_leads (score 23) → ../../donk_bets_and_leads/v1/theory.md
-- hand_review_and_annotation_standards (score 23) → ../../hand_review_and_annotation_standards/v1/theory.md
-- live_chip_handling_and_bet_declares (score 23) → ../../live_chip_handling_and_bet_declares/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 23) -> ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_population_exploits (score 23) -> ../../cash_population_exploits/v1/theory.md
+- donk_bets_and_leads (score 23) -> ../../donk_bets_and_leads/v1/theory.md
+- hand_review_and_annotation_standards (score 23) -> ../../hand_review_and_annotation_standards/v1/theory.md
+- live_chip_handling_and_bet_declares (score 23) -> ../../live_chip_handling_and_bet_declares/v1/theory.md

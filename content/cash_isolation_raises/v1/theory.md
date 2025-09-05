@@ -41,8 +41,8 @@ Unlike blind-vs-blind, iso pots target one capped limp-call range and aim to avo
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
 
 See also
-- cash_population_exploits (score 21) → ../../cash_population_exploits/v1/theory.md
-- cash_short_handed (score 21) → ../../cash_short_handed/v1/theory.md
-- hand_review_and_annotation_standards (score 21) → ../../hand_review_and_annotation_standards/v1/theory.md
-- icm_mid_ladder_decisions (score 21) → ../../icm_mid_ladder_decisions/v1/theory.md
-- mtt_pko_strategy (score 21) → ../../mtt_pko_strategy/v1/theory.md
+- cash_population_exploits (score 21) -> ../../cash_population_exploits/v1/theory.md
+- cash_short_handed (score 21) -> ../../cash_short_handed/v1/theory.md
+- hand_review_and_annotation_standards (score 21) -> ../../hand_review_and_annotation_standards/v1/theory.md
+- icm_mid_ladder_decisions (score 21) -> ../../icm_mid_ladder_decisions/v1/theory.md
+- mtt_pko_strategy (score 21) -> ../../mtt_pko_strategy/v1/theory.md

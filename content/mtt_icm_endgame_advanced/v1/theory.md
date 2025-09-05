@@ -2,6 +2,7 @@ What it is
 Advanced ICM endgame covers bubble, pre-FT jumps, and full FT down to 3-handed. Chips do not equal cash; busting is costly. Coverage asymmetry rules: big stacks apply pressure, medium stacks carry the highest risk premium, and short stacks choose clean shove/call-off trees.
 
 [[IMAGE: icm_endgame_pressure_map | Risk premium by stack/position (bubble, FT 9->3, 3-5 handed)]]
+![Risk premium by stack/position (bubble, FT 9->3, 3–5 handed)](images/icm_endgame_pressure_map.svg)
 ![Risk premium by stack/position (bubble, FT 9->3, 3-5 handed)](images/icm_endgame_pressure_map.svg)
 ![Risk premium by stack/position (bubble, FT 9->3, 3-5 handed)](images/icm_endgame_pressure_map.svg)
 [[IMAGE: endgame_shove_call_ladders | Shove/reshove/call-off ladders by seat and coverage]]
@@ -46,8 +47,8 @@ Compared to chips-EV deep-stack play, advanced ICM endgame favors jam-first pref
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
 
 See also
-- exploit_advanced (score 31) → ../../exploit_advanced/v1/theory.md
-- icm_final_table_hu (score 31) → ../../icm_final_table_hu/v1/theory.md
-- live_etiquette_and_procedures (score 31) → ../../live_etiquette_and_procedures/v1/theory.md
-- live_full_ring_adjustments (score 31) → ../../live_full_ring_adjustments/v1/theory.md
-- live_session_log_and_review (score 31) → ../../live_session_log_and_review/v1/theory.md
+- exploit_advanced (score 31) -> ../../exploit_advanced/v1/theory.md
+- icm_final_table_hu (score 31) -> ../../icm_final_table_hu/v1/theory.md
+- live_etiquette_and_procedures (score 31) -> ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 31) -> ../../live_full_ring_adjustments/v1/theory.md
+- live_session_log_and_review (score 31) -> ../../live_session_log_and_review/v1/theory.md

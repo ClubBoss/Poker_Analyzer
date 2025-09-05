@@ -41,8 +41,8 @@ Compared to non-ICM middle stages, FT playbooks prioritize coverage-first pressu
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
 
 See also
-- icm_mid_ladder_decisions (score 29) → ../../icm_mid_ladder_decisions/v1/theory.md
-- live_etiquette_and_procedures (score 29) → ../../live_etiquette_and_procedures/v1/theory.md
-- live_full_ring_adjustments (score 29) → ../../live_full_ring_adjustments/v1/theory.md
-- live_speech_timing_basics (score 29) → ../../live_speech_timing_basics/v1/theory.md
-- live_tells_and_dynamics (score 29) → ../../live_tells_and_dynamics/v1/theory.md
+- icm_mid_ladder_decisions (score 29) -> ../../icm_mid_ladder_decisions/v1/theory.md
+- live_etiquette_and_procedures (score 29) -> ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 29) -> ../../live_full_ring_adjustments/v1/theory.md
+- live_speech_timing_basics (score 29) -> ../../live_speech_timing_basics/v1/theory.md
+- live_tells_and_dynamics (score 29) -> ../../live_tells_and_dynamics/v1/theory.md

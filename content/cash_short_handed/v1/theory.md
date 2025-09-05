@@ -42,8 +42,8 @@ Full-ring instincts fail here; short-handed rewards wider first-in, disciplined 
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
 
 See also
-- hand_review_and_annotation_standards (score 31) → ../../hand_review_and_annotation_standards/v1/theory.md
-- icm_final_table_hu (score 31) → ../../icm_final_table_hu/v1/theory.md
-- icm_mid_ladder_decisions (score 31) → ../../icm_mid_ladder_decisions/v1/theory.md
-- live_chip_handling_and_bet_declares (score 31) → ../../live_chip_handling_and_bet_declares/v1/theory.md
-- live_etiquette_and_procedures (score 31) → ../../live_etiquette_and_procedures/v1/theory.md
+- hand_review_and_annotation_standards (score 31) -> ../../hand_review_and_annotation_standards/v1/theory.md
+- icm_final_table_hu (score 31) -> ../../icm_final_table_hu/v1/theory.md
+- icm_mid_ladder_decisions (score 31) -> ../../icm_mid_ladder_decisions/v1/theory.md
+- live_chip_handling_and_bet_declares (score 31) -> ../../live_chip_handling_and_bet_declares/v1/theory.md
+- live_etiquette_and_procedures (score 31) -> ../../live_etiquette_and_procedures/v1/theory.md

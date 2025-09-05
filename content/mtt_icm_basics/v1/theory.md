@@ -45,8 +45,8 @@ Versus chips-EV deep-stack play, ICM shifts value from thin calls and bluffs tow
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
 
 See also
-- cash_short_handed (score 31) → ../../cash_short_handed/v1/theory.md
-- icm_final_table_hu (score 31) → ../../icm_final_table_hu/v1/theory.md
-- live_session_log_and_review (score 31) → ../../live_session_log_and_review/v1/theory.md
-- online_economics_rakeback_promos (score 31) → ../../online_economics_rakeback_promos/v1/theory.md
-- online_hudless_strategy_and_note_coding (score 31) → ../../online_hudless_strategy_and_note_coding/v1/theory.md
+- cash_short_handed (score 31) -> ../../cash_short_handed/v1/theory.md
+- icm_final_table_hu (score 31) -> ../../icm_final_table_hu/v1/theory.md
+- live_session_log_and_review (score 31) -> ../../live_session_log_and_review/v1/theory.md
+- online_economics_rakeback_promos (score 31) -> ../../online_economics_rakeback_promos/v1/theory.md
+- online_hudless_strategy_and_note_coding (score 31) -> ../../online_hudless_strategy_and_note_coding/v1/theory.md

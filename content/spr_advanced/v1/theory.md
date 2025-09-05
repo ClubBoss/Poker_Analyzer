@@ -8,11 +8,11 @@ Rules of thumb
 
 * Reverse SPR with 4-bets: 4bet_ip_21bb and 4bet_oop_24bb create clean, low SPR. Trim thin OOP flats. Why: clearer realization and fewer messy turn trees.
 * Low SPR + dynamic turn: start half_pot_50; upgrade to big_bet_75 only with strong blockers and proven fold‑vs‑75 spikes (size_up_wet). Why: leverage works when you block value and they overfold.
-* Turn → river planning: if turn big_bet_75 leaves trivial behind, commit only with equity/blockers; otherwise stay with half_pot_50 or delay_turn. Why: avoid bloating pots with hands that cannot finish the tree.
+* Turn -> river planning: if turn big_bet_75 leaves trivial behind, commit only with equity/blockers; otherwise stay with half_pot_50 or delay_turn. Why: avoid bloating pots with hands that cannot finish the tree.
 * Mid SPR OOP vs raise‑prone IP: increase delay_turn and keep protect_check_range. Why: you realize equity and dodge high‑frequency turn raises.
 * High SPR after check‑check: increase probe_turns on favorable turns. Why: many opponents surrender after missing the flop stab.
 * Low SPR != auto‑call: fold vs polar big_bet_75 without blockers in under‑bluffed pools. Why: population effect beats price.
-* Ladder → plan mapping: 3bet_oop_12bb and 3bet_ip_9bb lower SPR so that top pairs and initiative gain. On static boards prefer size_down_dry with small_cbet_33; on dynamic boards start half_pot_50 and double_barrel_good only with equity/blockers. Why: initiative plus lower SPR improves conversion.
+* Ladder -> plan mapping: 3bet_oop_12bb and 3bet_ip_9bb lower SPR so that top pairs and initiative gain. On static boards prefer size_down_dry with small_cbet_33; on dynamic boards start half_pot_50 and double_barrel_good only with equity/blockers. Why: initiative plus lower SPR improves conversion.
 * BvB transfer: blind‑defend trees shift SPR fast; flop probe_turns/turn probe_turns intersections exist, but sizes remain 33/50/75. Why: initiative may flip while families stay identical.
 * Exploit gates: tag overfold_exploit only with persistent evidence; SPR never justifies off‑tree plays. Why: discipline controls variance and bias.
 
@@ -21,6 +21,7 @@ Rules of thumb
 [[IMAGE: ladder_to_spr_map | 9/12/21/24 ladders -> typical SPR bands]]
 ![9/12/21/24 ladders -> typical SPR bands](images/ladder_to_spr_map.svg)
 [[IMAGE: spr_texture_matrix_advanced | TexturexSPR with blocker gates]]
+![Texture×SPR with blocker gates](images/spr_texture_matrix_advanced.svg)
 ![TexturexSPR with blocker gates](images/spr_texture_matrix_advanced.svg)
 ![TexturexSPR with blocker gates](images/spr_texture_matrix_advanced.svg)
 
@@ -51,8 +52,8 @@ Contrast
 spr_basics introduced families by texture and simple SPR nudges. This module goes deeper: ladder‑to‑plan mapping, blocker‑gated upgrades, and turn sizing that pre‑plans river outcomes - all inside the same tokens and 33/50/75 families.
 
 See also
-- icm_final_table_hu (score 33) → ../../icm_final_table_hu/v1/theory.md
-- live_session_log_and_review (score 33) → ../../live_session_log_and_review/v1/theory.md
-- online_economics_rakeback_promos (score 33) → ../../online_economics_rakeback_promos/v1/theory.md
-- online_hudless_strategy_and_note_coding (score 33) → ../../online_hudless_strategy_and_note_coding/v1/theory.md
-- online_tells_and_dynamics (score 33) → ../../online_tells_and_dynamics/v1/theory.md
+- icm_final_table_hu (score 33) -> ../../icm_final_table_hu/v1/theory.md
+- live_session_log_and_review (score 33) -> ../../live_session_log_and_review/v1/theory.md
+- online_economics_rakeback_promos (score 33) -> ../../online_economics_rakeback_promos/v1/theory.md
+- online_hudless_strategy_and_note_coding (score 33) -> ../../online_hudless_strategy_and_note_coding/v1/theory.md
+- online_tells_and_dynamics (score 33) -> ../../online_tells_and_dynamics/v1/theory.md

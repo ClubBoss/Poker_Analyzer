@@ -39,8 +39,8 @@ Unlike core_flop_fundamentals, which sets flop baselines, this module focuses on
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
 
 See also
-- core_flop_fundamentals (score 12) → ../../core_flop_fundamentals/v1/theory.md
-- cash_3bet_oop_playbook (score 10) → ../../cash_3bet_oop_playbook/v1/theory.md
-- cash_blind_defense_vs_btn_co (score 10) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
-- cash_blind_vs_blind (score 10) → ../../cash_blind_vs_blind/v1/theory.md
-- cash_fourbet_pots (score 10) → ../../cash_fourbet_pots/v1/theory.md
+- core_flop_fundamentals (score 12) -> ../../core_flop_fundamentals/v1/theory.md
+- cash_3bet_oop_playbook (score 10) -> ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 10) -> ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_blind_vs_blind (score 10) -> ../../cash_blind_vs_blind/v1/theory.md
+- cash_fourbet_pots (score 10) -> ../../cash_fourbet_pots/v1/theory.md

@@ -1,5 +1,5 @@
 What it is
-This module is a repeatable study pipeline that turns played hands into stable, tokenized adjustments. Steps: collect hands → tag quick signals → pick review spots → run a compact solver baseline (preflop ladders and 33/50/75 only) → optional single‑variable node lock → convert outputs to tokens → build drills → track KPIs → close the loop next session. All actions stay within: 3bet_ip_9bb, 3bet_oop_12bb, 4bet_ip_21bb, 4bet_oop_24bb, small_cbet_33, half_pot_50, big_bet_75, size_up_wet, size_down_dry, protect_check_range, delay_turn, probe_turns, double_barrel_good, triple_barrel_scare, call, fold, overfold_exploit.
+This module is a repeatable study pipeline that turns played hands into stable, tokenized adjustments. Steps: collect hands -> tag quick signals -> pick review spots -> run a compact solver baseline (preflop ladders and 33/50/75 only) -> optional single‑variable node lock -> convert outputs to tokens -> build drills -> track KPIs -> close the loop next session. All actions stay within: 3bet_ip_9bb, 3bet_oop_12bb, 4bet_ip_21bb, 4bet_oop_24bb, small_cbet_33, half_pot_50, big_bet_75, size_up_wet, size_down_dry, protect_check_range, delay_turn, probe_turns, double_barrel_good, triple_barrel_scare, call, fold, overfold_exploit.
 
 [[IMAGE: study_pipeline_map | From hand import -> tag -> solver -> token]]
 ![From hand import -> tag -> solver -> token](images/study_pipeline_map.svg)
@@ -16,15 +16,15 @@ Rules of thumb
 * Triage spots: prioritize price mistakes (pot odds), size misuse (small_cbet_33 vs half_pot_50 vs big_bet_75), and river blocker errors. Why: biggest and most frequent leaks.
 * Tree discipline: preflop ladders stay 3bet_ip_9bb / 3bet_oop_12bb / 4bet_ip_21bb / 4bet_oop_24bb; postflop sizes are 33/50/75 only. Why: stable comparisons and legible EV deltas.
 * Baseline first: read EV edges, not only frequencies; allow small EV mixes. Why: you execute the highest‑EV token, not the loudest heatmap color.
-* Node‑locking basics: lock one knob (e.g., Fold vs Turn 75%) and sweep plausible values; adopt only if EV gains persist → tag overfold_exploit. Why: avoids overfitting to noise.
+* Node‑locking basics: lock one knob (e.g., Fold vs Turn 75%) and sweep plausible values; adopt only if EV gains persist -> tag overfold_exploit. Why: avoids overfitting to noise.
 * Texture rule: size_down_dry on A83r, K72r; size_up_wet on JT9ss, 986ss. Why: physics before reads; locks change fold rates, not textures.
-* Token mapping: wet turn + higher Fold vs 75% → double_barrel_good with big_bet_75; under‑bluffed polar river → fold without blockers; check‑check then surrender → probe_turns; frequent stabs → protect_check_range or delay_turn. Why: clean translation from finding to action.
+* Token mapping: wet turn + higher Fold vs 75% -> double_barrel_good with big_bet_75; under‑bluffed polar river -> fold without blockers; check‑check then surrender -> probe_turns; frequent stabs -> protect_check_range or delay_turn. Why: clean translation from finding to action.
 * Drill building: each reviewed hand produces one demo and one drill with the exact token and a one‑line rationale. Why: retention and spaced repetition.
 * KPI loop: weekly counts for missed probe_turns after check‑check, thin value misses (size_down_dry), overuse of big_bet_75 on dry boards, river calls without blockers, and skipped 4bet_ip_21bb with premiums. Why: track what moves EV.
 * Session guardrails: under fatigue or when scaling tables, bias toward small_cbet_33, half_pot_50, delay_turn, protect_check_range; reserve big_bet_75 for clear blocker‑supported folds. Why: reduces error rate while preserving EV.
 
 Mini example
-Flagged hand 1: HU 100bb, SRP K72r IP. Baseline: size_down_dry → small_cbet_33 at high frequency; EV gap to check is small, so some mixing is fine. Turn 3h: database shows elevated turn‑raise%; choose delay_turn more with medium Kx to avoid getting raised off equity. River on Qc: facing big_bet_75 without helpful blockers is a fold; with better blockers, call more.
+Flagged hand 1: HU 100bb, SRP K72r IP. Baseline: size_down_dry -> small_cbet_33 at high frequency; EV gap to check is small, so some mixing is fine. Turn 3h: database shows elevated turn‑raise%; choose delay_turn more with medium Kx to avoid getting raised off equity. River on Qc: facing big_bet_75 without helpful blockers is a fold; with better blockers, call more.
 Flagged hand 2: HU 60bb, 3‑bet pot JT9ss OOP after 3bet_oop_12bb. Baseline: size_up_wet prefers pressure; lock sweep shows Fold vs Turn 75% rises on straightening turns, so double_barrel_good with big_bet_75 increases EV. If the lock advantage persists across reasonable ranges, tag overfold_exploit for this texture family.
 Conversion: For each case, create a drill: (i) choose size family by texture, (ii) pick the continuation token, (iii) add one KPI tick (e.g., "missed probe_turns" if you failed to stab after check‑check).
 
@@ -48,8 +48,8 @@ Contrast
 math_solver_basics teaches reading a baseline; solver_node_locking_basics teaches running locks. This module unifies both into a weekly workflow that outputs drills and KPI targets while preserving the same token set and size families.
 
 See also
-- exploit_advanced (score 31) → ../../exploit_advanced/v1/theory.md
-- icm_final_table_hu (score 31) → ../../icm_final_table_hu/v1/theory.md
-- live_etiquette_and_procedures (score 31) → ../../live_etiquette_and_procedures/v1/theory.md
-- live_full_ring_adjustments (score 31) → ../../live_full_ring_adjustments/v1/theory.md
-- live_session_log_and_review (score 31) → ../../live_session_log_and_review/v1/theory.md
+- exploit_advanced (score 31) -> ../../exploit_advanced/v1/theory.md
+- icm_final_table_hu (score 31) -> ../../icm_final_table_hu/v1/theory.md
+- live_etiquette_and_procedures (score 31) -> ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 31) -> ../../live_full_ring_adjustments/v1/theory.md
+- live_session_log_and_review (score 31) -> ../../live_session_log_and_review/v1/theory.md

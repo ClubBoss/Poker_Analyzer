@@ -13,8 +13,8 @@ Live pools run slower, with more limps/straddles and uneven enforcement. Ranges 
 - **Straddle or bomb_ante on:** more dead money; attempt more steals and selective 3-bets, but **sizes unchanged**. *Why:* better price, same ladders.
 - **Multi‑limpers:** favor merged value with **half_pot_50** and thin value using **size_down_dry** on static; fewer pure bluffs; add **protect_check_range**. *Why:* multiway realization drops.
 - **Snap small on static from IP:** treat as merged; defend correctly now, plan **probe_turns** after check‑check. *Why:* autopilot range‑bet.
-- **Tank → small:** merged more than bluff; **call** more, raise bluffs less. *Why:* hesitation rarely precedes tiny bluff sizing.
-- **Tank → big:** often under‑bluffed; **fold** more vs **big_bet_75** without blockers. *Why:* polar but value‑heavy live node.
+- **Tank -> small:** merged more than bluff; **call** more, raise bluffs less. *Why:* hesitation rarely precedes tiny bluff sizing.
+- **Tank -> big:** often under‑bluffed; **fold** more vs **big_bet_75** without blockers. *Why:* polar but value‑heavy live node.
 - **Confident forward motion on dynamic turns + good blockers:** green‑light **double_barrel_good**; default **half_pot_50**, upgrade to **big_bet_75** only with evidence (**size_up_wet**). *Why:* leverage plus blockers.
 - **Showdown reveals:** after seeing a missed bluff class, tighten river calls next orbit unless you hold **key blockers**. *Why:* adapt to revealed leak.
 - **Procedural pressure:** when **single_motion_raise_legal** is strict, random raises drop; when loose, increase **protect_check_range** and **delay_turn**. *Why:* avoid getting blown off equity.
@@ -33,8 +33,8 @@ Live pools run slower, with more limps/straddles and uneven enforcement. Ranges 
 ![From read -> family (33/50/75) -> token](images/live_sequence_map.svg)
 
 # Mini example
-Live HU, **has_straddle**. SB opens 2.0bb, BB calls. **Flop K72r** (static); IP **snap 33%** is merged → defend now and note sequence. Turn checks through; on favorable turns later, fire **probe_turns**. 
-Another spot: dynamic turn on **JT9ss** improves your blockers → **double_barrel_good** with **half_pot_50**, upgrading to **big_bet_75** only if fold‑vs‑75 evidence appears. **River tank → big** from a tight reg and you lack blockers → **fold** to **big_bet_75**.
+Live HU, **has_straddle**. SB opens 2.0bb, BB calls. **Flop K72r** (static); IP **snap 33%** is merged -> defend now and note sequence. Turn checks through; on favorable turns later, fire **probe_turns**. 
+Another spot: dynamic turn on **JT9ss** improves your blockers -> **double_barrel_good** with **half_pot_50**, upgrading to **big_bet_75** only if fold‑vs‑75 evidence appears. **River tank -> big** from a tight reg and you lack blockers -> **fold** to **big_bet_75**.
 
 # Common mistakes
 - Over‑trusting single tells.
@@ -56,11 +56,11 @@ Another spot: dynamic turn on **JT9ss** improves your blockers → **double_barr
 `online_tells_and_dynamics` runs on anonymity and timing stats; this live module layers physical and procedural reads. Sizes/families remain identical; only **frequencies** move through the same tokens.
 
 See also
-- icm_mid_ladder_decisions (score 31) → ../../icm_mid_ladder_decisions/v1/theory.md
-- live_etiquette_and_procedures (score 31) → ../../live_etiquette_and_procedures/v1/theory.md
-- live_full_ring_adjustments (score 31) → ../../live_full_ring_adjustments/v1/theory.md
-- live_speech_timing_basics (score 31) → ../../live_speech_timing_basics/v1/theory.md
-- online_hud_and_db_review (score 31) → ../../online_hud_and_db_review/v1/theory.md
+- icm_mid_ladder_decisions (score 31) -> ../../icm_mid_ladder_decisions/v1/theory.md
+- live_etiquette_and_procedures (score 31) -> ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 31) -> ../../live_full_ring_adjustments/v1/theory.md
+- live_speech_timing_basics (score 31) -> ../../live_speech_timing_basics/v1/theory.md
+- online_hud_and_db_review (score 31) -> ../../online_hud_and_db_review/v1/theory.md
 
 What it is
 

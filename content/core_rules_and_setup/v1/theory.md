@@ -39,8 +39,8 @@ This module covers procedure and hand comparisons; the next module uses position
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
 
 See also
-- core_starting_hands (score 8) → ../../core_starting_hands/v1/theory.md
-- core_turn_fundamentals (score 6) → ../../core_turn_fundamentals/v1/theory.md
-- core_flop_fundamentals (score 4) → ../../core_flop_fundamentals/v1/theory.md
-- cash_3bet_oop_playbook (score 3) → ../../cash_3bet_oop_playbook/v1/theory.md
-- cash_blind_defense (score 3) → ../../cash_blind_defense/v1/theory.md
+- core_starting_hands (score 8) -> ../../core_starting_hands/v1/theory.md
+- core_turn_fundamentals (score 6) -> ../../core_turn_fundamentals/v1/theory.md
+- core_flop_fundamentals (score 4) -> ../../core_flop_fundamentals/v1/theory.md
+- cash_3bet_oop_playbook (score 3) -> ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense (score 3) -> ../../cash_blind_defense/v1/theory.md

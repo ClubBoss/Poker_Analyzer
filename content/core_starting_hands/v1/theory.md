@@ -40,8 +40,8 @@ Unlike core_positions_and_initiative, which centers on seat and who has the bett
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
 
 See also
-- cash_short_handed (score 8) → ../../cash_short_handed/v1/theory.md
-- core_rules_and_setup (score 8) → ../../core_rules_and_setup/v1/theory.md
-- core_turn_fundamentals (score 8) → ../../core_turn_fundamentals/v1/theory.md
-- hand_review_and_annotation_standards (score 8) → ../../hand_review_and_annotation_standards/v1/theory.md
-- hu_exploit_adv (score 8) → ../../hu_exploit_adv/v1/theory.md
+- cash_short_handed (score 8) -> ../../cash_short_handed/v1/theory.md
+- core_rules_and_setup (score 8) -> ../../core_rules_and_setup/v1/theory.md
+- core_turn_fundamentals (score 8) -> ../../core_turn_fundamentals/v1/theory.md
+- hand_review_and_annotation_standards (score 8) -> ../../hand_review_and_annotation_standards/v1/theory.md
+- hu_exploit_adv (score 8) -> ../../hu_exploit_adv/v1/theory.md

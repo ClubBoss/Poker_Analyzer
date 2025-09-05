@@ -37,8 +37,8 @@ Contrast
 Compared to standard 3-bet pots, squeeze ranges are more value-biased and sizes larger to punish callers. Compared to single-raised multiway, you reclaim initiative, lower SPR, and rely less on thin bluffs while pressing blocker and value edges.
 
 See also
-- cash_population_exploits (score 19) → ../../cash_population_exploits/v1/theory.md
-- hand_review_and_annotation_standards (score 19) → ../../hand_review_and_annotation_standards/v1/theory.md
-- hu_exploit_adv (score 19) → ../../hu_exploit_adv/v1/theory.md
-- live_etiquette_and_procedures (score 19) → ../../live_etiquette_and_procedures/v1/theory.md
-- live_full_ring_adjustments (score 19) → ../../live_full_ring_adjustments/v1/theory.md
+- cash_population_exploits (score 19) -> ../../cash_population_exploits/v1/theory.md
+- hand_review_and_annotation_standards (score 19) -> ../../hand_review_and_annotation_standards/v1/theory.md
+- hu_exploit_adv (score 19) -> ../../hu_exploit_adv/v1/theory.md
+- live_etiquette_and_procedures (score 19) -> ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 19) -> ../../live_full_ring_adjustments/v1/theory.md

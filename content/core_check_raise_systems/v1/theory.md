@@ -39,8 +39,8 @@ Unlike core_bet_sizing_fe, which is about sizing families in general, this modul
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
 
 See also
-- cash_3bet_oop_playbook (score 9) → ../../cash_3bet_oop_playbook/v1/theory.md
-- cash_blind_defense (score 9) → ../../cash_blind_defense/v1/theory.md
-- cash_blind_defense_vs_btn_co (score 9) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
-- cash_blind_vs_blind (score 9) → ../../cash_blind_vs_blind/v1/theory.md
-- cash_fourbet_pots (score 9) → ../../cash_fourbet_pots/v1/theory.md
+- cash_3bet_oop_playbook (score 9) -> ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense (score 9) -> ../../cash_blind_defense/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 9) -> ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_blind_vs_blind (score 9) -> ../../cash_blind_vs_blind/v1/theory.md
+- cash_fourbet_pots (score 9) -> ../../cash_fourbet_pots/v1/theory.md

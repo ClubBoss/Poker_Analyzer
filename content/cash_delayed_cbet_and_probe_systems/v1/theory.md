@@ -38,8 +38,8 @@ Contrast
 Immediate c-bets print on many dry, high-card boards; delayed and probe systems shift aggression to turns where range and credibility improve, squeezing fold equity from populations that overfold turns and under-stab after flop checks.
 
 See also
-- cash_3bet_oop_playbook (score 25) → ../../cash_3bet_oop_playbook/v1/theory.md
-- cash_blind_defense_vs_btn_co (score 25) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
-- cash_limp_pots_systems (score 25) → ../../cash_limp_pots_systems/v1/theory.md
-- cash_short_handed (score 25) → ../../cash_short_handed/v1/theory.md
-- cash_turn_river_barreling (score 25) → ../../cash_turn_river_barreling/v1/theory.md
+- cash_3bet_oop_playbook (score 25) -> ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 25) -> ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_limp_pots_systems (score 25) -> ../../cash_limp_pots_systems/v1/theory.md
+- cash_short_handed (score 25) -> ../../cash_short_handed/v1/theory.md
+- cash_turn_river_barreling (score 25) -> ../../cash_turn_river_barreling/v1/theory.md

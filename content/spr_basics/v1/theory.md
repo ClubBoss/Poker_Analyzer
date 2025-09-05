@@ -21,6 +21,7 @@ Rules of thumb
 [[IMAGE: spr_by_ladder | How 9/12/21/24 preflop sizes set SPR]]
 ![How 9/12/21/24 preflop sizes set SPR](images/spr_by_ladder.svg)
 [[IMAGE: spr_texture_matrix | Texture family (dry/wet) x low/medium/high SPR play]]
+![Texture family (dry/wet) × low/medium/high SPR play](images/spr_texture_matrix.svg)
 ![Texture family (dry/wet) x low/medium/high SPR play](images/spr_texture_matrix.svg)
 ![Texture family (dry/wet) x low/medium/high SPR play](images/spr_texture_matrix.svg)
 
@@ -48,8 +49,8 @@ Contrast
 rake_and_ante_economics changes incentives via fees and dead money; donk_bets_and_leads covers OOP initiative vs PFA. SPR is the geometry that shapes frequency choices using the same tokens and families.
 
 See also
-- icm_final_table_hu (score 33) → ../../icm_final_table_hu/v1/theory.md
-- live_session_log_and_review (score 33) → ../../live_session_log_and_review/v1/theory.md
-- online_economics_rakeback_promos (score 33) → ../../online_economics_rakeback_promos/v1/theory.md
-- online_hudless_strategy_and_note_coding (score 33) → ../../online_hudless_strategy_and_note_coding/v1/theory.md
-- online_tells_and_dynamics (score 33) → ../../online_tells_and_dynamics/v1/theory.md
+- icm_final_table_hu (score 33) -> ../../icm_final_table_hu/v1/theory.md
+- live_session_log_and_review (score 33) -> ../../live_session_log_and_review/v1/theory.md
+- online_economics_rakeback_promos (score 33) -> ../../online_economics_rakeback_promos/v1/theory.md
+- online_hudless_strategy_and_note_coding (score 33) -> ../../online_hudless_strategy_and_note_coding/v1/theory.md
+- online_tells_and_dynamics (score 33) -> ../../online_tells_and_dynamics/v1/theory.md

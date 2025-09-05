@@ -39,8 +39,8 @@ Connects cash and ICM barreling modules but adds explicit SPR checklists. Tokens
 ![Turn choice -> river plan discipline](images/river_plan_flow.svg)
 
 See also
-- cash_3bet_oop_playbook (score 25) → ../../cash_3bet_oop_playbook/v1/theory.md
-- cash_blind_defense_vs_btn_co (score 25) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
-- cash_population_exploits (score 25) → ../../cash_population_exploits/v1/theory.md
-- cash_turn_river_barreling (score 25) → ../../cash_turn_river_barreling/v1/theory.md
-- donk_bets_and_leads (score 25) → ../../donk_bets_and_leads/v1/theory.md
+- cash_3bet_oop_playbook (score 25) -> ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 25) -> ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_population_exploits (score 25) -> ../../cash_population_exploits/v1/theory.md
+- cash_turn_river_barreling (score 25) -> ../../cash_turn_river_barreling/v1/theory.md
+- donk_bets_and_leads (score 25) -> ../../donk_bets_and_leads/v1/theory.md

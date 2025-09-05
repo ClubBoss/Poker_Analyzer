@@ -42,8 +42,8 @@ Compared to basic PKO, advanced routing emphasizes heads-up capture, side-pot ma
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
 
 See also
-- cash_short_handed (score 27) → ../../cash_short_handed/v1/theory.md
-- hand_review_and_annotation_standards (score 27) → ../../hand_review_and_annotation_standards/v1/theory.md
-- mtt_day2_bagging_and_reentry_ev (score 27) → ../../mtt_day2_bagging_and_reentry_ev/v1/theory.md
-- mtt_pko_strategy (score 27) → ../../mtt_pko_strategy/v1/theory.md
-- cash_population_exploits (score 25) → ../../cash_population_exploits/v1/theory.md
+- cash_short_handed (score 27) -> ../../cash_short_handed/v1/theory.md
+- hand_review_and_annotation_standards (score 27) -> ../../hand_review_and_annotation_standards/v1/theory.md
+- mtt_day2_bagging_and_reentry_ev (score 27) -> ../../mtt_day2_bagging_and_reentry_ev/v1/theory.md
+- mtt_pko_strategy (score 27) -> ../../mtt_pko_strategy/v1/theory.md
+- cash_population_exploits (score 25) -> ../../cash_population_exploits/v1/theory.md

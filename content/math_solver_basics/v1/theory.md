@@ -41,8 +41,8 @@ Contrast
 Earlier math modules teach prices and equity; this module shows how to turn solver outputs into the same tokenized actions you will execute live.
 
 See also
-- icm_final_table_hu (score 31) → ../../icm_final_table_hu/v1/theory.md
-- icm_mid_ladder_decisions (score 31) → ../../icm_mid_ladder_decisions/v1/theory.md
-- live_session_log_and_review (score 31) → ../../live_session_log_and_review/v1/theory.md
-- online_economics_rakeback_promos (score 31) → ../../online_economics_rakeback_promos/v1/theory.md
-- online_hudless_strategy_and_note_coding (score 31) → ../../online_hudless_strategy_and_note_coding/v1/theory.md
+- icm_final_table_hu (score 31) -> ../../icm_final_table_hu/v1/theory.md
+- icm_mid_ladder_decisions (score 31) -> ../../icm_mid_ladder_decisions/v1/theory.md
+- live_session_log_and_review (score 31) -> ../../live_session_log_and_review/v1/theory.md
+- online_economics_rakeback_promos (score 31) -> ../../online_economics_rakeback_promos/v1/theory.md
+- online_hudless_strategy_and_note_coding (score 31) -> ../../online_hudless_strategy_and_note_coding/v1/theory.md

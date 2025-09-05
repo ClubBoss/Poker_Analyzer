@@ -41,8 +41,8 @@ Contrast
 Math_pot_odds_equity focuses on prices and raw equity; this module turns those inputs into full EV decisions across sizes, streets, and preflop ladders using the same action tokens.
 
 See also
-- cash_short_handed (score 27) → ../../cash_short_handed/v1/theory.md
-- hand_review_and_annotation_standards (score 27) → ../../hand_review_and_annotation_standards/v1/theory.md
-- hu_exploit_adv (score 27) → ../../hu_exploit_adv/v1/theory.md
-- icm_final_table_hu (score 27) → ../../icm_final_table_hu/v1/theory.md
-- icm_mid_ladder_decisions (score 27) → ../../icm_mid_ladder_decisions/v1/theory.md
+- cash_short_handed (score 27) -> ../../cash_short_handed/v1/theory.md
+- hand_review_and_annotation_standards (score 27) -> ../../hand_review_and_annotation_standards/v1/theory.md
+- hu_exploit_adv (score 27) -> ../../hu_exploit_adv/v1/theory.md
+- icm_final_table_hu (score 27) -> ../../icm_final_table_hu/v1/theory.md
+- icm_mid_ladder_decisions (score 27) -> ../../icm_mid_ladder_decisions/v1/theory.md

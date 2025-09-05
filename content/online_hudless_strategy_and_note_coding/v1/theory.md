@@ -51,8 +51,8 @@ Contrast
 "online_hud_and_db_review" is stats-driven; "online_notes_and_exploit_tracker" is a fuller system. Here you operate with no HUD, using ultra-light tags and the same fixed tokens and sizes.
 
 See also
-- icm_final_table_hu (score 33) → ../../icm_final_table_hu/v1/theory.md
-- live_session_log_and_review (score 33) → ../../live_session_log_and_review/v1/theory.md
-- online_economics_rakeback_promos (score 33) → ../../online_economics_rakeback_promos/v1/theory.md
-- online_tells_and_dynamics (score 33) → ../../online_tells_and_dynamics/v1/theory.md
-- spr_advanced (score 33) → ../../spr_advanced/v1/theory.md
+- icm_final_table_hu (score 33) -> ../../icm_final_table_hu/v1/theory.md
+- live_session_log_and_review (score 33) -> ../../live_session_log_and_review/v1/theory.md
+- online_economics_rakeback_promos (score 33) -> ../../online_economics_rakeback_promos/v1/theory.md
+- online_tells_and_dynamics (score 33) -> ../../online_tells_and_dynamics/v1/theory.md
+- spr_advanced (score 33) -> ../../spr_advanced/v1/theory.md

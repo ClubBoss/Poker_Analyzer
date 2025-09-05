@@ -37,8 +37,8 @@ Contrast
 Unlike single-raised pots, 3-bet pots have lower SPR and more condensed ranges, so sizes must pressure correctly by texture. Unlike postflop jam modules, here jams are planned via SPR bands created by preflop size choices.
 
 See also
-- cash_population_exploits (score 23) → ../../cash_population_exploits/v1/theory.md
-- hand_review_and_annotation_standards (score 23) → ../../hand_review_and_annotation_standards/v1/theory.md
-- cash_short_handed (score 21) → ../../cash_short_handed/v1/theory.md
-- database_leakfinder_playbook (score 21) → ../../database_leakfinder_playbook/v1/theory.md
-- donk_bets_and_leads (score 21) → ../../donk_bets_and_leads/v1/theory.md
+- cash_population_exploits (score 23) -> ../../cash_population_exploits/v1/theory.md
+- hand_review_and_annotation_standards (score 23) -> ../../hand_review_and_annotation_standards/v1/theory.md
+- cash_short_handed (score 21) -> ../../cash_short_handed/v1/theory.md
+- database_leakfinder_playbook (score 21) -> ../../database_leakfinder_playbook/v1/theory.md
+- donk_bets_and_leads (score 21) -> ../../donk_bets_and_leads/v1/theory.md

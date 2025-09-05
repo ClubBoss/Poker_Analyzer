@@ -40,8 +40,8 @@ Compared to cash_threebet_pots and cash_single_raised_pots, 4-bet pots start wit
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
 
 See also
-- hand_review_and_annotation_standards (score 21) → ../../hand_review_and_annotation_standards/v1/theory.md
-- live_chip_handling_and_bet_declares (score 21) → ../../live_chip_handling_and_bet_declares/v1/theory.md
-- mtt_deep_stack (score 21) → ../../mtt_deep_stack/v1/theory.md
-- cash_population_exploits (score 19) → ../../cash_population_exploits/v1/theory.md
-- cash_short_handed (score 19) → ../../cash_short_handed/v1/theory.md
+- hand_review_and_annotation_standards (score 21) -> ../../hand_review_and_annotation_standards/v1/theory.md
+- live_chip_handling_and_bet_declares (score 21) -> ../../live_chip_handling_and_bet_declares/v1/theory.md
+- mtt_deep_stack (score 21) -> ../../mtt_deep_stack/v1/theory.md
+- cash_population_exploits (score 19) -> ../../cash_population_exploits/v1/theory.md
+- cash_short_handed (score 19) -> ../../cash_short_handed/v1/theory.md

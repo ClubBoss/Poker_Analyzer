@@ -40,8 +40,8 @@ Unlike core_starting_hands, which chooses preflop holdings, this module shows ho
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
 
 See also
-- cash_3bet_oop_playbook (score 12) → ../../cash_3bet_oop_playbook/v1/theory.md
-- cash_blind_defense_vs_btn_co (score 12) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
-- cash_blind_vs_blind (score 12) → ../../cash_blind_vs_blind/v1/theory.md
-- cash_population_exploits (score 12) → ../../cash_population_exploits/v1/theory.md
-- cash_single_raised_pots (score 12) → ../../cash_single_raised_pots/v1/theory.md
+- cash_3bet_oop_playbook (score 12) -> ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 12) -> ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_blind_vs_blind (score 12) -> ../../cash_blind_vs_blind/v1/theory.md
+- cash_population_exploits (score 12) -> ../../cash_population_exploits/v1/theory.md
+- cash_single_raised_pots (score 12) -> ../../cash_single_raised_pots/v1/theory.md

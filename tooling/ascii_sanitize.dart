@@ -158,6 +158,16 @@ _SanRes _sanitize(String s) {
     '\u00B1': '+/-',
     '\u00D7': 'x',
     '\u00F7': '/',
+    // arrows -> ASCII
+    '\u2192': '->', // right arrow
+    '\u21D2': '->', // rightwards double arrow
+    '\u27F6': '->', // long rightwards arrow
+    '\u2794': '->', // heavy wide-headed rightwards arrow
+    '\u279D': '->', // heavy round-tipped rightwards arrow
+    '\u279C': '->', // heavy round-headed rightwards arrow
+    '\u21A6': '->', // rightwards arrow from bar
+    '\u2190': '<-', // left arrow
+    '\u2194': '<->', // left-right arrow
   };
   singles.forEach((from, to) {
     text = replChar(text, from, to);

@@ -36,8 +36,8 @@ Contrast
 6-max postflop has narrower ranges and more multiway risk; HU keeps ranges wide and uncapped, so small bets, disciplined protection, and well-timed turn pressure matter more than flashy river bluffs.
 
 See also
-- cash_3bet_oop_playbook (score 23) → ../../cash_3bet_oop_playbook/v1/theory.md
-- cash_blind_defense_vs_btn_co (score 23) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
-- cash_turn_river_barreling (score 23) → ../../cash_turn_river_barreling/v1/theory.md
-- donk_bets_and_leads (score 23) → ../../donk_bets_and_leads/v1/theory.md
-- hand_review_and_annotation_standards (score 23) → ../../hand_review_and_annotation_standards/v1/theory.md
+- cash_3bet_oop_playbook (score 23) -> ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 23) -> ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_turn_river_barreling (score 23) -> ../../cash_turn_river_barreling/v1/theory.md
+- donk_bets_and_leads (score 23) -> ../../donk_bets_and_leads/v1/theory.md
+- hand_review_and_annotation_standards (score 23) -> ../../hand_review_and_annotation_standards/v1/theory.md

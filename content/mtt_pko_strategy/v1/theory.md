@@ -46,8 +46,8 @@ Compared to non-PKO, PKO widens call-offs and reshoves when you cover, tightens 
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
 
 See also
-- cash_short_handed (score 29) → ../../cash_short_handed/v1/theory.md
-- hand_review_and_annotation_standards (score 29) → ../../hand_review_and_annotation_standards/v1/theory.md
-- cash_population_exploits (score 27) → ../../cash_population_exploits/v1/theory.md
-- database_leakfinder_playbook (score 27) → ../../database_leakfinder_playbook/v1/theory.md
-- donk_bets_and_leads (score 27) → ../../donk_bets_and_leads/v1/theory.md
+- cash_short_handed (score 29) -> ../../cash_short_handed/v1/theory.md
+- hand_review_and_annotation_standards (score 29) -> ../../hand_review_and_annotation_standards/v1/theory.md
+- cash_population_exploits (score 27) -> ../../cash_population_exploits/v1/theory.md
+- database_leakfinder_playbook (score 27) -> ../../database_leakfinder_playbook/v1/theory.md
+- donk_bets_and_leads (score 27) -> ../../donk_bets_and_leads/v1/theory.md

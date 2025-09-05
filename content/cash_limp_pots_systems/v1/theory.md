@@ -43,8 +43,8 @@ Contrast
 Unlike standard raised pots, limp pots begin with capped ranges and higher fold equity IP. Versus blind-vs-blind steals, you target a single weak range and use tailored iso sizes to avoid multiway and awkward OOP SPRs.
 
 See also
-- cash_blind_defense_vs_btn_co (score 27) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
-- cash_short_handed (score 27) → ../../cash_short_handed/v1/theory.md
-- donk_bets_and_leads (score 27) → ../../donk_bets_and_leads/v1/theory.md
-- live_chip_handling_and_bet_declares (score 27) → ../../live_chip_handling_and_bet_declares/v1/theory.md
-- cash_3bet_oop_playbook (score 25) → ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 27) -> ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_short_handed (score 27) -> ../../cash_short_handed/v1/theory.md
+- donk_bets_and_leads (score 27) -> ../../donk_bets_and_leads/v1/theory.md
+- live_chip_handling_and_bet_declares (score 27) -> ../../live_chip_handling_and_bet_declares/v1/theory.md
+- cash_3bet_oop_playbook (score 25) -> ../../cash_3bet_oop_playbook/v1/theory.md

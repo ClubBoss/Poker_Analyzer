@@ -43,8 +43,8 @@ Unlike standard chips-EV MTT or PKO, bagging and re-entry EV emphasize survival,
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
 
 See also
-- cash_short_handed (score 29) → ../../cash_short_handed/v1/theory.md
-- hand_review_and_annotation_standards (score 29) → ../../hand_review_and_annotation_standards/v1/theory.md
-- hu_exploit_adv (score 27) → ../../hu_exploit_adv/v1/theory.md
-- icm_final_table_hu (score 27) → ../../icm_final_table_hu/v1/theory.md
-- icm_mid_ladder_decisions (score 27) → ../../icm_mid_ladder_decisions/v1/theory.md
+- cash_short_handed (score 29) -> ../../cash_short_handed/v1/theory.md
+- hand_review_and_annotation_standards (score 29) -> ../../hand_review_and_annotation_standards/v1/theory.md
+- hu_exploit_adv (score 27) -> ../../hu_exploit_adv/v1/theory.md
+- icm_final_table_hu (score 27) -> ../../icm_final_table_hu/v1/theory.md
+- icm_mid_ladder_decisions (score 27) -> ../../icm_mid_ladder_decisions/v1/theory.md

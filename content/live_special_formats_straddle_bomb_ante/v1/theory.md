@@ -19,22 +19,23 @@ Rules of thumb
 Live overlay integration
 
 * has_straddle: widen 3bet_ip_9bb / 3bet_oop_12bb with blockers; probe_turns more after chk-chk; preserve size families.
-* bomb_ante: more dead money → merged value with half_pot_50; thin value via size_down_dry; protect_check_range in multiway.
+* bomb_ante: more dead money -> merged value with half_pot_50; thin value via size_down_dry; protect_check_range in multiway.
 * multi_limpers: shift toward protection and merged value; fewer pure bluffs.
-* avg_stack_bb down: lower SPR → small_cbet_33 on static, default half_pot_50 on dynamic; upgrade to big_bet_75 only with blockers.
+* avg_stack_bb down: lower SPR -> small_cbet_33 on static, default half_pot_50 on dynamic; upgrade to big_bet_75 only with blockers.
 * table_speed down: simplify to small_cbet_33 / half_pot_50, delay_turn.
  Validator awareness (string-bet/one-motion) helps keep sizes inside 33/50/75 but does not change which family we choose.
 
-[[IMAGE: straddle_positional_shift | UTG straddle → action order and pressure lanes]]
+[[IMAGE: straddle_positional_shift | UTG straddle -> action order and pressure lanes]]
 ![UTG straddle → action order and pressure lanes](images/straddle_positional_shift.svg)
+![UTG straddle -> action order and pressure lanes](images/straddle_positional_shift.svg)
 [[IMAGE: bomb_ante_dead_money_map | Where dead money boosts steals & merged value]]
 ![Where dead money boosts steals & merged value](images/bomb_ante_dead_money_map.svg)
 [[IMAGE: multiway_family_picker | Multi-limpers: 33/50/75 family chooser]]
 ![Multi-limpers: 33/50/75 family chooser](images/multiway_family_picker.svg)
 
 Mini example
-Single straddle on. SB opens light; BB with A5s notes repeated blind folds → 3bet_oop_12bb (evidence-gated, overfold_exploit). Flop A83r heads-up: size_down_dry → small_cbet_33. Turn 6c, room raises turns aggressively → delay_turn. River faces big_bet_75 on a polar line without blockers → fold.
-Bomb ante with limp-chain: you isolate, flop T92r multiway → half_pot_50 for merged value; turn checks through often in this pool → probe_turns on the 6x.
+Single straddle on. SB opens light; BB with A5s notes repeated blind folds -> 3bet_oop_12bb (evidence-gated, overfold_exploit). Flop A83r heads-up: size_down_dry -> small_cbet_33. Turn 6c, room raises turns aggressively -> delay_turn. River faces big_bet_75 on a polar line without blockers -> fold.
+Bomb ante with limp-chain: you isolate, flop T92r multiway -> half_pot_50 for merged value; turn checks through often in this pool -> probe_turns on the 6x.
 
 Common mistakes
 Off-tree size improvisation; over-bluffing into limp-chains; forgetting UTG straddle positional tightening; confusing probe_turns (after chk-chk) with turn probe_turns (after calling a c-bet); hero-calling polar big rivers without blockers; skipping protect_check_range in raise-happy rooms.
@@ -51,8 +52,8 @@ Contrast
 Live_tells_and_dynamics focuses on reads; live_etiquette_and_procedures on process. Here we center on format economics and positional rewiring from straddles/bomb antes. Sizes remain 33/50/75; only frequencies move.
 
 See also
-- cash_short_handed (score 31) → ../../cash_short_handed/v1/theory.md
-- hand_review_and_annotation_standards (score 31) → ../../hand_review_and_annotation_standards/v1/theory.md
-- icm_final_table_hu (score 31) → ../../icm_final_table_hu/v1/theory.md
-- icm_mid_ladder_decisions (score 31) → ../../icm_mid_ladder_decisions/v1/theory.md
-- live_chip_handling_and_bet_declares (score 31) → ../../live_chip_handling_and_bet_declares/v1/theory.md
+- cash_short_handed (score 31) -> ../../cash_short_handed/v1/theory.md
+- hand_review_and_annotation_standards (score 31) -> ../../hand_review_and_annotation_standards/v1/theory.md
+- icm_final_table_hu (score 31) -> ../../icm_final_table_hu/v1/theory.md
+- icm_mid_ladder_decisions (score 31) -> ../../icm_mid_ladder_decisions/v1/theory.md
+- live_chip_handling_and_bet_declares (score 31) -> ../../live_chip_handling_and_bet_declares/v1/theory.md

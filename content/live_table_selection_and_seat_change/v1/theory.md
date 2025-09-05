@@ -27,14 +27,14 @@ Seat heuristics
 
 Overlay integration
 
-* has_straddle/bomb_ante: dead money → selectively widen 3bet_ip_9bb / 3bet_oop_12bb; keep families fixed.
+* has_straddle/bomb_ante: dead money -> selectively widen 3bet_ip_9bb / 3bet_oop_12bb; keep families fixed.
 * table_speed low: more small_cbet_33, half_pot_50, delay_turn, protect_check_range.
-* avg_stack_bb low: lower SPR → prefer half_pot_50 over big_bet_75 unless strong blockers; river fold discipline.
+* avg_stack_bb low: lower SPR -> prefer half_pot_50 over big_bet_75 unless strong blockers; river fold discipline.
 * rake_type(time|drop): use for table quality filter; tokens unchanged, frequencies follow softness.
 
 Mini example
-a) You move to the whale-left seat (you IP). BTN vs whale in BB: preflop widen 3bet_ip_9bb with A5s; flop K72r → size_down_dry + small_cbet_33; turn 2x vs calls → half_pot_50 merged value; river faces big_bet_75 from passive whale without blockers → fold.
-b) You leave a tough table (regs on left) and sit soft BvB. SB opens 2.0bb, BB widens 3bet_oop_12bb with blockers (evidence-gated overfold_exploit). Flop A83r → small_cbet_33; turn checks through next orbit → probe_turns.
+a) You move to the whale-left seat (you IP). BTN vs whale in BB: preflop widen 3bet_ip_9bb with A5s; flop K72r -> size_down_dry + small_cbet_33; turn 2x vs calls -> half_pot_50 merged value; river faces big_bet_75 from passive whale without blockers -> fold.
+b) You leave a tough table (regs on left) and sit soft BvB. SB opens 2.0bb, BB widens 3bet_oop_12bb with blockers (evidence-gated overfold_exploit). Flop A83r -> small_cbet_33; turn checks through next orbit -> probe_turns.
 
 Common mistakes
 Taking a worse seat to chase a straddle; inventing off-tree sizes; ignoring texture when the table is soft; hero-calling polar rivers without blockers; refusing seat changes when capped OOP; failing to protect_check_range versus stabby regs; tagging overfold_exploit on one orbit.
@@ -59,8 +59,8 @@ Live_tells_and_dynamics focuses on reads; live_etiquette_and_procedures on proce
 ![Stay / Seat change / Table change -> token shifts](images/move_decision_flow.svg)
 
 See also
-- icm_final_table_hu (score 31) → ../../icm_final_table_hu/v1/theory.md
-- live_session_log_and_review (score 31) → ../../live_session_log_and_review/v1/theory.md
-- online_economics_rakeback_promos (score 31) → ../../online_economics_rakeback_promos/v1/theory.md
-- online_hudless_strategy_and_note_coding (score 31) → ../../online_hudless_strategy_and_note_coding/v1/theory.md
-- online_tells_and_dynamics (score 31) → ../../online_tells_and_dynamics/v1/theory.md
+- icm_final_table_hu (score 31) -> ../../icm_final_table_hu/v1/theory.md
+- live_session_log_and_review (score 31) -> ../../live_session_log_and_review/v1/theory.md
+- online_economics_rakeback_promos (score 31) -> ../../online_economics_rakeback_promos/v1/theory.md
+- online_hudless_strategy_and_note_coding (score 31) -> ../../online_hudless_strategy_and_note_coding/v1/theory.md
+- online_tells_and_dynamics (score 31) -> ../../online_tells_and_dynamics/v1/theory.md

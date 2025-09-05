@@ -41,8 +41,8 @@ Contrast
 HU preflop sets ranges and sizes; this module turns those ranges into street-by-street bets, checks, and folds using stable size families.
 
 See also
-- cash_3bet_oop_playbook (score 27) → ../../cash_3bet_oop_playbook/v1/theory.md
-- cash_blind_defense_vs_btn_co (score 27) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
-- cash_turn_river_barreling (score 27) → ../../cash_turn_river_barreling/v1/theory.md
-- donk_bets_and_leads (score 27) → ../../donk_bets_and_leads/v1/theory.md
-- live_chip_handling_and_bet_declares (score 27) → ../../live_chip_handling_and_bet_declares/v1/theory.md
+- cash_3bet_oop_playbook (score 27) -> ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 27) -> ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_turn_river_barreling (score 27) -> ../../cash_turn_river_barreling/v1/theory.md
+- donk_bets_and_leads (score 27) -> ../../donk_bets_and_leads/v1/theory.md
+- live_chip_handling_and_bet_declares (score 27) -> ../../live_chip_handling_and_bet_declares/v1/theory.md

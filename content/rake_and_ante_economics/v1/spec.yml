@@ -1,0 +1,23 @@
+module: rake_and_ante_economics
+images:
+  - slug: rake_bands_cheatsheet
+    caption: "Rake/ante bands -> frequency shifts"
+    engine: unknown
+    src: ""
+    out: images/rake_bands_cheatsheet.svg
+    status: done
+    notes: ""
+  - slug: preflop_ladders_constant
+    caption: "Ladders fixed; only frequency moves"
+    engine: unknown
+    src: ""
+    out: images/preflop_ladders_constant.svg
+    status: done
+    notes: ""
+  - slug: size_family_map
+    caption: "33/50/75 by texture; where antes widen pressure"
+    engine: unknown
+    src: ""
+    out: images/size_family_map.svg
+    status: done
+    notes: ""

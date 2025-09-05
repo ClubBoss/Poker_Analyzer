@@ -53,8 +53,8 @@ Contrast
 study_review_handlab describes the weekly workflow; online_notes_* covers live tagging. This module standardizes how every reviewed hand is written so it maps cleanly to the same tokens without adding sizes or trees.
 
 See also
-- cash_short_handed (score 31) → ../../cash_short_handed/v1/theory.md
-- icm_final_table_hu (score 31) → ../../icm_final_table_hu/v1/theory.md
-- icm_mid_ladder_decisions (score 31) → ../../icm_mid_ladder_decisions/v1/theory.md
-- live_chip_handling_and_bet_declares (score 31) → ../../live_chip_handling_and_bet_declares/v1/theory.md
-- live_etiquette_and_procedures (score 31) → ../../live_etiquette_and_procedures/v1/theory.md
+- cash_short_handed (score 31) -> ../../cash_short_handed/v1/theory.md
+- icm_final_table_hu (score 31) -> ../../icm_final_table_hu/v1/theory.md
+- icm_mid_ladder_decisions (score 31) -> ../../icm_mid_ladder_decisions/v1/theory.md
+- live_chip_handling_and_bet_declares (score 31) -> ../../live_chip_handling_and_bet_declares/v1/theory.md
+- live_etiquette_and_procedures (score 31) -> ../../live_etiquette_and_procedures/v1/theory.md

@@ -28,14 +28,16 @@ Live overlay integration
 [[IMAGE: live_rake_models_map | Time vs drop vs tips -> frequency levers]]
 ![Time vs drop vs tips -> frequency levers](images/live_rake_models_map.svg)
 [[IMAGE: family_picker_under_drop | Texture (dry/wet) x drop/time -> 33/50/75 stays fixed]]
+![Texture (dry/wet) × drop/time -> 33/50/75 stays fixed](images/family_picker_under_drop.svg)
 ![Texture (dry/wet) x drop/time -> 33/50/75 stays fixed](images/family_picker_under_drop.svg)
 ![Texture (dry/wet) x drop/time -> 33/50/75 stays fixed](images/family_picker_under_drop.svg)
-[[IMAGE: river_tax_and_discipline | Tipping + drop → river fold discipline flow]]
+[[IMAGE: river_tax_and_discipline | Tipping + drop -> river fold discipline flow]]
 ![Tipping + drop → river fold discipline flow](images/river_tax_and_discipline.svg)
+![Tipping + drop -> river fold discipline flow](images/river_tax_and_discipline.svg)
 
 Mini example
-- Drop room, heavy tips. CO opens, BB defends. Flop K72r (static): size_down_dry → small_cbet_33. Turn 2x, villain sticky: choose half_pot_50 merged value with top pair; river polar big_bet_75 from tight reg and you lack blockers → fold. 
-- Time game with single straddle. SB 2.0bb open into straddle; BB observes repeated fast folds → selectively 3bet_oop_12bb with A5s (evidence-gated). SRP later checks through on Q72r; next orbit you add probe_turns on safe turns.
+- Drop room, heavy tips. CO opens, BB defends. Flop K72r (static): size_down_dry -> small_cbet_33. Turn 2x, villain sticky: choose half_pot_50 merged value with top pair; river polar big_bet_75 from tight reg and you lack blockers -> fold. 
+- Time game with single straddle. SB 2.0bb open into straddle; BB observes repeated fast folds -> selectively 3bet_oop_12bb with A5s (evidence-gated). SRP later checks through on Q72r; next orbit you add probe_turns on safe turns.
 
 Common mistakes
 Chasing promos with off-tree sizes; over-calling thin rivers despite tipping tax; confusing probe_turns (after chk-chk) with probe_turns; refusing to fold to big_bet_75 without blockers; tagging overfold_exploit after one hand; ignoring multiway drop effects and firing thin bluffs.
@@ -56,8 +58,8 @@ Contrast
 online_economics_rakeback_promos targets site incentives; rake_and_ante_economics covers general economics. This module is live-room rake/time/tips specific. Sizes stay 33/50/75 and ladders 9/12/21/24; only frequencies move.
 
 See also
-- exploit_advanced (score 29) → ../../exploit_advanced/v1/theory.md
-- hand_review_and_annotation_standards (score 29) → ../../hand_review_and_annotation_standards/v1/theory.md
-- icm_final_table_hu (score 29) → ../../icm_final_table_hu/v1/theory.md
-- live_etiquette_and_procedures (score 29) → ../../live_etiquette_and_procedures/v1/theory.md
-- live_full_ring_adjustments (score 29) → ../../live_full_ring_adjustments/v1/theory.md
+- exploit_advanced (score 29) -> ../../exploit_advanced/v1/theory.md
+- hand_review_and_annotation_standards (score 29) -> ../../hand_review_and_annotation_standards/v1/theory.md
+- icm_final_table_hu (score 29) -> ../../icm_final_table_hu/v1/theory.md
+- live_etiquette_and_procedures (score 29) -> ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 29) -> ../../live_full_ring_adjustments/v1/theory.md

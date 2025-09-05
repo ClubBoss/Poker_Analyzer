@@ -22,7 +22,7 @@ Rules of thumb
 ![Texture still drives size family selection](images/online_board_context.svg)
 
 Mini example
-HU 100bb. SB opens 2.0bb; BB calls (pot ~6bb). Flop A83r. SB snap-bets 2bb (small_cbet_33) - read: autopilot range bet (wide). BB defends standard now. Later, on boards that check through (e.g., T73r → 9s), BB favors probe_turns. 
+HU 100bb. SB opens 2.0bb; BB calls (pot ~6bb). Flop A83r. SB snap-bets 2bb (small_cbet_33) - read: autopilot range bet (wide). BB defends standard now. Later, on boards that check through (e.g., T73r -> 9s), BB favors probe_turns. 
 Preflop dynamic read: pool fast-folds vs 12bb and under-4-bets - BB widens 3bet_oop_12bb with blockers (overfold_exploit). Postflop, keep sizes in-family: size_down_dry on dry flops, size_up_wet + big_bet_75 on dynamic turns where tanks precede overfolds.
 
 Common mistakes
@@ -40,8 +40,8 @@ Contrast
 Math and solver modules define prices and baselines; this module converts online timing and sizing dynamics into the same token actions without inventing new trees.
 
 See also
-- icm_final_table_hu (score 33) → ../../icm_final_table_hu/v1/theory.md
-- live_session_log_and_review (score 33) → ../../live_session_log_and_review/v1/theory.md
-- online_economics_rakeback_promos (score 33) → ../../online_economics_rakeback_promos/v1/theory.md
-- online_hudless_strategy_and_note_coding (score 33) → ../../online_hudless_strategy_and_note_coding/v1/theory.md
-- spr_advanced (score 33) → ../../spr_advanced/v1/theory.md
+- icm_final_table_hu (score 33) -> ../../icm_final_table_hu/v1/theory.md
+- live_session_log_and_review (score 33) -> ../../live_session_log_and_review/v1/theory.md
+- online_economics_rakeback_promos (score 33) -> ../../online_economics_rakeback_promos/v1/theory.md
+- online_hudless_strategy_and_note_coding (score 33) -> ../../online_hudless_strategy_and_note_coding/v1/theory.md
+- spr_advanced (score 33) -> ../../spr_advanced/v1/theory.md

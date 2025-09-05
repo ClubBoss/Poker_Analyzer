@@ -6,14 +6,14 @@ Economics can move EV/hour more than small in-hand edges. Rakeback tied to volum
 
 Rules of thumb
 
-* Rakeback driven by volume → safer defaults when multitabling: more small_cbet_33, half_pot_50, delay_turn, protect_check_range; fewer thin triple_barrel_scare. Why: lower error rate beats marginal edge.
-* Time‑limited promos/missions → prioritize soft tables and clear start/stop rules; widen 3bet_oop_12bb and 3bet_ip_9bb vs fast‑folding blinds; tag overfold_exploit only after persistent evidence. Why: immediate folds compound volume.
-* Leaderboards (race EV) → standardize lines; avoid off‑tree; add probe_turns after check‑check; fold more vs big_bet_75 without blockers. Why: reduce punt risk under pace.
-* Cashback thresholds → do not force high‑variance bluffs; choose size_down_dry for thin value and half_pot_50 for merged value. Why: steadier winrate around targets.
-* Promo‑heavy soft windows → thinner half_pot_50 value and wider blocker 3‑bets; sizes unchanged. Why: callers are wider and preflop folds rise.
-* Tough reg windows despite promos → fold more to polar big_bet_75 without blockers; maintain protect_check_range. Why: under‑bluffed rivers and stabby turns.
-* Missions that push VPIP → physics first; adjust only frequencies of in‑family bets, not sizes. Why: consistency under pressure.
-* Bankroll/risk → promos do not justify off‑tree lines; ladders 9/12/21/24 stay fixed; use delay_turn when load spikes. Why: avoid variance tax.
+* Rakeback driven by volume -> safer defaults when multitabling: more small_cbet_33, half_pot_50, delay_turn, protect_check_range; fewer thin triple_barrel_scare. Why: lower error rate beats marginal edge.
+* Time‑limited promos/missions -> prioritize soft tables and clear start/stop rules; widen 3bet_oop_12bb and 3bet_ip_9bb vs fast‑folding blinds; tag overfold_exploit only after persistent evidence. Why: immediate folds compound volume.
+* Leaderboards (race EV) -> standardize lines; avoid off‑tree; add probe_turns after check‑check; fold more vs big_bet_75 without blockers. Why: reduce punt risk under pace.
+* Cashback thresholds -> do not force high‑variance bluffs; choose size_down_dry for thin value and half_pot_50 for merged value. Why: steadier winrate around targets.
+* Promo‑heavy soft windows -> thinner half_pot_50 value and wider blocker 3‑bets; sizes unchanged. Why: callers are wider and preflop folds rise.
+* Tough reg windows despite promos -> fold more to polar big_bet_75 without blockers; maintain protect_check_range. Why: under‑bluffed rivers and stabby turns.
+* Missions that push VPIP -> physics first; adjust only frequencies of in‑family bets, not sizes. Why: consistency under pressure.
+* Bankroll/risk -> promos do not justify off‑tree lines; ladders 9/12/21/24 stay fixed; use delay_turn when load spikes. Why: avoid variance tax.
 
 [[IMAGE: rakeback_models_map | Rakeback/promotions -> frequency levers]]
 ![Rakeback/promotions -> frequency levers](images/rakeback_models_map.svg)
@@ -45,8 +45,8 @@ Contrast
 rake_and_ante_economics covers structural fees and dead money; this module focuses on site incentives and how they shift **frequencies** while sizes and ladders stay fixed.
 
 See also
-- icm_final_table_hu (score 33) → ../../icm_final_table_hu/v1/theory.md
-- live_session_log_and_review (score 33) → ../../live_session_log_and_review/v1/theory.md
-- online_hudless_strategy_and_note_coding (score 33) → ../../online_hudless_strategy_and_note_coding/v1/theory.md
-- online_tells_and_dynamics (score 33) → ../../online_tells_and_dynamics/v1/theory.md
-- spr_advanced (score 33) → ../../spr_advanced/v1/theory.md
+- icm_final_table_hu (score 33) -> ../../icm_final_table_hu/v1/theory.md
+- live_session_log_and_review (score 33) -> ../../live_session_log_and_review/v1/theory.md
+- online_hudless_strategy_and_note_coding (score 33) -> ../../online_hudless_strategy_and_note_coding/v1/theory.md
+- online_tells_and_dynamics (score 33) -> ../../online_tells_and_dynamics/v1/theory.md
+- spr_advanced (score 33) -> ../../spr_advanced/v1/theory.md

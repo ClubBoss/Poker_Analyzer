@@ -40,8 +40,8 @@ Adjacent modules cover position names, opening ranges by seat, and initiative vs
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
 
 See also
-- cash_3bet_oop_playbook (score 4) → ../../cash_3bet_oop_playbook/v1/theory.md
-- cash_blind_defense (score 4) → ../../cash_blind_defense/v1/theory.md
-- cash_blind_defense_vs_btn_co (score 4) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
-- cash_blind_vs_blind (score 4) → ../../cash_blind_vs_blind/v1/theory.md
-- cash_delayed_cbet_and_probe_systems (score 4) → ../../cash_delayed_cbet_and_probe_systems/v1/theory.md
+- cash_3bet_oop_playbook (score 4) -> ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense (score 4) -> ../../cash_blind_defense/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 4) -> ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_blind_vs_blind (score 4) -> ../../cash_blind_vs_blind/v1/theory.md
+- cash_delayed_cbet_and_probe_systems (score 4) -> ../../cash_delayed_cbet_and_probe_systems/v1/theory.md

@@ -42,8 +42,8 @@ Contrast
 HU exploit and postflop modules tell you what to do; this module shows why the numbers support small_cbet_33, big_bet_75, or 3bet_oop_12bb in the first place.
 
 See also
-- hu_exploit_adv (score 31) → ../../hu_exploit_adv/v1/theory.md
-- cash_short_handed (score 29) → ../../cash_short_handed/v1/theory.md
-- hand_review_and_annotation_standards (score 29) → ../../hand_review_and_annotation_standards/v1/theory.md
-- icm_final_table_hu (score 29) → ../../icm_final_table_hu/v1/theory.md
-- icm_mid_ladder_decisions (score 29) → ../../icm_mid_ladder_decisions/v1/theory.md
+- hu_exploit_adv (score 31) -> ../../hu_exploit_adv/v1/theory.md
+- cash_short_handed (score 29) -> ../../cash_short_handed/v1/theory.md
+- hand_review_and_annotation_standards (score 29) -> ../../hand_review_and_annotation_standards/v1/theory.md
+- icm_final_table_hu (score 29) -> ../../icm_final_table_hu/v1/theory.md
+- icm_mid_ladder_decisions (score 29) -> ../../icm_mid_ladder_decisions/v1/theory.md

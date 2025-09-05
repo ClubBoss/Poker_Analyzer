@@ -45,8 +45,8 @@ Unlike core_bankroll_management, which sets bankroll cushions and stop-loss rule
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
 
 See also
-- cash_blind_defense (score 5) → ../../cash_blind_defense/v1/theory.md
-- cash_blind_defense_vs_btn_co (score 5) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
-- cash_blind_vs_blind (score 5) → ../../cash_blind_vs_blind/v1/theory.md
-- cash_isolation_raises (score 5) → ../../cash_isolation_raises/v1/theory.md
-- cash_limp_pots_systems (score 5) → ../../cash_limp_pots_systems/v1/theory.md
+- cash_blind_defense (score 5) -> ../../cash_blind_defense/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 5) -> ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_blind_vs_blind (score 5) -> ../../cash_blind_vs_blind/v1/theory.md
+- cash_isolation_raises (score 5) -> ../../cash_isolation_raises/v1/theory.md
+- cash_limp_pots_systems (score 5) -> ../../cash_limp_pots_systems/v1/theory.md

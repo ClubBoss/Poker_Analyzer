@@ -45,8 +45,8 @@ Contrast
 online_hud_and_db_review applies stats in play; study_review_handlab is the spot loop. This module scans whole databases for persistent leaks and converts them into the same tokenized actions, with single‑knob validation and no size changes.
 
 See also
-- icm_final_table_hu (score 31) → ../../icm_final_table_hu/v1/theory.md
-- live_session_log_and_review (score 31) → ../../live_session_log_and_review/v1/theory.md
-- online_economics_rakeback_promos (score 31) → ../../online_economics_rakeback_promos/v1/theory.md
-- online_hudless_strategy_and_note_coding (score 31) → ../../online_hudless_strategy_and_note_coding/v1/theory.md
-- online_tells_and_dynamics (score 31) → ../../online_tells_and_dynamics/v1/theory.md
+- icm_final_table_hu (score 31) -> ../../icm_final_table_hu/v1/theory.md
+- live_session_log_and_review (score 31) -> ../../live_session_log_and_review/v1/theory.md
+- online_economics_rakeback_promos (score 31) -> ../../online_economics_rakeback_promos/v1/theory.md
+- online_hudless_strategy_and_note_coding (score 31) -> ../../online_hudless_strategy_and_note_coding/v1/theory.md
+- online_tells_and_dynamics (score 31) -> ../../online_tells_and_dynamics/v1/theory.md

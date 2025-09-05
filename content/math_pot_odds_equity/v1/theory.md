@@ -40,8 +40,8 @@ Contrast
 The math_intro_basics module surveys many tools; this module drills pot odds and equity deeper and ties them to size families and preflop ladders.
 
 See also
-- hu_exploit_adv (score 27) → ../../hu_exploit_adv/v1/theory.md
-- math_ev_calculations (score 27) → ../../math_ev_calculations/v1/theory.md
-- math_intro_basics (score 27) → ../../math_intro_basics/v1/theory.md
-- cash_short_handed (score 25) → ../../cash_short_handed/v1/theory.md
-- hand_review_and_annotation_standards (score 25) → ../../hand_review_and_annotation_standards/v1/theory.md
+- hu_exploit_adv (score 27) -> ../../hu_exploit_adv/v1/theory.md
+- math_ev_calculations (score 27) -> ../../math_ev_calculations/v1/theory.md
+- math_intro_basics (score 27) -> ../../math_intro_basics/v1/theory.md
+- cash_short_handed (score 25) -> ../../cash_short_handed/v1/theory.md
+- hand_review_and_annotation_standards (score 25) -> ../../hand_review_and_annotation_standards/v1/theory.md

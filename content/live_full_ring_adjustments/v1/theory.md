@@ -46,10 +46,10 @@ Capped range: lacks top combos; probe_turns targets caps.
 Population under-bluff: big_bet_75 rivers often value-heavy in full ring.
 
 See also
-- live_etiquette_and_procedures (score 33) → ../../live_etiquette_and_procedures/v1/theory.md
-- live_speech_timing_basics (score 33) → ../../live_speech_timing_basics/v1/theory.md
-- online_hud_and_db_review (score 33) → ../../online_hud_and_db_review/v1/theory.md
-- online_table_selection_and_multitabling (score 33) → ../../online_table_selection_and_multitabling/v1/theory.md
-- cash_short_handed (score 31) → ../../cash_short_handed/v1/theory.md
+- live_etiquette_and_procedures (score 33) -> ../../live_etiquette_and_procedures/v1/theory.md
+- live_speech_timing_basics (score 33) -> ../../live_speech_timing_basics/v1/theory.md
+- online_hud_and_db_review (score 33) -> ../../online_hud_and_db_review/v1/theory.md
+- online_table_selection_and_multitabling (score 33) -> ../../online_table_selection_and_multitabling/v1/theory.md
+- cash_short_handed (score 31) -> ../../cash_short_handed/v1/theory.md
 
 Contrast

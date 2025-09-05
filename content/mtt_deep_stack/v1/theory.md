@@ -42,8 +42,8 @@ Contrast
 Compared to mid-stack (25-50bb), deep-stack increases IP flats and river play while demanding tighter OOP discipline. Versus cash, antes keep pots larger, so seize initiative with 3-bets and plan flop+turn pressure rather than bloated rivers.
 
 See also
-- live_chip_handling_and_bet_declares (score 31) → ../../live_chip_handling_and_bet_declares/v1/theory.md
-- cash_short_handed (score 29) → ../../cash_short_handed/v1/theory.md
-- donk_bets_and_leads (score 29) → ../../donk_bets_and_leads/v1/theory.md
-- hand_review_and_annotation_standards (score 29) → ../../hand_review_and_annotation_standards/v1/theory.md
-- icm_final_table_hu (score 29) → ../../icm_final_table_hu/v1/theory.md
+- live_chip_handling_and_bet_declares (score 31) -> ../../live_chip_handling_and_bet_declares/v1/theory.md
+- cash_short_handed (score 29) -> ../../cash_short_handed/v1/theory.md
+- donk_bets_and_leads (score 29) -> ../../donk_bets_and_leads/v1/theory.md
+- hand_review_and_annotation_standards (score 29) -> ../../hand_review_and_annotation_standards/v1/theory.md
+- icm_final_table_hu (score 29) -> ../../icm_final_table_hu/v1/theory.md

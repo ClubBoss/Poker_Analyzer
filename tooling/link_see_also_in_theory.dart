@@ -141,7 +141,7 @@ String _renderBlock(String module, List<_SA> items) {
   b.writeln('See also');
   for (final it in items) {
     b.writeln(
-      '- ${it.module} (score ${it.score}) \u2192 ../../${it.module}/v1/theory.md',
+      '- ${it.module} (score ${it.score}) -> ../../${it.module}/v1/theory.md',
     );
   }
   return b.toString().trimRight();

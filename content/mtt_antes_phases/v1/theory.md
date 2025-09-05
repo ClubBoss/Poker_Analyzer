@@ -41,8 +41,8 @@ Compared with 6-max cash, 9-max antes add early seats and more callers behind. Y
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
 
 See also
-- database_leakfinder_playbook (score 29) → ../../database_leakfinder_playbook/v1/theory.md
-- exploit_advanced (score 29) → ../../exploit_advanced/v1/theory.md
-- icm_final_table_hu (score 29) → ../../icm_final_table_hu/v1/theory.md
-- live_etiquette_and_procedures (score 29) → ../../live_etiquette_and_procedures/v1/theory.md
-- live_full_ring_adjustments (score 29) → ../../live_full_ring_adjustments/v1/theory.md
+- database_leakfinder_playbook (score 29) -> ../../database_leakfinder_playbook/v1/theory.md
+- exploit_advanced (score 29) -> ../../exploit_advanced/v1/theory.md
+- icm_final_table_hu (score 29) -> ../../icm_final_table_hu/v1/theory.md
+- live_etiquette_and_procedures (score 29) -> ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 29) -> ../../live_full_ring_adjustments/v1/theory.md

@@ -38,8 +38,8 @@ Contrast
 Solver_basics teaches how to read baseline outputs; this module shows how to lock realistic opponent tendencies and convert stable EV shifts into the same tokenized actions for real play.
 
 See also
-- database_leakfinder_playbook (score 27) → ../../database_leakfinder_playbook/v1/theory.md
-- exploit_advanced (score 27) → ../../exploit_advanced/v1/theory.md
-- hand_review_and_annotation_standards (score 27) → ../../hand_review_and_annotation_standards/v1/theory.md
-- icm_final_table_hu (score 27) → ../../icm_final_table_hu/v1/theory.md
-- live_etiquette_and_procedures (score 27) → ../../live_etiquette_and_procedures/v1/theory.md
+- database_leakfinder_playbook (score 27) -> ../../database_leakfinder_playbook/v1/theory.md
+- exploit_advanced (score 27) -> ../../exploit_advanced/v1/theory.md
+- hand_review_and_annotation_standards (score 27) -> ../../hand_review_and_annotation_standards/v1/theory.md
+- icm_final_table_hu (score 27) -> ../../icm_final_table_hu/v1/theory.md
+- live_etiquette_and_procedures (score 27) -> ../../live_etiquette_and_procedures/v1/theory.md

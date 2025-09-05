@@ -42,8 +42,8 @@ Unlike core_pot_odds_equity, which prices a single call, this module shows how p
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
 
 See also
-- cash_3bet_oop_playbook (score 14) → ../../cash_3bet_oop_playbook/v1/theory.md
-- cash_blind_defense_vs_btn_co (score 14) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
-- cash_population_exploits (score 14) → ../../cash_population_exploits/v1/theory.md
-- cash_turn_river_barreling (score 14) → ../../cash_turn_river_barreling/v1/theory.md
-- donk_bets_and_leads (score 14) → ../../donk_bets_and_leads/v1/theory.md
+- cash_3bet_oop_playbook (score 14) -> ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 14) -> ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_population_exploits (score 14) -> ../../cash_population_exploits/v1/theory.md
+- cash_turn_river_barreling (score 14) -> ../../cash_turn_river_barreling/v1/theory.md
+- donk_bets_and_leads (score 14) -> ../../donk_bets_and_leads/v1/theory.md

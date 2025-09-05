@@ -42,8 +42,8 @@ Contrast
 Math_pot_odds_equity focuses on prices; this module focuses on how blockers and removal change value-to-bluff ratios and size choices.
 
 See also
-- live_special_formats_straddle_bomb_ante (score 29) → ../../live_special_formats_straddle_bomb_ante/v1/theory.md
-- cash_short_handed (score 27) → ../../cash_short_handed/v1/theory.md
-- hand_review_and_annotation_standards (score 27) → ../../hand_review_and_annotation_standards/v1/theory.md
-- hu_exploit_adv (score 27) → ../../hu_exploit_adv/v1/theory.md
-- icm_final_table_hu (score 27) → ../../icm_final_table_hu/v1/theory.md
+- live_special_formats_straddle_bomb_ante (score 29) -> ../../live_special_formats_straddle_bomb_ante/v1/theory.md
+- cash_short_handed (score 27) -> ../../cash_short_handed/v1/theory.md
+- hand_review_and_annotation_standards (score 27) -> ../../hand_review_and_annotation_standards/v1/theory.md
+- hu_exploit_adv (score 27) -> ../../hu_exploit_adv/v1/theory.md
+- icm_final_table_hu (score 27) -> ../../icm_final_table_hu/v1/theory.md

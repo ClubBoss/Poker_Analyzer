@@ -41,8 +41,8 @@ Contrast
 Math_ev_calculations optimizes chips; this module adjusts the same actions and sizes to maximize $EV by tightening ladders and preferring safer lines under payout pressure.
 
 See also
-- hand_review_and_annotation_standards (score 25) → ../../hand_review_and_annotation_standards/v1/theory.md
-- live_chip_handling_and_bet_declares (score 25) → ../../live_chip_handling_and_bet_declares/v1/theory.md
-- live_etiquette_and_procedures (score 25) → ../../live_etiquette_and_procedures/v1/theory.md
-- live_full_ring_adjustments (score 25) → ../../live_full_ring_adjustments/v1/theory.md
-- live_speech_timing_basics (score 25) → ../../live_speech_timing_basics/v1/theory.md
+- hand_review_and_annotation_standards (score 25) -> ../../hand_review_and_annotation_standards/v1/theory.md
+- live_chip_handling_and_bet_declares (score 25) -> ../../live_chip_handling_and_bet_declares/v1/theory.md
+- live_etiquette_and_procedures (score 25) -> ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 25) -> ../../live_full_ring_adjustments/v1/theory.md
+- live_speech_timing_basics (score 25) -> ../../live_speech_timing_basics/v1/theory.md

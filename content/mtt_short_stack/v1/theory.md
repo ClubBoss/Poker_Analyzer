@@ -38,8 +38,8 @@ Unlike deep-stacked cash, short-stack MTT play compresses ranges and forces comm
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
 
 See also
-- cash_short_handed (score 27) → ../../cash_short_handed/v1/theory.md
-- database_leakfinder_playbook (score 27) → ../../database_leakfinder_playbook/v1/theory.md
-- donk_bets_and_leads (score 27) → ../../donk_bets_and_leads/v1/theory.md
-- icm_final_table_hu (score 27) → ../../icm_final_table_hu/v1/theory.md
-- live_chip_handling_and_bet_declares (score 27) → ../../live_chip_handling_and_bet_declares/v1/theory.md
+- cash_short_handed (score 27) -> ../../cash_short_handed/v1/theory.md
+- database_leakfinder_playbook (score 27) -> ../../database_leakfinder_playbook/v1/theory.md
+- donk_bets_and_leads (score 27) -> ../../donk_bets_and_leads/v1/theory.md
+- icm_final_table_hu (score 27) -> ../../icm_final_table_hu/v1/theory.md
+- live_chip_handling_and_bet_declares (score 27) -> ../../live_chip_handling_and_bet_declares/v1/theory.md

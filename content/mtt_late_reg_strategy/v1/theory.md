@@ -42,8 +42,8 @@ Unlike deep-start entries, late-reg favors shove/reshove proxies, fewer OOP flat
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
 
 See also
-- hand_review_and_annotation_standards (score 27) → ../../hand_review_and_annotation_standards/v1/theory.md
-- live_etiquette_and_procedures (score 27) → ../../live_etiquette_and_procedures/v1/theory.md
-- live_full_ring_adjustments (score 27) → ../../live_full_ring_adjustments/v1/theory.md
-- live_speech_timing_basics (score 27) → ../../live_speech_timing_basics/v1/theory.md
-- online_hud_and_db_review (score 27) → ../../online_hud_and_db_review/v1/theory.md
+- hand_review_and_annotation_standards (score 27) -> ../../hand_review_and_annotation_standards/v1/theory.md
+- live_etiquette_and_procedures (score 27) -> ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 27) -> ../../live_full_ring_adjustments/v1/theory.md
+- live_speech_timing_basics (score 27) -> ../../live_speech_timing_basics/v1/theory.md
+- online_hud_and_db_review (score 27) -> ../../online_hud_and_db_review/v1/theory.md

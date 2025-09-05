@@ -47,8 +47,8 @@ Contrast
 Other modules focus on PFA lines in single-raised and 3-bet pots. Here we train OOP initiative-taking vs PFA, using the same tokens and families, with frequency shifts driven by texture and pool behavior.
 
 See also
-- live_chip_handling_and_bet_declares (score 31) → ../../live_chip_handling_and_bet_declares/v1/theory.md
-- cash_blind_defense_vs_btn_co (score 29) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
-- cash_population_exploits (score 29) → ../../cash_population_exploits/v1/theory.md
-- cash_short_handed (score 29) → ../../cash_short_handed/v1/theory.md
-- database_leakfinder_playbook (score 29) → ../../database_leakfinder_playbook/v1/theory.md
+- live_chip_handling_and_bet_declares (score 31) -> ../../live_chip_handling_and_bet_declares/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 29) -> ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_population_exploits (score 29) -> ../../cash_population_exploits/v1/theory.md
+- cash_short_handed (score 29) -> ../../cash_short_handed/v1/theory.md
+- database_leakfinder_playbook (score 29) -> ../../database_leakfinder_playbook/v1/theory.md

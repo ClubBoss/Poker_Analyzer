@@ -12,7 +12,7 @@ Rules of thumb
 * Baseline first: read EV and frequencies; small‑EV mixes are acceptable. Why: avoid chasing noise.
 * Single‑variable lock: sweep one knob (e.g., Fold vs Turn 75%). Adopt only if EV gains persist and texture agrees, then tag overfold_exploit. Why: guard against overfitting.
 * Annotation grammar: one line per street, end with exactly one token. Include texture, family, position, initiative, blockers, sequence, pressure gate (Fv50/Fv75), SPR band. Why: fast recall and drillability.
-* Spaced review cadence: fresh → 1d → 3d → 7d. Replace card text with texture and blocker tags only. Why: compress memory to cues you use in play.
+* Spaced review cadence: fresh -> 1d -> 3d -> 7d. Replace card text with texture and blocker tags only. Why: compress memory to cues you use in play.
 * KPI set: missed probe_turns after check‑check, wrong family (size_up_wet / size_down_dry), undisciplined river calls vs big_bet_75 without blockers, skipped protect_check_range, overuse of big_bet_75 on dry boards. Why: dashboards steer focus.
 * Session prep: warmup checklist and three priorities. Close loop with a cooldown snapshot and next‑session plan. Why: maintain alignment with the KPIs.
 * Drill pipeline: each reviewed hand becomes one demo and one drill with a single‑token answer. Why: frictionless practice.
@@ -44,8 +44,8 @@ Contrast
 study_review_handlab is the lab recipe for one spot. This module is the weekly calendar: capture, triage, baseline, one lock, token mapping, drills, spacing, and KPI dashboards. Sizes and ladders remain identical; routines only shift frequencies.
 
 See also
-- icm_final_table_hu (score 31) → ../../icm_final_table_hu/v1/theory.md
-- live_session_log_and_review (score 31) → ../../live_session_log_and_review/v1/theory.md
-- live_table_selection_and_seat_change (score 31) → ../../live_table_selection_and_seat_change/v1/theory.md
-- online_economics_rakeback_promos (score 31) → ../../online_economics_rakeback_promos/v1/theory.md
-- online_hudless_strategy_and_note_coding (score 31) → ../../online_hudless_strategy_and_note_coding/v1/theory.md
+- icm_final_table_hu (score 31) -> ../../icm_final_table_hu/v1/theory.md
+- live_session_log_and_review (score 31) -> ../../live_session_log_and_review/v1/theory.md
+- live_table_selection_and_seat_change (score 31) -> ../../live_table_selection_and_seat_change/v1/theory.md
+- online_economics_rakeback_promos (score 31) -> ../../online_economics_rakeback_promos/v1/theory.md
+- online_hudless_strategy_and_note_coding (score 31) -> ../../online_hudless_strategy_and_note_coding/v1/theory.md

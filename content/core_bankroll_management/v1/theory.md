@@ -40,8 +40,8 @@ Unlike core_gto_vs_exploit, which tweaks strategy based on opponent leaks, this 
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
 
 See also
-- cash_3bet_oop_playbook (score 10) → ../../cash_3bet_oop_playbook/v1/theory.md
-- cash_blind_defense_vs_btn_co (score 10) → ../../cash_blind_defense_vs_btn_co/v1/theory.md
-- cash_delayed_cbet_and_probe_systems (score 10) → ../../cash_delayed_cbet_and_probe_systems/v1/theory.md
-- cash_limp_pots_systems (score 10) → ../../cash_limp_pots_systems/v1/theory.md
-- cash_short_handed (score 10) → ../../cash_short_handed/v1/theory.md
+- cash_3bet_oop_playbook (score 10) -> ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 10) -> ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_delayed_cbet_and_probe_systems (score 10) -> ../../cash_delayed_cbet_and_probe_systems/v1/theory.md
+- cash_limp_pots_systems (score 10) -> ../../cash_limp_pots_systems/v1/theory.md
+- cash_short_handed (score 10) -> ../../cash_short_handed/v1/theory.md

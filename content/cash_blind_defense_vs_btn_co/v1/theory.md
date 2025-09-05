@@ -38,8 +38,8 @@ IP 3-bet playbook presses more; here OOP we protect earlier, delay more, and upg
 ![OOP river discipline vs big_bet_75](images/river_polar_nodes_oop.svg)
 
 See also
-- donk_bets_and_leads (score 29) → ../../donk_bets_and_leads/v1/theory.md
-- live_chip_handling_and_bet_declares (score 29) → ../../live_chip_handling_and_bet_declares/v1/theory.md
-- cash_3bet_oop_playbook (score 27) → ../../cash_3bet_oop_playbook/v1/theory.md
-- cash_limp_pots_systems (score 27) → ../../cash_limp_pots_systems/v1/theory.md
-- cash_population_exploits (score 27) → ../../cash_population_exploits/v1/theory.md
+- donk_bets_and_leads (score 29) -> ../../donk_bets_and_leads/v1/theory.md
+- live_chip_handling_and_bet_declares (score 29) -> ../../live_chip_handling_and_bet_declares/v1/theory.md
+- cash_3bet_oop_playbook (score 27) -> ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_limp_pots_systems (score 27) -> ../../cash_limp_pots_systems/v1/theory.md
+- cash_population_exploits (score 27) -> ../../cash_population_exploits/v1/theory.md
