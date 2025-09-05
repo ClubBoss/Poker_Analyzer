@@ -81,7 +81,9 @@ void main(List<String> args) {
     for (final m in missing) {
       print(m);
     }
-    print('SUMMARY: checked $checkedModules modules; missing recap=$missingRecap, quiz=$missingQuiz');
+    print(
+      'SUMMARY: checked $checkedModules modules; missing recap=$missingRecap, quiz=$missingQuiz',
+    );
     exit(1);
   }
 }
