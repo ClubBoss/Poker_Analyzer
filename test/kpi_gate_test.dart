@@ -46,30 +46,32 @@ void main() {
     // Meets exactly
     expect(
       meetsKPI(
-          moduleId: 'cash_threebet_pots',
-          correct: 17,
-          total: 20,
-          avgDecisionMs: 20000),
+        moduleId: 'cash_threebet_pots',
+        correct: 17,
+        total: 20,
+        avgDecisionMs: 20000,
+      ),
       isTrue,
     );
     // Miss accuracy
     expect(
       meetsKPI(
-          moduleId: 'cash_threebet_pots',
-          correct: 16,
-          total: 20,
-          avgDecisionMs: 18000),
+        moduleId: 'cash_threebet_pots',
+        correct: 16,
+        total: 20,
+        avgDecisionMs: 18000,
+      ),
       isFalse,
     );
     // Miss time
     expect(
       meetsKPI(
-          moduleId: 'cash_threebet_pots',
-          correct: 17,
-          total: 20,
-          avgDecisionMs: 20001),
+        moduleId: 'cash_threebet_pots',
+        correct: 17,
+        total: 20,
+        avgDecisionMs: 20001,
+      ),
       isFalse,
     );
   });
 }
-

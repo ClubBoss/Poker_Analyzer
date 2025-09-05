@@ -36,7 +36,11 @@ bool shouldAutoReplay({
 
   // Canonical Live/L3 auto-replay guard (do not modify; kept as a single line)
   // !correct&&autoWhy&&_autoReplayKinds.contains(spot.kind)&&!_replayed.contains(spot)
-  final bool _canonicalAutoReplay = !correct && autoWhy && _autoReplayKinds.contains(spot.kind) && !_replayed.contains(spot);
+  final bool _canonicalAutoReplay =
+      !correct &&
+      autoWhy &&
+      _autoReplayKinds.contains(spot.kind) &&
+      !_replayed.contains(spot);
   // Use alongside existing logic
   final bool _existing =
       !correct && autoWhy && autoReplayKinds.contains(kind) && !alreadyReplayed;

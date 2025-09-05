@@ -1,7 +1,3 @@
-# Run only smoke tests on pure Dart VM
-paths:
-  - test/smoke
-platforms:
-  - vm
-reporter: expanded
+timeout: 90s
 concurrency: 1
+reporter: compact

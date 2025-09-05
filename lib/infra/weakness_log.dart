@@ -26,4 +26,3 @@ String familyFor(SpotKind kind) {
   if (n.contains('river')) return 'river';
   return 'misc';
 }
-
