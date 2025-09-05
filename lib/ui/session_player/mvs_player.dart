@@ -197,6 +197,10 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   final _timer = Stopwatch();
   final _focusNode = FocusNode();
   final String _sessionId = DateTime.now().millisecondsSinceEpoch.toString();
+  // Per-session counters for telemetry
+  int _answersTotal = 0;
+  int _answersCorrect = 0;
+  int _sumDecisionMs = 0;
   Timer? _ticker;
   Timer? _autoNextTimer;
   List<UiSpot>? _lastLoadedSpots;
@@ -325,6 +329,12 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       ..start();
     _startTicker();
     _startTimebar();
+    // Initialize counters if session was resumed with preloaded answers
+    if (_answers.isNotEmpty) {
+      _answersTotal = _answers.length;
+      _answersCorrect = _answers.where((a) => a.correct).length;
+      _sumDecisionMs = _answers.fold(0, (s, a) => s + a.elapsed.inMilliseconds);
+    }
     if (resumed) _focusNode.requestFocus();
     _persistResume();
     _answerPulseCtrl = AnimationController(
@@ -355,6 +365,18 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     _answerPulseCtrl.dispose();
     _autoNextAnim?.dispose();
     _focusNode.dispose();
+    // Emit session_end with aggregated metrics (additive only)
+    final moduleId = widget.packId ?? 'mvs_session';
+    final avgMs = _answersTotal == 0
+        ? 0
+        : (_sumDecisionMs / _answersTotal).round();
+    unawaited(Telemetry.logEvent('session_end', {
+      'sessionId': _sessionId,
+      'session_module_id': moduleId,
+      'session_total': _answersTotal,
+      'session_correct': _answersCorrect,
+      'session_avg_decision_ms': avgMs,
+    }));
     unawaited(SessionResume.clear());
     super.dispose();
   }
@@ -491,6 +513,10 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     final stackBB = int.tryParse(spot.stack.replaceAll(RegExp(r'[^0-9]'), ''));
     final elapsedMs = _timer.elapsed.inMilliseconds;
     final spotId = '$_index';
+    // Update counters
+    _answersTotal += 1;
+    if (correct) _answersCorrect += 1;
+    _sumDecisionMs += elapsedMs;
     unawaited(
       Telemetry.logEvent(correct ? 'answer_correct' : 'answer_wrong', {
         'sessionId': _sessionId,
@@ -585,9 +611,19 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     _autoNextTimer?.cancel();
     _cancelAutoNextAnim();
     _timebarTicker?.cancel();
+    // Adjust counters based on the last recorded answer
+    final last = _answers.isNotEmpty ? _answers.last : null;
     setState(() {
       _index = (_index - 1).clamp(0, _spots.length - 1);
-      _answers.removeLast();
+      if (last != null) {
+        _answersTotal = (_answersTotal - 1).clamp(0, 1 << 30);
+        if (last.correct) {
+          _answersCorrect = (_answersCorrect - 1).clamp(0, 1 << 30);
+        }
+        _sumDecisionMs = (_sumDecisionMs - last.elapsed.inMilliseconds)
+            .clamp(0, 1 << 30);
+      }
+      if (_answers.isNotEmpty) _answers.removeLast();
       _chosen = null;
       _showExplain = false;
       _timer
@@ -613,6 +649,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     final stackBB = int.tryParse(spot.stack.replaceAll(RegExp(r'[^0-9]'), ''));
     final elapsedMs = _timer.elapsed.inMilliseconds;
     final spotId = '$_index';
+    // Update counters (skip counts as wrong)
+    _answersTotal += 1;
+    _sumDecisionMs += elapsedMs;
     unawaited(
       Telemetry.logEvent('answer_skip', {
         'sessionId': _sessionId,
@@ -685,6 +724,9 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     final autoWhy = _prefs.autoWhyOnWrong;
     final stackBB = int.tryParse(spot.stack.replaceAll(RegExp(r'[^0-9]'), ''));
     final elapsedMs = _timer.elapsed.inMilliseconds;
+    // Update counters (timeout counts as wrong)
+    _answersTotal += 1;
+    _sumDecisionMs += elapsedMs;
     final spotId = '$_index';
 
     unawaited(

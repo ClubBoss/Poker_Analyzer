@@ -45,13 +45,21 @@ class Telemetry {
         // Additive session_end metrics + KPI fields
         if (name == 'session_end') {
           // Try to read real stats from payload if provided; otherwise nulls
-          final String? moduleId = (augmented['moduleId'] as String?) ??
+          final String? moduleId =
+              (augmented['session_module_id'] as String?) ??
+              (augmented['moduleId'] as String?) ??
               (augmented['packId'] as String?);
-          final int? total = augmented['total'] is int ? augmented['total'] as int : null;
-          final int? correct = augmented['correct'] is int ? augmented['correct'] as int : null;
-          final int? avgMs = augmented['avgDecisionMs'] is int
-              ? augmented['avgDecisionMs'] as int
-              : null;
+          final int? total = (augmented['session_total'] is int)
+              ? augmented['session_total'] as int
+              : (augmented['total'] is int ? augmented['total'] as int : null);
+          final int? correct = (augmented['session_correct'] is int)
+              ? augmented['session_correct'] as int
+              : (augmented['correct'] is int ? augmented['correct'] as int : null);
+          final int? avgMs = (augmented['session_avg_decision_ms'] is int)
+              ? augmented['session_avg_decision_ms'] as int
+              : (augmented['avgDecisionMs'] is int
+                  ? augmented['avgDecisionMs'] as int
+                  : null);
           augmented.addAll(kpiFields(
             moduleId: moduleId,
             total: total,
