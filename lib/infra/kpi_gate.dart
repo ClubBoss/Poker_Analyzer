@@ -29,4 +29,3 @@ bool meetsKPI({
   final int acc = total == 0 ? 0 : ((100 * correct) / total).round();
   return acc >= t.minAccuracyPct && avgDecisionMs <= t.maxAvgMs;
 }
-

@@ -55,6 +55,7 @@ import '../widgets/theory_quick_access_banner.dart';
 import '../widgets/inline_theory_recall_banner.dart';
 import '../widgets/inline_theory_booster_display.dart';
 import '../infra/telemetry.dart';
+import '../infra/blitz_timer.dart';
 
 class _EndlessStats {
   int total = 0;
@@ -108,6 +109,14 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
   bool _continue = false;
   bool _summaryShown = false;
   bool _boosterRecapShown = false;
+  // Per-session counters (additive only)
+  int _answersTotal = 0;
+  int _answersCorrect = 0;
+  int _sumDecisionMs = 0; // sum of per-spot decision times in ms
+  int _blitzTimeouts = 0;
+  int?
+  _spotStartMs; // snapshot of service.elapsedTime.inMilliseconds at spot start
+  bool _seededCounters = false;
 
   void _restart() {
     final pack = widget.pack;
@@ -165,6 +174,21 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
         _endlessStats.elapsed == Duration.zero) {
       _endlessStats.reset();
     }
+    // On resume: seed counters from restored answers; init spot timer snapshot.
+    Future.microtask(() {
+      if (!mounted) return;
+      final service = context.read<TrainingSessionService>();
+      if (!_seededCounters) {
+        setState(() {
+          _answersTotal = service.results.length;
+          _answersCorrect = service.results.values.where((e) => e).length;
+          // Decision times are not persisted here; fallback to 0 when unavailable.
+          _sumDecisionMs = 0;
+          _seededCounters = true;
+        });
+      }
+      _spotStartMs ??= service.elapsedTime.inMilliseconds;
+    });
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) setState(() {});
     });
@@ -173,7 +197,28 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
   @override
   void dispose() {
     _timer?.cancel();
-    unawaited(Telemetry.logEvent('session_end', {'sessionId': _sessionId}));
+    final avgMs = _answersTotal == 0
+        ? 0
+        : (_sumDecisionMs / _answersTotal).round();
+    String moduleId = 'training_session';
+    try {
+      final service = context.read<TrainingSessionService>();
+      moduleId = service.template?.id?.toString().isNotEmpty == true
+          ? service.template!.id
+          : (widget.pack?.id ?? 'training_session');
+    } catch (_) {
+      moduleId = widget.pack?.id ?? 'training_session';
+    }
+    unawaited(
+      Telemetry.logEvent('session_end', {
+        'sessionId': _sessionId,
+        'session_module_id': moduleId,
+        'session_total': _answersTotal,
+        'session_correct': _answersCorrect,
+        'session_avg_decision_ms': avgMs,
+        if (kEnableBlitz) 'blitz_timeouts': _blitzTimeouts,
+      }),
+    );
     if (widget.onSessionEnd != null && !_continue) {
       _endlessStats.reset();
     }
@@ -253,6 +298,33 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     final ok =
         expected != null && action.toLowerCase() == expected.toLowerCase();
     service.submitResult(spot.id, action, ok);
+    // Update per-session counters using existing session timer (elapsedTime).
+    try {
+      final nowMs = (service.elapsedTime is Duration)
+          ? (service.elapsedTime as Duration).inMilliseconds
+          : 0;
+      final delta = _spotStartMs != null ? (nowMs - _spotStartMs!) : 0;
+      // Blitz instrumentation: count hint violations when available.
+      int? hintMs;
+      try {
+        final v = (spot.meta is Map) ? (spot.meta['time_hint_ms']) : null;
+        if (v is int) {
+          hintMs = v;
+        } else if (v is num) {
+          hintMs = v.toInt();
+        }
+      } catch (_) {}
+      if (kEnableBlitz && isTimedOut(decisionMs: delta, hintMs: hintMs)) {
+        _blitzTimeouts += 1;
+      }
+      _answersTotal += 1;
+      if (ok) _answersCorrect += 1;
+      if (delta > 0) _sumDecisionMs += delta;
+    } catch (_) {
+      // Fallback: count answers only if timer not available.
+      _answersTotal += 1;
+      if (ok) _answersCorrect += 1;
+    }
     if (widget.onSessionEnd != null) _endlessStats.add(ok);
     setState(() {
       _selected = action;
@@ -303,6 +375,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
       setState(() {
         _selected = null;
         _correct = null;
+        // Start timing for the new spot using service timer snapshot.
+        _spotStartMs = service.elapsedTime.inMilliseconds;
       });
     }
   }
@@ -319,6 +393,8 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
           _selected = null;
           _correct = null;
         }
+        // Reset timer snapshot for the shown spot (Prev is not treated as undo).
+        _spotStartMs = service.elapsedTime.inMilliseconds;
       });
     }
   }

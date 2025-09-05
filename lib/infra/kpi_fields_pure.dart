@@ -18,10 +18,15 @@ Map<String, Object?> kpiFields({
     'session_avg_decision_ms': avgMs,
     'kpi_enabled': enabled,
   };
-  final KPITarget target = kModuleKPI[moduleId ?? ''] ?? const KPITarget(80, 25000);
+  final KPITarget target =
+      kModuleKPI[moduleId ?? ''] ?? const KPITarget(80, 25000);
   out['kpi_target_accuracy'] = target.minAccuracyPct;
   out['kpi_target_time_ms'] = target.maxAvgMs;
-  if (enabled && moduleId != null && total != null && correct != null && avgMs != null) {
+  if (enabled &&
+      moduleId != null &&
+      total != null &&
+      correct != null &&
+      avgMs != null) {
     final int acc = total == 0 ? 0 : ((100 * correct) / total).round();
     out['kpi_met'] = acc >= target.minAccuracyPct && avgMs <= target.maxAvgMs;
   }

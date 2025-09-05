@@ -5,6 +5,7 @@ import 'package:poker_analyzer/live/live_validators.dart';
 import 'package:poker_analyzer/infra/kpi_gate.dart';
 import 'package:poker_analyzer/infra/kpi_fields_pure.dart' show kpiFields;
 import 'package:poker_analyzer/infra/weakness_log.dart';
+import 'package:poker_analyzer/infra/blitz_timer.dart';
 
 /// Minimal telemetry wrapper around Sentry.
 ///
@@ -87,6 +88,18 @@ class Telemetry {
               enabled: kEnableKPI,
             ),
           );
+
+          // Blitz timer instrumentation
+          // - Always mirror the flag in blitz_enabled
+          // - If enabled: ensure blitz_timeouts is present (default 0)
+          // - If disabled: omit blitz_timeouts
+          augmented['blitz_enabled'] = kEnableBlitz;
+          if (kEnableBlitz) {
+            final v = augmented['blitz_timeouts'];
+            augmented['blitz_timeouts'] = v is int ? v : 0;
+          } else {
+            augmented.remove('blitz_timeouts');
+          }
         }
         props = augmented;
       }

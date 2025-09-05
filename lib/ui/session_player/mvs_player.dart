@@ -30,6 +30,7 @@ import 'package:poker_analyzer/ui/modules/icm_mix_packs.dart';
 import 'package:poker_analyzer/ui/modules/icm_bubble_packs.dart';
 import 'package:poker_analyzer/ui/modules/icm_ladder_packs.dart';
 import 'package:poker_analyzer/ui/session_player/l3_jsonl_export.dart';
+import 'package:poker_analyzer/infra/blitz_timer.dart';
 
 const actionsMap = <SpotKind, List<String>>{...specs.actionsMap};
 
@@ -225,6 +226,11 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
   bool _clearedAtSummary = false;
   bool _ladderOutcomeLogged = false;
   bool _moduleMasteredLogged = false;
+  // Additive per-session counters for telemetry
+  int _answersTotal = 0;
+  int _answersCorrect = 0;
+  int _sumDecisionMs = 0;
+  int _blitzTimeouts = 0;
 
   bool get _showHotkeys =>
       kIsWeb ||
@@ -311,6 +317,13 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
               _answers
                 ..clear()
                 ..addAll(loadedAnswers);
+              // Seed additive counters on resume.
+              _answersTotal = loadedAnswers.length;
+              _answersCorrect = loadedAnswers.where((e) => e.correct).length;
+              // Sum decision times if persisted; else keep at 0.
+              _sumDecisionMs = loadedAnswers
+                  .map((e) => e.elapsed.inMilliseconds)
+                  .fold(0, (a, b) => a + b);
               _chosen = null;
               _paused = false;
               resumed = true;
@@ -354,6 +367,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     _answerPulseCtrl.dispose();
     _autoNextAnim?.dispose();
     _focusNode.dispose();
+    _logSessionEnd();
     unawaited(SessionResume.clear());
     super.dispose();
   }
@@ -487,6 +501,13 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     final stackBB = int.tryParse(spot.stack.replaceAll(RegExp(r'[^0-9]'), ''));
     final elapsedMs = _timer.elapsed.inMilliseconds;
     final spotId = '$_index';
+    // Update additive counters
+    _answersTotal += 1;
+    if (correct) _answersCorrect += 1;
+    _sumDecisionMs += elapsedMs;
+    if (kEnableBlitz && isTimedOut(decisionMs: elapsedMs, hintMs: null)) {
+      _blitzTimeouts += 1;
+    }
     unawaited(
       Telemetry.logEvent(correct ? 'answer_correct' : 'answer_wrong', {
         'sessionId': _sessionId,
@@ -581,9 +602,21 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     _autoNextTimer?.cancel();
     _cancelAutoNextAnim();
     _timebarTicker?.cancel();
+    // Adjust additive counters based on the last recorded answer
+    final last = _answers.isNotEmpty ? _answers.last : null;
     setState(() {
       _index = (_index - 1).clamp(0, _spots.length - 1);
-      _answers.removeLast();
+      if (last != null) {
+        _answersTotal = (_answersTotal - 1).clamp(0, 1 << 30);
+        if (last.correct) {
+          _answersCorrect = (_answersCorrect - 1).clamp(0, 1 << 30);
+        }
+        _sumDecisionMs = (_sumDecisionMs - last.elapsed.inMilliseconds).clamp(
+          0,
+          1 << 30,
+        );
+      }
+      if (_answers.isNotEmpty) _answers.removeLast();
       _chosen = null;
       _showExplain = false;
       _timer
@@ -609,6 +642,12 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     final stackBB = int.tryParse(spot.stack.replaceAll(RegExp(r'[^0-9]'), ''));
     final elapsedMs = _timer.elapsed.inMilliseconds;
     final spotId = '$_index';
+    // Update additive counters (skip counts as wrong)
+    _answersTotal += 1;
+    _sumDecisionMs += elapsedMs;
+    if (kEnableBlitz && isTimedOut(decisionMs: elapsedMs, hintMs: null)) {
+      _blitzTimeouts += 1;
+    }
     unawaited(
       Telemetry.logEvent('answer_skip', {
         'sessionId': _sessionId,
@@ -681,6 +720,12 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
     final autoWhy = _prefs.autoWhyOnWrong;
     final stackBB = int.tryParse(spot.stack.replaceAll(RegExp(r'[^0-9]'), ''));
     final elapsedMs = _timer.elapsed.inMilliseconds;
+    // Update additive counters (timeout counts as wrong)
+    _answersTotal += 1;
+    _sumDecisionMs += elapsedMs;
+    if (kEnableBlitz && isTimedOut(decisionMs: elapsedMs, hintMs: null)) {
+      _blitzTimeouts += 1;
+    }
     final spotId = '$_index';
 
     unawaited(
@@ -737,6 +782,24 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       if (!mounted) return;
       setState(() => _answerFlashColor = null);
     });
+  }
+
+  void _logSessionEnd() {
+    // Emit session_end with aggregated metrics (additive only)
+    final moduleId = widget.packId ?? 'mvs_session';
+    final avgMs = _answersTotal == 0
+        ? 0
+        : (_sumDecisionMs / _answersTotal).round();
+    unawaited(
+      Telemetry.logEvent('session_end', {
+        'sessionId': _sessionId,
+        'session_module_id': moduleId,
+        'session_total': _answersTotal,
+        'session_correct': _answersCorrect,
+        'session_avg_decision_ms': avgMs,
+        if (kEnableBlitz) 'blitz_timeouts': _blitzTimeouts,
+      }),
+    );
   }
 
   int _streak() {
@@ -886,7 +949,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       if (!a.correct &&
           autoWhy &&
           specs.isJamFold(s.kind) &&
-          isAutoReplayKind(s.kind) &&
+          specs.isAutoReplayKind(s.kind) &&
           !_replayed.contains(s)) {
         final key = specs.jamDedupKey(s);
         if (seen.add(key)) picks.add(s);
@@ -919,7 +982,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
       if (a.correct) continue;
       final s = _spots[i];
       if (!specs.isJamFold(s.kind)) continue;
-      if (!isAutoReplayKind(s.kind)) continue; // L3-only
+      if (!specs.isAutoReplayKind(s.kind)) continue; // L3-only
       final key = specs.jamDedupKey(s);
       if (seen.add(key)) picks.add(s);
     }
@@ -942,7 +1005,7 @@ class _MvsSessionPlayerState extends State<MvsSessionPlayer>
           ? 'skip'
           : (_answers[i].chosen == '(timeout)' ? 'timeout' : 'wrong');
       if (!specs.isJamFold(s.kind)) continue;
-      if (!isAutoReplayKind(s.kind)) continue; // L3-only per SSOT
+      if (!specs.isAutoReplayKind(s.kind)) continue; // L3-only per SSOT
       final key = specs.jamDedupKey(s);
       if (!seen.add(key)) {
         dups++;

@@ -24,7 +24,9 @@ void main() {
     weaknessLog.record('misc');
     expect(weaknessLog.counts['jam_vs_'], equals(3));
     // Find top key
-    final top = weaknessLog.counts.entries.reduce((a, b) => a.value >= b.value ? a : b);
+    final top = weaknessLog.counts.entries.reduce(
+      (a, b) => a.value >= b.value ? a : b,
+    );
     expect(top.key, equals('jam_vs_'));
   });
 
@@ -34,4 +36,3 @@ void main() {
     expect(familyFor(SpotKind.l3_postflop_jam), equals('misc'));
   });
 }
-

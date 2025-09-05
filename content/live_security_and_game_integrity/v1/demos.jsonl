@@ -1,0 +1,3 @@
+{"id": "live_security_and_game_integrity:demo:01", "spot_kind": "l2_core_rules_check", "steps": ["Soft-play suspected between seats 3/7; SRP on K72r (static)", "Family=size_down_dry", "River faces big_bet_75; no blockers -> Token: fold"]}
+{"id": "live_security_and_game_integrity:demo:02", "spot_kind": "l2_core_rules_check", "steps": ["Angle_risk_high; strict single_motion_raise_legal; mid-SPR turn on dynamic", "Family=size_up_wet", "Avoid raise tree -> Token: delay_turn; probes only after chk–chk"]}
+{"id": "live_security_and_game_integrity:demo:03", "spot_kind": "l2_core_rules_check", "steps": ["Persistent fast folds to your 12bb in blinds logged", "Preflop ladder unchanged", "Token: overfold_exploit with 3bet_oop_12bb; postflop stays in-family"]}
