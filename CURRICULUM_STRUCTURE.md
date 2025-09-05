@@ -84,7 +84,7 @@ CURRICULUM_STRUCTURE.md
 - online_table_selection_and_multitabling
 - online_fastfold_pool_dynamics
 - online_economics_rakeback_promos
-- hudless_strategy_and_note_coding
+- online_hudless_strategy_and_note_coding
 - exploit_advanced
 - donk_bets_and_leads
 - spr_basics
@@ -92,6 +92,10 @@ CURRICULUM_STRUCTURE.md
 - hand_review_and_annotation_standards
 - review_workflow_and_study_routines
 - database_leakfinder_playbook
+- online_notes_and_exploit_tracker
+- study_review_handlab
+- bankroll_and_variance_management
+- mental_game_and_routines
 
 ---
 
