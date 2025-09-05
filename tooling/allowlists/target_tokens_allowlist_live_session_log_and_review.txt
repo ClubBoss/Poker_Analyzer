@@ -1,0 +1,16 @@
+3bet_ip_9bb
+3bet_oop_12bb
+4bet_ip_21bb
+4bet_oop_24bb
+big_bet_75
+delay_turn
+double_barrel_good
+fold
+half_pot_50
+overfold_exploit
+probe_turns
+protect_check_range
+size_down_dry
+size_up_wet
+small_cbet_33
+triple_barrel_scare
