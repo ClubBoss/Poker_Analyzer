@@ -113,3 +113,14 @@
 - bankroll_and_variance_management — Управление банкроллом и дисперсией.
 - mental_game_and_routines — Ментальные рутины и устойчивость.
 
+## Next after Core: High-priority backlog (append-only)
+
+- cash_3bet_ip_playbook — 3-bet pots IP playbook. Track: Cash. Level: L3–L4.
+- cash_3bet_oop_playbook — 3-bet pots OOP playbook. Track: Cash. Level: L3–L4.
+- cash_blind_defense_vs_btn_co — Blind defense vs BTN/CO. Track: Cash. Level: L3.
+- cash_turn_river_barreling — Double/triple barrel maps. Track: Cash. Level: L3–L4.
+- icm_mid_ladder_decisions — Mid-ladder decisions. Track: MTT/ICM. Level: L4–L5.
+- icm_final_table_hu — Final table HU play. Track: MTT/ICM. Level: L4–L5.
+- online_population_exploits_playbook — Online pool exploits → tokens. Track: Online. Level: L3–L4.
+- spr_commitment_checklists — SPR commitment checklists. Track: Cross. Level: L3.
+
