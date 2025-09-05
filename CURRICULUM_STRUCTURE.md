@@ -136,3 +136,17 @@ telemetry_dims:
 ## Rich Track
 See docs/RICH_TRACK_SCHEMA.md
 Units of 6 modules; packs L1/L2/BRIDGE/CHECKPOINT/BOSS; IDs are append-only.
+
+## Backlog IDs (append-only; not routed yet)
+
+| id | track | level | prereqs |
+|---|---|---|---|
+| cash_3bet_ip_playbook | Cash | L3–L4 | cash_threebet_pots |
+| cash_3bet_oop_playbook | Cash | L3–L4 | cash_threebet_pots |
+| cash_blind_defense_vs_btn_co | Cash | L3 | cash_blind_defense |
+| cash_turn_river_barreling | Cash | L3–L4 | core_turn_fundamentals, core_river_fundamentals |
+| icm_mid_ladder_decisions | MTT/ICM | L4–L5 | mtt_icm_basics |
+| icm_final_table_hu | MTT/ICM | L4–L5 | mtt_final_table_playbooks |
+| online_population_exploits_playbook | Online | L3–L4 | exploit_advanced |
+| spr_commitment_checklists | Cross | L3 | spr_basics |
+
