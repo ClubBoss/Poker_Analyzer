@@ -4,6 +4,7 @@ import 'package:poker_analyzer/live/live_telemetry.dart';
 import 'package:poker_analyzer/live/live_validators.dart';
 import 'package:poker_analyzer/infra/kpi_gate.dart';
 import 'package:poker_analyzer/infra/kpi_fields_pure.dart' show kpiFields;
+import 'package:poker_analyzer/infra/weakness_log.dart';
 
 /// Minimal telemetry wrapper around Sentry.
 ///
@@ -54,19 +55,38 @@ class Telemetry {
               : (augmented['total'] is int ? augmented['total'] as int : null);
           final int? correct = (augmented['session_correct'] is int)
               ? augmented['session_correct'] as int
-              : (augmented['correct'] is int ? augmented['correct'] as int : null);
+              : (augmented['correct'] is int
+                    ? augmented['correct'] as int
+                    : null);
           final int? avgMs = (augmented['session_avg_decision_ms'] is int)
               ? augmented['session_avg_decision_ms'] as int
               : (augmented['avgDecisionMs'] is int
-                  ? augmented['avgDecisionMs'] as int
-                  : null);
-          augmented.addAll(kpiFields(
-            moduleId: moduleId,
-            total: total,
-            correct: correct,
-            avgMs: avgMs,
-            enabled: kEnableKPI,
-          ));
+                    ? augmented['avgDecisionMs'] as int
+                    : null);
+          // Optional weakness summary (additive only)
+          if (kEnableWeaknessLog && weaknessLog.counts.isNotEmpty) {
+            String? topFamily;
+            int topCount = -1;
+            weaknessLog.counts.forEach((k, v) {
+              if (v > topCount) {
+                topCount = v;
+                topFamily = k;
+              }
+            });
+            if (topFamily != null && topCount >= 0) {
+              augmented['weakness_top_family'] = topFamily;
+              augmented['weakness_top_count'] = topCount;
+            }
+          }
+          augmented.addAll(
+            kpiFields(
+              moduleId: moduleId,
+              total: total,
+              correct: correct,
+              avgMs: avgMs,
+              enabled: kEnableKPI,
+            ),
+          );
         }
         props = augmented;
       }
