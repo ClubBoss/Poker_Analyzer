@@ -1,0 +1,3 @@
+{"id": "online_fastfold_pool_dynamics:demo:01", "spot_kind": "l2_core_rules_check", "steps": ["Repeated fast-folds to 12bb observed", "BB widens 3bet_oop_12bb with A5s (overfold_exploit)", "3-bet pot A83r -> small_cbet_33 (size_down_dry)"]}
+{"id": "online_fastfold_pool_dynamics:demo:02", "spot_kind": "l2_core_rules_check", "steps": ["SRP flop checks through", "Favorable turn -> probe_turns; if turn is dynamic and fold trend exists -> double_barrel_good with half_pot_50 or big_bet_75", "Keep ladders and sizes fixed; shift frequency only"]}
+{"id": "online_fastfold_pool_dynamics:demo:03", "spot_kind": "l2_core_rules_check", "steps": ["Scare river; villain fires big_bet_75 (polar)", "Without blockers -> fold", "With key blockers that unblock misses -> call"]}
