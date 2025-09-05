@@ -99,15 +99,24 @@ void main(List<String> args) {
           hasAuto = true;
           break;
         }
-        if (s is Map &&
-            s['value'] is String &&
-            (s['value'] as String).contains('(auto)')) {
-          hasAuto = true;
-          break;
+        if (s is Map) {
+          final v = s['value'];
+          final t = s['text'];
+          if (v is String && v.contains('(auto)')) {
+            hasAuto = true;
+            break;
+          }
+          if (t is String && t.contains('(auto)')) {
+            hasAuto = true;
+            break;
+          }
         }
       }
 
-      if (hasAuto || stepsDyn.length >= 4) {
+      // Idempotence rule: if already 4+ steps, skip.
+      // If fewer than 4 steps, we still append even if an (auto) line exists
+      // to bring the demo to a minimum of 4 steps.
+      if (stepsDyn.length >= 4) {
         outLines.add(line);
         skipped++;
         continue;
@@ -116,7 +125,13 @@ void main(List<String> args) {
       // Decide style based on first element when present; default to string style.
       final appendText = 'Step 4 - Wrap-up: key takeaway (auto)';
       if (stepsDyn.isNotEmpty && stepsDyn.first is Map) {
-        stepsDyn.add({'type': 'text', 'value': appendText});
+        final first = stepsDyn.first as Map;
+        if (first.containsKey('text')) {
+          stepsDyn.add({'text': appendText});
+        } else {
+          // default to value + type to match prior convention
+          stepsDyn.add({'type': 'text', 'value': appendText});
+        }
       } else {
         stepsDyn.add(appendText);
       }
