@@ -1,0 +1,51 @@
+name: pure-dart-smoke
+
+on:
+  push:
+    branches:
+      - main
+      - 'refactor/**'
+      - 'tooling/**'
+      - 'feature/**'
+  pull_request:
+    branches:
+      - main
+      - 'refactor/**'
+      - 'tooling/**'
+      - 'feature/**'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: Cache Pub and .dart_tool
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            .dart_tool
+          key: ${{ runner.os }}-dart-${{ hashFiles('pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-dart-
+
+      - name: JSONL guard (drills)
+        run: python3 tools/jsonl_guard.py --check 'content/*/v1/drills.jsonl'
+
+      - name: Allowlists check
+        run: python3 tools/allowlists_sync.py --check
+
+      - name: Run pure Dart smoke tests
+        run: |
+          dart test -r compact test/canonical_guard_test.dart
+          dart test -r compact test/actions_subtitle_smoke_test.dart
+          dart test -r compact test/spot_maps_coverage_test.dart
+          dart test -r compact test/spotkind_enum_discipline_test.dart
+
