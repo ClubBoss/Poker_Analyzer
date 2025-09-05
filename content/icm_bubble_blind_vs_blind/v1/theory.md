@@ -43,4 +43,4 @@ See also
 - icm_mid_ladder_decisions (score 27) -> ../../icm_mid_ladder_decisions/v1/theory.md
 - live_etiquette_and_procedures (score 27) -> ../../live_etiquette_and_procedures/v1/theory.md
 - live_full_ring_adjustments (score 27) -> ../../live_full_ring_adjustments/v1/theory.md
-- live_speech_timing_basics (score 27) -> ../../live_speech_timing_basics/v1/theory.md
+- live_tells_and_dynamics (score 27) -> ../../live_tells_and_dynamics/v1/theory.md

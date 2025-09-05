@@ -45,5 +45,5 @@ See also
 - hand_review_and_annotation_standards (score 27) -> ../../hand_review_and_annotation_standards/v1/theory.md
 - live_etiquette_and_procedures (score 27) -> ../../live_etiquette_and_procedures/v1/theory.md
 - live_full_ring_adjustments (score 27) -> ../../live_full_ring_adjustments/v1/theory.md
-- live_speech_timing_basics (score 27) -> ../../live_speech_timing_basics/v1/theory.md
 - online_hud_and_db_review (score 27) -> ../../online_hud_and_db_review/v1/theory.md
+- online_population_exploits_playbook (score 27) -> ../../online_population_exploits_playbook/v1/theory.md
