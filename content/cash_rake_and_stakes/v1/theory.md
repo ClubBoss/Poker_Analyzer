@@ -38,3 +38,5 @@ Net winrate: Your winrate after subtracting rake and adding any rakeback or rewa
 
 Contrast
 Unlike core_bankroll_management, which sets bankroll cushions and stop-loss rules, this module helps you select stakes and tables where rake structure allows your edge to become real profit.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

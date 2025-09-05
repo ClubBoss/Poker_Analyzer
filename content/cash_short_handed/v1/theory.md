@@ -35,3 +35,5 @@ protect_check_range / delay_turn / probe_turns / double_barrel_good / triple_bar
 
 Contrast
 Full-ring instincts fail here; short-handed rewards wider first-in, disciplined 3-bet/4-bet ladders, and texture-driven small_cbet_33 with timely delay_turn and probe_turns.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

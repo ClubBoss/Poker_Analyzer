@@ -32,3 +32,5 @@ Jam proxy: mapping SB shoves to 3bet_ip_9bb and BB reshoves to 3bet_oop_12bb for
 
 Contrast
 Standard BvB without ICM pursues thin chip-EV edges; bubble BvB prioritizes coverage-first pressure, tighter call-offs, and small-cbet plus half-pot commit trees over thin polarization.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

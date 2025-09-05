@@ -14,7 +14,7 @@ Rules of thumb
 * Fast folds to 12bb persist: tag overfold_exploit and widen 3bet_oop_12bb with blockers. Why: price + fold equity proven.
 * EP tight and low 4-bet room: upgrade premiums to 4bet_ip_21bb. Why: value prints when 5-bets are rare.
 * Reg on your left (raise-prone turns): use delay_turn with medium strength. Why: avoid getting blown off equity.
-* SRP checks through often: plan probe_turns on good turns. Why: pools surrender after check-check.
+* SRP checks through often: plan probe_turns on good turns. Why: pools surrender after chk-chk.
 * Static flops in soft pools: small_cbet_33 (size_down_dry). Why: cheap denial vs wide ranges.
 * Dynamic turns with blockers vs caller cap: double_barrel_good; upgrade to big_bet_75 only with evidence. Why: leverage + blocker coverage.
 * Load/fatigue rising while waiting for a seat: simplify with small_cbet_33 and half_pot_50. Why: accuracy > thin edges.

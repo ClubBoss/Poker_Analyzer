@@ -39,3 +39,5 @@ overfold_exploit: node where pools fold too much; press as cover.
 
 Contrast
 Compared to non-PKO, PKO widens call-offs and reshoves when you cover, tightens when covered, and shifts postflop aggression toward turns and rivers that convert bounty pressure, not just pot-share equity.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

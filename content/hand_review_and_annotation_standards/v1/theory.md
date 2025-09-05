@@ -10,7 +10,7 @@ Rules of thumb
 * Mandatory tags: Texture, Family, Initiative, Position, Blockers, Sequence, Pressure gate, SPR band. If one is unknown, mark “n/a” and be conservative.
 * Conversion rule: every street annotation ends in exactly one token. No mixed strategies in notes.
 * Texture discipline: never change sizes; record family as size_down_dry on static, size_up_wet on dynamic. Token = small_cbet_33 / half_pot_50 / big_bet_75 inside that family.
-* Triage priorities: price errors first; wrong family second; missed probe_turns after check-check; turn double barrels without blockers; river calls without blockers in polar nodes.
+* Triage priorities: price errors first; wrong family second; missed probe_turns after chk-chk; turn double barrels without blockers; river calls without blockers in polar nodes.
 * Preflop ladders: record ladder use only (3bet_ip_9bb / 3bet_oop_12bb / 4bet_ip_21bb / 4bet_oop_24bb). Overfold tags require persistence before overfold_exploit.
 * Raise-risk handling: if “raise-prone IP” at mid SPR, prefer delay_turn or protect_check_range; log the choice.
 * Probe vs lead: Sequence “chk-chk” flags probe_turns; do not mislabel as a lead.

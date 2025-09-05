@@ -5,7 +5,7 @@ Why it matters
 Speech and timing compress weak information into actionable tendencies. Used correctly, they nudge how often you take a tokenized line (not which sizes exist). This protects execution under pressure and aligns with population priors (e.g., under-bluffed polar rivers).
 
 Rules of thumb
-- Snap small on static flops (range-bet vibe). Treat as merged. Defend now (call) and plan probe_turns after a check-check sequence.  
+- Snap small on static flops (range-bet vibe). Treat as merged. Defend now (call) and plan probe_turns after a chk-chk sequence.  
 - Tank → small. Often merged/medium. Call more, raise bluffs less; stick to size_down_dry on static when you bet (small_cbet_33).  
 - Tank → big. Usually polar and under-bluffed live. Without strong blockers, fold vs big_bet_75.  
 - Shaky verbal (“I will just…call”). Weak/merged. Value-target with half_pot_50; avoid thin raises.  
@@ -34,7 +34,7 @@ Snap: near-instant action suggesting autopilot or preplanned range.
 Tank→small: long pause then small bet; commonly merged.  
 Tank→big: long pause then large bet; commonly polar.  
 Blockers: cards that reduce value combos or unblock bluffs.  
-Probe_turns: bet turn after flop check-check.  
+Probe_turns: bet turn after flop chk-chk.  
 Merged vs polar: medium-strength value vs nutted/air split.  
 Repetition tiers: weak(1–2), medium(3–5), strong(6+) events before exploits.  
 Under-bluffed river: population tendency to lack enough bluffs on large river bets.

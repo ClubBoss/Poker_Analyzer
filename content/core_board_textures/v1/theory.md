@@ -33,3 +33,4 @@ Nut_advantage: One range holds more nut or near-nut combos on a board.
 Contrast
 Unlike core_flop_fundamentals, which focuses on actions and sizes, this module classifies textures so you can pick the right frequency and sizing plan across streets.
 
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

@@ -14,7 +14,7 @@ Rules of thumb
 - 4-bet low: ≤3% over strong sample → add thin value to 3bet_oop_12bb and prefer 4bet_ip_21bb with premiums. Why: fewer 4-bets, more dominated calls.
 - Fold vs Turn big bet high on dynamic cards: ≥50% to 70–80% sizing → double_barrel_good with big_bet_75 when size_up_wet fits. Why: leverage + protection vs volatile equity.
 - River big under-bluffed / high fold vs river big: low River AFq + ≥45% fold to large → triple_barrel_scare with key blockers; otherwise fold more without them. Why: polar nodes reward discipline.
-- Low flop c-bet + high Fold vs Probe: c-bet ≤40% and fold vs probe ≥50% → probe_turns after check-check. Why: many opponents surrender turn.
+- Low flop c-bet + high Fold vs Probe: c-bet ≤40% and fold vs probe ≥50% → probe_turns after chk-chk. Why: many opponents surrender turn.
 - Flop x/r low: ≤6% on static boards → increase small_cbet_33 via size_down_dry. Why: safe range-bet environment.
 - Outcome trio (WWSF / WTSD / WSD): stationy (WTSD high, WSD low) → value with half_pot_50 and cut pure bluffs; nitty (high fold nodes) → overfold_exploit. Why: calling discipline shows here.
 - RFI wide + BB defend tight: wide opens + low BB defend → expand 3bet_oop_12bb; vs sticky BB bias toward value. Why: preflop leakage drives EV/hour.

@@ -14,7 +14,7 @@ Rules of thumb
 - Chaotic multi-limp/deal quality issues: favor merged (half_pot_50), thin value via size_down_dry, fewer pure bluffs. Why: realization drops multiway.
 - Surveillance/enforcement strict (string_bet, single_motion_raise_legal enforced): raise frequency falls—use delay_turn and protect_check_range more. Why: fewer random raises.
 - Enforcement loose/chaotic: protect earlier (protect_check_range), default half_pot_50, keep families tight. Why: control variance amid unpredictability.
-- Show-order clarity (bettor_shows_first / first_active_left_of_btn_shows): harvest info; after flop chk–chk, plan probe_turns. Why: sequence-driven initiative.
+- Show-order clarity (bettor_shows_first / first_active_left_of_btn_shows): harvest info; after flop chk-chk, plan probe_turns. Why: sequence-driven initiative.
 - Device/communication cues near action (report ethically): keep baseline conservative; prefer small_cbet_33 / half_pot_50; avoid thin hero calls. Why: reduce exploitability while floor assesses.
 - If disputes repeat around same cluster: document hands; keep conservative tokens; never invent sizes. Why: discipline while gathering evidence.
 
@@ -34,7 +34,7 @@ Common mistakes
 - Paranoia → off-tree bets. Fix: keep 33/50/75; shift frequency only.
 - Calling polar rivers without blockers. Fix: default fold vs big_bet_75.
 - Tagging overfold_exploit after one hand. Fix: require repetition.
-- Mixing probes/leads. Fix: probe_turns only after chk–chk.
+- Mixing probes/leads. Fix: probe_turns only after chk-chk.
 - Ignoring protection in loose enforcement rooms. Fix: add protect_check_range / delay_turn.
 - Trying to “test” integrity with spewy lines. Fix: document and escalate; keep tokens conservative.
 

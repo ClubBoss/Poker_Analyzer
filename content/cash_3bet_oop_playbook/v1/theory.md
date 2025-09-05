@@ -10,7 +10,7 @@ OOP after 3‑betting has lower SPR but higher raise risk. EV comes from picking
 - **Protect checks & delay turns:** add **protect_check_range** on stabby boards; at mid SPR vs raise‑prone IP, prefer **delay_turn** with medium strength.
 - **Upgrade gates:** move to **big_bet_75** only with top blockers **and** a documented **Fv75** spike; otherwise keep **half_pot_50**.
 - **Blocker‑led second barrels:** on dynamic turns, **double_barrel_good** when equity + blockers support; keep 50% by default.
-- **Probe rule:** only **probe_turns** after a flop **Sequence: chk–chk**. Never label a turn lead as a probe if you faced a flop bet.
+- **Probe rule:** only **probe_turns** after a flop **Sequence: chk-chk**. Never label a turn lead as a probe if you faced a flop bet.
 - **River discipline:** facing polar **big_bet_75** without key blockers → **fold**. Call only with top blockers and evidence. As PFA with scare + blockers and a prebuilt plan → **triple_barrel_scare**.
 - **Raise‑prone opponents:** reduce flop c‑bet frequency, add **protect_check_range**, and lean on **delay_turn** to avoid raise trees.
 - **Multiway after callers pile in:** realization drops; prefer merged **half_pot_50** and fewer pure bluffs.
@@ -25,20 +25,20 @@ OOP after 3‑betting has lower SPR but higher raise risk. EV comes from picking
 # Mini example
 - **Static:** SB 3bets BTN (12bb). Flop A83r → **size_down_dry + small_cbet_33** (controlled). Turn raise‑prone → **delay_turn**. River faces **big_bet_75** without blockers → **fold**.
 - **Dynamic:** BB 3bets CO. Flop JT9ss → **size_up_wet + half_pot_50**. Turn scare with top blockers + **Fv75↑** → **big_bet_75** ( **double_barrel_good** ).
-- **After checks:** MP opens, BB 3bets, MP calls. Flop K72r checks through → **Sequence: chk–chk** → good turn card → **probe_turns**.
+- **After checks:** MP opens, BB 3bets, MP calls. Flop K72r checks through → **Sequence: chk-chk** → good turn card → **probe_turns**.
 
 # Common mistakes
 - Auto **small_cbet_33** on wet textures (invites raises and gives equity).  
 - Upgrading to **big_bet_75** without blockers/evidence.  
 - Calling river **big_bet_75** without blockers.  
-- Mislabeling a turn lead as **probe_turns** (probe only after chk–chk).  
+- Mislabeling a turn lead as **probe_turns** (probe only after chk-chk).  
 - Over‑c‑betting into raise‑prone IP; skipping **protect_check_range**/**delay_turn**.  
 - Off‑tree sizes under pressure.
 
 # Mini-glossary
 **Raise risk:** likelihood IP raises your bets; pushes toward **delay_turn** and protected checks.  
 **Protected checks:** **protect_check_range** mixes checks that can continue vs stabs.  
-**Probe sequence:** **Sequence: chk–chk** → **probe_turns**.  
+**Probe sequence:** **Sequence: chk-chk** → **probe_turns**.  
 **Blocker gates:** use key blockers to unlock **big_bet_75** and some river calls.  
 **Fv50/Fv75:** fold‑vs‑size rates guiding 50% vs 75% choices.
 

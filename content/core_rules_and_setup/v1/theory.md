@@ -32,3 +32,5 @@ last_raise_size: the most recent raise increment used in the min-raise test.
 
 Contrast
 This module covers procedure and hand comparisons; the next module uses positions and initiative to guide who should apply pressure first.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

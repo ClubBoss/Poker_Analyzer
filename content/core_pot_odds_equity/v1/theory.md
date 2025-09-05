@@ -33,3 +33,5 @@ Breakeven percentage: The minimum equity needed so that calling today does not l
 
 Contrast
 Adjacent modules cover position names, opening ranges by seat, and initiative vs no-initiative; this module focuses on the math that tells you whether a call pays off.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

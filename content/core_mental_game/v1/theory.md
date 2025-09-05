@@ -32,3 +32,5 @@ A-game cue: A short phrase or action that reminds you how your best decisions fe
 
 Contrast
 Unlike core_bankroll_management, which sets financial cushions and stake rules, this module builds daily routines that keep decision quality high inside each session.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

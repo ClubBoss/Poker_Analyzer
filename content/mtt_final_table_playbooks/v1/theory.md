@@ -34,3 +34,5 @@ Seat playbook: default actions by position under ICM and coverage.
 
 Contrast
 Compared to non-ICM middle stages, FT playbooks prioritize coverage-first pressure and fold equity over thin chip-EV calls. Versus PKO FTs, you ignore bounty overlay here; trees are tighter, 4-bets value-lean, and postflop aggression is gated by ICM rather than bounty incentives.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

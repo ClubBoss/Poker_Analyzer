@@ -34,3 +34,5 @@ deny_equity_turn / polarize_river: Bet or raise to fold live equity on turns; us
 
 Contrast
 Blind defense is not BTN defense: OOP realization and rake make flats worse and 3-bet selection tighter. It also differs from BvB, where 3bet_oop_10bb is common and both ranges are wider.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

@@ -63,3 +63,5 @@ Heads-up 3-bet pots allow more bluffing and bigger footprints; single-raised
 multiway pots keep SPR higher and use even smaller sizings. Multiway 3-bet pots
 sit between: low-ish SPR, fewer bluffs, stricter raise respect, sharper position
 edge, and tighter value thresholds.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

@@ -36,3 +36,5 @@ Commit line: planned sequence that reaches all-in with value+equity.
 
 Contrast
 Unlike standard chips-EV MTT or PKO, bagging and re-entry EV emphasize survival, coverage, and clock-based thresholds. Preflop trees skew to jam-or-fold and value-lean 4-bets; postflop lines favor control (small_cbet_33, protect_check_range, delay_turn) over thin polarization unless you safely cover opponents.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

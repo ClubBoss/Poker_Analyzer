@@ -34,3 +34,5 @@ small_cbet_33 / half_pot_50 / big_bet_75: core size families mapped to texture.
 
 Contrast
 Compared with 6-max cash, 9-max antes add early seats and more callers behind. You steal more by phase, control multiway with 3bet_oop_12bb, and lean on delay_turn and probe_turns to exploit turn overfolds while keeping 4bet_ip_21bb value-lean.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

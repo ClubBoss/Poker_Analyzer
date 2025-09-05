@@ -25,3 +25,5 @@
 - [ ] Commitment gate passes? (river not forced / equity sufficient)
 
 *See also:* `metrics_mini_glossary`, `tokens_and_families_quickref`.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

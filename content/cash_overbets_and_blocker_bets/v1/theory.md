@@ -11,7 +11,7 @@ Sizing drives fold equity, value capture, and future geometry. Polar pressure pu
 Rules of thumb
 - Use big_bet_75 when you have nut advantage or strong blockers and villain is capped. Classic nodes: paired middles, high-card turns that favor the aggressor, and rivers where front-door draws miss while your range carries top-end density. Why: polarization maximizes EV by extracting with nuts and folding out bluff-catchers.
 - Prefer size_down_dry on static rivers with condensed ranges when you hold thin value. You set a price, target bluff-catchers, and deter large raises. Why: small bets protect equity realization and still get called by worse pairs and ace-highs.
-- Half_pot_50 is the default turn/river size when range interaction is balanced or unclear. It retains fold equity, keeps rivers playable, and avoids committing with marginal hands. Why: medium sizing maintains flexibility across runouts.
+- half_pot_50 is the default turn/river size when range interaction is balanced or unclear. It retains fold equity, keeps rivers playable, and avoids committing with marginal hands. Why: medium sizing maintains flexibility across runouts.
 - After small_cbet_33 on dry flops, fire double_barrel_good on range-shifting turns; if the river brings a credible scare that your line supports and blockers confirm, use triple_barrel_scare. Why: geometry plus narrative raises fold rates at the right time.
 - Out of position on middling textures without nut share, protect_check_range. Do not force thin bets that expose you to raises. Why: OOP realization is poor; avoid donating to polar raises with capped holdings.
 - Defense versus polar sizing: call when you block value and unblock bluffs; fold more when your blockers are poor and your range is capped. Raise rarely unless you hold clear nuts.
@@ -36,3 +36,5 @@ protect_check_range: Checking to keep medium hands and avoid exploitation.
 
 Contrast
 Unlike baseline small_cbet_33 trees that realize equity cheaply, this module shifts to polarized big_bet_75 and size_down_dry on later streets to maximize fold equity or thin value while keeping defense sound against opponents' polar sizing.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._

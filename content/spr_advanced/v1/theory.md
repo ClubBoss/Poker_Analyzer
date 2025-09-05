@@ -2,7 +2,7 @@ What it is
 This module upgrades SPR (stack-to-pot ratio) from a definition to a planning tool. You will map preflop ladders to target SPR bands, let texture pick the size family, then choose lines inside that family using commitment thresholds and blockers. You keep exactly the same tokens and sizes used everywhere else: 3bet_ip_9bb, 3bet_oop_12bb, 4bet_ip_21bb, 4bet_oop_24bb, small_cbet_33, half_pot_50, big_bet_75, plus the concepts size_down_dry / size_up_wet, protect_check_range, delay_turn, probe_turns, double_barrel_good, triple_barrel_scare, call, fold, overfold_exploit. No new sizes or trees. HU-first, transferable to 6-max BvB/SRP/3BP.
 
 Why it matters
-The same ladders (9/12/21/24) set predictable SPR bands that simplify decisions before cards arrive. Reverse SPR via 4-bets creates clean commitment points; mid-SPR highlights where to avoid raise wars; high SPR after check-check creates profitable probe windows. Using SPR to pre-plan lines lowers error rate more than tiny mix tweaks. The physics rule remains: texture selects the size family; SPR shifts frequency and line selection within that family.
+The same ladders (9/12/21/24) set predictable SPR bands that simplify decisions before cards arrive. Reverse SPR via 4-bets creates clean commitment points; mid-SPR highlights where to avoid raise wars; high SPR after chk-chk creates profitable probe windows. Using SPR to pre-plan lines lowers error rate more than tiny mix tweaks. The physics rule remains: texture selects the size family; SPR shifts frequency and line selection within that family.
 
 Rules of thumb
 

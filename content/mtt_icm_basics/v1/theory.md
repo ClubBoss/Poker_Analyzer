@@ -38,3 +38,5 @@ overfold_exploit: node where population folds too much under pressure.
 
 Contrast
 Versus chips-EV deep-stack play, ICM shifts value from thin calls and bluffs toward folds and jam-first trees. You win by avoiding dominated commitments when covered and by applying disciplined, blocker-backed pressure when you cover.
+
+_This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
