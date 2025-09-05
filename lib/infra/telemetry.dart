@@ -3,6 +3,7 @@ import 'package:poker_analyzer/telemetry/telemetry.dart';
 import 'package:poker_analyzer/live/live_telemetry.dart';
 import 'package:poker_analyzer/live/live_validators.dart';
 import 'package:poker_analyzer/infra/kpi_gate.dart';
+import 'package:poker_analyzer/infra/kpi_fields_pure.dart' show kpiFields;
 
 /// Minimal telemetry wrapper around Sentry.
 ///
@@ -41,24 +42,23 @@ class Telemetry {
           name == 'export_l3_errors_clipboard') {
         final original = props ?? const <String, Object?>{};
         var augmented = Map<String, Object?>.from(withMode(original));
-        // Append KPI fields for session_end event (additive only; harmless when disabled)
+        // Additive session_end metrics + KPI fields
         if (name == 'session_end') {
-          final moduleId = (augmented['moduleId'] ?? '').toString();
-          final correct = (augmented['correct'] is int) ? augmented['correct'] as int : 0;
-          final total = (augmented['total'] is int) ? augmented['total'] as int : 0;
-          final avgMs = (augmented['avgDecisionMs'] is int)
+          // Try to read real stats from payload if provided; otherwise nulls
+          final String? moduleId = (augmented['moduleId'] as String?) ??
+              (augmented['packId'] as String?);
+          final int? total = augmented['total'] is int ? augmented['total'] as int : null;
+          final int? correct = augmented['correct'] is int ? augmented['correct'] as int : null;
+          final int? avgMs = augmented['avgDecisionMs'] is int
               ? augmented['avgDecisionMs'] as int
-              : 0;
-          final target = kModuleKPI[moduleId] ?? const KPITarget(80, 25000);
-          augmented['kpi_enabled'] = kEnableKPI;
-          augmented['kpi_target_accuracy'] = target.minAccuracyPct;
-          augmented['kpi_target_time_ms'] = target.maxAvgMs;
-          augmented['kpi_met'] = meetsKPI(
+              : null;
+          augmented.addAll(kpiFields(
             moduleId: moduleId,
-            correct: correct,
             total: total,
-            avgDecisionMs: avgMs,
-          );
+            correct: correct,
+            avgMs: avgMs,
+            enabled: kEnableKPI,
+          ));
         }
         props = augmented;
       }
