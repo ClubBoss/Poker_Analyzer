@@ -1,4 +1,4 @@
-.PHONY: allowlists allowlists-sync allowlists-check images gap beta beta-zip check fix-terms beta-fix beta-fix-continue pre-release research-check ui-assets discover ascii-check gap-details ascii-fix demos-steps demo-token-tag demos-steps-fix demos-count-fix theory-fix wordcount-balance drills-fix drills-seed snapshots snapshots-clean
+.PHONY: allowlists allowlists-sync allowlists-check images gap beta beta-zip check fix-terms beta-fix beta-fix-continue pre-release research-check ui-assets discover ascii-check gap-details ascii-fix demos-steps demo-token-tag demos-steps-fix demos-count-fix theory-fix wordcount-balance drills-fix drills-seed snapshots snapshots-clean green-run
 allowlists:
 	@dart run tooling/derive_allowlists.dart --write --clear
 allowlists-sync:
@@ -206,3 +206,28 @@ snapshots:
 
 snapshots-clean:
 	@rm -rf ci/snapshots
+
+.PHONY: green-run
+green-run:
+	@mkdir -p build
+	@dart run tooling/ascii_sanitize.dart --fix
+	@dart run tooling/term_lint.dart --fix --fix-scope=md+jsonl --json build/term_lint.json --quiet
+	@dart run tooling/demos_steps_fix.dart --fix
+	@dart run tooling/demos_count_fix.dart --fix
+	@dart run tooling/drills_json_repair.dart --fix || true
+	@dart run tooling/drills_seed_missing.dart --write
+	@dart run tooling/theory_scaffold_fix.dart --fix
+	@dart run tooling/theory_wordcount_balance.dart --fix --force --aggressive
+	@$(MAKE) images
+	@dart run tooling/sync_image_status.dart
+	@dart run tooling/derive_allowlists.dart --write --clear
+	@dart run tooling/content_gap_report.dart --json build/gaps.json
+	@dart run tooling/explain_gap_details.dart --json build/gap_details.json
+	@dart run tooling/demos_steps_lint.dart --json build/demos_steps.json --quiet
+	@dart run tooling/build_search_index.dart --json build/search_index.json
+	@dart run tooling/build_see_also.dart --json build/see_also.json
+	@dart run tooling/link_see_also_in_theory.dart
+	@dart run tooling/check_links.dart --json build/links_report.json
+	@dart run tooling/pre_release_check.dart
+	@dart run tooling/export_ui_assets.dart --out build/ui_assets --recompute
+	@$(MAKE) snapshots
