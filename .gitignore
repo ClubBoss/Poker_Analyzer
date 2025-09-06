@@ -58,3 +58,6 @@ coverage/
 build/
 .dart_tool/
 
+# Track CI snapshots
+!ci/snapshots/
+
