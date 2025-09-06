@@ -40,7 +40,7 @@ void main(List<String> args) {
   final modules = _discoverModules(onlyModule);
   var written = 0;
   var skipped = 0;
-  var errors = 0;
+  final errors = 0;
   var ioError = false;
 
   for (final m in modules) {
