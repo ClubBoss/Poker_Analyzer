@@ -1,6 +1,6 @@
 // Infer and add demo "tokens" tags to help token-sanity.
 // Usage:
-//   dart run tooling/demos_token_tag_helper.dart [--module <id>] [--fix-dry-run] [--fix] [--quiet]
+//   dart run tooling/demos_token_tag_helper.dart [--module <id>] [--demo <id>] [--force-token <tok>] [--force-tokens <t1,t2>] [--list-failing] [--fix-dry-run] [--fix] [--quiet]
 //
 // Scans content/<module>/v1/demos.jsonl. For each demo missing "tokens" and failing
 // token-sanity (no known tokens in any string field), infer 1–2 tokens from the
@@ -25,14 +25,32 @@ const Set<String> _KNOWN = {
 
 void main(List<String> args) {
   String? onlyModule;
+  String? onlyDemoId;
   var fix = false;
   var dry = false;
   var quiet = false;
+  final forced = <String>[];
+  var listFailing = false;
 
   for (var i = 0; i < args.length; i++) {
     final a = args[i];
     if (a == '--module' && i + 1 < args.length) {
       onlyModule = args[++i];
+    } else if (a == '--demo' && i + 1 < args.length) {
+      onlyDemoId = args[++i];
+    } else if (a == '--force-token' && i + 1 < args.length) {
+      final t = args[++i];
+      if (_KNOWN.contains(t)) forced.add(t);
+    } else if (a == '--force-tokens' && i + 1 < args.length) {
+      final list = args[++i]
+          .split(',')
+          .map((s) => s.trim())
+          .where((s) => s.isNotEmpty);
+      for (final t in list) {
+        if (_KNOWN.contains(t)) forced.add(t);
+      }
+    } else if (a == '--list-failing') {
+      listFailing = true;
     } else if (a == '--fix') {
       fix = true;
     } else if (a == '--fix-dry-run') {
@@ -48,6 +66,8 @@ void main(List<String> args) {
   var skipped = 0;
   var unsure = 0;
   var ioError = false;
+
+  final failingMap = <String, List<String>>{}; // module -> demo ids
 
   for (final m in modules) {
     final base = 'content/$m/v1';
@@ -115,37 +135,77 @@ void main(List<String> args) {
         continue;
       }
 
+      final id = (obj['id'] is String) ? (obj['id'] as String) : '';
       final hasTokens = obj.containsKey('tokens');
       final passesSanity = hasTokens
           ? _tokensListHasKnown(obj['tokens'])
           : _objectHasKnown(obj);
-      if (hasTokens || passesSanity) {
+
+      if (!passesSanity) {
+        // Track failing for listing
+        if (id.isNotEmpty) {
+          (failingMap[m] ??= <String>[]).add(id);
+        }
+      }
+
+      if (passesSanity) {
         skipped++;
         newLines.add(raw);
         continue;
       }
 
-      // Need to infer
-      final inferred = _inferTokens(ranked, freq);
-      if (inferred.isEmpty) {
+      // Fails sanity; try force first if requested
+      List<String> toApply = const [];
+      if (forced.isNotEmpty && (onlyDemoId == null || id == onlyDemoId)) {
+        // Prepare tokens: keep input order, dedupe, known only
+        final seen = <String>{};
+        final ft = <String>[];
+        for (final t in forced) {
+          if (_KNOWN.contains(t) && seen.add(t)) ft.add(t);
+        }
+        toApply = ft;
+      } else {
+        // Need to infer
+        toApply = _inferTokens(ranked, freq);
+      }
+
+      if (toApply.isEmpty) {
         unsure++;
         newLines.add(raw);
         continue;
       }
-      if (dry && !quiet) {
-        // Optional per-file logs could go here; keep quiet per spec.
+
+      // Merge into existing or create tokens
+      final current = <String>[];
+      final tv = obj['tokens'];
+      if (tv is List) {
+        for (final e in tv) {
+          if (e is String) current.add(e);
+        }
       }
-      if (fix) {
-        obj['tokens'] = inferred;
-        final enc = jsonEncode(obj);
-        newLines.add(enc);
-        fileEdited = true;
-        edited++;
-      } else {
-        // dry-run: do not modify content
+      var changed = false;
+      for (final t in toApply) {
+        if (!current.contains(t)) {
+          current.add(t);
+          changed = true;
+        }
+      }
+
+      if (!changed) {
+        // Nothing to do
         newLines.add(raw);
-        edited++;
+        skipped++;
+        continue;
       }
+
+      if (dry && !quiet) {
+        // silent per spec
+      }
+      obj['tokens'] = current;
+      final enc = jsonEncode(obj);
+      newLines.add(enc);
+      fileEdited = true;
+      edited++;
     }
 
     if (fix && fileEdited) {
@@ -155,6 +215,14 @@ void main(List<String> args) {
         if (!quiet) stderr.writeln('write error: $demosPath: $e');
         ioError = true;
       }
+    }
+  }
+
+  if (listFailing && !quiet) {
+    final keys = failingMap.keys.toList()..sort();
+    for (final k in keys) {
+      final ids = failingMap[k]!..sort();
+      stdout.writeln('FAIL ${k}: ' + ids.join(','));
     }
   }
 
