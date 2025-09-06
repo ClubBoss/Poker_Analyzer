@@ -29,7 +29,7 @@ void main() {
     final lines = file.readAsLinesSync();
     final stack = <_Context>[_Context(-1)];
     int? blockIndent;
-    bool expectUploadWith = false;
+    int? expectUploadWithIndent;
     for (var i = 0; i < lines.length; i++) {
       final lineNo = i + 1;
       final line = lines[i];
@@ -49,6 +49,12 @@ void main() {
       final baseIndent = m.group(1)!.length;
       final isList = m.group(2) != null;
       var indent = baseIndent + (isList ? 2 : 0);
+      if (expectUploadWithIndent != null) {
+        if (indent < expectUploadWithIndent! ||
+            (isList && indent <= expectUploadWithIndent!)) {
+          expectUploadWithIndent = null;
+        }
+      }
       final key = m.group(3)!;
 
       if (isList) {
@@ -74,15 +80,14 @@ void main() {
       }
       final rest = line.substring(m.end).trim();
       if (key == 'uses' && rest.contains('actions/upload-artifact@v4')) {
-        expectUploadWith = true;
+        expectUploadWithIndent = indent;
       } else if (key == 'with') {
-        final special = expectUploadWith && indent == stack.last.indent;
-        expectUploadWith = false;
+        final special =
+            expectUploadWithIndent != null && indent == expectUploadWithIndent;
+        expectUploadWithIndent = null;
         final child = _Context(indent + 2, checkUploadArtifact: special);
         stack.add(child);
         continue;
-      } else {
-        expectUploadWith = false;
       }
       if (rest.isEmpty) {
         stack.add(_Context(indent + 2));
