@@ -53,9 +53,9 @@ void main(List<String> args) {
   };
 
   final payload = jsonEncode(out);
-  if (jsonPath != null && jsonPath!.isNotEmpty) {
+  if (jsonPath != null && jsonPath.isNotEmpty) {
     try {
-      File(jsonPath!).writeAsStringSync(payload);
+      File(jsonPath).writeAsStringSync(payload);
     } catch (_) {
       // best-effort
     }
