@@ -40,7 +40,7 @@ void main(List<String> args) {
       continue;
     }
 
-    Map<String, String> captionBySlug = {};
+    final Map<String, String> captionBySlug = {};
     var missingSpecCount = 0;
     if (specFile.existsSync()) {
       try {

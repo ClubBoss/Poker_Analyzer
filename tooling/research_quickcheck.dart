@@ -15,7 +15,7 @@ void main(List<String> args) {
     exit(2);
   }
 
-  String root = args.first.trim();
+  final String root = args.first.trim();
   String? jsonPath;
   bool quiet = false;
   for (var i = 1; i < args.length; i++) {
@@ -54,7 +54,7 @@ void main(List<String> args) {
       'totals': totals,
     };
     try {
-      final f = File(jsonPath!);
+      final f = File(jsonPath);
       f.parent.createSync(recursive: true);
       f.writeAsStringSync(jsonEncode(payload));
     } catch (_) {}
