@@ -1,4 +1,4 @@
-.PHONY: allowlists allowlists-sync allowlists-check images gap beta beta-zip check fix-terms beta-fix beta-fix-continue pre-release research-check ui-assets discover ascii-check gap-details ascii-fix demos-steps demo-token-tag demos-steps-fix demos-count-fix theory-fix wordcount-balance drills-fix drills-seed
+.PHONY: allowlists allowlists-sync allowlists-check images gap beta beta-zip check fix-terms beta-fix beta-fix-continue pre-release research-check ui-assets discover ascii-check gap-details ascii-fix demos-steps demo-token-tag demos-steps-fix demos-count-fix theory-fix wordcount-balance drills-fix drills-seed snapshots snapshots-clean
 allowlists:
 	@dart run tooling/derive_allowlists.dart --write --clear
 allowlists-sync:
@@ -184,3 +184,25 @@ ui-telemetry:
 ui-i18n:
 	@dart run tooling/export_i18n_strings.dart --out build/i18n
 	@head -n 40 build/i18n/en.json
+
+# Copy selected build artifacts into ci/snapshots
+snapshots:
+	@mkdir -p ci/snapshots
+	@for f in build/pre_release_check.txt \
+	         build/gaps.json \
+	         build/term_lint.json \
+	         build/links_report.json \
+	         build/demos_steps.json \
+	         build/gap_details.json \
+	         build/ui_assets/manifest.json; do \
+	        if [ -f $$f ]; then \
+	                dest=ci/snapshots/$${f#build/}; \
+	                mkdir -p $$(dirname $$dest); \
+	                cp $$f $$dest; \
+	        else \
+	                echo "missing: $$f"; \
+	        fi; \
+	done
+
+snapshots-clean:
+	@rm -rf ci/snapshots
