@@ -34,7 +34,7 @@ void main() {
       final lineNo = i + 1;
       final line = lines[i];
       if (blockIndent != null) {
-        if (_indentOf(line) > blockIndent!) {
+        if (_indentOf(line) > blockIndent) {
           continue; // inside block scalar
         } else {
           blockIndent = null;
@@ -48,10 +48,10 @@ void main() {
       if (m == null) continue;
       final baseIndent = m.group(1)!.length;
       final isList = m.group(2) != null;
-      var indent = baseIndent + (isList ? 2 : 0);
+      final indent = baseIndent + (isList ? 2 : 0);
       if (expectUploadWithIndent != null) {
-        if (indent < expectUploadWithIndent! ||
-            (isList && indent <= expectUploadWithIndent!)) {
+        if (indent < expectUploadWithIndent ||
+            (isList && indent <= expectUploadWithIndent)) {
           expectUploadWithIndent = null;
         }
       }

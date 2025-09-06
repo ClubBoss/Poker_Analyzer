@@ -175,7 +175,7 @@ void main(List<String> args) {
 
   if (jsonPath != null) {
     try {
-      final f = File(jsonPath!);
+      final f = File(jsonPath);
       f.parent.createSync(recursive: true);
       f.writeAsStringSync(jsonEncode(payload));
       if (!quiet) {

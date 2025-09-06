@@ -90,7 +90,7 @@ void main(List<String> args) {
       'See also',
     };
 
-    List<String> out = List<String>.from(lines);
+    final List<String> out = List<String>.from(lines);
     bool changed = false;
 
     if (wc < 400) {

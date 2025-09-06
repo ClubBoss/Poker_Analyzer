@@ -45,7 +45,7 @@ class Telemetry {
           name == 'export_l3_errors_failed' ||
           name == 'export_l3_errors_clipboard') {
         final original = props ?? const <String, Object?>{};
-        var augmented = Map<String, Object?>.from(withMode(original));
+        final augmented = Map<String, Object?>.from(withMode(original));
         // Additive session_end metrics + KPI fields
         if (name == 'session_end') {
           // Try to read real stats from payload if provided; otherwise nulls

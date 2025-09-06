@@ -138,7 +138,7 @@ bool _gapsOk(String path) {
     if (obj is! Map<String, dynamic>) return false;
     final totals = obj['totals'];
     if (totals is! Map) return false;
-    for (final v in (totals as Map).values) {
+    for (final v in (totals).values) {
       if (v is int) {
         if (v != 0) return false;
       }
@@ -157,8 +157,8 @@ bool _termsOk(String path) {
     if (obj is! Map<String, dynamic>) return false;
     final totals = obj['totals'];
     if (totals is! Map) return false;
-    final bt = (totals as Map)['bad_terms'];
-    final fv = (totals as Map)['fv_bad_case'];
+    final bt = (totals)['bad_terms'];
+    final fv = (totals)['fv_bad_case'];
     if (bt is int && fv is int) {
       return bt == 0 && fv == 0;
     }
