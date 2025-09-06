@@ -15,7 +15,6 @@
 // Output one line: ASCII-SANITIZE files=<n> fixed=<k> unchanged=<m>
 // Exit 0 unless I/O error.
 
-import 'dart:convert';
 import 'dart:io';
 
 void main(List<String> args) {
