@@ -84,7 +84,7 @@ void main(List<String> args) {
 
     if (count < 10 && lastValidIdx != -1) {
       final template = lines[lastValidIdx].trim();
-      int need = 10 - count;
+      final int need = 10 - count;
       // Determine base id for suffixing
       String baseId = 'auto';
       try {

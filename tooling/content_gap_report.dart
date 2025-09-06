@@ -43,7 +43,7 @@ void main(List<String> args) {
 
   // Optional JSON output
   if (jsonPath != null) {
-    _writeJson(jsonPath!, rows, totals);
+    _writeJson(jsonPath, rows, totals);
   }
 
   if (!quiet) {

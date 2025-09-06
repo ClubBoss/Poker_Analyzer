@@ -85,7 +85,7 @@ void _parseTerm(Map<String, String> out) {
 void _parseLinks(Map<String, String> out) {
   try {
     final data = json.decode(File('build/links_report.json').readAsStringSync());
-    var src = data['summary'];
+    final src = data['summary'];
     if (src is Map) {
       final v = src['links_missing'] ?? src['missing'] ?? src['missing_links'];
       if (v is num) out['links_missing'] = '$v';
@@ -96,7 +96,7 @@ void _parseLinks(Map<String, String> out) {
 void _parseDemos(Map<String, String> out) {
   try {
     final data = json.decode(File('build/demos_steps.json').readAsStringSync());
-    var src = data['summary'] ?? data['totals'];
+    final src = data['summary'] ?? data['totals'];
     if (src is Map) {
       final v = src['failing_demos'] ?? src['failing'] ?? src['failures'];
       if (v is num) out['failing_demos'] = '$v';
