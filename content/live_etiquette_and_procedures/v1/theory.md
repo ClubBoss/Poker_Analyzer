@@ -6,8 +6,8 @@ Live pitfalls - string_bet, unclear verbal declarations, out-of-turn action, lin
 
 Rules of thumb
 
-* Verbal first, one motion: state size, then push chips once (single_motion_raise_legal). Keep bets in 33/50/75 and avoid string_bet rulings. Why: prevents off-tree errors.
-* Strict string-bet room: random raises drop. Use more protect_check_range and slightly more delay_turn with medium strength. Why: avoid getting blown off equity by accidental raises.
+
+
 * Loose enforcement: expect stabby raises. Increase protect_check_range; reduce thin bluffs; default half_pot_50. Why: control variance when lines get noisy.
 * Multi-limpers: realization falls. Prefer half_pot_50 for merged value; thin value with size_down_dry; fewer pure bluffs. Why: multiway EV is lower.
 * has_straddle / bomb_ante: dead money improves price. Slightly widen 3bet_ip_9bb / 3bet_oop_12bb; tag overfold_exploit only after repetition. Why: risk-reward improves but evidence still matters.
@@ -53,3 +53,8 @@ Contrast
 live_tells_and_dynamics focuses on reads; this module focuses on procedures and etiquette that stabilize execution. Same ladders and size families; only frequency shifts through the tokens.
 
 See also
+- live_full_ring_adjustments (score 33) -> ../../live_full_ring_adjustments/v1/theory.md
+- live_speech_timing_basics (score 33) -> ../../live_speech_timing_basics/v1/theory.md
+- online_hud_and_db_review (score 33) -> ../../online_hud_and_db_review/v1/theory.md
+- online_table_selection_and_multitabling (score 33) -> ../../online_table_selection_and_multitabling/v1/theory.md
+- cash_short_handed (score 31) -> ../../cash_short_handed/v1/theory.md

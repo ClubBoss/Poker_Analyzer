@@ -12,7 +12,7 @@ Why it matters
 Sizing drives fold equity, value capture, and future geometry. Polar pressure punishes capped ranges and missed draws; small blocker bets harvest thin value and control exposure versus raise-happy opponents. Pools often overfold to big polar bets out of position and under-raise rivers versus small bets. Disciplined deployment prints while staying solver-aligned.
 
 Rules of thumb
-- Use big_bet_75 when you have nut advantage or strong blockers and villain is capped. Classic nodes: paired middles, high-card turns that favor the aggressor, and rivers where front-door draws miss while your range carries top-end density. Why: polarization maximizes EV by extracting with nuts and folding out bluff-catchers.
+
 - Prefer size_down_dry on static rivers with condensed ranges when you hold thin value. You set a price, target bluff-catchers, and deter large raises. Why: small bets protect equity realization and still get called by worse pairs and ace-highs.
 - half_pot_50 is the default turn/river size when range interaction is balanced or unclear. It retains fold equity, keeps rivers playable, and avoids committing with marginal hands. Why: medium sizing maintains flexibility across runouts.
 - After small_cbet_33 on dry flops, fire double_barrel_good on range-shifting turns; if the river brings a credible scare that your line supports and blockers confirm, use triple_barrel_scare. Why: geometry plus narrative raises fold rates at the right time.
@@ -43,3 +43,8 @@ Unlike baseline small_cbet_33 trees that realize equity cheaply, this module shi
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
 
 See also
+- cash_3bet_oop_playbook (score 19) -> ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 19) -> ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_turn_river_barreling (score 19) -> ../../cash_turn_river_barreling/v1/theory.md
+- donk_bets_and_leads (score 19) -> ../../donk_bets_and_leads/v1/theory.md
+- hu_postflop_play (score 19) -> ../../hu_postflop_play/v1/theory.md

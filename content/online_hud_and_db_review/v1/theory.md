@@ -13,7 +13,7 @@ Why it matters
 Stats compress thousands of hands into stable reads. The biggest EV gains come from preflop 3-bet/4-bet exploits and from turn/river fold-to-size adjustments. We do not invent new sizes; we change the mix between small_cbet_33, half_pot_50, big_bet_75 and the preflop ladders. Sampling discipline prevents false exploits.
 
 Rules of thumb
-- Fold vs 3-bet high (IP or OOP): >=57% over strong sample -> widen 3bet_oop_12bb / 3bet_ip_9bb with blockers; tag overfold_exploit. Why: more immediate folds at great price.
+
 - 4-bet low: <=3% over strong sample -> add thin value to 3bet_oop_12bb and prefer 4bet_ip_21bb with premiums. Why: fewer 4-bets, more dominated calls.
 - Fold vs Turn big bet high on dynamic cards: >=50% to 70-80% sizing -> double_barrel_good with big_bet_75 when size_up_wet fits. Why: leverage + protection vs volatile equity.
 - River big under-bluffed / high fold vs river big: low River AFq + >=45% fold to large -> triple_barrel_scare with key blockers; otherwise fold more without them. Why: polar nodes reward discipline.
@@ -55,3 +55,8 @@ Contrast
 Online tells use timing; this module uses aggregates. Both keep the same tokens and change only how often we deploy them.
 
 See also
+- live_etiquette_and_procedures (score 33) -> ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 33) -> ../../live_full_ring_adjustments/v1/theory.md
+- live_speech_timing_basics (score 33) -> ../../live_speech_timing_basics/v1/theory.md
+- online_table_selection_and_multitabling (score 33) -> ../../online_table_selection_and_multitabling/v1/theory.md
+- cash_short_handed (score 31) -> ../../cash_short_handed/v1/theory.md

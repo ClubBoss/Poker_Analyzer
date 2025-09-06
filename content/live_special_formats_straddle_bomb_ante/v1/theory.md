@@ -26,7 +26,7 @@ Live overlay integration
  Validator awareness (string-bet/one-motion) helps keep sizes inside 33/50/75 but does not change which family we choose.
 
 [[IMAGE: straddle_positional_shift | UTG straddle -> action order and pressure lanes]]
-![UTG straddle → action order and pressure lanes](images/straddle_positional_shift.svg)
+![UTG straddle -> action order and pressure lanes](images/straddle_positional_shift.svg)
 ![UTG straddle -> action order and pressure lanes](images/straddle_positional_shift.svg)
 [[IMAGE: bomb_ante_dead_money_map | Where dead money boosts steals & merged value]]
 ![Where dead money boosts steals & merged value](images/bomb_ante_dead_money_map.svg)
@@ -53,3 +53,7 @@ Live_tells_and_dynamics focuses on reads; live_etiquette_and_procedures on proce
 
 See also
 - cash_short_handed (score 31) -> ../../cash_short_handed/v1/theory.md
+- hand_review_and_annotation_standards (score 31) -> ../../hand_review_and_annotation_standards/v1/theory.md
+- icm_final_table_hu (score 31) -> ../../icm_final_table_hu/v1/theory.md
+- icm_mid_ladder_decisions (score 31) -> ../../icm_mid_ladder_decisions/v1/theory.md
+- live_chip_handling_and_bet_declares (score 31) -> ../../live_chip_handling_and_bet_declares/v1/theory.md

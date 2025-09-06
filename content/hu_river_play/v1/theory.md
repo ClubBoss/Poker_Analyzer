@@ -43,3 +43,7 @@ _This module uses the fixed families and sizes: size_down_dry, size_up_wet; smal
 
 See also
 - cash_3bet_oop_playbook (score 17) -> ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 17) -> ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_overbets_and_blocker_bets (score 17) -> ../../cash_overbets_and_blocker_bets/v1/theory.md
+- cash_turn_river_barreling (score 17) -> ../../cash_turn_river_barreling/v1/theory.md
+- donk_bets_and_leads (score 17) -> ../../donk_bets_and_leads/v1/theory.md

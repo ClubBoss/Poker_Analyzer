@@ -1,16 +1,16 @@
-# Program Catalog (v1)
-Audience: external readers and newcomers. This catalog lists all 81 training modules with brief notes. Each module's source lives in its own folder and ships with three files: `theory.md`, `demos.jsonl`, and `drills.jsonl`.
 
-**Fixed action system across all modules:** preflop ladders `3bet_ip_9bb`, `3bet_oop_12bb`, `4bet_ip_21bb`, `4bet_oop_24bb`; postflop size families `small_cbet_33`, `half_pot_50`, `big_bet_75`; concepts/tokens `size_up_wet`, `size_down_dry`, `protect_check_range`, `delay_turn`, `probe_turns`, `double_barrel_good`, `triple_barrel_scare`, `call`, `fold`, `overfold_exploit`. Physics-first: static boards -> dry family; dynamic boards -> wet family. Reads/economics only shift **frequencies**, never sizes or trees.
 
----
 
-## Live overlay (how it works)
-The Live overlay toggles a live context over Cash/MTT without duplicating trees. It adds scenario flags (`has_straddle`, `bomb_ante`, `multi_limpers`, `rake_type(time|drop)`, `announce_required`, `avg_stack_bb`, `table_speed`) and procedural validators (`string_bet`, `single_motion_raise_legal`, `bettor_shows_first`, `first_active_left_of_btn_shows`). Modules and SpotKind stay the same; frequency nudges reflect live conditions.
 
----
 
-## Core
+
+
+
+
+
+
+
+
 1. **core_rules_and_setup** - Table rules, order of action, showdown basics.
 2. **core_positions_and_initiative** - Positions, IP/OOP and initiative transfer.
 3. **core_pot_odds_equity** - Pot odds, equity, price-aware decisions.
@@ -114,6 +114,11 @@ Each module resides in `content/<module_name>/v1/` with:
 - `drills.jsonl` - single-token drills
 
 See also
+- cash_3bet_oop_playbook (score 2) -> ../../cash_3bet_oop_playbook/v1/theory.md
+- cash_blind_defense (score 2) -> ../../cash_blind_defense/v1/theory.md
+- cash_blind_defense_vs_btn_co (score 2) -> ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_blind_vs_blind (score 2) -> ../../cash_blind_vs_blind/v1/theory.md
+- cash_delayed_cbet_and_probe_systems (score 2) -> ../../cash_delayed_cbet_and_probe_systems/v1/theory.md
 
 What it is
 [[IMAGE: overview_diagram | Overview diagram]]

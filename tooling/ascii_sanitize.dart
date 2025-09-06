@@ -168,10 +168,121 @@ _SanRes _sanitize(String s) {
     '\u21A6': '->', // rightwards arrow from bar
     '\u2190': '<-', // left arrow
     '\u2194': '<->', // left-right arrow
+    // symbols
+    '\u2122': '(TM)', // ™
+    '\u00A9': '(C)', // ©
+    '\u00AE': '(R)', // ®
+    '\u00B0': 'deg', // °
+    '\u00B5': 'u', // µ
+    '\u00B7': '-', // ·
+    '\u00A7': 'S', // §
+    '\u00A2': 'c', // ¢
+    '\u00A3': 'GBP', // £
+    '\u20AC': 'EUR', // €
   };
   singles.forEach((from, to) {
     text = replChar(text, from, to);
   });
+
+  // Broad ASCII transliteration for accented letters
+  final translit = <String, String>{
+    // a
+    'á': 'a',
+    'à': 'a',
+    'ä': 'a',
+    'â': 'a',
+    'ã': 'a',
+    'å': 'a',
+    'ā': 'a',
+    'ă': 'a',
+    'ą': 'a',
+    'Á': 'A',
+    'À': 'A',
+    'Ä': 'A',
+    'Â': 'A',
+    'Ã': 'A',
+    'Å': 'A',
+    'Ā': 'A',
+    'Ă': 'A',
+    'Ą': 'A',
+    // e
+    'é': 'e', 'è': 'e', 'ë': 'e', 'ê': 'e', 'ē': 'e', 'ė': 'e', 'ę': 'e',
+    'É': 'E', 'È': 'E', 'Ë': 'E', 'Ê': 'E', 'Ē': 'E', 'Ė': 'E', 'Ę': 'E',
+    // i
+    'í': 'i', 'ì': 'i', 'ï': 'i', 'î': 'i', 'ī': 'i', 'į': 'i', 'ı': 'i',
+    'Í': 'I', 'Ì': 'I', 'Ï': 'I', 'Î': 'I', 'Ī': 'I', 'Į': 'I', 'İ': 'I',
+    // o
+    'ó': 'o',
+    'ò': 'o',
+    'ö': 'o',
+    'ô': 'o',
+    'õ': 'o',
+    'ø': 'o',
+    'ō': 'o',
+    'ő': 'o',
+    'Ó': 'O',
+    'Ò': 'O',
+    'Ö': 'O',
+    'Ô': 'O',
+    'Õ': 'O',
+    'Ø': 'O',
+    'Ō': 'O',
+    'Ő': 'O',
+    // u
+    'ú': 'u', 'ù': 'u', 'ü': 'u', 'û': 'u', 'ū': 'u', 'ů': 'u', 'ű': 'u',
+    'Ú': 'U', 'Ù': 'U', 'Ü': 'U', 'Û': 'U', 'Ū': 'U', 'Ů': 'U', 'Ű': 'U',
+    // y
+    'ý': 'y', 'ÿ': 'y', 'Ÿ': 'Y', 'Ý': 'Y',
+    // n
+    'ñ': 'n', 'Ñ': 'N', 'ń': 'n', 'Ń': 'N', 'ň': 'n', 'Ň': 'N',
+    // c
+    'ç': 'c', 'Ç': 'C', 'č': 'c', 'Č': 'C',
+    // s
+    'ś': 's', 'Ś': 'S', 'š': 's', 'Š': 'S', 'ş': 's', 'Ş': 'S',
+    // z
+    'ž': 'z', 'Ž': 'Z',
+    // r
+    'ř': 'r', 'Ř': 'R', 'ŕ': 'r', 'Ŕ': 'R',
+    // t
+    'ť': 't', 'Ť': 'T',
+    // d
+    'ď': 'd', 'Ď': 'D', 'ð': 'd', 'Ð': 'D',
+    // l
+    'ł': 'l', 'Ł': 'L',
+    // g/h/k
+    'ğ': 'g', 'Ğ': 'G', 'ħ': 'h', 'Ħ': 'H',
+    // ae/oe/ss/th
+    'æ': 'ae', 'Æ': 'AE', 'œ': 'oe', 'Œ': 'OE', 'ß': 'ss', 'þ': 'th', 'Þ': 'TH',
+  };
+  {
+    final b = StringBuffer();
+    var localChanges = 0;
+    for (var i = 0; i < text.length; i++) {
+      final ch = text[i];
+      final cu = ch.codeUnitAt(0);
+      if (cu <= 0x7F) {
+        b.write(ch);
+        continue;
+      }
+      final repl = translit[ch];
+      if (repl != null) {
+        b.write(repl);
+        localChanges++;
+      } else {
+        // Keep tabs/newlines; convert other printable non-ASCII to space
+        if (ch == '\n' || ch == '\t') {
+          b.write(ch);
+        } else {
+          b.write(' ');
+        }
+        localChanges++;
+      }
+    }
+    if (localChanges > 0) {
+      changes += localChanges;
+      text = b.toString();
+    }
+  }
 
   // Collapse multiple spaces introduced by replacements (optional; conservative)
   // Keep tabs/newlines; only normalize runs of >1 spaces to single space.

@@ -13,8 +13,8 @@ Rules of thumb
 - Commitment gate. If a turn big_bet_75 leaves a trivial river behind, ensure blockers/equity justify the commitment; otherwise keep half_pot_50 or delay_turn. Why: clean, planned stacks.
 
 Mini example
-Line 1 (OOP 3BP): SB 3-bets, BTN calls. Flop A83r -> size_down_dry with small_cbet_33; turn 2♣ versus raise-prone IP -> delay_turn; river IP fires big_bet_75 while you lack blockers -> fold.
-Line 2 (IP SRP as PFA): CO opens, BTN calls; you c-bet T98ss with half_pot_50 from size_up_wet. Turn Q♠ adds nut spade blocker and Fv75 up -> upgrade to big_bet_75 -> double_barrel_good. River K scare with plan -> triple_barrel_scare.
+Line 1 (OOP 3BP): SB 3-bets, BTN calls. Flop A83r -> size_down_dry with small_cbet_33; turn 2 versus raise-prone IP -> delay_turn; river IP fires big_bet_75 while you lack blockers -> fold.
+Line 2 (IP SRP as PFA): CO opens, BTN calls; you c-bet T98ss with half_pot_50 from size_up_wet. Turn Q adds nut spade blocker and Fv75 up -> upgrade to big_bet_75 -> double_barrel_good. River K scare with plan -> triple_barrel_scare.
 Line 3 (SRP OOP as caller): UTG opens, BB calls. Flop K72r checks through. Sequence: chk-chk -> probe_turns on safe turn; river facing polar 75 without blockers -> fold.
 
 Common mistakes

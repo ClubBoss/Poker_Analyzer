@@ -6,7 +6,7 @@ Clean declarations prevent illegal or mis-sized bets that create off-tree chaos 
 
 Rules of thumb
 
-* Verbal first, one motion. Announce the amount, then push chips once. Why: avoids string_bet issues and locks 33/50/75 choices.
+
 * Oversized chip rule. One big chip without clear "raise" is a call; say "raise" first. Why: prevents unintended off-tree sizing; when in doubt, favor protect_check_range or delay_turn over spur-of-the-moment raises.
 * Cut stacks, count, then bet. Pre-choose small_cbet_33 / half_pot_50 / big_bet_75; never splash-the-pot. Why: precise family adherence.
 * Line rule and forward motion. Know if chips crossing the line are binding. In strict single_motion_raise_legal rooms, bluff-raise less and add protect_check_range / delay_turn. Why: reduce accidental raise traps.
@@ -54,3 +54,8 @@ Live_etiquette_and_procedures covers broader room conduct; live_tells_and_dynami
 ![Texture -> 33/50/75 family with live safeguards](images/family_picker_live.svg)
 
 See also
+- cash_short_handed (score 31) -> ../../cash_short_handed/v1/theory.md
+- donk_bets_and_leads (score 31) -> ../../donk_bets_and_leads/v1/theory.md
+- hand_review_and_annotation_standards (score 31) -> ../../hand_review_and_annotation_standards/v1/theory.md
+- icm_final_table_hu (score 31) -> ../../icm_final_table_hu/v1/theory.md
+- icm_mid_ladder_decisions (score 31) -> ../../icm_mid_ladder_decisions/v1/theory.md
