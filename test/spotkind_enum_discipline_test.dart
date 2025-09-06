@@ -24,7 +24,7 @@ void main() {
     // Parse identifiers in declared order (strip comments, whitespace)
     parsedNames = <String>[];
     for (final raw in body.split(',')) {
-      var t = raw.split('//').first.trim();
+      final t = raw.split('//').first.trim();
       if (t.isEmpty) continue;
       final m = RegExp(r'([A-Za-z_][A-Za-z0-9_]*)\s*$').firstMatch(t);
       if (m != null) {
