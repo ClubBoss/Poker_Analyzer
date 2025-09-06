@@ -1,6 +1,6 @@
 // Balance theory.md word counts to the 400–700 range.
 // Usage:
-//   dart run tooling/theory_wordcount_balance.dart [--module <id>] [--fix-dry-run] [--fix] [--force] [--quiet]
+//   dart run tooling/theory_wordcount_balance.dart [--module <id>] [--fix-dry-run] [--fix] [--force] [--aggressive] [--quiet]
 //
 // - Reads build/gaps.json to find modules with wordcount_out_of_range unless --force is set.
 // - For each content/<module>/v1/theory.md:
@@ -18,6 +18,7 @@ void main(List<String> args) {
   bool writeFixes = false;
   bool dry = false;
   bool force = false;
+  bool aggressive = false;
   bool quiet = false;
 
   for (var i = 0; i < args.length; i++) {
@@ -31,6 +32,8 @@ void main(List<String> args) {
       writeFixes = false;
     } else if (a == '--force') {
       force = true;
+    } else if (a == '--aggressive') {
+      aggressive = true;
     } else if (a == '--quiet') {
       quiet = true;
     }
@@ -113,36 +116,123 @@ void main(List<String> args) {
       }
       if (changed) padded++;
     } else if (wc > 700) {
-      // Trim trailing non-header, non-image lines until <=700, stopping before headers or code fences.
-      int i = out.length - 1;
-      bool inFence = false; // if trailing fence encountered, stop all trimming
-      while (i >= 0 && wc > 700) {
-        final l = out[i].trimRight();
-        if (l.startsWith('```') || l.startsWith('~~~')) {
-          inFence = true;
-          break;
-        }
-        final isHeader = knownHeaders.contains(l);
-        final isImage = l.startsWith('[[IMAGE:') || l.startsWith('![');
-        if (isHeader || isImage) break; // stop before protected markers
+      if (!aggressive) {
+        // Conservative: trim from the end until hitting a header/image/fence.
+        int i = out.length - 1;
+        bool inFence =
+            false; // if trailing fence encountered, stop all trimming
+        while (i >= 0 && wc > 700) {
+          final l = out[i].trimRight();
+          if (l.startsWith('```') || l.startsWith('~~~')) {
+            inFence = true;
+            break;
+          }
+          final isHeader = knownHeaders.contains(l);
+          final isImage = l.startsWith('[[IMAGE:') || l.startsWith('![');
+          if (isHeader || isImage) break; // stop before protected markers
 
-        // Compute words in this line
-        final lw = _wordCount(l);
-        if (lw == 0) {
-          // dropping blank line does not change wc; safe to remove
+          final lw = _wordCount(l);
+          if (lw == 0) {
+            out.removeAt(i);
+            changed = true;
+            i--;
+            continue;
+          }
           out.removeAt(i);
+          wc -= lw;
           changed = true;
           i--;
-          continue;
         }
-        final newWc = wc - lw;
-        // Remove the line if it helps and stays >= 0
-        out.removeAt(i);
-        wc = newWc;
-        changed = true;
-        i--;
+        if (changed) trimmed++;
+      } else {
+        // Aggressive: may trim across sections but never delete header lines;
+        // keep at least 1 non-header, non-image line per required section; skip code fences;
+        // keep image placeholders and everything under 'See also'.
+        final sectionForIndex = <int, String?>{};
+        String? currentSection;
+        bool inFence = false;
+        bool inSeeAlso = false;
+        final candidateIdx = <int>[];
+        final candidateWords = <int>[];
+        final sectionCounts = <String, int>{};
+
+        for (var i = 0; i < out.length; i++) {
+          final rawLine = out[i];
+          final l = rawLine.trimRight();
+          final fence = l.startsWith('```') || l.startsWith('~~~');
+          if (fence) inFence = !inFence;
+
+          final isHeader = knownHeaders.contains(l);
+          if (isHeader) {
+            currentSection = l;
+            sectionForIndex[i] = currentSection;
+            if (l == 'See also') inSeeAlso = true;
+            continue;
+          }
+          sectionForIndex[i] = currentSection;
+
+          // Protect code fences and anything under 'See also'
+          if (inFence || inSeeAlso) continue;
+          // Protect image placeholders
+          if (l.startsWith('[[IMAGE:') || l.startsWith('![')) continue;
+
+          // Consider only non-empty word-bearing lines
+          final lw = _wordCount(l);
+          if (lw == 0) continue;
+
+          candidateIdx.add(i);
+          candidateWords.add(lw);
+          final sec = currentSection ?? '';
+          sectionCounts[sec] = (sectionCounts[sec] ?? 0) + 1;
+        }
+
+        // Delete from oldest to newest until within limit, preserving at least 1 per section
+        for (var k = 0; k < candidateIdx.length && wc > 700; k++) {
+          final idx = candidateIdx[k];
+          final sec = sectionForIndex[idx] ?? '';
+          final remaining = (sectionCounts[sec] ?? 0);
+          if (remaining <= 1 && knownHeaders.contains(sec)) {
+            continue; // preserve minimum content line in this section
+          }
+          // Delete this line
+          final lw = candidateWords[k];
+          out[idx] = ''; // keep line structure stable
+          sectionCounts[sec] = (sectionCounts[sec]! - 1);
+          wc -= lw;
+          changed = true;
+        }
+
+        // Clean up empty lines at ends
+        while (out.isNotEmpty && out.last.trim().isEmpty) {
+          out.removeLast();
+        }
+
+        if (wc > 700) {
+          // Fallback: continue dropping oldest remaining candidate lines (still respecting headers/code fences and see also),
+          // even if it goes below 1 per section for non-required sections not in knownHeaders set.
+          for (var k = 0; k < candidateIdx.length && wc > 700; k++) {
+            final idx = candidateIdx[k];
+            if (out[idx].isEmpty) continue; // already removed
+            final sec = sectionForIndex[idx] ?? '';
+            // Never delete header lines (already filtered) and keep 'See also' area (already filtered)
+            // Still keep at least one content line for required headers only
+            if (knownHeaders.contains(sec) && (sectionCounts[sec] ?? 0) <= 1) {
+              continue;
+            }
+            final lw = candidateWords[k];
+            out[idx] = '';
+            sectionCounts[sec] = (sectionCounts[sec]! - 1);
+            wc -= lw;
+            changed = true;
+          }
+          if (wc > 700) {
+            // Append single marker to indicate further manual trimming needed
+            out.add('');
+            out.add('TODO: trimmed (auto)');
+          }
+        }
+        if (changed) trimmed++;
       }
-      if (changed) trimmed++;
     }
 
     if (changed && writeFixes) {

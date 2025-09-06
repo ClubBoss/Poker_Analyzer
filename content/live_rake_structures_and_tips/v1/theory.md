@@ -5,11 +5,11 @@ Why it matters
 Drop/time plus tips change the EV of small pots and thin edges. Drop punishes many small, dragged pots; time charge rewards volume and clean decisions. Tips tax each win, pushing thresholds for value and bluff-catch. We keep the size family by texture, then adjust how often we bluff, defend, or press preflop and turn/river.
 
 Rules of thumb
-- Drop, high cap: avoid thin OOP flats; lean value-heavy 3bet_oop_12bb; on static boards standardize small_cbet_33; trim thin call lines. Why: drop taxes marginal realizations. 
-- Time charge (hourly): favor volume-friendly lines-small_cbet_33, half_pot_50, delay_turn, protect_check_range; avoid spewy rivers. Why: more hands/hour beats small mix edges. 
-- Heavy tips: raise value thresholds; cut marginal bluffs; prefer half_pot_50 merged value; fold more vs big_bet_75 without blockers. Why: each pot won is taxed. 
-- Low tips + fast game: widen blocker 3-bets (evidence-gated overfold_exploit); premiums upgrade to 4bet_ip_21bb / 4bet_oop_24bb in low 5-bet rooms. Why: lower friction boosts aggressive preflop EV. 
-- Jackpot/high-hand drop: do not chase; keep 33/50/75 and normal families. Why: promos affect bankroll, not optimal sizing. 
+
+
+
+
+
 - Straddle/bomb_ante with drop: dead money improves steals but drop taxes small pots; selectively 3bet_ip_9bb / 3bet_oop_12bb with blockers; postflop use half_pot_50 for merged value. Why: better price pre, but keep pots meaningful. 
 - Multi-limpers in drop rooms: bluff EV falls; add protect_check_range; use half_pot_50 for merged value; thin value via size_down_dry. Why: multiway realization and drop tax. 
 - Mid-SPR raise-prone turns: choose delay_turn with medium strength; protect_check_range on prior street. Why: avoid getting blown off equity where rake/tips reduce comeback EV. 
@@ -28,11 +28,11 @@ Live overlay integration
 [[IMAGE: live_rake_models_map | Time vs drop vs tips -> frequency levers]]
 ![Time vs drop vs tips -> frequency levers](images/live_rake_models_map.svg)
 [[IMAGE: family_picker_under_drop | Texture (dry/wet) x drop/time -> 33/50/75 stays fixed]]
-![Texture (dry/wet) × drop/time -> 33/50/75 stays fixed](images/family_picker_under_drop.svg)
+![Texture (dry/wet) x drop/time -> 33/50/75 stays fixed](images/family_picker_under_drop.svg)
 ![Texture (dry/wet) x drop/time -> 33/50/75 stays fixed](images/family_picker_under_drop.svg)
 ![Texture (dry/wet) x drop/time -> 33/50/75 stays fixed](images/family_picker_under_drop.svg)
 [[IMAGE: river_tax_and_discipline | Tipping + drop -> river fold discipline flow]]
-![Tipping + drop → river fold discipline flow](images/river_tax_and_discipline.svg)
+![Tipping + drop -> river fold discipline flow](images/river_tax_and_discipline.svg)
 ![Tipping + drop -> river fold discipline flow](images/river_tax_and_discipline.svg)
 
 Mini example
@@ -58,3 +58,8 @@ Contrast
 online_economics_rakeback_promos targets site incentives; rake_and_ante_economics covers general economics. This module is live-room rake/time/tips specific. Sizes stay 33/50/75 and ladders 9/12/21/24; only frequencies move.
 
 See also
+- exploit_advanced (score 29) -> ../../exploit_advanced/v1/theory.md
+- hand_review_and_annotation_standards (score 29) -> ../../hand_review_and_annotation_standards/v1/theory.md
+- icm_final_table_hu (score 29) -> ../../icm_final_table_hu/v1/theory.md
+- live_etiquette_and_procedures (score 29) -> ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 29) -> ../../live_full_ring_adjustments/v1/theory.md

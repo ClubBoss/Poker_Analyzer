@@ -41,3 +41,5 @@ See also
 - bankroll_and_variance_management (score 21) -> ../../bankroll_and_variance_management/v1/theory.md
 - cash_3bet_oop_playbook (score 21) -> ../../cash_3bet_oop_playbook/v1/theory.md
 - cash_blind_defense_vs_btn_co (score 21) -> ../../cash_blind_defense_vs_btn_co/v1/theory.md
+- cash_turn_river_barreling (score 21) -> ../../cash_turn_river_barreling/v1/theory.md
+- database_leakfinder_playbook (score 21) -> ../../database_leakfinder_playbook/v1/theory.md

@@ -12,8 +12,8 @@ Bankroll and variance policy changes EV/hour more than micro in-hand tweaks. Pro
 
 Rules of thumb
 
-* Bankroll tiers -> table count: in softer pools add tables; in tough pools reduce tables and increase protect_check_range and delay_turn. Why: load affects accuracy more than mix tweaks.
-* Shot-taking: predefine buy-ins and exit rules. During shots bias to small_cbet_33 and half_pot_50; reserve big_bet_75 for size_up_wet with blockers. Why: reduce variance tax.
+
+
 * Stop-loss/win: set guardrails. Under fatigue trim thin calls and triple_barrel_scare; add delay_turn and protect_check_range. Why: error rate grows faster than edge.
 * Soft windows: expect fast folds and passive rivers. Widen 3bet_oop_12bb and 3bet_ip_9bb with blockers, tag overfold_exploit; take thinner half_pot_50 value. Why: immediate folds and merged calls increase.
 * Tough pools: fewer speculative calls IP/OOP; fold more versus big_bet_75 without blockers. Why: under-bluffed polar nodes.
@@ -52,3 +52,8 @@ This module adjusts frequencies using bankroll, variance, and load. It does not 
 ![Table caps, stop-loss/win, tilt flags](images/session_guardrails.svg)
 
 See also
+- exploit_advanced (score 29) -> ../../exploit_advanced/v1/theory.md
+- icm_final_table_hu (score 29) -> ../../icm_final_table_hu/v1/theory.md
+- live_etiquette_and_procedures (score 29) -> ../../live_etiquette_and_procedures/v1/theory.md
+- live_full_ring_adjustments (score 29) -> ../../live_full_ring_adjustments/v1/theory.md
+- live_session_log_and_review (score 29) -> ../../live_session_log_and_review/v1/theory.md

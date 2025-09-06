@@ -5,7 +5,7 @@ Why it matters
 Live sessions are noisy and slow; memory is unreliable. A minimal log lets you act now (one token) and review later without results bias. The post-session loop standardizes improvement: triage -> compact baseline check (no new sizes) -> optional single-knob validation (e.g., Fv75) -> convert to a demo + drill -> schedule spaced review. EV/hour rises when your decisions stay inside 33/50/75 and exploit only with persistent evidence.
 
 Rules of thumb
-- Use a lightweight log schema per hand: Price, Texture, Family 33/50/75, Pos (IP/OOP), Init (PFA/Caller), Blockers, Raise risk, Sequence (chk-chk?), Pressure gate (Fv50/Fv75), SPR band, Token. End each street with exactly one token. 
+
 - Sequence rule: if flop checked through, the turn stab is probe_turns (not a probe_turns). Log "chk-chk" explicitly. 
 - Texture before read: write "dry/wet" first, then the family (size_down_dry or size_up_wet), then the size (33/50/75). 
 - Evidence gates: tag overfold_exploit only at repetition tier medium+ (3-5+) and aligned with context (e.g., blinds fast-fold to 12bb). 
@@ -23,12 +23,12 @@ Rules of thumb
 [[IMAGE: kpi_dashboard_tiles | KPI tiles and thresholds]]
 ![KPI tiles and thresholds](images/kpi_dashboard_tiles.svg)
 [[IMAGE: log_to_drills_pipeline | Log -> token -> demo+drill -> spaced review]]
-![Log → token → demo+drill → spaced review](images/log_to_drills_pipeline.svg)
+![Log -> token -> demo+drill -> spaced review](images/log_to_drills_pipeline.svg)
 ![Log -> token -> demo+drill -> spaced review](images/log_to_drills_pipeline.svg)
 
 Mini example
 - In-session: SRP IP on K72r (static). Log: Texture=dry, Family=33, Sequence=PFA, Raise risk=med, Token=small_cbet_33 (size_down_dry). Turn raise-prone at mid SPR -> Token=delay_turn. 
-- Post-session: 3BP on JT9ss, turn Qd; you logged Blockers=A♦K♦, Pressure gate Fv75↑. Family=size_up_wet; Token=double_barrel_good using big_bet_75. Create a drill; schedule 1d.
+- Post-session: 3BP on JT9ss, turn Qd; you logged Blockers=A K , Pressure gate Fv75 . Family=size_up_wet; Token=double_barrel_good using big_bet_75. Create a drill; schedule 1d.
 
 Common mistakes
 - Writing paragraphs. Fix: one-line annotation grammar ending in a single token. 

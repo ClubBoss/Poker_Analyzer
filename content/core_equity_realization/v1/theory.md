@@ -23,7 +23,7 @@ Mini example
 UTG opens to 2.3 bb (typical online), CO calls, others fold. Flop K72 rainbow. UTG has initiative and cbets small; CO calls with QJs backdoors. Turn 5 offsuit. UTG bets small again, denying CO's overcards; CO folds. UTG realized well by having position preflop more often across ranges, choosing small sizes on a dry texture, and keeping SPR low to avoid tough rivers.
 
 SPR mini-math
-Flop pot 20 bb, stacks 80 bb (SPR 4). You bet 6 bb, call: pot 32, stacks 74. Turn bet 22 bb (about 70%), call: pot 76, stacks 52. River SPR ≈ 0.68, so a 52 bb shove into 76 bb is clean. If instead you bet tiny on turn, you may arrive with SPR ≈ 1.5 and lose pressure, hurting value and bluff realization.
+Flop pot 20 bb, stacks 80 bb (SPR 4). You bet 6 bb, call: pot 32, stacks 74. Turn bet 22 bb (about 70%), call: pot 76, stacks 52. River SPR 0.68, so a 52 bb shove into 76 bb is clean. If instead you bet tiny on turn, you may arrive with SPR 1.5 and lose pressure, hurting value and bluff realization.
 
 Common mistakes
 - Calling OOP with hands that realize poorly. Why it is a mistake: you fold later and donate bets. Why it happens: overrating suited/connected cards without position.

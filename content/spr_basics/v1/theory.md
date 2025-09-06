@@ -21,7 +21,7 @@ Rules of thumb
 [[IMAGE: spr_by_ladder | How 9/12/21/24 preflop sizes set SPR]]
 ![How 9/12/21/24 preflop sizes set SPR](images/spr_by_ladder.svg)
 [[IMAGE: spr_texture_matrix | Texture family (dry/wet) x low/medium/high SPR play]]
-![Texture family (dry/wet) × low/medium/high SPR play](images/spr_texture_matrix.svg)
+![Texture family (dry/wet) x low/medium/high SPR play](images/spr_texture_matrix.svg)
 ![Texture family (dry/wet) x low/medium/high SPR play](images/spr_texture_matrix.svg)
 ![Texture family (dry/wet) x low/medium/high SPR play](images/spr_texture_matrix.svg)
 

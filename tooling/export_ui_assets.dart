@@ -59,6 +59,45 @@ Future<void> main(List<String> args) async {
           'build/see_also.json',
         ]) ==
         0,
+    'build/lesson_flow.json': () async =>
+        await _run([
+          'dart',
+          'run',
+          'tooling/export_lesson_flow.dart',
+        ]) ==
+        0,
+    'build/review_plan.json': () async =>
+        await _run([
+          'dart',
+          'run',
+          'tooling/export_review_plan.dart',
+        ]) ==
+        0,
+    'build/i18n/en.json': () async =>
+        await _run([
+          'dart',
+          'run',
+          'tooling/export_i18n_strings.dart',
+          '--out',
+          'build/i18n',
+        ]) ==
+        0,
+    'build/i18n/ru.json': () async =>
+        await _run([
+          'dart',
+          'run',
+          'tooling/export_i18n_strings.dart',
+          '--out',
+          'build/i18n',
+        ]) ==
+        0,
+    'build/telemetry_schema.json': () async =>
+        await _run([
+          'dart',
+          'run',
+          'tooling/export_telemetry_schema.dart',
+        ]) ==
+        0,
   };
 
   for (final path in sources.keys) {
@@ -73,14 +112,23 @@ Future<void> main(List<String> args) async {
     }
   }
 
-  // Copy files to outDir
-  final destBadges = '$outDir/badges.json';
-  final destIndex = '$outDir/search_index.json';
-  final destSeeAlso = '$outDir/see_also.json';
+  // Copy files to outDir (deterministic order)
+  final filesList = <String>[
+    'badges.json',
+    'search_index.json',
+    'see_also.json',
+    'lesson_flow.json',
+    'review_plan.json',
+    'i18n/en.json',
+    'i18n/ru.json',
+    'telemetry_schema.json',
+  ];
   try {
-    File('build/badges.json').copySync(destBadges);
-    File('build/search_index.json').copySync(destIndex);
-    File('build/see_also.json').copySync(destSeeAlso);
+    // Ensure i18n subdirectory exists
+    Directory('$outDir/i18n').createSync(recursive: true);
+    for (final name in filesList) {
+      File('build/' + name).copySync('$outDir/' + name);
+    }
   } catch (e) {
     stderr.writeln('error: copying files: $e');
     exitCode = 1;
@@ -91,18 +139,24 @@ Future<void> main(List<String> args) async {
   int modules = 0;
   int tokens = 0;
   int spots = 0;
+  int i18nKeys = 0;
+  const telemetryEvents = 4;
   try {
-    final badges = jsonDecode(File(destBadges).readAsStringSync());
+    final badges = jsonDecode(File('$outDir/badges.json').readAsStringSync());
     if (badges is Map && badges['rows'] is List) {
       modules = (badges['rows'] as List).length;
     }
-    final index = jsonDecode(File(destIndex).readAsStringSync());
+    final index = jsonDecode(File('$outDir/search_index.json').readAsStringSync());
     if (index is Map && index['summary'] is Map) {
       final s = index['summary'] as Map;
       tokens = (s['unique_tokens'] is int) ? s['unique_tokens'] as int : 0;
       spots = (s['unique_spot_kinds'] is int)
           ? s['unique_spot_kinds'] as int
           : 0;
+    }
+    final enI18n = jsonDecode(File('$outDir/i18n/en.json').readAsStringSync());
+    if (enI18n is Map) {
+      i18nKeys = enI18n.length;
     }
   } catch (e) {
     stderr.writeln('error: parsing counts: $e');
@@ -113,8 +167,14 @@ Future<void> main(List<String> args) async {
   // Write manifest
   final manifest = <String, dynamic>{
     'generated_at': DateTime.now().millisecondsSinceEpoch ~/ 1000,
-    'files': ['badges.json', 'search_index.json', 'see_also.json'],
-    'counts': {'modules': modules, 'tokens': tokens, 'spot_kinds': spots},
+    'files': filesList,
+    'counts': {
+      'modules': modules,
+      'tokens': tokens,
+      'spot_kinds': spots,
+      'i18n_keys': i18nKeys,
+      'telemetry_events': telemetryEvents,
+    },
   };
   try {
     File('$outDir/manifest.json').writeAsStringSync(jsonEncode(manifest));
@@ -126,7 +186,9 @@ Future<void> main(List<String> args) async {
 
   if (!quiet) {
     stdout.writeln(
-      'UIASSETS out=$outDir files=3 modules=$modules tokens=$tokens spot_kinds=$spots',
+      'UIASSETS out=$outDir files=' +
+          manifest['files'].length.toString() +
+          ' modules=$modules tokens=$tokens spot_kinds=$spots',
     );
   }
 }
