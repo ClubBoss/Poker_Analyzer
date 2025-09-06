@@ -116,12 +116,13 @@ jobs:
             build/ui_assets
             build/demos_steps.json
 
-      - name: Snapshots (collect)
-        run: make snapshots || true
+      - name: Collect snapshots
+        if: always()
+        run: make snapshots
 
       - name: Upload snapshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: snapshots
-          path: ci/snapshots
+          path: ci/snapshots/**
