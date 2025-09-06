@@ -125,5 +125,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: snapshots
-          path: |
-            ci/snapshots/**
+          path: ci/snapshots/**
