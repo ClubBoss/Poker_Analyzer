@@ -55,7 +55,7 @@ List<String> _loadIds() {
     throw const FormatException('missing curriculum_ids.dart');
   final txt = _ascii(f.readAsStringSync());
 
-  List<RegExp> patterns = [
+  final List<RegExp> patterns = [
     RegExp(
       r'const\s+List<String>\s+curriculumIds\s*=\s*\[(.*?)\];',
       dotAll: true,

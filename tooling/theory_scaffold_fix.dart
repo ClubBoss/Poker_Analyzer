@@ -21,7 +21,7 @@ void main(List<String> args) {
   var quiet = false;
 
   // Accept both en-dash and double-dash forms just in case.
-  List<String> a2 = args
+  final List<String> a2 = args
       .map((a) => a.replaceAll('–', '--'))
       .toList(growable: false); // normalize en-dash to "--"
 
