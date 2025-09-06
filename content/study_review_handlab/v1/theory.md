@@ -48,8 +48,3 @@ Contrast
 math_solver_basics teaches reading a baseline; solver_node_locking_basics teaches running locks. This module unifies both into a weekly workflow that outputs drills and KPI targets while preserving the same token set and size families.
 
 See also
-- exploit_advanced (score 31) -> ../../exploit_advanced/v1/theory.md
-- icm_final_table_hu (score 31) -> ../../icm_final_table_hu/v1/theory.md
-- live_etiquette_and_procedures (score 31) -> ../../live_etiquette_and_procedures/v1/theory.md
-- live_full_ring_adjustments (score 31) -> ../../live_full_ring_adjustments/v1/theory.md
-- live_session_log_and_review (score 31) -> ../../live_session_log_and_review/v1/theory.md

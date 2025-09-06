@@ -54,8 +54,3 @@ Live_etiquette_and_procedures covers broader room conduct; live_tells_and_dynami
 ![Texture -> 33/50/75 family with live safeguards](images/family_picker_live.svg)
 
 See also
-- cash_short_handed (score 31) -> ../../cash_short_handed/v1/theory.md
-- donk_bets_and_leads (score 31) -> ../../donk_bets_and_leads/v1/theory.md
-- hand_review_and_annotation_standards (score 31) -> ../../hand_review_and_annotation_standards/v1/theory.md
-- icm_final_table_hu (score 31) -> ../../icm_final_table_hu/v1/theory.md
-- icm_mid_ladder_decisions (score 31) -> ../../icm_mid_ladder_decisions/v1/theory.md

@@ -52,8 +52,3 @@ Contrast
 spr_basics introduced families by texture and simple SPR nudges. This module goes deeper: ladder‑to‑plan mapping, blocker‑gated upgrades, and turn sizing that pre‑plans river outcomes - all inside the same tokens and 33/50/75 families.
 
 See also
-- icm_final_table_hu (score 33) -> ../../icm_final_table_hu/v1/theory.md
-- live_session_log_and_review (score 33) -> ../../live_session_log_and_review/v1/theory.md
-- online_economics_rakeback_promos (score 33) -> ../../online_economics_rakeback_promos/v1/theory.md
-- online_hudless_strategy_and_note_coding (score 33) -> ../../online_hudless_strategy_and_note_coding/v1/theory.md
-- online_tells_and_dynamics (score 33) -> ../../online_tells_and_dynamics/v1/theory.md

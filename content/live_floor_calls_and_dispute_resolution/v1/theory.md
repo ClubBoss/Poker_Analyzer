@@ -53,4 +53,3 @@ See also
 - hand_review_and_annotation_standards (score 29) -> ../../hand_review_and_annotation_standards/v1/theory.md
 - icm_final_table_hu (score 29) -> ../../icm_final_table_hu/v1/theory.md
 - live_session_log_and_review (score 29) -> ../../live_session_log_and_review/v1/theory.md
-- mtt_icm_basics (score 29) -> ../../mtt_icm_basics/v1/theory.md

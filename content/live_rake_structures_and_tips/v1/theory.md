@@ -58,8 +58,3 @@ Contrast
 online_economics_rakeback_promos targets site incentives; rake_and_ante_economics covers general economics. This module is live-room rake/time/tips specific. Sizes stay 33/50/75 and ladders 9/12/21/24; only frequencies move.
 
 See also
-- exploit_advanced (score 29) -> ../../exploit_advanced/v1/theory.md
-- hand_review_and_annotation_standards (score 29) -> ../../hand_review_and_annotation_standards/v1/theory.md
-- icm_final_table_hu (score 29) -> ../../icm_final_table_hu/v1/theory.md
-- live_etiquette_and_procedures (score 29) -> ../../live_etiquette_and_procedures/v1/theory.md
-- live_full_ring_adjustments (score 29) -> ../../live_full_ring_adjustments/v1/theory.md

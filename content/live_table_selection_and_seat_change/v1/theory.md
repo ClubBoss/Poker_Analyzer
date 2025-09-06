@@ -59,8 +59,3 @@ Live_tells_and_dynamics focuses on reads; live_etiquette_and_procedures on proce
 ![Stay / Seat change / Table change -> token shifts](images/move_decision_flow.svg)
 
 See also
-- icm_final_table_hu (score 31) -> ../../icm_final_table_hu/v1/theory.md
-- live_session_log_and_review (score 31) -> ../../live_session_log_and_review/v1/theory.md
-- online_economics_rakeback_promos (score 31) -> ../../online_economics_rakeback_promos/v1/theory.md
-- online_hudless_strategy_and_note_coding (score 31) -> ../../online_hudless_strategy_and_note_coding/v1/theory.md
-- online_tells_and_dynamics (score 31) -> ../../online_tells_and_dynamics/v1/theory.md

@@ -1,4 +1,4 @@
-.PHONY: allowlists allowlists-sync allowlists-check images gap beta beta-zip check fix-terms beta-fix beta-fix-continue pre-release research-check ui-assets discover ascii-check gap-details ascii-fix demos-steps demo-token-tag demos-steps-fix theory-fix
+.PHONY: allowlists allowlists-sync allowlists-check images gap beta beta-zip check fix-terms beta-fix beta-fix-continue pre-release research-check ui-assets discover ascii-check gap-details ascii-fix demos-steps demo-token-tag demos-steps-fix theory-fix wordcount-balance
 allowlists:
 	@dart run tooling/derive_allowlists.dart --write --clear
 allowlists-sync:
@@ -111,6 +111,10 @@ demos-steps-fix:
 		dart run tooling/demos_steps_lint.dart --json build/demos_steps.json --quiet && \
 		dart run tooling/content_gap_report.dart --json build/gaps.json && \
 		dart run tooling/explain_gap_details.dart --json build/gap_details.json
+
+wordcount-balance:
+	@dart run tooling/theory_wordcount_balance.dart --fix
+	@dart run tooling/content_gap_report.dart --json build/gaps.json
 
 # Scaffold missing theory.md headers and first image, then refresh image pipeline and gaps
 theory-fix:

@@ -52,8 +52,3 @@ This module adjusts frequencies using bankroll, variance, and load. It does not 
 ![Table caps, stop-loss/win, tilt flags](images/session_guardrails.svg)
 
 See also
-- exploit_advanced (score 29) -> ../../exploit_advanced/v1/theory.md
-- icm_final_table_hu (score 29) -> ../../icm_final_table_hu/v1/theory.md
-- live_etiquette_and_procedures (score 29) -> ../../live_etiquette_and_procedures/v1/theory.md
-- live_full_ring_adjustments (score 29) -> ../../live_full_ring_adjustments/v1/theory.md
-- live_session_log_and_review (score 29) -> ../../live_session_log_and_review/v1/theory.md

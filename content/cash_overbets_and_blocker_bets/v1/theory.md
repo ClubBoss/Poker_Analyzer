@@ -43,8 +43,3 @@ Unlike baseline small_cbet_33 trees that realize equity cheaply, this module shi
 _This module uses the fixed families and sizes: size_down_dry, size_up_wet; small_cbet_33, half_pot_50, big_bet_75._
 
 See also
-- cash_3bet_oop_playbook (score 19) -> ../../cash_3bet_oop_playbook/v1/theory.md
-- cash_blind_defense_vs_btn_co (score 19) -> ../../cash_blind_defense_vs_btn_co/v1/theory.md
-- cash_turn_river_barreling (score 19) -> ../../cash_turn_river_barreling/v1/theory.md
-- donk_bets_and_leads (score 19) -> ../../donk_bets_and_leads/v1/theory.md
-- hu_postflop_play (score 19) -> ../../hu_postflop_play/v1/theory.md
