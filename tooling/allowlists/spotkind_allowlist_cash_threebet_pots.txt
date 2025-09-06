@@ -1,1 +1,1 @@
-none
+l2_core_rules_check

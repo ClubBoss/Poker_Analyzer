@@ -1,1 +1,6 @@
-none
+l2_core_actions
+l2_core_allin_reopen
+l2_core_min_raise
+l2_core_out_of_turn
+l2_core_showdown
+l2_core_string_bet

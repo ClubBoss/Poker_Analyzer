@@ -1,1 +1,11 @@
-none
+l2_core_allin_reopen
+l2_core_min_raise
+l2_core_out_of_turn
+l2_core_string_bet
+l2_turn_blockers
+l2_turn_check_back
+l2_turn_defense
+l2_turn_delay_cbet
+l2_turn_equity_shift
+l2_turn_pot_geometry
+l2_turn_sizing

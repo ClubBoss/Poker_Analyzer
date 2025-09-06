@@ -1,1 +1,13 @@
-none
+l2_core_allin_reopen
+l2_core_min_raise
+l2_flop_cbet_big
+l2_flop_cbet_small
+l2_flop_check_back
+l2_flop_concept
+l2_flop_defense
+l2_flop_delay_cbet
+l2_flop_donk
+l2_flop_float
+l2_flop_probe
+l2_flop_raise
+l2_flop_vs_donk
