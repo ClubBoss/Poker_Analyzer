@@ -110,6 +110,10 @@ jobs:
               body: msg
             });
 
+      - name: Write job summary
+        if: always()
+        run: dart run tooling/ci_summary.dart >> $GITHUB_STEP_SUMMARY
+
       - name: Export UI assets (recompute)
         run: dart run tooling/export_ui_assets.dart --out build/ui_assets --recompute
 
