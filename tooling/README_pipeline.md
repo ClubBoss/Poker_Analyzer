@@ -10,6 +10,11 @@ Usage
 - Optional local zip of content/ after beta:
   - `make beta-zip`
 
+Snapshots
+- Collect current content snapshots for inspection:
+  - `make snapshots`
+- CI publishes any files from ci/snapshots/ as the `snapshots` artifact.
+
 Module‑Scoped Examples
 - Generate specs for a single module:
   - `dart run tooling/gen_image_specs.dart core_board_textures`
