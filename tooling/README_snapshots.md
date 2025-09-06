@@ -18,3 +18,4 @@ Local Usage
 
 CI
 - Content CI uploads these files as the snapshots artifact.
+- CI publishes the snapshots artifact using path pattern ci/snapshots/**.
