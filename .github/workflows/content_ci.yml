@@ -23,6 +23,16 @@ jobs:
             echo "Refuse to run: flutter test found"; exit 1
           fi
 
+      - name: Assert no tracked build/
+        run: |
+          set -e
+          if [ -n "$(git ls-files build 2>/dev/null)" ]; then
+            echo "Refuse to run: tracked files under build/";
+            git ls-files build | sed 's/^/ - /';
+            exit 1;
+          fi
+          echo "clean"
+
       - name: Setup Dart
         uses: dart-lang/setup-dart@v1
 
