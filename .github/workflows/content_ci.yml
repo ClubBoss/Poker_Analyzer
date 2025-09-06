@@ -26,6 +26,9 @@ jobs:
       - name: Setup Dart
         uses: dart-lang/setup-dart@v1
 
+      - name: Validate workflow YAML
+        run: dart run tooling/ci_yaml_guard.dart
+
       - name: Dart version
         run: dart --version
 
