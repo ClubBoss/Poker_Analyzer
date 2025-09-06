@@ -203,7 +203,7 @@ class _TrainingSessionScreenState extends State<TrainingSessionScreen> {
     String moduleId = 'training_session';
     try {
       final service = context.read<TrainingSessionService>();
-      moduleId = service.template?.id?.toString().isNotEmpty == true
+      moduleId = service.template?.id.toString().isNotEmpty == true
           ? service.template!.id
           : (widget.pack?.id ?? 'training_session');
     } catch (_) {
