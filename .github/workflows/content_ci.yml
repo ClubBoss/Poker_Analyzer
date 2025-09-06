@@ -160,3 +160,6 @@ jobs:
         with:
           name: snapshots
           path: ci/snapshots/**
+      - name: Write job summary (final)
+        if: always()
+        run: dart run tooling/ci_summary.dart >> $GITHUB_STEP_SUMMARY
